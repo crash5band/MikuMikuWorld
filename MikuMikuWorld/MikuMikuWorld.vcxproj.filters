@@ -1,0 +1,292 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="ImGui\imgui.cpp">
+      <Filter>Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_demo.cpp">
+      <Filter>Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_draw.cpp">
+      <Filter>Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_impl_glfw.cpp">
+      <Filter>Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_impl_opengl3.cpp">
+      <Filter>Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_stdlib.cpp">
+      <Filter>Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_tables.cpp">
+      <Filter>Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_widgets.cpp">
+      <Filter>Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="File.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Score.cpp">
+      <Filter>Score</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Depends\glad\src\glad.c" />
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="OpenGlLoader.cpp" />
+    <ClCompile Include="Utilities.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="Math.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="InputListener.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Note.cpp">
+      <Filter>Score\Notes</Filter>
+    </ClCompile>
+    <ClCompile Include="Tempo.cpp">
+      <Filter>Score</Filter>
+    </ClCompile>
+    <ClCompile Include="TimelineNotes.cpp">
+      <Filter>Components\ScoreEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="ScoreEditor.cpp">
+      <Filter>Components\ScoreEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="Editing.cpp">
+      <Filter>Components\ScoreEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="HistoryManager.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\AudioManager.cpp">
+      <Filter>Components\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="EditorWindows.cpp">
+      <Filter>Components\ScoreEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\AudioEvent.cpp">
+      <Filter>Components\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp" />
+    <ClCompile Include="Stopwatch.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="FileDialog.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="StringOperations.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="SUS.cpp">
+      <Filter>Score\SUS</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Camera.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Renderer.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Shader.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Sprite.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Texture.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\VertexBuffer.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Framebuffer.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\stb_vorbis.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="ImGui\imconfig.h">
+      <Filter>Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui.h">
+      <Filter>Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_impl_glfw.h">
+      <Filter>Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_impl_opengl3.h">
+      <Filter>Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_internal.h">
+      <Filter>Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_stdlib.h">
+      <Filter>Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_rectpack.h">
+      <Filter>Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_textedit.h">
+      <Filter>Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_truetype.h">
+      <Filter>Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Note.h">
+      <Filter>Score\Notes</Filter>
+    </ClInclude>
+    <ClInclude Include="NoteTypes.h">
+      <Filter>Score\Notes</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="File.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Score.h">
+      <Filter>Score</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Math.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="IconsFontAwesome5.h" />
+    <ClInclude Include="Tempo.h">
+      <Filter>Score</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="InputListener.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Colors.h" />
+    <ClInclude Include="ScoreEditor.h">
+      <Filter>Components\ScoreEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="HistoryManager.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\miniaudio.h">
+      <Filter>Components\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\AudioManager.h">
+      <Filter>Components\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="TimelineMode.h">
+      <Filter>Components\ScoreEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\AudioEvent.h">
+      <Filter>Components\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h" />
+    <ClInclude Include="Stopwatch.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="FileDialog.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="ZIndex.h" />
+    <ClInclude Include="StringOperations.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="ChannelProvider.h">
+      <Filter>Score\SUS</Filter>
+    </ClInclude>
+    <ClInclude Include="SUS.h">
+      <Filter>Score\SUS</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Camera.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Quad.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Renderer.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Shader.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Sprite.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Texture.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\VertexBuffer.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Vertex.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Framebuffer.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\AnchorType.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="EditorScoreData.h">
+      <Filter>Components\ScoreEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Imgui">
+      <UniqueIdentifier>{5f869be1-f56e-434b-96dc-24a484a6636e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components">
+      <UniqueIdentifier>{26295dea-e1bf-464f-ab4c-a34372ae0316}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Misc">
+      <UniqueIdentifier>{0c4ff5d0-d352-4a81-91ac-37102b327cbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IO">
+      <UniqueIdentifier>{634e33b6-413f-44c9-a40c-26f465607381}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Score">
+      <UniqueIdentifier>{5e0e82e2-b78e-497f-96ad-ac8d7b8baefc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Score\Notes">
+      <UniqueIdentifier>{e98c2efa-9545-4859-8f61-46e311d17416}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{66454ca1-1915-4c0b-9b62-d5dd815f024e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering">
+      <UniqueIdentifier>{84bd1600-f676-4951-9eac-806c31068b2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Audio">
+      <UniqueIdentifier>{5c331f6f-7245-4f01-b6f5-b8e331e5d12d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\ScoreEditor">
+      <UniqueIdentifier>{9b7e5692-fc35-4f4c-9b06-172b56eed59d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Score\SUS">
+      <UniqueIdentifier>{14ac77c3-608e-4655-a23c-8d69317ed7e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{dbb50131-1f77-4fcf-a93f-8c0cfc9780cf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MikuMikuWorld.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="mmw_icon.ico">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
