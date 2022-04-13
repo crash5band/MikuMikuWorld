@@ -55,7 +55,7 @@ namespace MikuMikuWorld
 		workingData.title = score.metadata.title;
 		workingData.designer = score.metadata.author;
 		workingData.artist = score.metadata.artist;
-		musicOffset = score.metadata.offset;
+		musicOffset = score.metadata.offset * 1000.0f;
 		audio.setBGMOffset(time, musicOffset);
 	}
 
@@ -66,7 +66,7 @@ namespace MikuMikuWorld
 		score.metadata.artist = workingData.artist;
 		score.metadata.difficulty = workingData.difficulty;
 		score.metadata.musicFile = File::getFilenameWithoutExtension(musicFile);
-		score.metadata.offset = musicOffset;
+		score.metadata.offset = musicOffset / 1000.0f;
 	}
 
 	void ScoreEditor::open()

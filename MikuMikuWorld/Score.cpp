@@ -42,7 +42,7 @@ namespace MikuMikuWorld
 	{
 		SUS sus = loadSUS(filename);
 
-		ScoreMetadata metadata{ filename, sus.metadata.data["title"], sus.metadata.data["artist"], sus.metadata.data["author"] };
+		ScoreMetadata metadata{ filename, sus.metadata.data["title"], sus.metadata.data["artist"], sus.metadata.data["designer"] };
 		metadata.offset = sus.metadata.waveOffset;
 
 		if (sus.metadata.data.find("difficulty") != sus.metadata.data.end())
