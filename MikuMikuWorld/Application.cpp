@@ -12,6 +12,9 @@
 #include <fstream>
 #include <filesystem>
 
+#define NOMINMAX
+#include <Windows.h>
+
 using namespace nlohmann;
 
 namespace MikuMikuWorld
@@ -53,7 +56,41 @@ namespace MikuMikuWorld
 
 	std::string Application::getVersion()
 	{
-		return "3.9.3.9";
+		char buffer[256];
+		char filename[1024];
+		strcpy_s(filename, std::string(appDir + "MikuMikuWorld.exe").c_str());
+
+		DWORD  verHandle = 0;
+		UINT   size = 0;
+		LPBYTE lpBuffer = NULL;
+		DWORD  verSize = GetFileVersionInfoSize(filename, &verHandle);
+
+		int major = 0, minor = 0, build = 0, rev = 0;
+		if (verSize != NULL)
+		{
+			LPSTR verData = new char[verSize];
+
+			if (GetFileVersionInfo(filename, verHandle, verSize, verData))
+			{
+				if (VerQueryValue(verData, "\\", (VOID FAR * FAR*) & lpBuffer, &size))
+				{
+					if (size)
+					{
+						VS_FIXEDFILEINFO* verInfo = (VS_FIXEDFILEINFO*)lpBuffer;
+						if (verInfo->dwSignature == 0xfeef04bd)
+						{
+							major = (verInfo->dwFileVersionMS >> 16) & 0xffff;
+							minor = (verInfo->dwFileVersionMS >> 0) & 0xffff;
+							rev = (verInfo->dwFileVersionLS >> 16) & 0xffff;
+						}
+					}
+				}
+			}
+			delete[] verData;
+		}
+
+		sprintf(buffer, "%d.%d.%d", major, minor, rev);
+		return std::string{ buffer };
 	}
 
 	void Application::readSettings(const std::string& filename)

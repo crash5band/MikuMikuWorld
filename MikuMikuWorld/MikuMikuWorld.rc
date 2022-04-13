@@ -54,6 +54,45 @@ END
 // remains consistent on all systems.
 IDI_ICON1               ICON                    "mmw_icon.ico"
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "200004b0"
+        BEGIN
+            VALUE "CompanyName", "TODO: <Company name>"
+            VALUE "FileDescription", "Project Sekai Score Editor"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "MikuMikuWorld.exe"
+            VALUE "LegalCopyright", "Copyright (C) 2022"
+            VALUE "OriginalFilename", "MikuMikuWorld.exe"
+            VALUE "ProductName", "Miku Miku World"
+            VALUE "ProductVersion", "1.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x2000, 1200
+    END
+END
+
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
