@@ -123,7 +123,19 @@ namespace MikuMikuWorld
 		float time = (getEngineAbsTime() + bgmOffset);
 		time -= currTime;
 
-		ma_sound_set_start_time_in_milliseconds(&bgm, std::max(0.0f, time * 1000));
+		ma_uint64 length = 0;
+		ma_result lengthResult = ma_sound_get_length_in_pcm_frames(&bgm, &length);
+		if (lengthResult != MA_SUCCESS)
+		{
+			printf("-ERROR- AudioManager::playBGM(): Failed to get length in pcm frames");
+			return;
+		}
+
+		if (time * engine.sampleRate * -1 > length)
+			return;
+
+		if (time > 0.0f)
+			ma_sound_set_start_time_in_milliseconds(&bgm, time * 1000);
 		ma_sound_start(&bgm);
 	}
 
@@ -170,8 +182,16 @@ namespace MikuMikuWorld
 
 	void AudioManager::seekBGM(float time)
 	{
-		float pos = time - bgmOffset;
-		ma_sound_seek_to_pcm_frame(&bgm, pos * engine.sampleRate);
+		ma_uint64 seekFrame = (time - bgmOffset) * engine.sampleRate;
+		ma_sound_seek_to_pcm_frame(&bgm, seekFrame);
+
+		ma_uint64 length = 0;
+		ma_result lengthResult = ma_sound_get_length_in_pcm_frames(&bgm, &length);
+		if (lengthResult != MA_SUCCESS)
+			return;
+
+		if (ma_sound_at_end(&bgm) && seekFrame < length)
+			bgm.atEnd = false;
 	}
 
 	void AudioManager::setMasterVolume(float volume)
@@ -245,5 +265,10 @@ namespace MikuMikuWorld
 	bool AudioManager::isMusicInitialized()
 	{
 		return musicInitialized;
+	}
+
+	bool AudioManager::isMusicAtEnd()
+	{
+		return ma_sound_at_end(&bgm);
 	}
 }

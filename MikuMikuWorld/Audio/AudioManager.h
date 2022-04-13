@@ -48,5 +48,6 @@ namespace MikuMikuWorld
 		float getEngineAbsTime();
 		float getSongEndTime();
 		bool isMusicInitialized();
+		bool isMusicAtEnd();
 	};
 }
