@@ -198,13 +198,13 @@ namespace MikuMikuWorld
 				flipSelected();
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(ICON_FA_SLASH "\tLinear", "Ctrl + L", false, hasSelectionEase))
+			if (ImGui::MenuItem(ICON_FA_SLASH "\tLinear", NULL, false, hasSelectionEase))
 				setEase(EaseType::None);
 
-			if (ImGui::MenuItem(ICON_FA_BEZIER_CURVE "\tEase In", "Ctrl + I", false, hasSelectionEase))
+			if (ImGui::MenuItem(ICON_FA_BEZIER_CURVE "\tEase In", NULL, false, hasSelectionEase))
 				setEase(EaseType::EaseIn);
 
-			if (ImGui::MenuItem(ICON_FA_BEZIER_CURVE "\tEase Out", "Ctrl + O", false, hasSelectionEase))
+			if (ImGui::MenuItem(ICON_FA_BEZIER_CURVE "\tEase Out", NULL, false, hasSelectionEase))
 				setEase(EaseType::EaseOut);
 
 			ImGui::Separator();
