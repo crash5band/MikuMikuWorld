@@ -129,7 +129,7 @@
       <AdditionalLibraryDirectories>../Depends/GLFW/$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)res\" "$(OutDir)Res\" /E /Y</Command>
+      <Command>xcopy "$(ProjectDir)res\" "$(OutDir)res\" /E /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -154,7 +154,7 @@
       <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)res\" "$(OutDir)Res\" /E /Y</Command>
+      <Command>xcopy "$(ProjectDir)res\" "$(OutDir)res\" /E /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
