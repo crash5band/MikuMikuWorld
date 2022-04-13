@@ -43,10 +43,10 @@ namespace MikuMikuWorld
 	void propertyLabel(const char* label);
 	void addStringProperty(const char* label, std::string& val);
 	void addIntProperty(const char* label, int& val, int lowerBound = 0, int higherBound = 0);
-	void addFloatProperty(const char* label, float& val);
+	void addFloatProperty(const char* label, float& val, const char* format);
 	void addReadOnlyProperty(const char* label, std::string val);
-	void addSliderProperty(const char* label, int& val, int min, int max);
-	void addSliderProperty(const char* label, float& val, float min, float max);
+	void addSliderProperty(const char* label, int& val, int min, int max, const char* format);
+	void addSliderProperty(const char* label, float& val, float min, float max, const char* format);
 	void addPercentSliderProperty(const char* label, float &val);
 	bool addFractionProperty(const char* label, int& numerator, int& denominator);
 	bool addFileProperty(const char* label, std::string val);

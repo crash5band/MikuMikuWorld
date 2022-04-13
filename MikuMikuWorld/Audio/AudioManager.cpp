@@ -150,9 +150,9 @@ namespace MikuMikuWorld
 		ma_sound_seek_to_pcm_frame(&bgm, 0);
 	}
 
-	void AudioManager::setBGMOffset(float time, float sec)
+	void AudioManager::setBGMOffset(float time, float msec)
 	{
-		bgmOffset = sec;
+		bgmOffset = msec / 1000.0f;
 		float pos = time - bgmOffset;
 		ma_sound_seek_to_pcm_frame(&bgm, pos * engine.sampleRate);
 

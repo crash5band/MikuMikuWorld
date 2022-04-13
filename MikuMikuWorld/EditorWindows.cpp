@@ -59,13 +59,11 @@ namespace MikuMikuWorld
 
 		static int m = 0;
 		ImGui::Text("Goto Measure");
-		float gotoBtnSz = ImGui::CalcTextSize("Go to").x + ImGui::GetStyle().FramePadding.x;
-		
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - gotoBtnSz - ImGui::GetStyle().ItemSpacing.x);
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - btnSmall.x - ImGui::GetStyle().ItemSpacing.x);
 		ImGui::InputInt("##goto_measure", &m, 0, 0);
 		
 		ImGui::SameLine();
-		if (ImGui::Button("Go to", ImVec2(gotoBtnSz, btnSmall.y)))
+		if (ImGui::Button(ICON_FA_ARROW_RIGHT, btnSmall))
 			gotoMeasure(m);
 
 		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
@@ -255,7 +253,7 @@ namespace MikuMikuWorld
 				}
 
 				float offset = musicOffset;
-				addFloatProperty("Music Offset", offset);
+				addFloatProperty("Music Offset", offset, "%.03fms");
 				if (offset != musicOffset)
 				{
 					musicOffset = offset;

@@ -230,8 +230,8 @@ namespace MikuMikuWorld
 				int notesHeight = editor->getNotesHeight();
 
 				beginPropertyColumns();
-				addSliderProperty("Lane Width", laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH);
-				addSliderProperty("Notes Height", notesHeight, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT);
+				addSliderProperty("Lane Width", laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
+				addSliderProperty("Notes Height", notesHeight, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT, "%d");
 				endPropertyColumns();
 
 				if (laneWidth != editor->getLaneWidth())

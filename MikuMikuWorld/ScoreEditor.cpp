@@ -56,6 +56,7 @@ namespace MikuMikuWorld
 		workingData.designer = score.metadata.author;
 		workingData.artist = score.metadata.artist;
 		musicOffset = score.metadata.offset;
+		audio.setBGMOffset(time, musicOffset);
 	}
 
 	void ScoreEditor::writeScoreMetadata()
@@ -500,7 +501,7 @@ namespace MikuMikuWorld
 
 				beginPropertyColumns();
 				addReadOnlyProperty("Tick", std::to_string(tempo.tick));
-				addFloatProperty("BPM", editBPM);
+				addFloatProperty("BPM", editBPM, "%g");
 				endPropertyColumns();
 
 				if (ImGui::IsItemDeactivatedAfterEdit())

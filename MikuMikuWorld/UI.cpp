@@ -92,14 +92,14 @@ namespace MikuMikuWorld
 		ImGui::NextColumn();
 	}
 
-	void addFloatProperty(const char* label, float& val)
+	void addFloatProperty(const char* label, float& val, const char* format)
 	{
 		propertyLabel(label);
 		
 		std::string id("##");
 		id.append(label);
 
-		ImGui::InputFloat(id.c_str(), &val, 1.0f, 10.0f, "%g");
+		ImGui::InputFloat(id.c_str(), &val, 0.01f, 0.1f, format);
 		ImGui::NextColumn();
 	}
 
@@ -110,25 +110,25 @@ namespace MikuMikuWorld
 		ImGui::NextColumn();
 	}
 
-	void addSliderProperty(const char* label, int& val, int min, int max)
+	void addSliderProperty(const char* label, int& val, int min, int max, const char* format)
 	{
 		propertyLabel(label);
 
 		std::string id("##");
 		id.append(label);
 
-		ImGui::SliderInt(id.c_str(), &val, min, max, "%d", ImGuiSliderFlags_AlwaysClamp);
+		ImGui::SliderInt(id.c_str(), &val, min, max, format, ImGuiSliderFlags_AlwaysClamp);
 		ImGui::NextColumn();
 	}
 
-	void addSliderProperty(const char* label, float& val, float min, float max)
+	void addSliderProperty(const char* label, float& val, float min, float max, const char* format)
 	{
 		propertyLabel(label);
 
 		std::string id("##");
 		id.append(label);
 
-		ImGui::SliderFloat(id.c_str(), &val, min, max, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+		ImGui::SliderFloat(id.c_str(), &val, min, max, format, ImGuiSliderFlags_AlwaysClamp);
 		ImGui::NextColumn();
 	}
 
