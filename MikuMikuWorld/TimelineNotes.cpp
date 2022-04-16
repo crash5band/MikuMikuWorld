@@ -236,6 +236,9 @@ namespace MikuMikuWorld
 	{
 		const Note& start = notes.at(note.start.ID);
 		const Note& end = notes.at(note.end);
+		Color holdTint = tint;
+		holdTint.a += 0.05f;
+
 		if (note.steps.size())
 		{
 			int s1 = -1;
@@ -251,14 +254,14 @@ namespace MikuMikuWorld
 				const Note& n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
 				const Note& n2 = s2 == -1 ? end : notes.at(note.steps[s2].ID);
 				const EaseType ease = s1 == -1 ? note.start.ease : note.steps[s1].ease;
-				drawHoldCurve(n1, n2, ease, renderer, tint, offsetTicks, offsetLane);
+				drawHoldCurve(n1, n2, ease, renderer, holdTint, offsetTicks, offsetLane);
 
 				s1 = s2;
 			}
 
 			const Note& n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
 			const EaseType ease = s1 == -1 ? note.start.ease : note.steps[s1].ease;
-			drawHoldCurve(n1, end, ease, renderer, tint, offsetTicks, offsetLane);
+			drawHoldCurve(n1, end, ease, renderer, holdTint, offsetTicks, offsetLane);
 
 			s1 = -1;
 			s2 = 1;
@@ -321,7 +324,7 @@ namespace MikuMikuWorld
 		}
 		else
 		{
-			drawHoldCurve(start, end, note.start.ease, renderer, tint, offsetTicks, offsetLane);
+			drawHoldCurve(start, end, note.start.ease, renderer, holdTint, offsetTicks, offsetLane);
 		}
 
 		if (isNoteInCanvas(start.tick + offsetTicks)) drawNote(start, renderer, tint, offsetTicks, offsetLane);

@@ -73,12 +73,16 @@ namespace MikuMikuWorld
 		uvCoords[3] = DirectX::XMVECTOR{ left, top, 0.0f, 0.0f };
 	}
 
-	DirectX::XMMATRIX Renderer::getModelMatrix(const Vector2& pos, const float rot, const Vector2& sz)
+	DirectX::XMMATRIX Renderer::getModelMatrix(const Vector3& pos, const Vector3& rot, const Vector3& scale)
 	{
+		float rPitch = DirectX::XMConvertToRadians(rot.x);
+		float rYaw = DirectX::XMConvertToRadians(rot.y);
+		float rRoll = DirectX::XMConvertToRadians(rot.z);
+
 		DirectX::XMMATRIX model = DirectX::XMMatrixIdentity();
-		model *= DirectX::XMMatrixScaling(sz.x, sz.y, 1.0f);
-		model *= DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(rot));
-		model *= DirectX::XMMatrixTranslation(pos.x, pos.y, 0.0f);
+		model *= DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
+		model *= DirectX::XMMatrixRotationRollPitchYaw(rPitch, rYaw, rRoll);
+		model *= DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 
 		return model;
 	}
@@ -87,13 +91,16 @@ namespace MikuMikuWorld
 		const Texture& tex, int spr, const Color& tint, int z)
 	{
 		const Sprite& s = tex.sprites[spr];
-		drawSprite(pos, rot, sz, anchor, tex, s.getX(), s.getX() + s.getWidth(), s.getY(), s.getY() + s.getHeight(), z);
+		drawSprite(pos, rot, sz, anchor, tex, s.getX(), s.getX() + s.getWidth(), s.getY(), s.getY() + s.getHeight(), tint, z);
 	}
 
 	void Renderer::drawSprite(const Vector2& pos, const float rot, const Vector2& sz, const AnchorType anchor,
 		const Texture& tex, float x1, float x2, float y1, float y2, const Color& tint, int z)
 	{
-		DirectX::XMMATRIX model = getModelMatrix(pos, rot, sz);
+		Vector3 pos3{ pos.x, pos.y, 0.0f };
+		Vector3 rot3{ 0, 0, rot };
+		Vector3 scale{ sz.x, sz.y, 1.0f };
+		DirectX::XMMATRIX model = getModelMatrix(pos3, rot3, scale);
 		DirectX::XMVECTOR color{ tint.r, tint.g, tint.b, tint.a };
 		setUVCoords(tex, x1, x2, y1, y2);
 		setAnchor(anchor);
@@ -112,6 +119,43 @@ namespace MikuMikuWorld
 		DirectX::XMVECTOR color{ tint.r, tint.g, tint.b, tint.a };
 
 		pushQuad(vPos, uvCoords, DirectX::XMMatrixIdentity(), color, tex.getID(), z);
+	}
+
+	void Renderer::drawRectangle(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, const Texture& tex, float x1, float x2, float y1, float y2,
+		const Color& tint, int z)
+	{
+		setUVCoords(tex, x1, x2, y1, y2);
+
+		DirectX::XMMATRIX model = getModelMatrix(Vector3{}, Vector3{56.0f}, Vector3{1.0f, 1.0f, 1.0f});
+		vPos[0] = DirectX::XMVECTOR{ p4.x, p4.y, p4.z, 1.0f };
+		vPos[1] = DirectX::XMVECTOR{ p2.x, p2.y, p2.z, 1.0f };
+		vPos[2] = DirectX::XMVECTOR{ p1.x, p1.y, p1.z, 1.0f };
+		vPos[3] = DirectX::XMVECTOR{ p3.x, p3.y, p3.z, 1.0f };
+		DirectX::XMVECTOR color{ tint.r, tint.g, tint.b, tint.a };
+
+		pushQuad(vPos, uvCoords, model, color, tex.getID(), z);
+	}
+
+	void Renderer::drawQuad(Vector3 pos, Vector3 rot, Vector3 scale, AnchorType anchor, const Texture& tex, int spr, int z)
+	{
+		const Sprite& s = tex.sprites[spr];
+		DirectX::XMMATRIX model = getModelMatrix(pos, rot, scale);
+		DirectX::XMVECTOR color{ 1.0f, 1.0f, 1.0f, 1.0f };
+		setUVCoords(tex, s.getX(), s.getX() + s.getWidth(), s.getY(), s.getY() + s.getHeight());
+		setAnchor(anchor);
+
+		pushQuad(vPos, uvCoords, model, color, tex.getID(), z);
+	}
+
+	void Renderer::drawQuad(Vector3 pos, Vector3 rot, Vector3 scale, AnchorType anchor, const Texture& tex,
+		float x1, float x2, float y1, float y2, Color tint, int z)
+	{
+		DirectX::XMMATRIX model = getModelMatrix(pos, rot, scale);
+		DirectX::XMVECTOR color{ tint.r, tint.g, tint.b, tint.a };
+		setUVCoords(tex, x1, x2, y1, y2);
+		setAnchor(anchor);
+
+		pushQuad(vPos, uvCoords, model, color, tex.getID(), z);
 	}
 
 	void Renderer::pushQuad(const std::array<DirectX::XMVECTOR, 4>& pos, const std::array<DirectX::XMVECTOR, 4>& uv,
@@ -166,6 +210,7 @@ namespace MikuMikuWorld
 			return;
 
 		std::sort(quads.begin(), quads.end());
+		glActiveTexture(GL_TEXTURE0);
 		bindTexture(quads[0].texture);
 
 		int vertexCount = 0;

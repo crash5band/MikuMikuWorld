@@ -51,4 +51,9 @@ namespace MikuMikuWorld
 	{
 		return isWithinRange(x, x1, x2) && isWithinRange(y, y1, y2);
 	}
+
+	float convertRange(float val, float originalStart, float originalEnd, float newStart, float newEnd)
+	{
+		return newStart + (val - originalStart) * (newEnd - newStart) / (originalEnd - originalStart);
+	}
 }

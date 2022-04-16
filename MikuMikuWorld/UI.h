@@ -10,6 +10,7 @@ namespace MikuMikuWorld
 	constexpr const char* timelineWindow = ICON_FA_MUSIC " Notes Timeline";
 	constexpr const char* detailsWindow = ICON_FA_ALIGN_LEFT " Score Details";
 	constexpr const char* debugWindow = ICON_FA_BUG " Debug";
+	constexpr const char* previewWindow = "[WIP] Preview";
 	constexpr const char* windowTitle = "MikuMikuWorld - ";
 	constexpr const char* windowTitleNew = "MikuMikuWorld - Untitiled";
 

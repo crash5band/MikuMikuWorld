@@ -401,6 +401,8 @@ namespace MikuMikuWorld
 		updateScoreDetails();
 		updateControls();
 		updateNoteSE();
+
+		simulator->update(time, score, renderer);
 		
 #ifdef _DEBUG
 		debugInfo();

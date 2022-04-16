@@ -492,13 +492,16 @@ namespace MikuMikuWorld
 		ImGui::DockBuilderSetNodeSize(dockspaceID, ImVec2(width, height - ImGui::GetFrameHeight()));
 
 		ImGuiID mainID = dockspaceID;
-		ImGuiID right, extra;
-		ImGui::DockBuilderSplitNode(mainID, ImGuiDir_Right, 0.22f, &right, &mainID);
-		ImGui::DockBuilderSplitNode(right, ImGuiDir_Down, 0.35f, &extra, &right);
+		ImGuiID right, btmRight, extra;
+		ImGui::DockBuilderSplitNode(mainID, ImGuiDir_Right, 0.5f, &right, &mainID);
+		ImGui::DockBuilderSplitNode(right, ImGuiDir_Down, 0.35f, &btmRight, &right);
+		ImGui::DockBuilderSplitNode(btmRight, ImGuiDir_Down, 0.35f, &extra, &btmRight);
 
 		ImGui::DockBuilderDockWindow(timelineWindow, mainID);
-		ImGui::DockBuilderDockWindow(detailsWindow, right);
+		ImGui::DockBuilderDockWindow(previewWindow, right);
+		ImGui::DockBuilderDockWindow(detailsWindow, btmRight);
 		ImGui::DockBuilderDockWindow(debugWindow, extra);
+		ImGui::DockBuilderDockWindow("Simulator Debug", extra);
 
 		ImGui::DockBuilderFinish(dockspaceID);
 	}
@@ -510,8 +513,11 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture("res/textures/tex_hold_path_crtcl.png");
 		ResourceManager::loadTexture("res/textures/tex_note_common_all.png");
 		ResourceManager::loadTexture("res/textures/default.png");
-		ResourceManager::loadTexture("res/textures/bg_sekai.png");
+		ResourceManager::loadTexture("res/textures/lane_base.png");
+		ResourceManager::loadTexture("res/textures/lane_line.png");
+		ResourceManager::loadTexture("res/textures/judgeLine.png");
 		ResourceManager::loadShader("res/shaders/basic2d");
+		ResourceManager::loadShader("res/shaders/default");
 
 		while (!glfwWindowShouldClose(window))
 		{

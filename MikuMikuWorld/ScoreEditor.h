@@ -12,6 +12,7 @@
 #include "HistoryManager.h"
 #include <unordered_set>
 #include "Audio/AudioManager.h"
+#include "ScoreSimulator.h"
 
 #undef min
 #undef max
@@ -33,6 +34,7 @@ namespace MikuMikuWorld
 		Framebuffer* framebuffer;
 		AudioManager audio;
 		HistoryManager history;
+		ScoreSimulator* simulator;
 
 		Score prevUpdateScore;
 		Score score;

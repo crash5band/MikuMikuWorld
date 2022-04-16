@@ -26,6 +26,7 @@ namespace MikuMikuWorld
 		showRenderStats = true;
 		defaultNoteWidth = 3;
 		framebuffer = new Framebuffer(1080, 1920);
+		simulator = new ScoreSimulator();
 
 		time			= 0;
 		songStart		= 0;

@@ -43,9 +43,16 @@ namespace MikuMikuWorld
 		void drawRectangle(const Vector2& p1, const Vector2& p2, const Vector2& p3, const Vector2& p4, const Texture& tex, float x1, float x2, float y1, float y2,
 			const Color& tint = { 1.0f, 1.0f, 1.0f, 1.0f }, int z = 0);
 
+		void drawRectangle(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, const Texture& tex, float x1, float x2, float y1, float y2,
+			const Color& tint = { 1.0f, 1.0f, 1.0f, 1.0f }, int z = 0);
+
+		void drawQuad(Vector3 pos, Vector3 rot, Vector3 scale, AnchorType anchor, const Texture& tex, int spr, int z = 0);
+		void drawQuad(Vector3 pos, Vector3 rot, Vector3 scale, AnchorType anchor, const Texture& tex,
+			float x1, float x2, float y1, float y2, Color tint = { 1.0f, 1.0f, 1.0f, 1.0f }, int z = 0);
+
 		void setUVCoords(const Texture& tex, float x1, float x2, float y1, float y2);
 		void setAnchor(AnchorType type);
-		DirectX::XMMATRIX getModelMatrix(const Vector2& pos, const float rot, const Vector2& sz);
+		DirectX::XMMATRIX getModelMatrix(const Vector3& pos, const Vector3& rot, const Vector3& sz);
 
 		void pushQuad(const std::array<DirectX::XMVECTOR, 4>& pos, const std::array<DirectX::XMVECTOR, 4>& uv,
 			const DirectX::XMMATRIX& m, const DirectX::XMVECTOR& col, int tex, int z);

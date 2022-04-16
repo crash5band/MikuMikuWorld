@@ -109,6 +109,9 @@
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Audio\stb_vorbis.c" />
+    <ClCompile Include="ScoreSimulator.cpp">
+      <Filter>Components\ScoreSimulator</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -240,6 +243,9 @@
     <ClInclude Include="resource.h">
       <Filter>Resources</Filter>
     </ClInclude>
+    <ClInclude Include="ScoreSimulator.h">
+      <Filter>Components\ScoreSimulator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">
@@ -277,6 +283,9 @@
     </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{dbb50131-1f77-4fcf-a93f-8c0cfc9780cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\ScoreSimulator">
+      <UniqueIdentifier>{48fc615a-53b7-4e19-8fb4-ff95c29d70d0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
