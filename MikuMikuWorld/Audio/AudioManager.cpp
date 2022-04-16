@@ -56,7 +56,7 @@ namespace MikuMikuWorld
 	void AudioManager::loadSE()
 	{
 		std::string path{ "res/sound/" };
-		ma_uint32 flags = MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE;
+		ma_uint32 flags = MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC;
 
 		ma_sound perfect;
 		ma_sound great;
