@@ -34,7 +34,6 @@ namespace MikuMikuWorld
 		bgmVolume		= 1.0f;
 		seVolume		= 1.0f;
 		playing			= false;
-		playSE			= true;
 		dragging		= false;
 		hasEdit			= false;
 		playStartTime	= 0;

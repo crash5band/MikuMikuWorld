@@ -11,7 +11,7 @@ namespace MikuMikuWorld
 	constexpr const char* detailsWindow = ICON_FA_ALIGN_LEFT " Score Details";
 	constexpr const char* debugWindow = ICON_FA_BUG " Debug";
 	constexpr const char* windowTitle = "MikuMikuWorld - ";
-	constexpr const char* windowTitleNew = "MikuMikuWorld - Untitiled";
+	constexpr const char* windowTitleNew = "MikuMikuWorld - Untitled";
 
 	constexpr ImGuiWindowFlags ImGuiWindowFlags_Static =
 		ImGuiWindowFlags_NoTitleBar

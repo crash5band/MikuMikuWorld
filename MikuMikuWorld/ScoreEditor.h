@@ -74,6 +74,7 @@ namespace MikuMikuWorld
 		int holdLane = 0;
 		int holdTick = 0;
 		int defaultNoteWidth;
+		bool windowFocused;
 		bool drawHoldStepOutline;
 		bool showRenderStats;
 		bool isHoveringNote;
@@ -107,8 +108,7 @@ namespace MikuMikuWorld
 		float masterVolume;
 		float bgmVolume;
 		float seVolume;
-		bool playSE;
-		float audioLookAhead = 0.1;
+		const float audioLookAhead = 0.1;
 
 		void updateControls();
 		void updateScoreDetails();
@@ -217,5 +217,7 @@ namespace MikuMikuWorld
 
 		void undo();
 		void redo();
+
+		bool isWindowFocused() const;
 	};
 }

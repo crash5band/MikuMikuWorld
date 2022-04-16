@@ -17,19 +17,19 @@ namespace MikuMikuWorld
 		return (float)t.numerator / (float)t.denominator * 4;
 	}
 
-	double ticksToSec(int ticks, int beatTicks, float bpm)
+	float ticksToSec(int ticks, int beatTicks, float bpm)
 	{
 		return ticks * (60.0f / bpm / (float)beatTicks);
 	}
 
-	int secsToTicks(double secs, int beatTicks, float bpm)
+	int secsToTicks(float secs, int beatTicks, float bpm)
 	{
 		return secs / (60.0f / bpm / (float)beatTicks);
 	}
 
-	double accumulateDuration(int tick, int beatTicks, const std::vector<Tempo>& bpms)
+	float accumulateDuration(int tick, int beatTicks, const std::vector<Tempo>& bpms)
 	{
-		double total = 0;
+		float total = 0;
 		int accTicks = 0;
 		int lastBPM = 0;
 
@@ -50,7 +50,7 @@ namespace MikuMikuWorld
 		return total;
 	}
 
-	int accumulateTicks(double sec, int beatTicks, const std::vector<Tempo>& bpms)
+	int accumulateTicks(float sec, int beatTicks, const std::vector<Tempo>& bpms)
 	{
 		int total = 0;
 		float accSecs = 0;

@@ -335,6 +335,7 @@ namespace MikuMikuWorld
 
 	void Application::processInput()
 	{
+		bool canAct = editor->isWindowFocused() && !ImGui::GetIO().WantCaptureKeyboard;
 		if (InputListener::isCtrlDown())
 		{
 			if (InputListener::isTapped(GLFW_KEY_N))
@@ -348,44 +349,52 @@ namespace MikuMikuWorld
 				else
 					editor->save();
 			}
-			else if (InputListener::isTapped(GLFW_KEY_C))
-				editor->copy();
-			else if (InputListener::isTapped(GLFW_KEY_V))
+
+			if (canAct)
 			{
-				if (InputListener::isShiftDown())
-					editor->flipPaste();
-				else
-					editor->paste();
+				if (InputListener::isTapped(GLFW_KEY_C))
+					editor->copy();
+				else if (InputListener::isTapped(GLFW_KEY_V))
+				{
+					if (InputListener::isShiftDown())
+						editor->flipPaste();
+					else
+						editor->paste();
+				}
+				else if (InputListener::isTapped(GLFW_KEY_Z))
+					editor->undo();
+				else if (InputListener::isTapped(GLFW_KEY_Y))
+					editor->redo();
+				else if (InputListener::isTapped(GLFW_KEY_F))
+					editor->flipSelected();
+				else if (InputListener::isTapped(GLFW_KEY_A) && !editor->isPlaying())
+					editor->selectAll();
 			}
-			else if (InputListener::isTapped(GLFW_KEY_Z))
-				editor->undo();
-			else if (InputListener::isTapped(GLFW_KEY_Y))
-				editor->redo();
-			else if (InputListener::isTapped(GLFW_KEY_F))
-				editor->flipSelected();
-			else if (InputListener::isTapped(GLFW_KEY_A) && !editor->isPlaying())
-				editor->selectAll();
 		}
 		else
 		{
-			for (int k = GLFW_KEY_1; k < GLFW_KEY_1 + (int)TimelineMode::TimelineToolMax; ++k)
-				if (InputListener::isTapped(k) && !ImGui::GetIO().WantCaptureKeyboard)
-					editor->changeMode((TimelineMode)(k - GLFW_KEY_1));
-
-			if (InputListener::isTapped(GLFW_KEY_DELETE))
-				editor->deleteSelected();
-			else if (InputListener::isTapped(GLFW_KEY_ESCAPE))
+			if (InputListener::isTapped(GLFW_KEY_ESCAPE))
 				editor->cancelPaste();
-			else if (InputListener::isTapped(GLFW_KEY_DOWN) && !editor->isPlaying())
-				editor->previousTick();
-			else if (InputListener::isTapped(GLFW_KEY_SPACE))
-				editor->togglePlaying();
-			else if (InputListener::isTapped(GLFW_KEY_BACKSPACE))
-				editor->stop();
-			else if (InputListener::isTapped(GLFW_KEY_UP) && !editor->isPlaying())
-				editor->nextTick();
-			else if (InputListener::isTapped(GLFW_KEY_A) && editor->isPlaying())
-				editor->insertNotePlaying();
+
+			if (canAct)
+			{
+				for (int k = GLFW_KEY_1; k < GLFW_KEY_1 + (int)TimelineMode::TimelineToolMax; ++k)
+					if (InputListener::isTapped(k))
+						editor->changeMode((TimelineMode)(k - GLFW_KEY_1));
+
+				if (InputListener::isTapped(GLFW_KEY_DELETE))
+					editor->deleteSelected();
+				else if (InputListener::isTapped(GLFW_KEY_DOWN) && !editor->isPlaying())
+					editor->previousTick();
+				else if (InputListener::isTapped(GLFW_KEY_SPACE))
+					editor->togglePlaying();
+				else if (InputListener::isTapped(GLFW_KEY_BACKSPACE))
+					editor->stop();
+				else if (InputListener::isTapped(GLFW_KEY_UP) && !editor->isPlaying())
+					editor->nextTick();
+				else if (InputListener::isTapped(GLFW_KEY_A) && editor->isPlaying())
+					editor->insertNotePlaying();
+			}
 		}
 	}
 
@@ -510,7 +519,6 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture("res/textures/tex_hold_path_crtcl.png");
 		ResourceManager::loadTexture("res/textures/tex_note_common_all.png");
 		ResourceManager::loadTexture("res/textures/default.png");
-		ResourceManager::loadTexture("res/textures/bg_sekai.png");
 		ResourceManager::loadShader("res/shaders/basic2d");
 
 		while (!glfwWindowShouldClose(window))

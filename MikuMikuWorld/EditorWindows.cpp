@@ -95,6 +95,7 @@ namespace MikuMikuWorld
 		canvasPos = ImGui::GetCursorScreenPos();
 		boundaries = ImRect(canvasPos, canvasPos + canvasSize);
 		mouseInTimeline = ImGui::IsMouseHoveringRect(canvasPos, canvasPos + canvasSize);
+		windowFocused = ImGui::IsWindowFocused();
 
 		timelineWidth = NUM_LANES * laneWidth;
 		noteCtrlHeight = notesHeight;
@@ -416,5 +417,10 @@ namespace MikuMikuWorld
 		{
 			time = accumulateDuration(currentTick, TICKS_PER_BEAT, score.tempoChanges);
 		}
+	}
+
+	bool ScoreEditor::isWindowFocused() const
+	{
+		return windowFocused;
 	}
 }

@@ -120,6 +120,9 @@ namespace MikuMikuWorld
 
 	void AudioManager::playBGM(float currTime)
 	{
+		if (!musicInitialized)
+			return;
+
 		float time = (getEngineAbsTime() + bgmOffset);
 		time -= currTime;
 

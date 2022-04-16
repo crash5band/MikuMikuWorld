@@ -21,10 +21,10 @@ namespace MikuMikuWorld
 	};
 
 	int beatsPerMeasure(const TimeSignature& t);
-	double ticksToSec(int ticks, int beatTicks, float bpm);
-	int secsToTicks(double secs, int beatTicks, float bpm);
-	double accumulateDuration(int tick, int beatTicks, const std::vector<Tempo>& tempos);
-	int accumulateTicks(double sec, int beatTicks, const std::vector<Tempo>& tempos);
+	float ticksToSec(int ticks, int beatTicks, float bpm);
+	int secsToTicks(float secs, int beatTicks, float bpm);
+	float accumulateDuration(int tick, int beatTicks, const std::vector<Tempo>& tempos);
+	int accumulateTicks(float sec, int beatTicks, const std::vector<Tempo>& tempos);
 	int accumulateMeasures(int ticks, int beatTicks, const std::map<int, TimeSignature>& ts);
 	int measureToTicks(int measure, int beatTicks, const std::map<int, TimeSignature>& ts);
 	int findTimeSignature(int measure, const std::map<int, TimeSignature>& ts);
