@@ -398,41 +398,44 @@ namespace MikuMikuWorld
 		int measure = accumulateMeasures(firstTick, TICKS_PER_BEAT, score.timeSignatures);
 		firstTick = measureToTicks(measure, TICKS_PER_BEAT, score.timeSignatures);
 
-		int subDiv = TICKS_PER_BEAT / (division < 192 ? (division / 4) : 1);
 		int tsIndex = findTimeSignature(measure, score.timeSignatures);
+		int subDiv = TICKS_PER_BEAT / (division < 192 ? (division / 4) : 1);
+		int div = TICKS_PER_BEAT;
 
 		for (int tick = firstTick; tick <= lastTick; tick += subDiv)
 		{
 			const float y = canvasPos.y - tickToPosition(tick) + timelineOffset;
-			
-			int numBeats = beatsPerMeasure(score.timeSignatures[tsIndex]);
-			int ticksPerMeasure = numBeats * TICKS_PER_BEAT;
 			int measure = accumulateMeasures(tick, TICKS_PER_BEAT, score.timeSignatures);
-			int measureTick = measureToTicks(measure, TICKS_PER_BEAT, score.timeSignatures);
 
 			// time signature changes on current measure
 			if (score.timeSignatures.find(measure) != score.timeSignatures.end())
 				tsIndex = measure;
 
-			int div = TICKS_PER_BEAT * numBeats / score.timeSignatures[tsIndex].numerator;
-
-			if (tick == measureTick)
-			{
-				// new measure
-				std::string measureStr = "#" + std::to_string(measure);
-				const float txtPos = x1 - MEASURE_WIDTH - (ImGui::CalcTextSize(measureStr.c_str()).x * 0.5f);
-
-				drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH, y), ImVec2(x2 + MEASURE_WIDTH, y), measureColor, 1.5f);
-				drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(txtPos, y), measureColor, measureStr.c_str());
-			}
-			else if (tick % div == 0)
-			{
+			if (!(tick % div))
 				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), divColor1, 1.0f);
-			}
-			else if (division < 192 && tick % subDiv == 0)
-			{
+			else if (division < 192)
 				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), divColor2, 1.0f);
+		}
+
+		tsIndex = findTimeSignature(measure, score.timeSignatures);
+		int ticksPerMeasure = beatsPerMeasure(score.timeSignatures[tsIndex]) * TICKS_PER_BEAT;
+
+		for (int tick = firstTick; tick < lastTick; tick += ticksPerMeasure)
+		{
+			if (score.timeSignatures.find(measure) != score.timeSignatures.end())
+			{
+				tsIndex = measure;
+				ticksPerMeasure = beatsPerMeasure(score.timeSignatures[tsIndex]) * TICKS_PER_BEAT;
 			}
+
+			std::string measureStr = "#" + std::to_string(measure);
+			const float txtPos = x1 - MEASURE_WIDTH - (ImGui::CalcTextSize(measureStr.c_str()).x * 0.5f);
+			const float y = canvasPos.y - tickToPosition(tick) + timelineOffset;
+
+			drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH, y), ImVec2(x2 + MEASURE_WIDTH, y), measureColor, 1.5f);
+			drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(txtPos, y), measureColor, measureStr.c_str());
+			
+			++measure;
 		}
 	}
 

@@ -20,7 +20,7 @@ namespace MikuMikuWorld
 		Tempo(int tick, float bpm);
 	};
 
-	int beatsPerMeasure(const TimeSignature& t);
+	float beatsPerMeasure(const TimeSignature& t);
 	float ticksToSec(int ticks, int beatTicks, float bpm);
 	int secsToTicks(float secs, int beatTicks, float bpm);
 	float accumulateDuration(int tick, int beatTicks, const std::vector<Tempo>& tempos);

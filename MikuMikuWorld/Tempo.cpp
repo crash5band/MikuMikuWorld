@@ -12,9 +12,9 @@ namespace MikuMikuWorld
 	{
 	}
 
-	int beatsPerMeasure(const TimeSignature& t)
+	float beatsPerMeasure(const TimeSignature& t)
 	{
-		return (float)t.numerator / (float)t.denominator * 4;
+		return ((float)t.numerator / (float)t.denominator) * 4.0f;
 	}
 
 	float ticksToSec(int ticks, int beatTicks, float bpm)
@@ -89,7 +89,7 @@ namespace MikuMikuWorld
 		for (int t = 0; t < signatures.size() - 1; ++t)
 		{
 			lastSign = t;
-			int ticksPerMeasure = signatures[t].numerator * beatTicks;
+			int ticksPerMeasure = beatsPerMeasure(signatures[t]) * beatTicks;
 			int measures = signatures[t + 1].measure - signatures[t].measure;
 			int ticks = measures * ticksPerMeasure;
 
@@ -101,7 +101,7 @@ namespace MikuMikuWorld
 			lastSign = t + 1;
 		}
 
-		total += (tick - accTicks) / (signatures[lastSign].numerator * beatTicks);
+		total += (tick - accTicks) / (beatsPerMeasure(signatures[lastSign]) * beatTicks);
 		return total;
 	}
 
@@ -119,7 +119,7 @@ namespace MikuMikuWorld
 		for (int t = 0; t < signatures.size() - 1; ++t)
 		{
 			lastSign = t;
-			int ticksPerMeasure = signatures[t].numerator * beatTicks;
+			int ticksPerMeasure = beatsPerMeasure(signatures[t]) * beatTicks;
 			int measures = signatures[t + 1].measure - signatures[t].measure;
 			int ticks = measures * ticksPerMeasure;
 
@@ -131,7 +131,7 @@ namespace MikuMikuWorld
 			lastSign = t + 1;
 		}
 
-		total += (measure - signatures[lastSign].measure) * (signatures[lastSign].numerator * beatTicks);
+		total += (measure - signatures[lastSign].measure) * (beatsPerMeasure(signatures[lastSign]) * beatTicks);
 		return total;
  	}
 
