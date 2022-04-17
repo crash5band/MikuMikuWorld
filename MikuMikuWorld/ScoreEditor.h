@@ -217,6 +217,8 @@ namespace MikuMikuWorld
 		void loadScore(const std::string& filename);
 		void loadMusic(const std::string& filename);
 
+		bool hasUndo() const;
+		bool hadRedo() const;
 		void undo();
 		void redo();
 

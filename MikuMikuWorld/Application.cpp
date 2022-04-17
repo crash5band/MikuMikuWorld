@@ -110,6 +110,7 @@ namespace MikuMikuWorld
 		int posY = config["window"]["position"]["y"];
 		int sizeX = config["window"]["size"]["x"];
 		int sizeY = config["window"]["size"]["y"];
+
 		bool maximized = config["window"]["maximized"];
 		if (maximized)
 			glfwMaximizeWindow(window);
@@ -338,7 +339,10 @@ namespace MikuMikuWorld
 
 	void Application::processInput()
 	{
-		bool canAct = editor->isWindowFocused() && !ImGui::GetIO().WantCaptureKeyboard;
+		if (ImGui::GetIO().WantCaptureKeyboard)
+			return;
+
+		bool canAct = editor->isWindowFocused();
 		if (InputListener::isCtrlDown())
 		{
 			if (InputListener::isTapped(GLFW_KEY_N))
@@ -404,8 +408,8 @@ namespace MikuMikuWorld
 	void Application::menuBar()
 	{
 		ImGui::BeginMainMenuBar();
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 5));
-
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 3));
+		
 		if (ImGui::BeginMenu("File"))
 		{
 			if (ImGui::MenuItem("New", "Ctrl + N"))
@@ -430,10 +434,10 @@ namespace MikuMikuWorld
 
 		if (ImGui::BeginMenu("Edit"))
 		{
-			if (ImGui::MenuItem("Undo", "Ctrl + Z"))
+			if (ImGui::MenuItem("Undo", "Ctrl + Z", false, editor->hasUndo()))
 				editor->undo();
 
-			if (ImGui::MenuItem("Redo", "Ctrl + Y"))
+			if (ImGui::MenuItem("Redo", "Ctrl + Y", false, editor->hadRedo()))
 				editor->redo();
 
 			ImGui::Separator();

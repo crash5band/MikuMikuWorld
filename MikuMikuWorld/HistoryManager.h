@@ -24,15 +24,15 @@ namespace MikuMikuWorld
 		Score undo();
 		Score redo();
 
-		int undoCount();
-		int redoCount();
-		std::string peekUndo();
-		std::string peekRedo();
+		int undoCount() const;
+		int redoCount() const;
+		std::string peekUndo() const;
+		std::string peekRedo() const;
 
 		void pushHistory(const History& history);
 		void pushHistory(const std::string& description, const Score& prev, const Score& curr);
 		void clear();
-		bool hasUndo();
-		bool hasRedo();
+		bool hasUndo() const;
+		bool hasRedo() const;
 	};
 }

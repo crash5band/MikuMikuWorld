@@ -133,6 +133,7 @@ namespace MikuMikuWorld
 		currentTick = tick;
 		selectedNotes.clear();
 		history.clear();
+		workingData = EditorScoreData{};
 
 		resetNextID();
 		hasEdit = false;
@@ -265,6 +266,16 @@ namespace MikuMikuWorld
 
 		float x2 = canvasPos.y - tickToPosition(tick) + timelineOffset;
 		timelineOffset += x1 - x2;
+	}
+
+	bool ScoreEditor::hasUndo() const
+	{
+		return history.hasUndo();
+	}
+
+	bool ScoreEditor::hadRedo() const
+	{
+		return history.hasRedo();
 	}
 
 	void ScoreEditor::undo()

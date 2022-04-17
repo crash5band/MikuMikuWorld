@@ -43,32 +43,32 @@ namespace MikuMikuWorld
 			redoHistory.pop();
 	}
 
-	bool HistoryManager::hasUndo()
+	bool HistoryManager::hasUndo() const
 	{
 		return undoHistory.size();
 	}
 
-	bool HistoryManager::hasRedo()
+	bool HistoryManager::hasRedo() const
 	{
 		return redoHistory.size();
 	}
 
-	int HistoryManager::undoCount()
+	int HistoryManager::undoCount() const
 	{
 		return undoHistory.size();
 	}
 
-	int HistoryManager::redoCount()
+	int HistoryManager::redoCount() const
 	{
 		return redoHistory.size();
 	}
 
-	std::string HistoryManager::peekUndo()
+	std::string HistoryManager::peekUndo() const
 	{
 		return undoHistory.size() ? undoHistory.top().description : "";
 	}
 
-	std::string HistoryManager::peekRedo()
+	std::string HistoryManager::peekRedo() const
 	{
 		return redoHistory.size() ? redoHistory.top().description : "";
 	}
