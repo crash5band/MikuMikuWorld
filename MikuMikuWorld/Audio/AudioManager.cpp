@@ -214,6 +214,12 @@ namespace MikuMikuWorld
 
 	void AudioManager::pushAudioEvent(const char* se, double start, double end, bool loop)
 	{
+		if (seMap.find(se) == seMap.end())
+			return;
+
+		if (!seMap[se].pDataSource)
+			return;
+
 		audioEvents.push_back(std::make_unique<AudioEvent>(&engine, &seGroup, &seMap[se], start, loop, end));
 		audioEvents[audioEvents.size() - 1]->play();
 	}

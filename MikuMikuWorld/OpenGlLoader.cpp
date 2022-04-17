@@ -6,6 +6,7 @@
 #include "stb_image.h"
 #include <stdio.h>
 #include <string>
+#include <filesystem>
 
 namespace MikuMikuWorld
 {
@@ -34,6 +35,9 @@ namespace MikuMikuWorld
 
 	void loadIcon(std::string filepath, GLFWwindow* window)
 	{
+		if (!std::filesystem::exists(filepath))
+			return;
+
 		GLFWimage images[1];
 		images[0].pixels = stbi_load(filepath.c_str(), &images[0].width, &images[0].height, 0, 4); //rgba channels 
 		glfwSetWindowIcon(window, 1, images);
@@ -91,19 +95,27 @@ namespace MikuMikuWorld
 		io->ConfigWindowsMoveFromTitleBarOnly = true;
 		io->ConfigViewportsNoDefaultParent = true;
 		io->KeyRepeatRate = 0.15f;
-		io->IniFilename = NULL;
+		io->IniFilename = imguiConfigFile.c_str();
 
 		ImGui::StyleColorsDark();
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 130");
 
-		
-		ImFontConfig fontConfig;
-		fontConfig.MergeMode = true;
-		fontConfig.GlyphMinAdvanceX = 13.0f;
-		static const ImWchar iconRanges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-		io->Fonts->AddFontFromFileTTF(std::string(Application::getAppDir() + "res/fonts/NotoSansJP-Regular.otf").c_str(), 18, NULL, io->Fonts->GetGlyphRangesJapanese());
-		io->Fonts->AddFontFromFileTTF(std::string(Application::getAppDir() + "res/fonts/fa-solid-900.ttf").c_str(), 14.0f, &fontConfig, iconRanges);
+		std::string fontPath{ Application::getAppDir() + "res/fonts/NotoSansJP-Regular.otf" };
+		std::string iconFontPath{ Application::getAppDir() + "res/fonts/fa-solid-900.ttf" };
+
+		if (std::filesystem::exists(fontPath))
+			io->Fonts->AddFontFromFileTTF(std::string(Application::getAppDir() + "res/fonts/NotoSansJP-Regular.otf").c_str(), 18, NULL, io->Fonts->GetGlyphRangesJapanese());
+
+		if (std::filesystem::exists(iconFontPath))
+		{
+			ImFontConfig fontConfig;
+			fontConfig.MergeMode = true;
+			fontConfig.GlyphMinAdvanceX = 13.0f;
+			static const ImWchar iconRanges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+			
+			io->Fonts->AddFontFromFileTTF(std::string(Application::getAppDir() + "res/fonts/fa-solid-900.ttf").c_str(), 14.0f, &fontConfig, iconRanges);
+		}
 		
 		return true;
 	}

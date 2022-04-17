@@ -289,28 +289,32 @@ namespace MikuMikuWorld
 
 						if (note.steps[i].type != HoldStepType::Invisible)
 						{
-							const Sprite& s = tex.sprites[getNoteSpriteIndex(n3)];
-							Vector2 pos{
-								laneToPosition(n3.lane + offsetLane + ((n3.width) / 2.0f)),
-								getNoteYPosFromTick(n3.tick + offsetTicks)
-							};
-
-							if (note.steps[i].type == HoldStepType::Ignored)
+							int sprIndex = getNoteSpriteIndex(n3);
+							if (sprIndex > -1 && sprIndex < tex.sprites.size())
 							{
-								const Note& n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
-								const Note& n2 = s2 >= note.steps.size() ? end : notes.at(note.steps[s2].ID);
+								const Sprite& s = tex.sprites[sprIndex];
+								Vector2 pos{
+									laneToPosition(n3.lane + offsetLane + ((n3.width) / 2.0f)),
+									getNoteYPosFromTick(n3.tick + offsetTicks)
+								};
 
-								float ratio = (float)(n3.tick - n1.tick + offsetTicks) / (float)(n2.tick - n1.tick + offsetTicks);
-								const EaseType rEase = s1 == -1 ? note.start.ease : note.steps[s1].ease;
-								float i1 = rEase == EaseType::None ? ratio : rEase == EaseType::EaseIn ? easeIn(ratio) : easeOut(ratio);
+								if (note.steps[i].type == HoldStepType::Ignored)
+								{
+									const Note& n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
+									const Note& n2 = s2 >= note.steps.size() ? end : notes.at(note.steps[s2].ID);
 
-								float x1 = lerp(laneToPosition(n1.lane + offsetLane), laneToPosition(n2.lane + offsetLane), i1);
-								float x2 = lerp(laneToPosition(n1.lane + offsetLane + n1.width), laneToPosition(n2.lane + offsetLane + n2.width), i1);
-								pos.x = (x1 + x2) / 2.0f;
+									float ratio = (float)(n3.tick - n1.tick + offsetTicks) / (float)(n2.tick - n1.tick + offsetTicks);
+									const EaseType rEase = s1 == -1 ? note.start.ease : note.steps[s1].ease;
+									float i1 = rEase == EaseType::None ? ratio : rEase == EaseType::EaseIn ? easeIn(ratio) : easeOut(ratio);
+
+									float x1 = lerp(laneToPosition(n1.lane + offsetLane), laneToPosition(n2.lane + offsetLane), i1);
+									float x2 = lerp(laneToPosition(n1.lane + offsetLane + n1.width), laneToPosition(n2.lane + offsetLane + n2.width), i1);
+									pos.x = (x1 + x2) / 2.0f;
+								}
+
+								renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, s.getX(), s.getX() + s.getWidth(),
+									s.getY(), s.getHeight(), tint, 1);
 							}
-
-							renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, s.getX(), s.getX() + s.getWidth(),
-								s.getY(), s.getHeight(), tint, 1);
 						}
 					}
 
@@ -338,7 +342,12 @@ namespace MikuMikuWorld
 		if (texIndex != -1)
 		{
 			const Texture& tex = ResourceManager::textures[texIndex];
-			const Sprite& s = tex.sprites[mid ? 1 : 0];
+			int sprIndex = mid ? 1 : 0;
+			
+			if (sprIndex < 0 || sprIndex >= tex.sprites.size())
+				return;
+
+			const Sprite& s = tex.sprites[sprIndex];
 
 			const float midLen = (laneWidth * note.width) - (NOTES_SLICE_WIDTH * 2) + NOTES_X_ADJUST + 5;
 			const Vector2 midSz(midLen, mid ? HIGHLIGHT_HEIGHT : notesHeight + 5);
@@ -370,12 +379,17 @@ namespace MikuMikuWorld
 	void ScoreEditor::drawHoldMid(const Note& note, HoldStepType type, Renderer* renderer, const Color& tint,
 		const int offsetTick, const int offsetLane)
 	{
-		int texIndex = ResourceManager::getTexture(NOTES_TEX);
+		const int texIndex = ResourceManager::getTexture(NOTES_TEX);
 		if (texIndex == -1)
 			return;
 
 		const Texture& tex = ResourceManager::textures[texIndex];
-		const Sprite& s = tex.sprites[getNoteSpriteIndex(note)];
+
+		const int sprIndex = getNoteSpriteIndex(note);
+		if (sprIndex < 0 || sprIndex >= tex.sprites.size())
+			return;
+
+		const Sprite& s = tex.sprites[sprIndex];
 		const Vector2 nodeSz{ laneWidth, laneWidth };
 
 		if (drawHoldStepOutline)
@@ -395,29 +409,33 @@ namespace MikuMikuWorld
 		if (texIndex != -1)
 		{
 			const Texture& tex = ResourceManager::textures[texIndex];
-			const Sprite& arrowS = tex.sprites[getFlickArrowSpriteIndex(note)];
-
-			Vector2 pos{ 0, getNoteYPosFromTick(note.tick + offsetTick)};
-			const float x1 = laneToPosition(note.lane + offsetLane);
-			const float x2 = pos.x + laneToPosition(note.lane + note.width + offsetLane);
-			pos.x = (x1 + x2) * 0.5f;
-			pos.y += (notesHeight * 0.55f) + 10.0f;
-
-			// notes wider than 6 lanes also use arrow size 6
-			Vector2 midSz(laneWidth * (note.flick == FlickType::Up ? 1.0f : 1.05f) * std::min(note.width, 6), notesHeight - 5);
-			midSz.x -= NOTES_SLICE_WIDTH * 1.28f * std::min(note.width - 1, 5);
-			midSz.y += (note.flick == FlickType::Up ? 3.0f : 4.0f) * std::min(note.width, 6);
-
-			float sx1 = arrowS.getX();
-			float sx2 = arrowS.getX() + arrowS.getWidth();
-			if (note.flick == FlickType::Right)
+			const int sprIndex = getFlickArrowSpriteIndex(note);
+			if (sprIndex > -1 && sprIndex < tex.sprites.size())
 			{
-				sx1 = arrowS.getX() + arrowS.getWidth();
-				sx2 = arrowS.getX();
-			}
+				const Sprite& arrowS = tex.sprites[sprIndex];
 
-			renderer->drawSprite(pos, 0.0f, midSz, AnchorType::MiddleCenter, tex,
-				sx1, sx2, arrowS.getY(), arrowS.getY() + arrowS.getHeight(), tint, 2);
+				Vector2 pos{ 0, getNoteYPosFromTick(note.tick + offsetTick) };
+				const float x1 = laneToPosition(note.lane + offsetLane);
+				const float x2 = pos.x + laneToPosition(note.lane + note.width + offsetLane);
+				pos.x = (x1 + x2) * 0.5f;
+				pos.y += (notesHeight * 0.55f) + 10.0f;
+
+				// notes wider than 6 lanes also use arrow size 6
+				Vector2 midSz(laneWidth * (note.flick == FlickType::Up ? 1.0f : 1.05f) * std::min(note.width, 6), notesHeight - 5);
+				midSz.x -= NOTES_SLICE_WIDTH * 1.28f * std::min(note.width - 1, 5);
+				midSz.y += (note.flick == FlickType::Up ? 3.0f : 4.0f) * std::min(note.width, 6);
+
+				float sx1 = arrowS.getX();
+				float sx2 = arrowS.getX() + arrowS.getWidth();
+				if (note.flick == FlickType::Right)
+				{
+					sx1 = arrowS.getX() + arrowS.getWidth();
+					sx2 = arrowS.getX();
+				}
+
+				renderer->drawSprite(pos, 0.0f, midSz, AnchorType::MiddleCenter, tex,
+					sx1, sx2, arrowS.getY(), arrowS.getY() + arrowS.getHeight(), tint, 2);
+			}
 		}
 	}
 
@@ -431,32 +449,36 @@ namespace MikuMikuWorld
 		if (texIndex != -1)
 		{
 			const Texture& tex = ResourceManager::textures[texIndex];
-			const Sprite& s = tex.sprites[getNoteSpriteIndex(note)];
+			const int sprIndex = getNoteSpriteIndex(note);
+			if (sprIndex > -1 && sprIndex < tex.sprites.size())
+			{
+				const Sprite& s = tex.sprites[sprIndex];
 
-			const float midLen = (laneWidth * note.width) - (NOTES_SLICE_WIDTH * 2) + NOTES_X_ADJUST + 5;
-			const Vector2 midSz(midLen, notesHeight);
+				const float midLen = (laneWidth * note.width) - (NOTES_SLICE_WIDTH * 2) + NOTES_X_ADJUST + 5;
+				const Vector2 midSz(midLen, notesHeight);
 
-			pos.x -= NOTES_X_ADJUST;
+				pos.x -= NOTES_X_ADJUST;
 
-			// left slice
-			renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
-				s.getX() + NOTES_SIDE_WIDTH, s.getX() + NOTES_X_SLICE,
-				s.getY(), s.getY() + s.getHeight(), tint, 1
-			);
-			pos.x += NOTES_SLICE_WIDTH;
+				// left slice
+				renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
+					s.getX() + NOTES_SIDE_WIDTH, s.getX() + NOTES_X_SLICE,
+					s.getY(), s.getY() + s.getHeight(), tint, 1
+				);
+				pos.x += NOTES_SLICE_WIDTH;
 
-			// middle
-			renderer->drawSprite(pos, 0.0f, midSz, anchor, tex,
-				s.getX() + NOTES_X_SLICE, s.getX() + s.getWidth() - NOTES_X_SLICE,
-				s.getY(), s.getY() + s.getHeight(), tint, 1
-			);
-			pos.x += midLen;
+				// middle
+				renderer->drawSprite(pos, 0.0f, midSz, anchor, tex,
+					s.getX() + NOTES_X_SLICE, s.getX() + s.getWidth() - NOTES_X_SLICE,
+					s.getY(), s.getY() + s.getHeight(), tint, 1
+				);
+				pos.x += midLen;
 
-			// right slice
-			renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
-				s.getX() + s.getWidth() - NOTES_X_SLICE, s.getX() + s.getWidth() - NOTES_SIDE_WIDTH,
-				s.getY(), s.getY() + s.getHeight(), tint, 1
-			);
+				// right slice
+				renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
+					s.getX() + s.getWidth() - NOTES_X_SLICE, s.getX() + s.getWidth() - NOTES_SIDE_WIDTH,
+					s.getY(), s.getY() + s.getHeight(), tint, 1
+				);
+			}
 		}
 		
 		if (note.isFlick())

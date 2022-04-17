@@ -3,17 +3,26 @@
 namespace MikuMikuWorld
 {
 	AudioEvent::AudioEvent(ma_engine* engine, ma_sound_group* group, ma_sound* data, float _start, bool _loop, float _end) :
-		start{ _start }, loop{ _loop }, end{ _end }
+		start{ _start }, loop{ _loop }, end{ _end }, initialized{ false }
 	{
 		ma_uint32 flags = MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION;
-		ma_result result = ma_sound_init_copy(engine, data, flags, group, &sound);
-
-		ma_data_source_get_length_in_seconds(sound.pDataSource, &duration);
-		ma_data_source_get_length_in_pcm_frames(sound.pDataSource, &durationInFrames);
+		if (data->pDataSource)
+		{
+			ma_result result = ma_sound_init_copy(engine, data, flags, group, &sound);
+			if (result == MA_SUCCESS)
+			{
+				initialized = true;
+				ma_data_source_get_length_in_seconds(sound.pDataSource, &duration);
+				ma_data_source_get_length_in_pcm_frames(sound.pDataSource, &durationInFrames);
+			}
+		}
 	}
 
 	void AudioEvent::play()
 	{
+		if (!initialized)
+			return;
+
 		ma_sound_set_looping(&sound, loop);
 		ma_sound_set_start_time_in_milliseconds(&sound, start * 1000);
 		ma_sound_start(&sound);
@@ -32,11 +41,13 @@ namespace MikuMikuWorld
 
 	void AudioEvent::stop()
 	{
-		ma_sound_stop(&sound);
+		if (initialized)
+			ma_sound_stop(&sound);
 	}
 
 	void AudioEvent::dispose()
 	{
-		ma_sound_uninit(&sound);
+		if (initialized)
+			ma_sound_uninit(&sound);
 	}
 }

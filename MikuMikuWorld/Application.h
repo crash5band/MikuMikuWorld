@@ -20,6 +20,7 @@ namespace MikuMikuWorld
 		float appFrame;
 		float appTime;
 		float lastAppTimeUpdate;
+		bool firstFrame;
 		bool vsync;
 		bool exiting;
 		bool upToDate;
@@ -31,6 +32,7 @@ namespace MikuMikuWorld
 
 		static std::string version;
 		static std::string appDir;
+		std::string imguiConfigFile;
 		const std::string appConfigFilename = "app_config.json";
 
 		ImGuiID dockspaceID;

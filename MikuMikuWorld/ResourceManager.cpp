@@ -1,4 +1,5 @@
 #include "ResourceManager.h"
+#include <filesystem>
 
 namespace MikuMikuWorld
 {
@@ -7,6 +8,12 @@ namespace MikuMikuWorld
 
 	void ResourceManager::loadTexture(const std::string filename)
 	{
+		if (!std::filesystem::exists(filename))
+		{
+			printf("ERROR: ResourceManager::loadTexture() Could not find texture file %s\n", filename.c_str());
+			return;
+		}
+
 		Texture tex(filename);
 		textures.push_back(tex);
 	}

@@ -27,9 +27,10 @@ namespace MikuMikuWorld
 	bool Application::dragDropHandled = true;
 
 	Application::Application(const std::string& root) :
-		lastAppTimeUpdate{ 0 }, appFrame{ 0 }, appTime{ 0 }, vsync{ true }, exiting{ false }
+		lastAppTimeUpdate{ 0 }, appFrame{ 0 }, appTime{ 0 }, vsync{ true }, exiting{ false }, firstFrame{ true }
 	{
 		appDir = root;
+		imguiConfigFile = appDir + "imgui_config.ini";
 		version = getVersion();
 
 		initOpenGL();
@@ -571,12 +572,18 @@ namespace MikuMikuWorld
 				dragDropHandled = true;
 			}
 
-			InputListener::update(window, frameDelta);
+			InputListener::update(window);
 			processInput();
 			menuBar();
 			editor->update(frameDelta, renderer);
 
-			if (glfwGetTime() - lastAppTimeUpdate >= 0.1f)
+			if (firstFrame)
+			{
+				ImGui::SetWindowFocus(timelineWindow);
+				firstFrame = false;
+			}
+
+			if (glfwGetTime() - lastAppTimeUpdate >= 0.05f)
 			{
 				appTime = stopwatch.elapsed();
 				appFrame = frameDelta;

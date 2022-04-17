@@ -20,8 +20,6 @@ namespace MikuMikuWorld
 		ImGui::SetColumnWidth(0, 180.0f);
 
 		ImVec2 btnSz{ ImGui::GetContentRegionAvail().x, 50.0f };
-
-		const Texture& tex = ResourceManager::textures[0];
 		for (int i = 0; i < (int)TimelineMode::TimelineToolMax; ++i)
 		{
 			ImGui::PushID(i);

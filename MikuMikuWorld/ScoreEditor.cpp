@@ -396,9 +396,15 @@ namespace MikuMikuWorld
 
 		ImU32 bgColor = ImGui::GetColorU32(ImGuiCol_FrameBg);
 		int texIndex = ResourceManager::getTexture("default");
-		drawList->AddImage((void*)ResourceManager::textures[texIndex].getID(), canvasPos, canvasPos + canvasSize,
-			ImVec2(0, 0), ImVec2(1, 1), 0xFF656565);
-		//ImGui::RenderFrame(boundaries.Min, boundaries.Max, 0xffffffff, true, 1.0f);
+		if (texIndex != -1)
+		{
+			drawList->AddImage((void*)ResourceManager::textures[texIndex].getID(), canvasPos, canvasPos + canvasSize,
+				ImVec2(0, 0), ImVec2(1, 1), 0xFF656565);
+		}
+		else
+		{
+			ImGui::RenderFrame(boundaries.Min, boundaries.Max, bgFallbackColor, true, 1.0f);
+		}
 
 		const float x1 = canvasPos.x + laneOffset;
 		const float x2 = x1 + timelineWidth;

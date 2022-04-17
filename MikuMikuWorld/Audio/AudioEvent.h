@@ -8,6 +8,7 @@ namespace MikuMikuWorld
 	private:
 		ma_sound sound;
 		ma_uint64 durationInFrames;
+		bool initialized;
 		float duration;
 		float start;
 		float end;
