@@ -20,6 +20,18 @@ namespace MikuMikuWorld
 		glViewport(0, 0, width, height);
 	}
 
+	void dropCallback(GLFWwindow* window, int count, const char** paths)
+	{
+		for (int i = 0; i < count; ++i)
+		{
+			std::string path{ paths[i] };
+			Application::pendingOpenFiles.reserve(Application::pendingOpenFiles.size() + count);
+			Application::pendingOpenFiles.push_back(path);
+		}
+
+		Application::dragDropHandled = false;
+	}
+
 	void loadIcon(std::string filepath, GLFWwindow* window)
 	{
 		GLFWimage images[1];
@@ -55,6 +67,7 @@ namespace MikuMikuWorld
 		glViewport(0, 0, 1280, 720);
 		glfwSwapInterval(1);
 		glfwSetFramebufferSizeCallback(window, frameBufferResizeCallback);
+		glfwSetDropCallback(window, dropCallback);
 
 		loadIcon(appDir + "res/mmw_icon.png", window);
 
@@ -89,10 +102,8 @@ namespace MikuMikuWorld
 		fontConfig.MergeMode = true;
 		fontConfig.GlyphMinAdvanceX = 13.0f;
 		static const ImWchar iconRanges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-
-		//io->Fonts->AddFontFromFileTTF(std::string("res/fonts/NotoSansJP-VF.ttf").c_str(), 16, NULL, io->Fonts->GetGlyphRangesDefault());
-		io->Fonts->AddFontFromFileTTF(std::string("res/fonts/NotoSansJP-Regular.otf").c_str(), 18, NULL, io->Fonts->GetGlyphRangesJapanese());
-		io->Fonts->AddFontFromFileTTF(std::string("res/fonts/fa-solid-900.ttf").c_str(), 14.0f, &fontConfig, iconRanges);
+		io->Fonts->AddFontFromFileTTF(std::string(Application::getAppDir() + "res/fonts/NotoSansJP-Regular.otf").c_str(), 18, NULL, io->Fonts->GetGlyphRangesJapanese());
+		io->Fonts->AddFontFromFileTTF(std::string(Application::getAppDir() + "res/fonts/fa-solid-900.ttf").c_str(), 14.0f, &fontConfig, iconRanges);
 		
 		return true;
 	}

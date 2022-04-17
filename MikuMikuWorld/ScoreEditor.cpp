@@ -68,18 +68,28 @@ namespace MikuMikuWorld
 		score.metadata.offset = musicOffset / 1000.0f;
 	}
 
+	void ScoreEditor::loadScore(const std::string& filename)
+	{
+		reset();
+		score = deserializeScore(filename);
+		readScoreMetadata();
+
+		std::string title = windowTitle + File::getFilenameWithoutExtension(score.metadata.filename);
+		setWindowTitle(title.c_str());
+	}
+
+	void ScoreEditor::loadMusic(const std::string& filename)
+	{
+		audio.changeBGM(filename);
+		if (audio.isMusicInitialized())
+			musicFile = filename;
+	}
+
 	void ScoreEditor::open()
 	{
 		std::string filename;
 		if (FileDialog::openFile(filename, FileType::ScoreFile))
-		{
-			reset();
-			score = loadScore(filename);
-			readScoreMetadata();
-
-			std::string title = windowTitle + File::getFilenameWithoutExtension(score.metadata.filename);
-			setWindowTitle(title.c_str());
-		}
+			loadScore(filename);
 	}
 
 	void ScoreEditor::save()
@@ -87,7 +97,7 @@ namespace MikuMikuWorld
 		if (score.metadata.filename.size())
 		{
 			writeScoreMetadata();
-			saveScore(score, score.metadata.filename);
+			serializeScore(score, score.metadata.filename);
 		}
 		else
 		{
@@ -108,7 +118,7 @@ namespace MikuMikuWorld
 
 			score.metadata.filename = filename;
 			writeScoreMetadata();
-			saveScore(score, filename);
+			serializeScore(score, filename);
 		}
 
 		std::string title = windowTitle + File::getFilenameWithoutExtension(score.metadata.filename);

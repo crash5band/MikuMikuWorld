@@ -30,8 +30,8 @@ namespace MikuMikuWorld
 		Score();
 	};
 
-	Score loadScore(const std::string& filename);
-	void saveScore(const Score& score, const std::string& filename);
+	Score deserializeScore(const std::string& filename);
+	void serializeScore(const Score& score, const std::string& filename);
 
 	std::vector<int> countNotes(const Score& score);
 }

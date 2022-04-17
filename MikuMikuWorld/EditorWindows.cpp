@@ -247,10 +247,7 @@ namespace MikuMikuWorld
 				{
 					std::string filename;
 					if (FileDialog::openFile(filename, FileType::AudioFile))
-					{
-						musicFile = filename;
-						audio.changeBGM(filename);
-					}
+						loadMusic(filename);
 				}
 
 				float offset = musicOffset;

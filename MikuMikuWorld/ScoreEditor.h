@@ -214,6 +214,8 @@ namespace MikuMikuWorld
 		void open();
 		void save();
 		void saveAs();
+		void loadScore(const std::string& filename);
+		void loadMusic(const std::string& filename);
 
 		void undo();
 		void redo();

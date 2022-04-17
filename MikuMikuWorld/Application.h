@@ -49,6 +49,8 @@ namespace MikuMikuWorld
 	public:
 		static int screenWidth;
 		static int screenHeight;
+		static std::vector<std::string> pendingOpenFiles;
+		static bool dragDropHandled;
 
 		Application(const std::string &rootPath);
 
@@ -60,6 +62,7 @@ namespace MikuMikuWorld
 		void settings();
 		void processInput();
 		void applyAccentColor(int index);
+		void handlePendingOpenFiles();
 
 		void readSettings(const std::string& filename);
 		void writeSettings(const std::string& filename);

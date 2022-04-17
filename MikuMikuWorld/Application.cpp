@@ -23,10 +23,15 @@ namespace MikuMikuWorld
 	int Application::screenHeight = 720;
 	std::string Application::version;
 	std::string Application::appDir;
+	std::vector<std::string> Application::pendingOpenFiles;
+	bool Application::dragDropHandled = true;
 
 	Application::Application(const std::string& root) :
 		lastAppTimeUpdate{ 0 }, appFrame{ 0 }, appTime{ 0 }, vsync{ true }, exiting{ false }
 	{
+		appDir = root;
+		version = getVersion();
+
 		initOpenGL();
 		initImgui();
 		setImguiStyle();
@@ -35,9 +40,6 @@ namespace MikuMikuWorld
 
 		renderer = new Renderer();
 		editor = new ScoreEditor();
-
-		appDir = root;
-		version = getVersion();
 
 		readSettings(appDir + appConfigFilename);
 
@@ -512,14 +514,42 @@ namespace MikuMikuWorld
 		ImGui::DockBuilderFinish(dockspaceID);
 	}
 
+	void Application::handlePendingOpenFiles()
+	{
+		std::string scoreFile = "";
+		std::string musicFile = "";
+
+		for (auto it = pendingOpenFiles.rbegin(); it != pendingOpenFiles.rend(); ++it)
+		{
+			std::string extension = File::getFileExtension(*it);
+			std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
+
+			if (extension == "sus")
+				scoreFile = *it;
+			else if (extension == "mp3" || extension == "wav" || extension == "flac" || extension == "ogg")
+				musicFile = *it;
+
+			if (scoreFile.size() && musicFile.size())
+				break;
+		}
+
+		if (scoreFile.size())
+			editor->loadScore(scoreFile);
+
+		if (musicFile.size())
+			editor->loadMusic(musicFile);
+
+		pendingOpenFiles.clear();
+	}
+
 	void Application::run()
 	{
-		ResourceManager::loadTexture("res/textures/tex_notes.png");
-		ResourceManager::loadTexture("res/textures/tex_hold_path.png");
-		ResourceManager::loadTexture("res/textures/tex_hold_path_crtcl.png");
-		ResourceManager::loadTexture("res/textures/tex_note_common_all.png");
-		ResourceManager::loadTexture("res/textures/default.png");
-		ResourceManager::loadShader("res/shaders/basic2d");
+		ResourceManager::loadTexture(appDir + "res/textures/tex_notes.png");
+		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path.png");
+		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path_crtcl.png");
+		ResourceManager::loadTexture(appDir + "res/textures/tex_note_common_all.png");
+		ResourceManager::loadTexture(appDir + "res/textures/default.png");
+		ResourceManager::loadShader(appDir + "res/shaders/basic2d");
 
 		while (!glfwWindowShouldClose(window))
 		{
@@ -535,7 +565,13 @@ namespace MikuMikuWorld
 			resizeLayout(screenWidth, screenHeight);
 			initLayout(screenWidth, screenHeight);
 
-			InputListener::update(window);
+			if (!dragDropHandled)
+			{
+				handlePendingOpenFiles();
+				dragDropHandled = true;
+			}
+
+			InputListener::update(window, frameDelta);
 			processInput();
 			menuBar();
 			editor->update(frameDelta, renderer);

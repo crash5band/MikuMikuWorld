@@ -11,6 +11,11 @@ int main(int argc, char** argv)
 	{
 		std::string dir = mmw::File::getFilepath(argv[0]);
 		mmw::Application app(dir);
+
+		for (int i = 1; i < argc; ++i)
+			mmw::Application::pendingOpenFiles.push_back(argv[i]);
+		
+		app.handlePendingOpenFiles();
 		app.run();
 	}
 	catch (const std::exception& ex)

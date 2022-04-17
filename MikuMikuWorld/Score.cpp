@@ -38,7 +38,7 @@ namespace MikuMikuWorld
 			return std::pair<int, int>(n * 4, d * 4);
 	}
 
-	Score loadScore(const std::string& filename)
+	Score deserializeScore(const std::string& filename)
 	{
 		SUS sus = loadSUS(filename);
 
@@ -258,7 +258,7 @@ namespace MikuMikuWorld
 		return score;
 	}
 
-	void saveScore(const Score& score, const std::string& filename)
+	void serializeScore(const Score& score, const std::string& filename)
 	{
 		std::unordered_map<FlickType, int> flickToType;
 		flickToType[FlickType::Up] = 1;
