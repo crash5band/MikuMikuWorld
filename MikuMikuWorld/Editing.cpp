@@ -320,7 +320,12 @@ namespace MikuMikuWorld
 		Score prev = score;
 
 		for (int id : selectedNotes)
-			cycleFlick(score.notes.at(id));
+		{
+			Note& note = score.notes.at(id);
+			cycleFlick(note);
+			if (note.getType() == NoteType::HoldEnd && !note.isFlick() && note.critical)
+				note.critical = score.notes.at(note.parentID).critical;
+		}
 
 		history.pushHistory("Change note", prev, score);
 	}
