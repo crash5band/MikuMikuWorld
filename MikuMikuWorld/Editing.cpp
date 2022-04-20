@@ -20,13 +20,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::copy()
 	{
-		int leastTick = 0;
-		if (selectedNotes.size())
-		{
-			copyNotes.clear();
-			copyHolds.clear();
-			leastTick = score.notes.at(*selectedNotes.begin()).tick;
-		}
+		if (!selectedNotes.size())
+			return;
+
+		copyNotes.clear();
+		copyHolds.clear();
+		int leastTick = score.notes.at(*selectedNotes.begin()).tick;
 
 		std::unordered_set<int> holds;
 		for (int id : selectedNotes)
@@ -203,6 +202,9 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::deleteSelected()
 	{
+		if (!selectedNotes.size())
+			return;
+
 		Score prev = score;
 
 		for (auto& id : selectedNotes)
@@ -317,6 +319,9 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::cycleFlicks()
 	{
+		if (!selectedNotes.size())
+			return;
+
 		Score prev = score;
 
 		for (int id : selectedNotes)
@@ -332,6 +337,9 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::cycleEase()
 	{
+		if (!selectedNotes.size())
+			return;
+
 		Score prev = score;
 		for (int id : selectedNotes)
 		{
@@ -354,6 +362,9 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::setEase(EaseType ease)
 	{
+		if (!selectedNotes.size())
+			return;
+
 		Score prev = score;
 		for (int id : selectedNotes)
 		{
@@ -376,6 +387,9 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::toggleCriticals()
 	{
+		if (!selectedNotes.size())
+			return;
+
 		Score prev = score;
 		std::unordered_set<int> critHolds;
 		for (int id : selectedNotes)
@@ -412,6 +426,9 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::setStepVisibility(HoldStepType type)
 	{
+		if (!selectedNotes.size())
+			return;
+
 		Score prev = score;
 		for (int id : selectedNotes)
 		{
@@ -430,6 +447,9 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::toggleStepVisibility()
 	{
+		if (!selectedNotes.size())
+			return;
+
 		Score prev = score;
 		for (int id : selectedNotes)
 		{
