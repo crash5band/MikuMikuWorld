@@ -333,6 +333,12 @@ namespace MikuMikuWorld
 				resetting = false;
 				shouldPickScore = false;
 			}
+			else if (pendingDropScoreFile.size())
+			{
+				editor->loadScore(pendingDropScoreFile);
+				pendingDropScoreFile = "";
+				resetting = false;
+			}
 		}
 
 		if (exiting)
