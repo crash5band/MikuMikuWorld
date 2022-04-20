@@ -240,10 +240,12 @@ namespace MikuMikuWorld
 
 		if (ImGui::BeginMenu("Edit"))
 		{
-			if (ImGui::MenuItem("Undo", "Ctrl + Z", false, editor->hasUndo()))
+			std::string undoText{ "Undo " + editor->getNextUndo() };
+			std::string redoText{ "Redo " + editor->getNextRedo() };
+			if (ImGui::MenuItem(undoText.c_str(), "Ctrl + Z", false, editor->hasUndo()))
 				editor->undo();
 
-			if (ImGui::MenuItem("Redo", "Ctrl + Y", false, editor->hadRedo()))
+			if (ImGui::MenuItem(redoText.c_str(), "Ctrl + Y", false, editor->hadRedo()))
 				editor->redo();
 
 			ImGui::Separator();

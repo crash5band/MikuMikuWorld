@@ -224,6 +224,8 @@ namespace MikuMikuWorld
 		bool hadRedo() const;
 		void undo();
 		void redo();
+		std::string getNextUndo() const;
+		std::string getNextRedo() const;
 
 		bool isUptoDate() const;
 		bool isWindowFocused() const;

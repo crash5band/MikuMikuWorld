@@ -314,6 +314,16 @@ namespace MikuMikuWorld
 		}
 	}
 
+	std::string ScoreEditor::getNextUndo() const
+	{
+		return history.peekUndo();
+	}
+
+	std::string ScoreEditor::getNextRedo() const
+	{
+		return history.peekRedo();
+	}
+
 	void ScoreEditor::centerCursor(int mode)
 	{
 		cursorPos = tickToPosition(currentTick);
