@@ -22,44 +22,44 @@ namespace MikuMikuWorld
 		float lastAppTimeUpdate;
 		bool firstFrame;
 		bool vsync;
-		bool exiting;
-		bool upToDate;
-		bool showDemoWindow;
 		bool showPerformanceMetrics;
 		bool aboutOpen;
 		bool settingsOpen;
+		bool unsavedOpen;
+		bool shouldPickScore;
 		int accentColor;
 
+		std::string pendingDropScoreFile;
+		std::string imguiConfigFile;
 		static std::string version;
 		static std::string appDir;
-		std::string imguiConfigFile;
-		const std::string appConfigFilename = "app_config.json";
 
 		ImGuiID dockspaceID;
 		Stopwatch stopwatch;
 
-		void resizeLayout(int width, int height);
-		void initLayout(int width, int height);
+		void initLayout();
 		bool initOpenGL();
 		bool initImgui();
 		void setImguiStyle();
-		ImVec4 generateDarkColor(const ImVec4& color);
-		ImVec4 generateHighlightColor(const ImVec4& color);
+		void update();
+		void updateDialogs();
 
 		std::string getVersion();
 
 	public:
-		static int screenWidth;
-		static int screenHeight;
 		static std::vector<std::string> pendingOpenFiles;
 		static bool dragDropHandled;
+		static bool exiting;
+		static bool resetting;
 
 		Application(const std::string &rootPath);
 
+		void reset();
+		void open();
 		void run();
 		void frameTime();
 		void menuBar();
-		void warnExit();
+		bool warnUnsaved();
 		void about();
 		void settings();
 		void processInput();

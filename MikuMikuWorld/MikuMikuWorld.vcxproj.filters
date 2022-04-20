@@ -74,7 +74,6 @@
     <ClCompile Include="Audio\AudioEvent.cpp">
       <Filter>Components\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="UI.cpp" />
     <ClCompile Include="Stopwatch.cpp">
       <Filter>Misc</Filter>
     </ClCompile>
@@ -109,6 +108,10 @@
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Audio\stb_vorbis.c" />
+    <ClCompile Include="Dialogs.cpp" />
+    <ClCompile Include="UI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -187,7 +190,6 @@
     <ClInclude Include="Audio\AudioEvent.h">
       <Filter>Components\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="UI.h" />
     <ClInclude Include="Stopwatch.h">
       <Filter>Misc</Filter>
     </ClInclude>
@@ -240,6 +242,9 @@
     <ClInclude Include="resource.h">
       <Filter>Resources</Filter>
     </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">
@@ -277,6 +282,9 @@
     </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{dbb50131-1f77-4fcf-a93f-8c0cfc9780cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{8e009620-e361-4d17-9cbb-0a7244bc35b5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

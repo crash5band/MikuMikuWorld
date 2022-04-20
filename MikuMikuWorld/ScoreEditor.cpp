@@ -42,6 +42,8 @@ namespace MikuMikuWorld
 		audio.setMasterVolume(masterVolume);
 		audio.setBGMVolume(bgmVolume);
 		audio.setSEVolume(seVolume);
+
+		uptoDate = true;
 	}
 
 	ScoreEditor::~ScoreEditor()
@@ -98,6 +100,7 @@ namespace MikuMikuWorld
 		{
 			writeScoreMetadata();
 			serializeScore(score, score.metadata.filename);
+			uptoDate = true;
 		}
 		else
 		{
@@ -119,6 +122,7 @@ namespace MikuMikuWorld
 			score.metadata.filename = filename;
 			writeScoreMetadata();
 			serializeScore(score, filename);
+			uptoDate = true;
 		}
 
 		std::string title = windowTitle + File::getFilenameWithoutExtension(score.metadata.filename);
@@ -138,8 +142,14 @@ namespace MikuMikuWorld
 		resetNextID();
 		hasEdit = false;
 		score = Score();
+		uptoDate = true;
 
 		setWindowTitle(windowTitleNew);
+	}
+
+	bool ScoreEditor::isUptoDate() const
+	{
+		return uptoDate;
 	}
 
 	float ScoreEditor::getNoteYPosFromTick(int tick)
@@ -268,6 +278,12 @@ namespace MikuMikuWorld
 		timelineOffset += x1 - x2;
 	}
 
+	void ScoreEditor::pushHistory(const std::string& description, const Score& prev, const Score& curr)
+	{
+		history.pushHistory(description, prev, curr);
+		uptoDate = false;
+	}
+
 	bool ScoreEditor::hasUndo() const
 	{
 		return history.hasUndo();
@@ -284,6 +300,7 @@ namespace MikuMikuWorld
 		{
 			score = history.undo();
 			clearSelection();
+			uptoDate = false;
 		}
 	}
 
@@ -293,6 +310,7 @@ namespace MikuMikuWorld
 		{
 			score = history.redo();
 			clearSelection();
+			uptoDate = false;
 		}
 	}
 
@@ -503,6 +521,9 @@ namespace MikuMikuWorld
 		static float editBPM = 0;
 		const float x1 = canvasPos.x + laneOffset;
 		const float x2 = x1 + timelineWidth + MEASURE_WIDTH;
+		const float btnW = 100.0f;
+		const float btnH = 30.0f;
+		const float btnX = x2 - MEASURE_WIDTH;
 		
 		ImVec2 removeBtnSz{ -1, btnSmall.y + 2 };
 		int removeBPM = -1;
@@ -519,7 +540,7 @@ namespace MikuMikuWorld
 			drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 - MEASURE_WIDTH + 20.0f, y - 25.0f), tempoColor, bpmStr.c_str());
 
 			std::string id = "bpm" + std::to_string(index);
-			if (transparentButton2(id.c_str(), ImVec2(x2 - MEASURE_WIDTH, y - 50), ImVec2(100, 30)))
+			if (transparentButton2(id.c_str(), ImVec2(btnX, y - btnH), ImVec2(btnW, btnH)))
 				editBPM = tempo.bpm;
 
 			ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
@@ -538,7 +559,7 @@ namespace MikuMikuWorld
 					Score prev = score;
 					tempo.bpm = std::max(abs(editBPM), 1.0f);
 
-					history.pushHistory(History{ "Change tempo", prev, score });
+					pushHistory("Change tempo", prev, score);
 				}
 
 				// cannot remove the first tempo change
@@ -559,7 +580,7 @@ namespace MikuMikuWorld
 		{
 			Score prev = score;
 			score.tempoChanges.erase(score.tempoChanges.begin() + removeBPM);
-			history.pushHistory("Remove tempo change", prev, score);
+			pushHistory("Remove tempo change", prev, score);
 		}
 	}
 
@@ -568,8 +589,11 @@ namespace MikuMikuWorld
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		const float x1 = canvasPos.x + laneOffset - MEASURE_WIDTH;
 		const float x2 = canvasPos.x + laneOffset + timelineWidth;
-		const float btnX = x1 - MEASURE_WIDTH;
+		const float btnW = 60.0f;
+		const float btnH = 30.0f;
+		const float btnX = canvasPos.x + laneOffset - btnW;
 
+		ImVec2 padding{ ImGui::GetStyle().WindowPadding };
 		ImVec2 removeBtnSz{ -1, btnSmall.y + 2 };
 		int removeTS = -1;
 
@@ -585,7 +609,7 @@ namespace MikuMikuWorld
 			static int editTsNum = 0;
 			static int editTsDen = 0;
 			std::string id = "ts-" + std::to_string(it.second.measure);
-			if (transparentButton2(id.c_str(), ImVec2(btnX, y - 50), ImVec2(x1 - btnX + MEASURE_WIDTH, 30)))
+			if (transparentButton2(id.c_str(), ImVec2(btnX, y - btnH), ImVec2(btnW, btnH)))
 			{
 				editTsNum = it.second.numerator;
 				editTsDen = it.second.denominator;
@@ -606,7 +630,7 @@ namespace MikuMikuWorld
 					it.second.numerator = std::clamp(abs(editTsNum), 1, 64);
 					it.second.denominator = std::clamp(abs(editTsDen), 1, 64);
 
-					history.pushHistory(History{ "Change time signature", prev, score });
+					pushHistory("Change time signature", prev, score);
 				}
 				endPropertyColumns();
 
@@ -628,7 +652,7 @@ namespace MikuMikuWorld
 		{
 			Score prev = score;
 			score.timeSignatures.erase(removeTS);
-			history.pushHistory("Remove time signature", prev, score);
+			pushHistory("Remove time signature", prev, score);
 		}
 	}
 
@@ -690,7 +714,7 @@ namespace MikuMikuWorld
 				}
 
 				//if (holdLane != hoverLane || (!strcmp(id, "M") && (holdTick != hoverTick)))
-				history.pushHistory(History{ "Update notes", prevUpdateScore, score });
+				pushHistory("Update notes", prevUpdateScore, score);
 				
 				hasEdit = false;
 			}

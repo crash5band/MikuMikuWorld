@@ -168,7 +168,7 @@ namespace MikuMikuWorld
 
 		pasting = flipPasting = false;
 
-		history.pushHistory("Paste notes", prev, score);
+		pushHistory("Paste notes", prev, score);
 	}
 
 	bool ScoreEditor::hasClipboard() const
@@ -239,7 +239,7 @@ namespace MikuMikuWorld
 
 		selectedNotes.clear();
 
-		history.pushHistory("Delete notes", prev, score);
+		pushHistory("Delete notes", prev, score);
 	}
 
 	void ScoreEditor::insertNote(bool critical)
@@ -249,7 +249,7 @@ namespace MikuMikuWorld
 		dummy.ID = nextID++;
 		score.notes[dummy.ID] = dummy;
 
-		history.pushHistory("Insert note", prev, score);
+		pushHistory("Insert note", prev, score);
 	}
 
 	void ScoreEditor::insertNotePlaying()
@@ -264,7 +264,7 @@ namespace MikuMikuWorld
 		note.tick = snapTick(currentTick, division);
 
 		score.notes[note.ID] = note;
-		history.pushHistory("Insert note", prev, score);
+		pushHistory("Insert note", prev, score);
 
 		audio.pushAudioEvent("perfect", audio.getEngineAbsTime(), -1, false);
 	}
@@ -293,7 +293,7 @@ namespace MikuMikuWorld
 		hold.end = dummyEnd.ID;
 		score.holdNotes[dummyStart.ID] = hold;
 
-		history.pushHistory("Insert note", prev, score);
+		pushHistory("Insert note", prev, score);
 	}
 
 	void ScoreEditor::insertHoldStep(HoldNote& note)
@@ -312,7 +312,7 @@ namespace MikuMikuWorld
 		note.steps.push_back(HoldStep{ mid.ID, HoldStepType::Visible, EaseType::None });
 		sortHoldSteps(score, note);
 
-		history.pushHistory("Insert note", prev, score);
+		pushHistory("Insert note", prev, score);
 	}
 
 	void ScoreEditor::cycleFlicks()
@@ -327,7 +327,7 @@ namespace MikuMikuWorld
 				note.critical = score.notes.at(note.parentID).critical;
 		}
 
-		history.pushHistory("Change note", prev, score);
+		pushHistory("Change note", prev, score);
 	}
 
 	void ScoreEditor::cycleEase()
@@ -349,7 +349,7 @@ namespace MikuMikuWorld
 			}
 		}
 
-		history.pushHistory("Change note", prev, score);
+		pushHistory("Change note", prev, score);
 	}
 
 	void ScoreEditor::setEase(EaseType ease)
@@ -371,7 +371,7 @@ namespace MikuMikuWorld
 			}
 		}
 
-		history.pushHistory("Change note", prev, score);
+		pushHistory("Change note", prev, score);
 	}
 
 	void ScoreEditor::toggleCriticals()
@@ -407,7 +407,7 @@ namespace MikuMikuWorld
 				score.notes.at(step.ID).critical = critical;
 		}
 
-		history.pushHistory("Change note", prev, score);
+		pushHistory("Change note", prev, score);
 	}
 
 	void ScoreEditor::setStepVisibility(HoldStepType type)
@@ -425,7 +425,7 @@ namespace MikuMikuWorld
 				hold.steps[pos].type = type;
 		}
 
-		history.pushHistory("Change note", prev, score);
+		pushHistory("Change note", prev, score);
 	}
 
 	void ScoreEditor::toggleStepVisibility()
@@ -443,7 +443,7 @@ namespace MikuMikuWorld
 				hold.steps[pos].type = (HoldStepType)(((int)hold.steps[pos].type + 1) % 2);
 		}
 
-		history.pushHistory("Change note", prev, score);
+		pushHistory("Change note", prev, score);
 	}
 
 	void ScoreEditor::flipSelected()
@@ -454,7 +454,7 @@ namespace MikuMikuWorld
 		Score prev = score;
 		flip();
 
-		history.pushHistory("Flip note(s)", prev, score);
+		pushHistory("Flip note(s)", prev, score);
 	}
 
 	void ScoreEditor::flip()
@@ -483,7 +483,7 @@ namespace MikuMikuWorld
 		std::sort(score.tempoChanges.begin(), score.tempoChanges.end(),
 			[](Tempo& t1, Tempo& t2) { return t1.tick < t2.tick; });
 
-		history.pushHistory("Add tempo change", prev, score);
+		pushHistory("Add tempo change", prev, score);
 	}
 
 	void ScoreEditor::insertTimeSignature()
@@ -494,6 +494,6 @@ namespace MikuMikuWorld
 
 		Score prev = score;
 		score.timeSignatures[measure] = TimeSignature{ measure, 4, 4 };
-		history.pushHistory("Add time signature change", prev, score);
+		pushHistory("Add time signature change", prev, score);
 	}
 }

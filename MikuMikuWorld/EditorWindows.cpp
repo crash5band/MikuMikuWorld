@@ -13,165 +13,132 @@
 
 namespace MikuMikuWorld
 {
+	void ScoreEditor::updateToolboxWindow()
+	{
+		if (ImGui::Begin(toolboxWindow))
+		{
+			ImVec2 btnSz{ ImGui::GetContentRegionAvail().x, 35.0f };
+			for (int i = 0; i < (int)TimelineMode::TimelineToolMax; ++i)
+			{
+				ImGui::PushID(i);
+					bool highlight = (int)currentMode == i;
+					if (highlight)
+					{
+						ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Header]);
+							ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_Header]);
+					}
+
+				if (ImGui::Button(timelineModes[i], btnSz))
+					changeMode((TimelineMode)i);
+
+				if (ImGui::IsItemHovered() && GImGui->HoveredIdTimer > 0.5f)
+				{
+					ImGui::BeginTooltipEx(0, ImGuiTooltipFlags_OverridePreviousTooltip);
+					ImGui::Text("%s (%d)", timelineModes[i], i + 1);
+					ImGui::EndTooltip();
+				}
+
+				if (highlight)
+					ImGui::PopStyleColor(2);
+
+				ImGui::PopID();
+			}
+
+			ImGui::Text("Default Note Width");
+			ImGui::SetNextItemWidth(-1);
+			if (ImGui::InputInt("##default_note_width", &defaultNoteWidth, 1, 2))
+				defaultNoteWidth = std::clamp(defaultNoteWidth, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
+		}
+
+		ImGui::End();
+	}
+	
 	void ScoreEditor::updateTimeline(Renderer* renderer)
 	{
-		ImGui::Begin(timelineWindow, NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-		ImGui::BeginColumns("timeline_cols", 2, ImGuiOldColumnFlags_NoResize);
-		ImGui::SetColumnWidth(0, 180.0f);
-
-		ImVec2 btnSz{ ImGui::GetContentRegionAvail().x, 50.0f };
-		for (int i = 0; i < (int)TimelineMode::TimelineToolMax; ++i)
+		if (ImGui::Begin(timelineWindow, NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
 		{
-			ImGui::PushID(i);
-			bool highlight = (int)currentMode == i;
-			if (highlight)
+			canvasSize = ImGui::GetContentRegionAvail();
+			canvasPos = ImGui::GetCursorScreenPos();
+			boundaries = ImRect(canvasPos, canvasPos + canvasSize);
+			mouseInTimeline = ImGui::IsMouseHoveringRect(canvasPos, canvasPos + canvasSize);
+			windowFocused = ImGui::IsWindowFocused();
+
+			timelineWidth = NUM_LANES * laneWidth;
+			noteCtrlHeight = notesHeight;
+			laneOffset = (canvasSize.x * 0.5f) - (timelineWidth * 0.5f);
+
+			ImGuiIO& io = ImGui::GetIO();
+			timelineMinOffset = ImGui::GetWindowHeight() - 200.0f;
+
+			// mouse input
+			if (mouseInTimeline && !isAnyPopupOpen())
 			{
-				ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Header]);
-				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_Header]);
-			}
+				float mouseWheelDelta = io.MouseWheel;
+				if (InputListener::isCtrlDown())
+					setZoom(zoom + (mouseWheelDelta * 0.1f));
+				else
+					timelineOffset += mouseWheelDelta * (InputListener::isShiftDown() ? 200.0f : 50.0f);
 
-			if (ImGui::Button(timelineModes[i], btnSz))
-				changeMode((TimelineMode)i);
+				mousePos = io.MousePos - canvasPos;
+				mousePos.y -= timelineOffset;
 
-			if (ImGui::IsItemHovered())
-			{
-				ImGui::BeginTooltipEx(0, ImGuiTooltipFlags_OverridePreviousTooltip);
-				ImGui::Text("%s (%d)", timelineModes[i], i + 1);
-				ImGui::EndTooltip();
-			}
-
-			if (highlight)
-				ImGui::PopStyleColor(2);
-
-			ImGui::PopID();
-		}
-
-		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
-		ImGui::Text("Mode: %s", timelineModes[(int)currentMode]);
-		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
-
-		ImGui::Text("Default Note Width");
-		ImGui::SetNextItemWidth(-1);
-		if (ImGui::InputInt("##default_note_width", &defaultNoteWidth, 1, 2))
-			defaultNoteWidth = std::clamp(defaultNoteWidth, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
-
-		static int m = 0;
-		ImGui::Text("Goto Measure");
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - btnSmall.x - ImGui::GetStyle().ItemSpacing.x);
-		ImGui::InputInt("##goto_measure", &m, 0, 0);
-		
-		ImGui::SameLine();
-		if (ImGui::Button(ICON_FA_ARROW_RIGHT, btnSmall))
-			gotoMeasure(m);
-
-		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
-		ImGui::Text("Time: %02d:%02d:%02d", (int)time / 60, (int)time % 60, (int)((time - (int)time) * 100));
-
-		if (transparentButton(ICON_FA_STOP))
-			stop();
-
-		ImGui::SameLine();
-		if (transparentButton(ICON_FA_BACKWARD, btnNormal, true))
-			previousTick();
-
-		ImGui::SameLine();
-		if (transparentButton(playing ? ICON_FA_PAUSE : ICON_FA_PLAY))
-			togglePlaying();
-
-		ImGui::SameLine();
-		if (transparentButton(ICON_FA_FORWARD, btnNormal, true))
-			nextTick();
-
-		ImGui::SameLine();
-		if (transparentButton(ICON_FA_REDO_ALT))
-			restart();
-
-		ImGui::NextColumn();
-		updateControls();
-
-		canvasSize = ImGui::GetContentRegionAvail();
-		canvasPos = ImGui::GetCursorScreenPos();
-		boundaries = ImRect(canvasPos, canvasPos + canvasSize);
-		mouseInTimeline = ImGui::IsMouseHoveringRect(canvasPos, canvasPos + canvasSize);
-		windowFocused = ImGui::IsWindowFocused();
-
-		timelineWidth = NUM_LANES * laneWidth;
-		noteCtrlHeight = notesHeight;
-		laneOffset = (canvasSize.x * 0.5f) - (timelineWidth * 0.5f);
-
-		ImGuiIO& io = ImGui::GetIO();
-		timelineMinOffset = ImGui::GetWindowHeight() - 200.0f;
-
-		// mouse input
-		if (mouseInTimeline && !isAnyPopupOpen())
-		{
-			float mouseWheelDelta = io.MouseWheel;
-			if (InputListener::isCtrlDown())
-				setZoom(zoom + (mouseWheelDelta * 0.1f));
-			else
-				timelineOffset += mouseWheelDelta * (InputListener::isShiftDown() ? 200.0f : 50.0f);
-
-			mousePos = io.MousePos - canvasPos;
-			mousePos.y -= timelineOffset;
-
-			if (!isHoveringNote && !isHoldingNote && !insertingHold && ImGui::IsWindowFocused())
-			{
-				if (ImGui::IsMouseDown(0) && ImGui::IsMouseDragPastThreshold(0, 10.0f))
-					dragging = true;
-
-				if (ImGui::IsMouseClicked(0))
+				if (!isHoveringNote && !isHoldingNote && !insertingHold && ImGui::IsWindowFocused())
 				{
-					if (!InputListener::isCtrlDown() && !InputListener::isAltDown() && !ImGui::IsPopupOpen(timelineWindow))
-						selectedNotes.clear();
+					if (ImGui::IsMouseDown(0) && ImGui::IsMouseDragPastThreshold(0, 10.0f))
+						dragging = true;
 
-					if (currentMode == TimelineMode::Select)
-						dragStart = mousePos;
+					if (ImGui::IsMouseClicked(0))
+					{
+						if (!InputListener::isCtrlDown() && !InputListener::isAltDown() && !ImGui::IsPopupOpen(timelineWindow))
+							selectedNotes.clear();
+
+						if (currentMode == TimelineMode::Select)
+							dragStart = mousePos;
+					}
 				}
 			}
-		}
 
-		timelineOffset = std::max(timelineOffset, timelineMinOffset);
+			timelineOffset = std::max(timelineOffset, timelineMinOffset);
 
-		ImGui::ItemSize(boundaries);
-		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		drawList->PushClipRect(boundaries.Min, boundaries.Max, true);
+			ImGui::ItemSize(boundaries);
+			ImDrawList* drawList = ImGui::GetWindowDrawList();
+			drawList->PushClipRect(boundaries.Min, boundaries.Max, true);
 
-		effectiveTickHeight = TICK_HEIGHT * zoom;
-		isHoveringNote = false;
-		hoveringNote = -1;
+			effectiveTickHeight = TICK_HEIGHT * zoom;
+			isHoveringNote = false;
+			hoveringNote = -1;
 
-		contextMenu();
-		drawMeasures();
-		updateTempoChanges();
-		updateTimeSignatures();
-		drawLanes();
-		updateCursor();
-		updateNotes(renderer);
+			contextMenu();
+			drawMeasures();
+			updateTempoChanges();
+			updateTimeSignatures();
+			drawLanes();
+			updateCursor();
+			updateNotes(renderer);
 
-		// update dragging
-		if (dragging)
-		{
-			drawSelectionRectangle();
-			if (ImGui::IsMouseReleased(0))
+			// update dragging
+			if (dragging)
 			{
-				calcDragSelection();
-				dragging = false;
+				drawSelectionRectangle();
+				if (ImGui::IsMouseReleased(0))
+				{
+					calcDragSelection();
+					dragging = false;
+				}
 			}
+
+			if (isPasting())
+			{
+				if (ImGui::IsMouseClicked(0))
+					confirmPaste();
+			}
+
+			hasSelection = selectedNotes.size();
+			hasSelectionEase = selectionHasEase();
+			hasSelectionStep = selectionHasHoldStep();
+
+			drawList->PopClipRect();
 		}
-
-		if (isPasting())
-		{
-			if (ImGui::IsMouseClicked(0))
-				confirmPaste();
-		}
-
-		hasSelection = selectedNotes.size();
-		hasSelectionEase = selectionHasEase();
-		hasSelectionStep = selectionHasHoldStep();
-
-		drawList->PopClipRect();
-
-		ImGui::EndColumns();
 		ImGui::End();
 	}
 
@@ -305,50 +272,82 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::updateControls()
 	{
-		ImGui::Text("Division");
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(100);
-		std::string divPrefix = "1/";
-		std::string preview = divPrefix + std::to_string(divisions[selectedDivision]);
-		if (ImGui::BeginCombo("##division", preview.c_str()))
+		if (ImGui::Begin(controlsWindow))
 		{
-			for (int i = 0; i < sizeof(divisions) / sizeof(int); ++i)
+			ImGui::Text("Time: %02d:%02d:%02d", (int)time / 60, (int)time % 60, (int)((time - (int)time) * 100));
+
+			if (transparentButton(ICON_FA_BACKWARD, btnNormal, true, !playing))
+				previousTick();
+
+			ImGui::SameLine();
+			if (transparentButton(ICON_FA_STOP))
+				stop();
+
+			ImGui::SameLine();
+			if (transparentButton(playing ? ICON_FA_PAUSE : ICON_FA_PLAY))
+				togglePlaying();
+
+			ImGui::SameLine();
+			if (transparentButton(ICON_FA_FORWARD, btnNormal, true, !playing))
+				nextTick();
+
+			static int m = 0;
+			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+			ImGui::Text("Goto Measure");
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - btnSmall.x - ImGui::GetStyle().ItemSpacing.x);
+			ImGui::InputInt("##goto_measure", &m, 0, 0);
+
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_FA_ARROW_RIGHT, btnSmall))
+				gotoMeasure(m);
+
+			ImGui::Text("Division");
+			ImGui::SetNextItemWidth(-1);
+			std::string divPrefix = "1/";
+			std::string preview = divPrefix + std::to_string(divisions[selectedDivision]);
+			if (ImGui::BeginCombo("##division", preview.c_str()))
 			{
-				const bool selected = selectedDivision == i;
-				std::string div = divPrefix + std::to_string(divisions[i]);
-				if (ImGui::Selectable(div.c_str(), selected))
+				for (int i = 0; i < sizeof(divisions) / sizeof(int); ++i)
 				{
-					selectedDivision = i;
-					division = divisions[selectedDivision];
+					const bool selected = selectedDivision == i;
+					std::string div = divPrefix + std::to_string(divisions[i]);
+					if (ImGui::Selectable(div.c_str(), selected))
+					{
+						selectedDivision = i;
+						division = divisions[selectedDivision];
+					}
 				}
+				ImGui::EndCombo();
 			}
-			ImGui::EndCombo();
+
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, ImGui::GetStyle().ItemSpacing.y));
+
+			ImGui::Text("Zoom");
+			float _zoom = zoom;
+			if (transparentButton(ICON_FA_SEARCH_MINUS, btnSmall))
+				_zoom -= 0.25f;
+
+			ImVec2 padding = ImGui::GetStyle().WindowPadding;
+			ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
+
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - btnSmall.x - padding.x);
+			ImGui::SliderFloat("##zoom", &_zoom, MIN_ZOOM, MAX_ZOOM, "%.2fx", ImGuiSliderFlags_AlwaysClamp);
+			ImGui::SameLine();
+
+			if (transparentButton(ICON_FA_SEARCH_PLUS, btnSmall))
+				_zoom += 0.25f;
+
+			if (zoom != _zoom)
+				setZoom(_zoom);
+
+			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+			ImGui::Checkbox("Show Step Outlines", &drawHoldStepOutline);
+
+			ImGui::PopStyleVar();
 		}
 
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, ImGui::GetStyle().ItemSpacing.y));
-		
-		ImGui::SameLine();
-		ImGui::Text("Zoom");
-		ImGui::SameLine();
-		float _zoom = zoom;
-		if (transparentButton(ICON_FA_SEARCH_MINUS, btnSmall))
-			_zoom -= 0.25f;
-
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(150);
-		ImGui::SliderFloat("##zoom", &_zoom, MIN_ZOOM, MAX_ZOOM, "%.2fx", ImGuiSliderFlags_AlwaysClamp);
-		ImGui::SameLine();
-
-		if (transparentButton(ICON_FA_SEARCH_PLUS, btnSmall))
-			_zoom += 0.25f;
-
-		if (zoom != _zoom)
-			setZoom(_zoom);
-
-		ImGui::SameLine();
-		ImGui::Checkbox("Show Step Outlines", &drawHoldStepOutline);
-
-		ImGui::PopStyleVar();
+		ImGui::End();
 	}
 
 	void ScoreEditor::debugInfo()
@@ -393,9 +392,10 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::update(float frameTime, Renderer* renderer)
 	{
+		updateToolboxWindow();
+		updateControls();
 		updateTimeline(renderer);
 		updateScoreDetails();
-		updateControls();
 		updateNoteSE();
 		
 #ifdef _DEBUG

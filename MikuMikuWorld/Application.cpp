@@ -1,50 +1,43 @@
 #include "Application.h"
-#include "ScoreEditor.h"
 #include "ResourceManager.h"
-#include "IconsFontAwesome5.h"
 #include "InputListener.h"
-#include "FileDialog.h"
 #include "UI.h"
 #include "Colors.h"
-#include "Utilities.h"
 #include <json.hpp>
 #include <iostream>
 #include <fstream>
 #include <filesystem>
 
-#define NOMINMAX
-#include <Windows.h>
-
 using namespace nlohmann;
 
 namespace MikuMikuWorld
 {
-	int Application::screenWidth = 1280;
-	int Application::screenHeight = 720;
 	std::string Application::version;
 	std::string Application::appDir;
 	std::vector<std::string> Application::pendingOpenFiles;
 	bool Application::dragDropHandled = true;
+	bool Application::exiting = false;
+	bool Application::resetting = false;
 
 	Application::Application(const std::string& root) :
-		lastAppTimeUpdate{ 0 }, appFrame{ 0 }, appTime{ 0 }, vsync{ true }, exiting{ false }, firstFrame{ true }
+		lastAppTimeUpdate{ 0 }, appFrame{ 0 }, appTime{ 0 }, vsync{ true }, firstFrame{ true }
 	{
 		appDir = root;
-		imguiConfigFile = appDir + "imgui_config.ini";
 		version = getVersion();
 
 		initOpenGL();
 		initImgui();
 		setImguiStyle();
 		applyAccentColor(0);
-		showDemoWindow = false;
+
+		imguiConfigFile = std::string{ appDir + IMGUI_CONFIG_FILENAME };
+		ImGui::GetIO().IniFilename = imguiConfigFile.c_str();
 
 		renderer = new Renderer();
 		editor = new ScoreEditor();
-
-		readSettings(appDir + appConfigFilename);
-
 		dockspaceID = 3939;
+
+		readSettings(appDir + APP_CONFIG_FILENAME);
 	}
 
 	const std::string& Application::getAppDir()
@@ -55,45 +48,6 @@ namespace MikuMikuWorld
 	const std::string& Application::getAppVersion()
 	{
 		return version;
-	}
-
-	std::string Application::getVersion()
-	{
-		char buffer[256];
-		char filename[1024];
-		strcpy_s(filename, std::string(appDir + "MikuMikuWorld.exe").c_str());
-
-		DWORD  verHandle = 0;
-		UINT   size = 0;
-		LPBYTE lpBuffer = NULL;
-		DWORD  verSize = GetFileVersionInfoSize(filename, &verHandle);
-
-		int major = 0, minor = 0, build = 0, rev = 0;
-		if (verSize != NULL)
-		{
-			LPSTR verData = new char[verSize];
-
-			if (GetFileVersionInfo(filename, verHandle, verSize, verData))
-			{
-				if (VerQueryValue(verData, "\\", (VOID FAR * FAR*) & lpBuffer, &size))
-				{
-					if (size)
-					{
-						VS_FIXEDFILEINFO* verInfo = (VS_FIXEDFILEINFO*)lpBuffer;
-						if (verInfo->dwSignature == 0xfeef04bd)
-						{
-							major = (verInfo->dwFileVersionMS >> 16) & 0xffff;
-							minor = (verInfo->dwFileVersionMS >> 0) & 0xffff;
-							rev = (verInfo->dwFileVersionLS >> 16) & 0xffff;
-						}
-					}
-				}
-			}
-			delete[] verData;
-		}
-
-		sprintf(buffer, "%d.%d.%d", major, minor, rev);
-		return std::string{ buffer };
 	}
 
 	void Application::readSettings(const std::string& filename)
@@ -159,163 +113,6 @@ namespace MikuMikuWorld
 		lastFrame = currentFrame;
 	}
 
-	void Application::warnExit()
-	{
-		ImVec2 center(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f);
-		ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-		ImGui::SetNextWindowSize(ImVec2(500, 250), ImGuiCond_Appearing);
-
-		ImVec2 padding = ImGui::GetStyle().WindowPadding;
-		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
-
-		if (ImGui::BeginPopupModal(ICON_FA_INFO_CIRCLE " Miku Miku World - Unsaved Changes", NULL, ImGuiWindowFlags_NoResize))
-		{
-			ImGui::Text("Save changes to current file?");
-
-			float xPos = padding.x;
-			float yPos = ImGui::GetWindowSize().y - btnNormal.y - padding.y;
-			ImGui::SetCursorPos(ImVec2(xPos, yPos));
-			
-			ImVec2 btnSz = ImVec2((ImGui::GetContentRegionAvail().x - spacing.x) / 3.0f, btnNormal.y);
-			
-			if (ImGui::Button("Save Changes", btnSz))
-				editor->save();
-
-			ImGui::SameLine();
-			if (ImGui::Button("Discard Changes", btnSz))
-				ImGui::CloseCurrentPopup();
-
-			ImGui::SameLine();
-			if (ImGui::Button("Cancel", btnSz))
-			{
-				ImGui::CloseCurrentPopup();
-				exiting = false;
-			}
-
-			ImGui::EndPopup();
-		}
-	}
-
-	void Application::about()
-	{
-		ImVec2 center(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f);
-		ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-		ImGui::SetNextWindowSize(ImVec2(500, 250), ImGuiCond_Appearing);
-
-		ImVec2 padding = ImGui::GetStyle().WindowPadding;
-		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
-
-		if (ImGui::BeginPopupModal("Miku Miku World - About", NULL, ImGuiWindowFlags_NoResize))
-		{
-			ImGui::Text("MikuMikuWorld\nCopyright (C) 2022 Crash5b\n\n");
-			ImGui::Separator();
-
-			ImGui::Text("Version %s", version.c_str());
-
-			float xPos = padding.x;
-			float yPos = ImGui::GetWindowSize().y - btnNormal.y - padding.y;
-			ImGui::SetCursorPos(ImVec2(xPos, yPos));
-
-			ImVec2 btnSz = ImVec2((ImGui::GetContentRegionAvail().x), btnNormal.y);
-
-			if (ImGui::Button("OK", btnSz))
-				ImGui::CloseCurrentPopup();
-
-			ImGui::EndPopup();
-		}
-	}
-
-	void Application::settings()
-	{
-		ImVec2 center(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f);
-		ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		ImGui::SetNextWindowSize(ImVec2(500, 450), ImGuiCond_Always);
-
-		ImVec2 padding = ImGui::GetStyle().WindowPadding;
-		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
-		ImVec2 confirmBtnPos =  ImGui::GetWindowSize() + ImVec2(-12.5f, btnNormal.y / 2.0f);
-
-		if (ImGui::BeginPopupModal("Miku Miku World - Settings", NULL, ImGuiWindowFlags_NoResize))
-		{
-			ImGui::BeginChild("##settings_panel", ImGui::GetContentRegionAvail() - ImVec2(0, btnNormal.y), true);
-			
-			// theme
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
-			if (ImGui::CollapsingHeader("Accent Color", ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				for (int i = 0; i < accentColors.size(); ++i)
-				{
-					bool apply = false;
-					std::string id = "##" + std::to_string(i);
-					ImGui::PushStyleColor(ImGuiCol_Button, accentColors[i].color);
-					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, accentColors[i].color);
-					ImGui::PushStyleColor(ImGuiCol_ButtonActive, accentColors[i].color);
-
-					apply = ImGui::Button(id.c_str(), btnNormal);
-
-					ImGui::PopStyleColor(3);
-
-					if (i < accentColors.size() - 1 && ImGui::GetCursorPosX() < ImGui::GetWindowSize().x - btnNormal.x - 50.0f)
-						ImGui::SameLine();
-
-					if (apply)
-						applyAccentColor(i);
-				}
-				ImGui::PopStyleVar();
-			}
-
-			// charting
-			if (ImGui::CollapsingHeader("Timeline", ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				int laneWidth = editor->getLaneWidth();
-				int notesHeight = editor->getNotesHeight();
-
-				beginPropertyColumns();
-				addSliderProperty("Lane Width", laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
-				addSliderProperty("Notes Height", notesHeight, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT, "%d");
-				endPropertyColumns();
-
-				if (laneWidth != editor->getLaneWidth())
-					editor->setLaneWidth(laneWidth);
-
-				if (notesHeight != editor->getNotesHeight())
-					editor->setNotesHeight(notesHeight);
-			}
-
-			// graphics
-			if (ImGui::CollapsingHeader("Video", ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				if (ImGui::Checkbox("Enable VSync", &vsync))
-					glfwSwapInterval((int)vsync);
-			}
-
-			ImGui::EndChild();
-			ImGui::SetCursorPos(confirmBtnPos);
-			if (ImGui::Button("OK", ImVec2(100, btnNormal.y - 5)))
-				ImGui::CloseCurrentPopup();
-
-			ImGui::EndPopup();
-		}
-	}
-
-	ImVec4 Application::generateDarkColor(const ImVec4& color)
-	{
-		return ImVec4(
-			std::max(0.0f, color.x - 0.10f),
-			std::max(0.0f, color.y - 0.10f),
-			std::max(0.0f, color.z - 0.10f),
-			1.0f);
-	}
-
-	ImVec4 Application::generateHighlightColor(const ImVec4& color)
-	{
-		return ImVec4(
-			std::max(0.0f, color.x + 0.10f),
-			std::max(0.0f, color.y + 0.10f),
-			std::max(0.0f, color.z + 0.10f),
-			1.0f);
-	}
-
 	void Application::applyAccentColor(int index)
 	{
 		ImVec4* colors = ImGui::GetStyle().Colors;
@@ -342,13 +139,12 @@ namespace MikuMikuWorld
 		if (ImGui::GetIO().WantCaptureKeyboard)
 			return;
 
-		bool canAct = editor->isWindowFocused();
 		if (InputListener::isCtrlDown())
 		{
 			if (InputListener::isTapped(GLFW_KEY_N))
-				editor->reset();
+				reset();
 			else if (InputListener::isTapped(GLFW_KEY_O))
-				editor->open();
+				open();
 			else if (InputListener::isTapped(GLFW_KEY_S))
 			{
 				if (InputListener::isShiftDown())
@@ -357,52 +153,60 @@ namespace MikuMikuWorld
 					editor->save();
 			}
 
-			if (canAct)
+			if (InputListener::isTapped(GLFW_KEY_C))
+				editor->copy();
+			else if (InputListener::isTapped(GLFW_KEY_V))
 			{
-				if (InputListener::isTapped(GLFW_KEY_C))
-					editor->copy();
-				else if (InputListener::isTapped(GLFW_KEY_V))
-				{
-					if (InputListener::isShiftDown())
-						editor->flipPaste();
-					else
-						editor->paste();
-				}
-				else if (InputListener::isTapped(GLFW_KEY_Z))
-					editor->undo();
-				else if (InputListener::isTapped(GLFW_KEY_Y))
-					editor->redo();
-				else if (InputListener::isTapped(GLFW_KEY_F))
-					editor->flipSelected();
-				else if (InputListener::isTapped(GLFW_KEY_A) && !editor->isPlaying())
-					editor->selectAll();
+				if (InputListener::isShiftDown())
+					editor->flipPaste();
+				else
+					editor->paste();
 			}
+			else if (InputListener::isTapped(GLFW_KEY_Z))
+				editor->undo();
+			else if (InputListener::isTapped(GLFW_KEY_Y))
+				editor->redo();
+			else if (InputListener::isTapped(GLFW_KEY_F))
+				editor->flipSelected();
+			else if (InputListener::isTapped(GLFW_KEY_A) && !editor->isPlaying())
+				editor->selectAll();
 		}
 		else
 		{
 			if (InputListener::isTapped(GLFW_KEY_ESCAPE))
 				editor->cancelPaste();
 
-			if (canAct)
-			{
-				for (int k = GLFW_KEY_1; k < GLFW_KEY_1 + (int)TimelineMode::TimelineToolMax; ++k)
-					if (InputListener::isTapped(k))
-						editor->changeMode((TimelineMode)(k - GLFW_KEY_1));
+			for (int k = GLFW_KEY_1; k < GLFW_KEY_1 + (int)TimelineMode::TimelineToolMax; ++k)
+				if (InputListener::isTapped(k))
+					editor->changeMode((TimelineMode)(k - GLFW_KEY_1));
 
-				if (InputListener::isTapped(GLFW_KEY_DELETE))
-					editor->deleteSelected();
-				else if (InputListener::isTapped(GLFW_KEY_DOWN) && !editor->isPlaying())
-					editor->previousTick();
-				else if (InputListener::isTapped(GLFW_KEY_SPACE))
-					editor->togglePlaying();
-				else if (InputListener::isTapped(GLFW_KEY_BACKSPACE))
-					editor->stop();
-				else if (InputListener::isTapped(GLFW_KEY_UP) && !editor->isPlaying())
-					editor->nextTick();
-				else if (InputListener::isTapped(GLFW_KEY_A) && editor->isPlaying())
-					editor->insertNotePlaying();
-			}
+			if (InputListener::isTapped(GLFW_KEY_DELETE))
+				editor->deleteSelected();
+			else if (InputListener::isTapped(GLFW_KEY_DOWN) && !editor->isPlaying())
+				editor->previousTick();
+			else if (InputListener::isTapped(GLFW_KEY_SPACE))
+				editor->togglePlaying();
+			else if (InputListener::isTapped(GLFW_KEY_BACKSPACE))
+				editor->stop();
+			else if (InputListener::isTapped(GLFW_KEY_UP) && !editor->isPlaying())
+				editor->nextTick();
+			else if (InputListener::isTapped(GLFW_KEY_A) && editor->isPlaying())
+				editor->insertNotePlaying();
 		}
+	}
+
+	void Application::reset()
+	{
+		if (!editor->isUptoDate())
+			resetting = true;
+		else
+			editor->reset();
+	}
+
+	void Application::open()
+	{
+		resetting = true;
+		shouldPickScore = true;
 	}
 
 	void Application::menuBar()
@@ -413,10 +217,10 @@ namespace MikuMikuWorld
 		if (ImGui::BeginMenu("File"))
 		{
 			if (ImGui::MenuItem("New", "Ctrl + N"))
-				editor->reset();
+				reset();
 
 			if (ImGui::MenuItem("Open", "Ctrl + O"))
-				editor->open();
+				open();
 
 			ImGui::Separator();
 
@@ -428,7 +232,9 @@ namespace MikuMikuWorld
 
 			ImGui::Separator();
 
-			ImGui::MenuItem("Exit", "Alt + F4");
+			if (ImGui::MenuItem("Exit", "Alt + F4"))
+				exiting = true;
+
 			ImGui::EndMenu();
 		}
 
@@ -455,10 +261,6 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem("VSync", NULL, &vsync))
 				glfwSwapInterval((int)vsync);
 
-#ifdef _DEBUG
-			ImGui::MenuItem("Show Demo Window", NULL, &showDemoWindow);
-#endif // _DEBUG
-
 			ImGui::MenuItem("Show Performance Metrics", NULL, &showPerformanceMetrics);
 
 			ImGui::EndMenu();
@@ -474,48 +276,93 @@ namespace MikuMikuWorld
 
 		ImGui::PopStyleVar();
 		ImGui::EndMainMenuBar();
-		
+	}
+
+	void Application::updateDialogs()
+	{
 		if (aboutOpen)
 		{
-			ImGui::OpenPopup("Miku Miku World - About");
+			ImGui::OpenPopup(aboutModalTitle);
 			aboutOpen = false;
 		}
 
 		if (settingsOpen)
 		{
-			ImGui::OpenPopup("Miku Miku World - Settings");
+			ImGui::OpenPopup(settingsModalTitle);
 			settingsOpen = false;
 		}
 
 		about();
 		settings();
+
+		if (resetting)
+		{
+			if (!editor->isUptoDate())
+			{
+				if (!unsavedOpen)
+				{
+					ImGui::OpenPopup(unsavedModalTitle);
+					unsavedOpen = true;
+				}
+
+				if (warnUnsaved())
+				{
+					if (pendingDropScoreFile.size())
+					{
+						editor->loadScore(pendingDropScoreFile);
+						pendingDropScoreFile = "";
+					}
+					else if (shouldPickScore)
+					{
+						editor->open();
+						shouldPickScore = false;
+					}
+					else
+					{
+						editor->reset();
+					}
+
+					resetting = false;
+				}
+			}
+			else if (shouldPickScore)
+			{
+				editor->open();
+				resetting = false;
+				shouldPickScore = false;
+			}
+		}
+
+		if (exiting)
+		{
+			if (!editor->isUptoDate())
+			{
+				if (!unsavedOpen)
+				{
+					ImGui::OpenPopup(unsavedModalTitle);
+					unsavedOpen = true;
+				}
+
+				if (warnUnsaved())
+					glfwSetWindowShouldClose(window, 1);
+			}
+			else
+			{
+				glfwSetWindowShouldClose(window, 1);
+			}
+		}
 	}
 
-	void Application::resizeLayout(int screenWidth, int screenHeight)
+	void Application::initLayout()
 	{
-		float yPos = ImGui::GetFrameHeight() + 1;
-		ImGui::DockBuilderSetNodePos(dockspaceID, ImVec2(0.0f, yPos));
-		ImGui::DockBuilderSetNodeSize(dockspaceID, ImVec2(screenWidth, screenHeight - yPos));
-	}
+		dockspaceID = ImGui::DockSpaceOverViewport();
 
-	void Application::initLayout(int width, int height)
-	{
 		if (ImGui::DockBuilderGetNode(dockspaceID))
 			return;
 
 		ImGui::DockBuilderRemoveNode(dockspaceID);
 		ImGui::DockBuilderAddNode(dockspaceID);
-		ImGui::DockBuilderSetNodeSize(dockspaceID, ImVec2(width, height - ImGui::GetFrameHeight()));
-
-		ImGuiID mainID = dockspaceID;
-		ImGuiID right, extra;
-		ImGui::DockBuilderSplitNode(mainID, ImGuiDir_Right, 0.22f, &right, &mainID);
-		ImGui::DockBuilderSplitNode(right, ImGuiDir_Down, 0.35f, &extra, &right);
-
-		ImGui::DockBuilderDockWindow(timelineWindow, mainID);
-		ImGui::DockBuilderDockWindow(detailsWindow, right);
-		ImGui::DockBuilderDockWindow(debugWindow, extra);
-
+		ImGui::DockBuilderSetNodeSize(dockspaceID, ImGui::GetMainViewport()->WorkSize);
 		ImGui::DockBuilderFinish(dockspaceID);
 	}
 
@@ -539,12 +386,58 @@ namespace MikuMikuWorld
 		}
 
 		if (scoreFile.size())
-			editor->loadScore(scoreFile);
+		{
+			resetting = true;
+			pendingDropScoreFile = scoreFile;
+		}
 
 		if (musicFile.size())
 			editor->loadMusic(musicFile);
 
 		pendingOpenFiles.clear();
+	}
+
+	void Application::update()
+	{
+		initLayout();
+
+		if (!dragDropHandled)
+		{
+			handlePendingOpenFiles();
+			dragDropHandled = true;
+		}
+
+		InputListener::update(window);
+		processInput();
+		menuBar();
+		editor->update(frameDelta, renderer);
+		updateDialogs();
+
+		if (firstFrame)
+		{
+			ImGui::SetWindowFocus(timelineWindow);
+			firstFrame = false;
+		}
+
+		if (glfwGetTime() - lastAppTimeUpdate >= 0.05f)
+		{
+			appTime = stopwatch.elapsed();
+			appFrame = frameDelta;
+			lastAppTimeUpdate = glfwGetTime();
+		}
+
+		if (showPerformanceMetrics)
+		{
+			ImGui::BeginMainMenuBar();
+			ImGui::SetCursorPosX(ImGui::GetMainViewport()->WorkSize.x - 300);
+			ImGui::Text("app time: %.2fms :: frame time: %.2fms (%.0fFPS)",
+				appTime * 1000,
+				appFrame * 1000,
+				1 / appFrame
+			);
+
+			ImGui::EndMainMenuBar();
+		}
 	}
 
 	void Application::run()
@@ -567,59 +460,26 @@ namespace MikuMikuWorld
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
 
-			resizeLayout(screenWidth, screenHeight);
-			initLayout(screenWidth, screenHeight);
-
-			if (!dragDropHandled)
-			{
-				handlePendingOpenFiles();
-				dragDropHandled = true;
-			}
-
-			InputListener::update(window);
-			processInput();
-			menuBar();
-			editor->update(frameDelta, renderer);
-
-			if (firstFrame)
-			{
-				ImGui::SetWindowFocus(timelineWindow);
-				firstFrame = false;
-			}
-
-			if (glfwGetTime() - lastAppTimeUpdate >= 0.05f)
-			{
-				appTime = stopwatch.elapsed();
-				appFrame = frameDelta;
-				lastAppTimeUpdate = glfwGetTime();
-			}
-
-			if (showPerformanceMetrics)
-			{
-				ImGui::BeginMainMenuBar();
-				ImGui::SetCursorPosX(screenWidth - 300);
-				ImGui::Text("app time: %.2fms :: frame time: %.2fms (%.0fFPS)",
-					appTime * 1000,
-					appFrame * 1000,
-					1 / appFrame
-				);
-
-				ImGui::EndMainMenuBar();
-			}
-
-			if (showDemoWindow)
-				ImGui::ShowDemoWindow();
+			update();
 
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			
+			if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+			{
+				GLFWwindow* backupCurrentContext = glfwGetCurrentContext();
+				ImGui::UpdatePlatformWindows();
+				ImGui::RenderPlatformWindowsDefault();
+				glfwMakeContextCurrent(window);
+			}
 
 			glfwSwapBuffers(window);
 		}
 
-		writeSettings(appDir + appConfigFilename);
+		writeSettings(appDir + APP_CONFIG_FILENAME);
 
 		// cleanup
 		delete editor;

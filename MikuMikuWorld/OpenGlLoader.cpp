@@ -1,6 +1,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "Application.h"
+
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include "../Depends/GLFW/include/GLFW/glfw3native.h"
+
 #include "IconsFontAwesome5.h"
 #include "UI.h"
 #include "stb_image.h"
@@ -12,12 +16,6 @@ namespace MikuMikuWorld
 {
 	void frameBufferResizeCallback(GLFWwindow* window, int width, int height)
 	{
-		if (width && height)
-		{
-			Application::screenWidth = width;
-			Application::screenHeight = height;
-		}
-
 		glViewport(0, 0, width, height);
 	}
 
@@ -31,6 +29,12 @@ namespace MikuMikuWorld
 		}
 
 		Application::dragDropHandled = false;
+	}
+
+	void windowCloseCallback(GLFWwindow* window)
+	{
+		glfwSetWindowShouldClose(window, 0);
+		Application::exiting = true;
 	}
 
 	void loadIcon(std::string filepath, GLFWwindow* window)
@@ -72,6 +76,7 @@ namespace MikuMikuWorld
 		glfwSwapInterval(1);
 		glfwSetFramebufferSizeCallback(window, frameBufferResizeCallback);
 		glfwSetDropCallback(window, dropCallback);
+		glfwSetWindowCloseCallback(window, windowCloseCallback);
 
 		loadIcon(appDir + "res/mmw_icon.png", window);
 
@@ -92,14 +97,19 @@ namespace MikuMikuWorld
 		ImGuiIO* io = &ImGui::GetIO();
 
 		io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io->ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		io->BackendFlags |= ImGuiBackendFlags_PlatformHasViewports | ImGuiBackendFlags_RendererHasViewports;
 		io->ConfigWindowsMoveFromTitleBarOnly = true;
-		io->ConfigViewportsNoDefaultParent = true;
+		io->ConfigViewportsNoDefaultParent = false;
+		io->ConfigViewportsNoAutoMerge = false;
+		io->ConfigViewportsNoDecoration = false;
 		io->KeyRepeatRate = 0.15f;
-		io->IniFilename = imguiConfigFile.c_str();
 
 		ImGui::StyleColorsDark();
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 130");
+
+		//ImGui::GetMainViewport()->Flags |= ImGuiViewportFlags_CanHostOtherWindows | ImGuiViewportFlags_IsPlatformWindow;
 
 		std::string fontPath{ Application::getAppDir() + "res/fonts/NotoSansJP-Regular.otf" };
 		std::string iconFontPath{ Application::getAppDir() + "res/fonts/fa-solid-900.ttf" };

@@ -2,6 +2,8 @@
 
 namespace MikuMikuWorld
 {
+	constexpr int TICKS_PER_BEAT = 480;
+
 	constexpr int NOTES_X_SLICE = 83;
 	constexpr int NOTES_SIDE_WIDTH = 30;
 	constexpr float NOTES_SLICE_WIDTH = 15;
@@ -30,6 +32,6 @@ namespace MikuMikuWorld
 	constexpr const char* HOLD_PATH_TEX = "tex_hold_path";
 	constexpr const char* HOLD_PATH_CRTCL_TEX = "tex_hold_path_crtcl";
 	constexpr const char* HIGHLIGHT_TEX = "tex_note_common_all";
-
-	constexpr int TICKS_PER_BEAT = 480;
+	constexpr const char* APP_CONFIG_FILENAME = "app_config.json";
+	constexpr const char* IMGUI_CONFIG_FILENAME = "imgui_config.ini";
 }

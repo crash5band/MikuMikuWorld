@@ -17,14 +17,20 @@ namespace MikuMikuWorld
 		AccentColor{ "Plain", ImVec4(0.40f, 0.40f, 0.40f, 1.00f) }
 	};
 
-	bool transparentButton(const char* txt, ImVec2 size, bool repeat)
+	bool transparentButton(const char* txt, ImVec2 size, bool repeat, bool enabled)
 	{
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !enabled);
+		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * !enabled));
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+
 		ImGui::PushButtonRepeat(repeat);
 		bool pressed = ImGui::Button(txt, size);
 		ImGui::PopButtonRepeat();
 
 		ImGui::PopStyleColor();
+		ImGui::PopStyleVar();
+		ImGui::PopItemFlag();
+
 		return pressed;
 	}
 
@@ -38,7 +44,7 @@ namespace MikuMikuWorld
 		std::string id{ "##" };
 		id.append(txt);
 
-		ImGui::SetCursorPos(pos);
+		ImGui::SetCursorScreenPos(pos);
 		bool pressed = ImGui::Button(id.c_str(), size);
 
 		ImGui::PopStyleColor(3);

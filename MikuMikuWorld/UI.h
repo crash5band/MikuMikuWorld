@@ -5,24 +5,23 @@
 #include "IconsFontAwesome5.h"
 #include <vector>
 
+#define APP_NAME "MikuMikuWorld"
+#define APP_NAME_FRIENDLY "Miku Miku World"
+
 namespace MikuMikuWorld
 {
+	constexpr const char* toolboxWindow = ICON_FA_TOOLBOX " Toolbox";
+	constexpr const char* controlsWindow = ICON_FA_ADJUST " Controls";
 	constexpr const char* timelineWindow = ICON_FA_MUSIC " Notes Timeline";
 	constexpr const char* detailsWindow = ICON_FA_ALIGN_LEFT " Score Details";
 	constexpr const char* debugWindow = ICON_FA_BUG " Debug";
-	constexpr const char* windowTitle = "MikuMikuWorld - ";
-	constexpr const char* windowTitleNew = "MikuMikuWorld - Untitled";
+	constexpr const char* windowTitle = APP_NAME " - ";
+	constexpr const char* windowTitleNew = APP_NAME " - Untitled";
+	constexpr const char* aboutModalTitle = APP_NAME_FRIENDLY " - About";
+	constexpr const char* settingsModalTitle = APP_NAME_FRIENDLY " - Settings";
+	constexpr const char* unsavedModalTitle = APP_NAME_FRIENDLY " - Unsaved Changes";
 
-	constexpr ImGuiWindowFlags ImGuiWindowFlags_Static =
-		ImGuiWindowFlags_NoTitleBar
-		| ImGuiWindowFlags_NoResize
-		| ImGuiWindowFlags_NoMove
-		| ImGuiWindowFlags_NoCollapse
-		| ImGuiWindowFlags_AlwaysAutoResize
-		//| ImGuiWindowFlags_NoFocusOnAppearing
-		//| ImGuiWindowFlags_NoSavedSettings
-		//| ImGuiWindowFlags_NoDocking
-		;
+	constexpr ImGuiWindowFlags ImGuiWindowFlags_Static = ImGuiWindowFlags_NoCollapse;
 
 	static const ImVec2 btnNormal{ 30, 30 };
 	static const ImVec2 btnSmall{ 20, 20 };
@@ -35,7 +34,7 @@ namespace MikuMikuWorld
 
 	extern std::vector<AccentColor> accentColors;
 
-	bool transparentButton(const char* txt, ImVec2 size = btnNormal, bool repeat = false);
+	bool transparentButton(const char* txt, ImVec2 size = btnNormal, bool repeat = false, bool enabled = true);
 	bool transparentButton2(const char* txt, ImVec2 pos, ImVec2 size);
 	bool isAnyPopupOpen();
 	void beginPropertyColumns();

@@ -164,6 +164,7 @@
     <ClCompile Include="Audio\AudioEvent.cpp" />
     <ClCompile Include="Audio\AudioManager.cpp" />
     <ClCompile Include="Audio\stb_vorbis.c" />
+    <ClCompile Include="Dialogs.cpp" />
     <ClCompile Include="Editing.cpp" />
     <ClCompile Include="EditorWindows.cpp" />
     <ClCompile Include="File.cpp" />

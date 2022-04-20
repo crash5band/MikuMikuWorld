@@ -21,4 +21,22 @@ namespace MikuMikuWorld
 
 	const Color noteTint{ 1.0f, 1.0f, 1.0f, 1.0f };
 	const Color hoverTint{ 1.0f, 1.0f, 1.0f, 0.70f };
+
+	static ImVec4 generateDarkColor(const ImVec4& color)
+	{
+		return ImVec4(
+			std::max(0.0f, color.x - 0.10f),
+			std::max(0.0f, color.y - 0.10f),
+			std::max(0.0f, color.z - 0.10f),
+			1.0f);
+	}
+
+	static ImVec4 generateHighlightColor(const ImVec4& color)
+	{
+		return ImVec4(
+			std::max(0.0f, color.x + 0.10f),
+			std::max(0.0f, color.y + 0.10f),
+			std::max(0.0f, color.z + 0.10f),
+			1.0f);
+	}
 }

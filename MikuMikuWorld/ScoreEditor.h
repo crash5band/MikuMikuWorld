@@ -89,6 +89,7 @@ namespace MikuMikuWorld
 		bool hasSelection;
 		bool hasSelectionEase;
 		bool hasSelectionStep;
+		bool uptoDate;
 
 		ImVec2 ctrlMousePos;
 		ImVec2 dragStart;
@@ -112,6 +113,7 @@ namespace MikuMikuWorld
 
 		void updateControls();
 		void updateScoreDetails();
+		void pushHistory(const std::string& description, const Score& prev, const Score& curr);
 
 		void drawMeasures();
 		void drawLanes();
@@ -151,6 +153,7 @@ namespace MikuMikuWorld
 
 		void update(float frameTime, Renderer* renderer);
 		void updateTimeline(Renderer* renderer);
+		void updateToolboxWindow();
 
 		int positionToTick(float pos, int div = 1);
 		float tickToPosition(int tick, int div = 1);
@@ -222,6 +225,7 @@ namespace MikuMikuWorld
 		void undo();
 		void redo();
 
+		bool isUptoDate() const;
 		bool isWindowFocused() const;
 	};
 }
