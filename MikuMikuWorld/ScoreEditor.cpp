@@ -82,6 +82,10 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::loadMusic(const std::string& filename)
 	{
+		playing = false;
+		audio.clearEvents();
+		audio.stopBGM();
+
 		audio.changeBGM(filename);
 		if (audio.isMusicInitialized())
 			musicFile = filename;
@@ -131,17 +135,18 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::reset()
 	{
-		int tick = currentTick;
-		stop();
+		playing = false;
+		audio.stopAllEvents();
+		audio.stopBGM();
 
-		currentTick = tick;
 		selectedNotes.clear();
 		history.clear();
-		workingData = EditorScoreData{};
-
 		resetNextID();
-		hasEdit = false;
+
+		workingData = EditorScoreData{};
 		score = Score();
+
+		hasEdit = false;
 		uptoDate = true;
 
 		setWindowTitle(windowTitleNew);
