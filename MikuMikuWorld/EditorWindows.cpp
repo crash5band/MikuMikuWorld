@@ -270,6 +270,16 @@ namespace MikuMikuWorld
 		ImGui::End();
 	}
 
+	std::string ScoreEditor::getDivisonString(int divIndex)
+	{
+		int count = sizeof(divisions) / sizeof(int);
+		bool customSelected = divIndex == count - 1;
+
+		std::string prefix = "1/";
+		return (customSelected ? "Custom " : "") +
+			prefix + std::to_string((customSelected ? customDivision : divisions[divIndex]));
+	}
+
 	void ScoreEditor::updateControls()
 	{
 		if (ImGui::Begin(controlsWindow))
@@ -304,34 +314,43 @@ namespace MikuMikuWorld
 			ImGui::Text("Division");
 			ImGui::SetNextItemWidth(-1);
 			std::string divPrefix = "1/";
-			std::string preview = divPrefix + std::to_string(divisions[selectedDivision]);
-			if (ImGui::BeginCombo("##division", preview.c_str()))
+
+			int divCount = sizeof(divisions) / sizeof(int);
+			if (ImGui::BeginCombo("##division", getDivisonString(selectedDivision).c_str()))
 			{
-				for (int i = 0; i < sizeof(divisions) / sizeof(int); ++i)
+				for (int i = 0; i < divCount; ++i)
 				{
+					const bool custom = i == divCount - 1;
 					const bool selected = selectedDivision == i;
-					std::string div = divPrefix + std::to_string(divisions[i]);
-					if (ImGui::Selectable(div.c_str(), selected))
+					if (ImGui::Selectable(getDivisonString(i).c_str(), selected))
 					{
 						selectedDivision = i;
-						division = divisions[selectedDivision];
+						if (selectedDivision < divCount - 1)
+							division = divisions[selectedDivision];
+						else
+							division = customDivision;
 					}
 				}
+				
 				ImGui::EndCombo();
 			}
 
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, ImGui::GetStyle().ItemSpacing.y));
+			ImGui::Text("Custom Divison");
+			ImGui::SetNextItemWidth(-1);
+			if (ImGui::InputInt("##custom_div", &customDivision, 1, 4))
+			{
+				customDivision = std::clamp(customDivision, 4, 1920);
+				if ((selectedDivision == divCount - 1))
+					division = customDivision;
+			}
 
 			ImGui::Text("Zoom");
 			float _zoom = zoom;
 			if (transparentButton(ICON_FA_SEARCH_MINUS, btnSmall))
 				_zoom -= 0.25f;
 
-			ImVec2 padding = ImGui::GetStyle().WindowPadding;
-			ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
-
 			ImGui::SameLine();
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - btnSmall.x - padding.x);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - btnSmall.x);
 			ImGui::SliderFloat("##zoom", &_zoom, MIN_ZOOM, MAX_ZOOM, "%.2fx", ImGuiSliderFlags_AlwaysClamp);
 			ImGui::SameLine();
 
@@ -343,8 +362,6 @@ namespace MikuMikuWorld
 
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
 			ImGui::Checkbox("Show Step Outlines", &drawHoldStepOutline);
-
-			ImGui::PopStyleVar();
 		}
 
 		ImGui::End();

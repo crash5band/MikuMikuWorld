@@ -1,12 +1,10 @@
 #pragma once
 #include "Score.h"
-#include "Tempo.h"
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_internal.h"
 #include "Rendering/Camera.h"
 #include "Rendering/Framebuffer.h"
 #include "Constants.h"
-#include "Note.h"
 #include "TimelineMode.h"
 #include "EditorScoreData.h"
 #include "HistoryManager.h"
@@ -19,11 +17,9 @@
 namespace MikuMikuWorld
 {
 	class Renderer;
-	class Texture;
 	struct Score;
 	struct Note;
 	struct Color;
-	struct Vector2;
 
 	class ScoreEditor
 	{
@@ -57,11 +53,12 @@ namespace MikuMikuWorld
 		const float noteCtrlWidth = NOTES_SLICE_WIDTH - 2.0f;
 
 		int division = 8;
+		int customDivision = 8;
 		int selectedDivision = 1;
 		int laneOffset = 0.0f;
 		float laneWidth = 35.0f;
 		float notesHeight = 50.0f;
-		float zoom = 1.0f;
+		float zoom = 1.5f;
 		float timelineMinOffset = 0;
 		float timelineOffset = 0;
 		float effectiveTickHeight;
@@ -111,6 +108,7 @@ namespace MikuMikuWorld
 		float seVolume;
 		const float audioLookAhead = 0.1;
 
+		std::string getDivisonString(int divIndex);
 		void updateControls();
 		void updateScoreDetails();
 		void pushHistory(const std::string& description, const Score& prev, const Score& curr);
