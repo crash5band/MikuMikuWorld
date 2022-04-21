@@ -403,27 +403,18 @@ namespace MikuMikuWorld
 			int endTick = score.notes.at(hold.second.end).tick;
 			int eigthTick = startTick;
 
-			// find first half beat
-			for (int i = startTick + 1; i < endTick; ++i)
-			{
-				if (!(i % halfBeat))
-				{
-					eigthTick = i;
-					break;
-				}
-			}
+			eigthTick += halfBeat;
+			if (eigthTick % halfBeat)
+				eigthTick -= (eigthTick % halfBeat);
 
 			// hold <= 1/8th long
-			if (eigthTick == startTick)
+			if (eigthTick == startTick || eigthTick == endTick)
 				continue;
 
-			// not the best solution but it works
-			while (eigthTick < endTick)
-			{
-				++combo;
-				eigthTick += halfBeat;
-			}
-			//combo += (totalTicks < halfBeat ? 1 : (totalTicks / halfBeat));
+			if (endTick % halfBeat)
+				endTick += halfBeat - (endTick % halfBeat);
+
+			combo += (endTick - eigthTick) / halfBeat;
 		}
 
 		std::vector<int> counts;
