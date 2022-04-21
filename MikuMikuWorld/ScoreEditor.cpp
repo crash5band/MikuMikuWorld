@@ -895,7 +895,7 @@ namespace MikuMikuWorld
 				const float x2 = x1 + timelineWidth;
 				const float y = canvasPos.y - tickToPosition(hoverTick) + timelineOffset;
 				drawList->AddLine(ImVec2(x1, y), ImVec2(x2 + MEASURE_WIDTH, y), tempoColor, 2.0f);
-				drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 + 20.0f, y), tempoColor, "BPM");
+				drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 + 20.0f, y - 25.0f), tempoColor, "BPM");
 			}
 			else if (currentMode == TimelineMode::InsertTimeSign)
 			{
@@ -903,7 +903,7 @@ namespace MikuMikuWorld
 				const float x2 = x1 + timelineWidth;
 				const float y = canvasPos.y - tickToPosition(hoverTick) + timelineOffset;
 				drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH - (ImGui::CalcTextSize("4/4").x * 0.5f), y), ImVec2(x2, y), timeColor, 2.0f);
-				drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x1 - 40.0f, y), timeColor, "4/4");
+				drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x1 - 40.0f, y - 25.0f), timeColor, "4/4");
 			}
 			else
 			{
