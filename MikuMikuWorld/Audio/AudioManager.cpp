@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include "../Application.h"
 #include "../StringOperations.h"
+#include "../UI.h"
 
 #define STB_VORBIS_HEADER_ONLY
 #include "stb_vorbis.c"
@@ -44,7 +45,7 @@ namespace MikuMikuWorld
 		catch (int)
 		{
 			err.append(ma_result_description(result));
-			MessageBox(NULL, err.c_str(), "MikuMikuWorld", MB_OK | MB_ICONERROR);
+			MessageBox(NULL, err.c_str(), APP_NAME, MB_OK | MB_ICONERROR);
 
 			exit(result);
 		}
@@ -70,16 +71,16 @@ namespace MikuMikuWorld
 		ma_sound critical_connect;
 		ma_sound critical_tick;
 
-		seMap.insert(std::pair("perfect", perfect));
-		seMap.insert(std::pair("great", great));
-		seMap.insert(std::pair("good", good));
-		seMap.insert(std::pair("flick", flick));
-		seMap.insert(std::pair("connect", connect));
-		seMap.insert(std::pair("tick", tick));
-		seMap.insert(std::pair("critical_tap", critical_tap));
-		seMap.insert(std::pair("critical_flick", critical_flick));
-		seMap.insert(std::pair("critical_connect", critical_connect));
-		seMap.insert(std::pair("critical_tick", critical_tick));
+		seMap.insert(std::pair(SE_PERFECT, perfect));
+		seMap.insert(std::pair(SE_GREAT, great));
+		seMap.insert(std::pair(SE_GOOD, good));
+		seMap.insert(std::pair(SE_FLICK, flick));
+		seMap.insert(std::pair(SE_CONNECT, connect));
+		seMap.insert(std::pair(SE_TICK, tick));
+		seMap.insert(std::pair(SE_CRITICAL_TAP, critical_tap));
+		seMap.insert(std::pair(SE_CRITICAL_FLICK, critical_flick));
+		seMap.insert(std::pair(SE_CRITICAL_CONNECT, critical_connect));
+		seMap.insert(std::pair(SE_CRITICAL_FLICK, critical_tick));
 
 		for (auto& it : seMap)
 		{

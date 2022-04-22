@@ -151,12 +151,12 @@ namespace MikuMikuWorld
 			if (pos != -1 && hold.steps[pos].type == HoldStepType::Invisible)
 				return "";
 
-			se = note.critical ? "critical_tick" : "tick";
+			se = note.critical ? SE_CRITICAL_TICK : SE_TICK;
 		}
 		else
 		{
-			se = note.isFlick() ? note.critical ? "critical_flick" : "flick" :
-				note.critical ? note.getType() == NoteType::Tap ? "critical_tap" : "perfect" : "perfect";
+			se = note.isFlick() ? note.critical ? SE_CRITICAL_FLICK : SE_FLICK :
+				note.critical ? note.getType() == NoteType::Tap ? SE_CRITICAL_TAP : SE_PERFECT : SE_PERFECT;
 		}
 
 		return se;

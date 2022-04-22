@@ -433,7 +433,7 @@ namespace MikuMikuWorld
 				if (note.getType() == NoteType::Hold)
 				{
 					float endTime = accumulateDuration(score.notes.at(score.holdNotes.at(note.ID).end).tick, TICKS_PER_BEAT, score.tempoChanges);
-					audio.pushAudioEvent(note.critical ? "critical_connect" : "connect", noteTime - playStartTime, endTime - playStartTime + 0.02f, true);
+					audio.pushAudioEvent(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, noteTime - playStartTime, endTime - playStartTime + 0.02f, true);
 				}
 			}
 			else if (time == playStartTime)
@@ -460,7 +460,7 @@ namespace MikuMikuWorld
 					float endTime = accumulateDuration(endTick, TICKS_PER_BEAT, score.tempoChanges);
 
 					if (noteTime <= time && endTime > time)
-						audio.pushAudioEvent(note.critical ? "critical_connect" : "connect", std::max(0.0f, noteTime - playStartTime), endTime - playStartTime + 0.02f, true);
+						audio.pushAudioEvent(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, std::max(0.0f, noteTime - playStartTime), endTime - playStartTime + 0.02f, true);
 				}
 			}
 		}

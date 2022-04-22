@@ -25,8 +25,6 @@ namespace MikuMikuWorld
 	constexpr int MAX_LANE_WIDTH = 40;
 	constexpr int MIN_NOTES_HEIGHT = 30;
 	constexpr int MAX_NOTES_HEIGHT = 60;
-	constexpr int MIN_DIFFICULTY = 1;
-	constexpr int MAX_DIFFICULTY = 40;
 
 	constexpr const char* NOTES_TEX = "tex_notes";
 	constexpr const char* HOLD_PATH_TEX = "tex_hold_path";
@@ -34,4 +32,15 @@ namespace MikuMikuWorld
 	constexpr const char* HIGHLIGHT_TEX = "tex_note_common_all";
 	constexpr const char* APP_CONFIG_FILENAME = "app_config.json";
 	constexpr const char* IMGUI_CONFIG_FILENAME = "imgui_config.ini";
+
+	constexpr const char* SE_PERFECT = "perfect";
+	constexpr const char* SE_GREAT = "great";
+	constexpr const char* SE_GOOD = "good";
+	constexpr const char* SE_FLICK = "flick";
+	constexpr const char* SE_CONNECT = "connect";
+	constexpr const char* SE_TICK = "tick";
+	constexpr const char* SE_CRITICAL_TAP = "critical_tap";
+	constexpr const char* SE_CRITICAL_FLICK = "critical_flick";
+	constexpr const char* SE_CRITICAL_CONNECT = "critical_connect";
+	constexpr const char* SE_CRITICAL_TICK = "critical_tick";
 }
