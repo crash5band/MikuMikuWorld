@@ -1,0 +1,27 @@
+#pragma once
+#include <stdio.h>
+#include <string>
+
+namespace MikuMikuWorld
+{
+	class BinaryWriter
+	{
+	private:
+		FILE* stream;
+
+	public:
+		BinaryWriter(const std::string& filename);
+
+		bool isStreamValid();
+		void close();
+
+		size_t getFileSize();
+		size_t getStreamPosition();
+
+		void seek(size_t pos);
+		void writeInt32(uint32_t data);
+		void writeSingle(float data);
+		void writeString(std::string data);
+		void writeNull(size_t length);
+	};
+}

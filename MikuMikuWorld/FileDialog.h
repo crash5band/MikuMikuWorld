@@ -6,6 +6,8 @@ namespace MikuMikuWorld
 	enum class FileType
 	{
 		ScoreFile,
+		MMWSFile,
+		SUSFile,
 		AudioFile,
 		ImageFile
 	};

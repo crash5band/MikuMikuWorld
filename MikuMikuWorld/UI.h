@@ -13,7 +13,7 @@ namespace MikuMikuWorld
 	constexpr const char* toolboxWindow = ICON_FA_TOOLBOX " Toolbox";
 	constexpr const char* controlsWindow = ICON_FA_ADJUST " Controls";
 	constexpr const char* timelineWindow = ICON_FA_MUSIC " Notes Timeline";
-	constexpr const char* detailsWindow = ICON_FA_ALIGN_LEFT " Score Details";
+	constexpr const char* detailsWindow = ICON_FA_ALIGN_LEFT " Chart Properties";
 	constexpr const char* debugWindow = ICON_FA_BUG " Debug";
 	constexpr const char* windowTitle = APP_NAME " - ";
 	constexpr const char* windowTitleNew = APP_NAME " - Untitled";

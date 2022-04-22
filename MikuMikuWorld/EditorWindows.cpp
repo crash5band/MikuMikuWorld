@@ -195,12 +195,9 @@ namespace MikuMikuWorld
 			if (ImGui::CollapsingHeader(ICON_FA_ALIGN_LEFT " Metadata", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				beginPropertyColumns();
-
 				addStringProperty("Title", workingData.title);
 				addStringProperty("Designer", workingData.designer);
 				addStringProperty("Artist", workingData.artist);
-				addIntProperty("Difficulty", workingData.difficulty, 1, 40);
-				
 				endPropertyColumns();
 			}
 

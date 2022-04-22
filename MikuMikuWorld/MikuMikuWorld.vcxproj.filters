@@ -112,6 +112,15 @@
     <ClCompile Include="UI.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="BinaryReader.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="BinaryWriter.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="SUSIO.cpp">
+      <Filter>Score\SUS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -244,6 +253,15 @@
     </ClInclude>
     <ClInclude Include="UI.h">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryReader.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryWriter.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="SUSIO.h">
+      <Filter>Score\SUS</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

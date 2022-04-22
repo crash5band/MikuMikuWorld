@@ -10,13 +10,11 @@ namespace MikuMikuWorld
 {
 	struct ScoreMetadata
 	{
-		std::string filename;
 		std::string title;
 		std::string artist;
 		std::string author;
 		std::string musicFile;
-		int difficulty;
-		float offset;
+		float musicOffset;
 	};
 
 	struct Score

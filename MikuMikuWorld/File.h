@@ -18,6 +18,7 @@ namespace MikuMikuWorld
 		static std::string getFileExtension(const std::string& filename);
 		static std::string getFilenameWithoutExtension(const std::string& filename);
 		static std::string getFilepath(const std::string& filename);
+		static std::string fixPath(const std::string& path);
 
 		void open(const std::wstring& filename, const wchar_t* mode);
 		void open(const std::string& filename, const char* mode);

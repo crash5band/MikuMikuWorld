@@ -164,6 +164,8 @@
     <ClCompile Include="Audio\AudioEvent.cpp" />
     <ClCompile Include="Audio\AudioManager.cpp" />
     <ClCompile Include="Audio\stb_vorbis.c" />
+    <ClCompile Include="BinaryReader.cpp" />
+    <ClCompile Include="BinaryWriter.cpp" />
     <ClCompile Include="Dialogs.cpp" />
     <ClCompile Include="Editing.cpp" />
     <ClCompile Include="EditorWindows.cpp" />
@@ -195,6 +197,7 @@
     <ClCompile Include="Stopwatch.cpp" />
     <ClCompile Include="StringOperations.cpp" />
     <ClCompile Include="SUS.cpp" />
+    <ClCompile Include="SUSIO.cpp" />
     <ClCompile Include="Tempo.cpp" />
     <ClCompile Include="ScoreEditor.cpp" />
     <ClCompile Include="TimelineNotes.cpp" />
@@ -205,6 +208,8 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="Audio\AudioEvent.h" />
     <ClInclude Include="Audio\AudioManager.h" />
+    <ClInclude Include="BinaryReader.h" />
+    <ClInclude Include="BinaryWriter.h" />
     <ClInclude Include="ChannelProvider.h" />
     <ClInclude Include="Colors.h" />
     <ClInclude Include="Constants.h" />
@@ -243,6 +248,7 @@
     <ClInclude Include="Stopwatch.h" />
     <ClInclude Include="StringOperations.h" />
     <ClInclude Include="SUS.h" />
+    <ClInclude Include="SUSIO.h" />
     <ClInclude Include="Tempo.h" />
     <ClInclude Include="ScoreEditor.h" />
     <ClInclude Include="TimelineMode.h" />

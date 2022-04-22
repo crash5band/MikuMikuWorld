@@ -230,6 +230,9 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem("Save As", "Ctrl + Shift + S"))
 				editor->saveAs();
 
+			if (ImGui::MenuItem("Export"))
+				editor->exportSUS();
+
 			ImGui::Separator();
 
 			if (ImGui::MenuItem("Exit", "Alt + F4"))
@@ -384,7 +387,7 @@ namespace MikuMikuWorld
 			std::string extension = File::getFileExtension(*it);
 			std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
 
-			if (extension == "sus")
+			if (extension == "sus" || extension == "mmws")
 				scoreFile = *it;
 			else if (extension == "mp3" || extension == "wav" || extension == "flac" || extension == "ogg")
 				musicFile = *it;

@@ -205,6 +205,7 @@ namespace MikuMikuWorld
 		if (!window)
 			return;
 
-		glfwSetWindowTitle(window, title.c_str());
+		std::string fullTitle = windowTitle + title;
+		glfwSetWindowTitle(window, fullTitle.c_str());
 	}
 }

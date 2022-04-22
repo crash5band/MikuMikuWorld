@@ -8,9 +8,9 @@ namespace MikuMikuWorld
 		std::string title;
 		std::string designer;
 		std::string artist;
-		int difficulty;
+		std::string filename;
 
-		EditorScoreData() : title{ "" }, designer{ "" }, artist{ "" }, difficulty{ 1 }
+		EditorScoreData() : filename{ "" }, title { "" }, designer{ "" }, artist{ "" }
 		{
 
 		}

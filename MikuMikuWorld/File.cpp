@@ -139,4 +139,21 @@ namespace MikuMikuWorld
 
 		return filename.substr(start, end - start + 1);
 	}
+
+	std::string File::fixPath(const std::string& path)
+	{
+		std::string result = path;
+		int index = 0;
+		while (true)
+		{
+			index = result.find("\\", index);
+			if (index == result.npos)
+				break;
+
+			result.replace(index, 1, "/");
+			index += 1;
+		}
+
+		return result;
+	}
 }

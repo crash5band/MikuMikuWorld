@@ -3,6 +3,7 @@
 #include "HistoryManager.h"
 #include "Rendering/Renderer.h"
 #include "Score.h"
+#include "SUSIO.h"
 #include "Utilities.h"
 #include "IconsFontAwesome5.h"
 #include "Colors.h"
@@ -15,6 +16,7 @@
 #include <map>
 #include <unordered_set>
 #include <algorithm>
+#include <filesystem>
 
 namespace MikuMikuWorld
 {
@@ -56,7 +58,9 @@ namespace MikuMikuWorld
 		workingData.title = score.metadata.title;
 		workingData.designer = score.metadata.author;
 		workingData.artist = score.metadata.artist;
-		musicOffset = score.metadata.offset * 1000.0f;
+		
+		loadMusic(score.metadata.musicFile);
+		musicOffset = score.metadata.musicOffset;
 		audio.setBGMOffset(time, musicOffset);
 	}
 
@@ -65,18 +69,35 @@ namespace MikuMikuWorld
 		score.metadata.title = workingData.title;
 		score.metadata.author = workingData.designer;
 		score.metadata.artist = workingData.artist;
-		score.metadata.difficulty = workingData.difficulty;
-		score.metadata.musicFile = File::getFilenameWithoutExtension(musicFile);
-		score.metadata.offset = musicOffset / 1000.0f;
+		score.metadata.musicFile = musicFile;
+		score.metadata.musicOffset = musicOffset;
 	}
 
 	void ScoreEditor::loadScore(const std::string& filename)
 	{
 		reset();
-		score = deserializeScore(filename);
-		readScoreMetadata();
+		
+		std::string extension = File::getFileExtension(filename);
+		std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+		std::string title = "Untitled";
 
-		std::string title = windowTitle + File::getFilenameWithoutExtension(score.metadata.filename);
+		if (extension == "sus")
+		{
+			SUSIO susIO;
+			score = susIO.importSUS(filename);
+			workingData.filename = "";
+
+			// project not saved
+			uptoDate = false;
+		}
+		else if (extension == "mmws")
+		{
+			score = deserializeScore(filename);
+			workingData.filename = filename;
+			title = File::getFilenameWithoutExtension(filename);
+		}
+		
+		readScoreMetadata();
 		setWindowTitle(title.c_str());
 	}
 
@@ -100,37 +121,48 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::save()
 	{
-		if (score.metadata.filename.size())
+		if (workingData.filename.size())
 		{
 			writeScoreMetadata();
-			serializeScore(score, score.metadata.filename);
+			serializeScore(score, workingData.filename);
 			uptoDate = true;
+			setWindowTitle(File::getFilenameWithoutExtension(workingData.filename));
 		}
 		else
 		{
 			saveAs();
 		}
-
-		std::string title = windowTitle + File::getFilenameWithoutExtension(score.metadata.filename);
-		setWindowTitle(title.c_str());
 	}
 
 	void ScoreEditor::saveAs()
 	{
 		std::string filename;
-		if (FileDialog::saveFile(filename, FileType::ScoreFile))
+		if (FileDialog::saveFile(filename, FileType::MMWSFile))
+		{
+			if (!endsWith(filename, ".mmws"))
+				filename.append(".mmws");
+
+			workingData.filename = filename;
+			writeScoreMetadata();
+			serializeScore(score, filename);
+			uptoDate = true;
+
+			setWindowTitle(File::getFilenameWithoutExtension(workingData.filename));
+		}
+	}
+
+	void ScoreEditor::exportSUS()
+	{
+		std::string filename;
+		if (FileDialog::saveFile(filename, FileType::SUSFile))
 		{
 			if (!endsWith(filename, ".sus"))
 				filename.append(".sus");
 
-			score.metadata.filename = filename;
 			writeScoreMetadata();
-			serializeScore(score, filename);
-			uptoDate = true;
+			SUSIO susIO;
+			susIO.exportSUS(score, filename);
 		}
-
-		std::string title = windowTitle + File::getFilenameWithoutExtension(score.metadata.filename);
-		setWindowTitle(title.c_str());
 	}
 
 	void ScoreEditor::reset()

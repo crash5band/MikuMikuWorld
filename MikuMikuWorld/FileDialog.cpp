@@ -10,6 +10,10 @@ namespace MikuMikuWorld
 		{
 		case FileType::ScoreFile:
 			return L"Score File";
+		case FileType::MMWSFile:
+			return L"Miku Miku World Score";
+		case FileType::SUSFile:
+			return L"Sliding Universal Score";
 		case FileType::AudioFile:
 			return L"Audio File";
 		case FileType::ImageFile:
@@ -24,7 +28,11 @@ namespace MikuMikuWorld
 		switch (type)
 		{
 		case FileType::ScoreFile:
-			return L"Sliding Universal Score(.sus)\0*.sus\0All Files(*.*)\0*.*\0";
+			return L"Score Files (*.mmws;*.sus)\0*.mmws;*.sus\0MikuMikuWorld Score (*.mmws)\0*.mmws\0Sliding Universal Score(*.sus)\0*.sus\0All Files(*.*)\0*.*\0";
+		case FileType::MMWSFile:
+			return L"MikuMikuWorld Score (.mmws)\0*.mmws";
+		case FileType::SUSFile:
+			return L"Sliding Universal Score(.sus)\0 *.sus";
 		case FileType::AudioFile:
 			return L"Audio Files(*.mp3;*.wav;*.flac;*.ogg)\0*.mp3;*.wav;*.flac;*.ogg\0MP3 Files(*.mp3)\0*.mp3\0WAV Files(*.wav)\0*.wav\0FLAC Files(*.flac)\0*.flac\0OGG Vorbis Files(*.ogg)\0*.ogg\0";
 		case FileType::ImageFile:
