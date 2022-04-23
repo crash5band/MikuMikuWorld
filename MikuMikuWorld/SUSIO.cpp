@@ -251,9 +251,8 @@ namespace MikuMikuWorld
 		std::vector<BPM> bpms;
 		std::vector<BarLength> barlengths;
 
-		for (const auto& it : score.notes)
+		for (const auto&[id, note] : score.notes)
 		{
-			const Note& note = it.second;
 			if (note.getType() == NoteType::Tap)
 			{
 				taps.push_back(SUSNote{ note.tick, note.lane + 2, note.width, note.critical ? 2 : 1 });
@@ -262,12 +261,11 @@ namespace MikuMikuWorld
 			}
 		}
 
-		for (const auto& it : score.holdNotes)
+		for (const auto&[id, hold] : score.holdNotes)
 		{
 			std::vector<SUSNote> slide;
-			slide.reserve(it.second.steps.size() + 2);
+			slide.reserve(hold.steps.size() + 2);
 
-			const HoldNote& hold = it.second;
 			const Note& start = score.notes.at(hold.start.ID);
 
 			slide.push_back(SUSNote{ start.tick, start.lane + 2, start.width, 1 });
@@ -325,11 +323,8 @@ namespace MikuMikuWorld
 		std::sort(bpms.begin(), bpms.end(),
 			[](BPM& a, BPM& b) { return a.tick < b.tick; });
 
-		for (const auto& it : score.timeSignatures)
-		{
-			const TimeSignature& ts = it.second;
+		for (const auto&[measure, ts] : score.timeSignatures)
 			barlengths.push_back(BarLength{ ts.measure, ((float)ts.numerator / (float)ts.denominator) * 4 });
-		}
 
 		std::sort(barlengths.begin(), barlengths.end(),
 			[](BarLength& a, BarLength& b) { return a.bar < b.bar; });

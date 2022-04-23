@@ -458,7 +458,7 @@ namespace MikuMikuWorld
 					int endTick = score.notes.at(score.holdNotes.at(note.ID).end).tick;
 					float endTime = accumulateDuration(endTick, TICKS_PER_BEAT, score.tempoChanges);
 
-					if (noteTime <= time && endTime > time)
+					if (endTime > time)
 						audio.pushAudioEvent(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, std::max(0.0f, noteTime - playStartTime), endTime - playStartTime + 0.02f, true);
 				}
 			}
@@ -858,9 +858,8 @@ namespace MikuMikuWorld
 		framebuffer->clear();
 		renderer->beginBatch();
 
-		for (auto it = score.notes.begin(); it != score.notes.end(); ++it)
+		for (auto&[id, note] : score.notes)
 		{
-			Note& note = it->second;
 			if (note.getType() == NoteType::Tap)
 			{
 				if (isNoteInCanvas(note.tick))
@@ -871,21 +870,21 @@ namespace MikuMikuWorld
 			}
 		}
 
-		for (auto it = score.holdNotes.begin(); it != score.holdNotes.end(); ++it)
+		for (auto&[id, hold] : score.holdNotes)
 		{
-			Note& start = score.notes.at(it->first);
-			Note& end = score.notes.at(it->second.end);
+			Note& start = score.notes.at(hold.start.ID);
+			Note& end = score.notes.at(hold.end);
 
 			if (isNoteInCanvas(start.tick)) updateNote(start);
 			if (isNoteInCanvas(end.tick)) updateNote(end);
 
-			for (const auto& step : it->second.steps)
+			for (const auto& step : hold.steps)
 			{
 				Note& mid = score.notes.at(step.ID);
 				if (isNoteInCanvas(mid.tick)) updateNote(mid);
 			}
 
-			drawHoldNote(score.notes, it->second, renderer, noteTint);
+			drawHoldNote(score.notes, hold, renderer, noteTint);
 		}
 
 		renderer->endBatch();

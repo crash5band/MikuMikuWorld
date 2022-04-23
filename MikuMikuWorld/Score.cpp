@@ -150,11 +150,11 @@ namespace MikuMikuWorld
 		int timeSignatureCount = score.timeSignatures.size();
 		writer.writeInt32(timeSignatureCount);
 
-		for (const auto& ts : score.timeSignatures)
+		for (const auto&[measure, ts] : score.timeSignatures)
 		{
-			writer.writeInt32(ts.second.measure);
-			writer.writeInt32(ts.second.numerator);
-			writer.writeInt32(ts.second.denominator);
+			writer.writeInt32(ts.measure);
+			writer.writeInt32(ts.numerator);
+			writer.writeInt32(ts.denominator);
 		}
 
 		int tempoCount = score.tempoChanges.size();
@@ -170,9 +170,8 @@ namespace MikuMikuWorld
 		writer.writeNull(sizeof(uint32_t));
 
 		int noteCount = 0;
-		for (const auto& n : score.notes)
+		for (const auto&[id, note] : score.notes)
 		{
-			const Note& note = n.second;
 			if (note.getType() != NoteType::Tap)
 				continue;
 
@@ -187,10 +186,8 @@ namespace MikuMikuWorld
 			
 		int holdCount = score.holdNotes.size();
 		writer.writeInt32(holdCount);
-		for (const auto& h : score.holdNotes)
-		{
-			const HoldNote& hold = h.second;
-			
+		for (const auto&[id, hold] : score.holdNotes)
+		{	
 			// note data
 			const Note& start = score.notes.at(hold.start.ID);
 			writeNote(start, &writer);
@@ -218,24 +215,24 @@ namespace MikuMikuWorld
 	std::vector<int> countNotes(const Score& score)
 	{
 		int taps = 0, flicks = 0, holds = 0, steps = 0, combo = 0;
-		for (const auto& note : score.notes)
+		for (const auto&[id, note] : score.notes)
 		{
-			if (note.second.getType() == NoteType::Tap)
+			if (note.getType() == NoteType::Tap)
 			{
-				if (note.second.isFlick()) ++flicks; else ++taps;
+				if (note.isFlick()) ++flicks; else ++taps;
 				++combo;
 			}
-			else if (note.second.getType() == NoteType::Hold)
+			else if (note.getType() == NoteType::Hold)
 			{
 				++holds;
 				++combo;
 			}
-			else if (note.second.getType() == NoteType::HoldMid)
+			else if (note.getType() == NoteType::HoldMid)
 			{
 				++steps;
 
-				const HoldNote& hold = score.holdNotes.at(note.second.parentID);
-				int pos = findHoldStep(hold, note.second.ID);
+				const HoldNote& hold = score.holdNotes.at(note.parentID);
+				int pos = findHoldStep(hold, note.ID);
 				if (pos != -1)
 					if (hold.steps[pos].type != HoldStepType::Invisible)
 						++combo;

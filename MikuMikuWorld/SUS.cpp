@@ -75,16 +75,16 @@ namespace MikuMikuWorld
 	void appendData(int tick, std::string info, std::string data,
 		const std::vector<std::pair<BarLength, int>>& barLengths, int ticksPerBeat, std::unordered_map<std::string, NoteMap>& noteMaps)
 	{
-		for (const auto& length : barLengths)
+		for (const auto&[barLength, barTicks] : barLengths)
 		{
-			if (tick >= length.second)
+			if (tick >= barTicks)
 			{
-				int currentMeasure = length.first.bar + ((tick - length.second) / ticksPerBeat / length.first.length);
+				int currentMeasure = barLength.bar + ((tick - barTicks) / ticksPerBeat / barLength.length);
 				std::string key = formatString("%03d", currentMeasure) + info;
 
 				NoteMap& map = noteMaps[key];
-				map.data.push_back(NoteMap::RawData{ tick - length.second, data });
-				map.ticksPerMeasure = length.first.length * ticksPerBeat;
+				map.data.push_back(NoteMap::RawData{ tick - barTicks, data });
+				map.ticksPerMeasure = barLength.length * ticksPerBeat;
 				break;
 			}
 		}
@@ -361,7 +361,7 @@ namespace MikuMikuWorld
 
 		if (bpms.size() >= (36 * 36) - 1)
 		{
-			printf("Too much tempo changes bpms.size() >= 36^2 - 1: %d", bpms.size());
+			printf("Too much tempo changes bpms.size() >= 36^2 - 1: %d", (int)bpms.size());
 			throw bpms.size();
 		}
 
@@ -403,11 +403,8 @@ namespace MikuMikuWorld
 				appendNoteData(note, "3", chStr, barLengthTicks, ticksPerBeat, noteMaps);
 		}
 
-		for (const auto& entry : noteMaps)
+		for (const auto&[tag, map] : noteMaps)
 		{
-			const std::string& tag = entry.first;
-			const NoteMap& map = entry.second;
-
 			int gcd = map.ticksPerMeasure;
 			for (const auto& raw : map.data)
 				gcd = std::gcd(raw.tick, gcd);
