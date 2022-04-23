@@ -19,11 +19,11 @@ namespace MikuMikuWorld
 		static std::string getFilenameWithoutExtension(const std::string& filename);
 		static std::string getFilepath(const std::string& filename);
 		static std::string fixPath(const std::string& path);
+		static bool exists(const std::string& path);
 
 		void open(const std::wstring& filename, const wchar_t* mode);
 		void open(const std::string& filename, const char* mode);
 		void close();
-		void closeW();
 
 		std::string readLine() const;
 		std::vector<std::string> readAllLines() const;

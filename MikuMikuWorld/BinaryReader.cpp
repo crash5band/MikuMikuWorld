@@ -1,11 +1,13 @@
 #include "BinaryReader.h"
+#include "StringOperations.h"
 
 namespace MikuMikuWorld
 {
 	BinaryReader::BinaryReader(const std::string& filename)
 	{
 		stream = NULL;
-		stream = fopen(filename.c_str(), "rb");
+		std::wstring wFilename = mbToWideStr(filename);
+		stream = _wfopen(wFilename.c_str(), L"rb");
 	}
 
 	bool BinaryReader::isStreamValid()

@@ -1,11 +1,13 @@
 #include "BinaryWriter.h"
+#include "StringOperations.h"
 
 namespace MikuMikuWorld
 {
 	BinaryWriter::BinaryWriter(const std::string& filename)
 	{
 		stream = NULL;
-		stream = fopen(filename.c_str(), "wb");
+		std::wstring wFilename = mbToWideStr(filename);
+		stream = _wfopen(wFilename.c_str(), L"wb");
 	}
 
 	bool BinaryWriter::isStreamValid()

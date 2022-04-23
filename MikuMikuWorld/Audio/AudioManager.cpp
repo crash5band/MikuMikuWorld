@@ -84,8 +84,8 @@ namespace MikuMikuWorld
 
 		for (auto& it : seMap)
 		{
-			std::string filename = path + it.first + ".mp3";
-			ma_sound_init_from_file(&engine, filename.c_str(), flags, NULL, NULL, &it.second);
+			std::wstring filename = mbToWideStr(path + it.first + ".mp3");
+			ma_sound_init_from_file_w(&engine, filename.c_str(), flags, NULL, NULL, &it.second);
 		}
 	}
 

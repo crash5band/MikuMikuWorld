@@ -1,19 +1,26 @@
 #include "Application.h"
+#include "StringOperations.h"
 #include "UI.h"
 #include <iostream>
 #include <Windows.h>
 
 namespace mmw = MikuMikuWorld;
 
-int main(int argc, char** argv)
+int main()
 {
 	try
 	{
-		std::string dir = mmw::File::getFilepath(argv[0]);
+		int argc;
+		LPWSTR* args;
+		args = CommandLineToArgvW(GetCommandLineW(), &argc);
+		if (!args)
+			printf("main(): CommandLineToArgvW failed\n");
+
+		std::string dir = mmw::File::getFilepath(mmw::wideStringToMb(args[0]));
 		mmw::Application app(dir);
 
 		for (int i = 1; i < argc; ++i)
-			mmw::Application::pendingOpenFiles.push_back(argv[i]);
+			mmw::Application::pendingOpenFiles.push_back(mmw::wideStringToMb(args[i]));
 		
 		app.handlePendingOpenFiles();
 		app.run();

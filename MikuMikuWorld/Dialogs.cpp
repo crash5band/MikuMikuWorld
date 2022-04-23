@@ -7,20 +7,20 @@ namespace MikuMikuWorld
 {
 	std::string Application::getVersion()
 	{
-		char filename[1024];
-		strcpy_s(filename, std::string(appDir + "MikuMikuWorld.exe").c_str());
+		wchar_t filename[1024];
+		lstrcpyW(filename, mbToWideStr(std::string(appDir + "MikuMikuWorld.exe")).c_str());
 
 		DWORD  verHandle	= 0;
 		UINT   size			= 0;
 		LPBYTE lpBuffer		= NULL;
-		DWORD  verSize		= GetFileVersionInfoSize(filename, &verHandle);
+		DWORD  verSize		= GetFileVersionInfoSizeW(filename, &verHandle);
 
 		int major = 0, minor = 0, build = 0, rev = 0;
 		if (verSize != NULL)
 		{
 			LPSTR verData = new char[verSize];
 
-			if (GetFileVersionInfo(filename, verHandle, verSize, verData))
+			if (GetFileVersionInfoW(filename, verHandle, verSize, verData))
 			{
 				if (VerQueryValue(verData, "\\", (VOID FAR * FAR*) & lpBuffer, &size))
 				{

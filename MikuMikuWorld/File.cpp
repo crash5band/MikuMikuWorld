@@ -1,6 +1,8 @@
 #include "File.h"
+#include "StringOperations.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <filesystem>
 
 namespace MikuMikuWorld
 {
@@ -155,5 +157,11 @@ namespace MikuMikuWorld
 		}
 
 		return result;
+	}
+
+	bool File::exists(const std::string& path)
+	{
+		std::wstring wPath = mbToWideStr(path);
+		return std::filesystem::exists(wPath);
 	}
 }

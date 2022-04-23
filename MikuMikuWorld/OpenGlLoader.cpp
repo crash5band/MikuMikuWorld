@@ -1,10 +1,12 @@
 #define STB_IMAGE_IMPLEMENTATION
+#define STBI_WINDOWS_UTF8
 
 #include "Application.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "../Depends/GLFW/include/GLFW/glfw3native.h"
 
+#include "StringOperations.h"
 #include "IconsFontAwesome5.h"
 #include "UI.h"
 #include "stb_image.h"
@@ -39,7 +41,7 @@ namespace MikuMikuWorld
 
 	void loadIcon(std::string filepath, GLFWwindow* window)
 	{
-		if (!std::filesystem::exists(filepath))
+		if (!File::exists(filepath))
 			return;
 
 		GLFWimage images[1];
@@ -109,15 +111,13 @@ namespace MikuMikuWorld
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 130");
 
-		//ImGui::GetMainViewport()->Flags |= ImGuiViewportFlags_CanHostOtherWindows | ImGuiViewportFlags_IsPlatformWindow;
+		std::string fontpath{ Application::getAppDir() + "res/fonts/NotoSansJP-Regular.otf" };
+		std::string iconFontpath{ Application::getAppDir() + "res/fonts/fa-solid-900.ttf" };
 
-		std::string fontPath{ Application::getAppDir() + "res/fonts/NotoSansJP-Regular.otf" };
-		std::string iconFontPath{ Application::getAppDir() + "res/fonts/fa-solid-900.ttf" };
-
-		if (std::filesystem::exists(fontPath))
+		if (File::exists(fontpath))
 			io->Fonts->AddFontFromFileTTF(std::string(Application::getAppDir() + "res/fonts/NotoSansJP-Regular.otf").c_str(), 18, NULL, io->Fonts->GetGlyphRangesJapanese());
 
-		if (std::filesystem::exists(iconFontPath))
+		if (File::exists(iconFontpath))
 		{
 			ImFontConfig fontConfig;
 			fontConfig.MergeMode = true;

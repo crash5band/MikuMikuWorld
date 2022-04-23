@@ -1,6 +1,6 @@
-#include "Texture.h"
 #include "../File.h"
 #include "../StringOperations.h"
+#include "Texture.h"
 #include <glad/glad.h>
 #include "GLFW/glfw3.h"
 #include "stb_image.h"
@@ -15,7 +15,7 @@ namespace MikuMikuWorld
 		read(filename);
 
 		std::string sprSheet = File::getFilepath(filename) + "spr/" + name + ".txt";
-		if (std::filesystem::exists(sprSheet))
+		if (File::exists(sprSheet))
 		{
 			readSprites(sprSheet);
 		}
@@ -37,7 +37,8 @@ namespace MikuMikuWorld
 
 	void Texture::readSprites(const std::string& filename)
 	{
-		File f(filename, "r");
+		std::wstring wFilename = mbToWideStr(filename);
+		File f(wFilename, L"r");
 		std::vector<std::string> lines = f.readAllLines();
 		f.close();
 

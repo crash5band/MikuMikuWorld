@@ -1,4 +1,5 @@
 #include "ResourceManager.h"
+#include "StringOperations.h"
 #include <filesystem>
 
 namespace MikuMikuWorld
@@ -8,10 +9,11 @@ namespace MikuMikuWorld
 
 	void ResourceManager::loadTexture(const std::string filename)
 	{
-		if (!std::filesystem::exists(filename))
+		std::wstring wFilename = mbToWideStr(filename);
+		if (!std::filesystem::exists(wFilename))
 		{
-			printf("ERROR: ResourceManager::loadTexture() Could not find texture file %s\n", filename.c_str());
-			return;
+			printf("ERROR: ResourceManager::loadTexture() Could not find texture file %ws\n", wFilename.c_str());
+			//return;
 		}
 
 		Texture tex(filename);

@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "ResourceManager.h"
+#include "StringOperations.h"
 #include "InputListener.h"
 #include "UI.h"
 #include "Colors.h"
@@ -52,10 +53,11 @@ namespace MikuMikuWorld
 
 	void Application::readSettings(const std::string& filename)
 	{
-		if (!std::filesystem::exists(filename))
+		std::wstring wFilename = mbToWideStr(filename);
+		if (!std::filesystem::exists(wFilename))
 			return;
 		
-		std::ifstream configFile(filename);
+		std::ifstream configFile(wFilename);
 		json config;
 		configFile >> config;
 		configFile.close();
@@ -64,6 +66,9 @@ namespace MikuMikuWorld
 		int posY = config["window"]["position"]["y"];
 		int sizeX = config["window"]["size"]["x"];
 		int sizeY = config["window"]["size"]["y"];
+
+		glfwSetWindowPos(window, posX, posY);
+		glfwSetWindowSize(window, sizeX, sizeY);
 
 		bool maximized = config["window"]["maximized"];
 		if (maximized)
@@ -101,7 +106,8 @@ namespace MikuMikuWorld
 			{"vsync", vsync}
 		};
 
-		std::ofstream configFile(filename);
+		std::wstring wFilename = mbToWideStr(filename);
+		std::ofstream configFile(wFilename);
 		configFile << std::setw(4) << config;
 		configFile.close();
 	}
