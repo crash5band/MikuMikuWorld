@@ -27,7 +27,7 @@ namespace MikuMikuWorld
 	public:
 		void initAudio();
 		void loadSE();
-		void changeBGM(const std::string& filename);
+		bool changeBGM(const std::string& filename);
 		void setMasterVolume(float volume);
 		void setBGMVolume(float volume);
 		void setSEVolume(float volume);

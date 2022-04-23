@@ -96,7 +96,7 @@ namespace MikuMikuWorld
 			workingData.filename = filename;
 			title = File::getFilenameWithoutExtension(filename);
 		}
-		
+
 		readScoreMetadata();
 		setWindowTitle(title.c_str());
 	}
@@ -107,8 +107,7 @@ namespace MikuMikuWorld
 		audio.clearEvents();
 		audio.stopBGM();
 
-		audio.changeBGM(filename);
-		if (audio.isMusicInitialized())
+		if (audio.changeBGM(filename))
 			musicFile = filename;
 	}
 
