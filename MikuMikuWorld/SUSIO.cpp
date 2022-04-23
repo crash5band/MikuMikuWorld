@@ -26,7 +26,7 @@ namespace MikuMikuWorld
 	{
 		SUS sus = loadSUS(filename);
 
-		ScoreMetadata metadata{ filename, sus.metadata.data["title"], sus.metadata.data["artist"], sus.metadata.data["designer"] };
+		ScoreMetadata metadata{ sus.metadata.data["title"], sus.metadata.data["artist"], sus.metadata.data["designer"] };
 		metadata.musicOffset = sus.metadata.waveOffset * 1000;
 
 		std::unordered_map<std::string, FlickType> flicks;
