@@ -6,6 +6,7 @@
 #include "Colors.h"
 #include "ZIndex.h"
 #include "Math.h"
+#include "UI.h"
 #include <algorithm>
 
 namespace MikuMikuWorld
@@ -27,7 +28,7 @@ namespace MikuMikuWorld
 		{
 			isHoveringNote = true;
 			hoveringNote = note.ID;
-			if (ImGui::IsMouseClicked(0))
+			if (ImGui::IsMouseClicked(0) && !isAnyPopupOpen() && ImGui::IsWindowFocused())
 			{
 				if (!InputListener::isCtrlDown())
 					selectedNotes.clear();
