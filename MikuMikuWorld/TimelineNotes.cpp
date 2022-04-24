@@ -11,10 +11,6 @@
 
 namespace MikuMikuWorld
 {
-	/// <summary>
-	/// TODO: improve note selection
-	/// </summary>
-	/// <param name="note"></param>
 	void ScoreEditor::updateNote(Note& note)
 	{
 		const float btnPosY = canvasPos.y - tickToPosition(note.tick) + timelineOffset - (notesHeight * 0.25f);

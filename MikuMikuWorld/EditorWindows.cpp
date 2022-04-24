@@ -341,6 +341,20 @@ namespace MikuMikuWorld
 					division = customDivision;
 			}
 
+			ImGui::Text("Scroll Mode");
+			ImGui::SetNextItemWidth(-1);
+			if (ImGui::BeginCombo("##scroll_mode", scrollModes[(int)scrollMode]))
+			{
+				for (int i = 0; i < (int)ScrollMode::ScrollModeMax; ++i)
+				{
+					const bool selected = (int)scrollMode == i;
+					if (ImGui::Selectable(scrollModes[i], selected))
+						scrollMode = (ScrollMode)i;
+				}
+
+				ImGui::EndCombo();
+			}
+
 			ImGui::Text("Zoom");
 			float _zoom = zoom;
 			if (transparentButton(ICON_FA_SEARCH_MINUS, btnSmall))
@@ -420,7 +434,17 @@ namespace MikuMikuWorld
 		{
 			time += frameTime;
 			currentTick = accumulateTicks(time, TICKS_PER_BEAT, score.tempoChanges);
-			centerCursor(1);
+			
+			if (scrollMode == ScrollMode::Page)
+			{
+				float cursorPos = tickToPosition(currentTick);
+				if (cursorPos > timelineOffset)
+					timelineOffset = cursorPos + canvasSize.y;
+			}
+			else if (scrollMode == ScrollMode::Smooth)
+			{
+				centerCursor(1);
+			}
 		}
 		else
 		{

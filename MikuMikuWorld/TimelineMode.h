@@ -15,6 +15,14 @@ namespace MikuMikuWorld
 		TimelineToolMax
 	};
 
+	enum class ScrollMode
+	{
+		None,
+		Page,
+		Smooth,
+		ScrollModeMax
+	};
+
 	constexpr const char* timelineModes[]
 	{
 		"Select",
@@ -27,9 +35,11 @@ namespace MikuMikuWorld
 		"Time Signature"
 	};
 
-	constexpr int timelineModesSprites[]
+	constexpr const char* scrollModes[]
 	{
-		0, 3, 2, 28, 1, 0, 0, 0
+		"None",
+		"Page",
+		"Smooth"
 	};
 
 	constexpr int divisions[]

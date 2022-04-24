@@ -24,7 +24,8 @@ namespace MikuMikuWorld
 	class ScoreEditor
 	{
 	private:
-		TimelineMode currentMode;
+		TimelineMode currentMode = TimelineMode::Select;
+		ScrollMode scrollMode = ScrollMode::Smooth;
 		Camera camera;
 		Framebuffer* framebuffer;
 		AudioManager audio;
