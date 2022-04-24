@@ -458,7 +458,7 @@ namespace MikuMikuWorld
 					int endTick = score.notes.at(score.holdNotes.at(note.ID).end).tick;
 					float endTime = accumulateDuration(endTick, TICKS_PER_BEAT, score.tempoChanges);
 
-					if (endTime > time)
+					if ((noteTime - time) <= audioLookAhead && endTime > time)
 						audio.pushAudioEvent(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, std::max(0.0f, noteTime - playStartTime), endTime - playStartTime + 0.02f, true);
 				}
 			}
