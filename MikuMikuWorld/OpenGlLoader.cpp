@@ -103,7 +103,7 @@ namespace MikuMikuWorld
 		io->BackendFlags |= ImGuiBackendFlags_PlatformHasViewports | ImGuiBackendFlags_RendererHasViewports;
 		io->ConfigWindowsMoveFromTitleBarOnly = true;
 		io->ConfigViewportsNoDefaultParent = false;
-		io->ConfigViewportsNoAutoMerge = false;
+		io->ConfigViewportsNoAutoMerge = true;
 		io->ConfigViewportsNoDecoration = false;
 		io->KeyRepeatRate = 0.15f;
 
