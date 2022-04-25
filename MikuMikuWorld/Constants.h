@@ -25,6 +25,10 @@ namespace MikuMikuWorld
 	constexpr int MAX_LANE_WIDTH = 40;
 	constexpr int MIN_NOTES_HEIGHT = 30;
 	constexpr int MAX_NOTES_HEIGHT = 60;
+	constexpr float MIN_BPM = 10;
+	constexpr float MAX_BPM = 10000;
+	constexpr int MIN_TIME_SIGN = 1;
+	constexpr int MAX_TIME_SIGN = 64;
 
 	constexpr const char* NOTES_TEX = "tex_notes";
 	constexpr const char* HOLD_PATH_TEX = "tex_hold_path";

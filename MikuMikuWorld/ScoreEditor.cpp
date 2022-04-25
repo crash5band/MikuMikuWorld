@@ -603,7 +603,7 @@ namespace MikuMikuWorld
 				if (ImGui::IsItemDeactivatedAfterEdit())
 				{
 					Score prev = score;
-					tempo.bpm = std::max(abs(editBPM), 1.0f);
+					tempo.bpm = std::clamp(editBPM, MIN_BPM, MAX_BPM);
 
 					pushHistory("Change tempo", prev, score);
 				}
@@ -673,8 +673,8 @@ namespace MikuMikuWorld
 				if (UI::addFractionProperty("Time Signature", editTsNum, editTsDen))
 				{
 					Score prev = score;
-					it.second.numerator = std::clamp(abs(editTsNum), 1, 64);
-					it.second.denominator = std::clamp(abs(editTsDen), 1, 64);
+					it.second.numerator = std::clamp(abs(editTsNum), MIN_TIME_SIGN, MAX_TIME_SIGN);
+					it.second.denominator = std::clamp(abs(editTsDen), MIN_TIME_SIGN, MAX_TIME_SIGN);
 
 					pushHistory("Change time signature", prev, score);
 				}
