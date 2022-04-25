@@ -121,6 +121,7 @@
     <ClCompile Include="SUSIO.cpp">
       <Filter>Score\SUS</Filter>
     </ClCompile>
+    <ClCompile Include="ApplicationConfiguration.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -263,6 +264,7 @@
     <ClInclude Include="SUSIO.h">
       <Filter>Score\SUS</Filter>
     </ClInclude>
+    <ClInclude Include="ApplicationConfiguration.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">

@@ -6,6 +6,7 @@
 #include "Rendering/Renderer.h"
 #include "ScoreEditor.h"
 #include "Stopwatch.h"
+#include "ApplicationConfiguration.h"
 
 namespace MikuMikuWorld
 {
@@ -27,7 +28,7 @@ namespace MikuMikuWorld
 		bool settingsOpen;
 		bool unsavedOpen;
 		bool shouldPickScore;
-		int accentColor;
+		ApplicationConfiguration config;
 
 		std::string pendingDropScoreFile;
 		std::string imguiConfigFile;
@@ -43,6 +44,14 @@ namespace MikuMikuWorld
 		void setImguiStyle();
 		void update();
 		void updateDialogs();
+		void installCallbacks();
+
+		static void frameBufferResizeCallback(GLFWwindow* window, int width, int height);
+		static void windowCloseCallback(GLFWwindow* window);
+		static void dropCallback(GLFWwindow* window, int count, const char** paths);
+		static void windowSizeCallback(GLFWwindow* window, int width, int height);
+		static void windowPositionCallback(GLFWwindow* window, int x, int y);
+		static void windowMaximizeCallback(GLFWwindow* window, int maximized);
 
 		std::string getVersion();
 
@@ -51,6 +60,9 @@ namespace MikuMikuWorld
 		static bool dragDropHandled;
 		static bool exiting;
 		static bool resetting;
+		static bool maximized;
+		static Vector2 windowPos;
+		static Vector2 windowSize;
 
 		Application(const std::string &rootPath);
 
@@ -61,13 +73,12 @@ namespace MikuMikuWorld
 		void menuBar();
 		bool warnUnsaved();
 		void about();
-		void settings();
+		void settingsDialog();
 		void processInput();
 		void applyAccentColor(int col);
 		void handlePendingOpenFiles();
-
-		void readSettings(const std::string& filename);
-		void writeSettings(const std::string& filename);
+		void readSettings();
+		void writeSettings();
 
 		static const std::string& getAppDir();
 		static const std::string& getAppVersion();

@@ -4,12 +4,6 @@
 #include "InputListener.h"
 #include "Colors.h"
 #include "UI.h"
-#include <json.hpp>
-#include <iostream>
-#include <fstream>
-#include <filesystem>
-
-using namespace nlohmann;
 
 namespace MikuMikuWorld
 {
@@ -19,26 +13,33 @@ namespace MikuMikuWorld
 	bool Application::dragDropHandled = true;
 	bool Application::exiting = false;
 	bool Application::resetting = false;
+	bool Application::maximized = false;
+	Vector2 Application::windowPos;
+	Vector2 Application::windowSize;
 
 	Application::Application(const std::string& root) :
-		lastAppTimeUpdate{ 0 }, appFrame{ 0 }, appTime{ 0 }, vsync{ true }, firstFrame{ true }, accentColor{ 0 }
+		lastAppTimeUpdate{ 0 }, appFrame{ 0 }, appTime{ 0 }, firstFrame{ true }
 	{
 		appDir = root;
 		version = getVersion();
+		readSettings();
 
-		initOpenGL();
-		initImgui();
-		setImguiStyle();
-		applyAccentColor(accentColor);
+		if (!initOpenGL())
+			exit(1);
 
 		imguiConfigFile = std::string{ appDir + IMGUI_CONFIG_FILENAME };
-		ImGui::GetIO().IniFilename = imguiConfigFile.c_str();
+		if (!initImgui())
+			exit(2);
+
+		setImguiStyle();
+		applyAccentColor(config.accentColor);
 
 		renderer = new Renderer();
 		editor = new ScoreEditor();
-		dockspaceID = 3939;
+		editor->setLaneWidth(config.timelineWidth);
+		editor->setNotesHeight(config.notesHeight);
 
-		readSettings(appDir + APP_CONFIG_FILENAME);
+		dockspaceID = 3939;
 	}
 
 	const std::string& Application::getAppDir()
@@ -51,89 +52,46 @@ namespace MikuMikuWorld
 		return version;
 	}
 
-	void Application::readSettings(const std::string& filename)
-	{
-		std::wstring wFilename = mbToWideStr(filename);
-		if (!std::filesystem::exists(wFilename))
-			return;
-		
-		std::ifstream configFile(wFilename);
-		json config;
-		configFile >> config;
-		configFile.close();
-
-		int posX = config["window"]["position"]["x"];
-		int posY = config["window"]["position"]["y"];
-		int sizeX = config["window"]["size"]["x"];
-		int sizeY = config["window"]["size"]["y"];
-
-		glfwSetWindowPos(window, posX, posY);
-		glfwSetWindowSize(window, sizeX, sizeY);
-
-		bool maximized = config["window"]["maximized"];
-		if (maximized)
-			glfwMaximizeWindow(window);
-
-		vsync = config["vsync"];
-		glfwSwapInterval(vsync);
-
-		editor->setLaneWidth(config["timeline"]["lane_width"]);
-		editor->setNotesHeight(config["timeline"]["notes_height"]);
-
-		if (config.find("user_color") != config.end())
-		{
-			if (config["user_color"].find("r") != config["user_color"].end())
-				UI::accentColors[0].color.x = config["user_color"]["r"];
-
-			if (config["user_color"].find("g") != config["user_color"].end())
-				UI::accentColors[0].color.y = config["user_color"]["g"];
-
-			if (config["user_color"].find("b") != config["user_color"].end())
-				UI::accentColors[0].color.z = config["user_color"]["b"];
-		}
-
-		applyAccentColor(config["accent_color"]);
-	}
-
-	void Application::writeSettings(const std::string& filename)
-	{
-		int posX = 0, posY = 0, sizeX = 0, sizeY = 0;
-		glfwGetWindowPos(window, &posX, &posY);
-		glfwGetWindowSize(window, &sizeX, &sizeY);
-		bool maximized = glfwGetWindowAttrib(window, GLFW_MAXIMIZED);
-
-		json config = {
-			{"window", {
-				{"position", {{"x", posX}, {"y", posY}}},
-				{"size", {{"x", sizeX}, {"y", sizeY}}},
-				{"maximized", maximized}}
-			},
-
-			{"timeline", {
-				{"lane_width", (int)editor->getLaneWidth()},
-				{"notes_height", (int)editor->getNotesHeight()}}
-			},
-
-			{"accent_color", accentColor},
-			{"user_color", {
-				{"r", UI::accentColors[0].color.x},
-				{"g", UI::accentColors[0].color.y},
-				{"b", UI::accentColors[0].color.z},
-			}},
-			{"vsync", vsync}
-		};
-
-		std::wstring wFilename = mbToWideStr(filename);
-		std::ofstream configFile(wFilename);
-		configFile << std::setw(4) << config;
-		configFile.close();
-	}
-
 	void Application::frameTime()
 	{
 		float currentFrame = glfwGetTime();
 		frameDelta = currentFrame - lastFrame;
 		lastFrame = currentFrame;
+	}
+
+	void Application::readSettings()
+	{
+		config.read(appDir + APP_CONFIG_FILENAME);
+
+		windowPos = config.windowPos;
+		windowSize = config.windowSize;
+		maximized = config.maximized;
+		vsync = config.vsync;
+		UI::accentColors[0].color = ImVec4{
+			config.userColor.r,
+			config.userColor.g,
+			config.userColor.b,
+			config.userColor.a
+		};
+	}
+
+	void Application::writeSettings()
+	{
+		config.maximized = maximized;
+		config.version = APP_CONFIG_VERSION;
+		config.vsync = vsync;
+		config.windowPos = windowPos;
+		config.windowSize = windowSize;
+		config.timelineWidth = editor->getLaneWidth();
+		config.notesHeight = editor->getNotesHeight();
+
+		config.userColor = Color{ 
+			UI::accentColors[0].color.x,
+			UI::accentColors[0].color.y,
+			UI::accentColors[0].color.z,
+			UI::accentColors[0].color.w };
+
+		config.write(appDir + APP_CONFIG_FILENAME);
 	}
 
 	void Application::applyAccentColor(int colIndex)
@@ -154,7 +112,7 @@ namespace MikuMikuWorld
 		colors[ImGuiCol_TabActive] = color;
 		colors[ImGuiCol_CheckMark] = color;
 
-		accentColor = colIndex;
+		config.accentColor = colIndex;
 	}
 
 	void Application::processInput()
@@ -321,7 +279,7 @@ namespace MikuMikuWorld
 		}
 
 		about();
-		settings();
+		settingsDialog();
 
 		if (resetting)
 		{
@@ -513,7 +471,7 @@ namespace MikuMikuWorld
 			glfwSwapBuffers(window);
 		}
 
-		writeSettings(appDir + APP_CONFIG_FILENAME);
+		writeSettings();
 
 		// cleanup
 		delete editor;

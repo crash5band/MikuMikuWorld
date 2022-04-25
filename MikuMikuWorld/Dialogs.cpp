@@ -120,7 +120,7 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void Application::settings()
+	void Application::settingsDialog()
 	{
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(ImVec2(500, 460), ImGuiCond_Always);
@@ -189,7 +189,7 @@ namespace MikuMikuWorld
 
 				UI::endPropertyColumns();
 
-				if (ImGui::IsItemDeactivated() && accentColor == 0)
+				if (ImGui::IsItemDeactivated() && config.accentColor == 0)
 					applyAccentColor(0);
 
 				ImGui::PopStyleVar();

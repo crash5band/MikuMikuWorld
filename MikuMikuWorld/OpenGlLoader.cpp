@@ -16,12 +16,30 @@
 
 namespace MikuMikuWorld
 {
-	void frameBufferResizeCallback(GLFWwindow* window, int width, int height)
+	void Application::frameBufferResizeCallback(GLFWwindow* window, int width, int height)
 	{
 		glViewport(0, 0, width, height);
 	}
 
-	void dropCallback(GLFWwindow* window, int count, const char** paths)
+	void Application::windowSizeCallback(GLFWwindow* window, int width, int height)
+	{
+		if (!maximized)
+		{
+			windowSize.x = width;
+			windowSize.y = height;
+		}
+	}
+
+	void Application::windowPositionCallback(GLFWwindow* window, int x, int y)
+	{
+		if (!maximized)
+		{
+			windowPos.x = x;
+			windowPos.y = y;
+		}
+	}
+
+	void Application::dropCallback(GLFWwindow* window, int count, const char** paths)
 	{
 		for (int i = 0; i < count; ++i)
 		{
@@ -33,10 +51,15 @@ namespace MikuMikuWorld
 		Application::dragDropHandled = false;
 	}
 
-	void windowCloseCallback(GLFWwindow* window)
+	void Application::windowCloseCallback(GLFWwindow* window)
 	{
 		glfwSetWindowShouldClose(window, 0);
 		Application::exiting = true;
+	}
+
+	void Application::windowMaximizeCallback(GLFWwindow* window, int _maximized)
+	{
+		maximized = _maximized;
 	}
 
 	void loadIcon(std::string filepath, GLFWwindow* window)
@@ -50,6 +73,16 @@ namespace MikuMikuWorld
 		stbi_image_free(images[0].pixels);
 	}
 
+	void Application::installCallbacks()
+	{
+		glfwSetWindowPosCallback(window, windowPositionCallback);
+		glfwSetWindowSizeCallback(window, windowSizeCallback);
+		glfwSetFramebufferSizeCallback(window, frameBufferResizeCallback);
+		glfwSetDropCallback(window, dropCallback);
+		glfwSetWindowCloseCallback(window, windowCloseCallback);
+		glfwSetWindowMaximizeCallback(window, windowMaximizeCallback);
+	}
+
 	bool Application::initOpenGL()
 	{
 		// GLFW initializion
@@ -59,13 +92,14 @@ namespace MikuMikuWorld
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_SAMPLES, 4);
 
-		window = glfwCreateWindow(1280, 720, windowTitleNew, NULL, NULL);
+		window = glfwCreateWindow(config.windowSize.x, config.windowSize.y, windowTitleNew, NULL, NULL);
 		if (window == NULL)
 		{
 			glfwTerminate();
 			return false;
 		}
 
+		glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
 		glfwMakeContextCurrent(window);
 
 		// GLAD initializtion
@@ -74,11 +108,12 @@ namespace MikuMikuWorld
 			return false;
 		}
 
-		glViewport(0, 0, 1280, 720);
-		glfwSwapInterval(1);
-		glfwSetFramebufferSizeCallback(window, frameBufferResizeCallback);
-		glfwSetDropCallback(window, dropCallback);
-		glfwSetWindowCloseCallback(window, windowCloseCallback);
+		glViewport(0, 0, config.windowSize.x, config.windowSize.y);
+		glfwSwapInterval(config.vsync);
+		installCallbacks();
+
+		if (config.maximized)
+			glfwMaximizeWindow(window);
 
 		loadIcon(appDir + "res/mmw_icon.png", window);
 
@@ -106,6 +141,7 @@ namespace MikuMikuWorld
 		io->ConfigViewportsNoAutoMerge = true;
 		io->ConfigViewportsNoDecoration = false;
 		io->KeyRepeatRate = 0.15f;
+		io->IniFilename = imguiConfigFile.c_str();
 
 		ImGui::StyleColorsDark();
 		ImGui_ImplGlfw_InitForOpenGL(window, true);

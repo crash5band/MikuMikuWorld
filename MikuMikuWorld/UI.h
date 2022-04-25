@@ -47,7 +47,6 @@ namespace MikuMikuWorld
 		static const ImVec2 btnNormal;
 		static const ImVec2 btnSmall;
 		static std::vector<AccentColor> accentColors;
-		static AccentColor userColor;
 
 		static bool transparentButton(const char* txt, ImVec2 size = btnNormal, bool repeat = false, bool enabled = true);
 		static bool transparentButton2(const char* txt, ImVec2 pos, ImVec2 size);
