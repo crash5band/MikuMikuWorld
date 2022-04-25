@@ -6,18 +6,22 @@
 
 namespace MikuMikuWorld
 {
-	std::vector<AccentColor> accentColors{
-		AccentColor{ "Default", ImVec4(0.38f, 0.37f, 0.82f, 1.00f) },
-		AccentColor{ "MikuMikuWorld", ImVec4(0.19f, 0.75f, 0.62f, 1.00f) },
-		AccentColor{ "Light Music", ImVec4(0.30f, 0.31f, 0.86f, 1.00f), },
-		AccentColor{ "Idol", 		ImVec4(0.40f, 0.69f, 0.15f, 1.00f), },
-		AccentColor{ "Street", 		ImVec4(0.76f, 0.05f, 0.32f, 1.00f), },
-		AccentColor{ "Theme Park", 	ImVec4(0.81f, 0.45f, 0.06f, 1.00f), },
-		AccentColor{ "School Refusal", ImVec4(0.50f, 0.25f, 0.55f, 1.00f) },
-		AccentColor{ "Plain", ImVec4(0.40f, 0.40f, 0.40f, 1.00f) }
+	const ImVec2 UI::btnNormal{ 30, 30 };
+	const ImVec2 UI::btnSmall{ 20, 20 };
+
+	std::vector<AccentColor> UI::accentColors{
+		AccentColor{ "User",			ImVec4(0.10f, 0.10f, 0.10f, 1.00f) },
+		AccentColor{ "Default",			ImVec4(0.38f, 0.37f, 0.82f, 1.00f) },
+		AccentColor{ "MikuMikuWorld",	ImVec4(0.19f, 0.75f, 0.62f, 1.00f) },
+		AccentColor{ "Light Music",		ImVec4(0.30f, 0.31f, 0.86f, 1.00f) },
+		AccentColor{ "Idol", 			ImVec4(0.40f, 0.69f, 0.15f, 1.00f) },
+		AccentColor{ "Street", 			ImVec4(0.76f, 0.05f, 0.32f, 1.00f) },
+		AccentColor{ "Theme Park", 		ImVec4(0.81f, 0.45f, 0.06f, 1.00f) },
+		AccentColor{ "School Refusal",	ImVec4(0.50f, 0.25f, 0.55f, 1.00f) },
+		AccentColor{ "Plain",			ImVec4(0.40f, 0.40f, 0.40f, 1.00f) }
 	};
 
-	bool transparentButton(const char* txt, ImVec2 size, bool repeat, bool enabled)
+	bool UI::transparentButton(const char* txt, ImVec2 size, bool repeat, bool enabled)
 	{
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !enabled);
 		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * !enabled));
@@ -34,7 +38,7 @@ namespace MikuMikuWorld
 		return pressed;
 	}
 
-	bool transparentButton2(const char* txt, ImVec2 pos, ImVec2 size)
+	bool UI::transparentButton2(const char* txt, ImVec2 pos, ImVec2 size)
 	{
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.6f, 0.6f, 0.4f));
@@ -52,29 +56,29 @@ namespace MikuMikuWorld
 		return pressed;
 	}
 
-	bool isAnyPopupOpen()
+	bool UI::isAnyPopupOpen()
 	{
 		return ImGui::IsPopupOpen("", ImGuiPopupFlags_AnyPopupId | ImGuiPopupFlags_AnyPopupLevel);
 	}
 
-	void beginPropertyColumns()
+	void UI::beginPropertyColumns()
 	{
 		ImGui::Columns(2);
 	}
 
-	void endPropertyColumns()
+	void UI::endPropertyColumns()
 	{
 		ImGui::Columns(1);
 	}
 
-	void propertyLabel(const char* label)
+	void UI::propertyLabel(const char* label)
 	{
 		ImGui::Text(label);
 		ImGui::NextColumn();
 		ImGui::SetNextItemWidth(-1);
 	}
 
-	void addStringProperty(const char* label, std::string& val)
+	void UI::addStringProperty(const char* label, std::string& val)
 	{
 		propertyLabel(label);
 
@@ -85,7 +89,7 @@ namespace MikuMikuWorld
 		ImGui::NextColumn();
 	}
 
-	void addIntProperty(const char* label, int& val, int lowerBound, int higherBound)
+	void UI::addIntProperty(const char* label, int& val, int lowerBound, int higherBound)
 	{
 		propertyLabel(label);
 		
@@ -98,7 +102,7 @@ namespace MikuMikuWorld
 		ImGui::NextColumn();
 	}
 
-	void addFloatProperty(const char* label, float& val, const char* format)
+	void UI::addFloatProperty(const char* label, float& val, const char* format)
 	{
 		propertyLabel(label);
 		
@@ -109,14 +113,14 @@ namespace MikuMikuWorld
 		ImGui::NextColumn();
 	}
 
-	void addReadOnlyProperty(const char* label, std::string val)
+	void UI::addReadOnlyProperty(const char* label, std::string val)
 	{
 		propertyLabel(label);
 		ImGui::Text(val.c_str());
 		ImGui::NextColumn();
 	}
 
-	void addSliderProperty(const char* label, int& val, int min, int max, const char* format)
+	void UI::addSliderProperty(const char* label, int& val, int min, int max, const char* format)
 	{
 		propertyLabel(label);
 
@@ -127,7 +131,7 @@ namespace MikuMikuWorld
 		ImGui::NextColumn();
 	}
 
-	void addSliderProperty(const char* label, float& val, float min, float max, const char* format)
+	void UI::addSliderProperty(const char* label, float& val, float min, float max, const char* format)
 	{
 		propertyLabel(label);
 
@@ -138,7 +142,7 @@ namespace MikuMikuWorld
 		ImGui::NextColumn();
 	}
 
-	void addPercentSliderProperty(const char* label, float &val)
+	void UI::addPercentSliderProperty(const char* label, float &val)
 	{
 		propertyLabel(label);
 
@@ -152,7 +156,7 @@ namespace MikuMikuWorld
 		val = scaled / 100.0f;
 	}
 
-	bool addFileProperty(const char* label, std::string val)
+	bool UI::addFileProperty(const char* label, std::string val)
 	{
 		propertyLabel(label);
 		
@@ -169,7 +173,7 @@ namespace MikuMikuWorld
 		return pressed;
 	}
 
-	bool addFractionProperty(const char* label, int& numerator, int& denominator)
+	bool UI::addFractionProperty(const char* label, int& numerator, int& denominator)
 	{
 		propertyLabel(label);
 
@@ -199,7 +203,7 @@ namespace MikuMikuWorld
 		return edit;
 	}
 
-	void setWindowTitle(const std::string& title)
+	void UI::setWindowTitle(const std::string& title)
 	{
 		GLFWwindow* window = glfwGetCurrentContext();
 		if (!window)

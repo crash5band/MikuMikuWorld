@@ -57,10 +57,10 @@ namespace MikuMikuWorld
 			ImGui::Text("Any unsaved changes will be lost.");
 
 			float xPos = padding.x;
-			float yPos = ImGui::GetWindowSize().y - btnNormal.y - padding.y;
+			float yPos = ImGui::GetWindowSize().y - UI::btnNormal.y - padding.y;
 			ImGui::SetCursorPos(ImVec2(xPos, yPos));
 
-			ImVec2 btnSz = ImVec2((ImGui::GetContentRegionAvail().x - spacing.x) / 3.0f, btnNormal.y);
+			ImVec2 btnSz = ImVec2((ImGui::GetContentRegionAvail().x - spacing.x) / 3.0f, UI::btnNormal.y);
 
 			if (ImGui::Button("Save Changes", btnSz))
 			{
@@ -108,10 +108,10 @@ namespace MikuMikuWorld
 			ImGui::Text("Version %s", version.c_str());
 
 			float xPos = padding.x;
-			float yPos = ImGui::GetWindowSize().y - btnNormal.y - padding.y;
+			float yPos = ImGui::GetWindowSize().y - UI::btnNormal.y - padding.y;
 			ImGui::SetCursorPos(ImVec2(xPos, yPos));
 
-			ImVec2 btnSz = ImVec2((ImGui::GetContentRegionAvail().x), btnNormal.y);
+			ImVec2 btnSz = ImVec2((ImGui::GetContentRegionAvail().x), UI::btnNormal.y);
 
 			if (ImGui::Button("OK", btnSz))
 				ImGui::CloseCurrentPopup();
@@ -130,33 +130,64 @@ namespace MikuMikuWorld
 
 		if (ImGui::BeginPopupModal(settingsModalTitle, NULL, ImGuiWindowFlags_NoResize))
 		{
-			ImVec2 confirmBtnPos = ImGui::GetWindowSize() + ImVec2(-100, -btnNormal.y) - padding;
-			ImGui::BeginChild("##settings_panel", ImGui::GetContentRegionAvail() - ImVec2(0, btnNormal.y + padding.y), true);
+			ImVec2 confirmBtnPos = ImGui::GetWindowSize() + ImVec2(-100, -UI::btnNormal.y) - padding;
+			ImGui::BeginChild("##settings_panel", ImGui::GetContentRegionAvail() - ImVec2(0, UI::btnNormal.y + padding.y), true);
 
 			// theme
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
 			if (ImGui::CollapsingHeader("Accent Color", ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				for (int i = 0; i < accentColors.size(); ++i)
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
+				for (int i = 0; i < UI::accentColors.size(); ++i)
 				{
 					bool apply = false;
 					std::string id = "##" + std::to_string(i);
-					ImGui::PushStyleColor(ImGuiCol_Button, accentColors[i].color);
-					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, accentColors[i].color);
-					ImGui::PushStyleColor(ImGuiCol_ButtonActive, accentColors[i].color);
+					ImGui::PushStyleColor(ImGuiCol_Button, UI::accentColors[i].color);
+					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, UI::accentColors[i].color);
+					ImGui::PushStyleColor(ImGuiCol_ButtonActive, UI::accentColors[i].color);
 
-					apply = ImGui::Button(id.c_str(), btnNormal);
+					apply = ImGui::Button(id.c_str(), UI::btnNormal);
 
 					ImGui::PopStyleColor(3);
 
-					if (i < accentColors.size() - 1 && ImGui::GetCursorPosX() < ImGui::GetWindowSize().x - btnNormal.x - 50.0f)
+					if ((i < UI::accentColors.size() - 1) && ImGui::GetCursorPosX() < ImGui::GetWindowSize().x - UI::btnNormal.x - 50.0f)
 						ImGui::SameLine();
 
 					if (apply)
 						applyAccentColor(i);
 				}
+				ImGui::PopStyleVar();
+
+				ImVec4& customColor = UI::accentColors[0].color;
+				float col[]{customColor.x, customColor.y, customColor.z};
+				static ColorDisplay displayMode = ColorDisplay::HEX;
+
+				if (ImGui::BeginCombo("Display Mode", colorDisplayStr[(int)displayMode]))
+				{
+					for (int i = 0; i < 3; ++i)
+					{
+						const bool selected = (int)displayMode == i;
+						if (ImGui::Selectable(colorDisplayStr[i], selected))
+							displayMode = (ColorDisplay)i;
+					}
+
+					ImGui::EndCombo();
+				}
+
+				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
+				ImGuiColorEditFlags flags = 1 << (20 + (int)displayMode);
+				if (ImGui::ColorEdit3("Custom Accent Color", col, flags))
+				{
+					customColor.x = col[0];
+					customColor.y = col[1];
+					customColor.z = col[2];
+				}
+
+				if (ImGui::IsItemDeactivated() && accentColor == 0)
+					applyAccentColor(0);
+
+				ImGui::PopStyleVar();
 			}
-			ImGui::PopStyleVar();
 
 			// charting
 			if (ImGui::CollapsingHeader("Timeline", ImGuiTreeNodeFlags_DefaultOpen))
@@ -164,10 +195,10 @@ namespace MikuMikuWorld
 				int laneWidth = editor->getLaneWidth();
 				int notesHeight = editor->getNotesHeight();
 
-				beginPropertyColumns();
-				addSliderProperty("Lane Width", laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
-				addSliderProperty("Notes Height", notesHeight, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT, "%d");
-				endPropertyColumns();
+				UI::beginPropertyColumns();
+				UI::addSliderProperty("Lane Width", laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
+				UI::addSliderProperty("Notes Height", notesHeight, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT, "%d");
+				UI::endPropertyColumns();
 
 				if (laneWidth != editor->getLaneWidth())
 					editor->setLaneWidth(laneWidth);
@@ -185,7 +216,7 @@ namespace MikuMikuWorld
 
 			ImGui::EndChild();
 			ImGui::SetCursorPos(confirmBtnPos);
-			if (ImGui::Button("OK", ImVec2(100, btnNormal.y - 5)))
+			if (ImGui::Button("OK", ImVec2(100, UI::btnNormal.y - 5)))
 				ImGui::CloseCurrentPopup();
 
 			ImGui::EndPopup();

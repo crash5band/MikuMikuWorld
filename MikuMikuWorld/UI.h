@@ -23,32 +23,49 @@ namespace MikuMikuWorld
 
 	constexpr ImGuiWindowFlags ImGuiWindowFlags_Static = ImGuiWindowFlags_NoCollapse;
 
-	static const ImVec2 btnNormal{ 30, 30 };
-	static const ImVec2 btnSmall{ 20, 20 };
-
 	struct AccentColor
 	{
 		std::string name;
 		ImVec4 color;
 	};
 
-	extern std::vector<AccentColor> accentColors;
+	enum class ColorDisplay
+	{
+		RGB,
+		HSV,
+		HEX
+	};
 
-	bool transparentButton(const char* txt, ImVec2 size = btnNormal, bool repeat = false, bool enabled = true);
-	bool transparentButton2(const char* txt, ImVec2 pos, ImVec2 size);
-	bool isAnyPopupOpen();
-	void beginPropertyColumns();
-	void endPropertyColumns();
-	void propertyLabel(const char* label);
-	void addStringProperty(const char* label, std::string& val);
-	void addIntProperty(const char* label, int& val, int lowerBound = 0, int higherBound = 0);
-	void addFloatProperty(const char* label, float& val, const char* format);
-	void addReadOnlyProperty(const char* label, std::string val);
-	void addSliderProperty(const char* label, int& val, int min, int max, const char* format);
-	void addSliderProperty(const char* label, float& val, float min, float max, const char* format);
-	void addPercentSliderProperty(const char* label, float &val);
-	bool addFractionProperty(const char* label, int& numerator, int& denominator);
-	bool addFileProperty(const char* label, std::string val);
+	constexpr const char* colorDisplayStr[]
+	{
+		"RGB", "HSV", "Hex"
+	};
 
-	void setWindowTitle(const std::string& title);
+	class UI
+	{
+	public:
+		static const ImVec2 btnNormal;
+		static const ImVec2 btnSmall;
+		static std::vector<AccentColor> accentColors;
+		static AccentColor userColor;
+
+		static bool transparentButton(const char* txt, ImVec2 size = btnNormal, bool repeat = false, bool enabled = true);
+		static bool transparentButton2(const char* txt, ImVec2 pos, ImVec2 size);
+		static bool isAnyPopupOpen();
+		static void beginPropertyColumns();
+		static void endPropertyColumns();
+		static void propertyLabel(const char* label);
+		static void addStringProperty(const char* label, std::string& val);
+		static void addIntProperty(const char* label, int& val, int lowerBound = 0, int higherBound = 0);
+		static void addFloatProperty(const char* label, float& val, const char* format);
+		static void addReadOnlyProperty(const char* label, std::string val);
+		static void addSliderProperty(const char* label, int& val, int min, int max, const char* format);
+		static void addSliderProperty(const char* label, float& val, float min, float max, const char* format);
+		static void addPercentSliderProperty(const char* label, float& val);
+		static bool addFractionProperty(const char* label, int& numerator, int& denominator);
+		static bool addFileProperty(const char* label, std::string val);
+
+		static void setWindowTitle(const std::string& title);
+	};
+
 }

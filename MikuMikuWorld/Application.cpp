@@ -2,8 +2,8 @@
 #include "ResourceManager.h"
 #include "StringOperations.h"
 #include "InputListener.h"
-#include "UI.h"
 #include "Colors.h"
+#include "UI.h"
 #include <json.hpp>
 #include <iostream>
 #include <fstream>
@@ -21,7 +21,7 @@ namespace MikuMikuWorld
 	bool Application::resetting = false;
 
 	Application::Application(const std::string& root) :
-		lastAppTimeUpdate{ 0 }, appFrame{ 0 }, appTime{ 0 }, vsync{ true }, firstFrame{ true }
+		lastAppTimeUpdate{ 0 }, appFrame{ 0 }, appTime{ 0 }, vsync{ true }, firstFrame{ true }, accentColor{ 0 }
 	{
 		appDir = root;
 		version = getVersion();
@@ -29,7 +29,7 @@ namespace MikuMikuWorld
 		initOpenGL();
 		initImgui();
 		setImguiStyle();
-		applyAccentColor(0);
+		applyAccentColor(accentColor);
 
 		imguiConfigFile = std::string{ appDir + IMGUI_CONFIG_FILENAME };
 		ImGui::GetIO().IniFilename = imguiConfigFile.c_str();
@@ -80,6 +80,18 @@ namespace MikuMikuWorld
 		editor->setLaneWidth(config["timeline"]["lane_width"]);
 		editor->setNotesHeight(config["timeline"]["notes_height"]);
 
+		if (config.find("user_color") != config.end())
+		{
+			if (config["user_color"].find("r") != config["user_color"].end())
+				UI::accentColors[0].color.x = config["user_color"]["r"];
+
+			if (config["user_color"].find("g") != config["user_color"].end())
+				UI::accentColors[0].color.y = config["user_color"]["g"];
+
+			if (config["user_color"].find("b") != config["user_color"].end())
+				UI::accentColors[0].color.z = config["user_color"]["b"];
+		}
+
 		applyAccentColor(config["accent_color"]);
 	}
 
@@ -103,6 +115,11 @@ namespace MikuMikuWorld
 			},
 
 			{"accent_color", accentColor},
+			{"user_color", {
+				{"r", UI::accentColors[0].color.x},
+				{"g", UI::accentColors[0].color.y},
+				{"b", UI::accentColors[0].color.z},
+			}},
 			{"vsync", vsync}
 		};
 
@@ -119,10 +136,10 @@ namespace MikuMikuWorld
 		lastFrame = currentFrame;
 	}
 
-	void Application::applyAccentColor(int index)
+	void Application::applyAccentColor(int colIndex)
 	{
 		ImVec4* colors = ImGui::GetStyle().Colors;
-		const ImVec4& color = accentColors[index].color;
+		const ImVec4 color = UI::accentColors[colIndex].color;
 		const ImVec4 darkColor = generateDarkColor(color);
 		const ImVec4 lightColor = generateHighlightColor(color);
 
@@ -137,7 +154,7 @@ namespace MikuMikuWorld
 		colors[ImGuiCol_TabActive] = color;
 		colors[ImGuiCol_CheckMark] = color;
 
-		accentColor = index;
+		accentColor = colIndex;
 	}
 
 	void Application::processInput()

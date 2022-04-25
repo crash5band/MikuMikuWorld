@@ -98,7 +98,7 @@ namespace MikuMikuWorld
 		}
 
 		readScoreMetadata();
-		setWindowTitle(title.c_str());
+		UI::setWindowTitle(title.c_str());
 	}
 
 	void ScoreEditor::loadMusic(const std::string& filename)
@@ -125,7 +125,7 @@ namespace MikuMikuWorld
 			writeScoreMetadata();
 			serializeScore(score, workingData.filename);
 			uptoDate = true;
-			setWindowTitle(File::getFilenameWithoutExtension(workingData.filename));
+			UI::setWindowTitle(File::getFilenameWithoutExtension(workingData.filename));
 		}
 		else
 		{
@@ -146,7 +146,7 @@ namespace MikuMikuWorld
 			serializeScore(score, filename);
 			uptoDate = true;
 
-			setWindowTitle(File::getFilenameWithoutExtension(workingData.filename));
+			UI::setWindowTitle(File::getFilenameWithoutExtension(workingData.filename));
 		}
 	}
 
@@ -180,7 +180,7 @@ namespace MikuMikuWorld
 		hasEdit = false;
 		uptoDate = true;
 
-		setWindowTitle(windowTitleNew);
+		UI::setWindowTitle(windowTitleNew);
 	}
 
 	bool ScoreEditor::isUptoDate() const
@@ -546,7 +546,7 @@ namespace MikuMikuWorld
 		hoverTick = snapTickFromPos(-mousePos.y);
 		hoverLane = positionToLane(mousePos.x);
 		if (ImGui::IsMouseClicked(0) && !isHoveringNote && mouseInTimeline && !playing &&
-			!isAnyPopupOpen() && currentMode == TimelineMode::Select && ImGui::IsWindowFocused())
+			!UI::isAnyPopupOpen() && currentMode == TimelineMode::Select && ImGui::IsWindowFocused())
 		{
 			currentTick = hoverTick;
 		}
@@ -571,7 +571,7 @@ namespace MikuMikuWorld
 		const float btnH = 30.0f;
 		const float btnX = x2 - MEASURE_WIDTH;
 		
-		ImVec2 removeBtnSz{ -1, btnSmall.y + 2 };
+		ImVec2 removeBtnSz{ -1, UI::btnSmall.y + 2 };
 		int removeBPM = -1;
 
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
@@ -586,7 +586,7 @@ namespace MikuMikuWorld
 			drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 - MEASURE_WIDTH + 20.0f, y - 25.0f), tempoColor, bpmStr.c_str());
 
 			std::string id = "bpm" + std::to_string(index);
-			if (transparentButton2(id.c_str(), ImVec2(btnX, y - btnH), ImVec2(btnW, btnH)))
+			if (UI::transparentButton2(id.c_str(), ImVec2(btnX, y - btnH), ImVec2(btnW, btnH)))
 				editBPM = tempo.bpm;
 
 			ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
@@ -595,10 +595,10 @@ namespace MikuMikuWorld
 				ImGui::Text("Edit Tempo");
 				ImGui::Separator();
 
-				beginPropertyColumns();
-				addReadOnlyProperty("Tick", std::to_string(tempo.tick));
-				addFloatProperty("BPM", editBPM, "%g");
-				endPropertyColumns();
+				UI::beginPropertyColumns();
+				UI::addReadOnlyProperty("Tick", std::to_string(tempo.tick));
+				UI::addFloatProperty("BPM", editBPM, "%g");
+				UI::endPropertyColumns();
 
 				if (ImGui::IsItemDeactivatedAfterEdit())
 				{
@@ -640,7 +640,7 @@ namespace MikuMikuWorld
 		const float btnX = canvasPos.x + laneOffset - btnW;
 
 		ImVec2 padding{ ImGui::GetStyle().WindowPadding };
-		ImVec2 removeBtnSz{ -1, btnSmall.y + 2 };
+		ImVec2 removeBtnSz{ -1, UI::btnSmall.y + 2 };
 		int removeTS = -1;
 
 		for (auto& it : score.timeSignatures)
@@ -655,7 +655,7 @@ namespace MikuMikuWorld
 			static int editTsNum = 0;
 			static int editTsDen = 0;
 			std::string id = "ts-" + std::to_string(it.second.measure);
-			if (transparentButton2(id.c_str(), ImVec2(btnX, y - btnH), ImVec2(btnW, btnH)))
+			if (UI::transparentButton2(id.c_str(), ImVec2(btnX, y - btnH), ImVec2(btnW, btnH)))
 			{
 				editTsNum = it.second.numerator;
 				editTsDen = it.second.denominator;
@@ -668,9 +668,9 @@ namespace MikuMikuWorld
 				ImGui::Text("Edit Time Signature");
 				ImGui::Separator();
 
-				beginPropertyColumns();
-				addReadOnlyProperty("Measure", std::to_string(it.second.measure));
-				if (addFractionProperty("Time Signature", editTsNum, editTsDen))
+				UI::beginPropertyColumns();
+				UI::addReadOnlyProperty("Measure", std::to_string(it.second.measure));
+				if (UI::addFractionProperty("Time Signature", editTsNum, editTsDen))
 				{
 					Score prev = score;
 					it.second.numerator = std::clamp(abs(editTsNum), 1, 64);
@@ -678,7 +678,7 @@ namespace MikuMikuWorld
 
 					pushHistory("Change time signature", prev, score);
 				}
-				endPropertyColumns();
+				UI::endPropertyColumns();
 
 				// cannot remove the first time signature
 				if (it.second.measure != 0)
@@ -912,7 +912,7 @@ namespace MikuMikuWorld
 			previewPaste(renderer);
 		
 		// input note preview
-		if (mouseInTimeline && !isHoldingNote && currentMode != TimelineMode::Select && !isPasting() && !isAnyPopupOpen())
+		if (mouseInTimeline && !isHoldingNote && currentMode != TimelineMode::Select && !isPasting() && !UI::isAnyPopupOpen())
 		{
 			// preview note
 			updateDummyNotes();

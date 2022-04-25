@@ -63,7 +63,7 @@ namespace MikuMikuWorld
 		void about();
 		void settings();
 		void processInput();
-		void applyAccentColor(int index);
+		void applyAccentColor(int col);
 		void handlePendingOpenFiles();
 
 		void readSettings(const std::string& filename);

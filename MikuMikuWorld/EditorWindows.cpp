@@ -71,7 +71,7 @@ namespace MikuMikuWorld
 			timelineMinOffset = ImGui::GetWindowHeight() - 200.0f;
 
 			// mouse input
-			if (mouseInTimeline && !isAnyPopupOpen())
+			if (mouseInTimeline && !UI::isAnyPopupOpen())
 			{
 				float mouseWheelDelta = io.MouseWheel;
 				if (InputListener::isCtrlDown())
@@ -194,18 +194,18 @@ namespace MikuMikuWorld
 		{
 			if (ImGui::CollapsingHeader(ICON_FA_ALIGN_LEFT " Metadata", ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				beginPropertyColumns();
-				addStringProperty("Title", workingData.title);
-				addStringProperty("Designer", workingData.designer);
-				addStringProperty("Artist", workingData.artist);
-				endPropertyColumns();
+				UI::beginPropertyColumns();
+				UI::addStringProperty("Title", workingData.title);
+				UI::addStringProperty("Designer", workingData.designer);
+				UI::addStringProperty("Artist", workingData.artist);
+				UI::endPropertyColumns();
 			}
 
 			if (ImGui::CollapsingHeader(ICON_FA_VOLUME_UP " Audio", ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				beginPropertyColumns();
+				UI::beginPropertyColumns();
 
-				if (addFileProperty("Music File", musicFile))
+				if (UI::addFileProperty("Music File", musicFile))
 				{
 					std::string filename;
 					if (FileDialog::openFile(filename, FileType::AudioFile))
@@ -213,7 +213,7 @@ namespace MikuMikuWorld
 				}
 
 				float offset = musicOffset;
-				addFloatProperty("Music Offset", offset, "%.03fms");
+				UI::addFloatProperty("Music Offset", offset, "%.03fms");
 				if (offset != musicOffset)
 				{
 					musicOffset = offset;
@@ -222,9 +222,9 @@ namespace MikuMikuWorld
 
 				// volume controls
 				float master = masterVolume, bgm = bgmVolume, se = seVolume;
-				addPercentSliderProperty("Master Volume", master);
-				addPercentSliderProperty("BGM Volume", bgm);
-				addPercentSliderProperty("SE Volume", se);
+				UI::addPercentSliderProperty("Master Volume", master);
+				UI::addPercentSliderProperty("BGM Volume", bgm);
+				UI::addPercentSliderProperty("SE Volume", se);
 
 				if (master != masterVolume)
 				{
@@ -244,7 +244,7 @@ namespace MikuMikuWorld
 					seVolume = se;
 				}
 
-				endPropertyColumns();
+				UI::endPropertyColumns();
 			}
 
 			if (ImGui::CollapsingHeader(ICON_FA_CHART_BAR " Statistics", ImGuiTreeNodeFlags_DefaultOpen))
@@ -253,14 +253,14 @@ namespace MikuMikuWorld
 				int taps = counts[0], flicks = counts[1], holds = counts[2], steps = counts[3], combo = counts[4];
 				int total = taps + flicks + holds + steps;
 
-				beginPropertyColumns();
-				addReadOnlyProperty("Taps", std::to_string(taps));
-				addReadOnlyProperty("Flicks", std::to_string(flicks));
-				addReadOnlyProperty("Holds", std::to_string(holds));
-				addReadOnlyProperty("Steps", std::to_string(steps));
-				addReadOnlyProperty("Total", std::to_string(total));
-				addReadOnlyProperty("Combo", std::to_string(combo));
-				endPropertyColumns();
+				UI::beginPropertyColumns();
+				UI::addReadOnlyProperty("Taps", std::to_string(taps));
+				UI::addReadOnlyProperty("Flicks", std::to_string(flicks));
+				UI::addReadOnlyProperty("Holds", std::to_string(holds));
+				UI::addReadOnlyProperty("Steps", std::to_string(steps));
+				UI::addReadOnlyProperty("Total", std::to_string(total));
+				UI::addReadOnlyProperty("Combo", std::to_string(combo));
+				UI::endPropertyColumns();
 			}
 		}
 
@@ -283,29 +283,29 @@ namespace MikuMikuWorld
 		{
 			ImGui::Text("Time: %02d:%02d:%02d", (int)time / 60, (int)time % 60, (int)((time - (int)time) * 100));
 
-			if (transparentButton(ICON_FA_BACKWARD, btnNormal, true, !playing))
+			if (UI::transparentButton(ICON_FA_BACKWARD, UI::btnNormal, true, !playing))
 				previousTick();
 
 			ImGui::SameLine();
-			if (transparentButton(ICON_FA_STOP))
+			if (UI::transparentButton(ICON_FA_STOP))
 				stop();
 
 			ImGui::SameLine();
-			if (transparentButton(playing ? ICON_FA_PAUSE : ICON_FA_PLAY))
+			if (UI::transparentButton(playing ? ICON_FA_PAUSE : ICON_FA_PLAY))
 				togglePlaying();
 
 			ImGui::SameLine();
-			if (transparentButton(ICON_FA_FORWARD, btnNormal, true, !playing))
+			if (UI::transparentButton(ICON_FA_FORWARD, UI::btnNormal, true, !playing))
 				nextTick();
 
 			static int m = 0;
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
 			ImGui::Text("Goto Measure");
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - btnSmall.x - ImGui::GetStyle().ItemSpacing.x);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - ImGui::GetStyle().ItemSpacing.x);
 			ImGui::InputInt("##goto_measure", &m, 0, 0);
 
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_ARROW_RIGHT, btnSmall))
+			if (ImGui::Button(ICON_FA_ARROW_RIGHT, UI::btnSmall))
 				gotoMeasure(m);
 
 			ImGui::Text("Division");
@@ -357,15 +357,15 @@ namespace MikuMikuWorld
 
 			ImGui::Text("Zoom");
 			float _zoom = zoom;
-			if (transparentButton(ICON_FA_SEARCH_MINUS, btnSmall))
+			if (UI::transparentButton(ICON_FA_SEARCH_MINUS, UI::btnSmall))
 				_zoom -= 0.25f;
 
 			ImGui::SameLine();
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - btnSmall.x);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - UI::btnSmall.x);
 			ImGui::SliderFloat("##zoom", &_zoom, MIN_ZOOM, MAX_ZOOM, "%.2fx", ImGuiSliderFlags_AlwaysClamp);
 			ImGui::SameLine();
 
-			if (transparentButton(ICON_FA_SEARCH_PLUS, btnSmall))
+			if (UI::transparentButton(ICON_FA_SEARCH_PLUS, UI::btnSmall))
 				_zoom += 0.25f;
 
 			if (zoom != _zoom)
