@@ -162,7 +162,9 @@ namespace MikuMikuWorld
 				float col[]{customColor.x, customColor.y, customColor.z};
 				static ColorDisplay displayMode = ColorDisplay::HEX;
 
-				if (ImGui::BeginCombo("Display Mode", colorDisplayStr[(int)displayMode]))
+				UI::beginPropertyColumns();
+				UI::propertyLabel("Display Mode");
+				if (ImGui::BeginCombo("##color_display_mode", colorDisplayStr[(int)displayMode]))
 				{
 					for (int i = 0; i < 3; ++i)
 					{
@@ -173,15 +175,19 @@ namespace MikuMikuWorld
 
 					ImGui::EndCombo();
 				}
+				ImGui::NextColumn();
+				UI::propertyLabel("Custom Color");
 
 				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
 				ImGuiColorEditFlags flags = 1 << (20 + (int)displayMode);
-				if (ImGui::ColorEdit3("Custom Accent Color", col, flags))
+				if (ImGui::ColorEdit3("##custom_accent_color", col, flags))
 				{
 					customColor.x = col[0];
 					customColor.y = col[1];
 					customColor.z = col[2];
 				}
+
+				UI::endPropertyColumns();
 
 				if (ImGui::IsItemDeactivated() && accentColor == 0)
 					applyAccentColor(0);
