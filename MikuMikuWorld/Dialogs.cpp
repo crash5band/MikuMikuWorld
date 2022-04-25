@@ -45,7 +45,7 @@ namespace MikuMikuWorld
 	bool Application::warnUnsaved()
 	{
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		ImGui::SetNextWindowSize(ImVec2(400, 200), ImGuiCond_Always);
+		ImGui::SetNextWindowSize(ImVec2(450, 200), ImGuiCond_Always);
 
 		ImVec2 padding = ImGui::GetStyle().WindowPadding;
 		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
@@ -60,7 +60,7 @@ namespace MikuMikuWorld
 			float yPos = ImGui::GetWindowSize().y - UI::btnNormal.y - padding.y;
 			ImGui::SetCursorPos(ImVec2(xPos, yPos));
 
-			ImVec2 btnSz = ImVec2((ImGui::GetContentRegionAvail().x - spacing.x) / 3.0f, UI::btnNormal.y);
+			ImVec2 btnSz = ImVec2((ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) / 3.0f, UI::btnNormal.y);
 
 			if (ImGui::Button("Save Changes", btnSz))
 			{
