@@ -111,7 +111,7 @@ namespace MikuMikuWorld
 		std::unordered_map<int, Note>& pasteNotes = flipPasting ? copyNotesFlip : copyNotes;
 		selectedNotes.clear();
 
-		for (auto&[id, note] : pasteNotes)
+		for (auto[id, note] : pasteNotes)
 		{
 			if (note.getType() == NoteType::Tap)
 			{
@@ -124,7 +124,7 @@ namespace MikuMikuWorld
 			}
 		}
 
-		for (auto&[id, hold] : copyHolds)
+		for (auto[id, hold] : copyHolds)
 		{
 			HoldNote hold = copyHolds[id];
 			int startID = nextID++;
@@ -148,7 +148,7 @@ namespace MikuMikuWorld
 			score.notes[startID] = start;
 			score.notes[endID] = end;
 
-			for (auto& step : hold.steps)
+			for (auto step : hold.steps)
 			{
 				Note mid = pasteNotes[step.ID];
 				mid.ID = nextID++;
