@@ -148,7 +148,8 @@ namespace MikuMikuWorld
 			score.notes[startID] = start;
 			score.notes[endID] = end;
 
-			for (auto step : hold.steps)
+			// by reference here because we are modifying the steps of the newly created hold
+			for (auto &step : hold.steps)
 			{
 				Note mid = pasteNotes[step.ID];
 				mid.ID = nextID++;
