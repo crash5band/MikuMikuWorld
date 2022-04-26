@@ -29,7 +29,7 @@ namespace MikuMikuWorld
 		int curr = -1;
 		
 		std::vector<SUSNote> sortedStream = stream;
-		std::sort(sortedStream.begin(), sortedStream.end(),
+		std::stable_sort(sortedStream.begin(), sortedStream.end(),
 			[](const SUSNote& n1, const SUSNote& n2) { return n1.tick < n2.tick; });
 
 		bool newSlide = true;

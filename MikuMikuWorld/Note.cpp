@@ -81,9 +81,9 @@ namespace MikuMikuWorld
 		for (auto& step : note.steps)
 			stepsMap.push_back(tickStepPair(score.notes.at(step.ID).tick, step));
 
-		std::sort(stepsMap.begin(), stepsMap.end(), [](tickStepPair& a, tickStepPair& b) {
+		std::stable_sort(stepsMap.begin(), stepsMap.end(), [](const tickStepPair& a, const tickStepPair& b) {
 			return a.first < b.first;
-			});
+		});
 
 		note.steps.clear();
 		for (const auto& it : stepsMap)
