@@ -19,11 +19,6 @@ namespace MikuMikuWorld
 		Vertex vertices[4];
 		DirectX::XMMATRIX matrix;
 
-		inline bool operator<(const Quad& other)
-		{
-			return zIndex < other.zIndex;
-		}
-
 		Quad() : zIndex{ 0 }, sprite{ 0 }, texture{ 0 }
 		{
 

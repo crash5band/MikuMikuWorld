@@ -165,7 +165,8 @@ namespace MikuMikuWorld
 		if (!quads.size())
 			return;
 
-		std::sort(quads.begin(), quads.end());
+		std::stable_sort(quads.begin(), quads.end(),
+			[](const Quad& q1, const Quad& q2) {return q1.zIndex < q2.zIndex; });
 		bindTexture(quads[0].texture);
 
 		int vertexCount = 0;
