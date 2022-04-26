@@ -131,8 +131,8 @@ namespace MikuMikuWorld
 		void cycleEase();
 		void setEase(EaseType ease);
 		void toggleCriticals();
-		void toggleStepVisibility();
-		void setStepVisibility(HoldStepType type);
+		void cycleStepType();
+		void setStepType(HoldStepType type);
 		void calcDragSelection();
 		void debugInfo();
 

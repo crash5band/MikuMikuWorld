@@ -175,13 +175,13 @@ namespace MikuMikuWorld
 
 			ImGui::Separator();
 			if (ImGui::MenuItem(ICON_FA_EYE "\tVisible", NULL, false, hasSelectionStep))
-				setStepVisibility(HoldStepType::Visible);
+				setStepType(HoldStepType::Visible);
 
 			if (ImGui::MenuItem(ICON_FA_EYE_SLASH "\tInvisible", NULL, false, hasSelectionStep))
-				setStepVisibility(HoldStepType::Invisible);
+				setStepType(HoldStepType::Invisible);
 
 			if (ImGui::MenuItem(ICON_FA_EYE "\tIgnored", NULL, false, hasSelectionStep))
-				setStepVisibility(HoldStepType::Ignored);
+				setStepType(HoldStepType::Ignored);
 
 			ImGui::EndPopup();
 		}

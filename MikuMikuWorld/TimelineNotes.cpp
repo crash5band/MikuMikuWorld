@@ -115,7 +115,7 @@ namespace MikuMikuWorld
 				case TimelineMode::InsertLong:
 				case TimelineMode::InsertLongMid:
 					if (InputListener::isAltDown())
-						toggleStepVisibility();
+						cycleStepType();
 					else
 						cycleEase();
 					break;

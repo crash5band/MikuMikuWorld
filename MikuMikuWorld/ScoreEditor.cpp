@@ -756,7 +756,7 @@ namespace MikuMikuWorld
 						start.tick = start.tick ^ end.tick;
 					}
 
-					sortHoldSteps(score, score.holdNotes.at(id));
+					sortHoldSteps(score, hold);
 				}
 
 				//if (holdLane != hoverLane || (!strcmp(id, "M") && (holdTick != hoverTick)))

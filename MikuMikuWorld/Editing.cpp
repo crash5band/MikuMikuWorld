@@ -322,17 +322,23 @@ namespace MikuMikuWorld
 		if (!selectedNotes.size())
 			return;
 
+		bool edit = false;
 		Score prev = score;
-
 		for (int id : selectedNotes)
 		{
 			Note& note = score.notes.at(id);
-			cycleFlick(note);
-			if (note.getType() == NoteType::HoldEnd && !note.isFlick() && note.critical)
-				note.critical = score.notes.at(note.parentID).critical;
+			if (!note.hasEase())
+			{
+				cycleFlick(note);
+				if (note.getType() == NoteType::HoldEnd && !note.isFlick() && note.critical)
+					note.critical = score.notes.at(note.parentID).critical;
+
+				edit = true;
+			}
 		}
 
-		pushHistory("Change note", prev, score);
+		if (edit)
+			pushHistory("Change note", prev, score);
 	}
 
 	void ScoreEditor::cycleEase()
@@ -340,6 +346,7 @@ namespace MikuMikuWorld
 		if (!selectedNotes.size())
 			return;
 
+		bool edit = false;
 		Score prev = score;
 		for (int id : selectedNotes)
 		{
@@ -347,17 +354,22 @@ namespace MikuMikuWorld
 			if (note.getType() == NoteType::Hold)
 			{
 				cycleStepEase(score.holdNotes.at(note.ID).start);
+				edit = true;
 			}
 			else if (note.getType() == NoteType::HoldMid)
 			{
 				HoldNote& hold = score.holdNotes.at(note.parentID);
 				int pos = findHoldStep(hold, id);
 				if (pos != -1)
+				{
 					cycleStepEase(hold.steps[pos]);
+					edit = true;
+				}
 			}
 		}
 
-		pushHistory("Change note", prev, score);
+		if (edit)
+			pushHistory("Change note", prev, score);
 	}
 
 	void ScoreEditor::setEase(EaseType ease)
@@ -365,6 +377,7 @@ namespace MikuMikuWorld
 		if (!selectedNotes.size())
 			return;
 
+		bool edit = false;
 		Score prev = score;
 		for (int id : selectedNotes)
 		{
@@ -372,17 +385,22 @@ namespace MikuMikuWorld
 			if (note.getType() == NoteType::Hold)
 			{
 				score.holdNotes.at(note.ID).start.ease = ease;
+				edit = true;
 			}
 			else if (note.getType() == NoteType::HoldMid)
 			{
 				HoldNote& hold = score.holdNotes.at(note.parentID);
 				int pos = findHoldStep(hold, id);
 				if (pos != -1)
+				{
 					hold.steps[pos].ease = ease;
+					edit = true;
+				}
 			}
 		}
 
-		pushHistory("Change note", prev, score);
+		if (edit)
+			pushHistory("Change note", prev, score);
 	}
 
 	void ScoreEditor::toggleCriticals()
@@ -424,11 +442,12 @@ namespace MikuMikuWorld
 		pushHistory("Change note", prev, score);
 	}
 
-	void ScoreEditor::setStepVisibility(HoldStepType type)
+	void ScoreEditor::setStepType(HoldStepType type)
 	{
 		if (!selectedNotes.size())
 			return;
 
+		bool edit = false;
 		Score prev = score;
 		for (int id : selectedNotes)
 		{
@@ -439,17 +458,22 @@ namespace MikuMikuWorld
 			HoldNote& hold = score.holdNotes.at(note.parentID);
 			int pos = findHoldStep(hold, id);
 			if (pos != -1)
+			{
 				hold.steps[pos].type = type;
+				edit = true;
+			}
 		}
 
-		pushHistory("Change note", prev, score);
+		if (edit)
+			pushHistory("Change note", prev, score);
 	}
 
-	void ScoreEditor::toggleStepVisibility()
+	void ScoreEditor::cycleStepType()
 	{
 		if (!selectedNotes.size())
 			return;
 
+		bool edit = false;
 		Score prev = score;
 		for (int id : selectedNotes)
 		{
@@ -460,10 +484,14 @@ namespace MikuMikuWorld
 			HoldNote& hold = score.holdNotes.at(note.parentID);
 			int pos = findHoldStep(hold, id);
 			if (pos != -1)
-				hold.steps[pos].type = (HoldStepType)(((int)hold.steps[pos].type + 1) % 2);
+			{
+				hold.steps[pos].type = (HoldStepType)(((int)hold.steps[pos].type + 1) % 3);
+				edit = true;
+			}
 		}
 
-		pushHistory("Change note", prev, score);
+		if (edit)
+			pushHistory("Change note", prev, score);
 	}
 
 	void ScoreEditor::flipSelected()
