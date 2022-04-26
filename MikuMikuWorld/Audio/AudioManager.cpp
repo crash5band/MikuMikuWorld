@@ -80,7 +80,7 @@ namespace MikuMikuWorld
 		seMap.insert(std::pair(SE_CRITICAL_TAP, critical_tap));
 		seMap.insert(std::pair(SE_CRITICAL_FLICK, critical_flick));
 		seMap.insert(std::pair(SE_CRITICAL_CONNECT, critical_connect));
-		seMap.insert(std::pair(SE_CRITICAL_FLICK, critical_tick));
+		seMap.insert(std::pair(SE_CRITICAL_TICK, critical_tick));
 
 		for (auto& it : seMap)
 		{
