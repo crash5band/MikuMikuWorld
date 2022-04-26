@@ -123,7 +123,7 @@ namespace MikuMikuWorld
 	void Application::settingsDialog()
 	{
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		ImGui::SetNextWindowSize(ImVec2(500, 460), ImGuiCond_Always);
+		ImGui::SetNextWindowSize(ImVec2(550, 500), ImGuiCond_Always);
 
 		ImVec2 padding = ImGui::GetStyle().WindowPadding;
 		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
@@ -137,11 +137,13 @@ namespace MikuMikuWorld
 			if (ImGui::CollapsingHeader("Accent Color", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+				ImGui::TextWrapped("Select an accent color to apply. The first slot can be customized from the color controls below.");
 				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
+				ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.5f);
 				for (int i = 0; i < UI::accentColors.size(); ++i)
 				{
 					bool apply = false;
-					std::string id = "##" + std::to_string(i);
+					std::string id = i == config.accentColor ? ICON_FA_CHECK : i == 0 ? "C" : "##" + std::to_string(i);
 					ImGui::PushStyleColor(ImGuiCol_Button, UI::accentColors[i].color);
 					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, UI::accentColors[i].color);
 					ImGui::PushStyleColor(ImGuiCol_ButtonActive, UI::accentColors[i].color);
@@ -156,12 +158,14 @@ namespace MikuMikuWorld
 					if (apply)
 						applyAccentColor(i);
 				}
-				ImGui::PopStyleVar();
+				ImGui::PopStyleVar(2);
 
 				ImVec4& customColor = UI::accentColors[0].color;
 				float col[]{customColor.x, customColor.y, customColor.z};
 				static ColorDisplay displayMode = ColorDisplay::HEX;
 
+				ImGui::Separator();
+				ImGui::Text("Select A Custom Color");
 				UI::beginPropertyColumns();
 				UI::propertyLabel("Display Mode");
 				if (ImGui::BeginCombo("##color_display_mode", colorDisplayStr[(int)displayMode]))

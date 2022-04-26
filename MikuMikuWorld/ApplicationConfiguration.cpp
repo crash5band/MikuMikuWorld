@@ -51,9 +51,9 @@ namespace MikuMikuWorld
 		Color c;
 		if (keyExists(js, key))
 		{
-			c.r = tryGetFloat(js[key], "r", 0.2f);
-			c.g = tryGetFloat(js[key], "g", 0.2f);
-			c.b = tryGetFloat(js[key], "b", 0.2f);
+			c.r = tryGetFloat(js[key], "r", 1.0f);
+			c.g = tryGetFloat(js[key], "g", 1.0f);
+			c.b = tryGetFloat(js[key], "b", 1.0f);
 			c.a = tryGetFloat(js[key], "a", 1.0f);
 		}
 
