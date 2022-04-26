@@ -107,7 +107,6 @@
     <ClCompile Include="Rendering\Framebuffer.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Audio\stb_vorbis.c" />
     <ClCompile Include="Dialogs.cpp" />
     <ClCompile Include="UI.cpp">
       <Filter>UI</Filter>
@@ -122,6 +121,9 @@
       <Filter>Score\SUS</Filter>
     </ClCompile>
     <ClCompile Include="ApplicationConfiguration.cpp" />
+    <ClCompile Include="Audio\stb_vorbis.c">
+      <Filter>Components\Audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
