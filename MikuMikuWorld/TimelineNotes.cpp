@@ -13,7 +13,7 @@ namespace MikuMikuWorld
 {
 	void ScoreEditor::updateNote(Note& note)
 	{
-		const float btnPosY = canvasPos.y - tickToPosition(note.tick) + timelineOffset - (notesHeight * 0.25f);
+		const float btnPosY = canvasPos.y - tickToPosition(note.tick) + timelineOffset - (notesHeight * 0.5f);
 		float btnPosX = laneToPosition(note.lane) + canvasPos.x;
 
 		ImVec2 pos{ btnPosX, btnPosY };
