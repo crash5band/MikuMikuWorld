@@ -151,7 +151,7 @@ namespace MikuMikuWorld
 		std::string iconFontpath{ Application::getAppDir() + "res/fonts/fa-solid-900.ttf" };
 
 		if (File::exists(fontpath))
-			io->Fonts->AddFontFromFileTTF(std::string(Application::getAppDir() + "res/fonts/NotoSansJP-Regular.otf").c_str(), 18, NULL, io->Fonts->GetGlyphRangesJapanese());
+			io->Fonts->AddFontFromFileTTF(fontpath.c_str(), 18, NULL, io->Fonts->GetGlyphRangesJapanese());
 
 		if (File::exists(iconFontpath))
 		{
@@ -160,7 +160,7 @@ namespace MikuMikuWorld
 			fontConfig.GlyphMinAdvanceX = 13.0f;
 			static const ImWchar iconRanges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 			
-			io->Fonts->AddFontFromFileTTF(std::string(Application::getAppDir() + "res/fonts/fa-solid-900.ttf").c_str(), 14.0f, &fontConfig, iconRanges);
+			io->Fonts->AddFontFromFileTTF(iconFontpath.c_str(), 14.0f, &fontConfig, iconRanges);
 		}
 		
 		return true;

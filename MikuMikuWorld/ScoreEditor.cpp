@@ -27,6 +27,7 @@ namespace MikuMikuWorld
 		drawHoldStepOutline = true;
 		showRenderStats = true;
 		defaultNoteWidth = 3;
+		skipUpdateAfterSortingSteps = false;
 		framebuffer = new Framebuffer(1080, 1920);
 
 		time			= 0;
@@ -757,6 +758,7 @@ namespace MikuMikuWorld
 					}
 
 					sortHoldSteps(score, hold);
+					skipUpdateAfterSortingSteps = true;
 				}
 
 				//if (holdLane != hoverLane || (!strcmp(id, "M") && (holdTick != hoverTick)))
@@ -860,13 +862,10 @@ namespace MikuMikuWorld
 
 		for (auto&[id, note] : score.notes)
 		{
-			if (note.getType() == NoteType::Tap)
+			if (isNoteInCanvas(note.tick) && note.getType() == NoteType::Tap)
 			{
-				if (isNoteInCanvas(note.tick))
-				{
-					updateNote(note);
-					drawNote(note, renderer, noteTint);
-				}
+				updateNote(note);
+				drawNote(note, renderer, noteTint);
 			}
 		}
 
@@ -882,6 +881,12 @@ namespace MikuMikuWorld
 			{
 				Note& mid = score.notes.at(step.ID);
 				if (isNoteInCanvas(mid.tick)) updateNote(mid);
+
+				if (skipUpdateAfterSortingSteps)
+				{
+					skipUpdateAfterSortingSteps = false;
+					break;
+				}
 			}
 
 			drawHoldNote(score.notes, hold, renderer, noteTint);

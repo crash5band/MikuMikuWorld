@@ -84,12 +84,12 @@ namespace MikuMikuWorld
 		config.windowSize = windowSize;
 		config.timelineWidth = editor->getLaneWidth();
 		config.notesHeight = editor->getNotesHeight();
-
 		config.userColor = Color{ 
 			UI::accentColors[0].color.x,
 			UI::accentColors[0].color.y,
 			UI::accentColors[0].color.z,
-			UI::accentColors[0].color.w };
+			UI::accentColors[0].color.w
+		};
 
 		config.write(appDir + APP_CONFIG_FILENAME);
 	}

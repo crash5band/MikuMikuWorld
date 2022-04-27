@@ -78,6 +78,7 @@ namespace MikuMikuWorld
 		bool isHoveringNote;
 		bool isHoldingNote;
 		bool isMovingNote;
+		bool skipUpdateAfterSortingSteps;
 		bool mouseInTimeline;
 		bool dragging;
 		bool insertingHold;
