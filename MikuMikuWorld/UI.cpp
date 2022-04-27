@@ -109,7 +109,7 @@ namespace MikuMikuWorld
 		std::string id("##");
 		id.append(label);
 
-		ImGui::InputFloat(id.c_str(), &val, 0.01f, 0.1f, format);
+		ImGui::InputFloat(id.c_str(), &val, 1.0f, 10.f, format);
 		ImGui::NextColumn();
 	}
 
