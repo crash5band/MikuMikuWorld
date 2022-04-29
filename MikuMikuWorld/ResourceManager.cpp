@@ -13,7 +13,7 @@ namespace MikuMikuWorld
 		if (!std::filesystem::exists(wFilename))
 		{
 			printf("ERROR: ResourceManager::loadTexture() Could not find texture file %ws\n", wFilename.c_str());
-			//return;
+			return;
 		}
 
 		Texture tex(filename);
