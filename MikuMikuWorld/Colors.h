@@ -4,9 +4,9 @@
 
 namespace MikuMikuWorld
 {
-	const ImU32 measureColor	= ImGui::ColorConvertFloat4ToU32(ImVec4(0.80f, 0.80f, 0.80f, 1.00f));
-	const ImU32 divColor1		= ImGui::ColorConvertFloat4ToU32(ImVec4(0.60f, 0.60f, 0.60f, 1.00f));
-	const ImU32 divColor2		= ImGui::ColorConvertFloat4ToU32(ImVec4(0.35f, 0.35f, 0.35f, 0.70f));
+	const ImU32 measureColor	= ImGui::ColorConvertFloat4ToU32(ImVec4(0.80f, 0.80f, 0.80f, 0.70f));
+	const ImU32 divColor1		= ImGui::ColorConvertFloat4ToU32(ImVec4(0.60f, 0.60f, 0.60f, 0.70f));
+	const ImU32 divColor2		= ImGui::ColorConvertFloat4ToU32(ImVec4(0.35f, 0.35f, 0.35f, 0.50f));
 	const ImU32 cursorColor		= ImGui::ColorConvertFloat4ToU32(ImVec4(0.87f, 0.23f, 0.23f, 1.00f));
 	const ImU32 tempoColor		= ImGui::ColorConvertFloat4ToU32(ImVec4(0.52f, 0.93f, 0.35f, 0.85f));
 	const ImU32 timeColor		= ImGui::ColorConvertFloat4ToU32(ImVec4(0.99f, 0.82f, 0.22f, 0.85f));

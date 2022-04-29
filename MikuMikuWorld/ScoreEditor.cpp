@@ -504,9 +504,9 @@ namespace MikuMikuWorld
 				tsIndex = measure;
 
 			if (!(tick % div))
-				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), divColor1, 1.0f);
+				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), divColor1, primaryLineThickness);
 			else if (division < 192)
-				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), divColor2, 1.0f);
+				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), divColor2, secondaryLineThickness);
 		}
 
 		tsIndex = findTimeSignature(measure, score.timeSignatures);
@@ -538,7 +538,9 @@ namespace MikuMikuWorld
 		{
 			const float x = canvasPos.x + laneToPosition(l);
 			const bool boldLane = !(l & 1);
-			drawList->AddLine(ImVec2(x, canvasPos.y), ImVec2(x, canvasPos.y + canvasSize.y), boldLane ? measureColor : divColor2, boldLane ? 1.0f : 0.5f);
+			const ImU32 color = boldLane ? divColor1 : divColor2;
+			const float thickness = boldLane ? primaryLineThickness : secondaryLineThickness;
+			drawList->AddLine(ImVec2(x, canvasPos.y), ImVec2(x, canvasPos.y + canvasSize.y), color, secondaryLineThickness);
 		}
 	}
 
@@ -555,12 +557,12 @@ namespace MikuMikuWorld
 		const float x1 = canvasPos.x + laneOffset;
 		const float x2 = x1 + timelineWidth;
 		const float y = canvasPos.y - tickToPosition(currentTick) + timelineOffset;
-		const float triPtOffset = 10.0f;
-		const float triXPos = x1 - 30.0f + triPtOffset + 2.0f;
+		const float triPtOffset = 8.0f;
+		const float triXPos = x1 - (triPtOffset * 2);
 
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		drawList->AddTriangleFilled(ImVec2(triXPos, y - triPtOffset), ImVec2(triXPos, y + triPtOffset), ImVec2(triXPos + (triPtOffset * 2), y), cursorColor);
-		drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), cursorColor, 3.0f);
+		drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), cursorColor, primaryLineThickness + 1.0f);
 	}
 
 	void ScoreEditor::updateTempoChanges()
@@ -583,7 +585,7 @@ namespace MikuMikuWorld
 			const float y = canvasPos.y - tickToPosition(tempo.tick) + timelineOffset;
 
 			std::string bpmStr = formatString("%g", tempo.bpm) + " BPM";
-			drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), tempoColor, 2.0f);
+			drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), tempoColor, primaryLineThickness);
 			drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 - MEASURE_WIDTH + 20.0f, y - 25.0f), tempoColor, bpmStr.c_str());
 
 			std::string id = "bpm" + std::to_string(index);
@@ -650,7 +652,7 @@ namespace MikuMikuWorld
 			const float y = canvasPos.y - tickToPosition(ticks) + timelineOffset;
 
 			std::string tStr = std::to_string(it.second.numerator) + "/" + std::to_string(it.second.denominator);
-			drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), timeColor, 2.0f);
+			drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), timeColor, primaryLineThickness);
 			drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x1 - 20.0f, y - 25.0f), timeColor, tStr.c_str());
 
 			static int editTsNum = 0;

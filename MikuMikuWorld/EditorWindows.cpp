@@ -44,10 +44,14 @@ namespace MikuMikuWorld
 				ImGui::PopID();
 			}
 
-			ImGui::Text("Default Note Width");
-			ImGui::SetNextItemWidth(-1);
+			ImGui::Separator();
+			UI::beginPropertyColumns();
+			UI::propertyLabel("Note Width");
 			if (ImGui::InputInt("##default_note_width", &defaultNoteWidth, 1, 2))
 				defaultNoteWidth = std::clamp(defaultNoteWidth, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
+			
+			ImGui::NextColumn();
+			UI::endPropertyColumns();
 		}
 
 		ImGui::End();
@@ -300,7 +304,9 @@ namespace MikuMikuWorld
 
 			static int m = 0;
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
-			ImGui::Text("Goto Measure");
+			
+			UI::beginPropertyColumns();
+			UI::propertyLabel("Goto Measure");
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - ImGui::GetStyle().ItemSpacing.x);
 			ImGui::InputInt("##goto_measure", &m, 0, 0);
 
@@ -308,8 +314,8 @@ namespace MikuMikuWorld
 			if (ImGui::Button(ICON_FA_ARROW_RIGHT, UI::btnSmall))
 				gotoMeasure(m);
 
-			ImGui::Text("Division");
-			ImGui::SetNextItemWidth(-1);
+			ImGui::NextColumn();
+			UI::propertyLabel("Divison");
 			std::string divPrefix = "1/";
 
 			int divCount = sizeof(divisions) / sizeof(int);
@@ -332,8 +338,8 @@ namespace MikuMikuWorld
 				ImGui::EndCombo();
 			}
 
-			ImGui::Text("Custom Divison");
-			ImGui::SetNextItemWidth(-1);
+			ImGui::NextColumn();
+			UI::propertyLabel("Custom Divison");
 			if (ImGui::InputInt("##custom_div", &customDivision, 1, 4))
 			{
 				customDivision = std::clamp(customDivision, 4, 1920);
@@ -341,8 +347,9 @@ namespace MikuMikuWorld
 					division = customDivision;
 			}
 
-			ImGui::Text("Scroll Mode");
-			ImGui::SetNextItemWidth(-1);
+			
+			ImGui::NextColumn();
+			UI::propertyLabel("Scroll Mode");
 			if (ImGui::BeginCombo("##scroll_mode", scrollModes[(int)scrollMode]))
 			{
 				for (int i = 0; i < (int)ScrollMode::ScrollModeMax; ++i)
@@ -355,13 +362,14 @@ namespace MikuMikuWorld
 				ImGui::EndCombo();
 			}
 
-			ImGui::Text("Zoom");
+			ImGui::NextColumn();
+			UI::propertyLabel("Zoom");
 			float _zoom = zoom;
 			if (UI::transparentButton(ICON_FA_SEARCH_MINUS, UI::btnSmall))
 				_zoom -= 0.25f;
 
 			ImGui::SameLine();
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - UI::btnSmall.x);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - (ImGui::GetStyle().ItemSpacing.x));
 			ImGui::SliderFloat("##zoom", &_zoom, MIN_ZOOM, MAX_ZOOM, "%.2fx", ImGuiSliderFlags_AlwaysClamp);
 			ImGui::SameLine();
 
@@ -371,6 +379,7 @@ namespace MikuMikuWorld
 			if (zoom != _zoom)
 				setZoom(_zoom);
 
+			UI::endPropertyColumns();
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
 			ImGui::Checkbox("Show Step Outlines", &drawHoldStepOutline);
 		}

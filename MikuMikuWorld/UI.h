@@ -21,6 +21,9 @@ namespace MikuMikuWorld
 	constexpr const char* settingsModalTitle = APP_NAME_FRIENDLY " - Settings";
 	constexpr const char* unsavedModalTitle = APP_NAME_FRIENDLY " - Unsaved Changes";
 
+	constexpr float primaryLineThickness = 0.50f;
+	constexpr float secondaryLineThickness = 0.25f;
+
 	constexpr ImGuiWindowFlags ImGuiWindowFlags_Static = ImGuiWindowFlags_NoCollapse;
 
 	struct AccentColor

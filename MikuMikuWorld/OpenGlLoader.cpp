@@ -178,12 +178,12 @@ namespace MikuMikuWorld
 		style->WindowBorderSize = 1;
 		style->FrameBorderSize = 0;
 		style->FrameRounding = 1;
-		style->ScrollbarRounding = 4;
+		style->ScrollbarRounding = 3;
 		style->ChildRounding = 2;
 		style->PopupRounding = 4;
 		style->GrabRounding = 1.0f;
 		style->TabRounding = 2;
-		style->ScrollbarSize = 16;
+		style->ScrollbarSize = 14;
 
 		style->AntiAliasedLines = true;
 		style->AntiAliasedFill = true;
