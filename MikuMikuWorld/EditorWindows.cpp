@@ -285,8 +285,17 @@ namespace MikuMikuWorld
 	{
 		if (ImGui::Begin(controlsWindow))
 		{
-			ImGui::Text("Time: %02d:%02d:%02d", (int)time / 60, (int)time % 60, (int)((time - (int)time) * 100));
+			int measure = accumulateMeasures(currentTick, TICKS_PER_BEAT, score.timeSignatures);
+			const TimeSignature& ts = score.timeSignatures[findTimeSignature(measure, score.timeSignatures)];
+			const Tempo& tempo = getTempoAt(currentTick, score.tempoChanges);
 
+			std::string timeStr = formatString("Time: %02d:%02d:%02d", (int)time / 60, (int)time % 60, (int)((time - (int)time) * 100));
+			std::string signStr = formatString("\t|\t%d/%d, ", ts.numerator, ts.denominator);
+			std::string tempoStr = formatString("%g BPM", tempo.bpm);
+
+			Utilities::ImGuiCenteredText(timeStr + signStr + tempoStr);
+
+			ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x * 0.5f) - ((UI::btnNormal.x + ImGui::GetStyle().ItemSpacing.x) * 2));
 			if (UI::transparentButton(ICON_FA_BACKWARD, UI::btnNormal, true, !playing))
 				previousTick();
 
@@ -316,7 +325,6 @@ namespace MikuMikuWorld
 
 			ImGui::NextColumn();
 			UI::propertyLabel("Divison");
-			std::string divPrefix = "1/";
 
 			int divCount = sizeof(divisions) / sizeof(int);
 			if (ImGui::BeginCombo("##division", getDivisonString(selectedDivision).c_str()))

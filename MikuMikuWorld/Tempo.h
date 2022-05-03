@@ -28,4 +28,6 @@ namespace MikuMikuWorld
 	int accumulateMeasures(int ticks, int beatTicks, const std::map<int, TimeSignature>& ts);
 	int measureToTicks(int measure, int beatTicks, const std::map<int, TimeSignature>& ts);
 	int findTimeSignature(int measure, const std::map<int, TimeSignature>& ts);
+
+	const Tempo& getTempoAt(int tick, const std::vector<Tempo>& tempos);
 }

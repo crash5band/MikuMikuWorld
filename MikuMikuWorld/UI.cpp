@@ -7,7 +7,7 @@
 namespace MikuMikuWorld
 {
 	const ImVec2 UI::btnNormal{ 30, 30 };
-	const ImVec2 UI::btnSmall{ 20, 20 };
+	const ImVec2 UI::btnSmall{ 22, 22 };
 
 	std::vector<AccentColor> UI::accentColors{
 		AccentColor{ "User",			ImVec4(0.10f, 0.10f, 0.10f, 1.00f) },

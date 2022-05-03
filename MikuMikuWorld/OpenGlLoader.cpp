@@ -169,7 +169,7 @@ namespace MikuMikuWorld
 	void Application::setImguiStyle()
 	{
 		ImGuiStyle* style = &ImGui::GetStyle();
-		style->FramePadding.x = 2;
+		style->FramePadding.x = 4;
 		style->FramePadding.y = 2;
 		style->ItemSpacing.x = 3;
 		style->ItemSpacing.y = 4;

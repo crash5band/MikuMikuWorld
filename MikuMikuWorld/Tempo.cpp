@@ -145,4 +145,13 @@ namespace MikuMikuWorld
 
 		return 0;
 	}
+
+	const Tempo& getTempoAt(int tick, const std::vector<Tempo>& tempos)
+	{
+		for (auto it = tempos.rbegin(); it != tempos.rend(); ++it)
+			if (it->tick <= tick)
+				return *it;
+
+		return tempos[0];
+	}
 }
