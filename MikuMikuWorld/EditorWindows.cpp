@@ -149,7 +149,7 @@ namespace MikuMikuWorld
 	void ScoreEditor::contextMenu()
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 10));
-		if (ImGui::BeginPopupContextWindow("Notes Timeline"))
+		if (ImGui::BeginPopupContextWindow(timelineWindow, ImGuiPopupFlags_MouseButtonRight))
 		{
 			if (ImGui::MenuItem(ICON_FA_TRASH "\tDelete", "Delete", false, hasSelection))
 				deleteSelected();
