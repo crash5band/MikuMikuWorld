@@ -314,23 +314,23 @@ namespace MikuMikuWorld
 		std::unordered_map<std::string, NoteMap> noteMaps;
 
 		auto barLengths = score.barlengths;
-		std::sort(barLengths.begin(), barLengths.end(),
+		std::stable_sort(barLengths.begin(), barLengths.end(),
 			[](const BarLength& a, const BarLength& b) { return a.bar < b.bar; });
 
 		auto bpms = score.bpms;
-		std::sort(bpms.begin(), bpms.end(),
+		std::stable_sort(bpms.begin(), bpms.end(),
 			[](const BPM& a, const BPM& b) { return a.tick < b.tick; });
 
 		auto taps = score.taps;
-		std::sort(taps.begin(), taps.end(),
+		std::stable_sort(taps.begin(), taps.end(),
 			[](const SUSNote& a, const SUSNote& b) { return a.tick < b.tick; });
 
 		auto directionals = score.directionals;
-		std::sort(directionals.begin(), directionals.end(),
+		std::stable_sort(directionals.begin(), directionals.end(),
 			[](const SUSNote& a, const SUSNote& b) { return a.tick < b.tick; });
 
 		auto slides = score.slides;
-		std::sort(slides.begin(), slides.end(),
+		std::stable_sort(slides.begin(), slides.end(),
 			[](const auto& a, const auto& b) { return a[0].tick < b[0].tick; });
 
 		lines.push_back("");
@@ -409,6 +409,7 @@ namespace MikuMikuWorld
 			for (const auto& raw : map.data)
 				gcd = std::gcd(raw.tick, gcd);
 
+			/*
 			std::unordered_map<int, std::string> data;
 			for (const auto& raw : map.data)
 				data[raw.tick % map.ticksPerMeasure] = raw.data;
@@ -421,10 +422,18 @@ namespace MikuMikuWorld
 				else
 					values.push_back("00");
 			}
+			*/
+
+			int dataPtr = 0;
 
 			std::string line = "#" + tag + ":";
-			for (const auto& value : values)
-				line.append(value);
+			line.reserve(line.size() + (gcd / map.data.size()));
+
+			for (int i = 0; i < map.ticksPerMeasure; i += gcd)
+				if (dataPtr >= map.data.size())
+					line.append("00");
+				else
+					line.append(i == (map.data[dataPtr].tick % map.ticksPerMeasure) ? map.data[dataPtr++].data : "00");
 
 			lines.push_back(line);
 		}
