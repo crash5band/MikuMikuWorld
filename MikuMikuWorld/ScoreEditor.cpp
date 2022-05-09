@@ -104,12 +104,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::loadMusic(const std::string& filename)
 	{
-		playing = false;
-		audio.clearEvents();
-		audio.stopBGM();
+		//playing = false;
+		//audio.clearEvents();
+		//audio.stopBGM();
 
-		if (audio.changeBGM(filename))
-			musicFile = filename;
+		audio.changeBGM(filename);
+		musicFile = filename;
 	}
 
 	void ScoreEditor::open()

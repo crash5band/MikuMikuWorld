@@ -156,21 +156,26 @@ namespace MikuMikuWorld
 		val = scaled / 100.0f;
 	}
 
-	bool UI::addFileProperty(const char* label, std::string val)
+	int UI::addFileProperty(const char* label, std::string& val)
 	{
 		propertyLabel(label);
 		
 		std::string id("##");
 		id.append(label);
 
+		int result = 0;
+
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - btnSmall.x - ImGui::GetStyle().ItemSpacing.x);
-		ImGui::InputText(id.c_str(), &val, ImGuiInputTextFlags_ReadOnly);
+		if (ImGui::InputTextWithHint(id.c_str(), "n/a", &val, ImGuiInputTextFlags_EnterReturnsTrue))
+			result = 1;
 		ImGui::SameLine();
 
-		bool pressed = ImGui::Button("...", btnSmall);
+		if (ImGui::Button("...", btnSmall))
+			result = 2;
+
 		ImGui::NextColumn();
 
-		return pressed;
+		return result;
 	}
 
 	bool UI::addFractionProperty(const char* label, int& numerator, int& denominator)

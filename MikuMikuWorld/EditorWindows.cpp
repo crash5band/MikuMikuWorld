@@ -209,7 +209,12 @@ namespace MikuMikuWorld
 			{
 				UI::beginPropertyColumns();
 
-				if (UI::addFileProperty("Music File", musicFile))
+				int filePickResult = UI::addFileProperty("Music File", musicFile);
+				if (filePickResult == 1)
+				{
+					loadMusic(musicFile);
+				}
+				else if (filePickResult == 2)
 				{
 					std::string filename;
 					if (FileDialog::openFile(filename, FileType::AudioFile))

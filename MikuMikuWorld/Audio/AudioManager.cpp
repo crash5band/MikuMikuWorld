@@ -103,11 +103,11 @@ namespace MikuMikuWorld
 
 	bool AudioManager::changeBGM(const std::string& filename)
 	{
+		disposeBGM();
+
 		std::wstring wFilename = mbToWideStr(filename);
 		if (!std::filesystem::exists(wFilename))
 			return false;
-
-		disposeBGM();
 
 		ma_uint32 flags = MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE;
 		ma_result bgmResult = ma_sound_init_from_file_w(&engine, wFilename.c_str(), flags, &bgmGroup, NULL, &bgm);
