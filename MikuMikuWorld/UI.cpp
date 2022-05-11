@@ -2,7 +2,6 @@
 #include <string>
 #include <algorithm>
 #include <GLFW/glfw3.h>
-#include <Windows.h>
 
 namespace MikuMikuWorld
 {
@@ -217,6 +216,18 @@ namespace MikuMikuWorld
 
 		ImGui::InputTextMultiline(id.c_str(), &val, ImVec2(-1, 50));
 		ImGui::NextColumn();
+	}
+
+	void UI::tooltip(const char* label)
+	{
+		if (ImGui::IsItemHovered() && GImGui->HoveredIdTimer > 0.5f)
+		{
+			float txtWidth = ImGui::CalcTextSize(label).x + (ImGui::GetStyle().WindowPadding.x * 2);
+			ImGui::SetNextWindowSize(ImVec2(std::min(txtWidth, 250.0f), -1));
+			ImGui::BeginTooltipEx(0, ImGuiTooltipFlags_OverridePreviousTooltip);
+			ImGui::TextWrapped(label);
+			ImGui::EndTooltip();
+		}
 	}
 
 	void UI::setWindowTitle(const std::string& title)

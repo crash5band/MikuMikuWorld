@@ -33,12 +33,8 @@ namespace MikuMikuWorld
 				if (ImGui::Button(timelineModes[i], btnSz))
 					changeMode((TimelineMode)i);
 
-				if (ImGui::IsItemHovered() && GImGui->HoveredIdTimer > 0.5f)
-				{
-					ImGui::BeginTooltipEx(0, ImGuiTooltipFlags_OverridePreviousTooltip);
-					ImGui::Text("%s (%d)", timelineModes[i], i + 1);
-					ImGui::EndTooltip();
-				}
+				std::string txt = "(" + std::to_string(i + 1) + ") " + timelineModes[i];
+				UI::tooltip(txt.c_str());
 
 				if (highlight)
 					ImGui::PopStyleColor(2);
@@ -453,14 +449,7 @@ namespace MikuMikuWorld
 						}
 
 						if (preset.description.size())
-						{
-							if (ImGui::IsItemHovered() && GImGui->HoveredIdTimer > 0.5f)
-							{
-								ImGui::BeginTooltipEx(0, ImGuiTooltipFlags_OverridePreviousTooltip);
-								ImGui::Text("%s", preset.description.c_str());
-								ImGui::EndTooltip();
-							}
-						}
+							UI::tooltip(preset.description.c_str());
 
 						ImGui::SameLine();
 						if (UI::transparentButton(ICON_FA_TRASH, ImVec2(UI::btnSmall.x, UI::btnSmall.y + 2.0f)))

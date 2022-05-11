@@ -69,6 +69,7 @@ namespace MikuMikuWorld
 		static bool addFractionProperty(const char* label, int& numerator, int& denominator);
 		static int addFileProperty(const char* label, std::string& val);
 		static void addMultilineString(const char* label, std::string& val);
+		static void tooltip(const char* label);
 
 		static void setWindowTitle(const std::string& title);
 	};
