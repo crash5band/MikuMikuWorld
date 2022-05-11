@@ -915,11 +915,11 @@ namespace MikuMikuWorld
 
 		renderer->beginBatch();
 
-		if (isPasting())
+		if (isPasting() || insertingPreset)
 			previewPaste(renderer);
 		
 		// input note preview
-		if (mouseInTimeline && !isHoldingNote && currentMode != TimelineMode::Select && !isPasting() && !UI::isAnyPopupOpen())
+		if (mouseInTimeline && !isHoldingNote && currentMode != TimelineMode::Select && !isPasting() && !insertingPreset && !UI::isAnyPopupOpen())
 		{
 			// preview note
 			updateDummyNotes();
@@ -1121,5 +1121,15 @@ namespace MikuMikuWorld
 				return true;
 
 		return false;
+	}
+
+	void ScoreEditor::loadPresets(const std::string& path)
+	{
+		presetManager.loadPresets(path);
+	}
+
+	void ScoreEditor::savePresets(const std::string& path)
+	{
+		presetManager.savePresets(path);
 	}
 }

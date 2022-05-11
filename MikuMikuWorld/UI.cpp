@@ -208,6 +208,17 @@ namespace MikuMikuWorld
 		return edit;
 	}
 
+	void UI::addMultilineString(const char* label, std::string& val)
+	{
+		propertyLabel(label);
+
+		std::string id("##");
+		id.append(label);
+
+		ImGui::InputTextMultiline(id.c_str(), &val, ImVec2(-1, 50));
+		ImGui::NextColumn();
+	}
+
 	void UI::setWindowTitle(const std::string& title)
 	{
 		GLFWwindow* window = glfwGetCurrentContext();

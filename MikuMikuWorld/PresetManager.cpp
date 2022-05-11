@@ -1,0 +1,209 @@
+#include "PresetManager.h"
+#include "StringOperations.h"
+#include "Application.h"
+#include "File.h"
+#include "ImGui/imgui.h"
+#include <fstream>
+#include <filesystem>
+
+using namespace nlohmann;
+
+namespace MikuMikuWorld
+{
+	const std::unordered_map<int, NotesPreset>& PresetManager::getPresets() const
+	{
+		return presets;
+	}
+
+	void PresetManager::loadPresets(const std::string& path)
+	{
+		std::wstring wPath = mbToWideStr(path);
+		if (!std::filesystem::exists(wPath))
+			return;
+
+		std::vector<std::string> filenames;
+		for (const auto& file : std::filesystem::directory_iterator(wPath))
+		{
+			if (file.path().extension().wstring() == L".json")
+				filenames.push_back(wideStringToMb(file.path().wstring()));
+		}
+
+		presets.reserve(filenames.size());
+		for (const auto& filename : filenames)
+			readPreset(filename);
+	}
+
+	void PresetManager::savePresets(const std::string& path)
+	{
+		std::wstring wPath = mbToWideStr(path);
+		if (!std::filesystem::exists(wPath))
+			std::filesystem::create_directory(wPath);
+
+		for (int id : createPresets)
+		{
+			if (presets.find(id) != presets.end())
+				writePreset(presets.at(id), path, false);
+		}
+
+		for (const std::string& filename : deletePresets)
+		{
+			std::wstring wFullPath = mbToWideStr(path + filename) + L".json";
+			if (std::filesystem::exists(wFullPath))
+				std::filesystem::remove(wFullPath);
+		}
+	}
+
+	void PresetManager::readPreset(const std::string& filename)
+	{
+		std::wstring wFilename = mbToWideStr(filename);
+		std::ifstream presetFile(wFilename);
+
+		json presetJson;
+		presetFile >> presetJson;
+		presetFile.close();
+
+		NotesPreset preset(nextPresetID++, "");
+		preset.read(presetJson, filename);
+		presets[preset.getID()] = preset;
+	}
+
+	void PresetManager::writePreset(NotesPreset& preset, const std::string& path, bool overwrite)
+	{
+		std::string filename = path + fixFilename(preset.getName()) + ".json";
+		std::wstring wFilename = mbToWideStr(filename);
+
+		if (!overwrite)
+		{
+			int count = 1;
+			std::wstring suffix = L"";
+			while (std::filesystem::exists(wFilename + suffix))
+				suffix = L"(" + std::to_wstring(count++) + L")";
+
+			wFilename += suffix;
+		}
+
+		std::ofstream presetFile(wFilename);
+
+		json presetJson = preset.write();
+		presetFile << std::setw(4) << presetJson;
+		presetFile.close();
+	}
+
+	void PresetManager::normalizeTicks(NotesPreset& preset)
+	{
+		int leastTick = preset.notes.begin()->second.tick;
+		for (auto& [id, note] : preset.notes)
+		{
+			if (note.tick < leastTick)
+				leastTick = note.tick;
+		}
+
+		for (auto& [id, note] : preset.notes)
+			note.tick -= leastTick;
+	}
+
+	void PresetManager::createPreset(const Score& score, std::unordered_set<int> selectedNotes,
+		const std::string &name, const std::string& desc)
+	{
+		if (!selectedNotes.size() || !name.size())
+			return;
+
+		NotesPreset preset(nextPresetID++, name);
+		preset.name = name;
+		preset.description = desc;
+
+		// copy notes
+		int noteID = 0;
+		std::unordered_set<int> selectHolds;
+		for (int id : selectedNotes)
+		{
+			Note note = score.notes.at(id);
+			switch (note.getType())
+			{
+			case NoteType::Tap:
+				note.ID = noteID++;
+				preset.notes[note.ID] = note;
+				break;
+
+			case NoteType::Hold:
+				selectHolds.insert(note.ID);
+				break;
+
+			case NoteType::HoldMid:
+			case NoteType::HoldEnd:
+				selectHolds.insert(note.parentID);
+				break;
+
+			default:
+				break;
+			}
+		}
+
+		for (int id : selectHolds)
+		{
+			HoldNote hold = score.holdNotes.at(id);
+			HoldNote newHold = hold;
+			Note start = score.notes.at(hold.start.ID);
+			Note end = score.notes.at(hold.end);
+
+			start.ID = noteID++;
+			end.ID = noteID++;
+			end.parentID = start.ID;
+			preset.notes[start.ID] = start;
+			preset.notes[end.ID] = end;
+
+			newHold.start.ID = start.ID;
+			newHold.end = end.ID;
+			newHold.steps.clear();
+
+			for (const auto& step : hold.steps)
+			{
+				Note mid = score.notes.at(step.ID);
+				mid.ID = noteID++;
+				mid.parentID = start.ID;
+				preset.notes[mid.ID] = mid;
+
+				HoldStep newStep = step;
+				newStep.ID = mid.ID;
+				newHold.steps.push_back(newStep);
+			}
+
+			preset.holds[start.ID] = newHold;
+		}
+
+		normalizeTicks(preset);
+		presets[preset.getID()] = preset;
+		createPresets.insert(preset.getID());
+	}
+
+	void PresetManager::removePreset(int id)
+	{
+		if (presets.find(id) == presets.end())
+			return;
+
+		const auto& preset = presets.at(id);
+		if (preset.getFilename().size())
+			deletePresets.insert(preset.getFilename());
+
+		presets.erase(id);
+	}
+
+	std::string PresetManager::fixFilename(const std::string& name)
+	{
+		std::string result = name;
+		int length = strlen(invalidFilenameChars);
+		for (auto& c : result)
+		{
+			for (int i = 0; i < length; ++i)
+			{
+				if (c == invalidFilenameChars[i])
+				{
+					c = '_';
+					break;
+				}
+			}
+		}
+
+		return result;
+	}
+}

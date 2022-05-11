@@ -38,6 +38,7 @@ namespace MikuMikuWorld
 		editor = new ScoreEditor();
 		editor->setLaneWidth(config.timelineWidth);
 		editor->setNotesHeight(config.notesHeight);
+		editor->loadPresets(appDir + "library/");
 
 		dockspaceID = 3939;
 	}
@@ -472,6 +473,7 @@ namespace MikuMikuWorld
 		}
 
 		writeSettings();
+		editor->savePresets(appDir + "library/");
 
 		// cleanup
 		delete editor;

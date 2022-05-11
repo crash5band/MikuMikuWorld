@@ -9,6 +9,8 @@
 #include "UI.h"
 #include "Stopwatch.h"
 #include "HistoryManager.h"
+#include "StringOperations.h"
+#include "Tempo.h"
 #include <algorithm>
 
 namespace MikuMikuWorld
@@ -25,7 +27,7 @@ namespace MikuMikuWorld
 					if (highlight)
 					{
 						ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Header]);
-							ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_Header]);
+						ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_Header]);
 					}
 
 				if (ImGui::Button(timelineModes[i], btnSz))
@@ -131,7 +133,7 @@ namespace MikuMikuWorld
 				}
 			}
 
-			if (isPasting())
+			if (isPasting() || insertingPreset)
 			{
 				if (ImGui::IsMouseClicked(0))
 					confirmPaste();
@@ -149,7 +151,7 @@ namespace MikuMikuWorld
 	void ScoreEditor::contextMenu()
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 10));
-		if (ImGui::BeginPopupContextWindow(timelineWindow, ImGuiPopupFlags_MouseButtonRight))
+		if (ImGui::BeginPopupContextWindow(timelineWindow))
 		{
 			if (ImGui::MenuItem(ICON_FA_TRASH "\tDelete", "Delete", false, hasSelection))
 				deleteSelected();
@@ -164,28 +166,37 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(ICON_FA_PASTE "\tFlip Paste", "Ctrl + Shift + V", false, hasClipboard()))
 				flipPaste();
 
-			if (ImGui::MenuItem(ICON_FA_GRIP_LINES_VERTICAL "\tFlip Horizontally", "Ctrl + F", false, hasSelection))
+			if (ImGui::MenuItem(ICON_FA_GRIP_LINES_VERTICAL "\tFlip", "Ctrl + F", false, hasSelection))
 				flipSelected();
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(ICON_FA_SLASH "\tLinear", NULL, false, hasSelectionEase))
-				setEase(EaseType::None);
+			if (ImGui::BeginMenu("Ease Type", hasSelectionEase))
+			{
+				if (ImGui::MenuItem("Linear"))
+					setEase(EaseType::None);
 
-			if (ImGui::MenuItem(ICON_FA_BEZIER_CURVE "\tEase In", NULL, false, hasSelectionEase))
-				setEase(EaseType::EaseIn);
+				if (ImGui::MenuItem("Ease In"))
+					setEase(EaseType::EaseIn);
 
-			if (ImGui::MenuItem(ICON_FA_BEZIER_CURVE "\tEase Out", NULL, false, hasSelectionEase))
-				setEase(EaseType::EaseOut);
+				if (ImGui::MenuItem("Ease Out"))
+					setEase(EaseType::EaseOut);
 
-			ImGui::Separator();
-			if (ImGui::MenuItem(ICON_FA_EYE "\tVisible", NULL, false, hasSelectionStep))
-				setStepType(HoldStepType::Visible);
+				ImGui::EndMenu();
+			}
 
-			if (ImGui::MenuItem(ICON_FA_EYE_SLASH "\tInvisible", NULL, false, hasSelectionStep))
-				setStepType(HoldStepType::Invisible);
+			if (ImGui::BeginMenu("Step Type", hasSelectionStep))
+			{
+				if (ImGui::MenuItem("Visible"))
+					setStepType(HoldStepType::Visible);
 
-			if (ImGui::MenuItem(ICON_FA_EYE "\tIgnored", NULL, false, hasSelectionStep))
-				setStepType(HoldStepType::Ignored);
+				if (ImGui::MenuItem("Invisible"))
+					setStepType(HoldStepType::Invisible);
+
+				if (ImGui::MenuItem("Ignored"))
+					setStepType(HoldStepType::Ignored);
+
+				ImGui::EndMenu();
+			}
 
 			ImGui::EndPopup();
 		}
@@ -209,15 +220,15 @@ namespace MikuMikuWorld
 			{
 				UI::beginPropertyColumns();
 
-				int filePickResult = UI::addFileProperty("Music File", musicFile);
-				if (filePickResult == 1)
+				std::string filename = musicFile;
+				int filePickResult = UI::addFileProperty("Music File", filename);
+				if (filePickResult == 1 && filename != musicFile)
 				{
-					loadMusic(musicFile);
+					loadMusic(filename);
 				}
 				else if (filePickResult == 2)
 				{
-					std::string filename;
-					if (FileDialog::openFile(filename, FileType::AudioFile))
+					if (FileDialog::openFile(filename, FileType::AudioFile) && filename != musicFile)
 						loadMusic(filename);
 				}
 
@@ -400,6 +411,93 @@ namespace MikuMikuWorld
 		ImGui::End();
 	}
 
+	void ScoreEditor::updatePresetsWindow()
+	{
+		if (ImGui::Begin(presetsWindow))
+		{
+			static std::string presetName = "";
+			static std::string presetDesc = "";
+			int removePattern = -1;
+
+			presetFilter.Draw("##preset_filter", ICON_FA_SEARCH " Search...", -1);
+
+			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.15f, 0.15f, 0.15f, 1.00f));
+			float windowHeight = ImGui::GetContentRegionAvail().y - ((ImGui::GetFrameHeight() * 3.0f) + 50);
+			if (ImGui::BeginChild("presets_child_window", ImVec2(-1, windowHeight), true))
+			{
+				const auto& presets = presetManager.getPresets();
+
+				if (!presets.size())
+				{
+					ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
+					Utilities::ImGuiCenteredText("No presets available.");
+					ImGui::PopStyleVar();
+				}
+				else
+				{
+					for (const auto& [id, preset] : presets)
+					{
+						if (!presetFilter.PassFilter(preset.getName().c_str()))
+							continue;
+
+						std::string strID = std::to_string(id) + "_" + preset.getName();
+						ImGui::PushID(strID.c_str());
+						if (ImGui::Button(preset.getName().c_str(), ImVec2(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2.0f, UI::btnSmall.y + 2.0f)))
+						{
+							if (isPasting())
+								cancelPaste();
+
+							insertingPreset = true;
+							presetNotes = preset.notes;
+							presetHolds = preset.holds;
+						}
+
+						if (preset.description.size())
+						{
+							if (ImGui::IsItemHovered() && GImGui->HoveredIdTimer > 0.5f)
+							{
+								ImGui::BeginTooltipEx(0, ImGuiTooltipFlags_OverridePreviousTooltip);
+								ImGui::Text("%s", preset.description.c_str());
+								ImGui::EndTooltip();
+							}
+						}
+
+						ImGui::SameLine();
+						if (UI::transparentButton(ICON_FA_TRASH, ImVec2(UI::btnSmall.x, UI::btnSmall.y + 2.0f)))
+							removePattern = id;
+
+						ImGui::PopID();
+					}
+				}
+			}
+			ImGui::EndChild();
+
+			UI::beginPropertyColumns();
+			UI::addStringProperty("Name", presetName);
+			UI::addMultilineString("Description", presetDesc);
+			UI::endPropertyColumns();
+			ImGui::Separator();
+
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !presetName.size() || !selectedNotes.size());
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * (!presetName.size() || !selectedNotes.size())));
+			if (ImGui::Button("Create Preset", ImVec2(-1, UI::btnSmall.y + 2.0f)))
+			{
+				presetManager.createPreset(score, selectedNotes, presetName, presetDesc);
+				presetName.clear();
+				presetDesc.clear();
+			}
+
+			ImGui::PopStyleColor();
+			ImGui::PopStyleVar();
+			ImGui::PopItemFlag();
+
+			if (removePattern != -1)
+				presetManager.removePreset(removePattern);
+		}
+
+		ImGui::End();
+	}
+
 	void ScoreEditor::debugInfo()
 	{
 		if (ImGui::Begin(debugWindow, NULL, ImGuiWindowFlags_Static))
@@ -446,6 +544,7 @@ namespace MikuMikuWorld
 		updateControls();
 		updateTimeline(renderer);
 		updateScoreDetails();
+		updatePresetsWindow();
 		updateNoteSE();
 		
 #ifdef _DEBUG

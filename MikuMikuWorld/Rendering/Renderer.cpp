@@ -189,7 +189,6 @@ namespace MikuMikuWorld
 			vertexCount += 4;
 		}
 
-		//vBuffer.resetBufferPos();
 		vBuffer.uploadBuffer();
 		flush();
 

@@ -124,6 +124,12 @@
     <ClCompile Include="Audio\stb_vorbis.c">
       <Filter>Components\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="PresetManager.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Preset.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -267,6 +273,12 @@
       <Filter>Score\SUS</Filter>
     </ClInclude>
     <ClInclude Include="ApplicationConfiguration.h" />
+    <ClInclude Include="PresetManager.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Preset.h">
+      <Filter>Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">

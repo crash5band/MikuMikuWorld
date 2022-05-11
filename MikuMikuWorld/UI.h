@@ -14,6 +14,7 @@ namespace MikuMikuWorld
 	constexpr const char* controlsWindow = ICON_FA_ADJUST " Controls";
 	constexpr const char* timelineWindow = ICON_FA_MUSIC " Notes Timeline";
 	constexpr const char* detailsWindow = ICON_FA_ALIGN_LEFT " Chart Properties";
+	constexpr const char* presetsWindow = ICON_FA_DRAFTING_COMPASS " Presets";
 	constexpr const char* debugWindow = ICON_FA_BUG " Debug";
 	constexpr const char* windowTitle = APP_NAME " - ";
 	constexpr const char* windowTitleNew = APP_NAME " - Untitled";
@@ -23,6 +24,7 @@ namespace MikuMikuWorld
 
 	constexpr float primaryLineThickness = 0.50f;
 	constexpr float secondaryLineThickness = 0.25f;
+	constexpr float toolTipDelay = 0.5f;
 
 	constexpr ImGuiWindowFlags ImGuiWindowFlags_Static = ImGuiWindowFlags_NoCollapse;
 
@@ -66,6 +68,7 @@ namespace MikuMikuWorld
 		static void addPercentSliderProperty(const char* label, float& val);
 		static bool addFractionProperty(const char* label, int& numerator, int& denominator);
 		static int addFileProperty(const char* label, std::string& val);
+		static void addMultilineString(const char* label, std::string& val);
 
 		static void setWindowTitle(const std::string& title);
 	};

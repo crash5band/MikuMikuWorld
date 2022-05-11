@@ -185,6 +185,8 @@
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="Note.cpp" />
     <ClCompile Include="OpenGlLoader.cpp" />
+    <ClCompile Include="Preset.cpp" />
+    <ClCompile Include="PresetManager.cpp" />
     <ClCompile Include="Rendering\Camera.cpp" />
     <ClCompile Include="Rendering\Framebuffer.cpp" />
     <ClCompile Include="Rendering\Renderer.cpp" />
@@ -233,6 +235,8 @@
     <ClInclude Include="Audio\miniaudio.h" />
     <ClInclude Include="Note.h" />
     <ClInclude Include="NoteTypes.h" />
+    <ClInclude Include="Preset.h" />
+    <ClInclude Include="PresetManager.h" />
     <ClInclude Include="Rendering\AnchorType.h" />
     <ClInclude Include="Rendering\Camera.h" />
     <ClInclude Include="Rendering\Framebuffer.h" />

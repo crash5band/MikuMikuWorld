@@ -10,6 +10,7 @@
 #include "HistoryManager.h"
 #include <unordered_set>
 #include "Audio/AudioManager.h"
+#include "PresetManager.h"
 
 #undef min
 #undef max
@@ -30,6 +31,8 @@ namespace MikuMikuWorld
 		Framebuffer* framebuffer;
 		AudioManager audio;
 		HistoryManager history;
+		PresetManager presetManager;
+		ImGuiTextFilter presetFilter;
 
 		Score prevUpdateScore;
 		Score score;
@@ -48,6 +51,9 @@ namespace MikuMikuWorld
 		std::unordered_map<int, Note> copyNotes;
 		std::unordered_map<int, Note> copyNotesFlip;
 		std::unordered_map<int, HoldNote> copyHolds;
+
+		std::unordered_map<int, Note> presetNotes;
+		std::unordered_map<int, HoldNote> presetHolds;
 
 		int timelineWidth = NUM_LANES * laneWidth;
 		float noteCtrlHeight = (notesHeight * 0.5f);
@@ -84,6 +90,7 @@ namespace MikuMikuWorld
 		bool insertingHold;
 		bool pasting;
 		bool flipPasting;
+		bool insertingPreset;
 		bool hasEdit;
 		bool hasSelection;
 		bool hasSelectionEase;
@@ -154,6 +161,7 @@ namespace MikuMikuWorld
 		void update(float frameTime, Renderer* renderer);
 		void updateTimeline(Renderer* renderer);
 		void updateToolboxWindow();
+		void updatePresetsWindow();
 
 		int positionToTick(float pos, int div = 1);
 		float tickToPosition(int tick, int div = 1);
@@ -227,6 +235,9 @@ namespace MikuMikuWorld
 		void redo();
 		std::string getNextUndo() const;
 		std::string getNextRedo() const;
+
+		void loadPresets(const std::string& path);
+		void savePresets(const std::string& path);
 
 		bool isUptoDate() const;
 		bool isWindowFocused() const;

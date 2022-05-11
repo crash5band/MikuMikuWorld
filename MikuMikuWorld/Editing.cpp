@@ -101,14 +101,15 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::cancelPaste()
 	{
-		pasting = flipPasting = false;
+		pasting = flipPasting = insertingPreset = false;
 	}
 
 	void ScoreEditor::confirmPaste()
 	{
 		Score prev = score;
 
-		std::unordered_map<int, Note>& pasteNotes = flipPasting ? copyNotesFlip : copyNotes;
+		std::unordered_map<int, Note>& pasteNotes = isPasting() ? flipPasting ? copyNotesFlip : copyNotes : presetNotes;
+		std::unordered_map<int, HoldNote>& pasteHolds = isPasting() ? copyHolds : presetHolds;
 		selectedNotes.clear();
 
 		for (auto[id, note] : pasteNotes)
@@ -124,9 +125,9 @@ namespace MikuMikuWorld
 			}
 		}
 
-		for (auto[id, hold] : copyHolds)
+		for (auto[id, hold] : pasteHolds)
 		{
-			HoldNote hold = copyHolds[id];
+			HoldNote hold = pasteHolds[id];
 			int startID = nextID++;
 			int endID = nextID++;
 
@@ -182,7 +183,8 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::previewPaste(Renderer* renderer)
 	{
-		std::unordered_map<int, Note>& pasteNotes = flipPasting ? copyNotesFlip : copyNotes;
+		std::unordered_map<int, Note>& pasteNotes = isPasting() ? flipPasting ? copyNotesFlip : copyNotes : presetNotes;
+		std::unordered_map<int, HoldNote>& pasteHolds = isPasting() ? copyHolds : presetHolds;
 
 		int lane = positionToLane(mousePos.x) - pasteLane;
 		for (const auto& copy : pasteNotes)
@@ -196,7 +198,7 @@ namespace MikuMikuWorld
 			}
 		}
 
-		for (const auto& copy : copyHolds)
+		for (const auto& copy : pasteHolds)
 			drawHoldNote(pasteNotes, copy.second, renderer, hoverTint, hoverTick, lane);
 	}
 
