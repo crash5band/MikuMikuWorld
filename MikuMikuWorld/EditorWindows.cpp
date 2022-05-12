@@ -133,6 +133,8 @@ namespace MikuMikuWorld
 			{
 				if (ImGui::IsMouseClicked(0))
 					confirmPaste();
+				else if (ImGui::IsMouseClicked(1))
+					cancelPaste();
 			}
 
 			hasSelection = selectedNotes.size();
