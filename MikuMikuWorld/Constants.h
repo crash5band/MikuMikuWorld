@@ -48,4 +48,7 @@ namespace MikuMikuWorld
 	constexpr const char* SE_CRITICAL_FLICK = "critical_flick";
 	constexpr const char* SE_CRITICAL_CONNECT = "critical_connect";
 	constexpr const char* SE_CRITICAL_TICK = "critical_tick";
+
+	constexpr const char* SUS_EXTENSION = ".sus";
+	constexpr const char* MMWS_EXTENSION = ".mmws";
 }

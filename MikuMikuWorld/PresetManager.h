@@ -46,7 +46,7 @@ namespace MikuMikuWorld
 		/// <param name="selectedNotes">The IDs of selected notes</param>
 		/// <param name="name">The name of the preset to create</param>
 		/// <param name="desc">The description of the preset to create</param>
-		void createPreset(const Score& score, std::unordered_set<int> selectedNotes,
+		void createPreset(const Score& score, const std::unordered_set<int>& selectedNotes,
 			const std::string& name, const std::string& desc);
 
 		/// <summary>

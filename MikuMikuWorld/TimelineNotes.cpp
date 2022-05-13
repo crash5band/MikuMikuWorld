@@ -198,19 +198,19 @@ namespace MikuMikuWorld
 			Vector2 p2{ xl1 + NOTES_SLICE_WIDTH, y1 };
 			Vector2 p3{ xl2, y2 };
 			Vector2 p4{ xl2 + NOTES_SLICE_WIDTH, y2 };
-			renderer->drawRectangle(p1, p2, p3, p4, pathTex, 0, HOLD_X_SLICE, 0, pathTex.getHeight(), tint);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, 0, HOLD_X_SLICE, 0, pathTex.getHeight(), tint);
 
 			p1.x = xl1 + NOTES_SLICE_WIDTH;
 			p2.x = xr1 - NOTES_SLICE_WIDTH;
 			p3.x = xl2 + NOTES_SLICE_WIDTH;
 			p4.x = xr2 - NOTES_SLICE_WIDTH;
-			renderer->drawRectangle(p1, p2, p3, p4, pathTex, HOLD_X_SLICE, pathTex.getWidth() - HOLD_X_SLICE, 0, pathTex.getHeight(), tint);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, HOLD_X_SLICE, pathTex.getWidth() - HOLD_X_SLICE, 0, pathTex.getHeight(), tint);
 
 			p1.x = xr1 - NOTES_SLICE_WIDTH;
 			p2.x = xr1;
 			p3.x = xr2 - NOTES_SLICE_WIDTH;
 			p4.x = xr2;
-			renderer->drawRectangle(p1, p2, p3, p4, pathTex, pathTex.getWidth() - HOLD_X_SLICE, pathTex.getWidth(), 0, pathTex.getHeight(), tint);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, pathTex.getWidth() - HOLD_X_SLICE, pathTex.getWidth(), 0, pathTex.getHeight(), tint);
 		}
 	}
 

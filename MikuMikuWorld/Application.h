@@ -79,6 +79,7 @@ namespace MikuMikuWorld
 		void handlePendingOpenFiles();
 		void readSettings();
 		void writeSettings();
+		void loadResources();
 
 		static const std::string& getAppDir();
 		static const std::string& getAppVersion();

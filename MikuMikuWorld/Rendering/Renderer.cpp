@@ -101,7 +101,7 @@ namespace MikuMikuWorld
 		pushQuad(vPos, uvCoords, model, color, tex.getID(), z);
 	}
 
-	void Renderer::drawRectangle(const Vector2& p1, const Vector2& p2, const Vector2& p3, const Vector2& p4,
+	void Renderer::drawQuad(const Vector2& p1, const Vector2& p2, const Vector2& p3, const Vector2& p4,
 		const Texture& tex, float x1, float x2, float y1, float y2, const Color& tint, int z)
 	{
 		setUVCoords(tex, x1, x2, y1, y2);
@@ -112,6 +112,16 @@ namespace MikuMikuWorld
 		DirectX::XMVECTOR color{ tint.r, tint.g, tint.b, tint.a };
 
 		pushQuad(vPos, uvCoords, DirectX::XMMatrixIdentity(), color, tex.getID(), z);
+	}
+
+	void Renderer::drawRectangle(Vector2 position, Vector2 size, const Texture& tex, float x1, float x2, float y1, float y2, Color tint, int z)
+	{
+		Vector2 p1{ position.x, position.y };
+		Vector2 p2{ position.x + size.x, position.y };
+		Vector2 p3{ position.x + size.x, position.y + size.y };
+		Vector2 p4{ position.x, position.y + size.y };
+
+		drawQuad(p4, p3, p1, p2, tex, x1, x2, y1, y2, tint, z);
 	}
 
 	void Renderer::pushQuad(const std::array<DirectX::XMVECTOR, 4>& pos, const std::array<DirectX::XMVECTOR, 4>& uv,

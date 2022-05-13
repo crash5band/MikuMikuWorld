@@ -122,8 +122,7 @@ namespace MikuMikuWorld
 
 	std::string File::getFileExtension(const std::string& filename)
 	{
-		size_t start = filename.find_last_of(".");
-		return filename.substr(start + 1, filename.size() - (start + 1));
+		return std::filesystem::path(filename).extension().string();
 	}
 
 	std::string File::getFilenameWithoutExtension(const std::string& filename)

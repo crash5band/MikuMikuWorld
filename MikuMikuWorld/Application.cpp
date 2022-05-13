@@ -369,9 +369,9 @@ namespace MikuMikuWorld
 			std::string extension = File::getFileExtension(*it);
 			std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
 
-			if (extension == "sus" || extension == "mmws")
+			if (extension == SUS_EXTENSION || extension == MMWS_EXTENSION)
 				scoreFile = *it;
-			else if (extension == "mp3" || extension == "wav" || extension == "flac" || extension == "ogg")
+			else if (extension == ".mp3" || extension == ".wav" || extension == ".flac" || extension == ".ogg")
 				musicFile = *it;
 
 			if (scoreFile.size() && musicFile.size())
@@ -433,15 +433,19 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void Application::run()
+	void Application::loadResources()
 	{
+		ResourceManager::loadShader(appDir + "res/shaders/basic2d");
 		ResourceManager::loadTexture(appDir + "res/textures/tex_notes.png");
 		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path.png");
 		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path_crtcl.png");
 		ResourceManager::loadTexture(appDir + "res/textures/tex_note_common_all.png");
 		ResourceManager::loadTexture(appDir + "res/textures/default.png");
-		ResourceManager::loadShader(appDir + "res/shaders/basic2d");
+	}
 
+	void Application::run()
+	{
+		loadResources();
 		while (!glfwWindowShouldClose(window))
 		{
 			stopwatch.reset();

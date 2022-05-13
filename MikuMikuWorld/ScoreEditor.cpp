@@ -82,7 +82,7 @@ namespace MikuMikuWorld
 		std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 		std::string title = "Untitled";
 
-		if (extension == "sus")
+		if (extension == SUS_EXTENSION)
 		{
 			SUSIO susIO;
 			score = susIO.importSUS(filename);
@@ -91,7 +91,7 @@ namespace MikuMikuWorld
 			// project not saved
 			uptoDate = false;
 		}
-		else if (extension == "mmws")
+		else if (extension == MMWS_EXTENSION)
 		{
 			score = deserializeScore(filename);
 			workingData.filename = filename;
@@ -104,10 +104,6 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::loadMusic(const std::string& filename)
 	{
-		//playing = false;
-		//audio.clearEvents();
-		//audio.stopBGM();
-
 		audio.changeBGM(filename);
 		musicFile = filename;
 	}
@@ -139,8 +135,8 @@ namespace MikuMikuWorld
 		std::string filename;
 		if (FileDialog::saveFile(filename, FileType::MMWSFile))
 		{
-			if (!endsWith(filename, ".mmws"))
-				filename.append(".mmws");
+			if (File::getFileExtension(filename) != MMWS_EXTENSION)
+				filename.append(MMWS_EXTENSION);
 
 			workingData.filename = filename;
 			writeScoreMetadata();
@@ -156,8 +152,8 @@ namespace MikuMikuWorld
 		std::string filename;
 		if (FileDialog::saveFile(filename, FileType::SUSFile))
 		{
-			if (!endsWith(filename, ".sus"))
-				filename.append(".sus");
+			if (File::getFileExtension(filename) != SUS_EXTENSION)
+				filename.append(SUS_EXTENSION);
 
 			writeScoreMetadata();
 			SUSIO susIO;

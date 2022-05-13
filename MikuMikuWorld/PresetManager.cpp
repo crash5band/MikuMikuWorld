@@ -102,7 +102,7 @@ namespace MikuMikuWorld
 			note.tick -= leastTick;
 	}
 
-	void PresetManager::createPreset(const Score& score, std::unordered_set<int> selectedNotes,
+	void PresetManager::createPreset(const Score& score, const std::unordered_set<int>& selectedNotes,
 		const std::string &name, const std::string& desc)
 	{
 		if (!selectedNotes.size() || !name.size())
