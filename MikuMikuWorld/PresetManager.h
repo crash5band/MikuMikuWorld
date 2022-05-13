@@ -23,7 +23,6 @@ namespace MikuMikuWorld
 		std::unordered_set<std::string> deletePresets;
 
 		void normalizeTicks(NotesPreset& preset);
-		void readPreset(const std::string& filename);
 		void writePreset(NotesPreset& preset, const std::string& path, bool overwrite);
 
 	public:

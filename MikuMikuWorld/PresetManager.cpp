@@ -5,6 +5,7 @@
 #include "ImGui/imgui.h"
 #include <fstream>
 #include <filesystem>
+#include <execution>
 
 using namespace nlohmann;
 
@@ -28,9 +29,29 @@ namespace MikuMikuWorld
 				filenames.push_back(wideStringToMb(file.path().wstring()));
 		}
 
+		std::mutex m1;
+		std::mutex m2;
 		presets.reserve(filenames.size());
-		for (const auto& filename : filenames)
-			readPreset(filename);
+		std::for_each(std::execution::par, filenames.begin(), filenames.end(), [this, &m1, &m2](const auto& filename) {
+			std::wstring wFilename = mbToWideStr(filename);
+			std::ifstream presetFile(wFilename);
+
+			json presetJson;
+			presetFile >> presetJson;
+			presetFile.close();
+			int id = 0;
+			{
+				std::lock_guard<std::mutex> lock{ m1 };
+				id = nextPresetID++;
+			}
+
+			NotesPreset preset(id, "");
+			preset.read(presetJson, filename);
+			{
+				std::lock_guard<std::mutex> lock{ m2 };
+				presets.emplace(id, std::move(preset));
+			}
+		});
 	}
 
 	void PresetManager::savePresets(const std::string& path)
@@ -51,20 +72,6 @@ namespace MikuMikuWorld
 			if (std::filesystem::exists(wFullPath))
 				std::filesystem::remove(wFullPath);
 		}
-	}
-
-	void PresetManager::readPreset(const std::string& filename)
-	{
-		std::wstring wFilename = mbToWideStr(filename);
-		std::ifstream presetFile(wFilename);
-
-		json presetJson;
-		presetFile >> presetJson;
-		presetFile.close();
-
-		NotesPreset preset(nextPresetID++, "");
-		preset.read(presetJson, filename);
-		presets[preset.getID()] = preset;
 	}
 
 	void PresetManager::writePreset(NotesPreset& preset, const std::string& path, bool overwrite)
