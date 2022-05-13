@@ -25,6 +25,7 @@ namespace MikuMikuWorld
 
 		copyNotes.clear();
 		copyHolds.clear();
+		copyNotes.reserve(selectedNotes.size());
 		int leastTick = score.notes.at(*selectedNotes.begin()).tick;
 
 		std::unordered_set<int> holds;
@@ -44,6 +45,7 @@ namespace MikuMikuWorld
 				leastTick = note.tick;
 		}
 
+		copyHolds.reserve(holds.size());
 		for (int id : holds)
 		{
 			const HoldNote& hold = score.holdNotes.at(id);
@@ -112,6 +114,7 @@ namespace MikuMikuWorld
 		std::unordered_map<int, HoldNote>& pasteHolds = isPasting() ? copyHolds : presetHolds;
 		selectedNotes.clear();
 
+		score.notes.reserve(score.notes.size() + pasteNotes.size());
 		for (auto[id, note] : pasteNotes)
 		{
 			if (note.getType() == NoteType::Tap)
@@ -125,6 +128,7 @@ namespace MikuMikuWorld
 			}
 		}
 
+		score.holdNotes.reserve(score.holdNotes.size() + pasteHolds.size());
 		for (auto[id, hold] : pasteHolds)
 		{
 			HoldNote hold = pasteHolds[id];
