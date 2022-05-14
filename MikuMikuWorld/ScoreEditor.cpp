@@ -911,7 +911,7 @@ namespace MikuMikuWorld
 
 		renderer->beginBatch();
 
-		if (isPasting() || insertingPreset)
+		if (isPasting() || insertingPreset && mouseInTimeline)
 			previewPaste(renderer);
 		
 		// input note preview

@@ -129,7 +129,7 @@ namespace MikuMikuWorld
 				}
 			}
 
-			if (isPasting() || insertingPreset)
+			if (mouseInTimeline && (isPasting() || insertingPreset))
 			{
 				if (ImGui::IsMouseClicked(0))
 					confirmPaste();
