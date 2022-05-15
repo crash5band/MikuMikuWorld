@@ -87,7 +87,7 @@ namespace MikuMikuWorld
 		std::ofstream presetFile(wFilename);
 
 		json presetJson = preset.write();
-		presetFile << std::setw(4) << presetJson;
+		presetFile << std::setw(2) << presetJson;
 		presetFile.close();
 	}
 
