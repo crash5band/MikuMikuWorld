@@ -129,7 +129,7 @@ namespace MikuMikuWorld
 		if (!musicInitialized)
 			return;
 
-		float time = (getEngineAbsTime() + bgmOffset);
+		float time = bgmOffset;
 		time -= currTime;
 
 		ma_uint64 length = 0;
@@ -143,8 +143,7 @@ namespace MikuMikuWorld
 		if (time * engine.sampleRate * -1 > length)
 			return;
 
-		if (time > 0.0f)
-			ma_sound_set_start_time_in_milliseconds(&bgm, time * 1000);
+		ma_sound_set_start_time_in_milliseconds(&bgm, std::max(0.0f, time * 1000));
 		ma_sound_start(&bgm);
 	}
 
