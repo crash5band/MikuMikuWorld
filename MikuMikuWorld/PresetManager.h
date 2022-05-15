@@ -3,6 +3,7 @@
 #include "Score.h"
 #include "json.hpp"
 #include <unordered_set>
+#include <atomic>
 
 namespace MikuMikuWorld
 {
@@ -17,7 +18,7 @@ namespace MikuMikuWorld
 	class PresetManager
 	{
 	private:
-		int nextPresetID;
+		std::atomic<int> nextPresetID;
 		std::unordered_map<int, NotesPreset> presets;
 		std::unordered_set<int> createPresets;
 		std::unordered_set<std::string> deletePresets;

@@ -29,21 +29,16 @@ namespace MikuMikuWorld
 				filenames.push_back(wideStringToMb(file.path().wstring()));
 		}
 
-		std::mutex m1;
 		std::mutex m2;
 		presets.reserve(filenames.size());
-		std::for_each(std::execution::par, filenames.begin(), filenames.end(), [this, &m1, &m2](const auto& filename) {
+		std::for_each(std::execution::par, filenames.begin(), filenames.end(), [this, &m2](const auto& filename) {
 			std::wstring wFilename = mbToWideStr(filename);
 			std::ifstream presetFile(wFilename);
 
 			json presetJson;
 			presetFile >> presetJson;
 			presetFile.close();
-			int id = 0;
-			{
-				std::lock_guard<std::mutex> lock{ m1 };
-				id = nextPresetID++;
-			}
+			int id = nextPresetID++;
 
 			NotesPreset preset(id, "");
 			preset.read(presetJson, filename);
