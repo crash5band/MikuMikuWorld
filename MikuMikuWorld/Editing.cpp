@@ -170,7 +170,7 @@ namespace MikuMikuWorld
 			score.holdNotes[startID] = hold;
 		}
 
-		pasting = flipPasting = false;
+		pasting = flipPasting = insertingPreset = false;
 
 		pushHistory("Paste notes", prev, score);
 	}
