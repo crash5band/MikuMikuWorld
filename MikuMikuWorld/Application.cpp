@@ -18,10 +18,17 @@ namespace MikuMikuWorld
 	Vector2 Application::windowSize;
 
 	Application::Application(const std::string& root) :
-		lastAppTimeUpdate{ 0 }, appFrame{ 0 }, appTime{ 0 }, firstFrame{ true }
+		lastAppTimeUpdate{ 0 }, appFrame{ 0 }, appTime{ 0 }, firstFrame{ true }, initialized{ false }
 	{
 		appDir = root;
 		version = getVersion();
+	}
+
+	void Application::initialize()
+	{
+		if (initialized)
+			return;
+
 		readSettings();
 
 		if (!initOpenGL())
@@ -41,6 +48,7 @@ namespace MikuMikuWorld
 		editor->loadPresets(appDir + "library/");
 
 		dockspaceID = 3939;
+		initialized = true;
 	}
 
 	const std::string& Application::getAppDir()
@@ -58,6 +66,23 @@ namespace MikuMikuWorld
 		float currentFrame = glfwGetTime();
 		frameDelta = currentFrame - lastFrame;
 		lastFrame = currentFrame;
+	}
+
+	void Application::dispose()
+	{
+		delete editor;
+		delete renderer;
+
+		if (initialized)
+		{
+			ImGui_ImplOpenGL3_Shutdown();
+			ImGui_ImplGlfw_Shutdown();
+			ImGui::DestroyContext();
+
+			glfwDestroyWindow(window);
+			glfwTerminate();
+		}
+		initialized = false;
 	}
 
 	void Application::readSettings()
@@ -189,6 +214,12 @@ namespace MikuMikuWorld
 	{
 		resetting = true;
 		shouldPickScore = true;
+	}
+
+	void Application::autoSave()
+	{
+		autoSaveTimer.reset();
+		editor->save();
 	}
 
 	void Application::menuBar()
@@ -478,16 +509,5 @@ namespace MikuMikuWorld
 
 		writeSettings();
 		editor->savePresets(appDir + "library/");
-
-		// cleanup
-		delete editor;
-		delete renderer;
-
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui_ImplGlfw_Shutdown();
-		ImGui::DestroyContext();
-
-		glfwDestroyWindow(window);
-		glfwTerminate();
 	}
 }

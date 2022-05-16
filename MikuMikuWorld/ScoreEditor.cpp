@@ -243,10 +243,10 @@ namespace MikuMikuWorld
 		playing ^= true;
 		if (playing)
 		{
-			playStartTime = time;
 			audio.seekBGM(time);
 			audio.reSync();
 			audio.playBGM(time);
+			playStartTime = time;
 		}
 		else
 		{

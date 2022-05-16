@@ -21,6 +21,7 @@ namespace MikuMikuWorld
 		float appFrame;
 		float appTime;
 		float lastAppTimeUpdate;
+		bool initialized;
 		bool firstFrame;
 		bool vsync;
 		bool showPerformanceMetrics;
@@ -28,6 +29,8 @@ namespace MikuMikuWorld
 		bool settingsOpen;
 		bool unsavedOpen;
 		bool shouldPickScore;
+		bool autoSaveEnabled;
+		int autoSaveInterval; // in minutes
 		ApplicationConfiguration config;
 
 		std::string pendingDropScoreFile;
@@ -37,6 +40,7 @@ namespace MikuMikuWorld
 
 		ImGuiID dockspaceID;
 		Stopwatch stopwatch;
+		Stopwatch autoSaveTimer;
 
 		void initLayout();
 		bool initOpenGL();
@@ -66,6 +70,7 @@ namespace MikuMikuWorld
 
 		Application(const std::string &rootPath);
 
+		void initialize();
 		void reset();
 		void open();
 		void run();
@@ -79,7 +84,9 @@ namespace MikuMikuWorld
 		void handlePendingOpenFiles();
 		void readSettings();
 		void writeSettings();
+		void autoSave();
 		void loadResources();
+		void dispose();
 
 		static const std::string& getAppDir();
 		static const std::string& getAppVersion();

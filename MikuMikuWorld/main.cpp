@@ -8,17 +8,23 @@ namespace mmw = MikuMikuWorld;
 
 int main()
 {
+	int argc;
+	LPWSTR* args;
+	args = CommandLineToArgvW(GetCommandLineW(), &argc);
+	if (!args)
+	{
+		printf("main(): CommandLineToArgvW failed\n");
+		MessageBox(NULL, "main(): CommandLineToArgvW failed\n", APP_NAME, MB_OK | MB_ICONERROR);
+
+		return 1;
+	}
+
+	std::string dir = mmw::File::getFilepath(mmw::wideStringToMb(args[0]));
+	mmw::Application app(dir);
+
 	try
 	{
-		int argc;
-		LPWSTR* args;
-		args = CommandLineToArgvW(GetCommandLineW(), &argc);
-		if (!args)
-			printf("main(): CommandLineToArgvW failed\n");
-
-		std::string dir = mmw::File::getFilepath(mmw::wideStringToMb(args[0]));
-		mmw::Application app(dir);
-
+		app.initialize();
 		for (int i = 1; i < argc; ++i)
 			mmw::Application::pendingOpenFiles.push_back(mmw::wideStringToMb(args[i]));
 		
@@ -32,5 +38,6 @@ int main()
 		MessageBox(NULL, msg.c_str(), APP_NAME, MB_OK | MB_ICONERROR);
 	}
 
+	app.dispose();
 	return 0;
 }
