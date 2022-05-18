@@ -55,11 +55,10 @@ namespace MikuMikuWorld
 		if (!std::filesystem::exists(wPath))
 			std::filesystem::create_directory(wPath);
 
-		for (int id : createPresets)
-		{
+		std::for_each(std::execution::par, createPresets.begin(), createPresets.end(), [this, &path](int id) {
 			if (presets.find(id) != presets.end())
 				writePreset(presets.at(id), path, false);
-		}
+		});
 
 		for (const std::string& filename : deletePresets)
 		{
