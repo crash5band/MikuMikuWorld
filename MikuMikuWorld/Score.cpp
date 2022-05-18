@@ -211,6 +211,7 @@ namespace MikuMikuWorld
 			writeNote(end, &writer);
 		}
 
+		writer.flush();
 		writer.close();
 	}
 

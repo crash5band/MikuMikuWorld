@@ -24,6 +24,7 @@ namespace MikuMikuWorld
 		void open(const std::wstring& filename, const wchar_t* mode);
 		void open(const std::string& filename, const char* mode);
 		void close();
+		void flush();
 
 		std::string readLine() const;
 		std::vector<std::string> readAllLines() const;

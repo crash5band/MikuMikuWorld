@@ -141,6 +141,7 @@ namespace MikuMikuWorld
 		std::wstring wFilename = mbToWideStr(filename);
 		std::ofstream configFile(wFilename);
 		configFile << std::setw(4) << config;
+		configFile.flush();
 		configFile.close();
 	}
 }

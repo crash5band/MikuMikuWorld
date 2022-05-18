@@ -87,6 +87,7 @@ namespace MikuMikuWorld
 
 		json presetJson = preset.write();
 		presetFile << std::setw(2) << presetJson;
+		presetFile.flush();
 		presetFile.close();
 	}
 

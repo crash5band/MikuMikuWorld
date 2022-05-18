@@ -442,6 +442,7 @@ namespace MikuMikuWorld
 		File susfile(wFilename, L"w");
 		susfile.writeAllLines(lines);
 
+		susfile.flush();
 		susfile.close();
 	}
 }

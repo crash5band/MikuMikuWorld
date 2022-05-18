@@ -21,6 +21,12 @@ namespace MikuMikuWorld
 			fclose(stream);
 	}
 
+	void BinaryWriter::flush()
+	{
+		if (stream)
+			fflush(stream);
+	}
+
 	size_t BinaryWriter::getFileSize()
 	{
 		size_t pos = ftell(stream);

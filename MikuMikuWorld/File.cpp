@@ -45,6 +45,12 @@ namespace MikuMikuWorld
 		stream = NULL;
 	}
 
+	void File::flush()
+	{
+		if (stream)
+			fflush(stream);
+	}
+
 	std::string File::readLine() const
 	{
 		std::string line = "";

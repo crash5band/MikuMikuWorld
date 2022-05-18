@@ -14,6 +14,7 @@ namespace MikuMikuWorld
 
 		bool isStreamValid();
 		void close();
+		void flush();
 
 		size_t getFileSize();
 		size_t getStreamPosition();
