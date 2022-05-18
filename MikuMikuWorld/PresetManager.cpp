@@ -42,6 +42,7 @@ namespace MikuMikuWorld
 
 			NotesPreset preset(id, "");
 			preset.read(presetJson, filename);
+			if (preset.notes.size())
 			{
 				std::lock_guard<std::mutex> lock{ m2 };
 				presets.emplace(id, std::move(preset));
