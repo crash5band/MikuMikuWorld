@@ -279,7 +279,7 @@ namespace MikuMikuWorld
 						++s2;
 					}
 
-					if (isNoteInCanvas(n3.tick))
+					if (isNoteInCanvas(n3.tick + offsetTicks))
 					{
 						if (drawHoldStepOutline)
 							drawHighlight(n3, renderer, tint, true, offsetTicks, offsetLane);
