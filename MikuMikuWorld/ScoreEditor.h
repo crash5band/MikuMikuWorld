@@ -117,39 +117,62 @@ namespace MikuMikuWorld
 		float seVolume;
 		const float audioLookAhead = 0.1;
 
-		std::string getDivisonString(int divIndex);
-		void updateControls();
-		void updateScoreDetails();
-		void pushHistory(const std::string& description, const Score& prev, const Score& curr);
-
-		void drawMeasures();
-		void drawLanes();
-		void updateTempoChanges();
-		void updateTimeSignatures();
-		void updateCursor();
-		void drawSelectionRectangle();
-		void drawSelectionBoxes(Renderer* renderer);
-		bool noteControl(const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor);
-
+		// update methods
+		void updateNotes(Renderer* renderer);
 		void updateNote(Note& note);
 		void updateDummyNotes();
 		void updateDummyHold();
-		void drawDummyHold(Renderer* renderer);
+		void updateTempoChanges();
+		void updateTimeSignatures();
+		void updateCursor();
+		void updateTimeline(Renderer* renderer);
+		void updateToolboxWindow();
+		void updatePresetsWindow();
+
+		// edit methods
 		void cycleFlicks();
 		void cycleEase();
 		void setEase(EaseType ease);
 		void toggleCriticals();
 		void cycleStepType();
 		void setStepType(HoldStepType type);
-		void calcDragSelection();
-		void debugInfo();
+		void pushHistory(const std::string& description, const Score& prev, const Score& curr);
 
+		// draw methods
+		void drawMeasures();
+		void drawLanes();
+		void drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
+		void drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
+		void drawHoldNote(const std::unordered_map<int, Note>& notes, const HoldNote& hold, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
+		void drawHoldMid(const Note& note, HoldStepType type, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
+		void drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
+		void drawHighlight(const Note& note, Renderer* renderer, const Color& tint, bool mid, const int offsetTick = 0, const int offsetLane = 0);
+		void drawDummyHold(Renderer* renderer);
+		void drawSelectionRectangle();
+		void drawSelectionBoxes(Renderer* renderer);
+
+		// helper methods
+		std::string getDivisonString(int divIndex);
 		int snapTickFromPos(float posY);
 		int snapTick(int tick, int div);
 		int roundTickDown(int tick, int div);
 		int laneFromCenterPos(int lane, int width);
+		int findClosestHold();
+		void calcDragSelection();
+		bool noteControl(const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor);
+		bool isHoldPathInTick(const Note& n1, const Note& n2, EaseType ease, float x, float y);
+		bool isNoteInCanvas(const int tick);
+		int positionToTick(float pos, int div = 1);
+		float tickToPosition(int tick, int div = 1);
+		int positionToLane(float pos);
+		float laneToPosition(float lane);
+		float getNoteYPosFromTick(int tick);
 
+		// editor window update methods
+		void updateControls();
+		void updateScoreDetails();
 		void contextMenu();
+		void debugInfo();
 
 		void readScoreMetadata();
 		void writeScoreMetadata();
@@ -158,27 +181,10 @@ namespace MikuMikuWorld
 		ScoreEditor();
 		~ScoreEditor();
 
+		// main update method
 		void update(float frameTime, Renderer* renderer);
-		void updateTimeline(Renderer* renderer);
-		void updateToolboxWindow();
-		void updatePresetsWindow();
 
-		int positionToTick(float pos, int div = 1);
-		float tickToPosition(int tick, int div = 1);
-		int positionToLane(float pos);
-		float laneToPosition(float lane);
-		float getNoteYPosFromTick(int tick);
-
-		void updateNotes(Renderer* renderer);
-		void drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
-		void drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
-		void drawHoldNote(const std::unordered_map<int, Note>& notes, const HoldNote& hold, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
-		void drawHoldMid(const Note& note, HoldStepType type, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
-		void drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
-		void drawHighlight(const Note& note, Renderer* renderer, const Color& tint, bool mid, const int offsetTick = 0, const int offsetLane = 0);
-		bool isHoldPathInTick(const Note& n1, const Note& n2, EaseType ease, float x, float y);
-		bool isNoteInCanvas(const int tick);
-
+		// edit methods
 		void centerCursor(int mode = 0);
 		void gotoMeasure(int measure);
 		void changeMode(TimelineMode mode);
@@ -188,8 +194,6 @@ namespace MikuMikuWorld
 		void insertHoldStep(HoldNote& note);
 		void insertTempo();
 		void insertTimeSignature();
-		int findClosestHold();
-
 		void copy();
 		void previewPaste(Renderer* renderer);
 		void paste();
@@ -204,6 +208,7 @@ namespace MikuMikuWorld
 		bool hasClipboard() const;
 		bool isPasting() const;
 
+		// playback methods
 		void togglePlaying();
 		void stop();
 		void restart();
@@ -221,14 +226,19 @@ namespace MikuMikuWorld
 		bool selectionHasEase();
 		bool selectionHasHoldStep();
 
+		// IO methods
 		void reset();
 		void open();
 		void save();
+		void save(const std::string& filename);
 		void saveAs();
 		void exportSUS();
 		void loadScore(const std::string& filename);
 		void loadMusic(const std::string& filename);
+		bool isUptoDate() const;
+		std::string getWorkingFilename() const;
 
+		// history methods
 		bool hasUndo() const;
 		bool hadRedo() const;
 		void undo();
@@ -239,7 +249,6 @@ namespace MikuMikuWorld
 		void loadPresets(const std::string& path);
 		void savePresets(const std::string& path);
 
-		bool isUptoDate() const;
 		bool isWindowFocused() const;
 	};
 }

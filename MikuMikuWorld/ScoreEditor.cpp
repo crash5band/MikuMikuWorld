@@ -130,6 +130,12 @@ namespace MikuMikuWorld
 		}
 	}
 
+	void ScoreEditor::save(const std::string& filename)
+	{
+		writeScoreMetadata();
+		serializeScore(score, filename);
+	}
+
 	void ScoreEditor::saveAs()
 	{
 		std::string filename;
@@ -1127,5 +1133,10 @@ namespace MikuMikuWorld
 	void ScoreEditor::savePresets(const std::string& path)
 	{
 		presetManager.savePresets(path);
+	}
+
+	std::string ScoreEditor::getWorkingFilename() const
+	{
+		return workingData.filename;
 	}
 }
