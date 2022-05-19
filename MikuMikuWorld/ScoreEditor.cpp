@@ -76,11 +76,11 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::loadScore(const std::string& filename)
 	{
-		reset();
+		resetEditor();
 		
 		std::string extension = File::getFileExtension(filename);
 		std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-		std::string title = "Untitled";
+		std::string title = windowUntitled;
 
 		if (extension == SUS_EXTENSION)
 		{
@@ -99,7 +99,7 @@ namespace MikuMikuWorld
 		}
 
 		readScoreMetadata();
-		UI::setWindowTitle(title.c_str());
+		UI::setWindowTitle(title);
 	}
 
 	void ScoreEditor::loadMusic(const std::string& filename)
@@ -169,6 +169,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::reset()
 	{
+		resetEditor();
+		UI::setWindowTitle(windowUntitled);
+	}
+
+	void ScoreEditor::resetEditor()
+	{
 		playing = false;
 		audio.stopAllEvents();
 		audio.stopBGM();
@@ -182,8 +188,6 @@ namespace MikuMikuWorld
 
 		hasEdit = false;
 		uptoDate = true;
-
-		UI::setWindowTitle(windowTitleNew);
 	}
 
 	bool ScoreEditor::isUptoDate() const
@@ -320,6 +324,10 @@ namespace MikuMikuWorld
 	void ScoreEditor::pushHistory(const std::string& description, const Score& prev, const Score& curr)
 	{
 		history.pushHistory(description, prev, curr);
+
+		if (uptoDate)
+			UI::setWindowTitle("*" + (workingData.filename.size() ? File::getFilenameWithoutExtension(workingData.filename) : windowUntitled));
+
 		uptoDate = false;
 	}
 

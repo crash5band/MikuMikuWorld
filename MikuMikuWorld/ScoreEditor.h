@@ -176,6 +176,7 @@ namespace MikuMikuWorld
 
 		void readScoreMetadata();
 		void writeScoreMetadata();
+		void resetEditor();
 
 	public:
 		ScoreEditor();

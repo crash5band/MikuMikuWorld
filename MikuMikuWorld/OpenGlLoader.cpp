@@ -92,7 +92,7 @@ namespace MikuMikuWorld
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_SAMPLES, 4);
 
-		window = glfwCreateWindow(config.windowSize.x, config.windowSize.y, windowTitleNew, NULL, NULL);
+		window = glfwCreateWindow(config.windowSize.x, config.windowSize.y, APP_NAME, NULL, NULL);
 		if (window == NULL)
 		{
 			glfwTerminate();
@@ -101,6 +101,7 @@ namespace MikuMikuWorld
 
 		glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
 		glfwMakeContextCurrent(window);
+		UI::setWindowTitle(windowUntitled);
 
 		// GLAD initializtion
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))

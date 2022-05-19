@@ -16,11 +16,11 @@ namespace MikuMikuWorld
 	constexpr const char* detailsWindow = ICON_FA_ALIGN_LEFT " Chart Properties";
 	constexpr const char* presetsWindow = ICON_FA_DRAFTING_COMPASS " Presets";
 	constexpr const char* debugWindow = ICON_FA_BUG " Debug";
-	constexpr const char* windowTitle = APP_NAME " - ";
-	constexpr const char* windowTitleNew = APP_NAME " - Untitled";
-	constexpr const char* aboutModalTitle = APP_NAME_FRIENDLY " - About";
-	constexpr const char* settingsModalTitle = APP_NAME_FRIENDLY " - Settings";
-	constexpr const char* unsavedModalTitle = APP_NAME_FRIENDLY " - Unsaved Changes";
+	constexpr const char* windowTitle = " - " APP_NAME;
+	constexpr const char* windowUntitled = "Untitled";
+	constexpr const char* aboutModalTitle = "About - " APP_NAME_FRIENDLY;
+	constexpr const char* settingsModalTitle = "Settings - " APP_NAME_FRIENDLY;
+	constexpr const char* unsavedModalTitle = "Unsaved Changes - " APP_NAME_FRIENDLY;
 
 	constexpr float primaryLineThickness = 0.50f;
 	constexpr float secondaryLineThickness = 0.25f;
