@@ -56,17 +56,17 @@ namespace MikuMikuWorld
 		if (!std::filesystem::exists(wPath))
 			std::filesystem::create_directory(wPath);
 
-		std::for_each(std::execution::par, createPresets.begin(), createPresets.end(), [this, &path](int id) {
-			if (presets.find(id) != presets.end())
-				writePreset(presets.at(id), path, false);
-		});
-
 		for (const std::string& filename : deletePresets)
 		{
 			std::wstring wFullPath = mbToWideStr(path + filename) + L".json";
 			if (std::filesystem::exists(wFullPath))
 				std::filesystem::remove(wFullPath);
 		}
+
+		std::for_each(std::execution::par, createPresets.begin(), createPresets.end(), [this, &path](int id) {
+			if (presets.find(id) != presets.end())
+				writePreset(presets.at(id), path, false);
+		});
 	}
 
 	void PresetManager::writePreset(NotesPreset& preset, const std::string& path, bool overwrite)
