@@ -95,6 +95,7 @@ namespace MikuMikuWorld
 		window = glfwCreateWindow(config.windowSize.x, config.windowSize.y, APP_NAME, NULL, NULL);
 		if (window == NULL)
 		{
+			MessageBox(NULL, "Application::initOpenGL(): Failed to create GLFW Window. Aborting.", APP_NAME, MB_OK | MB_ICONERROR);
 			glfwTerminate();
 			return false;
 		}
@@ -106,6 +107,7 @@ namespace MikuMikuWorld
 		// GLAD initializtion
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		{
+			MessageBox(NULL, "Application::initOpenGL(): Failed to fetch OpenGL proc address. Aborting.", APP_NAME, MB_OK | MB_ICONERROR);
 			return false;
 		}
 
