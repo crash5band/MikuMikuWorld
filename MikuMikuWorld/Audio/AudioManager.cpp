@@ -9,6 +9,7 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
 #include <filesystem>
+#include <execution>
 #include "AudioManager.h"
 
 #undef STB_VORBIS_HEADER_ONLY
@@ -60,33 +61,22 @@ namespace MikuMikuWorld
 		std::string path{ Application::getAppDir() + "res/sound/" };
 		ma_uint32 flags = MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC;
 
-		ma_sound perfect;
-		ma_sound great;
-		ma_sound good;
-		ma_sound flick;
-		ma_sound connect;
-		ma_sound tick;
-		ma_sound critical_tap;
-		ma_sound critical_flick;
-		ma_sound critical_connect;
-		ma_sound critical_tick;
+		seMap.reserve(10);
+		seMap[SE_PERFECT] = ma_sound();
+		seMap[SE_GREAT] = ma_sound();
+		seMap[SE_GOOD] = ma_sound();
+		seMap[SE_FLICK] = ma_sound();
+		seMap[SE_CONNECT] = ma_sound();
+		seMap[SE_TICK] = ma_sound();
+		seMap[SE_CRITICAL_TAP] = ma_sound();
+		seMap[SE_CRITICAL_FLICK] = ma_sound();
+		seMap[SE_CRITICAL_CONNECT] = ma_sound();
+		seMap[SE_CRITICAL_TICK] = ma_sound();
 
-		seMap.insert(std::pair(SE_PERFECT, perfect));
-		seMap.insert(std::pair(SE_GREAT, great));
-		seMap.insert(std::pair(SE_GOOD, good));
-		seMap.insert(std::pair(SE_FLICK, flick));
-		seMap.insert(std::pair(SE_CONNECT, connect));
-		seMap.insert(std::pair(SE_TICK, tick));
-		seMap.insert(std::pair(SE_CRITICAL_TAP, critical_tap));
-		seMap.insert(std::pair(SE_CRITICAL_FLICK, critical_flick));
-		seMap.insert(std::pair(SE_CRITICAL_CONNECT, critical_connect));
-		seMap.insert(std::pair(SE_CRITICAL_TICK, critical_tick));
-
-		for (auto& it : seMap)
-		{
-			std::wstring filename = mbToWideStr(path + it.first + ".mp3");
-			ma_sound_init_from_file_w(&engine, filename.c_str(), flags, NULL, NULL, &it.second);
-		}
+		std::for_each(std::execution::par, seMap.begin(), seMap.end(), [&](std::pair<const std::string, ma_sound>& se) {
+			std::wstring filename = mbToWideStr(path + se.first + ".mp3");
+			ma_sound_init_from_file_w(&engine, filename.c_str(), flags, NULL, NULL, &se.second);
+		});
 	}
 
 	void AudioManager::uninitAudio()
