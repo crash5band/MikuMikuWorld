@@ -344,6 +344,8 @@ namespace MikuMikuWorld
 			lines.push_back(line);
 		}
 
+		lines.push_back("");
+
 		int totalTicks = 0;
 		std::vector<std::pair<BarLength, int>> barLengthTicks;
 		for (int i = 0; i < barLengths.size(); ++i)
@@ -409,7 +411,6 @@ namespace MikuMikuWorld
 			for (const auto& raw : map.data)
 				gcd = std::gcd(raw.tick, gcd);
 
-			/*
 			std::unordered_map<int, std::string> data;
 			for (const auto& raw : map.data)
 				data[raw.tick % map.ticksPerMeasure] = raw.data;
@@ -422,18 +423,10 @@ namespace MikuMikuWorld
 				else
 					values.push_back("00");
 			}
-			*/
-
-			int dataPtr = 0;
 
 			std::string line = "#" + tag + ":";
-			line.reserve(line.size() + (gcd / map.data.size()));
-
-			for (int i = 0; i < map.ticksPerMeasure; i += gcd)
-				if (dataPtr >= map.data.size())
-					line.append("00");
-				else
-					line.append(i == (map.data[dataPtr].tick % map.ticksPerMeasure) ? map.data[dataPtr++].data : "00");
+			for (const auto& value : values)
+				line.append(value);
 
 			lines.push_back(line);
 		}
