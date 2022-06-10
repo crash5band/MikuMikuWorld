@@ -300,7 +300,7 @@ namespace MikuMikuWorld
 									const Note& n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
 									const Note& n2 = s2 >= note.steps.size() ? end : notes.at(note.steps[s2].ID);
 
-									float ratio = (float)(n3.tick - n1.tick + offsetTicks) / (float)(n2.tick - n1.tick + offsetTicks);
+									float ratio = (float)(n3.tick - n1.tick) / (float)(n2.tick - n1.tick);
 									const EaseType rEase = s1 == -1 ? note.start.ease : note.steps[s1].ease;
 									float i1 = rEase == EaseType::None ? ratio : rEase == EaseType::EaseIn ? easeIn(ratio) : easeOut(ratio);
 
