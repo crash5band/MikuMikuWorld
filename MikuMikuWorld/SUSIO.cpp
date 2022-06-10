@@ -11,9 +11,9 @@ namespace MikuMikuWorld
 		return std::to_string(note.tick) + "-" + std::to_string(note.lane);
 	}
 
-	std::pair<int, int> SUSIO::simplify4(int numerator, int denominator)
+	std::pair<int, int> SUSIO::simplify4(float numerator, float denominator)
 	{
-		int g = std::gcd(numerator, denominator);
+		float g = std::gcd((int)numerator, (int)denominator);
 		int n = numerator / g;
 		int d = denominator / g;
 		if (d % 4 == 0)
@@ -152,7 +152,7 @@ namespace MikuMikuWorld
 
 				switch (note.type)
 				{
-					// start
+				// start
 				case 1:
 				{
 					Note n(NoteType::Hold);
@@ -225,8 +225,9 @@ namespace MikuMikuWorld
 		std::map<int, TimeSignature> timeSignatures;
 		for (const auto& sign : sus.barlengths)
 		{
-			auto fraction = simplify4(sign.length, 4);
-			timeSignatures.insert(std::pair<int, TimeSignature>(sign.bar, TimeSignature{ sign.bar, fraction.first, fraction.second }));
+			auto fraction = simplify4(sign.length, 4.0f);
+			timeSignatures.insert(std::pair<int, TimeSignature>(sign.bar,
+				TimeSignature{ sign.bar, fraction.first, fraction.second }));
 		}
 
 		Score score;
