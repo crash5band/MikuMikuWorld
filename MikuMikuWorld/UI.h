@@ -72,6 +72,32 @@ namespace MikuMikuWorld
 		static void tooltip(const char* label);
 
 		static void setWindowTitle(const std::string& title);
+
+		/// <summary>
+		/// For use with sequential enums only
+		/// </summary>
+		template <typename T>
+		static void addSelectProperty(const char* label, T& value, const char* const* items, int count)
+		{
+			propertyLabel(label);
+
+			std::string id("##");
+			id.append(label);
+
+			if (ImGui::BeginCombo(id.c_str(), items[(int)value]))
+			{
+				for (int i = 0; i < count; ++i)
+				{
+					const bool selected = (int)value == i;
+					if (ImGui::Selectable(items[i], selected))
+						value = (T)i;
+				}
+
+				ImGui::EndCombo();
+			}
+
+			ImGui::NextColumn();
+		}
 	};
 
 }
