@@ -9,7 +9,7 @@ namespace MikuMikuWorld
 {
 	ApplicationConfiguration::ApplicationConfiguration() :
 		version{ "1.0.0" }, windowPos{ 150, 100 }, windowSize{ 1280, 720 }, maximized{ false }, vsync{ true },
-		accentColor{ 1 }, userColor{ 0.2f, 0.2f, 0.2f, 1.0f }
+		accentColor{ 1 }, userColor{ 0.2f, 0.2f, 0.2f, 1.0f }, timelineWidth{ 35 }, notesHeight{ 50 }
 	{
 
 	}
