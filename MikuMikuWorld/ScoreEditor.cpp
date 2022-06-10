@@ -27,6 +27,7 @@ namespace MikuMikuWorld
 		drawHoldStepOutline = true;
 		showRenderStats = true;
 		defaultNoteWidth = 3;
+		defaultStepType = HoldStepType::Visible;
 		skipUpdateAfterSortingSteps = false;
 		framebuffer = new Framebuffer(1080, 1920);
 

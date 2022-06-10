@@ -44,11 +44,8 @@ namespace MikuMikuWorld
 
 			ImGui::Separator();
 			UI::beginPropertyColumns();
-			UI::propertyLabel("Note Width");
-			if (ImGui::InputInt("##default_note_width", &defaultNoteWidth, 1, 2))
-				defaultNoteWidth = std::clamp(defaultNoteWidth, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
-			
-			ImGui::NextColumn();
+			UI::addIntProperty("Note Width", defaultNoteWidth, 1, 12);
+			UI::addSelectProperty("Step Type", defaultStepType, stepTypes, 3);
 			UI::endPropertyColumns();
 		}
 
@@ -309,6 +306,7 @@ namespace MikuMikuWorld
 
 			Utilities::ImGuiCenteredText(timeStr + signStr + tempoStr);
 
+			// center playback controls
 			ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x * 0.5f) - ((UI::btnNormal.x + ImGui::GetStyle().ItemSpacing.x) * 2));
 			if (UI::transparentButton(ICON_FA_BACKWARD, UI::btnNormal, true, !playing))
 				previousTick();
@@ -369,22 +367,9 @@ namespace MikuMikuWorld
 					division = customDivision;
 			}
 
-			
 			ImGui::NextColumn();
-			UI::propertyLabel("Scroll Mode");
-			if (ImGui::BeginCombo("##scroll_mode", scrollModes[(int)scrollMode]))
-			{
-				for (int i = 0; i < (int)ScrollMode::ScrollModeMax; ++i)
-				{
-					const bool selected = (int)scrollMode == i;
-					if (ImGui::Selectable(scrollModes[i], selected))
-						scrollMode = (ScrollMode)i;
-				}
+			UI::addSelectProperty("Scroll Mode", scrollMode, scrollModes, (int)ScrollMode::ScrollModeMax);
 
-				ImGui::EndCombo();
-			}
-
-			ImGui::NextColumn();
 			UI::propertyLabel("Zoom");
 			float _zoom = zoom;
 			if (UI::transparentButton(ICON_FA_SEARCH_MINUS, UI::btnSmall))

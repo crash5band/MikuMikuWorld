@@ -317,7 +317,7 @@ namespace MikuMikuWorld
 		mid.parentID = note.start.ID;
 
 		score.notes[mid.ID] = mid;
-		note.steps.push_back(HoldStep{ mid.ID, HoldStepType::Visible, EaseType::None });
+		note.steps.push_back(HoldStep{ mid.ID, defaultStepType, EaseType::None });
 		sortHoldSteps(score, note);
 
 		pushHistory("Insert note", prev, score);
