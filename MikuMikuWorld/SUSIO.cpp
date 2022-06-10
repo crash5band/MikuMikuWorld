@@ -311,23 +311,23 @@ namespace MikuMikuWorld
 		if (!bpms.size())
 			bpms.push_back(BPM{ 0, 120 });
 
-		std::sort(taps.begin(), taps.end(),
-			[](SUSNote& a, SUSNote& b) { return a.tick < b.tick; });
+		std::stable_sort(taps.begin(), taps.end(),
+			[](const SUSNote& a, const SUSNote& b) { return a.tick < b.tick; });
 
-		std::sort(slides.begin(), slides.end(),
-			[](auto& a, auto& b) { return a[0].tick < b[0].tick; });
+		std::stable_sort(slides.begin(), slides.end(),
+			[](const auto& a, const auto& b) { return a[0].tick < b[0].tick; });
 
-		std::sort(directionals.begin(), directionals.end(),
-			[](SUSNote& a, SUSNote& b) {return a.tick < b.tick; });
+		std::stable_sort(directionals.begin(), directionals.end(),
+			[](const SUSNote& a, const SUSNote& b) {return a.tick < b.tick; });
 
-		std::sort(bpms.begin(), bpms.end(),
-			[](BPM& a, BPM& b) { return a.tick < b.tick; });
+		std::stable_sort(bpms.begin(), bpms.end(),
+			[](const BPM& a, const BPM& b) { return a.tick < b.tick; });
 
 		for (const auto&[measure, ts] : score.timeSignatures)
 			barlengths.push_back(BarLength{ ts.measure, ((float)ts.numerator / (float)ts.denominator) * 4 });
 
-		std::sort(barlengths.begin(), barlengths.end(),
-			[](BarLength& a, BarLength& b) { return a.bar < b.bar; });
+		std::stable_sort(barlengths.begin(), barlengths.end(),
+			[](const BarLength& a, const BarLength& b) { return a.bar < b.bar; });
 
 		SUSMetadata metadata;
 		metadata.data["title"] = score.metadata.title;
