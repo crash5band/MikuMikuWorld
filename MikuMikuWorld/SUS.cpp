@@ -79,7 +79,7 @@ namespace MikuMikuWorld
 		{
 			if (tick >= barTicks)
 			{
-				int currentMeasure = barLength.bar + ((tick - barTicks) / ticksPerBeat / barLength.length);
+				int currentMeasure = (float)((barLength.bar + (tick - barTicks)) / (float)ticksPerBeat) / barLength.length;
 				std::string key = formatString("%03d", currentMeasure) + info;
 
 				NoteMap& map = noteMaps[key];
