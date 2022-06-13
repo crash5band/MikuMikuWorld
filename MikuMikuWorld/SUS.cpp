@@ -20,11 +20,12 @@ namespace MikuMikuWorld
 			bIndex = i;
 		}
 
+		// get all ticks from time signatures so far
 		int accBarTicks = 0;
 		for (int i = 0; i <= bIndex; ++i)
 			accBarTicks += bars[i].ticks;
 
-		return accBarTicks +
+		return accBarTicks
 			+ ((measure - bars[bIndex].measure) * bars[bIndex].ticksPerMeasure)
 			+ ((i * bars[bIndex].ticksPerMeasure) / total);
 	}
@@ -85,7 +86,7 @@ namespace MikuMikuWorld
 		{
 			if (tick >= barTicks)
 			{
-				int currentMeasure = barLength.bar + ((tick - barTicks) / ticksPerBeat / barLength.length);
+				int currentMeasure = barLength.bar + ((float)(tick - barTicks) / (float)ticksPerBeat / barLength.length);
 				std::string key = formatString("%03d", currentMeasure) + info;
 
 				NoteMap& map = noteMaps[key];

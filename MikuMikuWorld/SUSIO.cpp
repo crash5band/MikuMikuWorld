@@ -11,15 +11,16 @@ namespace MikuMikuWorld
 		return std::to_string(note.tick) + "-" + std::to_string(note.lane);
 	}
 
-	std::pair<int, int> SUSIO::simplify4(float numerator, float denominator)
+	std::pair<int, int> SUSIO::barLengthToFraction(float length, float fractionDenom)
 	{
-		float g = std::gcd((int)numerator, (int)denominator);
-		int n = numerator / g;
-		int d = denominator / g;
-		if (d % 4 == 0)
-			return std::pair<int, int>(n, d);
-		else
-			return std::pair<int, int>(n * 4, d * 4);
+		int n = length * 4;
+		int d = fractionDenom * 4;
+		int g = std::gcd(n, d);
+		n /= g;
+		d /= g;
+		if (n == d)
+			n = d = 4;
+		return std::pair<int, int>(n, d);
 	}
 
 	Score SUSIO::importSUS(const std::string& filename)
@@ -225,7 +226,7 @@ namespace MikuMikuWorld
 		std::map<int, TimeSignature> timeSignatures;
 		for (const auto& sign : sus.barlengths)
 		{
-			auto fraction = simplify4(sign.length, 4.0f);
+			auto fraction = barLengthToFraction(sign.length, 4.0f);
 			timeSignatures.insert(std::pair<int, TimeSignature>(sign.bar,
 				TimeSignature{ sign.bar, fraction.first, fraction.second }));
 		}

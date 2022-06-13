@@ -8,7 +8,7 @@ namespace MikuMikuWorld
 	class SUSIO
 	{
 	private:
-		std::pair<int, int> simplify4(float numerator, float denominator);
+		std::pair<int, int> barLengthToFraction(float length, float fractionDenom);
 		std::string noteKey(const SUSNote& note);
 
 	public:
