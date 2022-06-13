@@ -14,11 +14,17 @@ namespace MikuMikuWorld
 		int bIndex = 0;
 		for (int i = 0; i < bars.size(); ++i)
 		{
-			if (measure >= bars[i].measure)
-				bIndex = i;
+			if (bars[i].measure > measure)
+				break;
+
+			bIndex = i;
 		}
 
-		return bars[bIndex].ticks
+		int accBarTicks = 0;
+		for (int i = 0; i <= bIndex; ++i)
+			accBarTicks += bars[i].ticks;
+
+		return accBarTicks +
 			+ ((measure - bars[bIndex].measure) * bars[bIndex].ticksPerMeasure)
 			+ ((i * bars[bIndex].ticksPerMeasure) / total);
 	}
@@ -73,13 +79,13 @@ namespace MikuMikuWorld
 	}
 
 	void appendData(int tick, std::string info, std::string data,
-		const std::vector<std::pair<BarLength, int>>& barLengths, int ticksPerBeat, std::unordered_map<std::string, NoteMap>& noteMaps)
+		const std::vector<std::pair<BarLength, int>>& barLengths, int ticksPerBeat, std::map<std::string, NoteMap>& noteMaps)
 	{
 		for (const auto&[barLength, barTicks] : barLengths)
 		{
 			if (tick >= barTicks)
 			{
-				int currentMeasure = (float)((barLength.bar + (tick - barTicks)) / (float)ticksPerBeat) / barLength.length;
+				int currentMeasure = barLength.bar + ((tick - barTicks) / ticksPerBeat / barLength.length);
 				std::string key = formatString("%03d", currentMeasure) + info;
 
 				NoteMap& map = noteMaps[key];
@@ -91,7 +97,7 @@ namespace MikuMikuWorld
 	}
 
 	void appendNoteData(const SUSNote& note, const std::string infoPrefix, const std::string channel,
-		const std::vector<std::pair<BarLength, int>>& barLengths, int ticksPerBeat, std::unordered_map<std::string, NoteMap>& noteMaps)
+		const std::vector<std::pair<BarLength, int>>& barLengths, int ticksPerBeat, std::map<std::string, NoteMap>& noteMaps)
 	{
 		char buff1[10];
 		std::string info = infoPrefix + tostringBaseN(buff1, note.lane, 36);
@@ -162,9 +168,6 @@ namespace MikuMikuWorld
 		if (!barLengths.size())
 			barLengths.push_back(BarLength{ 0, 4.0f });
 
-		std::sort(barLengths.begin(), barLengths.end(),
-			[](const BarLength& b1, const BarLength& b2) { return b1.length < b2.length; });
-
 		int ticks = 0;
 
 		std::vector<Bar> bars;
@@ -177,7 +180,8 @@ namespace MikuMikuWorld
 
 			bars.push_back(Bar{ measure, ticksPerMeasure, ticks });
 		}
-		std::reverse(bars.begin(), bars.end());
+		std::sort(bars.begin(), bars.end(),
+			[](const Bar& b1, const Bar& b2) { return b1.measure < b2.measure; });
 
 		std::unordered_map<std::string, float> bpmMap;
 		std::unordered_map<int, std::string> bpmChanges;
@@ -311,7 +315,7 @@ namespace MikuMikuWorld
 
 		lines.push_back(std::string("#WAVEOFFSET " + std::to_string(score.metadata.waveOffset)));
 
-		std::unordered_map<std::string, NoteMap> noteMaps;
+		std::map<std::string, NoteMap> noteMaps;
 
 		auto barLengths = score.barlengths;
 		std::stable_sort(barLengths.begin(), barLengths.end(),
@@ -405,13 +409,14 @@ namespace MikuMikuWorld
 				appendNoteData(note, "3", chStr, barLengthTicks, ticksPerBeat, noteMaps);
 		}
 
+		
 		for (const auto&[tag, map] : noteMaps)
 		{
 			int gcd = map.ticksPerMeasure;
 			for (const auto& raw : map.data)
 				gcd = std::gcd(raw.tick, gcd);
 
-			std::unordered_map<int, std::string> data;
+			std::map<int, std::string> data;
 			for (const auto& raw : map.data)
 				data[raw.tick % map.ticksPerMeasure] = raw.data;
 
