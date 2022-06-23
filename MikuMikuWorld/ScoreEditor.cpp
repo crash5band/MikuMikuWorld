@@ -100,6 +100,7 @@ namespace MikuMikuWorld
 		}
 
 		readScoreMetadata();
+		stats.calculateStats(score);
 		UI::setWindowTitle(title);
 	}
 
@@ -186,6 +187,7 @@ namespace MikuMikuWorld
 
 		workingData = EditorScoreData{};
 		score = Score();
+		stats.reset();
 
 		hasEdit = false;
 		uptoDate = true;
@@ -330,6 +332,7 @@ namespace MikuMikuWorld
 			UI::setWindowTitle("*" + (workingData.filename.size() ? File::getFilenameWithoutExtension(workingData.filename) : windowUntitled));
 
 		uptoDate = false;
+		stats.calculateStats(score);
 	}
 
 	bool ScoreEditor::hasUndo() const
@@ -349,6 +352,8 @@ namespace MikuMikuWorld
 			score = history.undo();
 			clearSelection();
 			uptoDate = false;
+
+			stats.calculateStats(score);
 		}
 	}
 
@@ -359,6 +364,8 @@ namespace MikuMikuWorld
 			score = history.redo();
 			clearSelection();
 			uptoDate = false;
+
+			stats.calculateStats(score);
 		}
 	}
 

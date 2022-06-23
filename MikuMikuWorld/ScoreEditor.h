@@ -11,6 +11,7 @@
 #include <unordered_set>
 #include "Audio/AudioManager.h"
 #include "PresetManager.h"
+#include "ScoreStats.h"
 
 #undef min
 #undef max
@@ -32,6 +33,7 @@ namespace MikuMikuWorld
 		AudioManager audio;
 		HistoryManager history;
 		PresetManager presetManager;
+		ScoreStats stats;
 		ImGuiTextFilter presetFilter;
 
 		Score prevUpdateScore;

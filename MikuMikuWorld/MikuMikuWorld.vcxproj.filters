@@ -5,9 +5,6 @@
     <ClCompile Include="ImGui\imgui.cpp">
       <Filter>Imgui</Filter>
     </ClCompile>
-    <ClCompile Include="ImGui\imgui_demo.cpp">
-      <Filter>Imgui</Filter>
-    </ClCompile>
     <ClCompile Include="ImGui\imgui_draw.cpp">
       <Filter>Imgui</Filter>
     </ClCompile>
@@ -129,6 +126,9 @@
     </ClCompile>
     <ClCompile Include="Preset.cpp">
       <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="ScoreStats.cpp">
+      <Filter>Score</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -278,6 +278,9 @@
     </ClInclude>
     <ClInclude Include="Preset.h">
       <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ScoreStats.h">
+      <Filter>Score</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

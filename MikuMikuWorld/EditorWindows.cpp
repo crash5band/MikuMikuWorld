@@ -264,17 +264,13 @@ namespace MikuMikuWorld
 
 			if (ImGui::CollapsingHeader(ICON_FA_CHART_BAR " Statistics", ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				std::vector<int> counts = countNotes(score);
-				int taps = counts[0], flicks = counts[1], holds = counts[2], steps = counts[3], combo = counts[4];
-				int total = taps + flicks + holds + steps;
-
 				UI::beginPropertyColumns();
-				UI::addReadOnlyProperty("Taps", std::to_string(taps));
-				UI::addReadOnlyProperty("Flicks", std::to_string(flicks));
-				UI::addReadOnlyProperty("Holds", std::to_string(holds));
-				UI::addReadOnlyProperty("Steps", std::to_string(steps));
-				UI::addReadOnlyProperty("Total", std::to_string(total));
-				UI::addReadOnlyProperty("Combo", std::to_string(combo));
+				UI::addReadOnlyProperty("Taps", std::to_string(stats.getTaps()));
+				UI::addReadOnlyProperty("Flicks", std::to_string(stats.getFlicks()));
+				UI::addReadOnlyProperty("Holds", std::to_string(stats.getHolds()));
+				UI::addReadOnlyProperty("Steps", std::to_string(stats.getSteps()));
+				UI::addReadOnlyProperty("Total", std::to_string(stats.getTotal()));
+				UI::addReadOnlyProperty("Combo", std::to_string(stats.getCombo()));
 				UI::endPropertyColumns();
 			}
 		}

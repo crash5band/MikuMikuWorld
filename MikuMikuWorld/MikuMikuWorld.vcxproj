@@ -196,6 +196,7 @@
     <ClCompile Include="Rendering\VertexBuffer.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Score.cpp" />
+    <ClCompile Include="ScoreStats.cpp" />
     <ClCompile Include="Stopwatch.cpp" />
     <ClCompile Include="StringOperations.cpp" />
     <ClCompile Include="SUS.cpp" />
@@ -250,6 +251,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Score.h" />
+    <ClInclude Include="ScoreStats.h" />
     <ClInclude Include="Stopwatch.h" />
     <ClInclude Include="StringOperations.h" />
     <ClInclude Include="SUS.h" />
