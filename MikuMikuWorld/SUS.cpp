@@ -194,12 +194,13 @@ namespace MikuMikuWorld
 			auto l = split(line, ":");
 			std::string header = l[0].substr(1);
 			std::string data = l[1];
+			header = trim(header);
+			data = trim(data);
 
 			if (header.size() == 5 && startsWith(header, "BPM"))
 				bpmMap[header.substr(3)] = atof(data.c_str());
 			else if (header.size() == 5 && header.substr(header.size() - 2, 2) == "08")
 			{
-				data = trim(data);
 				for (int i = 0; i < data.size(); i += 2)
 				{
 					std::string subdata = data.substr(i, 2);
