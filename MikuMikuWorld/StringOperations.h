@@ -6,7 +6,7 @@
 
 namespace MikuMikuWorld
 {
-    constexpr const char digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    constexpr const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     char* reverse(char* str);
 	char* tostringBaseN(char* buff, long long num, int base);
