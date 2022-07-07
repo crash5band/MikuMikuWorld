@@ -68,7 +68,7 @@ namespace MikuMikuWorld
 		int laneOffset = 0.0f;
 		float laneWidth = 35.0f;
 		float notesHeight = 50.0f;
-		float zoom = 1.5f;
+		float zoom = 2.0f;
 		float timelineMinOffset = 0;
 		float timelineOffset = 0;
 		float effectiveTickHeight;
