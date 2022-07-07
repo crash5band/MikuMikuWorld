@@ -427,8 +427,7 @@ namespace MikuMikuWorld
 		if (!playing)
 			return;
 
-		std::unordered_map<std::string, int> tickSEMap;
-
+		tickSEMap.clear();
 		for (const auto& it : score.notes)
 		{
 			const Note& note = it.second;
