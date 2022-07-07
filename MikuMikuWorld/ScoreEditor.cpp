@@ -178,7 +178,7 @@ namespace MikuMikuWorld
 	void ScoreEditor::resetEditor()
 	{
 		playing = false;
-		audio.stopAllEvents();
+		audio.stopSounds(false);
 		audio.stopBGM();
 
 		selectedNotes.clear();
@@ -263,7 +263,7 @@ namespace MikuMikuWorld
 		}
 		else
 		{
-			audio.clearEvents();
+			audio.stopSounds(false);
 			audio.stopBGM();
 		}
 	}
@@ -274,7 +274,7 @@ namespace MikuMikuWorld
 		time = currentTick = 0;
 		timelineOffset = timelineMinOffset;
 
-		audio.clearEvents();
+		audio.stopSounds(false);
 		audio.stopBGM();
 	}
 
@@ -443,7 +443,7 @@ namespace MikuMikuWorld
 				{
 					if (tickSEMap.find(key) == tickSEMap.end())
 					{
-						audio.pushAudioEvent(se.c_str(), noteTime - playStartTime, -1, false);
+						audio.playSound(se.c_str(), noteTime - playStartTime, -1);
 						tickSEMap[key] = note.tick;
 					}
 				}
@@ -451,7 +451,7 @@ namespace MikuMikuWorld
 				if (note.getType() == NoteType::Hold)
 				{
 					float endTime = accumulateDuration(score.notes.at(score.holdNotes.at(note.ID).end).tick, TICKS_PER_BEAT, score.tempoChanges);
-					audio.pushAudioEvent(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, noteTime - playStartTime, endTime - playStartTime + 0.02f, true);
+					audio.playSound(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, noteTime - playStartTime, endTime - playStartTime + 0.02f);
 				}
 			}
 			else if (time == playStartTime)
@@ -465,7 +465,7 @@ namespace MikuMikuWorld
 					{
 						if (tickSEMap.find(key) == tickSEMap.end())
 						{
-							audio.pushAudioEvent(se.c_str(), noteTime - playStartTime, -1, false);
+							audio.playSound(se.c_str(), noteTime - playStartTime, -1);
 							tickSEMap[key] = note.tick;
 						}
 					}
@@ -478,7 +478,7 @@ namespace MikuMikuWorld
 					float endTime = accumulateDuration(endTick, TICKS_PER_BEAT, score.tempoChanges);
 
 					if ((noteTime - time) <= audioLookAhead && endTime > time)
-						audio.pushAudioEvent(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, std::max(0.0f, noteTime - playStartTime), endTime - playStartTime + 0.02f, true);
+						audio.playSound(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, std::max(0.0f, noteTime - playStartTime), endTime - playStartTime + 0.02f);
 				}
 			}
 		}

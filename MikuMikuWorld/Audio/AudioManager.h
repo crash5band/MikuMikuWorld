@@ -1,5 +1,5 @@
 #pragma once
-#include "AudioEvent.h"
+#include "Sound.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -18,8 +18,7 @@ namespace MikuMikuWorld
 		ma_sound_group seGroup;
 		ma_sound_config bgmConfig;
 		ma_sound bgm;
-		std::unordered_map<std::string, ma_sound> seMap;
-		std::vector<std::unique_ptr<AudioEvent>> audioEvents;
+		std::unordered_map<std::string, Sound> sounds;
 
 		float bgmOffset = 0.0f;
 		bool musicInitialized = false;
@@ -37,12 +36,10 @@ namespace MikuMikuWorld
 		void seekBGM(float time);
 		void disposeBGM();
 		void uninitAudio();
-		void playSE(const char* se, float time);
 		void setBGMOffset(float time, float sec);
 		void reSync();
-		void pushAudioEvent(const char* se, double start, double end, bool loop);
-		void clearEvents();
-		void stopAllEvents();
+		void playSound(const char* se, double start, double end);
+		void stopSounds(bool all);
 		float getAudioPosition();
 		float getBGMOffset();
 		float getEngineAbsTime();

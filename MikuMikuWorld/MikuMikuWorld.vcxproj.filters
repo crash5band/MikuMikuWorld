@@ -68,9 +68,6 @@
     <ClCompile Include="EditorWindows.cpp">
       <Filter>Components\ScoreEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Audio\AudioEvent.cpp">
-      <Filter>Components\Audio</Filter>
-    </ClCompile>
     <ClCompile Include="Stopwatch.cpp">
       <Filter>Misc</Filter>
     </ClCompile>
@@ -210,9 +207,6 @@
     </ClInclude>
     <ClInclude Include="TimelineMode.h">
       <Filter>Components\ScoreEditor</Filter>
-    </ClInclude>
-    <ClInclude Include="Audio\AudioEvent.h">
-      <Filter>Components\Audio</Filter>
     </ClInclude>
     <ClInclude Include="Stopwatch.h">
       <Filter>Misc</Filter>

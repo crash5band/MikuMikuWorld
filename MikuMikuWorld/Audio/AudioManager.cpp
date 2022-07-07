@@ -52,41 +52,31 @@ namespace MikuMikuWorld
 		}
 
 		musicInitialized = false;
-		audioEvents.reserve(2000);
 		loadSE();
 	}
 
 	void AudioManager::loadSE()
 	{
 		std::string path{ Application::getAppDir() + "res/sound/" };
-		ma_uint32 flags = MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC;
+		for (int i = 0; i < 10; ++i)
+			sounds.emplace(std::pair<std::string, Sound>(SE_NAMES[i], Sound()));
 
-		seMap.reserve(10);
-		seMap[SE_PERFECT] = ma_sound();
-		seMap[SE_GREAT] = ma_sound();
-		seMap[SE_GOOD] = ma_sound();
-		seMap[SE_FLICK] = ma_sound();
-		seMap[SE_CONNECT] = ma_sound();
-		seMap[SE_TICK] = ma_sound();
-		seMap[SE_CRITICAL_TAP] = ma_sound();
-		seMap[SE_CRITICAL_FLICK] = ma_sound();
-		seMap[SE_CRITICAL_CONNECT] = ma_sound();
-		seMap[SE_CRITICAL_TICK] = ma_sound();
-
-		std::for_each(std::execution::par, seMap.begin(), seMap.end(), [&](std::pair<const std::string, ma_sound>& se) {
-			std::wstring filename = mbToWideStr(path + se.first + ".mp3");
-			ma_sound_init_from_file_w(&engine, filename.c_str(), flags, NULL, NULL, &se.second);
+		std::for_each(std::execution::par, sounds.begin(), sounds.end(), [&](auto& s) {
+			std::string filename = path + s.first + ".mp3";
+			s.second.init(filename, &engine, &seGroup, s.first == SE_CONNECT || s.first == SE_CRITICAL_CONNECT);
 		});
+		
+		// adjust hold SE loop times for gapless playback
+		ma_uint64 holdNrmDuration = sounds[SE_CONNECT].getDurationInFrames();
+		ma_uint64 holdCrtDuration = sounds[SE_CRITICAL_CONNECT].getDurationInFrames();
+		sounds[SE_CONNECT].setLooptime(3000, holdNrmDuration - 3000);
+		sounds[SE_CRITICAL_CONNECT].setLooptime(3000, holdCrtDuration - 3000);
 	}
 
 	void AudioManager::uninitAudio()
 	{
 		if (musicInitialized)
 			ma_sound_uninit(&bgm);
-
-		clearEvents();
-		for (auto& it : seMap)
-			ma_sound_uninit(&it.second);
 
 		ma_engine_uninit(&engine);
 	}
@@ -207,33 +197,26 @@ namespace MikuMikuWorld
 		ma_sound_group_set_volume(&seGroup, volume);
 	}
 
-	void AudioManager::pushAudioEvent(const char* se, double start, double end, bool loop)
+	void AudioManager::playSound(const char* se, double start, double end)
 	{
-		if (seMap.find(se) == seMap.end())
+		if (sounds.find(se) == sounds.end())
 			return;
 
-		if (!seMap[se].pDataSource)
-			return;
-
-		audioEvents.push_back(std::make_unique<AudioEvent>(&engine, &seGroup, &seMap[se], start, loop, end));
-		audioEvents[audioEvents.size() - 1]->play();
+		sounds[se].playSound(start, end);
 	}
 
-	void AudioManager::clearEvents()
+	void AudioManager::stopSounds(bool all)
 	{
-		for (auto& event : audioEvents)
+		if (all)
 		{
-			event->stop();
-			event->dispose();
+			for (auto& [se, sound] : sounds)
+				sound.stopAll();
 		}
-
-		audioEvents.clear();
-	}
-
-	void AudioManager::stopAllEvents()
-	{
-		for (auto& event : audioEvents)
-			event->stop();
+		else
+		{
+			sounds[SE_CONNECT].stopAll();
+			sounds[SE_CRITICAL_CONNECT].stopAll();
+		}
 	}
 
 	float AudioManager::getEngineAbsTime()
@@ -257,13 +240,6 @@ namespace MikuMikuWorld
 	void AudioManager::reSync()
 	{
 		ma_engine_set_time(&engine, 0);
-	}
-
-	void AudioManager::playSE(const char* se, float time)
-	{
-		std::string path = Application::getAppDir() + "res/sound/" + se + ".mp3";
-		if (seMap.find(se) != seMap.end())
-			ma_engine_play_sound(&engine, path.c_str(), &seGroup);
 	}
 
 	bool AudioManager::isMusicInitialized()

@@ -163,7 +163,6 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="ApplicationConfiguration.cpp" />
     <ClCompile Include="Audio\Sound.cpp" />
-    <ClCompile Include="Audio\AudioEvent.cpp" />
     <ClCompile Include="Audio\AudioManager.cpp" />
     <ClCompile Include="Audio\SoundSource.cpp" />
     <ClCompile Include="Audio\stb_vorbis.c" />
@@ -213,7 +212,6 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="ApplicationConfiguration.h" />
     <ClInclude Include="Audio\Sound.h" />
-    <ClInclude Include="Audio\AudioEvent.h" />
     <ClInclude Include="Audio\AudioManager.h" />
     <ClInclude Include="Audio\SoundSource.h" />
     <ClInclude Include="BinaryReader.h" />

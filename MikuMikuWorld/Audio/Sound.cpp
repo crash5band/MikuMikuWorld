@@ -5,7 +5,7 @@ namespace MikuMikuWorld
 {
 	ma_uint32 flags = MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC;
 
-	Sound::Sound() : next{ -1 }
+	Sound::Sound() : next{ 0 }
 	{
 
 	}
@@ -28,32 +28,49 @@ namespace MikuMikuWorld
 	void Sound::init(const std::string& path, ma_engine* engine, ma_sound_group* group, bool loop)
 	{
 		std::wstring wPath = mbToWideStr(path);
-		ma_sound src;
-		ma_result res = ma_sound_init_from_file_w(engine, wPath.c_str(), flags, group, NULL, &src);
+		for (int i = 0; i < sources.size(); ++i)
+		{
+			sources[i] = SoundSource();
+			sources[i].init(wPath, engine, group, flags, loop);
+		}
 
-		if (res == MA_SUCCESS)
-		{
-			for (int i = 0; i < sources.size(); ++i)
-			{
-				sources[i] = SoundSource();
-				sources[i].init(engine, group, &src, flags, loop);
-			}
-		}
-		else
-		{
-			printf("Sound::Sound(): -ERROR- Failed to initialize sound sources %s", ma_result_description(res));
-		}
+		next = 0;
 	}
 
 	void Sound::dispose()
 	{
-		for (auto& sound : sources)
-			sound.dispose();
+		for (auto& src : sources)
+			src.dispose();
 	}
 
 	void Sound::stopAll()
 	{
-		for (auto& sound : sources)
-			sound.stop();
+		for (auto& src : sources)
+			src.stop();
+	}
+
+	void Sound::setLooptime(ma_uint64 s, ma_uint64 e)
+	{
+		for (auto& src : sources)
+			src.setLoopTime(s, e);
+	}
+
+	ma_uint64 Sound::getDurationInFrames()
+	{
+		return sources[0].getDurationInFrames();
+	}
+
+	float Sound::getDurectionInSeconds()
+	{
+		return sources[0].getDurationInSeconds();
+	}
+
+	bool Sound::isAnyPlaying()
+	{
+		for (auto& src : sources)
+			if (src.isPlaying())
+				return true;
+
+		return false;
 	}
 }

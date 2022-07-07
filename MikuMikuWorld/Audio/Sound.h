@@ -18,6 +18,11 @@ namespace MikuMikuWorld
 		void init(const std::string& path, ma_engine* engine, ma_sound_group* group, bool loop);
 		void dispose();
 		void playSound(float start, float end);
+		void setLooptime(ma_uint64 s, ma_uint64 e);
 		void stopAll();
+
+		ma_uint64 getDurationInFrames();
+		float getDurectionInSeconds();
+		bool isAnyPlaying();
 	};
 }

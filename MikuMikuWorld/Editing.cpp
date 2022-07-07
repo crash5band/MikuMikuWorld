@@ -274,7 +274,7 @@ namespace MikuMikuWorld
 		score.notes[note.ID] = note;
 		pushHistory("Insert note", prev, score);
 
-		audio.pushAudioEvent("perfect", audio.getEngineAbsTime(), -1, false);
+		audio.playSound("perfect", audio.getEngineAbsTime(), -1);
 	}
 
 	void ScoreEditor::insertHoldNote()

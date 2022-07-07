@@ -7,13 +7,10 @@ namespace MikuMikuWorld
 
 	}
 
-	void SoundSource::init(ma_engine* engine, ma_sound_group* group, ma_sound* data, ma_uint32 mFlags, bool loop)
+	void SoundSource::init(const std::wstring& filename, ma_engine* engine, ma_sound_group* group, ma_uint32 mFlags, bool loop)
 	{
-		if (data->pDataSource)
-		{
-			ma_result result = ma_sound_init_copy(engine, data, mFlags, group, &source);
-			ma_sound_set_looping(&source, loop);
-		}
+		ma_result result = ma_sound_init_from_file_w(engine, filename.c_str(), mFlags, group, NULL, &source);
+		ma_sound_set_looping(&source, loop);
 	}
 
 	void SoundSource::setStart(float start)
@@ -43,7 +40,7 @@ namespace MikuMikuWorld
 
 	void SoundSource::setLoop(bool val)
 	{
-		flags = (SoundFlags)(flags | Loop);
+		ma_sound_set_looping(&source, val);
 	}
 
 	void SoundSource::setLoopTime(ma_uint64 start, ma_uint64 end)
@@ -72,4 +69,16 @@ namespace MikuMikuWorld
 		return cur;
 	}
 
+	float SoundSource::getDurationInSeconds()
+	{
+		float cur = 0.0f;
+		ma_sound_get_length_in_seconds(&source, &cur);
+
+		return cur;
+	}
+
+	bool SoundSource::isPlaying()
+	{
+		return ma_sound_is_playing(&source);
+	}
 }
