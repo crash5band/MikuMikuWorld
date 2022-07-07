@@ -130,6 +130,12 @@
     <ClCompile Include="ScoreStats.cpp">
       <Filter>Score</Filter>
     </ClCompile>
+    <ClCompile Include="Audio\Sound.cpp">
+      <Filter>Components\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\SoundSource.cpp">
+      <Filter>Components\Audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -281,6 +287,12 @@
     </ClInclude>
     <ClInclude Include="ScoreStats.h">
       <Filter>Score</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\Sound.h">
+      <Filter>Components\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\SoundSource.h">
+      <Filter>Components\Audio</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
