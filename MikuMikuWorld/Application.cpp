@@ -43,8 +43,13 @@ namespace MikuMikuWorld
 
 		renderer = new Renderer();
 		editor = new ScoreEditor();
+
+		// apply config settings
 		editor->setLaneWidth(config.timelineWidth);
 		editor->setNotesHeight(config.notesHeight);
+		editor->setDivision(config.division);
+		editor->setZoom(config.zoom);
+
 		editor->loadPresets(appDir + "library/");
 
 		dockspaceID = 3939;
@@ -110,6 +115,8 @@ namespace MikuMikuWorld
 		config.windowSize = windowSize;
 		config.timelineWidth = editor->getLaneWidth();
 		config.notesHeight = editor->getNotesHeight();
+		config.division = editor->getDivision();
+		config.zoom = editor->getZoom();
 		config.userColor = Color{ 
 			UI::accentColors[0].color.x,
 			UI::accentColors[0].color.y,

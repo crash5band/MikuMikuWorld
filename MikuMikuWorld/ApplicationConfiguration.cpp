@@ -7,11 +7,11 @@ using namespace nlohmann;
 
 namespace MikuMikuWorld
 {
-	ApplicationConfiguration::ApplicationConfiguration() :
-		version{ "1.0.0" }, windowPos{ 150, 100 }, windowSize{ 1280, 720 }, maximized{ false }, vsync{ true },
-		accentColor{ 1 }, userColor{ 0.2f, 0.2f, 0.2f, 1.0f }, timelineWidth{ 35 }, notesHeight{ 50 }
-	{
+	constexpr const char* CONFIG_VERSION{ "1.0.1" };
 
+	ApplicationConfiguration::ApplicationConfiguration()
+	{
+		restoreDefault();
 	}
 
 	bool ApplicationConfiguration::keyExists(const json& js, const char* key)
@@ -88,8 +88,8 @@ namespace MikuMikuWorld
 			vsync = tryGetBool(window, "vsync", true);
 
 			windowPos = tryGetVector2(window, "position");
-			if (windowPos.x <= 0) windowPos.x = 50;
-			if (windowPos.y <= 0) windowPos.y = 80;
+			if (windowPos.x <= 0) windowPos.x = 150;
+			if (windowPos.y <= 0) windowPos.y = 100;
 
 			windowSize = tryGetVector2(window, "size");
 			if (windowSize.x <= 0 || windowSize.y <= 0)
@@ -103,6 +103,8 @@ namespace MikuMikuWorld
 		{
 			timelineWidth = tryGetInt(config["timeline"], "lane_width", 35);
 			notesHeight = tryGetInt(config["timeline"], "notes_height", 50);
+			division = tryGetInt(config["timeline"], "division", 8);
+			zoom = tryGetFloat(config["timeline"], "zoom", 2.0f);
 		}
 
 		if (keyExists(config, "theme"))
@@ -123,7 +125,9 @@ namespace MikuMikuWorld
 
 		config["timeline"] = {
 			{"lane_width", timelineWidth},
-			{"notes_height", notesHeight}
+			{"notes_height", notesHeight},
+			{"division", division},
+			{"zoom", zoom}
 		};
 
 		config["theme"] = {
@@ -143,5 +147,19 @@ namespace MikuMikuWorld
 		configFile << std::setw(4) << config;
 		configFile.flush();
 		configFile.close();
+	}
+
+	void ApplicationConfiguration::restoreDefault()
+	{
+		windowPos = Vector2(150, 100);
+		windowSize = Vector2(1280, 720);
+		maximized = false;
+		vsync = true;
+		accentColor = 1;
+		userColor = Color(0.2f, 0.2f, 0.2f, 1.0f);
+		timelineWidth = 35;
+		notesHeight = 50;
+		division = 8;
+		zoom = 2.0f;
 	}
 }

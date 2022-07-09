@@ -8,11 +8,12 @@
 #include "TimelineMode.h"
 #include "EditorScoreData.h"
 #include "HistoryManager.h"
-#include <unordered_set>
 #include "Audio/AudioManager.h"
 #include "PresetManager.h"
 #include "ScoreStats.h"
+#include <unordered_set>
 
+// needed for miniaudio to work
 #undef min
 #undef max
 
@@ -219,14 +220,17 @@ namespace MikuMikuWorld
 		void restart();
 		void nextTick();
 		void previousTick();
-		void setZoom(float val);
 		void updateNoteSE();
 		bool isPlaying();
 
 		inline float getLaneWidth() { return laneWidth; }
 		inline float getNotesHeight() { return notesHeight; }
+		inline float getZoom() { return zoom; }
+		inline int getDivision() { return division; }
 		void setLaneWidth(float width);
 		void setNotesHeight(float height);
+		void setZoom(float val);
+		void setDivision(int div);
 
 		bool selectionHasEase();
 		bool selectionHasHoldStep();

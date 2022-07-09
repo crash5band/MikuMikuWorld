@@ -27,10 +27,13 @@ namespace MikuMikuWorld
 
 		int timelineWidth;
 		int notesHeight;
+		int division;
+		float zoom;
 
 		ApplicationConfiguration();
 
 		void read(const std::string& filename);
 		void write(const std::string& filename);
+		void restoreDefault();
 	};
 }

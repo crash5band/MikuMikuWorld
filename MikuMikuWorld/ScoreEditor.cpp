@@ -324,6 +324,19 @@ namespace MikuMikuWorld
 		timelineOffset += x1 - x2;
 	}
 
+	void ScoreEditor::setDivision(int div)
+	{
+		const int length = sizeof(divisions) / sizeof(int);
+		for (int i = 0; i < length - 1; ++i)
+		{
+			if (divisions[i] == div)
+			{
+				selectedDivision = i;
+				division = divisions[i];
+			}
+		}
+	}
+
 	void ScoreEditor::pushHistory(const std::string& description, const Score& prev, const Score& curr)
 	{
 		history.pushHistory(description, prev, curr);
