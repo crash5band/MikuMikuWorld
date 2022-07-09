@@ -9,7 +9,7 @@ namespace MikuMikuWorld
 {
 	constexpr const char* CONFIG_VERSION{ "1.0.1" };
 
-	ApplicationConfiguration::ApplicationConfiguration()
+	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
 		restoreDefault();
 	}
@@ -80,7 +80,10 @@ namespace MikuMikuWorld
 		configFile >> config;
 		configFile.close();
 
-		version = tryGetString(config["version"], "1.0.0");
+		version = tryGetString(config, "version");
+		if (!version.size())
+			version = "1.0.0";
+
 		if (keyExists(config, "window"))
 		{
 			const json& window = config["window"];
@@ -117,7 +120,7 @@ namespace MikuMikuWorld
 	void ApplicationConfiguration::write(const std::string& filename)
 	{
 		json config;
-		config["version"] = version;
+		config["version"] =	CONFIG_VERSION;
 		config["window"]["position"] = { {"x", windowPos.x}, {"y", windowPos.y} };
 		config["window"]["size"] = { {"x", windowSize.x}, {"y", windowSize.y} };
 		config["window"]["maximized"] = maximized;
