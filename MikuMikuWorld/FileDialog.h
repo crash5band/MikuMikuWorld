@@ -21,5 +21,6 @@ namespace MikuMikuWorld
 	public:
 		static bool openFile(std::string& name, FileType type);
 		static bool saveFile(std::string& name, FileType type);
+		static const wchar_t* getExtensionFromType(FileType type);
 	};
 }

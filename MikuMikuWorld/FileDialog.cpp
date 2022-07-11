@@ -4,6 +4,19 @@
 
 namespace MikuMikuWorld
 {
+	const wchar_t* FileDialog::getExtensionFromType(FileType type)
+	{
+		switch (type)
+		{
+		case MikuMikuWorld::FileType::MMWSFile:
+			return L".mmws";
+		case MikuMikuWorld::FileType::SUSFile:
+			return L".sus";
+		default:
+			return L"";
+		}
+	}
+
 	const wchar_t* FileDialog::getDialogTitle(FileType type)
 	{
 		switch (type)
@@ -67,7 +80,6 @@ namespace MikuMikuWorld
 			return true;
 		}
 
-
 		return false;
 	}
 
@@ -92,6 +104,7 @@ namespace MikuMikuWorld
 		ofn.lpstrFile = filename;
 		ofn.nMaxFile = MAX_PATH;
 		ofn.lpstrTitle = title.c_str();
+		ofn.lpstrDefExt = getExtensionFromType(type);
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_LONGNAMES | OFN_EXPLORER
 			| OFN_HIDEREADONLY | OFN_ENABLESIZING | OFN_OVERWRITEPROMPT;
 

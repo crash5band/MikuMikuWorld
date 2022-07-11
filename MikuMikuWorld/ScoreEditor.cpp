@@ -143,9 +143,6 @@ namespace MikuMikuWorld
 		std::string filename;
 		if (FileDialog::saveFile(filename, FileType::MMWSFile))
 		{
-			if (File::getFileExtension(filename) != MMWS_EXTENSION)
-				filename.append(MMWS_EXTENSION);
-
 			workingData.filename = filename;
 			writeScoreMetadata();
 			serializeScore(score, filename);
@@ -160,9 +157,6 @@ namespace MikuMikuWorld
 		std::string filename;
 		if (FileDialog::saveFile(filename, FileType::SUSFile))
 		{
-			if (File::getFileExtension(filename) != SUS_EXTENSION)
-				filename.append(SUS_EXTENSION);
-
 			writeScoreMetadata();
 			SUSIO susIO;
 			susIO.exportSUS(score, filename);
