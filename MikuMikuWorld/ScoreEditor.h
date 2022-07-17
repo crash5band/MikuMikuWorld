@@ -120,7 +120,7 @@ namespace MikuMikuWorld
 		float masterVolume;
 		float bgmVolume;
 		float seVolume;
-		const float audioLookAhead = 0.1;
+		const float audioLookAhead = 0.05;
 
 		// update methods
 		void updateNotes(Renderer* renderer);
