@@ -347,6 +347,27 @@ namespace MikuMikuWorld
 			pushHistory("Change note", prev, score);
 	}
 
+	void ScoreEditor::setFlick(FlickType flick)
+	{
+		if (!selectedNotes.size())
+			return;
+
+		bool edit = false;
+		Score prev = score;
+		for (int id : selectedNotes)
+		{
+			Note& note = score.notes.at(id);
+			if (!note.hasEase())
+			{
+				note.flick = flick;
+				edit = true;
+			}
+		}
+
+		if (edit)
+			pushHistory("Change flick", prev, score);
+	}
+
 	void ScoreEditor::cycleEase()
 	{
 		if (!selectedNotes.size())

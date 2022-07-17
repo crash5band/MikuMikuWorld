@@ -137,6 +137,7 @@ namespace MikuMikuWorld
 			hasSelection = selectedNotes.size();
 			hasSelectionEase = selectionHasEase();
 			hasSelectionStep = selectionHasHoldStep();
+			hasFlickable = selectionHasFlickable();
 
 			drawList->PopClipRect();
 		}
@@ -189,6 +190,23 @@ namespace MikuMikuWorld
 
 				if (ImGui::MenuItem("Ignored"))
 					setStepType(HoldStepType::Ignored);
+
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Flick Type", hasFlickable))
+			{
+				if (ImGui::MenuItem("None"))
+					setFlick(FlickType::None);
+
+				if (ImGui::MenuItem("Up"))
+					setFlick(FlickType::Up);
+
+				if (ImGui::MenuItem("Left"))
+					setFlick(FlickType::Left);
+
+				if (ImGui::MenuItem("Right"))
+					setFlick(FlickType::Right);
 
 				ImGui::EndMenu();
 			}

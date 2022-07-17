@@ -100,6 +100,7 @@ namespace MikuMikuWorld
 		bool hasSelection;
 		bool hasSelectionEase;
 		bool hasSelectionStep;
+		bool hasFlickable;
 		bool uptoDate;
 
 		ImVec2 ctrlMousePos;
@@ -136,6 +137,7 @@ namespace MikuMikuWorld
 
 		// edit methods
 		void cycleFlicks();
+		void setFlick(FlickType flick);
 		void cycleEase();
 		void setEase(EaseType ease);
 		void toggleCriticals();
@@ -234,6 +236,7 @@ namespace MikuMikuWorld
 
 		bool selectionHasEase();
 		bool selectionHasHoldStep();
+		bool selectionHasFlickable();
 
 		// IO methods
 		void reset();

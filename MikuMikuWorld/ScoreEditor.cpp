@@ -1147,6 +1147,15 @@ namespace MikuMikuWorld
 		return false;
 	}
 
+	bool ScoreEditor::selectionHasFlickable()
+	{
+		for (const int id : selectedNotes)
+			if (!score.notes[id].hasEase())
+				return true;
+
+		return false;
+	}
+
 	void ScoreEditor::loadPresets(const std::string& path)
 	{
 		presetManager.loadPresets(path);
