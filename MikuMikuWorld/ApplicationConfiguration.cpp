@@ -7,7 +7,7 @@ using namespace nlohmann;
 
 namespace MikuMikuWorld
 {
-	constexpr const char* CONFIG_VERSION{ "1.0.1" };
+	constexpr const char* CONFIG_VERSION{ "1.1.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -108,6 +108,9 @@ namespace MikuMikuWorld
 			notesHeight = tryGetInt(config["timeline"], "notes_height", 50);
 			division = tryGetInt(config["timeline"], "division", 8);
 			zoom = tryGetFloat(config["timeline"], "zoom", 2.0f);
+
+			useSmoothScrolling = tryGetBool(config["timeline"], "smooth_scrolling_enable", true);
+			smoothScrollingTime = tryGetFloat(config["timeline"], "smooth_scrolling_time", 67.0f);
 		}
 
 		if (keyExists(config, "theme"))
@@ -120,7 +123,10 @@ namespace MikuMikuWorld
 	void ApplicationConfiguration::write(const std::string& filename)
 	{
 		json config;
+
+		// update to latest version
 		config["version"] =	CONFIG_VERSION;
+
 		config["window"]["position"] = { {"x", windowPos.x}, {"y", windowPos.y} };
 		config["window"]["size"] = { {"x", windowSize.x}, {"y", windowSize.y} };
 		config["window"]["maximized"] = maximized;
@@ -130,7 +136,9 @@ namespace MikuMikuWorld
 			{"lane_width", timelineWidth},
 			{"notes_height", notesHeight},
 			{"division", division},
-			{"zoom", zoom}
+			{"zoom", zoom},
+			{"smooth_scrolling_enable", useSmoothScrolling},
+			{"smooth_scrolling_time", smoothScrollingTime}
 		};
 
 		config["theme"] = {
@@ -164,5 +172,7 @@ namespace MikuMikuWorld
 		notesHeight = 50;
 		division = 8;
 		zoom = 2.0f;
+		useSmoothScrolling = true;
+		smoothScrollingTime = 67.0f;
 	}
 }

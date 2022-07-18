@@ -42,6 +42,10 @@ namespace MikuMikuWorld
 		hasEdit			= false;
 		playStartTime	= 0;
 
+		useSmoothScrolling = true;
+		smoothScrollTime = 67.0f;
+		remainingScroll = scrollAmount = 0.0f;
+
 		audio.initAudio();
 		audio.setMasterVolume(masterVolume);
 		audio.setBGMVolume(bgmVolume);
@@ -194,7 +198,7 @@ namespace MikuMikuWorld
 
 	float ScoreEditor::getNoteYPosFromTick(int tick)
 	{
-		return canvasPos.y + tickToPosition(tick) - timelineOffset + canvasSize.y;
+		return canvasPos.y + tickToPosition(tick) - timelineVisualOffset + canvasSize.y;
 	}
 
 	int ScoreEditor::snapTickFromPos(float posY)
@@ -267,6 +271,7 @@ namespace MikuMikuWorld
 		playing = false;
 		time = currentTick = 0;
 		timelineOffset = timelineMinOffset;
+		updateTimelineScrollAmount();
 
 		audio.stopSounds(false);
 		audio.stopBGM();
@@ -329,6 +334,23 @@ namespace MikuMikuWorld
 				division = divisions[i];
 			}
 		}
+	}
+
+	void ScoreEditor::setUseSmoothScrolling(bool val)
+	{
+		useSmoothScrolling = val;
+	}
+
+	void ScoreEditor::setSmoothScrollingTime(float time)
+	{
+		if (time <= 150.0f && time >= 10.0f)
+			smoothScrollTime = time;
+	}
+
+	void ScoreEditor::updateTimelineScrollAmount()
+	{
+		scrollAmount = timelineOffset - timelineVisualOffset;
+		remainingScroll = abs(scrollAmount);
 	}
 
 	void ScoreEditor::pushHistory(const std::string& description, const Score& prev, const Score& curr)
@@ -398,19 +420,21 @@ namespace MikuMikuWorld
 			exec = true;
 			break;
 		case 1:
-			if (cursorPos >= timelineOffset - offset)
-				exec = true;
+			exec = cursorPos >= timelineOffset - offset;
 			break;
 		case 2:
-			if (cursorPos <= timelineOffset - offset)
-				exec = true;
+			exec = cursorPos <= timelineOffset - offset;
 			break;
 		default:
 			break;
 		}
 
 		if (exec)
+		{
 			timelineOffset = cursorPos + offset;
+			if (!playing)
+				updateTimelineScrollAmount();
+		}
 	}
 
 	void ScoreEditor::gotoMeasure(int measure)
@@ -509,8 +533,8 @@ namespace MikuMikuWorld
 		const float x1 = canvasPos.x + laneOffset;
 		const float x2 = x1 + timelineWidth;
 
-		int firstTick = std::max(0, positionToTick(timelineOffset - canvasSize.y));
-		int lastTick = positionToTick(timelineOffset);
+		int firstTick = std::max(0, positionToTick(timelineVisualOffset - canvasSize.y));
+		int lastTick = positionToTick(timelineVisualOffset);
 		int measure = accumulateMeasures(firstTick, TICKS_PER_BEAT, score.timeSignatures);
 		firstTick = measureToTicks(measure, TICKS_PER_BEAT, score.timeSignatures);
 
@@ -520,7 +544,7 @@ namespace MikuMikuWorld
 
 		for (int tick = firstTick; tick <= lastTick; tick += subDiv)
 		{
-			const float y = canvasPos.y - tickToPosition(tick) + timelineOffset;
+			const float y = canvasPos.y - tickToPosition(tick) + timelineVisualOffset;
 			int measure = accumulateMeasures(tick, TICKS_PER_BEAT, score.timeSignatures);
 
 			// time signature changes on current measure
@@ -546,7 +570,7 @@ namespace MikuMikuWorld
 
 			std::string measureStr = "#" + std::to_string(measure);
 			const float txtPos = x1 - MEASURE_WIDTH - (ImGui::CalcTextSize(measureStr.c_str()).x * 0.5f);
-			const float y = canvasPos.y - tickToPosition(tick) + timelineOffset;
+			const float y = canvasPos.y - tickToPosition(tick) + timelineVisualOffset;
 
 			drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH, y), ImVec2(x2 + MEASURE_WIDTH, y), measureColor, 1.5f);
 			drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(txtPos, y), measureColor, measureStr.c_str());
@@ -580,7 +604,7 @@ namespace MikuMikuWorld
 
 		const float x1 = canvasPos.x + laneOffset;
 		const float x2 = x1 + timelineWidth;
-		const float y = canvasPos.y - tickToPosition(currentTick) + timelineOffset;
+		const float y = canvasPos.y - tickToPosition(currentTick) + timelineVisualOffset;
 		const float triPtOffset = 8.0f;
 		const float triXPos = x1 - (triPtOffset * 2);
 
@@ -606,7 +630,7 @@ namespace MikuMikuWorld
 		{
 			Tempo& tempo = score.tempoChanges[index];
 
-			const float y = canvasPos.y - tickToPosition(tempo.tick) + timelineOffset;
+			const float y = canvasPos.y - tickToPosition(tempo.tick) + timelineVisualOffset;
 
 			std::string bpmStr = formatString("%g", tempo.bpm) + " BPM";
 			drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), tempoColor, primaryLineThickness);
@@ -673,7 +697,7 @@ namespace MikuMikuWorld
 		for (auto& it : score.timeSignatures)
 		{
 			const int ticks = measureToTicks(it.second.measure, TICKS_PER_BEAT, score.timeSignatures);
-			const float y = canvasPos.y - tickToPosition(ticks) + timelineOffset;
+			const float y = canvasPos.y - tickToPosition(ticks) + timelineVisualOffset;
 
 			std::string tStr = std::to_string(it.second.numerator) + "/" + std::to_string(it.second.denominator);
 			drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), timeColor, primaryLineThickness);
@@ -959,7 +983,7 @@ namespace MikuMikuWorld
 			{
 				const float x1 = canvasPos.x + laneOffset;
 				const float x2 = x1 + timelineWidth;
-				const float y = canvasPos.y - tickToPosition(hoverTick) + timelineOffset;
+				const float y = canvasPos.y - tickToPosition(hoverTick) + timelineVisualOffset;
 				drawList->AddLine(ImVec2(x1, y), ImVec2(x2 + MEASURE_WIDTH, y), tempoColor, 2.0f);
 				drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 + 20.0f, y - 25.0f), tempoColor, "BPM");
 			}
@@ -967,7 +991,7 @@ namespace MikuMikuWorld
 			{
 				const float x1 = canvasPos.x + laneOffset;
 				const float x2 = x1 + timelineWidth;
-				const float y = canvasPos.y - tickToPosition(hoverTick) + timelineOffset;
+				const float y = canvasPos.y - tickToPosition(hoverTick) + timelineVisualOffset;
 				drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH - (ImGui::CalcTextSize("4/4").x * 0.5f), y), ImVec2(x2, y), timeColor, 2.0f);
 				drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x1 - 40.0f, y - 25.0f), timeColor, "4/4");
 			}
@@ -1080,14 +1104,14 @@ namespace MikuMikuWorld
 	{
 		float startX = std::min(canvasPos.x + dragStart.x, canvasPos.x + mousePos.x);
 		float endX = std::max(canvasPos.x + dragStart.x, canvasPos.x + mousePos.x);
-		float startY = std::min(canvasPos.y + dragStart.y, canvasPos.y + mousePos.y) + timelineOffset;
-		float endY = std::max(canvasPos.y + dragStart.y, canvasPos.y + mousePos.y) + timelineOffset;
+		float startY = std::min(canvasPos.y + dragStart.y, canvasPos.y + mousePos.y) + timelineVisualOffset;
+		float endY = std::max(canvasPos.y + dragStart.y, canvasPos.y + mousePos.y) + timelineVisualOffset;
 		
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		drawList->AddRectFilled(ImVec2(startX, startY), ImVec2(endX, endY), selectionColor1);
 
 		ImVec2 iconPos = ImVec2(canvasPos + dragStart);
-		iconPos.y += timelineOffset;
+		iconPos.y += timelineVisualOffset;
 		if (InputListener::isCtrlDown())
 		{
 			drawList->AddText(ImGui::GetFont(), 12, iconPos, 0xdddddddd, ICON_FA_PLUS_CIRCLE);

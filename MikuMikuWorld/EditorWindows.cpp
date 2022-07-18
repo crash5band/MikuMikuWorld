@@ -52,7 +52,7 @@ namespace MikuMikuWorld
 		ImGui::End();
 	}
 	
-	void ScoreEditor::updateTimeline(Renderer* renderer)
+	void ScoreEditor::updateTimeline(float frameTime, Renderer* renderer)
 	{
 		if (ImGui::Begin(timelineWindow, NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
 		{
@@ -68,7 +68,7 @@ namespace MikuMikuWorld
 
 			ImGuiIO& io = ImGui::GetIO();
 			timelineMinOffset = ImGui::GetWindowHeight() - 200.0f;
-
+			timelineOffset = std::max(timelineOffset, timelineMinOffset);
 			// mouse input
 			if (mouseInTimeline && !UI::isAnyPopupOpen())
 			{
@@ -76,7 +76,14 @@ namespace MikuMikuWorld
 				if (InputListener::isCtrlDown())
 					setZoom(zoom + (mouseWheelDelta * 0.1f));
 				else
-					timelineOffset += mouseWheelDelta * (InputListener::isShiftDown() ? 200.0f : 50.0f);
+				{
+					float offset = mouseWheelDelta * (InputListener::isShiftDown() ? 300.0f : 100.0f);
+					timelineOffset = std::max(timelineOffset + offset, timelineMinOffset);
+					if (abs(offset) > 0.0f)
+					{
+						updateTimelineScrollAmount();
+					}
+				}
 
 				mousePos = io.MousePos - canvasPos;
 				mousePos.y -= timelineOffset;
@@ -97,7 +104,31 @@ namespace MikuMikuWorld
 				}
 			}
 
-			timelineOffset = std::max(timelineOffset, timelineMinOffset);
+			if (useSmoothScrolling)
+			{
+				float delta = scrollAmount / (smoothScrollTime / (frameTime * 1000));
+				if (remainingScroll > 0.0f)
+				{
+					if (remainingScroll - abs(delta) < 0.0f)
+					{
+						timelineVisualOffset += remainingScroll;
+						remainingScroll = 0;
+					}
+					else
+					{
+						timelineVisualOffset += delta;
+						remainingScroll -= abs(delta);
+					}
+				}
+				else
+				{
+					timelineVisualOffset = timelineOffset;
+				}
+			}
+			else
+			{
+				timelineVisualOffset = timelineOffset;
+			}
 
 			ImGui::ItemSize(boundaries);
 			ImDrawList* drawList = ImGui::GetWindowDrawList();
@@ -532,7 +563,7 @@ namespace MikuMikuWorld
 	{
 		updateToolboxWindow();
 		updateControls();
-		updateTimeline(renderer);
+		updateTimeline(frameTime, renderer);
 		updateScoreDetails();
 		updatePresetsWindow();
 		updateNoteSE();
@@ -550,7 +581,10 @@ namespace MikuMikuWorld
 			{
 				float cursorPos = tickToPosition(currentTick);
 				if (cursorPos > timelineOffset)
+				{
 					timelineOffset = cursorPos + canvasSize.y;
+					timelineVisualOffset = timelineOffset;
+				}
 			}
 			else if (scrollMode == ScrollMode::Smooth)
 			{

@@ -49,6 +49,8 @@ namespace MikuMikuWorld
 		editor->setNotesHeight(config.notesHeight);
 		editor->setDivision(config.division);
 		editor->setZoom(config.zoom);
+		editor->setUseSmoothScrolling(config.useSmoothScrolling);
+		editor->setSmoothScrollingTime(config.smoothScrollingTime);
 
 		editor->loadPresets(appDir + "library/");
 
@@ -117,6 +119,8 @@ namespace MikuMikuWorld
 		config.notesHeight = editor->getNotesHeight();
 		config.division = editor->getDivision();
 		config.zoom = editor->getZoom();
+		config.useSmoothScrolling = editor->isUseSmoothScrolling();
+		config.smoothScrollingTime = editor->getSmoothScrollingTime();
 		config.userColor = Color{ 
 			UI::accentColors[0].color.x,
 			UI::accentColors[0].color.y,

@@ -13,13 +13,13 @@ namespace MikuMikuWorld
 {
 	void ScoreEditor::updateNote(Note& note)
 	{
-		const float btnPosY = canvasPos.y - tickToPosition(note.tick) + timelineOffset - (notesHeight * 0.5f);
+		const float btnPosY = canvasPos.y - tickToPosition(note.tick) + timelineVisualOffset - (notesHeight * 0.5f);
 		float btnPosX = laneToPosition(note.lane) + canvasPos.x;
 
 		ImVec2 pos{ btnPosX, btnPosY };
 		ImVec2 sz{ noteCtrlWidth, noteCtrlHeight };
 
-		if (mousePos.y >= (btnPosY - timelineOffset - canvasPos.y - 2.0f) && mousePos.y <= (btnPosY + noteCtrlHeight - timelineOffset - canvasPos.y + 2.0f)
+		if (mousePos.y >= (btnPosY - timelineVisualOffset - canvasPos.y - 2.0f) && mousePos.y <= (btnPosY + noteCtrlHeight - timelineVisualOffset - canvasPos.y + 2.0f)
 			&& hoverLane >= note.lane && hoverLane <= note.lane + note.width - 1)
 		{
 			isHoveringNote = true;

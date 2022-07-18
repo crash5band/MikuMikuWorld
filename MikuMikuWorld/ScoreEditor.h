@@ -72,8 +72,12 @@ namespace MikuMikuWorld
 		float zoom = 2.0f;
 		float timelineMinOffset = 0;
 		float timelineOffset = 0;
+		float timelineVisualOffset = 0;
 		float effectiveTickHeight;
 		float cursorPos;
+		float scrollAmount;
+		float remainingScroll;
+		float smoothScrollTime;
 
 		int currentTick = 0;
 		int hoverTick = 0;
@@ -91,6 +95,7 @@ namespace MikuMikuWorld
 		bool isMovingNote;
 		bool skipUpdateAfterSortingSteps;
 		bool mouseInTimeline;
+		bool useSmoothScrolling;
 		bool dragging;
 		bool insertingHold;
 		bool pasting;
@@ -121,7 +126,7 @@ namespace MikuMikuWorld
 		float masterVolume;
 		float bgmVolume;
 		float seVolume;
-		const float audioLookAhead = 0.05;
+		const float audioLookAhead = 0.05f;
 
 		// update methods
 		void updateNotes(Renderer* renderer);
@@ -131,7 +136,7 @@ namespace MikuMikuWorld
 		void updateTempoChanges();
 		void updateTimeSignatures();
 		void updateCursor();
-		void updateTimeline(Renderer* renderer);
+		void updateTimeline(float frameTime, Renderer* renderer);
 		void updateToolboxWindow();
 		void updatePresetsWindow();
 
@@ -174,6 +179,7 @@ namespace MikuMikuWorld
 		int positionToLane(float pos);
 		float laneToPosition(float lane);
 		float getNoteYPosFromTick(int tick);
+		void updateTimelineScrollAmount();
 
 		// editor window update methods
 		void updateControls();
@@ -229,10 +235,14 @@ namespace MikuMikuWorld
 		inline float getNotesHeight() { return notesHeight; }
 		inline float getZoom() { return zoom; }
 		inline int getDivision() { return division; }
+		inline bool isUseSmoothScrolling() { return useSmoothScrolling; }
+		inline float getSmoothScrollingTime() { return smoothScrollTime; }
 		void setLaneWidth(float width);
 		void setNotesHeight(float height);
 		void setZoom(float val);
 		void setDivision(int div);
+		void setUseSmoothScrolling(bool val);
+		void setSmoothScrollingTime(float time);
 
 		bool selectionHasEase();
 		bool selectionHasHoldStep();

@@ -204,10 +204,17 @@ namespace MikuMikuWorld
 			{
 				int laneWidth = editor->getLaneWidth();
 				int notesHeight = editor->getNotesHeight();
+				bool smoothScrolling = editor->isUseSmoothScrolling();
+				float smoothScrollingTime = editor->getSmoothScrollingTime();
 
 				UI::beginPropertyColumns();
 				UI::addSliderProperty("Lane Width", laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
 				UI::addSliderProperty("Notes Height", notesHeight, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT, "%d");
+				
+				ImGui::Checkbox("Use Smooth Scrolling", &smoothScrolling);
+				ImGui::NextColumn();
+				ImGui::NextColumn();
+				UI::addSliderProperty("Smooth Scrolling Time", smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
 				UI::endPropertyColumns();
 
 				if (laneWidth != editor->getLaneWidth())
@@ -215,6 +222,12 @@ namespace MikuMikuWorld
 
 				if (notesHeight != editor->getNotesHeight())
 					editor->setNotesHeight(notesHeight);
+
+				if (smoothScrolling != editor->isUseSmoothScrolling())
+					editor->setUseSmoothScrolling(smoothScrolling);
+
+				if (smoothScrollingTime != editor->getSmoothScrollingTime())
+					editor->setSmoothScrollingTime(smoothScrollingTime);
 			}
 
 			// graphics

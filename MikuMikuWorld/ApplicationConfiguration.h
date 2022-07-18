@@ -29,6 +29,8 @@ namespace MikuMikuWorld
 		int notesHeight;
 		int division;
 		float zoom;
+		bool useSmoothScrolling;
+		float smoothScrollingTime;
 
 		ApplicationConfiguration();
 
