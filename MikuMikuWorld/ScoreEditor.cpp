@@ -432,6 +432,8 @@ namespace MikuMikuWorld
 		if (exec)
 		{
 			timelineOffset = cursorPos + offset;
+
+			// scroll position changed
 			if (!playing)
 				updateTimelineScrollAmount();
 		}
