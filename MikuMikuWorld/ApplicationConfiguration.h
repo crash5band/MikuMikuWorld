@@ -32,6 +32,10 @@ namespace MikuMikuWorld
 		bool useSmoothScrolling;
 		float smoothScrollingTime;
 
+		bool autoSaveEnabled;
+		int autoSaveInterval;
+		int autoSaveMaxCount;
+
 		ApplicationConfiguration();
 
 		void read(const std::string& filename);

@@ -14,4 +14,9 @@ namespace MikuMikuWorld
 	{
 		return std::chrono::duration_cast<second_type>(clock_type::now() - begin).count();
 	}
+
+	int Stopwatch::elapsedMinutes() const
+	{
+		return elapsed() / 60;
+	}
 }

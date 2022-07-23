@@ -133,6 +133,16 @@ namespace MikuMikuWorld
 			ImVec2 confirmBtnPos = ImGui::GetWindowSize() + ImVec2(-100, -UI::btnNormal.y) - padding;
 			ImGui::BeginChild("##settings_panel", ImGui::GetContentRegionAvail() - ImVec2(0, UI::btnNormal.y + padding.y), true);
 
+			// auto save
+			if (ImGui::CollapsingHeader("Auto Save", ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				ImGui::Checkbox("Auto Save Enabled", &autoSaveEnabled);
+				UI::beginPropertyColumns();
+				UI::addIntProperty("Auto Save Interval (min)", autoSaveInterval, 1, 60);
+				UI::addIntProperty("Maximum Auto Save Entries", autoSaveMaxCount, 1, 100);
+				UI::endPropertyColumns();
+			}
+
 			// theme
 			if (ImGui::CollapsingHeader("Accent Color", ImGuiTreeNodeFlags_DefaultOpen))
 			{

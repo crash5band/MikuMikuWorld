@@ -31,6 +31,7 @@ namespace MikuMikuWorld
 		bool shouldPickScore;
 		bool autoSaveEnabled;
 		int autoSaveInterval; // in minutes
+		int autoSaveMaxCount;
 		ApplicationConfiguration config;
 
 		std::string pendingDropScoreFile;
@@ -85,6 +86,7 @@ namespace MikuMikuWorld
 		void readSettings();
 		void writeSettings();
 		void autoSave();
+		void deleteOldAutoSave(const std::string& path, int count);
 		void loadResources();
 		void dispose();
 

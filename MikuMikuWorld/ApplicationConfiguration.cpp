@@ -118,6 +118,13 @@ namespace MikuMikuWorld
 			accentColor = tryGetInt(config["theme"], "accent_color", 1);
 			userColor = tryGetColor(config["theme"], "user_color");
 		}
+
+		if (keyExists(config, "save"))
+		{
+			autoSaveEnabled = tryGetBool(config["save"], "auto_save_enabled", true);
+			autoSaveInterval = tryGetInt(config["save"], "auto_save_interval", 5);
+			autoSaveMaxCount = tryGetInt(config["save"], "auto_save_max_count", 100);
+		}
 	}
 
 	void ApplicationConfiguration::write(const std::string& filename)
@@ -153,6 +160,12 @@ namespace MikuMikuWorld
 			}
 		};
 
+		config["save"] = {
+			{"auto_save_enabled", autoSaveEnabled},
+			{"auto_save_interval", autoSaveInterval},
+			{"auto_save_max_count", autoSaveMaxCount}
+		};
+
 		std::wstring wFilename = mbToWideStr(filename);
 		std::ofstream configFile(wFilename);
 		configFile << std::setw(4) << config;
@@ -168,11 +181,16 @@ namespace MikuMikuWorld
 		vsync = true;
 		accentColor = 1;
 		userColor = Color(0.2f, 0.2f, 0.2f, 1.0f);
+		
 		timelineWidth = 35;
 		notesHeight = 50;
 		division = 8;
 		zoom = 2.0f;
 		useSmoothScrolling = true;
 		smoothScrollingTime = 67.0f;
+
+		autoSaveEnabled = true;
+		autoSaveInterval = 5;
+		autoSaveMaxCount = 100;
 	}
 }

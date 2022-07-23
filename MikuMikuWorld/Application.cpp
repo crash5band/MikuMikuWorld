@@ -4,6 +4,8 @@
 #include "InputListener.h"
 #include "Colors.h"
 #include "UI.h"
+#include "Utilities.h"
+#include <filesystem>
 
 namespace MikuMikuWorld
 {
@@ -106,6 +108,10 @@ namespace MikuMikuWorld
 			config.userColor.b,
 			config.userColor.a
 		};
+
+		autoSaveEnabled = config.autoSaveEnabled;
+		autoSaveInterval = config.autoSaveInterval;
+		autoSaveMaxCount = config.autoSaveMaxCount;
 	}
 
 	void Application::writeSettings()
@@ -115,18 +121,23 @@ namespace MikuMikuWorld
 		config.vsync = vsync;
 		config.windowPos = windowPos;
 		config.windowSize = windowSize;
+		config.userColor = Color{
+			UI::accentColors[0].color.x,
+			UI::accentColors[0].color.y,
+			UI::accentColors[0].color.z,
+			UI::accentColors[0].color.w
+		};
+
 		config.timelineWidth = editor->getLaneWidth();
 		config.notesHeight = editor->getNotesHeight();
 		config.division = editor->getDivision();
 		config.zoom = editor->getZoom();
 		config.useSmoothScrolling = editor->isUseSmoothScrolling();
 		config.smoothScrollingTime = editor->getSmoothScrollingTime();
-		config.userColor = Color{ 
-			UI::accentColors[0].color.x,
-			UI::accentColors[0].color.y,
-			UI::accentColors[0].color.z,
-			UI::accentColors[0].color.w
-		};
+
+		config.autoSaveEnabled = autoSaveEnabled;
+		config.autoSaveInterval = autoSaveInterval;
+		config.autoSaveMaxCount = autoSaveMaxCount;
 
 		config.write(appDir + APP_CONFIG_FILENAME);
 	}
@@ -229,8 +240,57 @@ namespace MikuMikuWorld
 
 	void Application::autoSave()
 	{
-		autoSaveTimer.reset();
-		editor->save();
+		std::string autoSaveDir = appDir + "auto_save/";
+		std::wstring wAutoSaveDir = mbToWideStr(autoSaveDir);
+
+		// create auto save directory if none exists
+		if (!std::filesystem::exists(wAutoSaveDir))
+			std::filesystem::create_directory(wAutoSaveDir);
+
+		editor->save(autoSaveDir + "mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION);
+
+		// get mmws files
+		int mmwsCount = 0;
+		for (const auto& file : std::filesystem::directory_iterator(wAutoSaveDir))
+		{
+			std::string extension = file.path().extension().string();
+			std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+			mmwsCount += extension == MMWS_EXTENSION;
+		}
+
+		// delete older files
+		if (mmwsCount > autoSaveMaxCount)
+			deleteOldAutoSave(autoSaveDir, mmwsCount - autoSaveMaxCount);
+	}
+
+	void Application::deleteOldAutoSave(const std::string& path, int count)
+	{
+		std::wstring wAutoSaveDir = mbToWideStr(path);
+		if (!std::filesystem::exists(wAutoSaveDir))
+			return;
+
+		// get mmws files
+		using entry = std::filesystem::directory_entry;
+		std::vector<entry> deleteFiles;
+		for (const auto& file : std::filesystem::directory_iterator(wAutoSaveDir))
+		{
+			std::string extension = file.path().extension().string();
+			std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+			if (extension == MMWS_EXTENSION)
+				deleteFiles.push_back(file);
+		}
+
+		// sort files by modification date
+		std::sort(deleteFiles.begin(), deleteFiles.end(), [](const entry& f1, const entry& f2){
+			return f1.last_write_time() < f2.last_write_time();
+		});
+
+		while (count)
+		{
+			std::filesystem::remove(deleteFiles.begin()->path());
+			deleteFiles.erase(deleteFiles.begin());
+			--count;
+		}
 	}
 
 	void Application::menuBar()
@@ -291,6 +351,14 @@ namespace MikuMikuWorld
 				glfwSwapInterval((int)vsync);
 
 			ImGui::MenuItem("Show Performance Metrics", NULL, &showPerformanceMetrics);
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Debug"))
+		{
+			if (ImGui::MenuItem("Create Auto Save"))
+				autoSave();
 
 			ImGui::EndMenu();
 		}
@@ -461,6 +529,12 @@ namespace MikuMikuWorld
 			lastAppTimeUpdate = glfwGetTime();
 		}
 
+		if (autoSaveEnabled && autoSaveTimer.elapsedMinutes() >= autoSaveInterval)
+		{
+			autoSave();
+			autoSaveTimer.reset();
+		}
+
 		if (showPerformanceMetrics)
 		{
 			ImGui::BeginMainMenuBar();
@@ -488,6 +562,8 @@ namespace MikuMikuWorld
 	void Application::run()
 	{
 		loadResources();
+		autoSaveTimer.reset();
+
 		while (!glfwWindowShouldClose(window))
 		{
 			stopwatch.reset();
