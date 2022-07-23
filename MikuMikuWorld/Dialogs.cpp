@@ -95,13 +95,17 @@ namespace MikuMikuWorld
 	void Application::about()
 	{
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		ImGui::SetNextWindowSize(ImVec2(500, 250), ImGuiCond_Always);
+		ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_Always);
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 4));
 
 		ImVec2 padding = ImGui::GetStyle().WindowPadding;
 		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
 
 		if (ImGui::BeginPopupModal(aboutModalTitle, NULL, ImGuiWindowFlags_NoResize))
 		{
+			// only need the title bar to be bigger
+			ImGui::PopStyleVar();
+
 			ImGui::Text("MikuMikuWorld\nCopyright (C) 2022 Crash5b\n\n");
 			ImGui::Separator();
 
@@ -118,20 +122,29 @@ namespace MikuMikuWorld
 
 			ImGui::EndPopup();
 		}
+		else
+		{
+			ImGui::PopStyleVar();
+		}
 	}
 
 	void Application::settingsDialog()
 	{
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		ImGui::SetNextWindowSize(ImVec2(550, 500), ImGuiCond_Always);
+		ImGui::SetNextWindowSize(ImVec2(750, 600), ImGuiCond_Always);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 4));
 
 		ImVec2 padding = ImGui::GetStyle().WindowPadding;
 		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
 
 		if (ImGui::BeginPopupModal(settingsModalTitle, NULL, ImGuiWindowFlags_NoResize))
 		{
+			// only need the title bar to be bigger
+			ImGui::PopStyleVar();
+
 			ImVec2 confirmBtnPos = ImGui::GetWindowSize() + ImVec2(-100, -UI::btnNormal.y) - padding;
-			ImGui::BeginChild("##settings_panel", ImGui::GetContentRegionAvail() - ImVec2(0, UI::btnNormal.y + padding.y), true);
+			ImGui::BeginChild("##settings_panel", ImGui::GetContentRegionAvail() - ImVec2(0, UI::btnNormal.y + padding.y));
 
 			// auto save
 			if (ImGui::CollapsingHeader("Auto Save", ImGuiTreeNodeFlags_DefaultOpen))
@@ -150,6 +163,7 @@ namespace MikuMikuWorld
 				ImGui::TextWrapped("Select an accent color to apply. The first slot can be customized from the color controls below.");
 				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
 				ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.5f);
+
 				for (int i = 0; i < UI::accentColors.size(); ++i)
 				{
 					bool apply = false;
@@ -254,5 +268,11 @@ namespace MikuMikuWorld
 
 			ImGui::EndPopup();
 		}
+		else
+		{
+			ImGui::PopStyleVar();
+		}
+
+		ImGui::PopStyleVar();
 	}
 }
