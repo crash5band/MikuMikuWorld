@@ -177,7 +177,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::contextMenu()
 	{
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 10));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 10));
 		if (ImGui::BeginPopupContextWindow(timelineWindow))
 		{
 			if (ImGui::MenuItem(ICON_FA_TRASH "\tDelete", "Delete", false, hasSelection))

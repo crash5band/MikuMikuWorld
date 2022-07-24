@@ -132,7 +132,7 @@ namespace MikuMikuWorld
 	{
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(ImVec2(750, 600), ImGuiCond_Always);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 10));
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 4));
 
 		ImVec2 padding = ImGui::GetStyle().WindowPadding;
@@ -149,17 +149,22 @@ namespace MikuMikuWorld
 			// auto save
 			if (ImGui::CollapsingHeader("Auto Save", ImGuiTreeNodeFlags_DefaultOpen))
 			{
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+				
 				ImGui::Checkbox("Auto Save Enabled", &autoSaveEnabled);
 				UI::beginPropertyColumns();
 				UI::addIntProperty("Auto Save Interval (min)", autoSaveInterval, 1, 60);
 				UI::addIntProperty("Maximum Auto Save Entries", autoSaveMaxCount, 1, 100);
 				UI::endPropertyColumns();
+
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 			}
 
 			// theme
 			if (ImGui::CollapsingHeader("Accent Color", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+				
 				ImGui::TextWrapped("Select an accent color to apply. The first slot can be customized from the color controls below.");
 				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
 				ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.5f);
@@ -221,11 +226,14 @@ namespace MikuMikuWorld
 					applyAccentColor(0);
 
 				ImGui::PopStyleVar();
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 			}
 
 			// charting
 			if (ImGui::CollapsingHeader("Timeline", ImGuiTreeNodeFlags_DefaultOpen))
 			{
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+
 				int laneWidth = editor->getLaneWidth();
 				int notesHeight = editor->getNotesHeight();
 				bool smoothScrolling = editor->isUseSmoothScrolling();
@@ -252,13 +260,18 @@ namespace MikuMikuWorld
 
 				if (smoothScrollingTime != editor->getSmoothScrollingTime())
 					editor->setSmoothScrollingTime(smoothScrollingTime);
+
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 			}
 
 			// graphics
 			if (ImGui::CollapsingHeader("Video", ImGuiTreeNodeFlags_DefaultOpen))
 			{
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 				if (ImGui::Checkbox("Enable VSync", &vsync))
 					glfwSwapInterval((int)vsync);
+
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 			}
 
 			ImGui::EndChild();
