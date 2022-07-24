@@ -343,6 +343,11 @@ namespace MikuMikuWorld
 	void ScoreEditor::setUseSmoothScrolling(bool val)
 	{
 		useSmoothScrolling = val;
+		if (useSmoothScrolling)
+		{
+			timelineVisualOffset = timelineOffset;
+			updateTimelineScrollAmount();
+		}
 	}
 
 	void ScoreEditor::setSmoothScrollingTime(float time)
