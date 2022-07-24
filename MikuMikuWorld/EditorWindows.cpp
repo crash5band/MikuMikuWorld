@@ -23,12 +23,12 @@ namespace MikuMikuWorld
 			for (int i = 0; i < (int)TimelineMode::TimelineToolMax; ++i)
 			{
 				ImGui::PushID(i);
-					bool highlight = (int)currentMode == i;
-					if (highlight)
-					{
-						ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Header]);
-						ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_Header]);
-					}
+				bool highlight = (int)currentMode == i;
+				if (highlight)
+				{
+					ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Header]);
+					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_Header]);
+				}
 
 				if (ImGui::Button(timelineModes[i], btnSz))
 					changeMode((TimelineMode)i);
@@ -44,8 +44,24 @@ namespace MikuMikuWorld
 
 			ImGui::Separator();
 			UI::beginPropertyColumns();
-			UI::addIntProperty("Note Width", defaultNoteWidth, 1, 12);
-			UI::addSelectProperty("Step Type", defaultStepType, stepTypes, 3);
+
+			if (currentMode == TimelineMode::InsertBPM)
+			{
+				UI::addFloatProperty("BPM", defaultBPM, "%g BPM");
+				defaultBPM = std::clamp(defaultBPM, MIN_BPM, MAX_BPM);
+			}
+			else if (currentMode == TimelineMode::InsertTimeSign)
+			{
+				UI::addFractionProperty("Time Signature", defaultTimeSignN, defaultTimeSignD);
+				defaultTimeSignN = std::clamp(defaultTimeSignN, MIN_TIME_SIGN, MAX_TIME_SIGN);
+				defaultTimeSignD = std::clamp(defaultTimeSignD, MIN_TIME_SIGN, MAX_TIME_SIGN);
+			}
+			else
+			{
+				UI::addIntProperty("Note Width", defaultNoteWidth, 1, 12);
+				UI::addSelectProperty("Step Type", defaultStepType, stepTypes, 3);
+			}
+
 			UI::endPropertyColumns();
 		}
 

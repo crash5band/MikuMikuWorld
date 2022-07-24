@@ -554,7 +554,7 @@ namespace MikuMikuWorld
 				return;
 
 		Score prev = score;
-		score.tempoChanges.push_back(Tempo{ tick, 120 });
+		score.tempoChanges.push_back(Tempo{ tick, defaultBPM });
 		std::sort(score.tempoChanges.begin(), score.tempoChanges.end(),
 			[](Tempo& t1, Tempo& t2) { return t1.tick < t2.tick; });
 
@@ -568,7 +568,7 @@ namespace MikuMikuWorld
 			return;
 
 		Score prev = score;
-		score.timeSignatures[measure] = TimeSignature{ measure, 4, 4 };
+		score.timeSignatures[measure] = TimeSignature{ measure, defaultTimeSignN, defaultTimeSignD };
 		pushHistory("Add time signature change", prev, score);
 	}
 }

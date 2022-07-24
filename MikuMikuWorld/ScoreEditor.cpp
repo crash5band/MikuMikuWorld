@@ -26,8 +26,12 @@ namespace MikuMikuWorld
 	{
 		drawHoldStepOutline = true;
 		showRenderStats = true;
+
 		defaultNoteWidth = 3;
 		defaultStepType = HoldStepType::Visible;
+		defaultBPM = 160.0f;
+		defaultTimeSignN = defaultTimeSignD = 4;
+
 		skipUpdateAfterSortingSteps = false;
 		framebuffer = new Framebuffer(1080, 1920);
 
@@ -987,7 +991,7 @@ namespace MikuMikuWorld
 				const float x2 = x1 + timelineWidth;
 				const float y = canvasPos.y - tickToPosition(hoverTick) + timelineVisualOffset;
 				drawList->AddLine(ImVec2(x1, y), ImVec2(x2 + MEASURE_WIDTH, y), tempoColor, 2.0f);
-				drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 + 20.0f, y - 25.0f), tempoColor, "BPM");
+				drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 + 20.0f, y - 25.0f), tempoColor, formatString("%g BPM", defaultBPM).c_str());
 			}
 			else if (currentMode == TimelineMode::InsertTimeSign)
 			{
@@ -995,7 +999,7 @@ namespace MikuMikuWorld
 				const float x2 = x1 + timelineWidth;
 				const float y = canvasPos.y - tickToPosition(hoverTick) + timelineVisualOffset;
 				drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH - (ImGui::CalcTextSize("4/4").x * 0.5f), y), ImVec2(x2, y), timeColor, 2.0f);
-				drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x1 - 40.0f, y - 25.0f), timeColor, "4/4");
+				drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x1 - 40.0f, y - 25.0f), timeColor, formatString("%d/%d", defaultTimeSignN, defaultTimeSignD).c_str());
 			}
 			else
 			{

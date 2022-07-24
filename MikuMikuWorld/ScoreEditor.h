@@ -85,8 +85,13 @@ namespace MikuMikuWorld
 		int pasteLane = 0;
 		int holdLane = 0;
 		int holdTick = 0;
+
 		int defaultNoteWidth;
 		HoldStepType defaultStepType;
+		float defaultBPM;
+		int defaultTimeSignN;
+		int defaultTimeSignD;
+
 		bool windowFocused;
 		bool drawHoldStepOutline;
 		bool showRenderStats;
