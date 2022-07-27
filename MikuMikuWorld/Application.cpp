@@ -355,6 +355,7 @@ namespace MikuMikuWorld
 			ImGui::EndMenu();
 		}
 
+#ifdef _DEBUG
 		if (ImGui::BeginMenu("Debug"))
 		{
 			if (ImGui::MenuItem("Create Auto Save"))
@@ -362,6 +363,7 @@ namespace MikuMikuWorld
 
 			ImGui::EndMenu();
 		}
+#endif // _DEBUG
 
 		if (ImGui::BeginMenu("About"))
 		{
