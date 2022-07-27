@@ -4,17 +4,10 @@
 
 namespace MikuMikuWorld
 {
-	enum SoundFlags : uint8_t
-	{
-		None,
-		Loop,
-	};
-
 	class SoundSource
 	{
 	private:
 		ma_sound source;
-		SoundFlags flags;
 
 	public:
 		SoundSource();

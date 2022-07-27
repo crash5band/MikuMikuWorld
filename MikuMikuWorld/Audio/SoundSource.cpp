@@ -2,7 +2,7 @@
 
 namespace MikuMikuWorld
 {
-	SoundSource::SoundSource() : flags{ 0 }
+	SoundSource::SoundSource()
 	{
 
 	}
@@ -80,5 +80,10 @@ namespace MikuMikuWorld
 	bool SoundSource::isPlaying()
 	{
 		return ma_sound_is_playing(&source);
+	}
+
+	bool SoundSource::isAtEnd()
+	{
+		return ma_sound_at_end(&source);
 	}
 }
