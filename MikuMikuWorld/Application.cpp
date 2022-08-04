@@ -47,14 +47,14 @@ namespace MikuMikuWorld
 		editor = new ScoreEditor();
 
 		// apply config settings
-		editor->setLaneWidth(config.timelineWidth);
-		editor->setNotesHeight(config.notesHeight);
+		editor->canvas.setLaneWidth(config.timelineWidth);
+		editor->canvas.setNotesHeight(config.notesHeight);
 		editor->setDivision(config.division);
-		editor->setZoom(config.zoom);
-		editor->setUseSmoothScrolling(config.useSmoothScrolling);
-		editor->setSmoothScrollingTime(config.smoothScrollingTime);
+		editor->canvas.setZoom(config.zoom);
+		editor->canvas.setUseSmoothScrolling(config.useSmoothScrolling);
+		editor->canvas.setSmoothScrollingTime(config.smoothScrollingTime);
 
-		editor->loadPresets(appDir + "library/");
+		editor->presetManager.loadPresets(appDir + "library/");
 
 		dockspaceID = 3939;
 		initialized = true;
@@ -128,12 +128,12 @@ namespace MikuMikuWorld
 			UI::accentColors[0].color.w
 		};
 
-		config.timelineWidth = editor->getLaneWidth();
-		config.notesHeight = editor->getNotesHeight();
+		config.timelineWidth = editor->canvas.getLaneWidth();
+		config.notesHeight = editor->canvas.getNotesHeight();
 		config.division = editor->getDivision();
-		config.zoom = editor->getZoom();
-		config.useSmoothScrolling = editor->isUseSmoothScrolling();
-		config.smoothScrollingTime = editor->getSmoothScrollingTime();
+		config.zoom = editor->canvas.getZoom();
+		config.useSmoothScrolling = editor->canvas.isUseSmoothScrolling();
+		config.smoothScrollingTime = editor->canvas.getSmoothScrollingTime();
 
 		config.autoSaveEnabled = autoSaveEnabled;
 		config.autoSaveInterval = autoSaveInterval;
@@ -327,12 +327,12 @@ namespace MikuMikuWorld
 
 		if (ImGui::BeginMenu("Edit"))
 		{
-			std::string undoText{ "Undo " + editor->getNextUndo() };
-			std::string redoText{ "Redo " + editor->getNextRedo() };
-			if (ImGui::MenuItem(undoText.c_str(), "Ctrl + Z", false, editor->hasUndo()))
+			std::string undoText{ "Undo " + editor->history.peekUndo() };
+			std::string redoText{ "Redo " + editor->history.peekRedo() };
+			if (ImGui::MenuItem(undoText.c_str(), "Ctrl + Z", false, editor->history.hasUndo()))
 				editor->undo();
 
-			if (ImGui::MenuItem(redoText.c_str(), "Ctrl + Y", false, editor->hadRedo()))
+			if (ImGui::MenuItem(redoText.c_str(), "Ctrl + Y", false, editor->history.hasRedo()))
 				editor->redo();
 
 			ImGui::Separator();
@@ -597,6 +597,6 @@ namespace MikuMikuWorld
 		}
 
 		writeSettings();
-		editor->savePresets(appDir + "library/");
+		editor->presetManager.savePresets(appDir + "library/");
 	}
 }

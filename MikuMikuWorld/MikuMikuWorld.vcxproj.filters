@@ -133,6 +133,9 @@
     <ClCompile Include="Audio\SoundSource.cpp">
       <Filter>Components\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="Canvas.cpp">
+      <Filter>Components\ScoreEditor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -287,6 +290,9 @@
     </ClInclude>
     <ClInclude Include="Audio\SoundSource.h">
       <Filter>Components\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Canvas.h">
+      <Filter>Components\ScoreEditor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

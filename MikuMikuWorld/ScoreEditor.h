@@ -11,6 +11,7 @@
 #include "Audio/AudioManager.h"
 #include "PresetManager.h"
 #include "ScoreStats.h"
+#include "Canvas.h"
 #include <unordered_set>
 
 // needed for miniaudio to work
@@ -31,9 +32,6 @@ namespace MikuMikuWorld
 		ScrollMode scrollMode = ScrollMode::Smooth;
 		Camera camera;
 		Framebuffer* framebuffer;
-		AudioManager audio;
-		HistoryManager history;
-		PresetManager presetManager;
 		ScoreStats stats;
 		ImGuiTextFilter presetFilter;
 
@@ -59,25 +57,12 @@ namespace MikuMikuWorld
 		std::unordered_map<int, Note> presetNotes;
 		std::unordered_map<int, HoldNote> presetHolds;
 
-		int timelineWidth = NUM_LANES * laneWidth;
-		float noteCtrlHeight = (notesHeight * 0.5f);
+		float noteCtrlHeight;
 		const float noteCtrlWidth = NOTES_SLICE_WIDTH - 2.0f;
 
 		int division = 8;
 		int customDivision = 8;
 		int selectedDivision = 1;
-		int laneOffset = 0.0f;
-		float laneWidth = 35.0f;
-		float notesHeight = 50.0f;
-		float zoom = 2.0f;
-		float timelineMinOffset = 0;
-		float timelineOffset = 0;
-		float timelineVisualOffset = 0;
-		float effectiveTickHeight;
-		float cursorPos;
-		float scrollAmount;
-		float remainingScroll;
-		float smoothScrollTime;
 
 		int currentTick = 0;
 		int hoverTick = 0;
@@ -99,8 +84,6 @@ namespace MikuMikuWorld
 		bool isHoldingNote;
 		bool isMovingNote;
 		bool skipUpdateAfterSortingSteps;
-		bool mouseInTimeline;
-		bool useSmoothScrolling;
 		bool dragging;
 		bool insertingHold;
 		bool pasting;
@@ -116,9 +99,6 @@ namespace MikuMikuWorld
 		ImVec2 ctrlMousePos;
 		ImVec2 dragStart;
 		ImVec2 mousePos;
-		ImVec2 canvasSize;
-		ImVec2 canvasPos;
-		ImRect boundaries;
 
 		float time;
 		float timeLastFrame;
@@ -178,13 +158,6 @@ namespace MikuMikuWorld
 		void calcDragSelection();
 		bool noteControl(const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor);
 		bool isHoldPathInTick(const Note& n1, const Note& n2, EaseType ease, float x, float y);
-		bool isNoteInCanvas(const int tick);
-		int positionToTick(float pos, int div = 1);
-		float tickToPosition(int tick, int div = 1);
-		int positionToLane(float pos);
-		float laneToPosition(float lane);
-		float getNoteYPosFromTick(int tick);
-		void updateTimelineScrollAmount();
 
 		// editor window update methods
 		void updateControls();
@@ -197,6 +170,11 @@ namespace MikuMikuWorld
 		void resetEditor();
 
 	public:
+		Canvas canvas;
+		AudioManager audio;
+		HistoryManager history;
+		PresetManager presetManager;
+
 		ScoreEditor();
 		~ScoreEditor();
 
@@ -204,7 +182,6 @@ namespace MikuMikuWorld
 		void update(float frameTime, Renderer* renderer);
 
 		// edit methods
-		void centerCursor(int mode = 0);
 		void gotoMeasure(int measure);
 		void changeMode(TimelineMode mode);
 		void insertNote(bool critical);
@@ -236,19 +213,8 @@ namespace MikuMikuWorld
 		void updateNoteSE();
 		bool isPlaying();
 
-		inline float getLaneWidth() { return laneWidth; }
-		inline float getNotesHeight() { return notesHeight; }
-		inline float getZoom() { return zoom; }
 		inline int getDivision() { return division; }
-		inline bool isUseSmoothScrolling() { return useSmoothScrolling; }
-		inline float getSmoothScrollingTime() { return smoothScrollTime; }
-		void setLaneWidth(float width);
-		void setNotesHeight(float height);
-		void setZoom(float val);
 		void setDivision(int div);
-		void setUseSmoothScrolling(bool val);
-		void setSmoothScrollingTime(float time);
-
 		bool selectionHasEase();
 		bool selectionHasHoldStep();
 		bool selectionHasFlickable();
@@ -266,15 +232,8 @@ namespace MikuMikuWorld
 		std::string getWorkingFilename() const;
 
 		// history methods
-		bool hasUndo() const;
-		bool hadRedo() const;
 		void undo();
 		void redo();
-		std::string getNextUndo() const;
-		std::string getNextRedo() const;
-
-		void loadPresets(const std::string& path);
-		void savePresets(const std::string& path);
 
 		bool isWindowFocused() const;
 	};

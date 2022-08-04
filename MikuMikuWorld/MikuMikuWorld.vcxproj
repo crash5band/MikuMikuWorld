@@ -168,6 +168,7 @@
     <ClCompile Include="Audio\stb_vorbis.c" />
     <ClCompile Include="BinaryReader.cpp" />
     <ClCompile Include="BinaryWriter.cpp" />
+    <ClCompile Include="Canvas.cpp" />
     <ClCompile Include="Dialogs.cpp" />
     <ClCompile Include="Editing.cpp" />
     <ClCompile Include="EditorWindows.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="Audio\SoundSource.h" />
     <ClInclude Include="BinaryReader.h" />
     <ClInclude Include="BinaryWriter.h" />
+    <ClInclude Include="Canvas.h" />
     <ClInclude Include="ChannelProvider.h" />
     <ClInclude Include="Colors.h" />
     <ClInclude Include="Constants.h" />

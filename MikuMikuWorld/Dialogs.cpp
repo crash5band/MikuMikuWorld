@@ -234,10 +234,10 @@ namespace MikuMikuWorld
 			{
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 
-				int laneWidth = editor->getLaneWidth();
-				int notesHeight = editor->getNotesHeight();
-				bool smoothScrolling = editor->isUseSmoothScrolling();
-				float smoothScrollingTime = editor->getSmoothScrollingTime();
+				int laneWidth = editor->canvas.getLaneWidth();
+				int notesHeight = editor->canvas.getNotesHeight();
+				bool smoothScrolling = editor->canvas.isUseSmoothScrolling();
+				float smoothScrollingTime = editor->canvas.getSmoothScrollingTime();
 
 				UI::beginPropertyColumns();
 				UI::addSliderProperty("Lane Width", laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
@@ -249,17 +249,17 @@ namespace MikuMikuWorld
 				UI::addSliderProperty("Smooth Scrolling Time", smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
 				UI::endPropertyColumns();
 
-				if (laneWidth != editor->getLaneWidth())
-					editor->setLaneWidth(laneWidth);
+				if (laneWidth != editor->canvas.getLaneWidth())
+					editor->canvas.setLaneWidth(laneWidth);
 
-				if (notesHeight != editor->getNotesHeight())
-					editor->setNotesHeight(notesHeight);
+				if (notesHeight != editor->canvas.getNotesHeight())
+					editor->canvas.setNotesHeight(notesHeight);
 
-				if (smoothScrolling != editor->isUseSmoothScrolling())
-					editor->setUseSmoothScrolling(smoothScrolling);
+				if (smoothScrolling != editor->canvas.isUseSmoothScrolling())
+					editor->canvas.setUseSmoothScrolling(smoothScrolling);
 
-				if (smoothScrollingTime != editor->getSmoothScrollingTime())
-					editor->setSmoothScrollingTime(smoothScrollingTime);
+				if (smoothScrollingTime != editor->canvas.getSmoothScrollingTime())
+					editor->canvas.setSmoothScrollingTime(smoothScrollingTime);
 
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 			}

@@ -46,10 +46,6 @@ namespace MikuMikuWorld
 		hasEdit			= false;
 		playStartTime	= 0;
 
-		useSmoothScrolling = true;
-		smoothScrollTime = 67.0f;
-		remainingScroll = scrollAmount = 0.0f;
-
 		audio.initAudio();
 		audio.setMasterVolume(masterVolume);
 		audio.setBGMVolume(bgmVolume);
@@ -200,14 +196,9 @@ namespace MikuMikuWorld
 		return uptoDate;
 	}
 
-	float ScoreEditor::getNoteYPosFromTick(int tick)
-	{
-		return canvasPos.y + tickToPosition(tick) - timelineVisualOffset + canvasSize.y;
-	}
-
 	int ScoreEditor::snapTickFromPos(float posY)
 	{
-		return snapTick(positionToTick(posY), division);
+		return snapTick(canvas.positionToTick(posY), division);
 	}
 
 	int ScoreEditor::snapTick(int tick, int div)
@@ -233,26 +224,6 @@ namespace MikuMikuWorld
 		return std::clamp(lane - (width / 2), MIN_LANE, MAX_LANE - width + 1);
 	}
 
-	int ScoreEditor::positionToTick(float pos, int div)
-	{
-		return roundf(pos / (TICK_HEIGHT * zoom) / div);
-	}
-
-	float ScoreEditor::tickToPosition(int tick, int div)
-	{
-		return tick * div * TICK_HEIGHT * zoom;
-	}
-
-	int ScoreEditor::positionToLane(float pos)
-	{
-		return (pos - laneOffset) / laneWidth;
-	}
-
-	float ScoreEditor::laneToPosition(float lane)
-	{
-		return laneOffset + (lane * laneWidth);
-	}
-
 	void ScoreEditor::togglePlaying()
 	{
 		playing ^= true;
@@ -274,9 +245,8 @@ namespace MikuMikuWorld
 	{
 		playing = false;
 		time = currentTick = 0;
-		timelineOffset = timelineMinOffset;
-		updateTimelineScrollAmount();
 
+		canvas.scrollToBeginning();
 		audio.stopSounds(false);
 		audio.stopBGM();
 	}
@@ -296,35 +266,14 @@ namespace MikuMikuWorld
 	{
 		currentTick = roundTickDown(currentTick, division);
 		currentTick += TICKS_PER_BEAT / (division / 4);
-		centerCursor(1);
+		canvas.centerCursor(currentTick, playing, 1);
 	}
 
 	void ScoreEditor::previousTick()
 	{
 		currentTick = roundTickDown(currentTick, division);
 		currentTick = std::max(currentTick - (TICKS_PER_BEAT / (division / 4)), 0);
-		centerCursor(2);
-	}
-
-	void ScoreEditor::setLaneWidth(float width)
-	{
-		laneWidth = std::clamp((int)width, MIN_LANE_WIDTH, MAX_LANE_WIDTH);
-	}
-
-	void ScoreEditor::setNotesHeight(float height)
-	{
-		notesHeight = std::clamp((int)height, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT);
-	}
-
-	void ScoreEditor::setZoom(float val)
-	{
-		int tick = positionToTick(timelineOffset - canvasSize.y);
-		float x1 = canvasPos.y - tickToPosition(tick) + timelineOffset;
-
-		zoom = std::clamp(val, MIN_ZOOM, MAX_ZOOM);
-
-		float x2 = canvasPos.y - tickToPosition(tick) + timelineOffset;
-		timelineOffset += x1 - x2;
+		canvas.centerCursor(currentTick, playing, 2);
 	}
 
 	void ScoreEditor::setDivision(int div)
@@ -340,28 +289,6 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void ScoreEditor::setUseSmoothScrolling(bool val)
-	{
-		useSmoothScrolling = val;
-		if (useSmoothScrolling)
-		{
-			timelineVisualOffset = timelineOffset;
-			updateTimelineScrollAmount();
-		}
-	}
-
-	void ScoreEditor::setSmoothScrollingTime(float time)
-	{
-		if (time <= 150.0f && time >= 10.0f)
-			smoothScrollTime = time;
-	}
-
-	void ScoreEditor::updateTimelineScrollAmount()
-	{
-		scrollAmount = timelineOffset - timelineVisualOffset;
-		remainingScroll = abs(scrollAmount);
-	}
-
 	void ScoreEditor::pushHistory(const std::string& description, const Score& prev, const Score& curr)
 	{
 		history.pushHistory(description, prev, curr);
@@ -371,16 +298,6 @@ namespace MikuMikuWorld
 
 		uptoDate = false;
 		stats.calculateStats(score);
-	}
-
-	bool ScoreEditor::hasUndo() const
-	{
-		return history.hasUndo();
-	}
-
-	bool ScoreEditor::hadRedo() const
-	{
-		return history.hasRedo();
 	}
 
 	void ScoreEditor::undo()
@@ -407,54 +324,13 @@ namespace MikuMikuWorld
 		}
 	}
 
-	std::string ScoreEditor::getNextUndo() const
-	{
-		return history.peekUndo();
-	}
-
-	std::string ScoreEditor::getNextRedo() const
-	{
-		return history.peekRedo();
-	}
-
-	void ScoreEditor::centerCursor(int mode)
-	{
-		cursorPos = tickToPosition(currentTick);
-		float offset = canvasSize.y * 0.5f;
-
-		bool exec = false;
-		switch (mode)
-		{
-		case 0:
-			exec = true;
-			break;
-		case 1:
-			exec = cursorPos >= timelineOffset - offset;
-			break;
-		case 2:
-			exec = cursorPos <= timelineOffset - offset;
-			break;
-		default:
-			break;
-		}
-
-		if (exec)
-		{
-			timelineOffset = cursorPos + offset;
-
-			// scroll position changed
-			if (!playing)
-				updateTimelineScrollAmount();
-		}
-	}
-
 	void ScoreEditor::gotoMeasure(int measure)
 	{
 		if (measure < 0 || measure > 999)
 			return;
 
 		currentTick = measureToTicks(measure, TICKS_PER_BEAT, score.timeSignatures);
-		centerCursor();
+		canvas.centerCursor(currentTick, playing, 0);
 	}
 
 	void ScoreEditor::updateNoteSE()
@@ -533,19 +409,19 @@ namespace MikuMikuWorld
 		int texIndex = ResourceManager::getTexture("default");
 		if (texIndex != -1)
 		{
-			drawList->AddImage((void*)ResourceManager::textures[texIndex].getID(), canvasPos, canvasPos + canvasSize,
+			drawList->AddImage((void*)ResourceManager::textures[texIndex].getID(), canvas.getPosition(), canvas.getPosition() + canvas.getSize(),
 				ImVec2(0, 0), ImVec2(1, 1), 0xFF656565);
 		}
 		else
 		{
-			ImGui::RenderFrame(boundaries.Min, boundaries.Max, bgFallbackColor, true, 1.0f);
+			ImGui::RenderFrame(canvas.getBoundaries().Min, canvas.getBoundaries().Max, bgFallbackColor, true, 1.0f);
 		}
 
-		const float x1 = canvasPos.x + laneOffset;
-		const float x2 = x1 + timelineWidth;
+		const float x1 = canvas.getTimelineStartX();
+		const float x2 = canvas.getTimelineEndX();
 
-		int firstTick = std::max(0, positionToTick(timelineVisualOffset - canvasSize.y));
-		int lastTick = positionToTick(timelineVisualOffset);
+		int firstTick = std::max(0, canvas.positionToTick(canvas.getVisualOffset() - canvas.getSize().y));
+		int lastTick = canvas.positionToTick(canvas.getVisualOffset());
 		int measure = accumulateMeasures(firstTick, TICKS_PER_BEAT, score.timeSignatures);
 		firstTick = measureToTicks(measure, TICKS_PER_BEAT, score.timeSignatures);
 
@@ -555,7 +431,7 @@ namespace MikuMikuWorld
 
 		for (int tick = firstTick; tick <= lastTick; tick += subDiv)
 		{
-			const float y = canvasPos.y - tickToPosition(tick) + timelineVisualOffset;
+			const float y = canvas.getPosition().y - canvas.tickToPosition(tick) + canvas.getVisualOffset();
 			int measure = accumulateMeasures(tick, TICKS_PER_BEAT, score.timeSignatures);
 
 			// time signature changes on current measure
@@ -581,7 +457,7 @@ namespace MikuMikuWorld
 
 			std::string measureStr = "#" + std::to_string(measure);
 			const float txtPos = x1 - MEASURE_WIDTH - (ImGui::CalcTextSize(measureStr.c_str()).x * 0.5f);
-			const float y = canvasPos.y - tickToPosition(tick) + timelineVisualOffset;
+			const float y = canvas.getPosition().y - canvas.tickToPosition(tick) + canvas.getVisualOffset();
 
 			drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH, y), ImVec2(x2 + MEASURE_WIDTH, y), measureColor, 1.5f);
 			drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(txtPos, y), measureColor, measureStr.c_str());
@@ -595,27 +471,27 @@ namespace MikuMikuWorld
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		for (int l = 0; l <= NUM_LANES; ++l)
 		{
-			const float x = canvasPos.x + laneToPosition(l);
+			const float x = canvas.getPosition().x + canvas.laneToPosition(l);
 			const bool boldLane = !(l & 1);
 			const ImU32 color = boldLane ? divColor1 : divColor2;
 			const float thickness = boldLane ? primaryLineThickness : secondaryLineThickness;
-			drawList->AddLine(ImVec2(x, canvasPos.y), ImVec2(x, canvasPos.y + canvasSize.y), color, secondaryLineThickness);
+			drawList->AddLine(ImVec2(x, canvas.getPosition().y), ImVec2(x, canvas.getPosition().y + canvas.getSize().y), color, secondaryLineThickness);
 		}
 	}
 
 	void ScoreEditor::updateCursor()
 	{
 		hoverTick = snapTickFromPos(-mousePos.y);
-		hoverLane = positionToLane(mousePos.x);
-		if (ImGui::IsMouseClicked(0) && !isHoveringNote && mouseInTimeline && !playing &&
+		hoverLane = canvas.positionToLane(mousePos.x);
+		if (ImGui::IsMouseClicked(0) && !isHoveringNote && canvas.isMouseInCanvas() && !playing &&
 			!UI::isAnyPopupOpen() && currentMode == TimelineMode::Select && ImGui::IsWindowFocused())
 		{
 			currentTick = hoverTick;
 		}
 
-		const float x1 = canvasPos.x + laneOffset;
-		const float x2 = x1 + timelineWidth;
-		const float y = canvasPos.y - tickToPosition(currentTick) + timelineVisualOffset;
+		const float x1 = canvas.getTimelineStartX();
+		const float x2 = canvas.getTimelineEndX();
+		const float y = canvas.getPosition().y - canvas.tickToPosition(currentTick) + canvas.getVisualOffset();
 		const float triPtOffset = 8.0f;
 		const float triXPos = x1 - (triPtOffset * 2);
 
@@ -627,8 +503,8 @@ namespace MikuMikuWorld
 	void ScoreEditor::updateTempoChanges()
 	{
 		static float editBPM = 0;
-		const float x1 = canvasPos.x + laneOffset;
-		const float x2 = x1 + timelineWidth + MEASURE_WIDTH;
+		const float x1 = canvas.getTimelineStartX();
+		const float x2 = canvas.getTimelineEndX() + MEASURE_WIDTH;
 		const float btnW = 100.0f;
 		const float btnH = 30.0f;
 		const float btnX = x2 - MEASURE_WIDTH;
@@ -641,7 +517,7 @@ namespace MikuMikuWorld
 		{
 			Tempo& tempo = score.tempoChanges[index];
 
-			const float y = canvasPos.y - tickToPosition(tempo.tick) + timelineVisualOffset;
+			const float y = canvas.getPosition().y - canvas.tickToPosition(tempo.tick) + canvas.getVisualOffset();
 
 			std::string bpmStr = formatString("%g", tempo.bpm) + " BPM";
 			drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), tempoColor, primaryLineThickness);
@@ -695,11 +571,11 @@ namespace MikuMikuWorld
 	void ScoreEditor::updateTimeSignatures()
 	{
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		const float x1 = canvasPos.x + laneOffset - MEASURE_WIDTH;
-		const float x2 = canvasPos.x + laneOffset + timelineWidth;
+		const float x1 = canvas.getTimelineStartX() - MEASURE_WIDTH;
+		const float x2 = canvas.getTimelineEndX();
 		const float btnW = 60.0f;
 		const float btnH = 30.0f;
-		const float btnX = canvasPos.x + laneOffset - btnW;
+		const float btnX = canvas.getTimelineStartX() - btnW;
 
 		ImVec2 padding{ ImGui::GetStyle().WindowPadding };
 		ImVec2 removeBtnSz{ -1, UI::btnSmall.y + 2 };
@@ -708,7 +584,7 @@ namespace MikuMikuWorld
 		for (auto& it : score.timeSignatures)
 		{
 			const int ticks = measureToTicks(it.second.measure, TICKS_PER_BEAT, score.timeSignatures);
-			const float y = canvasPos.y - tickToPosition(ticks) + timelineVisualOffset;
+			const float y = canvas.getPosition().y - canvas.tickToPosition(ticks) + canvas.getVisualOffset();
 
 			std::string tStr = std::to_string(it.second.numerator) + "/" + std::to_string(it.second.denominator);
 			drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), timeColor, primaryLineThickness);
@@ -834,8 +710,8 @@ namespace MikuMikuWorld
 
 	int ScoreEditor::findClosestHold()
 	{
-		float xt = laneToPosition(hoverLane);
-		float yt = getNoteYPosFromTick(hoverTick);
+		float xt = canvas.laneToPosition(hoverLane);
+		float yt = canvas.getNoteYPosFromTick(hoverTick);
 
 		for (auto it = score.holdNotes.begin(); it != score.holdNotes.end(); ++it)
 		{
@@ -885,9 +761,9 @@ namespace MikuMikuWorld
 		for (const auto& n : score.notes)
 		{
 			const Note& note = n.second;
-			float x1 = laneToPosition(note.lane);
-			float x2 = laneToPosition(note.lane + note.width);
-			float y = -tickToPosition(note.tick);
+			float x1 = canvas.laneToPosition(note.lane);
+			float x2 = canvas.laneToPosition(note.lane + note.width);
+			float y = -canvas.tickToPosition(note.tick);
 
 			if (right > x1 && left < x2 && isWithinRange(y, top - 10.0f, bottom + 10.0f))
 			{
@@ -899,21 +775,15 @@ namespace MikuMikuWorld
 		}
 	}
 
-	bool ScoreEditor::isNoteInCanvas(const int tick)
-	{
-		const float y = getNoteYPosFromTick(tick);
-		return y >= 0 && y <= canvasSize.y + canvasPos.y + 100;
-	}
-
 	void ScoreEditor::updateNotes(Renderer* renderer)
 	{
 		// directxmath dies
-		if (canvasSize.y < 10 || canvasSize.x < 10)
+		if (canvas.getSize().y < 10 || canvas.getSize().x < 10)
 			return;
 
 		Shader* shader = ResourceManager::shaders[0];
 		shader->use();
-		shader->setMatrix4("projection", camera.getOffCenterOrthographicProjection(0, canvasSize.x, canvasPos.y, canvasPos.y + canvasSize.y));
+		shader->setMatrix4("projection", camera.getOffCenterOrthographicProjection(0, canvas.getSize().x, canvas.getPosition().y, canvas.getPosition().y + canvas.getSize().y));
 
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 
@@ -923,7 +793,7 @@ namespace MikuMikuWorld
 
 		for (auto&[id, note] : score.notes)
 		{
-			if (isNoteInCanvas(note.tick) && note.getType() == NoteType::Tap)
+			if (canvas.isNoteInCanvas(note.tick) && note.getType() == NoteType::Tap)
 			{
 				updateNote(note);
 				drawNote(note, renderer, noteTint);
@@ -935,13 +805,13 @@ namespace MikuMikuWorld
 			Note& start = score.notes.at(hold.start.ID);
 			Note& end = score.notes.at(hold.end);
 
-			if (isNoteInCanvas(start.tick)) updateNote(start);
-			if (isNoteInCanvas(end.tick)) updateNote(end);
+			if (canvas.isNoteInCanvas(start.tick)) updateNote(start);
+			if (canvas.isNoteInCanvas(end.tick)) updateNote(end);
 
 			for (const auto& step : hold.steps)
 			{
 				Note& mid = score.notes.at(step.ID);
-				if (isNoteInCanvas(mid.tick)) updateNote(mid);
+				if (canvas.isNoteInCanvas(mid.tick)) updateNote(mid);
 
 				if (skipUpdateAfterSortingSteps)
 				{
@@ -974,11 +844,11 @@ namespace MikuMikuWorld
 
 		renderer->beginBatch();
 
-		if (isPasting() || insertingPreset && mouseInTimeline)
+		if (isPasting() || insertingPreset && canvas.isMouseInCanvas())
 			previewPaste(renderer);
 		
 		// input note preview
-		if (mouseInTimeline && !isHoldingNote && currentMode != TimelineMode::Select && !isPasting() && !insertingPreset && !UI::isAnyPopupOpen())
+		if (canvas.isMouseInCanvas() && !isHoldingNote && currentMode != TimelineMode::Select && !isPasting() && !insertingPreset && !UI::isAnyPopupOpen())
 		{
 			// preview note
 			updateDummyNotes();
@@ -992,17 +862,17 @@ namespace MikuMikuWorld
 			}
 			else if (currentMode == TimelineMode::InsertBPM)
 			{
-				const float x1 = canvasPos.x + laneOffset;
-				const float x2 = x1 + timelineWidth;
-				const float y = canvasPos.y - tickToPosition(hoverTick) + timelineVisualOffset;
+				const float x1 = canvas.getTimelineStartX();
+				const float x2 = canvas.getTimelineEndX();
+				const float y = canvas.getPosition().y - canvas.tickToPosition(hoverTick) + canvas.getVisualOffset();
 				drawList->AddLine(ImVec2(x1, y), ImVec2(x2 + MEASURE_WIDTH, y), tempoColor, 2.0f);
 				drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 + 20.0f, y - 25.0f), tempoColor, formatString("%g BPM", defaultBPM).c_str());
 			}
 			else if (currentMode == TimelineMode::InsertTimeSign)
 			{
-				const float x1 = canvasPos.x + laneOffset;
-				const float x2 = x1 + timelineWidth;
-				const float y = canvasPos.y - tickToPosition(hoverTick) + timelineVisualOffset;
+				const float x1 = canvas.getTimelineStartX();
+				const float x2 = canvas.getTimelineEndX();
+				const float y = canvas.getPosition().y - canvas.tickToPosition(hoverTick) + canvas.getVisualOffset();
 				drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH - (ImGui::CalcTextSize("4/4").x * 0.5f), y), ImVec2(x2, y), timeColor, 2.0f);
 				drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x1 - 40.0f, y - 25.0f), timeColor, formatString("%d/%d", defaultTimeSignN, defaultTimeSignD).c_str());
 			}
@@ -1061,7 +931,7 @@ namespace MikuMikuWorld
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		unsigned int fbTex = framebuffer->getTexture();
-		drawList->AddImage((void*)fbTex, canvasPos, canvasPos + canvasSize);
+		drawList->AddImage((void*)fbTex, canvas.getPosition(), canvas.getPosition() + canvas.getSize());
 	}
 
 	void ScoreEditor::updateDummyNotes()
@@ -1113,16 +983,16 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::drawSelectionRectangle()
 	{
-		float startX = std::min(canvasPos.x + dragStart.x, canvasPos.x + mousePos.x);
-		float endX = std::max(canvasPos.x + dragStart.x, canvasPos.x + mousePos.x);
-		float startY = std::min(canvasPos.y + dragStart.y, canvasPos.y + mousePos.y) + timelineVisualOffset;
-		float endY = std::max(canvasPos.y + dragStart.y, canvasPos.y + mousePos.y) + timelineVisualOffset;
+		float startX = std::min(canvas.getPosition().x + dragStart.x, canvas.getPosition().x + mousePos.x);
+		float endX = std::max(canvas.getPosition().x + dragStart.x, canvas.getPosition().x + mousePos.x);
+		float startY = std::min(canvas.getPosition().y + dragStart.y, canvas.getPosition().y + mousePos.y) + canvas.getVisualOffset();
+		float endY = std::max(canvas.getPosition().y + dragStart.y, canvas.getPosition().y + mousePos.y) + canvas.getVisualOffset();
 		
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		drawList->AddRectFilled(ImVec2(startX, startY), ImVec2(endX, endY), selectionColor1);
 
-		ImVec2 iconPos = ImVec2(canvasPos + dragStart);
-		iconPos.y += timelineVisualOffset;
+		ImVec2 iconPos = ImVec2(canvas.getPosition() + dragStart);
+		iconPos.y += canvas.getVisualOffset();
 		if (InputListener::isCtrlDown())
 		{
 			drawList->AddText(ImGui::GetFont(), 12, iconPos, 0xdddddddd, ICON_FA_PLUS_CIRCLE);
@@ -1138,7 +1008,7 @@ namespace MikuMikuWorld
 		renderer->beginBatch();
 		for (const int& id : selectedNotes)
 		{
-			if (isNoteInCanvas(score.notes.at(id).tick))
+			if (canvas.isNoteInCanvas(score.notes.at(id).tick))
 				drawHighlight(score.notes.at(id), renderer, noteTint, false);
 		}
 		renderer->endBatch();
@@ -1146,12 +1016,12 @@ namespace MikuMikuWorld
 
 	bool ScoreEditor::isHoldPathInTick(const Note& n1, const Note& n2, EaseType ease, float x, float y)
 	{
-		float xStart1 = laneToPosition(n1.lane);
-		float xStart2 = laneToPosition(n1.lane + n1.width);
-		float xEnd1 = laneToPosition(n2.lane);
-		float xEnd2 = laneToPosition(n2.lane + n2.width);
-		float y1 = getNoteYPosFromTick(n1.tick);
-		float y2 = getNoteYPosFromTick(n2.tick);
+		float xStart1 = canvas.laneToPosition(n1.lane);
+		float xStart2 = canvas.laneToPosition(n1.lane + n1.width);
+		float xEnd1 = canvas.laneToPosition(n2.lane);
+		float xEnd2 = canvas.laneToPosition(n2.lane + n2.width);
+		float y1 = canvas.getNoteYPosFromTick(n1.tick);
+		float y2 = canvas.getNoteYPosFromTick(n2.tick);
 
 		if (y > y2 || y < y1)
 			return false;
@@ -1189,16 +1059,6 @@ namespace MikuMikuWorld
 				return true;
 
 		return false;
-	}
-
-	void ScoreEditor::loadPresets(const std::string& path)
-	{
-		presetManager.loadPresets(path);
-	}
-
-	void ScoreEditor::savePresets(const std::string& path)
-	{
-		presetManager.savePresets(path);
 	}
 
 	std::string ScoreEditor::getWorkingFilename() const

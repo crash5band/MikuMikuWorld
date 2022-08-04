@@ -84,7 +84,7 @@ namespace MikuMikuWorld
 
 		if (hasClipboard())
 		{
-			pasteLane = positionToLane(mousePos.x);
+			pasteLane = canvas.positionToLane(mousePos.x);
 			pasting = true;
 		}
 	}
@@ -96,7 +96,7 @@ namespace MikuMikuWorld
 
 		if (hasClipboard())
 		{
-			pasteLane = positionToLane(mousePos.x);
+			pasteLane = canvas.positionToLane(mousePos.x);
 			flipPasting = true;
 		}
 	}
@@ -122,7 +122,7 @@ namespace MikuMikuWorld
 				int newID = nextID++;
 				note.ID = newID;
 				note.tick += hoverTick;
-				note.setLane(note.lane + positionToLane(mousePos.x) - pasteLane);
+				note.setLane(note.lane + canvas.positionToLane(mousePos.x) - pasteLane);
 				score.notes[newID] = note;
 				selectedNotes.insert(note.ID);
 			}
@@ -138,7 +138,7 @@ namespace MikuMikuWorld
 			Note start = pasteNotes[hold.start.ID];
 			start.ID = startID;
 			start.tick += hoverTick;
-			start.setLane(start.lane + positionToLane(mousePos.x) - pasteLane);
+			start.setLane(start.lane + canvas.positionToLane(mousePos.x) - pasteLane);
 			hold.start.ID = startID;
 			selectedNotes.insert(hold.start.ID);
 
@@ -146,7 +146,7 @@ namespace MikuMikuWorld
 			end.ID = endID;
 			end.parentID = startID;
 			end.tick += hoverTick;
-			end.setLane(end.lane + positionToLane(mousePos.x) - pasteLane);
+			end.setLane(end.lane + canvas.positionToLane(mousePos.x) - pasteLane);
 			hold.end = endID;
 			selectedNotes.insert(hold.end);
 
@@ -160,7 +160,7 @@ namespace MikuMikuWorld
 				mid.ID = nextID++;
 				mid.parentID = startID;
 				mid.tick += hoverTick;
-				mid.setLane(mid.lane + positionToLane(mousePos.x) - pasteLane);
+				mid.setLane(mid.lane + canvas.positionToLane(mousePos.x) - pasteLane);
 				step.ID = mid.ID;
 				selectedNotes.insert(step.ID);
 
@@ -190,14 +190,14 @@ namespace MikuMikuWorld
 		std::unordered_map<int, Note>& pasteNotes = isPasting() ? flipPasting ? copyNotesFlip : copyNotes : presetNotes;
 		std::unordered_map<int, HoldNote>& pasteHolds = isPasting() ? copyHolds : presetHolds;
 
-		int lane = positionToLane(mousePos.x) - pasteLane;
+		int lane = canvas.positionToLane(mousePos.x) - pasteLane;
 		for (const auto& copy : pasteNotes)
 		{
 			int id = copy.first;
 			const Note& note = copy.second;
 			if (note.getType() == NoteType::Tap)
 			{
-				if (isNoteInCanvas(note.tick + hoverTick))
+				if (canvas.isNoteInCanvas(note.tick + hoverTick))
 					drawNote(note, renderer, hoverTint, hoverTick, lane);
 			}
 		}

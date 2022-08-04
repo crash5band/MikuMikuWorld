@@ -72,37 +72,16 @@ namespace MikuMikuWorld
 	{
 		if (ImGui::Begin(timelineWindow, NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
 		{
-			canvasSize = ImGui::GetContentRegionAvail();
-			canvasPos = ImGui::GetCursorScreenPos();
-			boundaries = ImRect(canvasPos, canvasPos + canvasSize);
-			mouseInTimeline = ImGui::IsMouseHoveringRect(canvasPos, canvasPos + canvasSize);
 			windowFocused = ImGui::IsWindowFocused();
-
-			timelineWidth = NUM_LANES * laneWidth;
-			noteCtrlHeight = notesHeight;
-			laneOffset = (canvasSize.x * 0.5f) - (timelineWidth * 0.5f);
+			canvas.update(frameTime);
+			noteCtrlHeight = canvas.getNotesHeight();
 
 			ImGuiIO& io = ImGui::GetIO();
-			timelineMinOffset = ImGui::GetWindowHeight() - 200.0f;
-			timelineOffset = std::max(timelineOffset, timelineMinOffset);
 			// mouse input
-			if (mouseInTimeline && !UI::isAnyPopupOpen())
+			if (canvas.isMouseInCanvas() && !UI::isAnyPopupOpen())
 			{
-				float mouseWheelDelta = io.MouseWheel;
-				if (InputListener::isCtrlDown())
-					setZoom(zoom + (mouseWheelDelta * 0.1f));
-				else
-				{
-					float offset = mouseWheelDelta * (InputListener::isShiftDown() ? 300.0f : 100.0f);
-					timelineOffset = std::max(timelineOffset + offset, timelineMinOffset);
-					if (abs(offset) > 0.0f)
-					{
-						updateTimelineScrollAmount();
-					}
-				}
-
-				mousePos = io.MousePos - canvasPos;
-				mousePos.y -= timelineOffset;
+				mousePos = io.MousePos - canvas.getPosition();
+				mousePos.y -= canvas.getOffset();
 
 				if (!isHoveringNote && !isHoldingNote && !insertingHold && ImGui::IsWindowFocused())
 				{
@@ -120,37 +99,11 @@ namespace MikuMikuWorld
 				}
 			}
 
-			if (useSmoothScrolling)
-			{
-				float delta = scrollAmount / (smoothScrollTime / (frameTime * 1000));
-				if (remainingScroll > 0.0f)
-				{
-					if (remainingScroll - abs(delta) < 0.0f)
-					{
-						timelineVisualOffset += remainingScroll;
-						remainingScroll = 0;
-					}
-					else
-					{
-						timelineVisualOffset += delta;
-						remainingScroll -= abs(delta);
-					}
-				}
-				else
-				{
-					timelineVisualOffset = timelineOffset;
-				}
-			}
-			else
-			{
-				timelineVisualOffset = timelineOffset;
-			}
+			canvas.updateScorllingPosition(frameTime);
 
-			ImGui::ItemSize(boundaries);
 			ImDrawList* drawList = ImGui::GetWindowDrawList();
-			drawList->PushClipRect(boundaries.Min, boundaries.Max, true);
+			drawList->PushClipRect(canvas.getBoundaries().Min, canvas.getBoundaries().Max, true);
 
-			effectiveTickHeight = TICK_HEIGHT * zoom;
 			isHoveringNote = false;
 			hoveringNote = -1;
 
@@ -173,7 +126,7 @@ namespace MikuMikuWorld
 				}
 			}
 
-			if (mouseInTimeline && (isPasting() || insertingPreset))
+			if (canvas.isMouseInCanvas() && (isPasting() || insertingPreset))
 			{
 				if (ImGui::IsMouseClicked(0))
 					confirmPaste();
@@ -432,7 +385,7 @@ namespace MikuMikuWorld
 			UI::addSelectProperty("Scroll Mode", scrollMode, scrollModes, (int)ScrollMode::ScrollModeMax);
 
 			UI::propertyLabel("Zoom");
-			float _zoom = zoom;
+			float _zoom = canvas.getZoom();
 			if (UI::transparentButton(ICON_FA_SEARCH_MINUS, UI::btnSmall))
 				_zoom -= 0.25f;
 
@@ -444,8 +397,8 @@ namespace MikuMikuWorld
 			if (UI::transparentButton(ICON_FA_SEARCH_PLUS, UI::btnSmall))
 				_zoom += 0.25f;
 
-			if (zoom != _zoom)
-				setZoom(_zoom);
+			if (canvas.getZoom() != _zoom)
+				canvas.setZoom(_zoom);
 
 			UI::endPropertyColumns();
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
@@ -540,9 +493,9 @@ namespace MikuMikuWorld
 		if (ImGui::Begin(debugWindow, NULL, ImGuiWindowFlags_Static))
 		{
 			ImGuiIO io = ImGui::GetIO();
-			ImGui::Text("Canvas Size: (%f, %f)", canvasSize.x, canvasSize.y);
-			ImGui::Text("Timeline Offset: %f", timelineOffset);
-			ImGui::Text("Cursor pos: %f", tickToPosition(currentTick));
+			ImGui::Text("Canvas Size: (%f, %f)", canvas.getSize().x, canvas.getSize().y);
+			ImGui::Text("Timeline Offset: %f", canvas.getOffset());
+			ImGui::Text("Cursor pos: %f", canvas.tickToPosition(currentTick));
 			ImGui::Text("Mouse Pos: (%f, %f)", io.MousePos.x, io.MousePos.y);
 			ImGui::Text("Timeline Mouse Pos: (%f, %f)", mousePos.x, mousePos.y);
 			ImGui::Text("Hover tick: %d\n CurrentTick: %d", hoverTick, currentTick);
@@ -595,16 +548,15 @@ namespace MikuMikuWorld
 			
 			if (scrollMode == ScrollMode::Page)
 			{
-				float cursorPos = tickToPosition(currentTick);
-				if (cursorPos > timelineOffset)
+				float cursorPos = canvas.tickToPosition(currentTick);
+				if (cursorPos > canvas.getOffset())
 				{
-					timelineOffset = cursorPos + canvasSize.y;
-					timelineVisualOffset = timelineOffset;
+					canvas.scrollPage();
 				}
 			}
 			else if (scrollMode == ScrollMode::Smooth)
 			{
-				centerCursor(1);
+				canvas.centerCursor(currentTick, playing, 1);
 			}
 		}
 		else

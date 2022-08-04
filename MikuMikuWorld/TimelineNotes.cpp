@@ -13,13 +13,13 @@ namespace MikuMikuWorld
 {
 	void ScoreEditor::updateNote(Note& note)
 	{
-		const float btnPosY = canvasPos.y - tickToPosition(note.tick) + timelineVisualOffset - (notesHeight * 0.5f);
-		float btnPosX = laneToPosition(note.lane) + canvasPos.x;
+		const float btnPosY = canvas.getPosition().y - canvas.tickToPosition(note.tick) + canvas.getVisualOffset() - (canvas.getNotesHeight() * 0.5f);
+		float btnPosX = canvas.laneToPosition(note.lane) + canvas.getPosition().x;
 
 		ImVec2 pos{ btnPosX, btnPosY };
 		ImVec2 sz{ noteCtrlWidth, noteCtrlHeight };
 
-		if (mousePos.y >= (btnPosY - timelineVisualOffset - canvasPos.y - 2.0f) && mousePos.y <= (btnPosY + noteCtrlHeight - timelineVisualOffset - canvasPos.y + 2.0f)
+		if (mousePos.y >= (btnPosY - canvas.getVisualOffset() - canvas.getPosition().y - 2.0f) && mousePos.y <= (btnPosY + noteCtrlHeight - canvas.getVisualOffset() - canvas.getPosition().y + 2.0f)
 			&& hoverLane >= note.lane && hoverLane <= note.lane + note.width - 1)
 		{
 			isHoveringNote = true;
@@ -37,8 +37,8 @@ namespace MikuMikuWorld
 		ImGui::PushID(note.ID);
 		if (noteControl(pos, sz, "L", ImGuiMouseCursor_ResizeEW))
 		{
-			int curLane = positionToLane(mousePos.x);
-			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
+			int curLane = canvas.positionToLane(mousePos.x);
+			int grabLane = std::clamp(canvas.positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
 			int diff = curLane - grabLane;
 
 			if (abs(diff) > 0 && curLane >= MIN_LANE && curLane <= MAX_LANE)
@@ -58,13 +58,13 @@ namespace MikuMikuWorld
 		}
 
 		pos.x += noteCtrlWidth;
-		sz.x = (laneWidth * note.width) - (noteCtrlWidth * 2.0f);
+		sz.x = (canvas.getLaneWidth() * note.width) - (noteCtrlWidth * 2.0f);
 
 		// move
 		if (noteControl(pos, sz, "M", ImGuiMouseCursor_ResizeAll))
 		{
-			int curLane = std::clamp(positionToLane(mousePos.x), MIN_LANE, MAX_LANE);
-			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
+			int curLane = std::clamp(canvas.positionToLane(mousePos.x), MIN_LANE, MAX_LANE);
+			int grabLane = std::clamp(canvas.positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
 			int grabTick = snapTickFromPos(-ctrlMousePos.y);
 
 			int diff = curLane - grabLane;
@@ -134,8 +134,8 @@ namespace MikuMikuWorld
 		// right resize
 		if (noteControl(pos, sz, "R", ImGuiMouseCursor_ResizeEW))
 		{
-			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
-			int curLane = positionToLane(mousePos.x);
+			int grabLane = std::clamp(canvas.positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
+			int curLane = canvas.positionToLane(mousePos.x);
 
 			int diff = curLane - grabLane;
 			if (abs(diff) > 0 && curLane >= MIN_LANE && curLane <= MAX_LANE)
@@ -158,13 +158,13 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
 	{
-		float startX1 = laneToPosition(n1.lane + offsetLane);
-		float startX2 = laneToPosition(n1.lane + n1.width + offsetLane);
-		float startY = getNoteYPosFromTick(n1.tick + offsetTick);
+		float startX1 = canvas.laneToPosition(n1.lane + offsetLane);
+		float startX2 = canvas.laneToPosition(n1.lane + n1.width + offsetLane);
+		float startY = canvas.getNoteYPosFromTick(n1.tick + offsetTick);
 
-		float endX1 = laneToPosition(n2.lane + offsetLane);
-		float endX2 = laneToPosition(n2.lane + n2.width + offsetLane);
-		float endY = getNoteYPosFromTick(n2.tick + offsetTick);
+		float endX1 = canvas.laneToPosition(n2.lane + offsetLane);
+		float endX2 = canvas.laneToPosition(n2.lane + n2.width + offsetLane);
+		float endY = canvas.getNoteYPosFromTick(n2.tick + offsetTick);
 
 		int texIndex = ResourceManager::getTexture(n1.critical ? HOLD_PATH_CRTCL_TEX : HOLD_PATH_TEX);
 		if (texIndex == -1)
@@ -191,7 +191,7 @@ namespace MikuMikuWorld
 				continue;
 
 			// rest of hold no longer visible
-			if (y1 > canvasSize.y + canvasSize.y + canvasPos.y + 100)
+			if (y1 > canvas.getSize().y + canvas.getSize().y + canvas.getPosition().y + 100)
 				break;
 
 			Vector2 p1{ xl1, y1 };
@@ -264,7 +264,7 @@ namespace MikuMikuWorld
 			if (texIndex != -1)
 			{
 				const Texture& tex = ResourceManager::textures[texIndex];
-				const Vector2 nodeSz{ laneWidth, laneWidth };
+				const Vector2 nodeSz{ canvas.getLaneWidth(), canvas.getLaneWidth() };
 				for (int i = 0; i < note.steps.size(); ++i)
 				{
 					const Note& n3 = notes.at(note.steps[i].ID);
@@ -279,7 +279,7 @@ namespace MikuMikuWorld
 						++s2;
 					}
 
-					if (isNoteInCanvas(n3.tick + offsetTicks))
+					if (canvas.isNoteInCanvas(n3.tick + offsetTicks))
 					{
 						if (drawHoldStepOutline)
 							drawHighlight(n3, renderer, tint, true, offsetTicks, offsetLane);
@@ -291,8 +291,8 @@ namespace MikuMikuWorld
 							{
 								const Sprite& s = tex.sprites[sprIndex];
 								Vector2 pos{
-									laneToPosition(n3.lane + offsetLane + ((n3.width) / 2.0f)),
-									getNoteYPosFromTick(n3.tick + offsetTicks)
+									canvas.laneToPosition(n3.lane + offsetLane + ((n3.width) / 2.0f)),
+									canvas.getNoteYPosFromTick(n3.tick + offsetTicks)
 								};
 
 								if (note.steps[i].type == HoldStepType::Ignored)
@@ -304,8 +304,8 @@ namespace MikuMikuWorld
 									const EaseType rEase = s1 == -1 ? note.start.ease : note.steps[s1].ease;
 									float i1 = rEase == EaseType::None ? ratio : rEase == EaseType::EaseIn ? easeIn(ratio) : easeOut(ratio);
 
-									float x1 = lerp(laneToPosition(n1.lane + offsetLane), laneToPosition(n2.lane + offsetLane), i1);
-									float x2 = lerp(laneToPosition(n1.lane + offsetLane + n1.width), laneToPosition(n2.lane + offsetLane + n2.width), i1);
+									float x1 = lerp(canvas.laneToPosition(n1.lane + offsetLane), canvas.laneToPosition(n2.lane + offsetLane), i1);
+									float x2 = lerp(canvas.laneToPosition(n1.lane + offsetLane + n1.width), canvas.laneToPosition(n2.lane + offsetLane + n2.width), i1);
 									pos.x = (x1 + x2) / 2.0f;
 								}
 
@@ -325,14 +325,14 @@ namespace MikuMikuWorld
 			drawHoldCurve(start, end, note.start.ease, renderer, tint, offsetTicks, offsetLane);
 		}
 
-		if (isNoteInCanvas(start.tick + offsetTicks)) drawNote(start, renderer, tint, offsetTicks, offsetLane);
-		if (isNoteInCanvas(end.tick + offsetTicks)) drawNote(end, renderer, tint, offsetTicks, offsetLane);
+		if (canvas.isNoteInCanvas(start.tick + offsetTicks)) drawNote(start, renderer, tint, offsetTicks, offsetLane);
+		if (canvas.isNoteInCanvas(end.tick + offsetTicks)) drawNote(end, renderer, tint, offsetTicks, offsetLane);
 	}
 
 	void ScoreEditor::drawHighlight(const Note& note, Renderer* renderer, const Color& tint, bool mid, const int offsetTick, const int offsetLane)
 	{
-		Vector2 pos(laneToPosition(note.lane + offsetLane), getNoteYPosFromTick(note.tick + offsetTick));
-		const Vector2 sliceSz(NOTES_SLICE_WIDTH, mid ? HIGHLIGHT_HEIGHT : notesHeight + 5);
+		Vector2 pos(canvas.laneToPosition(note.lane + offsetLane), canvas.getNoteYPosFromTick(note.tick + offsetTick));
+		const Vector2 sliceSz(NOTES_SLICE_WIDTH, mid ? HIGHLIGHT_HEIGHT : canvas.getNotesHeight() + 5);
 		const AnchorType anchor = AnchorType::MiddleLeft;
 
 		const int texIndex = ResourceManager::getTexture(HIGHLIGHT_TEX);
@@ -346,8 +346,8 @@ namespace MikuMikuWorld
 
 			const Sprite& s = tex.sprites[sprIndex];
 
-			const float midLen = (laneWidth * note.width) - (NOTES_SLICE_WIDTH * 2) + NOTES_X_ADJUST + 5;
-			const Vector2 midSz(midLen, mid ? HIGHLIGHT_HEIGHT : notesHeight + 5);
+			const float midLen = (canvas.getLaneWidth() * note.width) - (NOTES_SLICE_WIDTH * 2) + NOTES_X_ADJUST + 5;
+			const Vector2 midSz(midLen, mid ? HIGHLIGHT_HEIGHT : canvas.getNotesHeight() + 5);
 
 			pos.x -= NOTES_X_ADJUST;
 
@@ -387,14 +387,14 @@ namespace MikuMikuWorld
 			return;
 
 		const Sprite& s = tex.sprites[sprIndex];
-		const Vector2 nodeSz{ laneWidth, laneWidth };
+		const Vector2 nodeSz{ canvas.getLaneWidth(), canvas.getLaneWidth() };
 
 		if (drawHoldStepOutline)
 			drawHighlight(note, renderer, tint, true, offsetTick, offsetLane);
 
 		if (type != HoldStepType::Invisible)
 		{
-			Vector2 pos{ laneToPosition(note.lane + offsetLane + ((note.width - 1) / 2.0f)), getNoteYPosFromTick(note.tick + offsetTick) };
+			Vector2 pos{ canvas.laneToPosition(note.lane + offsetLane + ((note.width - 1) / 2.0f)), canvas.getNoteYPosFromTick(note.tick + offsetTick) };
 			renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleLeft, tex, s.getX(), s.getX() + s.getWidth(),
 				s.getY(), s.getHeight(), tint, 1);
 		}
@@ -411,14 +411,14 @@ namespace MikuMikuWorld
 			{
 				const Sprite& arrowS = tex.sprites[sprIndex];
 
-				Vector2 pos{ 0, getNoteYPosFromTick(note.tick + offsetTick) };
-				const float x1 = laneToPosition(note.lane + offsetLane);
-				const float x2 = pos.x + laneToPosition(note.lane + note.width + offsetLane);
+				Vector2 pos{ 0, canvas.getNoteYPosFromTick(note.tick + offsetTick) };
+				const float x1 = canvas.laneToPosition(note.lane + offsetLane);
+				const float x2 = pos.x + canvas.laneToPosition(note.lane + note.width + offsetLane);
 				pos.x = (x1 + x2) * 0.5f;
-				pos.y += (notesHeight * 0.55f) + 10.0f;
+				pos.y += (canvas.getNotesHeight() * 0.55f) + 10.0f;
 
 				// notes wider than 6 lanes also use arrow size 6
-				Vector2 midSz(laneWidth * (note.flick == FlickType::Up ? 1.0f : 1.05f) * std::min(note.width, 6), notesHeight - 5);
+				Vector2 midSz(canvas.getLaneWidth() * (note.flick == FlickType::Up ? 1.0f : 1.05f) * std::min(note.width, 6), canvas.getNotesHeight() - 5);
 				midSz.x -= NOTES_SLICE_WIDTH * 1.28f * std::min(note.width - 1, 5);
 				midSz.y += (note.flick == FlickType::Up ? 3.0f : 4.0f) * std::min(note.width, 6);
 
@@ -438,8 +438,8 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
 	{
-		Vector2 pos(laneToPosition(note.lane + offsetLane), getNoteYPosFromTick(note.tick + offsetTick));
-		const Vector2 sliceSz(NOTES_SLICE_WIDTH, notesHeight);
+		Vector2 pos(canvas.laneToPosition(note.lane + offsetLane), canvas.getNoteYPosFromTick(note.tick + offsetTick));
+		const Vector2 sliceSz(NOTES_SLICE_WIDTH, canvas.getNotesHeight());
 		const AnchorType anchor = AnchorType::MiddleLeft;
 
 		const int texIndex = ResourceManager::getTexture(NOTES_TEX);
@@ -451,8 +451,8 @@ namespace MikuMikuWorld
 			{
 				const Sprite& s = tex.sprites[sprIndex];
 
-				const float midLen = (laneWidth * note.width) - (NOTES_SLICE_WIDTH * 2) + NOTES_X_ADJUST + 5;
-				const Vector2 midSz(midLen, notesHeight);
+				const float midLen = (canvas.getLaneWidth() * note.width) - (NOTES_SLICE_WIDTH * 2) + NOTES_X_ADJUST + 5;
+				const Vector2 midSz(midLen, canvas.getNotesHeight());
 
 				pos.x -= NOTES_X_ADJUST;
 
