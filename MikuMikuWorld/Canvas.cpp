@@ -1,7 +1,9 @@
 #include "Canvas.h"
 #include "Constants.h"
-#include "InputListener.h"
 #include "UI.h"
+#include "Rendering/Renderer.h"
+#include "ResourceManager.h"
+#include "InputListener.h"
 #include <algorithm>
 
 namespace MikuMikuWorld
@@ -171,11 +173,68 @@ namespace MikuMikuWorld
 			smoothScrollTime = time;
 	}
 
+	void Canvas::changeBackground(const Texture& t)
+	{
+		background.load(t);
+	}
+
+	void Canvas::drawBackground(Renderer* renderer)
+	{
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		if (!drawList)
+			return;
+
+		int bg = background.getTextureID();
+		if (!bg)
+			return;
+
+		Vector2 tgtSize(canvasSize.x, canvasSize.y);
+		if (canvasSize.x != prevSize.x || canvasSize.y != prevSize.y)
+		{
+			background.resize(tgtSize);
+		}
+
+		background.process(renderer);
+
+		// center background
+		ImVec2 bgPos = canvasPos;
+		bgPos.x -= (background.getWidth() - tgtSize.x) / 2.0f;
+		bgPos.y -= (background.getHeight() - tgtSize.y) / 2.0f;
+		drawList->AddImage((void*)bg, bgPos, bgPos + ImVec2(background.getWidth(), background.getHeight()));
+	}
+
+	void Canvas::drawLanesBackground()
+	{
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		if (!drawList)
+			return;
+
+		drawList->AddRectFilled(
+			ImVec2(getTimelineStartX() - MEASURE_WIDTH * 2, canvasPos.y),
+			ImVec2(getTimelineStartX(), canvasPos.y + canvasSize.y),
+			0xe0161616
+		);
+
+		drawList->AddRectFilled(
+			ImVec2(getTimelineStartX(), canvasPos.y),
+			ImVec2(getTimelineEndX(), canvasPos.y + canvasSize.y),
+			0xcc1c1a1f
+		);
+
+		drawList->AddRectFilled(
+			ImVec2(getTimelineEndX(), canvasPos.y),
+			ImVec2(getTimelineEndX() + MEASURE_WIDTH * 2, canvasPos.y + canvasSize.y),
+			0xe0161616
+		);
+	}
+
 	void Canvas::update(float dt)
 	{
-		canvasSize = ImGui::GetContentRegionAvail();
-		canvasPos = ImGui::GetCursorScreenPos();
-		boundaries = ImRect(canvasPos, canvasPos + canvasSize);
+		prevPos		= canvasPos;
+		prevSize	= canvasSize;
+		canvasSize	= ImGui::GetContentRegionAvail();
+		canvasPos	= ImGui::GetCursorScreenPos();
+		boundaries	= ImRect(canvasPos, canvasPos + canvasSize);
 		mouseInCanvas = ImGui::IsMouseHoveringRect(canvasPos, canvasPos + canvasSize);
 		
 		timelineWidth = NUM_LANES * laneWidth;

@@ -136,6 +136,9 @@
     <ClCompile Include="Canvas.cpp">
       <Filter>Components\ScoreEditor</Filter>
     </ClCompile>
+    <ClCompile Include="Background.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -293,6 +296,9 @@
     </ClInclude>
     <ClInclude Include="Canvas.h">
       <Filter>Components\ScoreEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="Background.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

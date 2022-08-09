@@ -107,6 +107,8 @@ namespace MikuMikuWorld
 			isHoveringNote = false;
 			hoveringNote = -1;
 
+			canvas.drawBackground(renderer);
+			canvas.drawLanesBackground();
 			contextMenu();
 			drawMeasures();
 			updateTempoChanges();

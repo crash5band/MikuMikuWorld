@@ -405,18 +405,6 @@ namespace MikuMikuWorld
 	{
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 
-		ImU32 bgColor = ImGui::GetColorU32(ImGuiCol_FrameBg);
-		int texIndex = ResourceManager::getTexture("default");
-		if (texIndex != -1)
-		{
-			drawList->AddImage((void*)ResourceManager::textures[texIndex].getID(), canvas.getPosition(), canvas.getPosition() + canvas.getSize(),
-				ImVec2(0, 0), ImVec2(1, 1), 0xFF656565);
-		}
-		else
-		{
-			ImGui::RenderFrame(canvas.getBoundaries().Min, canvas.getBoundaries().Max, bgFallbackColor, true, 1.0f);
-		}
-
 		const float x1 = canvas.getTimelineStartX();
 		const float x2 = canvas.getTimelineEndX();
 
@@ -824,24 +812,6 @@ namespace MikuMikuWorld
 		}
 
 		renderer->endBatch();
-#ifdef _DEBUG
-		if (showRenderStats)
-		{
-			ImVec2 statPos = canvasPos;
-			statPos.x += 10;
-			statPos.y += 5;
-
-			std::string vertexCount = "Vertices: " + std::to_string(renderer->getNumVertices());
-			drawList->AddText(statPos, 0xffffffff, vertexCount.c_str());
-
-			statPos.y += ImGui::GetFontSize();
-
-			std::string QuadCount = "Quads: " + std::to_string(renderer->getNumQuads());
-			drawList->AddText(statPos, 0xffffffff, QuadCount.c_str());
-
-		}
-#endif // DEBUG
-
 		renderer->beginBatch();
 
 		if (isPasting() || insertingPreset && canvas.isMouseInCanvas())

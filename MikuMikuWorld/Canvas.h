@@ -1,4 +1,5 @@
 #pragma once
+#include "Background.h"
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_internal.h"
 
@@ -22,12 +23,15 @@ namespace MikuMikuWorld
 		float remainingScroll;
 		float smoothScrollTime;
 		bool useSmoothScrolling;
+		bool mouseInCanvas;
 
 		ImVec2 canvasSize;
 		ImVec2 canvasPos;
+		ImVec2 prevPos;
+		ImVec2 prevSize;
 		ImRect boundaries;
 
-		bool mouseInCanvas;
+		Background background;
 
 	public:
 		Canvas();
@@ -49,6 +53,9 @@ namespace MikuMikuWorld
 		void centerCursor(int cursorTick, bool playing, int mode);
 		void scrollToBeginning();
 		void scrollPage();
+		void drawBackground(Renderer* rednerer);
+		void drawLanesBackground();
+		void changeBackground(const Texture& t);
 
 		inline bool isMouseInCanvas() { return mouseInCanvas; }
 		inline bool isUseSmoothScrolling() { return useSmoothScrolling; }

@@ -26,6 +26,7 @@ namespace MikuMikuWorld
 		std::vector<Sprite> sprites;
 
 		Texture(const std::string& filename);
+		Texture();
 
 		inline int getWidth() const { return width; }
 		inline int getHeight() const { return height; }
