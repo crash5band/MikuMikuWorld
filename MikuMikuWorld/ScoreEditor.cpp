@@ -35,16 +35,16 @@ namespace MikuMikuWorld
 		skipUpdateAfterSortingSteps = false;
 		framebuffer = new Framebuffer(1080, 1920);
 
-		time			= 0;
-		songStart		= 0;
-		songEnd			= 0;
-		masterVolume	= 0.8f;
-		bgmVolume		= 1.0f;
-		seVolume		= 1.0f;
-		playing			= false;
-		dragging		= false;
-		hasEdit			= false;
-		playStartTime	= 0;
+		time = 0;
+		songStart = 0;
+		songEnd = 0;
+		masterVolume = 0.8f;
+		bgmVolume = 1.0f;
+		seVolume = 1.0f;
+		playing = false;
+		dragging = false;
+		hasEdit = false;
+		playStartTime = 0;
 
 		audio.initAudio();
 		audio.setMasterVolume(masterVolume);
@@ -64,7 +64,7 @@ namespace MikuMikuWorld
 		workingData.title = score.metadata.title;
 		workingData.designer = score.metadata.author;
 		workingData.artist = score.metadata.artist;
-		
+
 		loadMusic(score.metadata.musicFile);
 		musicOffset = score.metadata.musicOffset;
 		audio.setBGMOffset(time, musicOffset);
@@ -82,7 +82,7 @@ namespace MikuMikuWorld
 	void ScoreEditor::loadScore(const std::string& filename)
 	{
 		resetEditor();
-		
+
 		std::string extension = File::getFileExtension(filename);
 		std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 		std::string title = windowUntitled;
@@ -449,7 +449,7 @@ namespace MikuMikuWorld
 
 			drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH, y), ImVec2(x2 + MEASURE_WIDTH, y), measureColor, 1.5f);
 			drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(txtPos, y), measureColor, measureStr.c_str());
-			
+
 			++measure;
 		}
 	}
@@ -496,7 +496,7 @@ namespace MikuMikuWorld
 		const float btnW = 100.0f;
 		const float btnH = 30.0f;
 		const float btnX = x2 - MEASURE_WIDTH;
-		
+
 		ImVec2 removeBtnSz{ -1, UI::btnSmall.y + 2 };
 		int removeBPM = -1;
 
@@ -688,7 +688,7 @@ namespace MikuMikuWorld
 
 				//if (holdLane != hoverLane || (!strcmp(id, "M") && (holdTick != hoverTick)))
 				pushHistory("Update notes", prevUpdateScore, score);
-				
+
 				hasEdit = false;
 			}
 		}
@@ -779,7 +779,7 @@ namespace MikuMikuWorld
 		framebuffer->clear();
 		renderer->beginBatch();
 
-		for (auto&[id, note] : score.notes)
+		for (auto& [id, note] : score.notes)
 		{
 			if (canvas.isNoteInCanvas(note.tick) && note.getType() == NoteType::Tap)
 			{
@@ -788,7 +788,7 @@ namespace MikuMikuWorld
 			}
 		}
 
-		for (auto&[id, hold] : score.holdNotes)
+		for (auto& [id, hold] : score.holdNotes)
 		{
 			Note& start = score.notes.at(hold.start.ID);
 			Note& end = score.notes.at(hold.end);
@@ -816,7 +816,7 @@ namespace MikuMikuWorld
 
 		if (isPasting() || insertingPreset && canvas.isMouseInCanvas())
 			previewPaste(renderer);
-		
+
 		// input note preview
 		if (canvas.isMouseInCanvas() && !isHoldingNote && currentMode != TimelineMode::Select && !isPasting() && !insertingPreset && !UI::isAnyPopupOpen())
 		{
@@ -828,7 +828,7 @@ namespace MikuMikuWorld
 			}
 			else if (currentMode == TimelineMode::InsertLongMid)
 			{
-				drawHoldMid(dummyMid, HoldStepType::Visible, renderer, hoverTint);
+				drawHoldMid(dummyMid, defaultStepType, renderer, hoverTint);
 			}
 			else if (currentMode == TimelineMode::InsertBPM)
 			{
@@ -928,8 +928,16 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::changeMode(TimelineMode mode)
 	{
-		currentMode = mode;
+		/*currentMode = mode;
 		switch (currentMode)
+		{
+		case TimelineMode::InsertTap:
+			dummy.critical = true;
+			break;
+		default:
+			break;
+		}*/
+		switch (mode)
 		{
 		case TimelineMode::InsertTap:
 			dummy.flick = FlickType::None;
@@ -946,9 +954,16 @@ namespace MikuMikuWorld
 			dummy.critical = true;
 			break;
 
+			// #C02: Save selected hold step type
+		case TimelineMode::InsertLongMid:
+			if (currentMode == TimelineMode::InsertLongMid)
+				defaultStepType = (HoldStepType)(((int)defaultStepType + 1) % 3);
+			break;
+
 		default:
 			break;
 		}
+		currentMode = mode;
 	}
 
 	void ScoreEditor::drawSelectionRectangle()
@@ -957,7 +972,7 @@ namespace MikuMikuWorld
 		float endX = std::max(canvas.getPosition().x + dragStart.x, canvas.getPosition().x + mousePos.x);
 		float startY = std::min(canvas.getPosition().y + dragStart.y, canvas.getPosition().y + mousePos.y) + canvas.getVisualOffset();
 		float endY = std::max(canvas.getPosition().y + dragStart.y, canvas.getPosition().y + mousePos.y) + canvas.getVisualOffset();
-		
+
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		drawList->AddRectFilled(ImVec2(startX, startY), ImVec2(endX, endY), selectionColor1);
 
