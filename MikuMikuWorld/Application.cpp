@@ -554,6 +554,7 @@ namespace MikuMikuWorld
 	void Application::loadResources()
 	{
 		ResourceManager::loadShader(appDir + "res/shaders/basic2d");
+		ResourceManager::loadShader(appDir + "res/shaders/blur");
 		ResourceManager::loadTexture(appDir + "res/textures/tex_notes.png");
 		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path.png");
 		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path_crtcl.png");
@@ -564,6 +565,11 @@ namespace MikuMikuWorld
 	void Application::run()
 	{
 		loadResources();
+
+		int bgTex = ResourceManager::getTexture("default");
+		if (bgTex != -1)
+			editor->canvas.changeBackground(ResourceManager::textures[bgTex]);
+
 		autoSaveTimer.reset();
 
 		while (!glfwWindowShouldClose(window))

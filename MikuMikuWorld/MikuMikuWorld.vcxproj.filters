@@ -124,9 +124,6 @@
     <ClCompile Include="Preset.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="ScoreStats.cpp">
-      <Filter>Score</Filter>
-    </ClCompile>
     <ClCompile Include="Audio\Sound.cpp">
       <Filter>Components\Audio</Filter>
     </ClCompile>
@@ -138,6 +135,9 @@
     </ClCompile>
     <ClCompile Include="Background.cpp">
       <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="ScoreStats.cpp">
+      <Filter>Score</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

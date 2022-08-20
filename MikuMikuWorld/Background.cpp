@@ -7,7 +7,7 @@
 namespace MikuMikuWorld
 {
 	Background::Background() :
-		blur{ 0.0f }, brightness{ 0.8f }, width{ 0 }, height{ 0 }, dirty{ false }
+		blur{ 0.0f }, brightness{ 0.4f }, width{ 0 }, height{ 0 }, dirty{ false }
 	{
 		framebuffer = std::make_unique<Framebuffer>(1, 1);
 	}
@@ -16,6 +16,8 @@ namespace MikuMikuWorld
 	{
 		texture = tex;
 		framebuffer->resize(texture.getWidth(), texture.getHeight());
+
+		dirty = true;
 	}
 
 	void Background::resizeByRatio(float& w, float& h, const Vector2& tgt, bool vertical)
@@ -113,6 +115,7 @@ namespace MikuMikuWorld
 	void Background::setBlur(float b)
 	{
 		blur = b;
+		dirty = true;
 	}
 
 	float Background::getBrightness() const
@@ -123,6 +126,7 @@ namespace MikuMikuWorld
 	void Background::setBrightness(float b)
 	{
 		brightness = b;
+		dirty = true;
 	}
 
 	bool Background::isDirty() const

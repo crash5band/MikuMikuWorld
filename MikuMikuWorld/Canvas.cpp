@@ -176,6 +176,8 @@ namespace MikuMikuWorld
 	void Canvas::changeBackground(const Texture& t)
 	{
 		background.load(t);
+		Vector2 targetSize{ canvasSize.x, canvasSize.y };
+		background.resize(targetSize);
 	}
 
 	void Canvas::drawBackground(Renderer* renderer)
@@ -194,7 +196,8 @@ namespace MikuMikuWorld
 			background.resize(tgtSize);
 		}
 
-		background.process(renderer);
+		if (background.isDirty())
+			background.process(renderer);
 
 		// center background
 		ImVec2 bgPos = canvasPos;

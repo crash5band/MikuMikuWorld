@@ -31,7 +31,7 @@ namespace MikuMikuWorld
 
 	void ResourceManager::loadShader(const std::string& filename)
 	{
-		Shader* s = new Shader("basic2d", filename);
+		Shader* s = new Shader(File::getFilenameWithoutExtension(filename), filename);
 		shaders.push_back(s);
 	}
 

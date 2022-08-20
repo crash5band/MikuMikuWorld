@@ -169,9 +169,11 @@ namespace MikuMikuWorld
 			result = 1;
 		ImGui::SameLine();
 
+		ImGui::PushID(label);
 		if (ImGui::Button("...", btnSmall))
 			result = 2;
 
+		ImGui::PopID();
 		ImGui::NextColumn();
 
 		return result;

@@ -509,7 +509,7 @@ namespace MikuMikuWorld
 
 			std::string bpmStr = formatString("%g", tempo.bpm) + " BPM";
 			drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), tempoColor, primaryLineThickness);
-			drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 - MEASURE_WIDTH + 20.0f, y - 25.0f), tempoColor, bpmStr.c_str());
+			drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 - MEASURE_WIDTH + 5, y - 25.0f), tempoColor, bpmStr.c_str());
 
 			std::string id = "bpm" + std::to_string(index);
 			if (UI::transparentButton2(id.c_str(), ImVec2(btnX, y - btnH), ImVec2(btnW, btnH)))
