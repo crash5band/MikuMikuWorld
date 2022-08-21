@@ -84,10 +84,12 @@ namespace MikuMikuWorld
 				mousePos = io.MousePos - canvas.getPosition();
 				mousePos.y -= canvas.getOffset();
 
-				if (!isHoveringNote && !isHoldingNote && !insertingHold && ImGui::IsWindowFocused())
+				if (!isHoveringNote && !isHoldingNote && !insertingHold /*&& ImGui::IsWindowFocused()*/)
 				{
 					if (ImGui::IsMouseDown(0) && ImGui::IsMouseDragPastThreshold(0, 10.0f))
-						dragging = true;
+						dragging = true & (currentMode == TimelineMode::Select);
+					// The above line was just draggin = true; I added the later part because it seem like being able to drag-select while in other mode is not intended
+					// as dragStart is not updated at all while in other mode
 
 					if (ImGui::IsMouseClicked(0))
 					{
