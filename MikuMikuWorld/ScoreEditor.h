@@ -12,6 +12,7 @@
 #include "PresetManager.h"
 #include "ScoreStats.h"
 #include "Canvas.h"
+#include "Selection.h"
 #include <unordered_set>
 
 // needed for miniaudio to work
@@ -34,6 +35,7 @@ namespace MikuMikuWorld
 		Framebuffer* framebuffer;
 		ScoreStats stats;
 		ImGuiTextFilter presetFilter;
+		Selection selection;
 
 		Score prevUpdateScore;
 		Score score;
@@ -49,7 +51,6 @@ namespace MikuMikuWorld
 		HoldNote dummyHold;
 		int hoveringNote;
 
-		std::unordered_set<int> selectedNotes;
 		std::unordered_map<int, Note> copyNotes;
 		std::unordered_map<int, Note> copyNotesFlip;
 		std::unordered_map<int, HoldNote> copyHolds;
@@ -90,10 +91,6 @@ namespace MikuMikuWorld
 		bool flipPasting;
 		bool insertingPreset;
 		bool hasEdit;
-		bool hasSelection;
-		bool hasSelectionEase;
-		bool hasSelectionStep;
-		bool hasFlickable;
 		bool uptoDate;
 
 		ImVec2 ctrlMousePos;
@@ -215,9 +212,6 @@ namespace MikuMikuWorld
 
 		inline int getDivision() { return division; }
 		void setDivision(int div);
-		bool selectionHasEase();
-		bool selectionHasHoldStep();
-		bool selectionHasFlickable();
 
 		// IO methods
 		void reset();

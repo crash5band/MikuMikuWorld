@@ -10,26 +10,26 @@ namespace MikuMikuWorld
 	void ScoreEditor::selectAll()
 	{
 		for (const auto& note : score.notes)
-			selectedNotes.insert(note.first);
+			selection.append(note.first);
 	}
 
 	void ScoreEditor::clearSelection()
 	{
-		selectedNotes.clear();
+		selection.clear();
 	}
 
 	void ScoreEditor::copy()
 	{
-		if (!selectedNotes.size())
+		if (!selection.hasSelection())
 			return;
 
 		copyNotes.clear();
 		copyHolds.clear();
-		copyNotes.reserve(selectedNotes.size());
-		int leastTick = score.notes.at(*selectedNotes.begin()).tick;
+		copyNotes.reserve(selection.count());
+		int leastTick = score.notes.at(*selection.getSelection().begin()).tick;
 
 		std::unordered_set<int> holds;
-		for (int id : selectedNotes)
+		for (int id : selection.getSelection())
 		{
 			const Note& note = score.notes.at(id);
 			if (note.getType() != NoteType::Tap)
@@ -112,7 +112,7 @@ namespace MikuMikuWorld
 
 		std::unordered_map<int, Note>& pasteNotes = isPasting() ? flipPasting ? copyNotesFlip : copyNotes : presetNotes;
 		std::unordered_map<int, HoldNote>& pasteHolds = isPasting() ? copyHolds : presetHolds;
-		selectedNotes.clear();
+		selection.clear();
 
 		score.notes.reserve(score.notes.size() + pasteNotes.size());
 		for (auto[id, note] : pasteNotes)
@@ -124,7 +124,7 @@ namespace MikuMikuWorld
 				note.tick += hoverTick;
 				note.setLane(note.lane + canvas.positionToLane(mousePos.x) - pasteLane);
 				score.notes[newID] = note;
-				selectedNotes.insert(note.ID);
+				selection.append(note.ID);
 			}
 		}
 
@@ -140,7 +140,7 @@ namespace MikuMikuWorld
 			start.tick += hoverTick;
 			start.setLane(start.lane + canvas.positionToLane(mousePos.x) - pasteLane);
 			hold.start.ID = startID;
-			selectedNotes.insert(hold.start.ID);
+			selection.append(hold.start.ID);
 
 			Note end = pasteNotes[hold.end];
 			end.ID = endID;
@@ -148,7 +148,7 @@ namespace MikuMikuWorld
 			end.tick += hoverTick;
 			end.setLane(end.lane + canvas.positionToLane(mousePos.x) - pasteLane);
 			hold.end = endID;
-			selectedNotes.insert(hold.end);
+			selection.append(hold.end);
 
 			score.notes[startID] = start;
 			score.notes[endID] = end;
@@ -162,7 +162,7 @@ namespace MikuMikuWorld
 				mid.tick += hoverTick;
 				mid.setLane(mid.lane + canvas.positionToLane(mousePos.x) - pasteLane);
 				step.ID = mid.ID;
-				selectedNotes.insert(step.ID);
+				selection.append(step.ID);
 
 				score.notes[mid.ID] = mid;
 			}
@@ -208,12 +208,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::deleteSelected()
 	{
-		if (!selectedNotes.size())
+		if (!selection.hasSelection())
 			return;
 
 		Score prev = score;
 
-		for (auto& id : selectedNotes)
+		for (auto& id : selection.getSelection())
 		{
 			auto notePos = score.notes.find(id);
 			if (notePos == score.notes.end())
@@ -245,8 +245,7 @@ namespace MikuMikuWorld
 			}
 		}
 
-		selectedNotes.clear();
-
+		selection.clear();
 		pushHistory("Delete notes", prev, score);
 	}
 
@@ -325,12 +324,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::cycleFlicks()
 	{
-		if (!selectedNotes.size())
+		if (!selection.hasSelection())
 			return;
 
 		bool edit = false;
 		Score prev = score;
-		for (int id : selectedNotes)
+		for (int id : selection.getSelection())
 		{
 			Note& note = score.notes.at(id);
 			if (!note.hasEase())
@@ -349,12 +348,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::setFlick(FlickType flick)
 	{
-		if (!selectedNotes.size())
+		if (!selection.hasSelection())
 			return;
 
 		bool edit = false;
 		Score prev = score;
-		for (int id : selectedNotes)
+		for (int id : selection.getSelection())
 		{
 			Note& note = score.notes.at(id);
 			if (!note.hasEase())
@@ -370,12 +369,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::cycleEase()
 	{
-		if (!selectedNotes.size())
+		if (!selection.hasSelection())
 			return;
 
 		bool edit = false;
 		Score prev = score;
-		for (int id : selectedNotes)
+		for (int id : selection.getSelection())
 		{
 			Note& note = score.notes.at(id);
 			if (note.getType() == NoteType::Hold)
@@ -401,12 +400,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::setEase(EaseType ease)
 	{
-		if (!selectedNotes.size())
+		if (!selection.hasSelection())
 			return;
 
 		bool edit = false;
 		Score prev = score;
-		for (int id : selectedNotes)
+		for (int id : selection.getSelection())
 		{
 			Note& note = score.notes.at(id);
 			if (note.getType() == NoteType::Hold)
@@ -432,12 +431,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::toggleCriticals()
 	{
-		if (!selectedNotes.size())
+		if (!selection.hasSelection())
 			return;
 
 		Score prev = score;
 		std::unordered_set<int> critHolds;
-		for (int id : selectedNotes)
+		for (int id : selection.getSelection())
 		{
 			Note& note = score.notes.at(id);
 			if (note.getType() == NoteType::Tap)
@@ -471,12 +470,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::setStepType(HoldStepType type)
 	{
-		if (!selectedNotes.size())
+		if (!selection.hasSelection())
 			return;
 
 		bool edit = false;
 		Score prev = score;
-		for (int id : selectedNotes)
+		for (int id : selection.getSelection())
 		{
 			const Note& note = score.notes.at(id);
 			if (note.getType() != NoteType::HoldMid)
@@ -497,12 +496,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::cycleStepType()
 	{
-		if (!selectedNotes.size())
+		if (!selection.hasSelection())
 			return;
 
 		bool edit = false;
 		Score prev = score;
-		for (int id : selectedNotes)
+		for (int id : selection.getSelection())
 		{
 			const Note& note = score.notes.at(id);
 			if (note.getType() != NoteType::HoldMid)
@@ -523,7 +522,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::flipSelected()
 	{
-		if (!selectedNotes.size())
+		if (!selection.hasSelection())
 			return;
 
 		Score prev = score;
@@ -534,7 +533,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::flip()
 	{
-		for (int id : selectedNotes)
+		for (int id : selection.getSelection())
 		{
 			Note& note = score.notes.at(id);
 			note.lane = MAX_LANE - note.lane - note.width + 1;

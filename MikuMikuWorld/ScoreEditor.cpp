@@ -179,7 +179,7 @@ namespace MikuMikuWorld
 		audio.stopSounds(false);
 		audio.stopBGM();
 
-		selectedNotes.clear();
+		selection.clear();
 		history.clear();
 		resetNextID();
 
@@ -659,7 +659,7 @@ namespace MikuMikuWorld
 			if (hasEdit)
 			{
 				std::unordered_set<int> sortHolds;
-				for (auto& id : selectedNotes)
+				for (auto& id : selection.getSelection())
 				{
 					const Note& note = score.notes.at(id);
 					if (note.getType() == NoteType::Hold)
@@ -744,7 +744,7 @@ namespace MikuMikuWorld
 		float bottom = std::max(dragStart.y, mousePos.y);
 
 		if (!InputListener::isAltDown() && !InputListener::isCtrlDown())
-			selectedNotes.clear();
+			selection.clear();
 
 		for (const auto& n : score.notes)
 		{
@@ -756,9 +756,9 @@ namespace MikuMikuWorld
 			if (right > x1 && left < x2 && isWithinRange(y, top - 10.0f, bottom + 10.0f))
 			{
 				if (InputListener::isAltDown())
-					selectedNotes.erase(note.ID);
+					selection.remove(note.ID);
 				else
-					selectedNotes.insert(note.ID);
+					selection.append(note.ID);
 			}
 		}
 	}
@@ -991,7 +991,7 @@ namespace MikuMikuWorld
 	void ScoreEditor::drawSelectionBoxes(Renderer* renderer)
 	{
 		renderer->beginBatch();
-		for (const int& id : selectedNotes)
+		for (const int& id : selection.getSelection())
 		{
 			if (canvas.isNoteInCanvas(score.notes.at(id).tick))
 				drawHighlight(score.notes.at(id), renderer, noteTint, false);
@@ -1017,33 +1017,6 @@ namespace MikuMikuWorld
 		float xr = lerp(xStart2, xEnd2, iPercent);
 
 		return isWithinRange(x, xl < xr ? xl : xr, xr > xl ? xr : xl);
-	}
-
-	bool ScoreEditor::selectionHasEase()
-	{
-		for (const int id : selectedNotes)
-			if (score.notes[id].hasEase())
-				return true;
-
-		return false;
-	}
-
-	bool ScoreEditor::selectionHasHoldStep()
-	{
-		for (const int id : selectedNotes)
-			if (score.notes[id].getType() == NoteType::HoldMid)
-				return true;
-
-		return false;
-	}
-
-	bool ScoreEditor::selectionHasFlickable()
-	{
-		for (const int id : selectedNotes)
-			if (!score.notes[id].hasEase())
-				return true;
-
-		return false;
 	}
 
 	std::string ScoreEditor::getWorkingFilename() const

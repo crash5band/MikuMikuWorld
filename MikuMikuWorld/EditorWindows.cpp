@@ -107,7 +107,7 @@ namespace MikuMikuWorld
 					if (ImGui::IsMouseClicked(0))
 					{
 						if (!InputListener::isCtrlDown() && !InputListener::isAltDown() && !ImGui::IsPopupOpen(timelineWindow))
-							selectedNotes.clear();
+							selection.clear();
 
 						if (currentMode == TimelineMode::Select)
 							dragStart = mousePos;
@@ -152,11 +152,7 @@ namespace MikuMikuWorld
 					cancelPaste();
 			}
 
-			hasSelection = selectedNotes.size();
-			hasSelectionEase = selectionHasEase();
-			hasSelectionStep = selectionHasHoldStep();
-			hasFlickable = selectionHasFlickable();
-
+			selection.update(score);
 			drawList->PopClipRect();
 		}
 		ImGui::End();
@@ -167,11 +163,11 @@ namespace MikuMikuWorld
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 10));
 		if (ImGui::BeginPopupContextWindow(timelineWindow))
 		{
-			if (ImGui::MenuItem(ICON_FA_TRASH "\tDelete", "Delete", false, hasSelection))
+			if (ImGui::MenuItem(ICON_FA_TRASH "\tDelete", "Delete", false, selection.hasSelection()))
 				deleteSelected();
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(ICON_FA_COPY "\tCopy", "Ctrl + C", false, hasSelection))
+			if (ImGui::MenuItem(ICON_FA_COPY "\tCopy", "Ctrl + C", false, selection.hasSelection()))
 				copy();
 
 			if (ImGui::MenuItem(ICON_FA_PASTE "\tPaste", "Ctrl + V", false, hasClipboard()))
@@ -180,11 +176,11 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(ICON_FA_PASTE "\tFlip Paste", "Ctrl + Shift + V", false, hasClipboard()))
 				flipPaste();
 
-			if (ImGui::MenuItem(ICON_FA_GRIP_LINES_VERTICAL "\tFlip", "Ctrl + F", false, hasSelection))
+			if (ImGui::MenuItem(ICON_FA_GRIP_LINES_VERTICAL "\tFlip", "Ctrl + F", false, selection.hasSelection()))
 				flipSelected();
 
 			ImGui::Separator();
-			if (ImGui::BeginMenu("Ease Type", hasSelectionEase))
+			if (ImGui::BeginMenu("Ease Type", selection.hasEase()))
 			{
 				for (int i = 0; i < TXT_ARR_SZ(uiEaseTypes); ++i)
 				{
@@ -194,7 +190,7 @@ namespace MikuMikuWorld
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::BeginMenu("Step Type", hasSelectionStep))
+			if (ImGui::BeginMenu("Step Type", selection.hasStep()))
 			{
 				for (int i = 0; i < TXT_ARR_SZ(uiStepTypes); ++i)
 				{
@@ -204,7 +200,7 @@ namespace MikuMikuWorld
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::BeginMenu("Flick Type", hasFlickable))
+			if (ImGui::BeginMenu("Flick Type", selection.hasFlickable()))
 			{
 				for (int i = 0; i < TXT_ARR_SZ(uiFlickTypes); ++i)
 				{
@@ -504,11 +500,11 @@ namespace MikuMikuWorld
 			UI::endPropertyColumns();
 			ImGui::Separator();
 
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !presetName.size() || !selectedNotes.size());
-			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * (!presetName.size() || !selectedNotes.size())));
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !presetName.size() || !selection.hasSelection());
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * (!presetName.size() || !selection.hasSelection())));
 			if (ImGui::Button("Create Preset", ImVec2(-1, UI::btnSmall.y + 2.0f)))
 			{
-				presetManager.createPreset(score, selectedNotes, presetName, presetDesc);
+				presetManager.createPreset(score, selection.getSelection(), presetName, presetDesc);
 				presetName.clear();
 				presetDesc.clear();
 			}
@@ -545,10 +541,10 @@ namespace MikuMikuWorld
 			const char* noteHovering = isHoveringNote ? "yes" : "no";
 			const char* noteHolding = isHoldingNote ? "yes" : "no";
 			ImGui::Text("Hovering note: %s\nHolding note: %s", noteHovering, noteHolding);
-			ImGui::Text("Selected count: %d", selectedNotes.size());
+			ImGui::Text("Selected count: %d", selection.count());
 
-			const char* hasEase = hasSelectionEase ? "yes" : "no";
-			const char* hasStep = hasSelectionStep ? "yes" : "no";
+			const char* hasEase = selection.hasEase() ? "yes" : "no";
+			const char* hasStep = selection.hasStep() ? "yes" : "no";
 			ImGui::Text("Selection has ease: %s\nSelection has step: %s", hasEase, hasStep);
 			ImGui::Text("Notes in clipboard: %d", copyNotes.size());
 

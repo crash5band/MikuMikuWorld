@@ -27,9 +27,9 @@ namespace MikuMikuWorld
 			if (ImGui::IsMouseClicked(0) && !UI::isAnyPopupOpen() && ImGui::IsWindowFocused())
 			{
 				if (!InputListener::isCtrlDown())
-					selectedNotes.clear();
+					selection.clear();
 				
-				selectedNotes.insert(note.ID);
+				selection.append(note.ID);
 			}
 		}
 
@@ -46,7 +46,7 @@ namespace MikuMikuWorld
 				ctrlMousePos.x = mousePos.x;
 				hasEdit = true;
 
-				for (int id : selectedNotes)
+				for (int id : selection.getSelection())
 				{
 					Note& n = score.notes.at(id);
 					int newLane = n.lane + diff;
@@ -74,7 +74,7 @@ namespace MikuMikuWorld
 				hasEdit = true;
 				ctrlMousePos.x = mousePos.x;
 
-				for (int id : selectedNotes)
+				for (int id : selection.getSelection())
 				{
 					Note& n = score.notes.at(id);
 					n.setLane(n.lane + diff);
@@ -89,7 +89,7 @@ namespace MikuMikuWorld
 				ctrlMousePos.y = mousePos.y;
 
 				// TODO: sort hold note steps
-				for (int id : selectedNotes)
+				for (int id : selection.getSelection())
 				{
 					Note& n = score.notes.at(id);
 					n.tick = std::max(n.tick + diff, 0);
@@ -100,7 +100,7 @@ namespace MikuMikuWorld
 		// per note options here
 		if (ImGui::IsItemDeactivated())
 		{
-			if (!isMovingNote && selectedNotes.size())
+			if (!isMovingNote && selection.hasSelection())
 			{
 				switch (currentMode)
 				{
@@ -144,7 +144,7 @@ namespace MikuMikuWorld
 				isMovingNote = true;
 				hasEdit = true;
 
-				for (int id : selectedNotes)
+				for (int id : selection.getSelection())
 				{
 					Note& n = score.notes.at(id);
 					int numLanes = curLane - n.width - n.lane + 1;
