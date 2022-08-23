@@ -16,6 +16,21 @@
 
 namespace MikuMikuWorld
 {
+	constexpr const char* uiFlickTypes[] =
+	{
+		"None", "Up", "Left", "Right"
+	};
+
+	constexpr const char* uiStepTypes[] =
+	{
+		"Visible", "Invisible", "Ignored"
+	};
+
+	constexpr const char* uiEaseTypes[] =
+	{
+		"Linear", "Ease-In", "Ease-Out"
+	};
+
 	void ScoreEditor::updateToolboxWindow()
 	{
 		if (ImGui::Begin(toolboxWindow))
@@ -60,7 +75,7 @@ namespace MikuMikuWorld
 			else
 			{
 				UI::addIntProperty("Note Width", defaultNoteWidth, 1, 12);
-				UI::addSelectProperty("Step Type", defaultStepType, stepTypes, 3);
+				UI::addSelectProperty("Step Type", defaultStepType, uiStepTypes, TXT_ARR_SZ(uiStepTypes));
 			}
 
 			UI::endPropertyColumns();
@@ -84,12 +99,10 @@ namespace MikuMikuWorld
 				mousePos = io.MousePos - canvas.getPosition();
 				mousePos.y -= canvas.getOffset();
 
-				if (!isHoveringNote && !isHoldingNote && !insertingHold /*&& ImGui::IsWindowFocused()*/)
+				if (!isHoveringNote && !isHoldingNote && !insertingHold)
 				{
 					if (ImGui::IsMouseDown(0) && ImGui::IsMouseDragPastThreshold(0, 10.0f))
-						dragging = true & (currentMode == TimelineMode::Select);
-					// The above line was just draggin = true; I added the later part because it seem like being able to drag-select while in other mode is not intended
-					// as dragStart is not updated at all while in other mode
+						dragging = currentMode == TimelineMode::Select;
 
 					if (ImGui::IsMouseClicked(0))
 					{
@@ -173,46 +186,31 @@ namespace MikuMikuWorld
 			ImGui::Separator();
 			if (ImGui::BeginMenu("Ease Type", hasSelectionEase))
 			{
-				if (ImGui::MenuItem("Linear"))
-					setEase(EaseType::None);
-
-				if (ImGui::MenuItem("Ease In"))
-					setEase(EaseType::EaseIn);
-
-				if (ImGui::MenuItem("Ease Out"))
-					setEase(EaseType::EaseOut);
-
+				for (int i = 0; i < TXT_ARR_SZ(uiEaseTypes); ++i)
+				{
+					if (ImGui::MenuItem(uiEaseTypes[i]))
+						setEase((EaseType)i);
+				}
 				ImGui::EndMenu();
 			}
 
 			if (ImGui::BeginMenu("Step Type", hasSelectionStep))
 			{
-				if (ImGui::MenuItem("Visible"))
-					setStepType(HoldStepType::Visible);
-
-				if (ImGui::MenuItem("Invisible"))
-					setStepType(HoldStepType::Invisible);
-
-				if (ImGui::MenuItem("Ignored"))
-					setStepType(HoldStepType::Ignored);
-
+				for (int i = 0; i < TXT_ARR_SZ(uiStepTypes); ++i)
+				{
+					if (ImGui::MenuItem(uiStepTypes[i]))
+						setStepType((HoldStepType)i);
+				}
 				ImGui::EndMenu();
 			}
 
 			if (ImGui::BeginMenu("Flick Type", hasFlickable))
 			{
-				if (ImGui::MenuItem("None"))
-					setFlick(FlickType::None);
-
-				if (ImGui::MenuItem("Up"))
-					setFlick(FlickType::Up);
-
-				if (ImGui::MenuItem("Left"))
-					setFlick(FlickType::Left);
-
-				if (ImGui::MenuItem("Right"))
-					setFlick(FlickType::Right);
-
+				for (int i = 0; i < TXT_ARR_SZ(uiFlickTypes); ++i)
+				{
+					if (ImGui::MenuItem(uiFlickTypes[i]))
+						setFlick((FlickType)i);
+				}
 				ImGui::EndMenu();
 			}
 

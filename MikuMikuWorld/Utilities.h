@@ -1,5 +1,7 @@
 #include <string>
 
+#define TXT_ARR_SZ(arr) (sizeof(arr) / sizeof(const char*)) 
+
 namespace MikuMikuWorld
 {
 	class Utilities
