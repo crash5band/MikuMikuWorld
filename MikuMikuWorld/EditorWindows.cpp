@@ -583,7 +583,7 @@ namespace MikuMikuWorld
 				float cursorPos = canvas.tickToPosition(currentTick);
 				if (cursorPos > canvas.getOffset())
 				{
-					canvas.scrollPage();
+					canvas.scrollPage(cursorPos);
 				}
 			}
 			else if (scrollMode == ScrollMode::Smooth)

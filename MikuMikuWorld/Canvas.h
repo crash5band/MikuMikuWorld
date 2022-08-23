@@ -17,7 +17,6 @@ namespace MikuMikuWorld
 		float timelineVisualOffset = 0;
 		float timelineWidth;
 		float effectiveTickHeight;
-		float cursorPos;
 
 		float scrollAmount;
 		float remainingScroll;
@@ -52,7 +51,7 @@ namespace MikuMikuWorld
 		void updateScorllingPosition(float dt);
 		void centerCursor(int cursorTick, bool playing, int mode);
 		void scrollToBeginning();
-		void scrollPage();
+		void scrollPage(float cursorPos);
 		void drawBackground(Renderer* rednerer);
 		void drawLanesBackground();
 		void changeBackground(const Texture& t);

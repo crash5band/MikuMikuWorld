@@ -58,7 +58,7 @@ namespace MikuMikuWorld
 
 	void Canvas::centerCursor(int cursorTick, bool playing, int mode)
 	{
-		cursorPos = tickToPosition(cursorTick);
+		float cursorPos = tickToPosition(cursorTick);
 		float offset = canvasSize.y * 0.5f;
 
 		bool exec = false;
@@ -93,7 +93,7 @@ namespace MikuMikuWorld
 		updateTimelineScrollAmount();
 	}
 
-	void Canvas::scrollPage()
+	void Canvas::scrollPage(float cursorPos)
 	{
 		timelineOffset = cursorPos + canvasSize.y;
 		timelineVisualOffset = timelineOffset;
