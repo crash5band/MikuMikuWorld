@@ -7,6 +7,7 @@
 #include "ZIndex.h"
 #include "Math.h"
 #include "UI.h"
+#include "StringOperations.h"
 #include <algorithm>
 
 namespace MikuMikuWorld
@@ -480,5 +481,42 @@ namespace MikuMikuWorld
 		
 		if (note.isFlick())
 			drawFlickArrow(note, renderer, tint, offsetTick, offsetLane);
+	}
+
+	void ScoreEditor::drawBPM(const Tempo& tempo)
+	{
+		drawBPM(tempo.bpm, tempo.tick);
+	}
+
+	void ScoreEditor::drawBPM(float bpm, int tick)
+	{
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		if (!drawList)
+			return;
+
+		const float x1 = canvas.getTimelineStartX();
+		const float x2 = canvas.getTimelineEndX();
+		const float y = canvas.getPosition().y - canvas.tickToPosition(tick) + canvas.getVisualOffset();
+		drawList->AddLine(ImVec2(x1, y), ImVec2(x2 + MEASURE_WIDTH, y), tempoColor, 2.0f);
+		drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 + 5.0f, y - 25.0f), tempoColor, formatString("%g BPM", bpm).c_str());
+	}
+
+	void ScoreEditor::drawTimeSignature(const TimeSignature& ts)
+	{
+		int tick = measureToTicks(ts.measure, TICKS_PER_BEAT, score.timeSignatures);
+		drawTimeSignature(ts.numerator, ts.denominator, tick);
+	}
+
+	void ScoreEditor::drawTimeSignature(int numerator, int denominator, int tick)
+	{
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		if (!drawList)
+			return;
+
+		const float x1 = canvas.getTimelineStartX();
+		const float x2 = canvas.getTimelineEndX();
+		const float y = canvas.getPosition().y - canvas.tickToPosition(tick) + canvas.getVisualOffset();
+		drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH - (ImGui::CalcTextSize("4/4").x * 0.5f), y), ImVec2(x2, y), timeColor, 2.0f);
+		drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x1 - 40.0f, y - 25.0f), timeColor, formatString("%d/%d", numerator, denominator).c_str());
 	}
 }

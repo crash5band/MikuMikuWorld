@@ -504,13 +504,9 @@ namespace MikuMikuWorld
 		for (int index = 0; index < score.tempoChanges.size(); ++index)
 		{
 			Tempo& tempo = score.tempoChanges[index];
+			drawBPM(tempo);
 
 			const float y = canvas.getPosition().y - canvas.tickToPosition(tempo.tick) + canvas.getVisualOffset();
-
-			std::string bpmStr = formatString("%g", tempo.bpm) + " BPM";
-			drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), tempoColor, primaryLineThickness);
-			drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 - MEASURE_WIDTH + 5, y - 25.0f), tempoColor, bpmStr.c_str());
-
 			std::string id = "bpm" + std::to_string(index);
 			if (UI::transparentButton2(id.c_str(), ImVec2(btnX, y - btnH), ImVec2(btnW, btnH)))
 				editBPM = tempo.bpm;
@@ -569,50 +565,48 @@ namespace MikuMikuWorld
 		ImVec2 removeBtnSz{ -1, UI::btnSmall.y + 2 };
 		int removeTS = -1;
 
-		for (auto& it : score.timeSignatures)
+		for (auto& [measure, ts] : score.timeSignatures)
 		{
-			const int ticks = measureToTicks(it.second.measure, TICKS_PER_BEAT, score.timeSignatures);
+			const int ticks = measureToTicks(measure, TICKS_PER_BEAT, score.timeSignatures);
+			drawTimeSignature(ts);
 			const float y = canvas.getPosition().y - canvas.tickToPosition(ticks) + canvas.getVisualOffset();
-
-			std::string tStr = std::to_string(it.second.numerator) + "/" + std::to_string(it.second.denominator);
-			drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), timeColor, primaryLineThickness);
-			drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x1 - 20.0f, y - 25.0f), timeColor, tStr.c_str());
 
 			static int editTsNum = 0;
 			static int editTsDen = 0;
-			std::string id = "ts-" + std::to_string(it.second.measure);
+			std::string id = "ts-" + std::to_string(measure);
 			if (UI::transparentButton2(id.c_str(), ImVec2(btnX, y - btnH), ImVec2(btnW, btnH)))
 			{
-				editTsNum = it.second.numerator;
-				editTsDen = it.second.denominator;
+				// save current time signature
+				editTsNum = ts.numerator;
+				editTsDen = ts.denominator;
 			}
 
 			ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
-			std::string wId = "TS-" + std::to_string(it.second.measure);
+			std::string wId = "TS-" + std::to_string(measure);
 			if (ImGui::BeginPopupContextItem(wId.c_str(), ImGuiPopupFlags_MouseButtonLeft | ImGuiPopupFlags_NoOpenOverExistingPopup))
 			{
 				ImGui::Text("Edit Time Signature");
 				ImGui::Separator();
 
 				UI::beginPropertyColumns();
-				UI::addReadOnlyProperty("Measure", std::to_string(it.second.measure));
+				UI::addReadOnlyProperty("Measure", std::to_string(measure));
 				if (UI::addFractionProperty("Time Signature", editTsNum, editTsDen))
 				{
 					Score prev = score;
-					it.second.numerator = std::clamp(abs(editTsNum), MIN_TIME_SIGN, MAX_TIME_SIGN);
-					it.second.denominator = std::clamp(abs(editTsDen), MIN_TIME_SIGN, MAX_TIME_SIGN);
+					ts.numerator = std::clamp(abs(editTsNum), MIN_TIME_SIGN, MAX_TIME_SIGN);
+					ts.denominator = std::clamp(abs(editTsDen), MIN_TIME_SIGN, MAX_TIME_SIGN);
 
 					pushHistory("Change time signature", prev, score);
 				}
 				UI::endPropertyColumns();
 
 				// cannot remove the first time signature
-				if (it.second.measure != 0)
+				if (measure != 0)
 				{
 					if (ImGui::Button("Remove", removeBtnSz))
 					{
 						ImGui::CloseCurrentPopup();
-						removeTS = it.second.measure;
+						removeTS = measure;
 					}
 				}
 
@@ -817,65 +811,15 @@ namespace MikuMikuWorld
 		if (isPasting() || insertingPreset && canvas.isMouseInCanvas())
 			previewPaste(renderer);
 
-		// input note preview
-		if (canvas.isMouseInCanvas() && !isHoldingNote && currentMode != TimelineMode::Select && !isPasting() && !insertingPreset && !UI::isAnyPopupOpen())
+		if (canvas.isMouseInCanvas() && !isHoldingNote && currentMode != TimelineMode::Select &&
+			!isPasting() && !insertingPreset && !UI::isAnyPopupOpen())
 		{
-			// preview note
 			updateDummyNotes();
-			if (currentMode == TimelineMode::InsertLong)
-			{
-				drawDummyHold(renderer);
-			}
-			else if (currentMode == TimelineMode::InsertLongMid)
-			{
-				drawHoldMid(dummyMid, defaultStepType, renderer, hoverTint);
-			}
-			else if (currentMode == TimelineMode::InsertBPM)
-			{
-				const float x1 = canvas.getTimelineStartX();
-				const float x2 = canvas.getTimelineEndX();
-				const float y = canvas.getPosition().y - canvas.tickToPosition(hoverTick) + canvas.getVisualOffset();
-				drawList->AddLine(ImVec2(x1, y), ImVec2(x2 + MEASURE_WIDTH, y), tempoColor, 2.0f);
-				drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 + 20.0f, y - 25.0f), tempoColor, formatString("%g BPM", defaultBPM).c_str());
-			}
-			else if (currentMode == TimelineMode::InsertTimeSign)
-			{
-				const float x1 = canvas.getTimelineStartX();
-				const float x2 = canvas.getTimelineEndX();
-				const float y = canvas.getPosition().y - canvas.tickToPosition(hoverTick) + canvas.getVisualOffset();
-				drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH - (ImGui::CalcTextSize("4/4").x * 0.5f), y), ImVec2(x2, y), timeColor, 2.0f);
-				drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x1 - 40.0f, y - 25.0f), timeColor, formatString("%d/%d", defaultTimeSignN, defaultTimeSignD).c_str());
-			}
-			else
-			{
-				drawNote(dummy, renderer, hoverTint);
-			}
+			previewInput(renderer);
 
-			// input note
 			if (ImGui::IsMouseClicked(0) && hoverTick >= 0 && !isHoveringNote)
 			{
-				if (currentMode == TimelineMode::InsertLong)
-				{
-					insertingHold = true;
-				}
-				else if (currentMode == TimelineMode::InsertLongMid)
-				{
-					int id = findClosestHold();
-					if (id != -1)
-						insertHoldStep(score.holdNotes.at(id));
-				}
-				else if (currentMode == TimelineMode::InsertBPM)
-				{
-					insertTempo();
-				}
-				else if (currentMode == TimelineMode::InsertTimeSign)
-				{
-					insertTimeSignature();
-				}
-				else
-				{
-					insertNote(currentMode == TimelineMode::MakeCritical);
-				}
+				executeInput();
 			}
 
 			if (insertingHold)
@@ -904,6 +848,56 @@ namespace MikuMikuWorld
 		drawList->AddImage((void*)fbTex, canvas.getPosition(), canvas.getPosition() + canvas.getSize());
 	}
 
+	void ScoreEditor::previewInput(Renderer* renderer)
+	{
+		if (currentMode == TimelineMode::InsertLong)
+		{
+			drawDummyHold(renderer);
+		}
+		else if (currentMode == TimelineMode::InsertLongMid)
+		{
+			drawHoldMid(dummyMid, defaultStepType, renderer, hoverTint);
+		}
+		else if (currentMode == TimelineMode::InsertBPM)
+		{
+			drawBPM(defaultBPM, hoverTick);
+		}
+		else if (currentMode == TimelineMode::InsertTimeSign)
+		{
+			drawTimeSignature(defaultTimeSignN, defaultTimeSignD, hoverTick);
+		}
+		else
+		{
+			drawNote(dummy, renderer, hoverTint);
+		}
+	}
+
+	void ScoreEditor::executeInput()
+	{
+		if (currentMode == TimelineMode::InsertLong)
+		{
+			insertingHold = true;
+		}
+		else if (currentMode == TimelineMode::InsertLongMid)
+		{
+			int id = findClosestHold();
+			if (id != -1)
+				insertHoldStep(score.holdNotes.at(id));
+		}
+		else if (currentMode == TimelineMode::InsertBPM)
+		{
+			insertTempo();
+		}
+		else if (currentMode == TimelineMode::InsertTimeSign)
+		{
+			insertTimeSignature();
+		}
+		else
+		{
+			insertNote(currentMode == TimelineMode::MakeCritical);
+		}
+	}
+
 	void ScoreEditor::updateDummyNotes()
 	{
 		dummy.lane = laneFromCenterPos(hoverLane, defaultNoteWidth);
@@ -928,15 +922,6 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::changeMode(TimelineMode mode)
 	{
-		/*currentMode = mode;
-		switch (currentMode)
-		{
-		case TimelineMode::InsertTap:
-			dummy.critical = true;
-			break;
-		default:
-			break;
-		}*/
 		switch (mode)
 		{
 		case TimelineMode::InsertTap:

@@ -131,6 +131,8 @@ namespace MikuMikuWorld
 		void cycleStepType();
 		void setStepType(HoldStepType type);
 		void pushHistory(const std::string& description, const Score& prev, const Score& curr);
+		void previewInput(Renderer* renderer);
+		void executeInput();
 
 		// draw methods
 		void drawMeasures();
@@ -144,6 +146,10 @@ namespace MikuMikuWorld
 		void drawDummyHold(Renderer* renderer);
 		void drawSelectionRectangle();
 		void drawSelectionBoxes(Renderer* renderer);
+		void drawBPM(const Tempo& bpm);
+		void drawBPM(float bpm, int tick);
+		void drawTimeSignature(const TimeSignature& ts);
+		void drawTimeSignature(int numerator, int denominator, int tick);
 
 		// helper methods
 		std::string getDivisonString(int divIndex);
