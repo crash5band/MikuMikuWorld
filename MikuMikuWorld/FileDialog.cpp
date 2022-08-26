@@ -76,7 +76,7 @@ namespace MikuMikuWorld
 
 		if (GetOpenFileNameW(&ofn))
 		{
-			name = wideStringToMb(ofn.lpstrFile);
+			name = wideAnsiStringToMb(ofn.lpstrFile);
 			return true;
 		}
 
@@ -110,7 +110,7 @@ namespace MikuMikuWorld
 
 		if (GetSaveFileNameW(&ofn))
 		{
-			name = wideStringToMb(ofn.lpstrFile);
+			name = wideAnsiStringToMb(ofn.lpstrFile);
 			return true;
 		}
 
