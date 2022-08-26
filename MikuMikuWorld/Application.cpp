@@ -460,15 +460,46 @@ namespace MikuMikuWorld
 
 	void Application::initLayout()
 	{
-		dockspaceID = ImGui::DockSpaceOverViewport();
+		ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
+			ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+			ImGuiWindowFlags_NoBackground;
 
-		if (ImGui::DockBuilderGetNode(dockspaceID))
-			return;
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(viewport->WorkPos);
+		ImGui::SetNextWindowSize(viewport->WorkSize);
+		ImGui::SetNextWindowViewport(viewport->ID);
 
-		ImGui::DockBuilderRemoveNode(dockspaceID);
-		ImGui::DockBuilderAddNode(dockspaceID);
-		ImGui::DockBuilderSetNodeSize(dockspaceID, ImGui::GetMainViewport()->WorkSize);
-		ImGui::DockBuilderFinish(dockspaceID);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::Begin("InvisibleWindow", nullptr, windowFlags); // This is basically the background window that contains all the dockable windows
+		ImGui::PopStyleVar(3);
+
+		ImGuiID dockSpaceId = ImGui::GetID("InvisibleWindowDockSpace");
+
+		if (!ImGui::DockBuilderGetNode(dockSpaceId))
+		{
+			ImGui::DockBuilderAddNode(dockSpaceId, ImGuiDockNodeFlags_DockSpace);
+			ImGui::DockBuilderSetNodeSize(dockSpaceId, viewport->WorkSize);
+
+			ImGuiID dockMainId = dockSpaceId;
+			ImGuiID topLeftId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Left, 0.175f, nullptr, &dockMainId);
+			ImGuiID bottomLeftId = ImGui::DockBuilderSplitNode(topLeftId, ImGuiDir_Down, 0.5f, nullptr, &topLeftId);
+			ImGuiID topRightId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Right, 0.25f, nullptr, &dockMainId);
+			ImGuiID bottomRightId = ImGui::DockBuilderSplitNode(topRightId, ImGuiDir_Down, 0.5f, nullptr, &topRightId);
+
+			ImGui::DockBuilderDockWindow(timelineWindow, dockMainId);
+			ImGui::DockBuilderDockWindow(toolboxWindow, topLeftId);
+			ImGui::DockBuilderDockWindow(controlsWindow, bottomLeftId);
+			ImGui::DockBuilderDockWindow(detailsWindow, topRightId);
+			ImGui::DockBuilderDockWindow(presetsWindow, bottomRightId);
+
+			ImGui::DockBuilderFinish(dockMainId);
+		}
+
+		ImGui::DockSpace(dockSpaceId, ImVec2(), ImGuiDockNodeFlags_PassthruCentralNode);
+		ImGui::End();
 	}
 
 	void Application::handlePendingOpenFiles()
