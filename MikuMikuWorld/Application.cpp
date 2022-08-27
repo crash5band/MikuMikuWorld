@@ -209,6 +209,10 @@ namespace MikuMikuWorld
 				if (InputListener::isTapped(k))
 					editor->changeMode((TimelineMode)(k - GLFW_KEY_1));
 
+			for (int k = GLFW_KEY_KP_1; k < GLFW_KEY_KP_1 + (int)TimelineMode::TimelineToolMax; ++k)
+				if (InputListener::isTapped(k))
+					editor->changeMode((TimelineMode)(k - GLFW_KEY_KP_1));
+
 			if (InputListener::isTapped(GLFW_KEY_DELETE))
 				editor->deleteSelected();
 			else if (InputListener::isTapped(GLFW_KEY_DOWN) && !editor->isPlaying())
