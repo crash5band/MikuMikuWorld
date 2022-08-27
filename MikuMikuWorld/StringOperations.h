@@ -20,6 +20,7 @@ namespace MikuMikuWorld
 	std::string wideStringToMb(const std::wstring& str);
 	std::string wideAnsiStringToMb(const std::wstring& str);
 	std::wstring mbToWideStr(const std::string& str);
+	std::wstring mbToWideAnsiString(const std::string& str);
 
 	template<typename ... Args>
 	std::string formatString(const char* format, Args ... args)

@@ -132,4 +132,13 @@ namespace MikuMikuWorld
 
 		return wResult;
 	}
+
+	std::wstring mbToWideAnsiString(const std::string& str)
+	{
+		int size = MultiByteToWideChar(CP_ACP, 0, &str[0], str.size(), NULL, 0);
+		std::wstring wResult(size, 0);
+		MultiByteToWideChar(CP_ACP, 0, &str[0], str.size(), &wResult[0], size);
+
+		return wResult;
+	}
 }
