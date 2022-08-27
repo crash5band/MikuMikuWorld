@@ -103,8 +103,14 @@ namespace MikuMikuWorld
 		std::unordered_map<int, HoldNote> holds;
 		holds.reserve(sus.slides.size());
 
+		std::vector<SkillTrigger> skills;
+		int skillID = 1;
+
 		for (const auto& note : sus.taps)
 		{
+			if (note.lane == 0 && note.width == 1 && note.type == 4)
+				skills.push_back(SkillTrigger{ skillID++, note.tick });
+
 			if (note.lane - 2 < MIN_LANE || note.lane - 2 > MAX_LANE)
 				continue;
 
@@ -237,6 +243,7 @@ namespace MikuMikuWorld
 		score.holdNotes = holds;
 		score.tempoChanges = tempos;
 		score.timeSignatures = timeSignatures;
+		score.skills = skills;
 
 		return score;
 	}

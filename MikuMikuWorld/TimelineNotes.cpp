@@ -519,4 +519,17 @@ namespace MikuMikuWorld
 		drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH - (ImGui::CalcTextSize("4/4").x * 0.5f), y), ImVec2(x2, y), timeColor, 2.0f);
 		drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x1 - 40.0f, y - 25.0f), timeColor, formatString("%d/%d", numerator, denominator).c_str());
 	}
+
+	void ScoreEditor::drawSkill(const SkillTrigger& skill)
+	{
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		if (!drawList)
+			return;
+
+		const float x1 = canvas.getTimelineStartX();
+		const float x2 = canvas.getTimelineEndX();
+		const float y = canvas.getPosition().y - canvas.tickToPosition(skill.tick) + canvas.getVisualOffset();
+		drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH - (ImGui::CalcTextSize("Skill").x * 0.5f), y), ImVec2(x2, y), skillColor, 2.0f);
+		drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x1 - 40.0f, y - 25.0f), skillColor, "Skill");
+	}
 }

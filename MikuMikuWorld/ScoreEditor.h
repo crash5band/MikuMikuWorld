@@ -150,6 +150,7 @@ namespace MikuMikuWorld
 		void drawBPM(float bpm, int tick);
 		void drawTimeSignature(const TimeSignature& ts);
 		void drawTimeSignature(int numerator, int denominator, int tick);
+		void drawSkill(const SkillTrigger& skill);
 
 		// helper methods
 		std::string getDivisonString(int divIndex);

@@ -306,6 +306,9 @@
     <ClInclude Include="Selection.h">
       <Filter>Components\ScoreEditor</Filter>
     </ClInclude>
+    <ClInclude Include="ScoreEvents.h">
+      <Filter>Score</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">

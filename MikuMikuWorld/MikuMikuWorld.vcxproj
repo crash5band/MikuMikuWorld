@@ -258,6 +258,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Score.h" />
+    <ClInclude Include="ScoreEvents.h" />
     <ClInclude Include="ScoreStats.h" />
     <ClInclude Include="Selection.h" />
     <ClInclude Include="Stopwatch.h" />

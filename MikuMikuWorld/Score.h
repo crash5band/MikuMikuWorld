@@ -1,6 +1,7 @@
 #pragma once
 #include "Note.h"
 #include "Tempo.h"
+#include "ScoreEvents.h"
 #include <string>
 #include <map>
 #include <unordered_map>
@@ -24,6 +25,7 @@ namespace MikuMikuWorld
 		std::unordered_map<int, HoldNote> holdNotes;
 		std::vector<Tempo> tempoChanges;
 		std::map<int, TimeSignature> timeSignatures;
+		std::vector<SkillTrigger> skills;
 
 		Score();
 	};
