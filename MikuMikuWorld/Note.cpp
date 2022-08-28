@@ -6,6 +6,7 @@
 namespace MikuMikuWorld
 {
 	int nextID = 1;
+	int nextSkillID = 1;
 
 	Note::Note(NoteType _type) :
 		type{ _type }, parentID{ -1 }, flick{ FlickType::None }, critical{ false }

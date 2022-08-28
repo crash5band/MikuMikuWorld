@@ -129,10 +129,7 @@ namespace MikuMikuWorld
 			drawMeasures();
 			updateTempoChanges();
 			updateTimeSignatures();
-
-			for (const auto& skill : score.skills)
-				drawSkill(skill);
-
+			updateSkills();
 			drawLanes();
 			updateCursor();
 			updateNotes(renderer);

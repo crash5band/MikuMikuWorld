@@ -117,6 +117,7 @@ namespace MikuMikuWorld
 		void updateDummyHold();
 		void updateTempoChanges();
 		void updateTimeSignatures();
+		void updateSkills();
 		void updateCursor();
 		void updateTimeline(float frameTime, Renderer* renderer);
 		void updateToolboxWindow();
@@ -151,6 +152,7 @@ namespace MikuMikuWorld
 		void drawTimeSignature(const TimeSignature& ts);
 		void drawTimeSignature(int numerator, int denominator, int tick);
 		void drawSkill(const SkillTrigger& skill);
+		void drawSkill(int tick);
 
 		// helper methods
 		std::string getDivisonString(int divIndex);
@@ -194,6 +196,7 @@ namespace MikuMikuWorld
 		void insertHoldStep(HoldNote& note);
 		void insertTempo();
 		void insertTimeSignature();
+		void insertSkill();
 		void copy();
 		void previewPaste(Renderer* renderer);
 		void paste();

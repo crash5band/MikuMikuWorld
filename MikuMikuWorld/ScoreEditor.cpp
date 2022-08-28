@@ -491,13 +491,6 @@ namespace MikuMikuWorld
 	void ScoreEditor::updateTempoChanges()
 	{
 		static float editBPM = 0;
-		const float x1 = canvas.getTimelineStartX();
-		const float x2 = canvas.getTimelineEndX() + MEASURE_WIDTH;
-		const float btnW = 100.0f;
-		const float btnH = 30.0f;
-		const float btnX = x2 - MEASURE_WIDTH;
-
-		ImVec2 removeBtnSz{ -1, UI::btnSmall.y + 2 };
 		int removeBPM = -1;
 
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
@@ -508,7 +501,7 @@ namespace MikuMikuWorld
 
 			const float y = canvas.getPosition().y - canvas.tickToPosition(tempo.tick) + canvas.getVisualOffset();
 			std::string id = "bpm" + std::to_string(index);
-			if (UI::transparentButton2(id.c_str(), ImVec2(btnX, y - btnH), ImVec2(btnW, btnH)))
+			if (UI::transparentButton2(id.c_str(), ImVec2(canvas.getTimelineEndX(), y - 30.0f), ImVec2(100.0f, 30.0f)))
 				editBPM = tempo.bpm;
 
 			ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
@@ -533,7 +526,7 @@ namespace MikuMikuWorld
 				// cannot remove the first tempo change
 				if (tempo.tick != 0)
 				{
-					if (ImGui::Button("Remove", removeBtnSz))
+					if (ImGui::Button("Remove", ImVec2(-1, UI::btnNormal.y)))
 					{
 						ImGui::CloseCurrentPopup();
 						removeBPM = index;
@@ -555,14 +548,8 @@ namespace MikuMikuWorld
 	void ScoreEditor::updateTimeSignatures()
 	{
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		const float x1 = canvas.getTimelineStartX() - MEASURE_WIDTH;
-		const float x2 = canvas.getTimelineEndX();
-		const float btnW = 60.0f;
-		const float btnH = 30.0f;
-		const float btnX = canvas.getTimelineStartX() - btnW;
-
-		ImVec2 padding{ ImGui::GetStyle().WindowPadding };
-		ImVec2 removeBtnSz{ -1, UI::btnSmall.y + 2 };
+		static int editTsNum = 0;
+		static int editTsDen = 0;
 		int removeTS = -1;
 
 		for (auto& [measure, ts] : score.timeSignatures)
@@ -571,10 +558,8 @@ namespace MikuMikuWorld
 			drawTimeSignature(ts);
 			const float y = canvas.getPosition().y - canvas.tickToPosition(ticks) + canvas.getVisualOffset();
 
-			static int editTsNum = 0;
-			static int editTsDen = 0;
 			std::string id = "ts-" + std::to_string(measure);
-			if (UI::transparentButton2(id.c_str(), ImVec2(btnX, y - btnH), ImVec2(btnW, btnH)))
+			if (UI::transparentButton2(id.c_str(), ImVec2(canvas.getTimelineStartX() - 60.0f, y - 30.0f), ImVec2(60.0f, 30.0f)))
 			{
 				// save current time signature
 				editTsNum = ts.numerator;
@@ -603,7 +588,7 @@ namespace MikuMikuWorld
 				// cannot remove the first time signature
 				if (measure != 0)
 				{
-					if (ImGui::Button("Remove", removeBtnSz))
+					if (ImGui::Button("Remove", ImVec2(-1, UI::btnNormal.y)))
 					{
 						ImGui::CloseCurrentPopup();
 						removeTS = measure;
@@ -619,6 +604,55 @@ namespace MikuMikuWorld
 			Score prev = score;
 			score.timeSignatures.erase(removeTS);
 			pushHistory("Remove time signature", prev, score);
+		}
+	}
+
+	void ScoreEditor::updateSkills()
+	{
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		int removeSkill = -1;
+
+		for (const auto& skill : score.skills)
+		{
+			drawSkill(skill);
+
+			const float y = canvas.getPosition().y - canvas.tickToPosition(skill.tick) + canvas.getVisualOffset();
+			std::string id = "skill-" + std::to_string(skill.ID);
+			UI::transparentButton2(id.c_str(), ImVec2(canvas.getTimelineStartX() - 60.0f, y - 30.0f), ImVec2(60.0f, 30.0f));
+
+			ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
+			if (ImGui::BeginPopupContextItem(id.c_str(), ImGuiPopupFlags_MouseButtonLeft | ImGuiPopupFlags_NoOpenOverExistingPopup))
+			{
+				ImGui::Text("Edit Skill");
+				ImGui::Separator();
+
+				UI::beginPropertyColumns();
+				UI::addReadOnlyProperty("Tick", std::to_string(skill.tick));
+				UI::endPropertyColumns();
+
+				if (ImGui::Button("Remove", ImVec2(-1, UI::btnNormal.y)))
+				{
+					removeSkill = skill.ID;
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::EndPopup();
+			}
+		}
+
+		if (removeSkill != -1)
+		{
+			Score prev = score;
+			for (auto it = score.skills.begin(); it != score.skills.end(); ++it)
+			{
+				if (it->ID == removeSkill)
+				{
+					score.skills.erase(it);
+					break;
+				}
+			}
+
+			history.pushHistory("Remove skill", prev, score);
 		}
 	}
 
@@ -866,6 +900,10 @@ namespace MikuMikuWorld
 		{
 			drawTimeSignature(defaultTimeSignN, defaultTimeSignD, hoverTick);
 		}
+		else if (currentMode == TimelineMode::InsertSkill)
+		{
+			drawSkill(hoverTick);
+		}
 		else
 		{
 			drawNote(dummy, renderer, hoverTint);
@@ -891,6 +929,10 @@ namespace MikuMikuWorld
 		else if (currentMode == TimelineMode::InsertTimeSign)
 		{
 			insertTimeSignature();
+		}
+		else if (currentMode == TimelineMode::InsertSkill)
+		{
+			insertSkill();
 		}
 		else
 		{

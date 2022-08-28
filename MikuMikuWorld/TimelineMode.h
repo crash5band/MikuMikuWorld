@@ -12,6 +12,7 @@ namespace MikuMikuWorld
 		MakeCritical,
 		InsertBPM,
 		InsertTimeSign,
+		InsertSkill,
 		TimelineToolMax
 	};
 
@@ -32,7 +33,8 @@ namespace MikuMikuWorld
 		"Flick",
 		"Critical",
 		"BPM",
-		"Time Signature"
+		"Time Signature",
+		"Skill"
 	};
 
 	constexpr const char* scrollModes[]
