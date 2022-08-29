@@ -34,7 +34,6 @@ namespace MikuMikuWorld
 		Camera camera;
 		Framebuffer* framebuffer;
 		ScoreStats stats;
-		ImGuiTextFilter presetFilter;
 		Selection selection;
 
 		Score prevUpdateScore;
@@ -54,9 +53,6 @@ namespace MikuMikuWorld
 		std::unordered_map<int, Note> copyNotes;
 		std::unordered_map<int, Note> copyNotesFlip;
 		std::unordered_map<int, HoldNote> copyHolds;
-
-		std::unordered_map<int, Note> presetNotes;
-		std::unordered_map<int, HoldNote> presetHolds;
 
 		float noteCtrlHeight;
 		const float noteCtrlWidth = NOTES_SLICE_WIDTH - 2.0f;
@@ -120,7 +116,6 @@ namespace MikuMikuWorld
 		void updateCursor();
 		void updateTimeline(float frameTime, Renderer* renderer);
 		void updateToolboxWindow();
-		void updatePresetsWindow();
 
 		// edit methods
 		void cycleFlicks();

@@ -110,8 +110,8 @@ namespace MikuMikuWorld
 	{
 		Score prev = score;
 
-		std::unordered_map<int, Note>& pasteNotes = isPasting() ? flipPasting ? copyNotesFlip : copyNotes : presetNotes;
-		std::unordered_map<int, HoldNote>& pasteHolds = isPasting() ? copyHolds : presetHolds;
+		const std::unordered_map<int, Note>& pasteNotes = isPasting() ? flipPasting ? copyNotesFlip : copyNotes : presetManager.getSelected().notes;
+		const std::unordered_map<int, HoldNote>& pasteHolds = isPasting() ? copyHolds : presetManager.getSelected().holds;
 		selection.clear();
 
 		score.notes.reserve(score.notes.size() + pasteNotes.size());
@@ -131,18 +131,18 @@ namespace MikuMikuWorld
 		score.holdNotes.reserve(score.holdNotes.size() + pasteHolds.size());
 		for (auto[id, hold] : pasteHolds)
 		{
-			HoldNote hold = pasteHolds[id];
+			HoldNote hold = pasteHolds.at(id);
 			int startID = nextID++;
 			int endID = nextID++;
 
-			Note start = pasteNotes[hold.start.ID];
+			Note start = pasteNotes.at(hold.start.ID);
 			start.ID = startID;
 			start.tick += hoverTick;
 			start.setLane(start.lane + canvas.positionToLane(mousePos.x) - pasteLane);
 			hold.start.ID = startID;
 			selection.append(hold.start.ID);
 
-			Note end = pasteNotes[hold.end];
+			Note end = pasteNotes.at(hold.end);
 			end.ID = endID;
 			end.parentID = startID;
 			end.tick += hoverTick;
@@ -156,7 +156,7 @@ namespace MikuMikuWorld
 			// by reference here because we are modifying the steps of the newly created hold
 			for (auto &step : hold.steps)
 			{
-				Note mid = pasteNotes[step.ID];
+				Note mid = pasteNotes.at(step.ID);
 				mid.ID = nextID++;
 				mid.parentID = startID;
 				mid.tick += hoverTick;
@@ -187,14 +187,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::previewPaste(Renderer* renderer)
 	{
-		std::unordered_map<int, Note>& pasteNotes = isPasting() ? flipPasting ? copyNotesFlip : copyNotes : presetNotes;
-		std::unordered_map<int, HoldNote>& pasteHolds = isPasting() ? copyHolds : presetHolds;
+		const std::unordered_map<int, Note>& pasteNotes = isPasting() ? flipPasting ? copyNotesFlip : copyNotes : presetManager.getSelected().notes;
+		const std::unordered_map<int, HoldNote>& pasteHolds = isPasting() ? copyHolds : presetManager.getSelected().holds;
 
 		int lane = canvas.positionToLane(mousePos.x) - pasteLane;
-		for (const auto& copy : pasteNotes)
+		for (const auto& [id, note] : pasteNotes)
 		{
-			int id = copy.first;
-			const Note& note = copy.second;
 			if (note.getType() == NoteType::Tap)
 			{
 				if (canvas.isNoteInCanvas(note.tick + hoverTick))

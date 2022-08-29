@@ -440,86 +440,6 @@ namespace MikuMikuWorld
 		ImGui::End();
 	}
 
-	void ScoreEditor::updatePresetsWindow()
-	{
-		if (ImGui::Begin(presetsWindow))
-		{
-			static std::string presetName = "";
-			static std::string presetDesc = "";
-			int removePattern = -1;
-
-			presetFilter.Draw("##preset_filter", ICON_FA_SEARCH " Search...", -1);
-
-			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.15f, 0.15f, 0.15f, 1.00f));
-			float windowHeight = ImGui::GetContentRegionAvail().y - ((ImGui::GetFrameHeight() * 3.0f) + 50);
-			if (ImGui::BeginChild("presets_child_window", ImVec2(-1, windowHeight), true))
-			{
-				const auto& presets = presetManager.getPresets();
-
-				if (!presets.size())
-				{
-					ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
-					Utilities::ImGuiCenteredText("No presets available.");
-					ImGui::PopStyleVar();
-				}
-				else
-				{
-					for (const auto& [id, preset] : presets)
-					{
-						if (!presetFilter.PassFilter(preset.getName().c_str()))
-							continue;
-
-						std::string strID = std::to_string(id) + "_" + preset.getName();
-						ImGui::PushID(strID.c_str());
-						if (ImGui::Button(preset.getName().c_str(), ImVec2(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2.0f, UI::btnSmall.y + 2.0f)))
-						{
-							if (isPasting())
-								cancelPaste();
-
-							insertingPreset = true;
-							presetNotes = preset.notes;
-							presetHolds = preset.holds;
-						}
-
-						if (preset.description.size())
-							UI::tooltip(preset.description.c_str());
-
-						ImGui::SameLine();
-						if (UI::transparentButton(ICON_FA_TRASH, ImVec2(UI::btnSmall.x, UI::btnSmall.y + 2.0f)))
-							removePattern = id;
-
-						ImGui::PopID();
-					}
-				}
-			}
-			ImGui::EndChild();
-
-			UI::beginPropertyColumns();
-			UI::addStringProperty("Name", presetName);
-			UI::addMultilineString("Description", presetDesc);
-			UI::endPropertyColumns();
-			ImGui::Separator();
-
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !presetName.size() || !selection.hasSelection());
-			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * (!presetName.size() || !selection.hasSelection())));
-			if (ImGui::Button("Create Preset", ImVec2(-1, UI::btnSmall.y + 2.0f)))
-			{
-				presetManager.createPreset(score, selection.getSelection(), presetName, presetDesc);
-				presetName.clear();
-				presetDesc.clear();
-			}
-
-			ImGui::PopStyleColor();
-			ImGui::PopStyleVar();
-			ImGui::PopItemFlag();
-
-			if (removePattern != -1)
-				presetManager.removePreset(removePattern);
-		}
-
-		ImGui::End();
-	}
-
 	void ScoreEditor::debugInfo()
 	{
 		if (ImGui::Begin(debugWindow, NULL, ImGuiWindowFlags_Static))
@@ -566,7 +486,15 @@ namespace MikuMikuWorld
 		updateControls();
 		updateTimeline(frameTime, renderer);
 		updateScoreDetails();
-		updatePresetsWindow();
+		
+		if (presetManager.updateWindow(score, selection.getSelection()))
+		{
+			if (isPasting())
+				cancelPaste();
+
+			insertingPreset = true;
+		}
+		
 		updateNoteSE();
 		
 #ifdef _DEBUG
