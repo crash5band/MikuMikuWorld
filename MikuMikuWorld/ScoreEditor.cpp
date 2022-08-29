@@ -36,8 +36,6 @@ namespace MikuMikuWorld
 		framebuffer = new Framebuffer(1080, 1920);
 
 		time = 0;
-		songStart = 0;
-		songEnd = 0;
 		masterVolume = 0.8f;
 		bgmVolume = 1.0f;
 		seVolume = 1.0f;
@@ -45,6 +43,8 @@ namespace MikuMikuWorld
 		dragging = false;
 		hasEdit = false;
 		playStartTime = 0;
+
+		pasting = flipPasting = insertingPreset = false;
 
 		audio.initAudio();
 		audio.setMasterVolume(masterVolume);

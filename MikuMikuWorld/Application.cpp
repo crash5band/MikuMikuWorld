@@ -493,11 +493,11 @@ namespace MikuMikuWorld
 			ImGuiID topRightId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Right, 0.25f, nullptr, &dockMainId);
 			ImGuiID bottomRightId = ImGui::DockBuilderSplitNode(topRightId, ImGuiDir_Down, 0.5f, nullptr, &topRightId);
 
-			ImGui::DockBuilderDockWindow(timelineWindow, dockMainId);
-			ImGui::DockBuilderDockWindow(toolboxWindow, topLeftId);
-			ImGui::DockBuilderDockWindow(controlsWindow, bottomLeftId);
-			ImGui::DockBuilderDockWindow(detailsWindow, topRightId);
-			ImGui::DockBuilderDockWindow(presetsWindow, bottomRightId);
+			ImGui::DockBuilderDockWindow(timelineWindowTitle, dockMainId);
+			ImGui::DockBuilderDockWindow(toolboxWindowTitle, topLeftId);
+			ImGui::DockBuilderDockWindow(controlsWindowTitle, bottomLeftId);
+			ImGui::DockBuilderDockWindow(detailsWindowTitle, topRightId);
+			ImGui::DockBuilderDockWindow(presetsWindowTitle, bottomRightId);
 
 			ImGui::DockBuilderFinish(dockMainId);
 		}
@@ -555,7 +555,7 @@ namespace MikuMikuWorld
 
 		if (firstFrame)
 		{
-			ImGui::SetWindowFocus(timelineWindow);
+			ImGui::SetWindowFocus(timelineWindowTitle);
 			firstFrame = false;
 		}
 

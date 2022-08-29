@@ -32,9 +32,9 @@ namespace MikuMikuWorld
 		"Linear", "Ease-In", "Ease-Out"
 	};
 
-	void ScoreEditor::updateToolboxWindow()
+	void ScoreEditor::toolboxWindow()
 	{
-		if (ImGui::Begin(toolboxWindow))
+		if (ImGui::Begin(toolboxWindowTitle))
 		{
 			ImVec2 btnSz{ ImGui::GetContentRegionAvail().x, 35.0f };
 			for (int i = 0; i < (int)TimelineMode::TimelineToolMax; ++i)
@@ -87,17 +87,13 @@ namespace MikuMikuWorld
 	
 	void ScoreEditor::updateTimeline(float frameTime, Renderer* renderer)
 	{
-		if (ImGui::Begin(timelineWindow, NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
+		if (ImGui::Begin(timelineWindowTitle, NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
 		{
 			windowFocused = ImGui::IsWindowFocused();
-			canvas.update(frameTime);
-			noteCtrlHeight = canvas.getNotesHeight();
-
-			ImGuiIO& io = ImGui::GetIO();
-			// mouse input
 			if (canvas.isMouseInCanvas() && !UI::isAnyPopupOpen())
 			{
-				mousePos = io.MousePos - canvas.getPosition();
+				// get mouse position relative to canvas
+				mousePos = ImGui::GetIO().MousePos - canvas.getPosition();
 				mousePos.y -= canvas.getOffset();
 
 				if (!isHoveringNote && !isHoldingNote && !insertingHold)
@@ -107,7 +103,7 @@ namespace MikuMikuWorld
 
 					if (ImGui::IsMouseClicked(0))
 					{
-						if (!InputListener::isCtrlDown() && !InputListener::isAltDown() && !ImGui::IsPopupOpen(timelineWindow))
+						if (!InputListener::isCtrlDown() && !InputListener::isAltDown() && !ImGui::IsPopupOpen(timelineWindowTitle))
 							selection.clear();
 
 						if (currentMode == TimelineMode::Select)
@@ -116,22 +112,25 @@ namespace MikuMikuWorld
 				}
 			}
 
-			canvas.updateScorllingPosition(frameTime);
-
 			ImDrawList* drawList = ImGui::GetWindowDrawList();
 			drawList->PushClipRect(canvas.getBoundaries().Min, canvas.getBoundaries().Max, true);
 
-			isHoveringNote = false;
-			hoveringNote = -1;
-
+			canvas.update(frameTime);
+			canvas.updateScorllingPosition(frameTime);
 			canvas.drawBackground(renderer);
 			canvas.drawLanesBackground();
-			contextMenu();
+			
 			drawMeasures();
 			updateTempoChanges();
 			updateTimeSignatures();
 			drawLanes();
+
+			contextMenu();
 			updateCursor();
+
+			noteCtrlHeight = canvas.getNotesHeight();
+			isHoveringNote = false;
+			hoveringNote = -1;
 			updateNotes(renderer);
 
 			// update dragging
@@ -162,7 +161,7 @@ namespace MikuMikuWorld
 	void ScoreEditor::contextMenu()
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 10));
-		if (ImGui::BeginPopupContextWindow(timelineWindow))
+		if (ImGui::BeginPopupContextWindow(timelineWindowTitle))
 		{
 			if (ImGui::MenuItem(ICON_FA_TRASH "\tDelete", "Delete", false, selection.hasSelection()))
 				deleteSelected();
@@ -216,9 +215,9 @@ namespace MikuMikuWorld
 		ImGui::PopStyleVar();
 	}
 
-	void ScoreEditor::updateScoreDetails()
+	void ScoreEditor::propertiesWindow()
 	{
-		if (ImGui::Begin(detailsWindow, NULL, ImGuiWindowFlags_Static))
+		if (ImGui::Begin(detailsWindowTitle, NULL, ImGuiWindowFlags_Static))
 		{
 			if (ImGui::CollapsingHeader(ICON_FA_ALIGN_LEFT " Metadata", ImGuiTreeNodeFlags_DefaultOpen))
 			{
@@ -339,9 +338,9 @@ namespace MikuMikuWorld
 			prefix + std::to_string((customSelected ? customDivision : divisions[divIndex]));
 	}
 
-	void ScoreEditor::updateControls()
+	void ScoreEditor::controlsWindow()
 	{
-		if (ImGui::Begin(controlsWindow))
+		if (ImGui::Begin(controlsWindowTitle))
 		{
 			int measure = accumulateMeasures(currentTick, TICKS_PER_BEAT, score.timeSignatures);
 			const TimeSignature& ts = score.timeSignatures[findTimeSignature(measure, score.timeSignatures)];
@@ -443,7 +442,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::debugInfo()
 	{
-		if (ImGui::Begin(debugWindow, NULL, ImGuiWindowFlags_Static))
+		if (ImGui::Begin(Title, NULL, ImGuiWindowFlags_Static))
 		{
 			ImGuiIO io = ImGui::GetIO();
 			ImGui::Text("Canvas Size: (%f, %f)", canvas.getSize().x, canvas.getSize().y);
@@ -483,10 +482,10 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::update(float frameTime, Renderer* renderer)
 	{
-		updateToolboxWindow();
-		updateControls();
+		toolboxWindow();
+		controlsWindow();
 		updateTimeline(frameTime, renderer);
-		updateScoreDetails();
+		propertiesWindow();
 		
 		if (presetManager.updateWindow(score, selection.getSelection()))
 		{

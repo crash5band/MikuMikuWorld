@@ -215,7 +215,7 @@ namespace MikuMikuWorld
 	bool PresetManager::updateWindow(const Score& score, const std::unordered_set<int>& selection)
 	{
 		bool selected = false;
-		if (ImGui::Begin(presetsWindow))
+		if (ImGui::Begin(presetsWindowTitle))
 		{
 			static std::string presetName = "";
 			static std::string presetDesc = "";

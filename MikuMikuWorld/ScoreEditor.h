@@ -94,8 +94,6 @@ namespace MikuMikuWorld
 		float playStartTime;
 		float songPos;
 		float songPosLastFrame;
-		float songStart;
-		float songEnd;
 		bool playing;
 		float masterVolume;
 		float bgmVolume;
@@ -111,7 +109,13 @@ namespace MikuMikuWorld
 		void updateTimeSignatures();
 		void updateCursor();
 		void updateTimeline(float frameTime, Renderer* renderer);
-		void updateToolboxWindow();
+		
+		// window update methods
+		void toolboxWindow();
+		void controlsWindow();
+		void propertiesWindow();
+		void contextMenu();
+		void debugInfo();
 
 		// edit methods
 		void cycleFlicks();
@@ -152,12 +156,6 @@ namespace MikuMikuWorld
 		void calcDragSelection();
 		bool noteControl(const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor);
 		bool isHoldPathInTick(const Note& n1, const Note& n2, EaseType ease, float x, float y);
-
-		// editor window update methods
-		void updateControls();
-		void updateScoreDetails();
-		void contextMenu();
-		void debugInfo();
 
 		void readScoreMetadata();
 		void writeScoreMetadata();
