@@ -50,10 +50,6 @@ namespace MikuMikuWorld
 		HoldNote dummyHold;
 		int hoveringNote;
 
-		std::unordered_map<int, Note> copyNotes;
-		std::unordered_map<int, Note> copyNotesFlip;
-		std::unordered_map<int, HoldNote> copyHolds;
-
 		float noteCtrlHeight;
 		const float noteCtrlWidth = NOTES_SLICE_WIDTH - 2.0f;
 
@@ -199,7 +195,6 @@ namespace MikuMikuWorld
 		void selectAll();
 		void clearSelection();
 		void deleteSelected();
-		bool hasClipboard() const;
 		bool isPasting() const;
 
 		// playback methods

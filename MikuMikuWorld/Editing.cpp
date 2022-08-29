@@ -2,6 +2,7 @@
 #include "Score.h"
 #include "Colors.h"
 #include "HistoryManager.h"
+#include "Clipboard.h"
 #include <map>
 #include <math.h>
 
@@ -23,58 +24,7 @@ namespace MikuMikuWorld
 		if (!selection.hasSelection())
 			return;
 
-		copyNotes.clear();
-		copyHolds.clear();
-		copyNotes.reserve(selection.count());
-		int leastTick = score.notes.at(*selection.getSelection().begin()).tick;
-
-		std::unordered_set<int> holds;
-		for (int id : selection.getSelection())
-		{
-			const Note& note = score.notes.at(id);
-			if (note.getType() != NoteType::Tap)
-			{
-				holds.insert(note.getType() == NoteType::Hold ? note.ID : note.parentID);
-			}
-			else
-			{
-				copyNotes[note.ID] = note;
-			}
-
-			if (note.tick < leastTick)
-				leastTick = note.tick;
-		}
-
-		copyHolds.reserve(holds.size());
-		for (int id : holds)
-		{
-			const HoldNote& hold = score.holdNotes.at(id);
-			copyNotes[hold.start.ID] = score.notes.at(hold.start.ID);
-			copyNotes[hold.end] = score.notes.at(hold.end);
-
-			for (const auto& step : hold.steps)
-				copyNotes[step.ID] = score.notes.at(step.ID);
-
-			copyHolds[hold.start.ID] = hold;
-		}
-
-		// offset ticks
-		for (auto& note : copyNotes)
-			note.second.tick -= leastTick;
-
-		copyNotesFlip = copyNotes;
-
-		// flip copyNotesFlip
-		for (auto& it : copyNotesFlip)
-		{
-			Note& note = it.second;
-			note.lane = MAX_LANE - note.lane - note.width + 1;
-
-			if (note.flick == FlickType::Left)
-				note.flick = FlickType::Right;
-			else if (note.flick == FlickType::Right)
-				note.flick = FlickType::Left;
-		}
+		Clipboard::copy(score, selection.getSelection());
 	}
 
 	void ScoreEditor::paste()
@@ -82,7 +32,7 @@ namespace MikuMikuWorld
 		if (pasting)
 			return;
 
-		if (hasClipboard())
+		if (Clipboard::hasData())
 		{
 			pasteLane = canvas.positionToLane(mousePos.x);
 			pasting = true;
@@ -94,7 +44,7 @@ namespace MikuMikuWorld
 		if (flipPasting)
 			return;
 
-		if (hasClipboard())
+		if (Clipboard::hasData())
 		{
 			pasteLane = canvas.positionToLane(mousePos.x);
 			flipPasting = true;
@@ -108,10 +58,13 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::confirmPaste()
 	{
-		Score prev = score;
+		const std::unordered_map<int, Note>& pasteNotes = isPasting() ?
+			Clipboard::getData(flipPasting).notes : presetManager.getSelected().notes;
 
-		const std::unordered_map<int, Note>& pasteNotes = isPasting() ? flipPasting ? copyNotesFlip : copyNotes : presetManager.getSelected().notes;
-		const std::unordered_map<int, HoldNote>& pasteHolds = isPasting() ? copyHolds : presetManager.getSelected().holds;
+		const std::unordered_map<int, HoldNote>& pasteHolds = isPasting() ?
+			Clipboard::getData(flipPasting).holds : presetManager.getSelected().holds;
+
+		Score prev = score;
 		selection.clear();
 
 		score.notes.reserve(score.notes.size() + pasteNotes.size());
@@ -175,11 +128,6 @@ namespace MikuMikuWorld
 		pushHistory("Paste notes", prev, score);
 	}
 
-	bool ScoreEditor::hasClipboard() const
-	{
-		return copyNotes.size();
-	}
-
 	bool ScoreEditor::isPasting() const
 	{
 		return pasting || flipPasting;
@@ -187,8 +135,11 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::previewPaste(Renderer* renderer)
 	{
-		const std::unordered_map<int, Note>& pasteNotes = isPasting() ? flipPasting ? copyNotesFlip : copyNotes : presetManager.getSelected().notes;
-		const std::unordered_map<int, HoldNote>& pasteHolds = isPasting() ? copyHolds : presetManager.getSelected().holds;
+		const std::unordered_map<int, Note>& pasteNotes = isPasting() ?
+			Clipboard::getData(flipPasting).notes : presetManager.getSelected().notes;
+
+		const std::unordered_map<int, HoldNote>& pasteHolds = isPasting() ?
+			Clipboard::getData(flipPasting).holds : presetManager.getSelected().holds;
 
 		int lane = canvas.positionToLane(mousePos.x) - pasteLane;
 		for (const auto& [id, note] : pasteNotes)

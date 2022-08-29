@@ -12,6 +12,7 @@
 #include "StringOperations.h"
 #include "Tempo.h"
 #include "Colors.h"
+#include "Clipboard.h"
 #include <algorithm>
 
 namespace MikuMikuWorld
@@ -170,10 +171,10 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(ICON_FA_COPY "\tCopy", "Ctrl + C", false, selection.hasSelection()))
 				copy();
 
-			if (ImGui::MenuItem(ICON_FA_PASTE "\tPaste", "Ctrl + V", false, hasClipboard()))
+			if (ImGui::MenuItem(ICON_FA_PASTE "\tPaste", "Ctrl + V", false, Clipboard::hasData()))
 				paste();
 
-			if (ImGui::MenuItem(ICON_FA_PASTE "\tFlip Paste", "Ctrl + Shift + V", false, hasClipboard()))
+			if (ImGui::MenuItem(ICON_FA_PASTE "\tFlip Paste", "Ctrl + Shift + V", false, Clipboard::hasData()))
 				flipPaste();
 
 			if (ImGui::MenuItem(ICON_FA_GRIP_LINES_VERTICAL "\tFlip", "Ctrl + F", false, selection.hasSelection()))
@@ -466,7 +467,7 @@ namespace MikuMikuWorld
 			const char* hasEase = selection.hasEase() ? "yes" : "no";
 			const char* hasStep = selection.hasStep() ? "yes" : "no";
 			ImGui::Text("Selection has ease: %s\nSelection has step: %s", hasEase, hasStep);
-			ImGui::Text("Notes in clipboard: %d", copyNotes.size());
+			ImGui::Text("Notes in clipboard: %d", Clipboard::count());
 
 			auto it = score.notes.find(hoveringNote);
 			ImGui::Text("Hover note: %s", (it == score.notes.end() ? "None" : ""));
