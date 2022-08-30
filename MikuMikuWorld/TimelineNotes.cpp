@@ -89,7 +89,6 @@ namespace MikuMikuWorld
 				hasEdit = true;
 				ctrlMousePos.y = mousePos.y;
 
-				// TODO: sort hold note steps
 				for (int id : selection.getSelection())
 				{
 					Note& n = score.notes.at(id);

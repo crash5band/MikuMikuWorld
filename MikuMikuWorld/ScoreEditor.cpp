@@ -652,37 +652,25 @@ namespace MikuMikuWorld
 			isHoldingNote = false;
 			if (hasEdit)
 			{
-				std::unordered_set<int> sortHolds;
-				for (auto& id : selection.getSelection())
+				// only need to sort if the notes are moved
+				if (!strcmp(id, "M") && holdTick != hoverTick)
 				{
-					const Note& note = score.notes.at(id);
-					if (note.getType() == NoteType::Hold)
-						sortHolds.insert(note.ID);
-					else if (note.getType() == NoteType::HoldMid || note.getType() == NoteType::HoldEnd)
-						sortHolds.insert(note.parentID);
-				}
-
-				for (int id : sortHolds)
-				{
-					HoldNote& hold = score.holdNotes.at(id);
-					Note& start = score.notes.at(id);
-					Note& end = score.notes.at(hold.end);
-
-					if (start.tick > end.tick)
+					std::unordered_set<int> sortHolds = selection.getHolds(score);
+					for (int id : sortHolds)
 					{
-						// swap
-						start.tick = start.tick ^ end.tick;
-						end.tick = start.tick ^ end.tick;
-						start.tick = start.tick ^ end.tick;
-					}
+						HoldNote& hold = score.holdNotes.at(id);
+						Note& start = score.notes.at(id);
+						Note& end = score.notes.at(hold.end);
 
-					sortHoldSteps(score, hold);
-					skipUpdateAfterSortingSteps = true;
+						if (start.tick > end.tick)
+							std::swap(start.tick, end.tick);
+
+						sortHoldSteps(score, hold);
+						skipUpdateAfterSortingSteps = true;
+					}
 				}
 
-				//if (holdLane != hoverLane || (!strcmp(id, "M") && (holdTick != hoverTick)))
 				pushHistory("Update notes", prevUpdateScore, score);
-
 				hasEdit = false;
 			}
 		}
