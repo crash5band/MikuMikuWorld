@@ -86,4 +86,19 @@ namespace MikuMikuWorld
 	{
 		return selectedNotes;
 	}
+
+	std::unordered_set<int> Selection::getHolds(const Score& score)
+	{
+		std::unordered_set<int> holds;
+		for (auto& id : selectedNotes)
+		{
+			const Note& note = score.notes.at(id);
+			if (note.getType() == NoteType::Hold)
+				holds.insert(note.ID);
+			else if (note.getType() == NoteType::HoldMid || note.getType() == NoteType::HoldEnd)
+				holds.insert(note.parentID);
+		}
+
+		return holds;
+	}
 }

@@ -34,14 +34,11 @@ namespace MikuMikuWorld
 		Camera camera;
 		Framebuffer* framebuffer;
 		ScoreStats stats;
-		ImGuiTextFilter presetFilter;
 		Selection selection;
 
 		Score prevUpdateScore;
 		Score score;
 		EditorScoreData workingData;
-		std::string musicFile;
-		float musicOffset;
 		std::unordered_map<std::string, int> tickSEMap;
 
 		Note dummy;
@@ -50,13 +47,6 @@ namespace MikuMikuWorld
 		Note dummyMid;
 		HoldNote dummyHold;
 		int hoveringNote;
-
-		std::unordered_map<int, Note> copyNotes;
-		std::unordered_map<int, Note> copyNotesFlip;
-		std::unordered_map<int, HoldNote> copyHolds;
-
-		std::unordered_map<int, Note> presetNotes;
-		std::unordered_map<int, HoldNote> presetHolds;
 
 		float noteCtrlHeight;
 		const float noteCtrlWidth = NOTES_SLICE_WIDTH - 2.0f;
@@ -102,8 +92,6 @@ namespace MikuMikuWorld
 		float playStartTime;
 		float songPos;
 		float songPosLastFrame;
-		float songStart;
-		float songEnd;
 		bool playing;
 		float masterVolume;
 		float bgmVolume;
@@ -120,8 +108,13 @@ namespace MikuMikuWorld
 		void updateSkills();
 		void updateCursor();
 		void updateTimeline(float frameTime, Renderer* renderer);
-		void updateToolboxWindow();
-		void updatePresetsWindow();
+		
+		// window update methods
+		void toolboxWindow();
+		void controlsWindow();
+		void propertiesWindow();
+		void contextMenu();
+		void debugInfo();
 
 		// edit methods
 		void cycleFlicks();
@@ -165,12 +158,6 @@ namespace MikuMikuWorld
 		bool noteControl(const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor);
 		bool isHoldPathInTick(const Note& n1, const Note& n2, EaseType ease, float x, float y);
 
-		// editor window update methods
-		void updateControls();
-		void updateScoreDetails();
-		void contextMenu();
-		void debugInfo();
-
 		void readScoreMetadata();
 		void writeScoreMetadata();
 		void resetEditor();
@@ -208,7 +195,6 @@ namespace MikuMikuWorld
 		void selectAll();
 		void clearSelection();
 		void deleteSelected();
-		bool hasClipboard() const;
 		bool isPasting() const;
 
 		// playback methods

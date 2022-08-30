@@ -12,6 +12,7 @@
 #include "StringOperations.h"
 #include "Tempo.h"
 #include "Colors.h"
+#include "Clipboard.h"
 #include <algorithm>
 
 namespace MikuMikuWorld
@@ -31,9 +32,9 @@ namespace MikuMikuWorld
 		"Linear", "Ease-In", "Ease-Out"
 	};
 
-	void ScoreEditor::updateToolboxWindow()
+	void ScoreEditor::toolboxWindow()
 	{
-		if (ImGui::Begin(toolboxWindow))
+		if (ImGui::Begin(toolboxWindowTitle))
 		{
 			ImVec2 btnSz{ ImGui::GetContentRegionAvail().x, 35.0f };
 			for (int i = 0; i < (int)TimelineMode::TimelineToolMax; ++i)
@@ -86,17 +87,13 @@ namespace MikuMikuWorld
 	
 	void ScoreEditor::updateTimeline(float frameTime, Renderer* renderer)
 	{
-		if (ImGui::Begin(timelineWindow, NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
+		if (ImGui::Begin(timelineWindowTitle, NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
 		{
 			windowFocused = ImGui::IsWindowFocused();
-			canvas.update(frameTime);
-			noteCtrlHeight = canvas.getNotesHeight();
-
-			ImGuiIO& io = ImGui::GetIO();
-			// mouse input
 			if (canvas.isMouseInCanvas() && !UI::isAnyPopupOpen())
 			{
-				mousePos = io.MousePos - canvas.getPosition();
+				// get mouse position relative to canvas
+				mousePos = ImGui::GetIO().MousePos - canvas.getPosition();
 				mousePos.y -= canvas.getOffset();
 
 				if (!isHoveringNote && !isHoldingNote && !insertingHold)
@@ -106,7 +103,7 @@ namespace MikuMikuWorld
 
 					if (ImGui::IsMouseClicked(0))
 					{
-						if (!InputListener::isCtrlDown() && !InputListener::isAltDown() && !ImGui::IsPopupOpen(timelineWindow))
+						if (!InputListener::isCtrlDown() && !InputListener::isAltDown() && !ImGui::IsPopupOpen(timelineWindowTitle))
 							selection.clear();
 
 						if (currentMode == TimelineMode::Select)
@@ -115,23 +112,26 @@ namespace MikuMikuWorld
 				}
 			}
 
-			canvas.updateScorllingPosition(frameTime);
-
 			ImDrawList* drawList = ImGui::GetWindowDrawList();
 			drawList->PushClipRect(canvas.getBoundaries().Min, canvas.getBoundaries().Max, true);
 
-			isHoveringNote = false;
-			hoveringNote = -1;
-
+			canvas.update(frameTime);
+			canvas.updateScorllingPosition(frameTime);
 			canvas.drawBackground(renderer);
 			canvas.drawLanesBackground();
-			contextMenu();
+			
 			drawMeasures();
 			updateTempoChanges();
 			updateTimeSignatures();
 			updateSkills();
 			drawLanes();
+
+			contextMenu();
 			updateCursor();
+
+			noteCtrlHeight = canvas.getNotesHeight();
+			isHoveringNote = false;
+			hoveringNote = -1;
 			updateNotes(renderer);
 
 			// update dragging
@@ -162,7 +162,7 @@ namespace MikuMikuWorld
 	void ScoreEditor::contextMenu()
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 10));
-		if (ImGui::BeginPopupContextWindow(timelineWindow))
+		if (ImGui::BeginPopupContextWindow(timelineWindowTitle))
 		{
 			if (ImGui::MenuItem(ICON_FA_TRASH "\tDelete", "Delete", false, selection.hasSelection()))
 				deleteSelected();
@@ -171,10 +171,10 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(ICON_FA_COPY "\tCopy", "Ctrl + C", false, selection.hasSelection()))
 				copy();
 
-			if (ImGui::MenuItem(ICON_FA_PASTE "\tPaste", "Ctrl + V", false, hasClipboard()))
+			if (ImGui::MenuItem(ICON_FA_PASTE "\tPaste", "Ctrl + V", false, Clipboard::hasData()))
 				paste();
 
-			if (ImGui::MenuItem(ICON_FA_PASTE "\tFlip Paste", "Ctrl + Shift + V", false, hasClipboard()))
+			if (ImGui::MenuItem(ICON_FA_PASTE "\tFlip Paste", "Ctrl + Shift + V", false, Clipboard::hasData()))
 				flipPaste();
 
 			if (ImGui::MenuItem(ICON_FA_GRIP_LINES_VERTICAL "\tFlip", "Ctrl + F", false, selection.hasSelection()))
@@ -216,9 +216,9 @@ namespace MikuMikuWorld
 		ImGui::PopStyleVar();
 	}
 
-	void ScoreEditor::updateScoreDetails()
+	void ScoreEditor::propertiesWindow()
 	{
-		if (ImGui::Begin(detailsWindow, NULL, ImGuiWindowFlags_Static))
+		if (ImGui::Begin(detailsWindowTitle, NULL, ImGuiWindowFlags_Static))
 		{
 			if (ImGui::CollapsingHeader(ICON_FA_ALIGN_LEFT " Metadata", ImGuiTreeNodeFlags_DefaultOpen))
 			{
@@ -266,23 +266,23 @@ namespace MikuMikuWorld
 			{
 				UI::beginPropertyColumns();
 
-				std::string filename = musicFile;
+				std::string filename = workingData.musicFilename;
 				int filePickResult = UI::addFileProperty("Music File", filename);
-				if (filePickResult == 1 && filename != musicFile)
+				if (filePickResult == 1 && filename != workingData.musicFilename)
 				{
 					loadMusic(filename);
 				}
 				else if (filePickResult == 2)
 				{
-					if (FileDialog::openFile(filename, FileType::AudioFile) && filename != musicFile)
+					if (FileDialog::openFile(filename, FileType::AudioFile) && filename != workingData.musicFilename)
 						loadMusic(filename);
 				}
 
-				float offset = musicOffset;
+				float offset = workingData.musicOffset;
 				UI::addFloatProperty("Music Offset", offset, "%.03fms");
-				if (offset != musicOffset)
+				if (offset != workingData.musicOffset)
 				{
-					musicOffset = offset;
+					workingData.musicOffset = offset;
 					audio.setBGMOffset(time, offset);
 				}
 
@@ -339,9 +339,9 @@ namespace MikuMikuWorld
 			prefix + std::to_string((customSelected ? customDivision : divisions[divIndex]));
 	}
 
-	void ScoreEditor::updateControls()
+	void ScoreEditor::controlsWindow()
 	{
-		if (ImGui::Begin(controlsWindow))
+		if (ImGui::Begin(controlsWindowTitle))
 		{
 			int measure = accumulateMeasures(currentTick, TICKS_PER_BEAT, score.timeSignatures);
 			const TimeSignature& ts = score.timeSignatures[findTimeSignature(measure, score.timeSignatures)];
@@ -441,89 +441,9 @@ namespace MikuMikuWorld
 		ImGui::End();
 	}
 
-	void ScoreEditor::updatePresetsWindow()
-	{
-		if (ImGui::Begin(presetsWindow))
-		{
-			static std::string presetName = "";
-			static std::string presetDesc = "";
-			int removePattern = -1;
-
-			presetFilter.Draw("##preset_filter", ICON_FA_SEARCH " Search...", -1);
-
-			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.15f, 0.15f, 0.15f, 1.00f));
-			float windowHeight = ImGui::GetContentRegionAvail().y - ((ImGui::GetFrameHeight() * 3.0f) + 50);
-			if (ImGui::BeginChild("presets_child_window", ImVec2(-1, windowHeight), true))
-			{
-				const auto& presets = presetManager.getPresets();
-
-				if (!presets.size())
-				{
-					ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
-					Utilities::ImGuiCenteredText("No presets available.");
-					ImGui::PopStyleVar();
-				}
-				else
-				{
-					for (const auto& [id, preset] : presets)
-					{
-						if (!presetFilter.PassFilter(preset.getName().c_str()))
-							continue;
-
-						std::string strID = std::to_string(id) + "_" + preset.getName();
-						ImGui::PushID(strID.c_str());
-						if (ImGui::Button(preset.getName().c_str(), ImVec2(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2.0f, UI::btnSmall.y + 2.0f)))
-						{
-							if (isPasting())
-								cancelPaste();
-
-							insertingPreset = true;
-							presetNotes = preset.notes;
-							presetHolds = preset.holds;
-						}
-
-						if (preset.description.size())
-							UI::tooltip(preset.description.c_str());
-
-						ImGui::SameLine();
-						if (UI::transparentButton(ICON_FA_TRASH, ImVec2(UI::btnSmall.x, UI::btnSmall.y + 2.0f)))
-							removePattern = id;
-
-						ImGui::PopID();
-					}
-				}
-			}
-			ImGui::EndChild();
-
-			UI::beginPropertyColumns();
-			UI::addStringProperty("Name", presetName);
-			UI::addMultilineString("Description", presetDesc);
-			UI::endPropertyColumns();
-			ImGui::Separator();
-
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !presetName.size() || !selection.hasSelection());
-			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * (!presetName.size() || !selection.hasSelection())));
-			if (ImGui::Button("Create Preset", ImVec2(-1, UI::btnSmall.y + 2.0f)))
-			{
-				presetManager.createPreset(score, selection.getSelection(), presetName, presetDesc);
-				presetName.clear();
-				presetDesc.clear();
-			}
-
-			ImGui::PopStyleColor();
-			ImGui::PopStyleVar();
-			ImGui::PopItemFlag();
-
-			if (removePattern != -1)
-				presetManager.removePreset(removePattern);
-		}
-
-		ImGui::End();
-	}
-
 	void ScoreEditor::debugInfo()
 	{
-		if (ImGui::Begin(debugWindow, NULL, ImGuiWindowFlags_Static))
+		if (ImGui::Begin(Title, NULL, ImGuiWindowFlags_Static))
 		{
 			ImGuiIO io = ImGui::GetIO();
 			ImGui::Text("Canvas Size: (%f, %f)", canvas.getSize().x, canvas.getSize().y);
@@ -547,7 +467,7 @@ namespace MikuMikuWorld
 			const char* hasEase = selection.hasEase() ? "yes" : "no";
 			const char* hasStep = selection.hasStep() ? "yes" : "no";
 			ImGui::Text("Selection has ease: %s\nSelection has step: %s", hasEase, hasStep);
-			ImGui::Text("Notes in clipboard: %d", copyNotes.size());
+			ImGui::Text("Notes in clipboard: %d", Clipboard::count());
 
 			auto it = score.notes.find(hoveringNote);
 			ImGui::Text("Hover note: %s", (it == score.notes.end() ? "None" : ""));
@@ -563,11 +483,19 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::update(float frameTime, Renderer* renderer)
 	{
-		updateToolboxWindow();
-		updateControls();
+		toolboxWindow();
+		controlsWindow();
 		updateTimeline(frameTime, renderer);
-		updateScoreDetails();
-		updatePresetsWindow();
+		propertiesWindow();
+		
+		if (presetManager.updateWindow(score, selection.getSelection()))
+		{
+			if (isPasting())
+				cancelPaste();
+
+			insertingPreset = true;
+		}
+		
 		updateNoteSE();
 		
 #ifdef _DEBUG

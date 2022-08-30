@@ -32,6 +32,7 @@ namespace MikuMikuWorld
 		bool hasFlickable() const;
 
 		const std::unordered_set<int>& getSelection();
+		std::unordered_set<int> getHolds(const Score& score);
 	};
 }
 

@@ -10,12 +10,12 @@
 
 namespace MikuMikuWorld
 {
-	constexpr const char* toolboxWindow = ICON_FA_TOOLBOX " Toolbox";
-	constexpr const char* controlsWindow = ICON_FA_ADJUST " Controls";
-	constexpr const char* timelineWindow = ICON_FA_MUSIC " Notes Timeline";
-	constexpr const char* detailsWindow = ICON_FA_ALIGN_LEFT " Chart Properties";
-	constexpr const char* presetsWindow = ICON_FA_DRAFTING_COMPASS " Presets";
-	constexpr const char* debugWindow = ICON_FA_BUG " Debug";
+	constexpr const char* toolboxWindowTitle = ICON_FA_TOOLBOX " Toolbox";
+	constexpr const char* controlsWindowTitle = ICON_FA_ADJUST " Controls";
+	constexpr const char* timelineWindowTitle = ICON_FA_MUSIC " Notes Timeline";
+	constexpr const char* detailsWindowTitle = ICON_FA_ALIGN_LEFT " Chart Properties";
+	constexpr const char* presetsWindowTitle = ICON_FA_DRAFTING_COMPASS " Presets";
+	constexpr const char* Title = ICON_FA_BUG " Debug";
 	constexpr const char* windowTitle = " - " APP_NAME;
 	constexpr const char* windowUntitled = "Untitled";
 	constexpr const char* aboutModalTitle = "About - " APP_NAME_FRIENDLY;

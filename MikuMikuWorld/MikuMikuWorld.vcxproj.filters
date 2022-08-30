@@ -142,6 +142,9 @@
     <ClCompile Include="Selection.cpp">
       <Filter>Components\ScoreEditor</Filter>
     </ClCompile>
+    <ClCompile Include="Clipboard.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -308,6 +311,9 @@
     </ClInclude>
     <ClInclude Include="ScoreEvents.h">
       <Filter>Score</Filter>
+    </ClInclude>
+    <ClInclude Include="Clipboard.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

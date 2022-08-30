@@ -36,8 +36,6 @@ namespace MikuMikuWorld
 		framebuffer = new Framebuffer(1080, 1920);
 
 		time = 0;
-		songStart = 0;
-		songEnd = 0;
 		masterVolume = 0.8f;
 		bgmVolume = 1.0f;
 		seVolume = 1.0f;
@@ -45,6 +43,8 @@ namespace MikuMikuWorld
 		dragging = false;
 		hasEdit = false;
 		playStartTime = 0;
+
+		pasting = flipPasting = insertingPreset = false;
 
 		audio.initAudio();
 		audio.setMasterVolume(masterVolume);
@@ -64,10 +64,10 @@ namespace MikuMikuWorld
 		workingData.title = score.metadata.title;
 		workingData.designer = score.metadata.author;
 		workingData.artist = score.metadata.artist;
+		workingData.musicOffset = score.metadata.musicOffset;
 
 		loadMusic(score.metadata.musicFile);
-		musicOffset = score.metadata.musicOffset;
-		audio.setBGMOffset(time, musicOffset);
+		audio.setBGMOffset(time, workingData.musicOffset);
 	}
 
 	void ScoreEditor::writeScoreMetadata()
@@ -75,8 +75,8 @@ namespace MikuMikuWorld
 		score.metadata.title = workingData.title;
 		score.metadata.author = workingData.designer;
 		score.metadata.artist = workingData.artist;
-		score.metadata.musicFile = musicFile;
-		score.metadata.musicOffset = musicOffset;
+		score.metadata.musicFile = workingData.musicFilename;
+		score.metadata.musicOffset = workingData.musicOffset;
 	}
 
 	void ScoreEditor::loadScore(const std::string& filename)
@@ -111,7 +111,7 @@ namespace MikuMikuWorld
 	void ScoreEditor::loadMusic(const std::string& filename)
 	{
 		audio.changeBGM(filename);
-		musicFile = filename;
+		workingData.musicFilename = filename;
 	}
 
 	void ScoreEditor::open()
@@ -184,7 +184,7 @@ namespace MikuMikuWorld
 		resetNextID();
 
 		workingData = EditorScoreData{};
-		score = Score();
+		score = Score{};
 		stats.reset();
 
 		hasEdit = false;
@@ -337,7 +337,7 @@ namespace MikuMikuWorld
 	{
 		songPosLastFrame = songPos;
 
-		if (audio.isMusicInitialized() && playing && audio.getAudioPosition() >= musicOffset && !audio.isMusicAtEnd())
+		if (audio.isMusicInitialized() && playing && audio.getAudioPosition() >= workingData.musicOffset && !audio.isMusicAtEnd())
 			songPos = audio.getAudioPosition();
 		else
 			songPos = time;
@@ -686,37 +686,25 @@ namespace MikuMikuWorld
 			isHoldingNote = false;
 			if (hasEdit)
 			{
-				std::unordered_set<int> sortHolds;
-				for (auto& id : selection.getSelection())
+				// only need to sort if the notes are moved
+				if (!strcmp(id, "M") && holdTick != hoverTick)
 				{
-					const Note& note = score.notes.at(id);
-					if (note.getType() == NoteType::Hold)
-						sortHolds.insert(note.ID);
-					else if (note.getType() == NoteType::HoldMid || note.getType() == NoteType::HoldEnd)
-						sortHolds.insert(note.parentID);
-				}
-
-				for (int id : sortHolds)
-				{
-					HoldNote& hold = score.holdNotes.at(id);
-					Note& start = score.notes.at(id);
-					Note& end = score.notes.at(hold.end);
-
-					if (start.tick > end.tick)
+					std::unordered_set<int> sortHolds = selection.getHolds(score);
+					for (int id : sortHolds)
 					{
-						// swap
-						start.tick = start.tick ^ end.tick;
-						end.tick = start.tick ^ end.tick;
-						start.tick = start.tick ^ end.tick;
-					}
+						HoldNote& hold = score.holdNotes.at(id);
+						Note& start = score.notes.at(id);
+						Note& end = score.notes.at(hold.end);
 
-					sortHoldSteps(score, hold);
-					skipUpdateAfterSortingSteps = true;
+						if (start.tick > end.tick)
+							std::swap(start.tick, end.tick);
+
+						sortHoldSteps(score, hold);
+						skipUpdateAfterSortingSteps = true;
+					}
 				}
 
-				//if (holdLane != hoverLane || (!strcmp(id, "M") && (holdTick != hoverTick)))
 				pushHistory("Update notes", prevUpdateScore, score);
-
 				hasEdit = false;
 			}
 		}
