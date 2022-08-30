@@ -39,8 +39,6 @@ namespace MikuMikuWorld
 		Score prevUpdateScore;
 		Score score;
 		EditorScoreData workingData;
-		std::string musicFile;
-		float musicOffset;
 		std::unordered_map<std::string, int> tickSEMap;
 
 		Note dummy;

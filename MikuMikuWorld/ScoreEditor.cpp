@@ -64,10 +64,10 @@ namespace MikuMikuWorld
 		workingData.title = score.metadata.title;
 		workingData.designer = score.metadata.author;
 		workingData.artist = score.metadata.artist;
+		workingData.musicOffset = score.metadata.musicOffset;
 
 		loadMusic(score.metadata.musicFile);
-		musicOffset = score.metadata.musicOffset;
-		audio.setBGMOffset(time, musicOffset);
+		audio.setBGMOffset(time, workingData.musicOffset);
 	}
 
 	void ScoreEditor::writeScoreMetadata()
@@ -75,8 +75,8 @@ namespace MikuMikuWorld
 		score.metadata.title = workingData.title;
 		score.metadata.author = workingData.designer;
 		score.metadata.artist = workingData.artist;
-		score.metadata.musicFile = musicFile;
-		score.metadata.musicOffset = musicOffset;
+		score.metadata.musicFile = workingData.musicFilename;
+		score.metadata.musicOffset = workingData.musicOffset;
 	}
 
 	void ScoreEditor::loadScore(const std::string& filename)
@@ -111,7 +111,7 @@ namespace MikuMikuWorld
 	void ScoreEditor::loadMusic(const std::string& filename)
 	{
 		audio.changeBGM(filename);
-		musicFile = filename;
+		workingData.musicFilename = filename;
 	}
 
 	void ScoreEditor::open()
@@ -184,7 +184,7 @@ namespace MikuMikuWorld
 		resetNextID();
 
 		workingData = EditorScoreData{};
-		score = Score();
+		score = Score{};
 		stats.reset();
 
 		hasEdit = false;
@@ -337,7 +337,7 @@ namespace MikuMikuWorld
 	{
 		songPosLastFrame = songPos;
 
-		if (audio.isMusicInitialized() && playing && audio.getAudioPosition() >= musicOffset && !audio.isMusicAtEnd())
+		if (audio.isMusicInitialized() && playing && audio.getAudioPosition() >= workingData.musicOffset && !audio.isMusicAtEnd())
 			songPos = audio.getAudioPosition();
 		else
 			songPos = time;

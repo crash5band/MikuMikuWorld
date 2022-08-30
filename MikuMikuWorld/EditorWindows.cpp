@@ -265,23 +265,23 @@ namespace MikuMikuWorld
 			{
 				UI::beginPropertyColumns();
 
-				std::string filename = musicFile;
+				std::string filename = workingData.musicFilename;
 				int filePickResult = UI::addFileProperty("Music File", filename);
-				if (filePickResult == 1 && filename != musicFile)
+				if (filePickResult == 1 && filename != workingData.musicFilename)
 				{
 					loadMusic(filename);
 				}
 				else if (filePickResult == 2)
 				{
-					if (FileDialog::openFile(filename, FileType::AudioFile) && filename != musicFile)
+					if (FileDialog::openFile(filename, FileType::AudioFile) && filename != workingData.musicFilename)
 						loadMusic(filename);
 				}
 
-				float offset = musicOffset;
+				float offset = workingData.musicOffset;
 				UI::addFloatProperty("Music Offset", offset, "%.03fms");
-				if (offset != musicOffset)
+				if (offset != workingData.musicOffset)
 				{
-					musicOffset = offset;
+					workingData.musicOffset = offset;
 					audio.setBGMOffset(time, offset);
 				}
 
