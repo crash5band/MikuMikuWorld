@@ -313,6 +313,9 @@ namespace MikuMikuWorld
 			slides.push_back(slide);
 		}
 
+		for (const auto& skill : score.skills)
+			taps.push_back(SUSNote{ skill.tick, 0, 1, 4 });
+
 		for (const auto& tempo : score.tempoChanges)
 			bpms.push_back(BPM{ tempo.tick, tempo.bpm });
 
