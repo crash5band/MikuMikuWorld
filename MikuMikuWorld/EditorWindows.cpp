@@ -124,6 +124,7 @@ namespace MikuMikuWorld
 			updateTempoChanges();
 			updateTimeSignatures();
 			updateSkills();
+			drawFever(score.fever);
 			drawLanes();
 
 			contextMenu();

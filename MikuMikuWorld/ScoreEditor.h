@@ -146,6 +146,7 @@ namespace MikuMikuWorld
 		void drawTimeSignature(int numerator, int denominator, int tick);
 		void drawSkill(const SkillTrigger& skill);
 		void drawSkill(int tick);
+		void drawFever(const Fever& fever);
 
 		// helper methods
 		std::string getDivisonString(int divIndex);

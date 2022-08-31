@@ -9,4 +9,10 @@ namespace MikuMikuWorld
 		int ID;
 		int tick;
 	};
+
+	struct Fever
+	{
+		int startTick;
+		int endTick;
+	};
 }

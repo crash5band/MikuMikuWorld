@@ -26,6 +26,7 @@ namespace MikuMikuWorld
 		std::vector<Tempo> tempoChanges;
 		std::map<int, TimeSignature> timeSignatures;
 		std::vector<SkillTrigger> skills;
+		Fever fever;
 
 		Score();
 	};

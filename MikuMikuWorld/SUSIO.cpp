@@ -104,11 +104,21 @@ namespace MikuMikuWorld
 		holds.reserve(sus.slides.size());
 
 		std::vector<SkillTrigger> skills;
+		Fever fever{ -1, -1 };
 
 		for (const auto& note : sus.taps)
 		{
 			if (note.lane == 0 && note.width == 1 && note.type == 4)
+			{
 				skills.push_back(SkillTrigger{ nextSkillID++, note.tick });
+			}
+			else if (note.lane == 15 && note.width == 1)
+			{
+				if (note.type == 1)
+					fever.startTick = note.tick;
+				else if (note.type == 2)
+					fever.endTick = note.tick;
+			}
 
 			if (note.lane - 2 < MIN_LANE || note.lane - 2 > MAX_LANE)
 				continue;
@@ -243,6 +253,7 @@ namespace MikuMikuWorld
 		score.tempoChanges = tempos;
 		score.timeSignatures = timeSignatures;
 		score.skills = skills;
+		score.fever = fever;
 
 		return score;
 	}
@@ -315,6 +326,12 @@ namespace MikuMikuWorld
 
 		for (const auto& skill : score.skills)
 			taps.push_back(SUSNote{ skill.tick, 0, 1, 4 });
+
+		if (score.fever.startTick != -1)
+		{
+			taps.push_back(SUSNote{ score.fever.startTick, 15, 1, 1 });
+			taps.push_back(SUSNote{ score.fever.endTick, 15, 1, 2 });
+		}
 
 		for (const auto& tempo : score.tempoChanges)
 			bpms.push_back(BPM{ tempo.tick, tempo.bpm });

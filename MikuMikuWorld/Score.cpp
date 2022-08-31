@@ -17,6 +17,8 @@ namespace MikuMikuWorld
 
 		tempoChanges.push_back(Tempo());
 		timeSignatures.insert(std::pair<int, TimeSignature>(0, TimeSignature{ 0, 4, 4 }));
+
+		fever.startTick = fever.endTick = -1;
 	}
 
 	Note readNote(NoteType type, BinaryReader* reader)
