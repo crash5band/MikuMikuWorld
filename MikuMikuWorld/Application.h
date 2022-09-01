@@ -1,12 +1,11 @@
 #pragma once
 #include "../Depends/glad/include/glad/glad.h"
 #include "../Depends/GLFW/include/GLFW/glfw3.h"
-#include "ImGui/imgui_impl_glfw.h"
-#include "ImGui/imgui_impl_opengl3.h"
 #include "Rendering/Renderer.h"
 #include "ScoreEditor.h"
 #include "Stopwatch.h"
 #include "ApplicationConfiguration.h"
+#include "ImGuiManager.h"
 
 namespace MikuMikuWorld
 {
@@ -16,13 +15,15 @@ namespace MikuMikuWorld
 		GLFWwindow* window;
 		Renderer* renderer;
 		ScoreEditor* editor;
+		ImGuiManager imgui;
+		ApplicationConfiguration config;
+
 		float lastFrame;
 		float frameDelta;
 		float appFrame;
 		float appTime;
 		float lastAppTimeUpdate;
 		bool initialized;
-		bool firstFrame;
 		bool vsync;
 		bool showPerformanceMetrics;
 		bool aboutOpen;
@@ -32,21 +33,15 @@ namespace MikuMikuWorld
 		bool autoSaveEnabled;
 		int autoSaveInterval; // in minutes
 		int autoSaveMaxCount;
-		ApplicationConfiguration config;
 
 		std::string pendingDropScoreFile;
-		std::string imguiConfigFile;
 		static std::string version;
 		static std::string appDir;
 
-		ImGuiID dockspaceID;
 		Stopwatch stopwatch;
 		Stopwatch autoSaveTimer;
 
-		void initLayout();
 		bool initOpenGL();
-		bool initImgui();
-		void setImguiStyle();
 		void update();
 		void updateDialogs();
 		void installCallbacks();
