@@ -9,10 +9,9 @@ namespace MikuMikuWorld
 
 	void ResourceManager::loadTexture(const std::string filename)
 	{
-		std::wstring wFilename = mbToWideStr(filename);
-		if (!std::filesystem::exists(wFilename))
+		if (!File::exists(filename))
 		{
-			printf("ERROR: ResourceManager::loadTexture() Could not find texture file %ws\n", wFilename.c_str());
+			printf("ERROR: ResourceManager::loadTexture() Could not find texture file %s\n", filename.c_str());
 			return;
 		}
 

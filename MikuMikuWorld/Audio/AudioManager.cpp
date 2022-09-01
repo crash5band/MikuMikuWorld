@@ -59,7 +59,7 @@ namespace MikuMikuWorld
 	{
 		std::string path{ Application::getAppDir() + "res/sound/" };
 		for (int i = 0; i < 10; ++i)
-			sounds.emplace(std::pair<std::string, Sound>(SE_NAMES[i], Sound()));
+			sounds.emplace(std::move(std::pair<std::string, Sound>(SE_NAMES[i], Sound())));
 
 		std::for_each(std::execution::par, sounds.begin(), sounds.end(), [&](auto& s) {
 			std::string filename = path + s.first + ".mp3";
