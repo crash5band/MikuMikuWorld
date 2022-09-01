@@ -17,6 +17,10 @@
 #include <unordered_set>
 #include <algorithm>
 #include <filesystem>
+#include <Windows.h>
+
+#undef min
+#undef max
 
 namespace MikuMikuWorld
 {
@@ -98,9 +102,18 @@ namespace MikuMikuWorld
 		}
 		else if (extension == MMWS_EXTENSION)
 		{
-			score = deserializeScore(filename);
-			workingData.filename = filename;
-			title = File::getFilenameWithoutExtension(filename);
+			Score backup = score;
+			try
+			{
+				score = deserializeScore(filename);
+				workingData.filename = filename;
+				title = File::getFilenameWithoutExtension(filename);
+			}
+			catch (std::runtime_error& err)
+			{
+				MessageBox(NULL, err.what(), APP_NAME, MB_OK | MB_ICONERROR);
+				score = Score{};
+			}
 		}
 
 		readScoreMetadata();

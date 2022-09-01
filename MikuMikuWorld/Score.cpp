@@ -46,6 +46,27 @@ namespace MikuMikuWorld
 		writer->writeInt32(note.critical);
 	}
 
+	ScoreMetadata readMetadata(BinaryReader* reader)
+	{
+		ScoreMetadata metadata;
+		metadata.title = reader->readString();
+		metadata.author = reader->readString();
+		metadata.artist = reader->readString();
+		metadata.musicFile = reader->readString();
+		metadata.musicOffset = reader->readSingle();
+
+		return metadata;
+	}
+
+	void writeMetadata(const ScoreMetadata& metadata, BinaryWriter* writer)
+	{
+		writer->writeString(metadata.title);
+		writer->writeString(metadata.author);
+		writer->writeString(metadata.artist);
+		writer->writeString(File::fixPath(metadata.musicFile));
+		writer->writeSingle(metadata.musicOffset);
+	}
+
 	Score deserializeScore(const std::string& filename)
 	{
 		Score score;
@@ -54,16 +75,12 @@ namespace MikuMikuWorld
 			return score;
 
 		std::string signature = reader.readString();
+		if (signature != "MMWS")
+			throw std::runtime_error("Invalid mmws file signature.");
+
 		int version = reader.readInt32();
 
-		score.tempoChanges.clear();
-		score.timeSignatures.clear();
-
-		score.metadata.title = reader.readString();
-		score.metadata.author = reader.readString();
-		score.metadata.artist = reader.readString();
-		score.metadata.musicFile = reader.readString();
-		score.metadata.musicOffset = reader.readSingle();
+		score.metadata = readMetadata(&reader);
 
 		int timeSignatureCount = reader.readInt32();
 		for (int i = 0; i < timeSignatureCount; ++i)
@@ -80,6 +97,19 @@ namespace MikuMikuWorld
 			int tick = reader.readInt32();
 			float bpm = reader.readSingle();
 			score.tempoChanges.push_back(Tempo{ tick, bpm });
+		}
+
+		if (version > 1)
+		{
+			int skillCount = reader.readInt32();
+			for (int i = 0; i < skillCount; ++i)
+			{
+				int tick = reader.readInt32();
+				score.skills.push_back(SkillTrigger{ nextSkillID++, tick });
+			}
+
+			score.fever.startTick = reader.readInt32();
+			score.fever.endTick = reader.readInt32();
 		}
 
 		int noteCount = reader.readInt32();
@@ -142,14 +172,9 @@ namespace MikuMikuWorld
 		writer.writeString("MMWS");
 
 		// verison
-		writer.writeInt32(1);
+		writer.writeInt32(2);
 
-		// metadata
-		writer.writeString(score.metadata.title);
-		writer.writeString(score.metadata.author);
-		writer.writeString(score.metadata.artist);
-		writer.writeString(File::fixPath(score.metadata.musicFile));
-		writer.writeSingle(score.metadata.musicOffset);
+		writeMetadata(score.metadata, &writer);
 
 		int timeSignatureCount = score.timeSignatures.size();
 		writer.writeInt32(timeSignatureCount);
@@ -169,6 +194,17 @@ namespace MikuMikuWorld
 			writer.writeInt32(score.tempoChanges[i].tick);
 			writer.writeSingle(score.tempoChanges[i].bpm);
 		}
+
+		int skillCount = score.skills.size();
+		writer.writeInt32(skillCount);
+
+		for (int i = 0; i < skillCount; ++i)
+		{
+			writer.writeInt32(score.skills[i].tick);
+		}
+
+		writer.writeInt32(score.fever.startTick);
+		writer.writeInt32(score.fever.endTick);
 
 		size_t noteCountAddress = writer.getStreamPosition();
 		writer.writeNull(sizeof(uint32_t));
