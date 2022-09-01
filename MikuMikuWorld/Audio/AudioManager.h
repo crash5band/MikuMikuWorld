@@ -18,7 +18,7 @@ namespace MikuMikuWorld
 		ma_sound_group seGroup;
 		ma_sound_config bgmConfig;
 		ma_sound bgm;
-		std::unordered_map<std::string, Sound> sounds;
+		std::unordered_map<std::string, std::unique_ptr<Sound>> sounds;
 
 		float bgmOffset = 0.0f;
 		bool musicInitialized = false;

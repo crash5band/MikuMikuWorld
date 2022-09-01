@@ -59,18 +59,18 @@ namespace MikuMikuWorld
 	{
 		std::string path{ Application::getAppDir() + "res/sound/" };
 		for (int i = 0; i < 10; ++i)
-			sounds.emplace(std::move(std::pair<std::string, Sound>(SE_NAMES[i], Sound())));
+			sounds.emplace(std::move(std::pair<std::string, std::unique_ptr<Sound>>(SE_NAMES[i], std::make_unique<Sound>())));
 
 		std::for_each(std::execution::par, sounds.begin(), sounds.end(), [&](auto& s) {
 			std::string filename = path + s.first + ".mp3";
-			s.second.init(filename, &engine, &seGroup, s.first == SE_CONNECT || s.first == SE_CRITICAL_CONNECT);
+			s.second->init(filename, &engine, &seGroup, s.first == SE_CONNECT || s.first == SE_CRITICAL_CONNECT);
 		});
 		
 		// adjust hold SE loop times for gapless playback
-		ma_uint64 holdNrmDuration = sounds[SE_CONNECT].getDurationInFrames();
-		ma_uint64 holdCrtDuration = sounds[SE_CRITICAL_CONNECT].getDurationInFrames();
-		sounds[SE_CONNECT].setLooptime(3000, holdNrmDuration - 3000);
-		sounds[SE_CRITICAL_CONNECT].setLooptime(3000, holdCrtDuration - 3000);
+		ma_uint64 holdNrmDuration = sounds[SE_CONNECT]->getDurationInFrames();
+		ma_uint64 holdCrtDuration = sounds[SE_CRITICAL_CONNECT]->getDurationInFrames();
+		sounds[SE_CONNECT]->setLooptime(3000, holdNrmDuration - 3000);
+		sounds[SE_CRITICAL_CONNECT]->setLooptime(3000, holdCrtDuration - 3000);
 	}
 
 	void AudioManager::uninitAudio()
@@ -202,7 +202,7 @@ namespace MikuMikuWorld
 		if (sounds.find(se) == sounds.end())
 			return;
 
-		sounds[se].playSound(start, end);
+		sounds[se]->playSound(start, end);
 	}
 
 	void AudioManager::stopSounds(bool all)
@@ -210,12 +210,12 @@ namespace MikuMikuWorld
 		if (all)
 		{
 			for (auto& [se, sound] : sounds)
-				sound.stopAll();
+				sound->stopAll();
 		}
 		else
 		{
-			sounds[SE_CONNECT].stopAll();
-			sounds[SE_CRITICAL_CONNECT].stopAll();
+			sounds[SE_CONNECT]->stopAll();
+			sounds[SE_CRITICAL_CONNECT]->stopAll();
 		}
 	}
 
