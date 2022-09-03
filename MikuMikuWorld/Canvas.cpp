@@ -46,6 +46,11 @@ namespace MikuMikuWorld
 		return y >= 0 && y <= canvasSize.y + canvasPos.y + 100;
 	}
 
+	Vector2 Canvas::getNotePos(int tick, float lane) const
+	{
+		return Vector2{ laneToPosition(lane), getNoteYPosFromTick(tick) };
+	}
+
 	float Canvas::getTimelineStartX() const
 	{
 		return canvasPos.x + laneOffset;

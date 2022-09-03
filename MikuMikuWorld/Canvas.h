@@ -43,6 +43,7 @@ namespace MikuMikuWorld
 		int positionToLane(float pos) const;
 		float laneToPosition(float lane) const;
 		bool isNoteInCanvas(const int tick) const;
+		Vector2 getNotePos(int tick, float lane) const;
 
 		float getTimelineStartX() const;
 		float getTimelineEndX() const;

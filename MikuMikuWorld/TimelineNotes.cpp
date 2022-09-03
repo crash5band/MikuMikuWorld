@@ -291,8 +291,7 @@ namespace MikuMikuWorld
 							{
 								const Sprite& s = tex.sprites[sprIndex];
 								Vector2 pos{
-									canvas.laneToPosition(n3.lane + offsetLane + ((n3.width) / 2.0f)),
-									canvas.getNoteYPosFromTick(n3.tick + offsetTicks)
+									canvas.getNotePos(n3.lane + offsetLane + ((n3.width) / 2.0f), n3.tick + offsetTicks)
 								};
 
 								if (note.steps[i].type == HoldStepType::Ignored)
@@ -331,7 +330,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::drawHighlight(const Note& note, Renderer* renderer, const Color& tint, bool mid, const int offsetTick, const int offsetLane)
 	{
-		Vector2 pos(canvas.laneToPosition(note.lane + offsetLane), canvas.getNoteYPosFromTick(note.tick + offsetTick));
+		Vector2 pos{ canvas.getNotePos(note.tick + offsetTick, note.lane + offsetLane) };
 		const Vector2 sliceSz(NOTES_SLICE_WIDTH, mid ? HIGHLIGHT_HEIGHT : canvas.getNotesHeight() + 5);
 		const AnchorType anchor = AnchorType::MiddleLeft;
 
@@ -438,7 +437,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
 	{
-		Vector2 pos(canvas.laneToPosition(note.lane + offsetLane), canvas.getNoteYPosFromTick(note.tick + offsetTick));
+		Vector2 pos{ canvas.getNotePos(note.tick + offsetTick, note.lane + offsetLane) };
 		const Vector2 sliceSz(NOTES_SLICE_WIDTH, canvas.getNotesHeight());
 		const AnchorType anchor = AnchorType::MiddleLeft;
 
