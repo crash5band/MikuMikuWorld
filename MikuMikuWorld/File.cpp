@@ -128,7 +128,11 @@ namespace MikuMikuWorld
 
 	std::string File::getFileExtension(const std::string& filename)
 	{
-		return std::filesystem::path(filename).extension().string();
+		size_t end = filename.find_last_of(".");
+		if (end == std::string::npos)
+			throw std::runtime_error("Cannot get the extension of a file without extension.");
+
+		return filename.substr(end);
 	}
 
 	std::string File::getFilenameWithoutExtension(const std::string& filename)
