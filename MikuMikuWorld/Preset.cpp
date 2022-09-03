@@ -94,6 +94,7 @@ namespace MikuMikuWorld
 		int id = 0;
 		if (data.find("notes") != data.end())
 		{
+			notes.reserve(data["notes"].size());
 			for (const auto& noteData : data["notes"])
 			{
 				Note note = readNote(noteData, NoteType::Tap);
@@ -104,6 +105,7 @@ namespace MikuMikuWorld
 
 		if (data.find("holds") != data.end())
 		{
+			holds.reserve(data["holds"].size());
 			for (const auto& holdData : data["holds"])
 			{
 				HoldNote hold;
@@ -112,16 +114,19 @@ namespace MikuMikuWorld
 				notes[start.ID] = start;
 
 				hold.start = HoldStep{ start.ID, HoldStepType::Visible, getNoteEase(holdData["start"]["ease"]) };
-
-				for (const auto& stepData : holdData["steps"])
+				if (holdData.find("steps") != holdData.end())
 				{
-					Note mid = readNote(stepData, NoteType::HoldMid);
-					mid.ID = id++;
-					mid.parentID = start.ID;
-					mid.critical = start.critical;
-					notes[mid.ID] = mid;
+					hold.steps.reserve(holdData["steps"].size());
+					for (const auto& stepData : holdData["steps"])
+					{
+						Note mid = readNote(stepData, NoteType::HoldMid);
+						mid.ID = id++;
+						mid.parentID = start.ID;
+						mid.critical = start.critical;
+						notes[mid.ID] = mid;
 
-					hold.steps.push_back(HoldStep{ mid.ID, getStepType(stepData["type"]), getNoteEase(stepData["ease"]) });
+						hold.steps.push_back(HoldStep{ mid.ID, getStepType(stepData["type"]), getNoteEase(stepData["ease"]) });
+					}
 				}
 
 				Note end = readNote(holdData["end"], NoteType::HoldEnd);
@@ -130,7 +135,6 @@ namespace MikuMikuWorld
 				notes[end.ID] = end;
 
 				hold.end = end.ID;
-
 				holds[start.ID] = hold;
 			}
 		}
