@@ -145,6 +145,9 @@
     <ClCompile Include="Clipboard.cpp">
       <Filter>Components</Filter>
     </ClCompile>
+    <ClCompile Include="ImGuiManager.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -314,6 +317,9 @@
     </ClInclude>
     <ClInclude Include="Clipboard.h">
       <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiManager.h">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

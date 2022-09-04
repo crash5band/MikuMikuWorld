@@ -20,7 +20,7 @@ namespace MikuMikuWorld
 	Vector2 Application::windowSize;
 
 	Application::Application(const std::string& root) :
-		lastAppTimeUpdate{ 0 }, appFrame{ 0 }, appTime{ 0 }, firstFrame{ true }, initialized{ false }
+		lastAppTimeUpdate{ 0 }, appFrame{ 0 }, appTime{ 0 }, initialized{ false }
 	{
 		appDir = root;
 		version = getVersion();
@@ -36,11 +36,7 @@ namespace MikuMikuWorld
 		if (!initOpenGL())
 			exit(1);
 
-		imguiConfigFile = std::string{ appDir + IMGUI_CONFIG_FILENAME };
-		if (!initImgui())
-			exit(2);
-
-		setImguiStyle();
+		imgui.initialize(window);
 		applyAccentColor(config.accentColor);
 
 		renderer = new Renderer();
@@ -56,7 +52,6 @@ namespace MikuMikuWorld
 
 		editor->presetManager.loadPresets(appDir + "library/");
 
-		dockspaceID = 3939;
 		initialized = true;
 	}
 
@@ -84,10 +79,7 @@ namespace MikuMikuWorld
 
 		if (initialized)
 		{
-			ImGui_ImplOpenGL3_Shutdown();
-			ImGui_ImplGlfw_Shutdown();
-			ImGui::DestroyContext();
-
+			imgui.shutdown();
 			glfwDestroyWindow(window);
 			glfwTerminate();
 		}
@@ -462,50 +454,6 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void Application::initLayout()
-	{
-		ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
-			ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
-			ImGuiWindowFlags_NoBackground;
-
-		ImGuiViewport* viewport = ImGui::GetMainViewport();
-		ImGui::SetNextWindowPos(viewport->WorkPos);
-		ImGui::SetNextWindowSize(viewport->WorkSize);
-		ImGui::SetNextWindowViewport(viewport->ID);
-
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::Begin("InvisibleWindow", nullptr, windowFlags); // This is basically the background window that contains all the dockable windows
-		ImGui::PopStyleVar(3);
-
-		ImGuiID dockSpaceId = ImGui::GetID("InvisibleWindowDockSpace");
-
-		if (!ImGui::DockBuilderGetNode(dockSpaceId))
-		{
-			ImGui::DockBuilderAddNode(dockSpaceId, ImGuiDockNodeFlags_DockSpace);
-			ImGui::DockBuilderSetNodeSize(dockSpaceId, viewport->WorkSize);
-
-			ImGuiID dockMainId = dockSpaceId;
-			ImGuiID topLeftId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Left, 0.175f, nullptr, &dockMainId);
-			ImGuiID bottomLeftId = ImGui::DockBuilderSplitNode(topLeftId, ImGuiDir_Down, 0.5f, nullptr, &topLeftId);
-			ImGuiID topRightId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Right, 0.25f, nullptr, &dockMainId);
-			ImGuiID bottomRightId = ImGui::DockBuilderSplitNode(topRightId, ImGuiDir_Down, 0.5f, nullptr, &topRightId);
-
-			ImGui::DockBuilderDockWindow(timelineWindowTitle, dockMainId);
-			ImGui::DockBuilderDockWindow(toolboxWindowTitle, topLeftId);
-			ImGui::DockBuilderDockWindow(controlsWindowTitle, bottomLeftId);
-			ImGui::DockBuilderDockWindow(detailsWindowTitle, topRightId);
-			ImGui::DockBuilderDockWindow(presetsWindowTitle, bottomRightId);
-
-			ImGui::DockBuilderFinish(dockMainId);
-		}
-
-		ImGui::DockSpace(dockSpaceId, ImVec2(), ImGuiDockNodeFlags_PassthruCentralNode);
-		ImGui::End();
-	}
-
 	void Application::handlePendingOpenFiles()
 	{
 		std::string scoreFile = "";
@@ -539,8 +487,7 @@ namespace MikuMikuWorld
 
 	void Application::update()
 	{
-		initLayout();
-
+		imgui.initializeLayout();
 		if (!dragDropHandled)
 		{
 			handlePendingOpenFiles();
@@ -552,12 +499,6 @@ namespace MikuMikuWorld
 		menuBar();
 		editor->update(frameDelta, renderer);
 		updateDialogs();
-
-		if (firstFrame)
-		{
-			ImGui::SetWindowFocus(timelineWindowTitle);
-			firstFrame = false;
-		}
 
 		if (glfwGetTime() - lastAppTimeUpdate >= 0.05f)
 		{
@@ -614,26 +555,13 @@ namespace MikuMikuWorld
 			glfwPollEvents();
 			frameTime();
 
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
-
+			imgui.begin();
 			update();
 
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			ImGui::Render();
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-			
-			if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-			{
-				GLFWwindow* backupCurrentContext = glfwGetCurrentContext();
-				ImGui::UpdatePlatformWindows();
-				ImGui::RenderPlatformWindowsDefault();
-				glfwMakeContextCurrent(window);
-			}
-
+			imgui.draw(window);
 			glfwSwapBuffers(window);
 		}
 
