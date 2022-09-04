@@ -31,7 +31,7 @@ namespace MikuMikuWorld
 		inline int getWidth() const { return width; }
 		inline int getHeight() const { return height; }
 		inline unsigned int getID() const { return glID; }
-		inline std::string getName() const { return name; }
+		inline const std::string& getName() const { return name; }
 
 		void bind() const;
 		void dispose();

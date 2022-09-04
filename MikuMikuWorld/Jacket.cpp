@@ -14,8 +14,11 @@ namespace MikuMikuWorld
 		clear();
 	}
 
-	void Jacket::load(const std::string filename)
+	void Jacket::load(const std::string& filename)
 	{
+		if (!filename.size())
+			return;
+
 		ResourceManager::loadTexture(filename);
 		int texIndex = ResourceManager::getTexture(File::getFilenameWithoutExtension(filename));
 		
