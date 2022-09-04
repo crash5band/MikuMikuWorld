@@ -49,7 +49,7 @@ namespace MikuMikuWorld
 		case FileType::AudioFile:
 			return L"Audio Files(*.mp3;*.wav;*.flac;*.ogg)\0*.mp3;*.wav;*.flac;*.ogg\0MP3 Files(*.mp3)\0*.mp3\0WAV Files(*.wav)\0*.wav\0FLAC Files(*.flac)\0*.flac\0OGG Vorbis Files(*.ogg)\0*.ogg\0";
 		case FileType::ImageFile:
-			return L"JPEG Files(*.jpeg)\0(*.jpeg)\0PNG Files(*.png)\0*.png\0";
+			return L"Image Files (*.jpeg;*.jpg;*.png)\0*.jpeg;*.jpg;*.png\0JPEG Files(*.jpeg;*.jpg)\0*.jpeg;*.jpg\0PNG Files(*.png)\0*.png\0";
 		default:
 			return L"All Files(*.*)\0*.*\0";
 		}
