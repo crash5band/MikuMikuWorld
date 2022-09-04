@@ -620,55 +620,6 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void ScoreEditor::updateSkills()
-	{
-		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		int removeSkill = -1;
-
-		for (const auto& skill : score.skills)
-		{
-			drawSkill(skill);
-
-			const float y = canvas.getPosition().y - canvas.tickToPosition(skill.tick) + canvas.getVisualOffset();
-			std::string id = "skill-" + std::to_string(skill.ID);
-			UI::transparentButton2(id.c_str(), ImVec2(canvas.getTimelineStartX() - 60.0f, y - 30.0f), ImVec2(60.0f, 30.0f));
-
-			ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
-			if (ImGui::BeginPopupContextItem(id.c_str(), ImGuiPopupFlags_MouseButtonLeft | ImGuiPopupFlags_NoOpenOverExistingPopup))
-			{
-				ImGui::Text("Edit Skill");
-				ImGui::Separator();
-
-				UI::beginPropertyColumns();
-				UI::addReadOnlyProperty("Tick", std::to_string(skill.tick));
-				UI::endPropertyColumns();
-
-				if (ImGui::Button("Remove", ImVec2(-1, UI::btnNormal.y)))
-				{
-					removeSkill = skill.ID;
-					ImGui::CloseCurrentPopup();
-				}
-
-				ImGui::EndPopup();
-			}
-		}
-
-		if (removeSkill != -1)
-		{
-			Score prev = score;
-			for (auto it = score.skills.begin(); it != score.skills.end(); ++it)
-			{
-				if (it->ID == removeSkill)
-				{
-					score.skills.erase(it);
-					break;
-				}
-			}
-
-			history.pushHistory("Remove skill", prev, score);
-		}
-	}
-
 	bool ScoreEditor::noteControl(const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor)
 	{
 		ImGui::SetCursorScreenPos(pos);
@@ -901,10 +852,6 @@ namespace MikuMikuWorld
 		{
 			drawTimeSignature(defaultTimeSignN, defaultTimeSignD, hoverTick);
 		}
-		else if (currentMode == TimelineMode::InsertSkill)
-		{
-			drawSkill(hoverTick);
-		}
 		else
 		{
 			drawNote(dummy, renderer, hoverTint);
@@ -930,10 +877,6 @@ namespace MikuMikuWorld
 		else if (currentMode == TimelineMode::InsertTimeSign)
 		{
 			insertTimeSignature();
-		}
-		else if (currentMode == TimelineMode::InsertSkill)
-		{
-			insertSkill();
 		}
 		else
 		{

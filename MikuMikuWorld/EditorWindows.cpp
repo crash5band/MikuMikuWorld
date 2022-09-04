@@ -123,7 +123,10 @@ namespace MikuMikuWorld
 			drawMeasures();
 			updateTempoChanges();
 			updateTimeSignatures();
-			updateSkills();
+			
+			for (const auto& skill : score.skills)
+				drawSkill(skill);
+
 			drawFever(score.fever);
 			drawLanes();
 

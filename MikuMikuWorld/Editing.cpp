@@ -519,17 +519,4 @@ namespace MikuMikuWorld
 		score.timeSignatures[measure] = TimeSignature{ measure, defaultTimeSignN, defaultTimeSignD };
 		pushHistory("Add time signature change", prev, score);
 	}
-
-	void ScoreEditor::insertSkill()
-	{
-		for (const auto& skill : score.skills)
-		{
-			if (skill.tick == hoverTick)
-				return;
-		}
-
-		Score prev = score;
-		score.skills.push_back(SkillTrigger{ nextSkillID++, hoverTick });
-		pushHistory("Add skill trigger", prev, score);
-	}
 }

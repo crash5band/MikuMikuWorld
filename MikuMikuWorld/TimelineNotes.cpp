@@ -539,25 +539,27 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::drawFever(const Fever& fever)
 	{
-		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		if (!drawList)
+		drawFever(fever.startTick, true);
+		drawFever(fever.endTick, false);
+	}
+
+	void ScoreEditor::drawFever(int tick, bool start)
+	{
+		if (tick < 0)
 			return;
 
-		if (fever.startTick == -1 || fever.endTick == -1)
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		if (!drawList)
 			return;
 
 		const float x1 = canvas.getTimelineStartX();
 		const float x2 = canvas.getTimelineEndX();
 
-		const std::string txt1 = "FEVER " ICON_FA_CHEVRON_UP;
-		const std::string txt2 = "FEVER " ICON_FA_CHEVRON_DOWN;
+		std::string txt = "FEVER ";
+		txt.append(start ? ICON_FA_CHEVRON_UP : ICON_FA_CHEVRON_DOWN);
 
-		const float y1 = canvas.getPosition().y - canvas.tickToPosition(fever.startTick) + canvas.getVisualOffset();
-		drawList->AddLine(ImVec2(x1, y1), ImVec2(x2 + MEASURE_WIDTH, y1), feverColor, 2.0f);
-		drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 + 5.0f, y1 - 25.0f), feverColor, txt1.c_str());
-		
-		const float y2 = canvas.getPosition().y - canvas.tickToPosition(fever.endTick) + canvas.getVisualOffset();
-		drawList->AddLine(ImVec2(x1, y2), ImVec2(x2 + MEASURE_WIDTH, y2), feverColor, 2.0f);
-		drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 + 5.0f, y2 - 25.0f), feverColor, txt2.c_str());
+		const float y = canvas.getPosition().y - canvas.tickToPosition(tick) + canvas.getVisualOffset();
+		drawList->AddLine(ImVec2(x1, y), ImVec2(x2 + MEASURE_WIDTH, y), feverColor, 2.0f);
+		drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 + 5.0f, y - 25.0f), feverColor, txt.c_str());
 	}
 }

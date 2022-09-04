@@ -328,10 +328,10 @@ namespace MikuMikuWorld
 			taps.push_back(SUSNote{ skill.tick, 0, 1, 4 });
 
 		if (score.fever.startTick != -1)
-		{
 			taps.push_back(SUSNote{ score.fever.startTick, 15, 1, 1 });
+
+		if (score.fever.endTick != -1)
 			taps.push_back(SUSNote{ score.fever.endTick, 15, 1, 2 });
-		}
 
 		for (const auto& tempo : score.tempoChanges)
 			bpms.push_back(BPM{ tempo.tick, tempo.bpm });
