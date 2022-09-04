@@ -291,7 +291,7 @@ namespace MikuMikuWorld
 							{
 								const Sprite& s = tex.sprites[sprIndex];
 								Vector2 pos{
-									canvas.getNotePos(n3.lane + offsetLane + ((n3.width) / 2.0f), n3.tick + offsetTicks)
+									canvas.getNotePos(n3.tick + offsetTicks, n3.lane + offsetLane + ((n3.width) / 2.0f))
 								};
 
 								if (note.steps[i].type == HoldStepType::Ignored)
