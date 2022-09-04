@@ -185,6 +185,7 @@ namespace MikuMikuWorld
 	void ScoreEditor::reset()
 	{
 		resetEditor();
+		audio.disposeBGM();
 		UI::setWindowTitle(windowUntitled);
 	}
 
