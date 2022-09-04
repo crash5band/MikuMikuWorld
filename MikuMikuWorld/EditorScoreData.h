@@ -1,14 +1,9 @@
 #pragma once
+#include "Jacket.h"
 #include <string>
 
 namespace MikuMikuWorld
 {
-	struct Jacket
-	{
-		std::string filename;
-		int texID;
-	};
-
 	struct EditorScoreData
 	{
 		std::string title;
@@ -22,8 +17,7 @@ namespace MikuMikuWorld
 		EditorScoreData() :
 			filename{ "" }, title{ "" }, designer{ "" }, artist{ "" }, musicFilename{ "" }, musicOffset{ 0.0f }
 		{
-			jacket.filename = "";
-			jacket.texID = -1;
+			jacket.clear();
 		}
 	};
 }

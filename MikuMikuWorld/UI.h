@@ -2,6 +2,7 @@
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_stdlib.h"
 #include "ImGui/imgui_internal.h"
+#include "Rendering/Texture.h"
 #include "IconsFontAwesome5.h"
 #include <vector>
 
@@ -70,6 +71,7 @@ namespace MikuMikuWorld
 		static int addFileProperty(const char* label, std::string& val);
 		static void addMultilineString(const char* label, std::string& val);
 		static void tooltip(const char* label);
+		static void textureTooltip(const Texture& tex);
 
 		static void setWindowTitle(const std::string& title);
 

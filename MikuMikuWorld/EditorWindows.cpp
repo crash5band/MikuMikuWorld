@@ -231,39 +231,20 @@ namespace MikuMikuWorld
 				UI::addStringProperty("Designer", workingData.designer);
 				UI::addStringProperty("Artist", workingData.artist);
 
-				int result = UI::addFileProperty("Jacket", workingData.jacket.filename);
-				if (result == 2)
+				std::string jacketFile = workingData.jacket.getFilename();
+				int result = UI::addFileProperty("Jacket", jacketFile);
+				if (result == 1)
+				{
+					workingData.jacket.load(jacketFile);
+				}
+				else if (result == 2)
 				{
 					std::string name;
 					if (FileDialog::openFile(name, FileType::ImageFile))
-					{
-						ResourceManager::loadTexture(name);
-						int texIndex = ResourceManager::getTexture(File::getFilenameWithoutExtension(name));
-						workingData.jacket.texID = ResourceManager::textures[texIndex].getID();
-						workingData.jacket.filename = name;
-
-						canvas.changeBackground(ResourceManager::textures[texIndex]);
-					}
+						workingData.jacket.load(name);
 				}
+				workingData.jacket.draw();
 				UI::endPropertyColumns();
-
-				// draw jacket
-				ImDrawList* drawList = ImGui::GetWindowDrawList();
-
-				// center jacket
-				float windowWidth = ImGui::GetWindowSize().x;
-				float jacketSize = std::min(200.0f, windowWidth * 0.9f);
-				float xOffset = (windowWidth - 10.0f - jacketSize) / 2.0f;
-
-				ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(0, 20.0f));
-				ImVec2 cursorPos1 = ImGui::GetCursorScreenPos() + ImVec2(xOffset, 0);
-				ImVec2 cursorPos2 = ImGui::GetCursorScreenPos() + ImVec2(xOffset + 8.0f, 8.0f);
-				drawList->AddRectFilled(cursorPos1, cursorPos1 + ImVec2(jacketSize, jacketSize), 0xff151515);
-				if (workingData.jacket.texID != -1)
-				{
-					drawList->AddImage((void*)workingData.jacket.texID, cursorPos2, cursorPos2 + ImVec2(jacketSize, jacketSize));
-				}
-				ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(0, jacketSize + 20.0f));
 			}
 
 			if (ImGui::CollapsingHeader(ICON_FA_VOLUME_UP " Audio", ImGuiTreeNodeFlags_DefaultOpen))

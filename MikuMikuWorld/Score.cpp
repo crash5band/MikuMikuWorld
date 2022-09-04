@@ -46,7 +46,7 @@ namespace MikuMikuWorld
 		writer->writeInt32(note.critical);
 	}
 
-	ScoreMetadata readMetadata(BinaryReader* reader)
+	ScoreMetadata readMetadata(BinaryReader* reader, int version)
 	{
 		ScoreMetadata metadata;
 		metadata.title = reader->readString();
@@ -54,6 +54,9 @@ namespace MikuMikuWorld
 		metadata.artist = reader->readString();
 		metadata.musicFile = reader->readString();
 		metadata.musicOffset = reader->readSingle();
+
+		if (version > 1)
+			metadata.jacketFile = reader->readString();
 
 		return metadata;
 	}
@@ -65,6 +68,7 @@ namespace MikuMikuWorld
 		writer->writeString(metadata.artist);
 		writer->writeString(File::fixPath(metadata.musicFile));
 		writer->writeSingle(metadata.musicOffset);
+		writer->writeString(File::fixPath(metadata.jacketFile));
 	}
 
 	Score deserializeScore(const std::string& filename)
@@ -80,7 +84,7 @@ namespace MikuMikuWorld
 
 		int version = reader.readInt32();
 
-		score.metadata = readMetadata(&reader);
+		score.metadata = readMetadata(&reader, version);
 
 		int timeSignatureCount = reader.readInt32();
 		for (int i = 0; i < timeSignatureCount; ++i)

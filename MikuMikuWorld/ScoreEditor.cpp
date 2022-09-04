@@ -69,6 +69,7 @@ namespace MikuMikuWorld
 		workingData.designer = score.metadata.author;
 		workingData.artist = score.metadata.artist;
 		workingData.musicOffset = score.metadata.musicOffset;
+		workingData.jacket.load(score.metadata.jacketFile);
 
 		loadMusic(score.metadata.musicFile);
 		audio.setBGMOffset(time, workingData.musicOffset);
@@ -81,6 +82,7 @@ namespace MikuMikuWorld
 		score.metadata.artist = workingData.artist;
 		score.metadata.musicFile = workingData.musicFilename;
 		score.metadata.musicOffset = workingData.musicOffset;
+		score.metadata.jacketFile = workingData.jacket.getFilename();
 	}
 
 	void ScoreEditor::loadScore(const std::string& filename)

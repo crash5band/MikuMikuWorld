@@ -15,6 +15,7 @@ namespace MikuMikuWorld
 		std::string artist;
 		std::string author;
 		std::string musicFile;
+		std::string jacketFile;
 		float musicOffset;
 	};
 

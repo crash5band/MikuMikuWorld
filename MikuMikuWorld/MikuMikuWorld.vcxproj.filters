@@ -148,6 +148,9 @@
     <ClCompile Include="ImGuiManager.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="Jacket.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -320,6 +323,9 @@
     </ClInclude>
     <ClInclude Include="ImGuiManager.h">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Jacket.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

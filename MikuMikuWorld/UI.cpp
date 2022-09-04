@@ -226,9 +226,18 @@ namespace MikuMikuWorld
 		{
 			float txtWidth = ImGui::CalcTextSize(label).x + (ImGui::GetStyle().WindowPadding.x * 2);
 			ImGui::SetNextWindowSize(ImVec2(std::min(txtWidth, 250.0f), -1));
-			ImGui::BeginTooltipEx(0, ImGuiTooltipFlags_OverridePreviousTooltip);
+			ImGui::BeginTooltipEx(ImGuiTooltipFlags_OverridePreviousTooltip, ImGuiWindowFlags_NoResize);
 			ImGui::TextWrapped(label);
 			ImGui::EndTooltip();
+		}
+	}
+
+	void UI::textureTooltip(const Texture& tex)
+	{
+		if (ImGui::IsItemHovered() && GImGui->HoveredIdTimer > 0.5f)
+		{
+			const float maxSize = 100.0f;
+
 		}
 	}
 
