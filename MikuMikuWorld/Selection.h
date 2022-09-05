@@ -30,6 +30,7 @@ namespace MikuMikuWorld
 		bool hasEase() const;
 		bool hasStep() const;
 		bool hasFlickable() const;
+		bool hasNote(int id) const;
 
 		const std::unordered_set<int>& getSelection();
 		std::unordered_set<int> getHolds(const Score& score);

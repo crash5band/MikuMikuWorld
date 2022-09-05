@@ -82,6 +82,11 @@ namespace MikuMikuWorld
 		return _hasFlick;
 	}
 
+	bool Selection::hasNote(int id) const
+	{
+		return selectedNotes.find(id) != selectedNotes.end();
+	}
+
 	const std::unordered_set<int>& Selection::getSelection()
 	{
 		return selectedNotes;
