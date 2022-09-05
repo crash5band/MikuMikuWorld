@@ -8,4 +8,4 @@ A chart editor for the mobile rhythm game Project Sekai Colorful Stage feat. Hat
 - Create and use custom note presets.
 
 ## Screenshot:
-![](https://user-images.githubusercontent.com/44091782/169389624-83c4d55c-c0d8-4cad-ab87-21bc8a27dff4.jpg)
+![](https://user-images.githubusercontent.com/44091782/188503601-887773d7-9e4e-4e07-885f-b37707ff2527.png)
