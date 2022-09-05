@@ -144,9 +144,9 @@ namespace MikuMikuWorld
 		colors[ImGuiCol_SliderGrab] = color;
 		colors[ImGuiCol_SliderGrabActive] = darkColor;
 		colors[ImGuiCol_ButtonActive] = darkColor;
-		colors[ImGuiCol_Header] = color;
-		colors[ImGuiCol_HeaderHovered] = lightColor;
-		colors[ImGuiCol_HeaderActive] = darkColor;
+		//colors[ImGuiCol_Header] = color;
+		//colors[ImGuiCol_HeaderHovered] = lightColor;
+		//colors[ImGuiCol_HeaderActive] = darkColor;
 		colors[ImGuiCol_SeparatorHovered] = lightColor;
 		colors[ImGuiCol_TabHovered] = lightColor;
 		colors[ImGuiCol_TabActive] = color;
