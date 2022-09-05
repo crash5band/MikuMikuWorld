@@ -109,7 +109,6 @@ namespace MikuMikuWorld
 	void Application::writeSettings()
 	{
 		config.maximized = maximized;
-		config.version = APP_CONFIG_VERSION;
 		config.vsync = vsync;
 		config.windowPos = windowPos;
 		config.windowSize = windowSize;

@@ -36,7 +36,6 @@ namespace MikuMikuWorld
 	constexpr const char* HIGHLIGHT_TEX = "tex_note_common_all";
 	constexpr const char* APP_CONFIG_FILENAME = "app_config.json";
 	constexpr const char* IMGUI_CONFIG_FILENAME = "imgui_config.ini";
-	constexpr const char* APP_CONFIG_VERSION = "1.0.0";
 
 	constexpr const char* SE_PERFECT = "perfect";
 	constexpr const char* SE_GREAT = "great";
