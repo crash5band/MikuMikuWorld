@@ -25,7 +25,7 @@ namespace MikuMikuWorld
 		{
 			isHoveringNote = true;
 			hoveringNote = note.ID;
-			if (ImGui::IsMouseClicked(0) && !UI::isAnyPopupOpen() && ImGui::IsWindowFocused())
+			if (ImGui::IsMouseClicked(0) && !UI::isAnyPopupOpen())
 			{
 				if (!InputListener::isCtrlDown())
 					selection.clear();
