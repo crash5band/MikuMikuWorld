@@ -37,7 +37,7 @@ namespace MikuMikuWorld
 		ImGui_ImplOpenGL3_Init("#version 130");
 
 		std::string baseDir = Application::getAppDir();
-		loadFont(baseDir + "res/fonts/NotoSansJP-Regular.otf", 18.0f);
+		loadFont(baseDir + "res/fonts/NotoSansCJK-Regular.ttc", 18.0f);
 		loadIconFont(baseDir + "res/fonts/fa-solid-900.ttf", ICON_MIN_FA, ICON_MAX_FA, 14.0f);
 
 		setStyle();
@@ -132,7 +132,7 @@ namespace MikuMikuWorld
 	void ImGuiManager::loadFont(const std::string& filename, float size)
 	{
 		if (File::exists(filename))
-			io->Fonts->AddFontFromFileTTF(filename.c_str(), size, NULL, io->Fonts->GetGlyphRangesJapanese());
+			io->Fonts->AddFontFromFileTTF(filename.c_str(), size, NULL, io->Fonts->GetGlyphRangesChineseFull());
 	}
 
 	void ImGuiManager::loadIconFont(const std::string& filename, int start, int end, float size)
