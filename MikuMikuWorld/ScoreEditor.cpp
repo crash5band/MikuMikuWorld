@@ -480,7 +480,7 @@ namespace MikuMikuWorld
 			const float y = canvas.getPosition().y - canvas.tickToPosition(tick) + canvas.getVisualOffset();
 
 			drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH, y), ImVec2(x2 + MEASURE_WIDTH, y), measureColor, 1.5f);
-			drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(txtPos, y), measureColor, measureStr.c_str());
+			drawList->AddText(ImGui::GetFont(), 26.0f, ImVec2(txtPos, y), measureTxtColor, measureStr.c_str());
 
 			++measure;
 		}
