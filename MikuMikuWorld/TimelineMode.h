@@ -19,7 +19,7 @@ namespace MikuMikuWorld
 	{
 		None,
 		Page,
-		Smooth,
+		FollowCursor,
 		ScrollModeMax
 	};
 
@@ -39,7 +39,7 @@ namespace MikuMikuWorld
 	{
 		"None",
 		"Page",
-		"Smooth"
+		"Follow Cursor"
 	};
 
 	constexpr int divisions[]

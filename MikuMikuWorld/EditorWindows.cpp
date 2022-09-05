@@ -500,7 +500,7 @@ namespace MikuMikuWorld
 					canvas.scrollPage(cursorPos);
 				}
 			}
-			else if (scrollMode == ScrollMode::Smooth)
+			else if (scrollMode == ScrollMode::FollowCursor)
 			{
 				canvas.centerCursor(currentTick, playing, 1);
 			}

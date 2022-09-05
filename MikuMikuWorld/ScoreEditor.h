@@ -30,7 +30,7 @@ namespace MikuMikuWorld
 	{
 	private:
 		TimelineMode currentMode = TimelineMode::Select;
-		ScrollMode scrollMode = ScrollMode::Smooth;
+		ScrollMode scrollMode = ScrollMode::FollowCursor;
 		Camera camera;
 		Framebuffer* framebuffer;
 		ScoreStats stats;
