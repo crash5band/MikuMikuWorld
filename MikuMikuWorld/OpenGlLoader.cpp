@@ -10,30 +10,30 @@
 
 namespace MikuMikuWorld
 {
-	void Application::frameBufferResizeCallback(GLFWwindow* window, int width, int height)
+	void frameBufferResizeCallback(GLFWwindow* window, int width, int height)
 	{
 		glViewport(0, 0, width, height);
 	}
 
-	void Application::windowSizeCallback(GLFWwindow* window, int width, int height)
+	void windowSizeCallback(GLFWwindow* window, int width, int height)
 	{
-		if (!maximized)
+		if (!Application::maximized)
 		{
-			windowSize.x = width;
-			windowSize.y = height;
+			Application::windowSize.x = width;
+			Application::windowSize.y = height;
 		}
 	}
 
-	void Application::windowPositionCallback(GLFWwindow* window, int x, int y)
+	void windowPositionCallback(GLFWwindow* window, int x, int y)
 	{
-		if (!maximized)
+		if (!Application::maximized)
 		{
-			windowPos.x = x;
-			windowPos.y = y;
+			Application::windowPos.x = x;
+			Application::windowPos.y = y;
 		}
 	}
 
-	void Application::dropCallback(GLFWwindow* window, int count, const char** paths)
+	void dropCallback(GLFWwindow* window, int count, const char** paths)
 	{
 		for (int i = 0; i < count; ++i)
 		{
@@ -45,15 +45,15 @@ namespace MikuMikuWorld
 		Application::dragDropHandled = false;
 	}
 
-	void Application::windowCloseCallback(GLFWwindow* window)
+	void windowCloseCallback(GLFWwindow* window)
 	{
 		glfwSetWindowShouldClose(window, 0);
 		Application::exiting = true;
 	}
 
-	void Application::windowMaximizeCallback(GLFWwindow* window, int _maximized)
+	void windowMaximizeCallback(GLFWwindow* window, int _maximized)
 	{
-		maximized = _maximized;
+		Application::maximized = _maximized;
 	}
 
 	void loadIcon(std::string filepath, GLFWwindow* window)
@@ -105,14 +105,12 @@ namespace MikuMikuWorld
 			return false;
 		}
 
-		glViewport(0, 0, config.windowSize.x, config.windowSize.y);
 		glfwSwapInterval(config.vsync);
 		installCallbacks();
+		loadIcon(appDir + "res/mmw_icon.png", window);
 
 		if (config.maximized)
 			glfwMaximizeWindow(window);
-
-		loadIcon(appDir + "res/mmw_icon.png", window);
 
 		glLineWidth(1.0f);
 		glPointSize(1.0f);
@@ -120,6 +118,7 @@ namespace MikuMikuWorld
 		glEnablei(GL_BLEND, 0);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		glViewport(0, 0, config.windowSize.x, config.windowSize.y);
 
 		return true;
 	}

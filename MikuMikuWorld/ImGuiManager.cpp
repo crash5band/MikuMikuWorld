@@ -10,9 +10,10 @@
 
 namespace MikuMikuWorld
 {
-	ImGuiManager::ImGuiManager() : io{ nullptr }
+	ImGuiManager::ImGuiManager() :
+		io{ nullptr }, configFilename{ "" }, dockspaceID{ 3939 }
 	{
-		configFilename = std::string{ Application::getAppDir() + IMGUI_CONFIG_FILENAME};
+
 	}
 
 	bool ImGuiManager::initialize(GLFWwindow* window)
@@ -20,8 +21,9 @@ namespace MikuMikuWorld
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 
+		configFilename = Application::getAppDir() + IMGUI_CONFIG_FILENAME;
+		
 		io = &ImGui::GetIO();
-
 		io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io->ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		io->ConfigWindowsMoveFromTitleBarOnly = true;

@@ -46,13 +46,6 @@ namespace MikuMikuWorld
 		void updateDialogs();
 		void installCallbacks();
 
-		static void frameBufferResizeCallback(GLFWwindow* window, int width, int height);
-		static void windowCloseCallback(GLFWwindow* window);
-		static void dropCallback(GLFWwindow* window, int count, const char** paths);
-		static void windowSizeCallback(GLFWwindow* window, int width, int height);
-		static void windowPositionCallback(GLFWwindow* window, int x, int y);
-		static void windowMaximizeCallback(GLFWwindow* window, int maximized);
-
 		std::string getVersion();
 
 	public:

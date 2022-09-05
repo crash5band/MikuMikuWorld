@@ -530,7 +530,6 @@ namespace MikuMikuWorld
 	void Application::loadResources()
 	{
 		ResourceManager::loadShader(appDir + "res/shaders/basic2d");
-		ResourceManager::loadShader(appDir + "res/shaders/blur");
 		ResourceManager::loadTexture(appDir + "res/textures/tex_notes.png");
 		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path.png");
 		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path_crtcl.png");
