@@ -217,11 +217,11 @@ namespace MikuMikuWorld
 		if (!drawList)
 			return;
 
-		drawList->AddRectFilled(
-			ImVec2(getTimelineStartX() - MEASURE_WIDTH * 2, canvasPos.y),
-			ImVec2(getTimelineStartX(), canvasPos.y + canvasSize.y),
-			0xe0161616
-		);
+		//drawList->AddRectFilled(
+		//	ImVec2(getTimelineStartX() - MEASURE_WIDTH * 2, canvasPos.y),
+		//	ImVec2(getTimelineStartX(), canvasPos.y + canvasSize.y),
+		//	0xe0161616
+		//);
 
 		drawList->AddRectFilled(
 			ImVec2(getTimelineStartX(), canvasPos.y),
@@ -229,11 +229,11 @@ namespace MikuMikuWorld
 			0xcc1c1a1f
 		);
 
-		drawList->AddRectFilled(
-			ImVec2(getTimelineEndX(), canvasPos.y),
-			ImVec2(getTimelineEndX() + MEASURE_WIDTH * 2, canvasPos.y + canvasSize.y),
-			0xe0161616
-		);
+		//drawList->AddRectFilled(
+		//	ImVec2(getTimelineEndX(), canvasPos.y),
+		//	ImVec2(getTimelineEndX() + MEASURE_WIDTH * 2, canvasPos.y + canvasSize.y),
+		//	0xe0161616
+		//);
 	}
 
 	void Canvas::update(float dt)
