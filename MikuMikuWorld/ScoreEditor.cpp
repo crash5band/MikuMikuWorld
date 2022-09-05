@@ -303,6 +303,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::previousTick()
 	{
+		if (currentTick <= 0)
+		{
+			currentTick = 0;
+			return;
+		}
+
 		currentTick = roundTickDown(currentTick, division);
 		currentTick = std::max(currentTick - (TICKS_PER_BEAT / (division / 4)), 0);
 		canvas.centerCursor(currentTick, playing, 2);
