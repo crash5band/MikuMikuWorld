@@ -267,6 +267,22 @@ namespace MikuMikuWorld
 		audio.stopBGM();
 	}
 
+	void ScoreEditor::stopAtLastSelectedTick()
+	{
+		if (playing)
+		{
+			playing = false;
+			audio.stopSounds(false);
+			audio.stopBGM();
+			currentTick = lastSelectedTick;
+			canvas.centerCursor(currentTick, false, 0);
+		}
+		else
+		{
+			togglePlaying();
+		}
+	}
+
 	void ScoreEditor::restart()
 	{
 		stop();
@@ -491,6 +507,7 @@ namespace MikuMikuWorld
 			!UI::isAnyPopupOpen() && currentMode == TimelineMode::Select && ImGui::IsWindowFocused())
 		{
 			currentTick = hoverTick;
+			lastSelectedTick = currentTick;
 		}
 
 		const float x1 = canvas.getTimelineStartX();
@@ -500,7 +517,12 @@ namespace MikuMikuWorld
 		const float triXPos = x1 - (triPtOffset * 2);
 
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		drawList->AddTriangleFilled(ImVec2(triXPos, y - triPtOffset), ImVec2(triXPos, y + triPtOffset), ImVec2(triXPos + (triPtOffset * 2), y), cursorColor);
+		drawList->AddTriangleFilled(
+			ImVec2(triXPos, y - triPtOffset),
+			ImVec2(triXPos, y + triPtOffset),
+			ImVec2(triXPos + (triPtOffset * 2), y), cursorColor
+		);
+
 		drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), cursorColor, primaryLineThickness + 1.0f);
 	}
 

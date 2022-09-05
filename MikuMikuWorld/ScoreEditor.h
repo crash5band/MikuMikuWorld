@@ -56,6 +56,7 @@ namespace MikuMikuWorld
 		int selectedDivision = 1;
 
 		int currentTick = 0;
+		int lastSelectedTick = 0;
 		int hoverTick = 0;
 		int hoverLane = 0;
 		int pasteLane = 0;
@@ -200,6 +201,7 @@ namespace MikuMikuWorld
 		// playback methods
 		void togglePlaying();
 		void stop();
+		void stopAtLastSelectedTick();
 		void restart();
 		void nextTick();
 		void previousTick();
