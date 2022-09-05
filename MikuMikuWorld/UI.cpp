@@ -10,7 +10,7 @@ namespace MikuMikuWorld
 
 	std::vector<AccentColor> UI::accentColors{
 		AccentColor{ "User",			ImVec4(0.10f, 0.10f, 0.10f, 1.00f) },
-		AccentColor{ "Default",			ImVec4(0.38f, 0.37f, 0.82f, 1.00f) },
+		AccentColor{ "Default",			ImVec4(0.15f, 0.46f, 0.82f, 1.00f) },
 		AccentColor{ "MikuMikuWorld",	ImVec4(0.19f, 0.75f, 0.62f, 1.00f) },
 		AccentColor{ "Light Music",		ImVec4(0.30f, 0.31f, 0.86f, 1.00f) },
 		AccentColor{ "Idol", 			ImVec4(0.40f, 0.69f, 0.15f, 1.00f) },
