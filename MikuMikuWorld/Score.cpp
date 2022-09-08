@@ -87,6 +87,9 @@ namespace MikuMikuWorld
 		score.metadata = readMetadata(&reader, version);
 
 		int timeSignatureCount = reader.readInt32();
+		if (timeSignatureCount)
+			score.timeSignatures.clear();
+
 		for (int i = 0; i < timeSignatureCount; ++i)
 		{
 			int measure = reader.readInt32();
@@ -96,6 +99,9 @@ namespace MikuMikuWorld
 		}
 
 		int tempoCount = reader.readInt32();
+		if (tempoCount)
+			score.tempoChanges.clear();
+
 		for (int i = 0; i < tempoCount; ++i)
 		{
 			int tick = reader.readInt32();
