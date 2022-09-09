@@ -5,6 +5,7 @@
 #include "Colors.h"
 #include "UI.h"
 #include "Utilities.h"
+#include "Localization.h"
 #include <filesystem>
 
 namespace MikuMikuWorld
@@ -539,6 +540,9 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path_crtcl.png");
 		ResourceManager::loadTexture(appDir + "res/textures/tex_note_common_all.png");
 		ResourceManager::loadTexture(appDir + "res/textures/default.png");
+
+		Localization::readAll(appDir + "res/i18n");
+		Localization::setLanguage("en");
 	}
 
 	void Application::run()

@@ -151,6 +151,12 @@
     <ClCompile Include="Jacket.cpp">
       <Filter>Components</Filter>
     </ClCompile>
+    <ClCompile Include="Localization.cpp">
+      <Filter>UI\i18n</Filter>
+    </ClCompile>
+    <ClCompile Include="Language.cpp">
+      <Filter>UI\i18n</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -327,6 +333,12 @@
     <ClInclude Include="Jacket.h">
       <Filter>Components</Filter>
     </ClInclude>
+    <ClInclude Include="Language.h">
+      <Filter>UI\i18n</Filter>
+    </ClInclude>
+    <ClInclude Include="Localization.h">
+      <Filter>UI\i18n</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">
@@ -367,6 +379,9 @@
     </Filter>
     <Filter Include="UI">
       <UniqueIdentifier>{8e009620-e361-4d17-9cbb-0a7244bc35b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\i18n">
+      <UniqueIdentifier>{9bc8aca5-08f3-4a55-be78-9a7c8f6fc65b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
