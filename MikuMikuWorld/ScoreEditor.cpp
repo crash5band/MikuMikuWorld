@@ -294,6 +294,25 @@ namespace MikuMikuWorld
 		return playing;
 	}
 
+	void ScoreEditor::gotoFirst()
+	{
+		currentTick = 0;
+		canvas.centerCursor(currentTick, playing, 2);
+	}
+
+	void ScoreEditor::gotoLastNote()
+	{
+		std::vector<int> ticks;
+		ticks.reserve(score.notes.size() + 1);
+		ticks.push_back(0);
+
+		for (auto &[_, note]: score.notes) {
+			ticks.push_back(note.tick);
+		}
+		currentTick = *std::max_element(ticks.begin(), ticks.end());
+		canvas.centerCursor(currentTick, playing, 0);
+	}
+
 	void ScoreEditor::nextTick()
 	{
 		currentTick = roundTickDown(currentTick, division);

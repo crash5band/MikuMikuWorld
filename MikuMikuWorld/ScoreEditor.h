@@ -207,6 +207,8 @@ namespace MikuMikuWorld
 		void previousTick();
 		void updateNoteSE();
 		bool isPlaying();
+		void gotoFirst();
+		void gotoLastNote();
 
 		inline int getDivision() { return division; }
 		void setDivision(int div);

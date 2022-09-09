@@ -339,7 +339,11 @@ namespace MikuMikuWorld
 			Utilities::ImGuiCenteredText(timeStr + signStr + tempoStr);
 
 			// center playback controls
-			ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x * 0.5f) - ((UI::btnNormal.x + ImGui::GetStyle().ItemSpacing.x) * 2));
+			ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x * 0.5f) - ((UI::btnNormal.x + ImGui::GetStyle().ItemSpacing.x) * 3));
+			if (UI::transparentButton(ICON_FA_FAST_BACKWARD, UI::btnNormal, true, !playing))
+				gotoFirst();
+
+			ImGui::SameLine();
 			if (UI::transparentButton(ICON_FA_BACKWARD, UI::btnNormal, true, !playing))
 				previousTick();
 
@@ -354,6 +358,10 @@ namespace MikuMikuWorld
 			ImGui::SameLine();
 			if (UI::transparentButton(ICON_FA_FORWARD, UI::btnNormal, true, !playing))
 				nextTick();
+			
+			ImGui::SameLine();
+			if (UI::transparentButton(ICON_FA_FAST_FORWARD, UI::btnNormal, true, !playing))
+				gotoLastNote();
 
 			static int m = 0;
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);

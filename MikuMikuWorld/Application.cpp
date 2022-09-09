@@ -217,6 +217,10 @@ namespace MikuMikuWorld
 			}
 			else if (InputListener::isTapped(GLFW_KEY_BACKSPACE))
 				editor->stop();
+			else if (InputListener::isTapped(GLFW_KEY_HOME) && !editor->isPlaying())
+				editor->gotoFirst();
+			else if (InputListener::isTapped(GLFW_KEY_END) && !editor->isPlaying())
+				editor->gotoLastNote();
 			else if (InputListener::isTapped(GLFW_KEY_UP) && !editor->isPlaying())
 				editor->nextTick();
 			else if (InputListener::isTapped(GLFW_KEY_A) && editor->isPlaying())
