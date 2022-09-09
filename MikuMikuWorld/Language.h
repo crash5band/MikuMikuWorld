@@ -5,10 +5,15 @@ namespace MikuMikuWorld
 {
 	class Language
 	{
+    private:
+        std::string code;
+        std::unordered_map<std::string, std::string> strings;
+
 	public:
-		std::string code;
-		std::unordered_map<std::string, std::string> strings;
+        Language(const std::string& code, const std::string& filename);
 
 		void read(const std::string& filename);
+        const std::string& getCode() const;
+        const std::string& getString(const std::string& key) const;
 	};
 }

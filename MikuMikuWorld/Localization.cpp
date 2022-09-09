@@ -4,18 +4,14 @@
 
 namespace MikuMikuWorld
 {
-	std::unordered_map<std::string, Language> Localization::languages;
-	Language Localization::currentLanguage;
+	std::unordered_map<std::string, std::unique_ptr<Language>> Localization::languages;
+	Language* Localization::currentLanguage = nullptr;
 
 	void Localization::readAll(const std::string& path)
 	{
-		Language en;
-		en.read(path + "/en.csv");
-		languages["en"] = en;
-
-		Language jp;
-		jp.read(path + "/jp.csv");
-		languages["jp"] = jp;
+        languages.reserve(2);
+        languages["en"] = std::make_unique<Language>("en", path + "/en.csv");
+        languages["jp"] = std::make_unique<Language>("jp", path + "/jp.csv");
 	}
 
 	void Localization::setLanguage(const std::string& code)
@@ -24,12 +20,14 @@ namespace MikuMikuWorld
 		if (it == Localization::languages.end())
 			return;
 
-		Localization::currentLanguage = it->second;
+		Localization::currentLanguage = it->second.get();
 	}
 
 	const std::string& getString(const std::string& key)
 	{
-		auto it = Localization::currentLanguage.strings.find(key);
-		return it != Localization::currentLanguage.strings.end() ? it->second : "";
+        if (!Localization::currentLanguage)
+            return "";
+
+        return Localization::currentLanguage->getString(key);
 	}
 }
