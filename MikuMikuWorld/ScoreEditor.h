@@ -196,6 +196,7 @@ namespace MikuMikuWorld
 		void selectAll();
 		void clearSelection();
 		void deleteSelected();
+		void shrinkSelected(int direction);
 		bool isPasting() const;
 
 		// playback methods

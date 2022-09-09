@@ -188,6 +188,11 @@ namespace MikuMikuWorld
 				editor->redo();
 			else if (InputListener::isTapped(GLFW_KEY_F))
 				editor->flipSelected();
+			else if (InputListener::isTapped(GLFW_KEY_H))
+				if (InputListener::isShiftDown())
+					editor->shrinkSelected(1);
+				else
+					editor->shrinkSelected(0);
 			else if (InputListener::isTapped(GLFW_KEY_A) && !editor->isPlaying())
 				editor->selectAll();
 		}
