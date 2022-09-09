@@ -37,9 +37,9 @@ namespace MikuMikuWorld
         return code;
     }
 
-    const std::string& Language::getString(const std::string& key) const
+    const std::string Language::getString(const std::string& key) const
     {
         const auto& it = strings.find(key);
-        return it != strings.end() ? it->second : "";
+		return it != strings.end() ? it->second : "";
     }
 }

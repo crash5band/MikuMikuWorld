@@ -16,5 +16,5 @@ namespace MikuMikuWorld
 		static void setLanguage(const std::string& key);
 	};
 
-	const std::string& getString(const std::string& key);
+	const std::string getString(const std::string& key);
 }

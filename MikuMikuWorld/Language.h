@@ -14,6 +14,6 @@ namespace MikuMikuWorld
 
 		void read(const std::string& filename);
         const std::string& getCode() const;
-        const std::string& getString(const std::string& key) const;
+        const std::string getString(const std::string& key) const;
 	};
 }

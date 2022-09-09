@@ -23,7 +23,7 @@ namespace MikuMikuWorld
 		Localization::currentLanguage = it->second.get();
 	}
 
-	const std::string& getString(const std::string& key)
+	const std::string getString(const std::string& key)
 	{
         if (!Localization::currentLanguage)
             return "";
