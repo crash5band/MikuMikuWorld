@@ -24,16 +24,19 @@ namespace MikuMikuWorld
 			&& hoverLane >= note.lane && hoverLane <= note.lane + note.width - 1)
 		{
 			isHoveringNote = true;
-			hoveringNote = note.ID;
-			bool clickedNote = false;
-
-			if (ImGui::IsMouseClicked(0) && !UI::isAnyPopupOpen())
+			float noteYDistance = std::abs((btnPosY + noteCtrlHeight / 2 - canvas.getVisualOffset() - canvas.getPosition().y) - mousePos.y);
+			if (InputListener::isCtrlDown() || noteYDistance < minNoteYDistance)
 			{
-				clickedNote = true;
-				if (!InputListener::isCtrlDown() && !selection.hasNote(note.ID))
-					selection.clear();
-				
-				selection.append(note.ID);
+				minNoteYDistance = noteYDistance;
+				hoveringNote = note.ID;
+
+				if (ImGui::IsMouseClicked(0) && !UI::isAnyPopupOpen())
+				{
+					if (!InputListener::isCtrlDown() && !selection.hasNote(note.ID))
+						selection.clear();
+
+					selection.append(note.ID);
+				}
 			}
 		}
 
@@ -342,7 +345,7 @@ namespace MikuMikuWorld
 		{
 			const Texture& tex = ResourceManager::textures[texIndex];
 			int sprIndex = mid ? 1 : 0;
-			
+
 			if (sprIndex < 0 || sprIndex >= tex.sprites.size())
 				return;
 
@@ -479,7 +482,7 @@ namespace MikuMikuWorld
 				);
 			}
 		}
-		
+
 		if (note.isFlick())
 			drawFlickArrow(note, renderer, tint, offsetTick, offsetLane);
 	}

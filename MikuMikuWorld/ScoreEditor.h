@@ -48,6 +48,8 @@ namespace MikuMikuWorld
 		HoldNote dummyHold;
 		int hoveringNote;
 
+		float minNoteYDistance;
+
 		float noteCtrlHeight;
 		const float noteCtrlWidth = NOTES_SLICE_WIDTH - 2.0f;
 
