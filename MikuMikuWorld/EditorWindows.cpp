@@ -136,6 +136,7 @@ namespace MikuMikuWorld
 			noteCtrlHeight = canvas.getNotesHeight();
 			isHoveringNote = false;
 			hoveringNote = -1;
+			minNoteYDistance = 9999.0;
 			updateNotes(renderer);
 
 			// update dragging
