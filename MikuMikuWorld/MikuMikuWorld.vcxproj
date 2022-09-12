@@ -230,6 +230,7 @@
     <ClInclude Include="Clipboard.h" />
     <ClInclude Include="Colors.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="DefaultLanguage.h" />
     <ClInclude Include="EditorScoreData.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="FileDialog.h" />

@@ -339,6 +339,9 @@
     <ClInclude Include="Localization.h">
       <Filter>UI\i18n</Filter>
     </ClInclude>
+    <ClInclude Include="DefaultLanguage.h">
+      <Filter>UI\i18n</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">
