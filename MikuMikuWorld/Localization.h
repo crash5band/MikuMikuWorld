@@ -12,9 +12,10 @@ namespace MikuMikuWorld
 		static std::unordered_map<std::string, std::unique_ptr<Language>> languages;
 		static Language* currentLanguage;
 
-		static void readAll(const std::string& path);
+		static void load(const char* code, const std::string& filename);
 		static void setLanguage(const std::string& key);
+		static void loadDefault();
 	};
 
-	const std::string getString(const std::string& key);
+	const char* getString(const std::string& key);
 }

@@ -10,10 +10,11 @@ namespace MikuMikuWorld
         std::unordered_map<std::string, std::string> strings;
 
 	public:
-        Language(const std::string& code, const std::string& filename);
+        Language(const char* code, const std::string& filename);
+        Language(const char* code, const std::unordered_map<std::string, std::string>& strings);
 
 		void read(const std::string& filename);
-        const std::string& getCode() const;
-        const std::string getString(const std::string& key) const;
+        const char* getCode() const;
+        const char* getString(const std::string& key) const;
 	};
 }

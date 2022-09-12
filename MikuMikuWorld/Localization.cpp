@@ -1,17 +1,22 @@
 #include "Localization.h"
+#include "DefaultLanguage.h"
 #include "StringOperations.h"
+#include "File.h"
 #include <filesystem>
 
 namespace MikuMikuWorld
 {
+	static std::string empty;
+
 	std::unordered_map<std::string, std::unique_ptr<Language>> Localization::languages;
 	Language* Localization::currentLanguage = nullptr;
 
-	void Localization::readAll(const std::string& path)
+	void Localization::load(const char* code, const std::string& filename)
 	{
-        languages.reserve(2);
-        languages["en"] = std::make_unique<Language>("en", path + "/en.csv");
-        languages["jp"] = std::make_unique<Language>("jp", path + "/jp.csv");
+		if (!File::exists(filename))
+			return;
+
+        languages[code] = std::make_unique<Language>(code, filename);
 	}
 
 	void Localization::setLanguage(const std::string& code)
@@ -23,10 +28,15 @@ namespace MikuMikuWorld
 		Localization::currentLanguage = it->second.get();
 	}
 
-	const std::string getString(const std::string& key)
+	void Localization::loadDefault()
+	{
+		languages["en"] = std::make_unique<Language>("en", en);
+	}
+
+	const char* getString(const std::string& key)
 	{
         if (!Localization::currentLanguage)
-            return "";
+            return empty.c_str();
 
         return Localization::currentLanguage->getString(key);
 	}

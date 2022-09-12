@@ -299,76 +299,74 @@ namespace MikuMikuWorld
 		ImGui::BeginMainMenuBar();
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 3));
 		
-		if (ImGui::BeginMenu("File"))
+		if (ImGui::BeginMenu(getString("file")))
 		{
-			if (ImGui::MenuItem("New", "Ctrl + N"))
+			if (ImGui::MenuItem(getString("new"), "Ctrl + N"))
 				reset();
 
-			if (ImGui::MenuItem("Open", "Ctrl + O"))
+			if (ImGui::MenuItem(getString("open"), "Ctrl + O"))
 				open();
 
 			ImGui::Separator();
 
-			if (ImGui::MenuItem("Save", "Ctrl + S"))
+			if (ImGui::MenuItem(getString("save"), "Ctrl + S"))
 				editor->save();
 
-			if (ImGui::MenuItem("Save As", "Ctrl + Shift + S"))
+			if (ImGui::MenuItem(getString("save_as"), "Ctrl + Shift + S"))
 				editor->saveAs();
 
-			if (ImGui::MenuItem("Export"))
+			if (ImGui::MenuItem(getString("export")))
 				editor->exportSUS();
 
 			ImGui::Separator();
 
-			if (ImGui::MenuItem("Exit", "Alt + F4"))
+			if (ImGui::MenuItem(getString("exit"), "Alt + F4"))
 				exiting = true;
 
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("Edit"))
+		if (ImGui::BeginMenu(getString("edit")))
 		{
-			std::string undoText{ "Undo " + editor->history.peekUndo() };
-			std::string redoText{ "Redo " + editor->history.peekRedo() };
-			if (ImGui::MenuItem(undoText.c_str(), "Ctrl + Z", false, editor->history.hasUndo()))
+			if (ImGui::MenuItem(getString("undo"), "Ctrl + Z", false, editor->history.hasUndo()))
 				editor->undo();
 
-			if (ImGui::MenuItem(redoText.c_str(), "Ctrl + Y", false, editor->history.hasRedo()))
+			if (ImGui::MenuItem(getString("redo"), "Ctrl + Y", false, editor->history.hasRedo()))
 				editor->redo();
 
 			ImGui::Separator();
-			if (ImGui::MenuItem("Select All", "Ctrl + A"))
+			if (ImGui::MenuItem(getString("select_all"), "Ctrl + A"))
 				editor->selectAll();
 
-			if (ImGui::MenuItem("Settings"))
+			if (ImGui::MenuItem(getString("settings")))
 				settingsOpen = true;
 
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("Window"))
+		if (ImGui::BeginMenu(getString("window")))
 		{
-			if (ImGui::MenuItem("VSync", NULL, &vsync))
+			if (ImGui::MenuItem(getString("vsync"), NULL, &vsync))
 				glfwSwapInterval((int)vsync);
 
-			ImGui::MenuItem("Show Performance Metrics", NULL, &showPerformanceMetrics);
+			ImGui::MenuItem(getString("show_performance"), NULL, &showPerformanceMetrics);
 
 			ImGui::EndMenu();
 		}
 
 #ifdef _DEBUG
-		if (ImGui::BeginMenu("Debug"))
+		if (ImGui::BeginMenu(getString("debug")))
 		{
-			if (ImGui::MenuItem("Create Auto Save"))
+			if (ImGui::MenuItem(getString("create_auto_save")))
 				autoSave();
 
 			ImGui::EndMenu();
 		}
 #endif // _DEBUG
 
-		if (ImGui::BeginMenu("About"))
+		if (ImGui::BeginMenu(getString("about")))
 		{
-			if (ImGui::MenuItem("About"))
+			if (ImGui::MenuItem(getString("about")))
 				aboutOpen = true;
 
 			ImGui::EndMenu();
@@ -541,7 +539,7 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(appDir + "res/textures/tex_note_common_all.png");
 		ResourceManager::loadTexture(appDir + "res/textures/default.png");
 
-		Localization::readAll(appDir + "res/i18n");
+		Localization::loadDefault();
 		Localization::setLanguage("en");
 	}
 

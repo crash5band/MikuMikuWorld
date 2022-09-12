@@ -4,6 +4,7 @@
 #include "ImGui/imgui_internal.h"
 #include "Rendering/Texture.h"
 #include "IconsFontAwesome5.h"
+#include "Localization.h"
 #include <vector>
 
 #define APP_NAME "MikuMikuWorld"
@@ -86,12 +87,19 @@ namespace MikuMikuWorld
 			std::string id("##");
 			id.append(label);
 
-			if (ImGui::BeginCombo(id.c_str(), items[(int)value]))
+			std::string curr = getString(items[(int)value]);
+			if (!curr.size())
+				curr = items[(int)value];
+			if (ImGui::BeginCombo(id.c_str(), curr.c_str()))
 			{
 				for (int i = 0; i < count; ++i)
 				{
 					const bool selected = (int)value == i;
-					if (ImGui::Selectable(items[i], selected))
+					std::string str = getString(items[i]);
+					if (!str.size())
+						str = items[i];
+
+					if (ImGui::Selectable(str.c_str(), selected))
 						value = (T)i;
 				}
 

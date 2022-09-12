@@ -4,6 +4,7 @@
 #include "File.h"
 #include "Utilities.h"
 #include "ImGui/imgui.h"
+#include "Localization.h"
 #include <fstream>
 #include <filesystem>
 #include <execution>
@@ -221,7 +222,7 @@ namespace MikuMikuWorld
 			static std::string presetDesc = "";
 			int removePattern = -1;
 
-			presetFilter.Draw("##preset_filter", ICON_FA_SEARCH " Search...", -1);
+			presetFilter.Draw("##preset_filter", concat(ICON_FA_SEARCH, getString("search"), " ").c_str(), -1);
 
 			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.15f, 0.15f, 0.15f, 1.00f));
 			float windowHeight = ImGui::GetContentRegionAvail().y - ((ImGui::GetFrameHeight() * 3.0f) + 50);
@@ -230,7 +231,7 @@ namespace MikuMikuWorld
 				if (!presets.size())
 				{
 					ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
-					Utilities::ImGuiCenteredText("No presets available.");
+					Utilities::ImGuiCenteredText(getString("no_presets"));
 					ImGui::PopStyleVar();
 				}
 				else
@@ -262,14 +263,14 @@ namespace MikuMikuWorld
 			ImGui::EndChild();
 
 			UI::beginPropertyColumns();
-			UI::addStringProperty("Name", presetName);
-			UI::addMultilineString("Description", presetDesc);
+			UI::addStringProperty(getString("name"), presetName);
+			UI::addMultilineString(getString("description"), presetDesc);
 			UI::endPropertyColumns();
 			ImGui::Separator();
 
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !presetName.size() || !selection.size());
 			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * (!presetName.size() || !selection.size())));
-			if (ImGui::Button("Create Preset", ImVec2(-1, UI::btnSmall.y + 2.0f)))
+			if (ImGui::Button(getString("create_preset"), ImVec2(-1, UI::btnSmall.y + 2.0f)))
 			{
 				createPreset(score, selection, presetName, presetDesc);
 				presetName.clear();

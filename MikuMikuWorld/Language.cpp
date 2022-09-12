@@ -4,11 +4,19 @@
 
 namespace MikuMikuWorld
 {
-    Language::Language(const std::string& code, const std::string& filename)
+	static std::string empty;
+
+    Language::Language(const char* code, const std::string& filename)
     {
         this->code = code;
         read(filename);
     }
+
+	Language::Language(const char* code, const std::unordered_map<std::string, std::string>& strings)
+	{
+		this->code = code;
+		this->strings = strings;
+	}
 
 	void Language::read(const std::string& filename)
 	{
@@ -32,14 +40,16 @@ namespace MikuMikuWorld
 		}
 	}
 
-    const std::string& Language::getCode() const
+    const char* Language::getCode() const
     {
-        return code;
+        return code.c_str();
     }
 
-    const std::string Language::getString(const std::string& key) const
+    const char* Language::getString(const std::string& key) const
     {
         const auto& it = strings.find(key);
-		return it != strings.end() ? it->second : "";
+
+		// imgui dies if the window/header title is empty
+		return it != strings.end() ? it->second.c_str() : " ";
     }
 }

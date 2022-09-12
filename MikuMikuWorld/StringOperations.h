@@ -22,6 +22,8 @@ namespace MikuMikuWorld
 	std::wstring mbToWideStr(const std::string& str);
 	std::wstring mbToWideAnsiString(const std::string& str);
 
+	std::string concat(const char* s1, const char* s2, const char* join = "");
+
 	template<typename ... Args>
 	std::string formatString(const char* format, Args ... args)
 	{

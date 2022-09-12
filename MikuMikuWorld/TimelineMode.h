@@ -25,21 +25,21 @@ namespace MikuMikuWorld
 
 	constexpr const char* timelineModes[]
 	{
-		"Select",
-		"Tap",
-		"Hold",
-		"Hold Step",
-		"Flick",
-		"Critical",
-		"BPM",
-		"Time Signature",
+		"select",
+		"tap",
+		"hold",
+		"hold_step",
+		"flick",
+		"critical",
+		"bpm",
+		"time_signature",
 	};
 
 	constexpr const char* scrollModes[]
 	{
-		"None",
-		"Page",
-		"Follow Cursor"
+		"none",
+		"page",
+		"follow_cursor"
 	};
 
 	constexpr int divisions[]
