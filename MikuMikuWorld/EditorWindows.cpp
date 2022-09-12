@@ -328,8 +328,11 @@ namespace MikuMikuWorld
 		bool customSelected = divIndex == count - 1;
 
 		std::string prefix = "1/";
-		return (customSelected ? getString("custom") : "") +
-			prefix + std::to_string((customSelected ? customDivision : divisions[divIndex]));
+		return
+			(customSelected ? getString("custom") : "")
+			+ prefix
+			+ std::to_string((customSelected ? customDivision : divisions[divIndex]))
+			+ getString("division_suffix");
 	}
 
 	void ScoreEditor::controlsWindow()
@@ -340,7 +343,7 @@ namespace MikuMikuWorld
 			const TimeSignature& ts = score.timeSignatures[findTimeSignature(measure, score.timeSignatures)];
 			const Tempo& tempo = getTempoAt(currentTick, score.tempoChanges);
 
-			std::string timeStr = formatString("Time: %02d:%02d:%02d", (int)time / 60, (int)time % 60, (int)((time - (int)time) * 100));
+			std::string timeStr = formatString("%02d:%02d:%02d", (int)time / 60, (int)time % 60, (int)((time - (int)time) * 100));
 			std::string signStr = formatString("\t|\t%d/%d, ", ts.numerator, ts.denominator);
 			std::string tempoStr = formatString("%g BPM", tempo.bpm);
 
