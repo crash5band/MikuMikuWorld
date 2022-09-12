@@ -232,15 +232,6 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void UI::textureTooltip(const Texture& tex)
-	{
-		if (ImGui::IsItemHovered() && GImGui->HoveredIdTimer > 0.5f)
-		{
-			const float maxSize = 100.0f;
-
-		}
-	}
-
 	void UI::setWindowTitle(const std::string& title)
 	{
 		GLFWwindow* window = glfwGetCurrentContext();

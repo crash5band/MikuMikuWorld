@@ -380,13 +380,13 @@ namespace MikuMikuWorld
 	{
 		if (aboutOpen)
 		{
-			ImGui::OpenPopup(aboutModalTitle);
+			ImGui::OpenPopup(MODAL_TITLE("about"));
 			aboutOpen = false;
 		}
 
 		if (settingsOpen)
 		{
-			ImGui::OpenPopup(settingsModalTitle);
+			ImGui::OpenPopup(MODAL_TITLE("settings"));
 			settingsOpen = false;
 		}
 
@@ -399,7 +399,7 @@ namespace MikuMikuWorld
 			{
 				if (!unsavedOpen)
 				{
-					ImGui::OpenPopup(unsavedModalTitle);
+					ImGui::OpenPopup(MODAL_TITLE("unsaved_changes"));
 					unsavedOpen = true;
 				}
 
@@ -443,7 +443,7 @@ namespace MikuMikuWorld
 			{
 				if (!unsavedOpen)
 				{
-					ImGui::OpenPopup(unsavedModalTitle);
+					ImGui::OpenPopup(MODAL_TITLE("unsaved_changes"));
 					unsavedOpen = true;
 				}
 

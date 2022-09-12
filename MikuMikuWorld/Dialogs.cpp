@@ -52,7 +52,7 @@ namespace MikuMikuWorld
 		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
 
 		bool result = false;
-		if (ImGui::BeginPopupModal(unsavedModalTitle, NULL, ImGuiWindowFlags_NoResize))
+		if (ImGui::BeginPopupModal(MODAL_TITLE("unsaved_changes"), NULL, ImGuiWindowFlags_NoResize))
 		{
 			ImGui::Text(getString("ask_save"));
 			ImGui::Text(getString("warn_unsaved"));
@@ -102,7 +102,7 @@ namespace MikuMikuWorld
 		ImVec2 padding = ImGui::GetStyle().WindowPadding;
 		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
 
-		if (ImGui::BeginPopupModal(aboutModalTitle, NULL, ImGuiWindowFlags_NoResize))
+		if (ImGui::BeginPopupModal(MODAL_TITLE("about"), NULL, ImGuiWindowFlags_NoResize))
 		{
 			// only need the title bar to be bigger
 			ImGui::PopStyleVar();
@@ -139,7 +139,7 @@ namespace MikuMikuWorld
 		ImVec2 padding = ImGui::GetStyle().WindowPadding;
 		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
 
-		if (ImGui::BeginPopupModal(settingsModalTitle, NULL, ImGuiWindowFlags_NoResize))
+		if (ImGui::BeginPopupModal(MODAL_TITLE("settings"), NULL, ImGuiWindowFlags_NoResize))
 		{
 			// only need the title bar to be bigger
 			ImGui::PopStyleVar();

@@ -5,24 +5,18 @@
 #include "Rendering/Texture.h"
 #include "IconsFontAwesome5.h"
 #include "Localization.h"
+#include "StringOperations.h"
 #include <vector>
 
 #define APP_NAME "MikuMikuWorld"
-#define APP_NAME_FRIENDLY "Miku Miku World"
+
+#define IMGUI_TITLE(icon, title) concat(icon, getString(title), " ").c_str()
+#define MODAL_TITLE(title) concat(getString(title), APP_NAME, " - ").c_str()
 
 namespace MikuMikuWorld
 {
-	constexpr const char* toolboxWindowTitle = ICON_FA_TOOLBOX " Toolbox";
-	constexpr const char* controlsWindowTitle = ICON_FA_ADJUST " Controls";
-	constexpr const char* timelineWindowTitle = ICON_FA_MUSIC " Notes Timeline";
-	constexpr const char* detailsWindowTitle = ICON_FA_ALIGN_LEFT " Chart Properties";
-	constexpr const char* presetsWindowTitle = ICON_FA_DRAFTING_COMPASS " Presets";
-	constexpr const char* Title = ICON_FA_BUG " Debug";
 	constexpr const char* windowTitle = " - " APP_NAME;
 	constexpr const char* windowUntitled = "Untitled";
-	constexpr const char* aboutModalTitle = "About - " APP_NAME_FRIENDLY;
-	constexpr const char* settingsModalTitle = "Settings - " APP_NAME_FRIENDLY;
-	constexpr const char* unsavedModalTitle = "Unsaved Changes - " APP_NAME_FRIENDLY;
 
 	constexpr float primaryLineThickness = 0.50f;
 	constexpr float secondaryLineThickness = 0.25f;
@@ -72,7 +66,6 @@ namespace MikuMikuWorld
 		static int addFileProperty(const char* label, std::string& val);
 		static void addMultilineString(const char* label, std::string& val);
 		static void tooltip(const char* label);
-		static void textureTooltip(const Texture& tex);
 
 		static void setWindowTitle(const std::string& title);
 
@@ -109,5 +102,4 @@ namespace MikuMikuWorld
 			ImGui::NextColumn();
 		}
 	};
-
 }

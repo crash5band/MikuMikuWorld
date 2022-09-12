@@ -35,7 +35,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::toolboxWindow()
 	{
-		if (ImGui::Begin(toolboxWindowTitle))
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_TOOLBOX, "toolbox")))
 		{
 			ImVec2 btnSz{ ImGui::GetContentRegionAvail().x, 35.0f };
 			for (int i = 0; i < (int)TimelineMode::TimelineToolMax; ++i)
@@ -89,7 +89,8 @@ namespace MikuMikuWorld
 	
 	void ScoreEditor::updateTimeline(float frameTime, Renderer* renderer)
 	{
-		if (ImGui::Begin(timelineWindowTitle, NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"),
+			NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
 		{
 			windowFocused = ImGui::IsWindowFocused();
 			if (canvas.isMouseInCanvas() && !UI::isAnyPopupOpen())
@@ -105,7 +106,8 @@ namespace MikuMikuWorld
 
 					if (ImGui::IsMouseClicked(0))
 					{
-						if (!InputListener::isCtrlDown() && !InputListener::isAltDown() && !ImGui::IsPopupOpen(timelineWindowTitle))
+						if (!InputListener::isCtrlDown() && !InputListener::isAltDown() &&
+							!ImGui::IsPopupOpen(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline")))
 							selection.clear();
 
 						if (currentMode == TimelineMode::Select)
@@ -168,7 +170,7 @@ namespace MikuMikuWorld
 	void ScoreEditor::contextMenu()
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 10));
-		if (ImGui::BeginPopupContextWindow(timelineWindowTitle))
+		if (ImGui::BeginPopupContextWindow(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline")))
 		{
 			if (ImGui::MenuItem(concat(ICON_FA_TRASH, getString("delete"), "\t").c_str(), "Delete", false, selection.hasSelection()))
 				deleteSelected();
@@ -224,7 +226,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::propertiesWindow()
 	{
-		if (ImGui::Begin(detailsWindowTitle, NULL, ImGuiWindowFlags_Static))
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_ALIGN_LEFT, "chart_properties"), NULL, ImGuiWindowFlags_Static))
 		{
 			if (ImGui::CollapsingHeader(
 				concat(ICON_FA_ALIGN_LEFT, getString("metadata"), " ").c_str(),
@@ -337,7 +339,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::controlsWindow()
 	{
-		if (ImGui::Begin(controlsWindowTitle))
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_ADJUST, "controls")))
 		{
 			int measure = accumulateMeasures(currentTick, TICKS_PER_BEAT, score.timeSignatures);
 			const TimeSignature& ts = score.timeSignatures[findTimeSignature(measure, score.timeSignatures)];
@@ -439,7 +441,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::debugInfo()
 	{
-		if (ImGui::Begin(Title, NULL, ImGuiWindowFlags_Static))
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_BUG, "debug"), NULL, ImGuiWindowFlags_Static))
 		{
 			ImGuiIO io = ImGui::GetIO();
 			ImGui::Text("Canvas Size: (%f, %f)", canvas.getSize().x, canvas.getSize().y);
