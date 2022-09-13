@@ -545,10 +545,16 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(appDir + "res/textures/default.png");
 
 		Localization::loadDefault();
-		Localization::setLanguage("en");
 
 		// load more languages here
-		// Localization::load("code", "path");
+		Localization::load("ja", appDir + "res/i18n/ja.csv");
+
+		std::string locale = Utilities::getSystemLocale();
+		if (!Localization::setLanguage(locale))
+		{
+			// fallback to default language if language resource file is not found.
+			Localization::setLanguage("en");
+		}
 	}
 
 	void Application::run()

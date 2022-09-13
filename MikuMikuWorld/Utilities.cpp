@@ -1,6 +1,9 @@
 #include "Utilities.h"
 #include "Constants.h"
 #include "ImGui/imgui.h"
+#include <Windows.h>
+#include "StringOperations.h"
+#include <locale>
 #include <ctime>
 
 namespace MikuMikuWorld
@@ -14,6 +17,18 @@ namespace MikuMikuWorld
 		strftime(buf, 128, "%Y-%m-%d-%H-%M-%S", &localTime);
 
 		return buf;
+	}
+
+	std::string Utilities::getSystemLocale()
+	{
+		LPWSTR lpLocalName = new WCHAR[LOCALE_NAME_MAX_LENGTH];
+		int result = GetUserDefaultLocaleName(lpLocalName, LOCALE_NAME_MAX_LENGTH);
+
+		std::wstring wL = lpLocalName;
+		wL = wL.substr(0, wL.find_first_of(L"-"));
+
+		delete[] lpLocalName;
+		return wideStringToMb(wL);
 	}
 
 	float Utilities::centerImGuiItem(const float width)

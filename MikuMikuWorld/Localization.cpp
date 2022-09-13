@@ -19,13 +19,14 @@ namespace MikuMikuWorld
         languages[code] = std::make_unique<Language>(code, filename);
 	}
 
-	void Localization::setLanguage(const std::string& code)
+	bool Localization::setLanguage(const std::string& code)
 	{
 		auto it = Localization::languages.find(code);
 		if (it == Localization::languages.end())
-			return;
+			return false;
 
 		Localization::currentLanguage = it->second.get();
+		return true;
 	}
 
 	void Localization::loadDefault()

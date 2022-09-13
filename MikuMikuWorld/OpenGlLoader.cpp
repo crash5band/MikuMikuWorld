@@ -84,7 +84,6 @@ namespace MikuMikuWorld
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_SAMPLES, 4);
 
 		window = glfwCreateWindow(config.windowSize.x, config.windowSize.y, APP_NAME, NULL, NULL);
 		if (window == NULL)
@@ -96,7 +95,7 @@ namespace MikuMikuWorld
 
 		glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
 		glfwMakeContextCurrent(window);
-		UI::setWindowTitle(windowUntitled);
+		glfwSetWindowTitle(window, "Untitled - " APP_NAME);
 
 		// GLAD initializtion
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -114,7 +113,6 @@ namespace MikuMikuWorld
 
 		glLineWidth(1.0f);
 		glPointSize(1.0f);
-		glEnable(GL_MULTISAMPLE);
 		glEnablei(GL_BLEND, 0);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);

@@ -13,7 +13,7 @@ namespace MikuMikuWorld
 		static Language* currentLanguage;
 
 		static void load(const char* code, const std::string& filename);
-		static void setLanguage(const std::string& key);
+		static bool setLanguage(const std::string& key);
 		static void loadDefault();
 	};
 

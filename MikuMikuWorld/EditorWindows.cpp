@@ -221,11 +221,10 @@ namespace MikuMikuWorld
 			}
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(ICON_FA_ARROW_DOWN "\tShrink to First", "Ctrl + H", false, selection.count() > 1))
+			if (ImGui::MenuItem(concat(ICON_FA_ARROW_DOWN, getString("shrink_down"), "\t").c_str(), "Ctrl + H", false, selection.count() > 1))
 				shrinkSelected(0);
-			if (ImGui::MenuItem(ICON_FA_ARROW_UP "\tShrink to Last", "Ctrl + Shift + H", false, selection.count() > 1))
+			if (ImGui::MenuItem(concat(ICON_FA_ARROW_UP, getString("shrink_up"), "\t").c_str(), "Ctrl + Shift + H", false, selection.count() > 1))
 				shrinkSelected(1);
-				
 
 			ImGui::EndPopup();
 		}
@@ -337,10 +336,8 @@ namespace MikuMikuWorld
 		int count = sizeof(divisions) / sizeof(int);
 		bool customSelected = divIndex == count - 1;
 
-		std::string prefix = "1/";
 		return
 			(customSelected ? getString("custom") : "")
-			+ prefix
 			+ std::to_string((customSelected ? customDivision : divisions[divIndex]))
 			+ getString("division_suffix");
 	}
