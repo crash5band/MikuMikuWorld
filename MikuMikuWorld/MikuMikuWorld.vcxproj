@@ -187,6 +187,8 @@
     <ClCompile Include="ImGui\imgui_widgets.cpp" />
     <ClCompile Include="InputListener.cpp" />
     <ClCompile Include="Jacket.cpp" />
+    <ClCompile Include="Language.cpp" />
+    <ClCompile Include="Localization.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="Note.cpp" />
@@ -228,6 +230,7 @@
     <ClInclude Include="Clipboard.h" />
     <ClInclude Include="Colors.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="DefaultLanguage.h" />
     <ClInclude Include="EditorScoreData.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="FileDialog.h" />
@@ -245,6 +248,8 @@
     <ClInclude Include="ImGui\imstb_truetype.h" />
     <ClInclude Include="InputListener.h" />
     <ClInclude Include="Jacket.h" />
+    <ClInclude Include="Language.h" />
+    <ClInclude Include="Localization.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Audio\miniaudio.h" />
     <ClInclude Include="Note.h" />

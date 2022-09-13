@@ -11,6 +11,7 @@
 #include "UI.h"
 #include "FileDialog.h"
 #include "StringOperations.h"
+#include "Localization.h"
 #include <string>
 #include <math.h>
 #include <map>
@@ -551,12 +552,12 @@ namespace MikuMikuWorld
 			ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
 			if (ImGui::BeginPopupContextItem(std::to_string(index).c_str(), ImGuiPopupFlags_MouseButtonLeft | ImGuiPopupFlags_NoOpenOverExistingPopup))
 			{
-				ImGui::Text("Edit Tempo");
+				ImGui::Text(getString("edit_bpm"));
 				ImGui::Separator();
 
 				UI::beginPropertyColumns();
-				UI::addReadOnlyProperty("Tick", std::to_string(tempo.tick));
-				UI::addFloatProperty("BPM", editBPM, "%g");
+				UI::addReadOnlyProperty(getString("tick"), std::to_string(tempo.tick));
+				UI::addFloatProperty(getString("bpm"), editBPM, "%g");
 				UI::endPropertyColumns();
 
 				if (ImGui::IsItemDeactivatedAfterEdit())
@@ -570,7 +571,7 @@ namespace MikuMikuWorld
 				// cannot remove the first tempo change
 				if (tempo.tick != 0)
 				{
-					if (ImGui::Button("Remove", ImVec2(-1, UI::btnNormal.y)))
+					if (ImGui::Button(getString("remove"), ImVec2(-1, UI::btnNormal.y)))
 					{
 						ImGui::CloseCurrentPopup();
 						removeBPM = index;
@@ -614,12 +615,12 @@ namespace MikuMikuWorld
 			std::string wId = "TS-" + std::to_string(measure);
 			if (ImGui::BeginPopupContextItem(wId.c_str(), ImGuiPopupFlags_MouseButtonLeft | ImGuiPopupFlags_NoOpenOverExistingPopup))
 			{
-				ImGui::Text("Edit Time Signature");
+				ImGui::Text(getString("edit_time_signature"));
 				ImGui::Separator();
 
 				UI::beginPropertyColumns();
-				UI::addReadOnlyProperty("Measure", std::to_string(measure));
-				if (UI::addFractionProperty("Time Signature", editTsNum, editTsDen))
+				UI::addReadOnlyProperty(getString("measure"), std::to_string(measure));
+				if (UI::addFractionProperty(getString("time_signature"), editTsNum, editTsDen))
 				{
 					Score prev = score;
 					ts.numerator = std::clamp(abs(editTsNum), MIN_TIME_SIGN, MAX_TIME_SIGN);
@@ -632,7 +633,7 @@ namespace MikuMikuWorld
 				// cannot remove the first time signature
 				if (measure != 0)
 				{
-					if (ImGui::Button("Remove", ImVec2(-1, UI::btnNormal.y)))
+					if (ImGui::Button(getString("remove"), ImVec2(-1, UI::btnNormal.y)))
 					{
 						ImGui::CloseCurrentPopup();
 						removeTS = measure;

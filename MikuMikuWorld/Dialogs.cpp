@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "UI.h"
 #include "StringOperations.h"
+#include "Localization.h"
 #include <Windows.h>
 
 namespace MikuMikuWorld
@@ -51,10 +52,10 @@ namespace MikuMikuWorld
 		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
 
 		bool result = false;
-		if (ImGui::BeginPopupModal(unsavedModalTitle, NULL, ImGuiWindowFlags_NoResize))
+		if (ImGui::BeginPopupModal(MODAL_TITLE("unsaved_changes"), NULL, ImGuiWindowFlags_NoResize))
 		{
-			ImGui::Text("Save changes to current file?");
-			ImGui::Text("Any unsaved changes will be lost.");
+			ImGui::Text(getString("ask_save"));
+			ImGui::Text(getString("warn_unsaved"));
 
 			float xPos = padding.x;
 			float yPos = ImGui::GetWindowSize().y - UI::btnNormal.y - padding.y;
@@ -62,7 +63,7 @@ namespace MikuMikuWorld
 
 			ImVec2 btnSz = ImVec2((ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) / 3.0f, UI::btnNormal.y);
 
-			if (ImGui::Button("Save Changes", btnSz))
+			if (ImGui::Button(getString("save_changes"), btnSz))
 			{
 				ImGui::CloseCurrentPopup();
 				editor->save();
@@ -71,7 +72,7 @@ namespace MikuMikuWorld
 			}
 
 			ImGui::SameLine();
-			if (ImGui::Button("Discard Changes", btnSz))
+			if (ImGui::Button(getString("discard_changes"), btnSz))
 			{
 				ImGui::CloseCurrentPopup();
 				result = true;
@@ -79,7 +80,7 @@ namespace MikuMikuWorld
 			}
 
 			ImGui::SameLine();
-			if (ImGui::Button("Cancel", btnSz))
+			if (ImGui::Button(getString("cancel"), btnSz))
 			{
 				ImGui::CloseCurrentPopup();
 				resetting = exiting = unsavedOpen = false;
@@ -101,7 +102,7 @@ namespace MikuMikuWorld
 		ImVec2 padding = ImGui::GetStyle().WindowPadding;
 		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
 
-		if (ImGui::BeginPopupModal(aboutModalTitle, NULL, ImGuiWindowFlags_NoResize))
+		if (ImGui::BeginPopupModal(MODAL_TITLE("about"), NULL, ImGuiWindowFlags_NoResize))
 		{
 			// only need the title bar to be bigger
 			ImGui::PopStyleVar();
@@ -138,7 +139,7 @@ namespace MikuMikuWorld
 		ImVec2 padding = ImGui::GetStyle().WindowPadding;
 		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
 
-		if (ImGui::BeginPopupModal(settingsModalTitle, NULL, ImGuiWindowFlags_NoResize))
+		if (ImGui::BeginPopupModal(MODAL_TITLE("settings"), NULL, ImGuiWindowFlags_NoResize))
 		{
 			// only need the title bar to be bigger
 			ImGui::PopStyleVar();
@@ -147,25 +148,25 @@ namespace MikuMikuWorld
 			ImGui::BeginChild("##settings_panel", ImGui::GetContentRegionAvail() - ImVec2(0, UI::btnNormal.y + padding.y));
 
 			// auto save
-			if (ImGui::CollapsingHeader("Auto Save", ImGuiTreeNodeFlags_DefaultOpen))
+			if (ImGui::CollapsingHeader(getString("auto_save"), ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 				
-				ImGui::Checkbox("Auto Save Enabled", &autoSaveEnabled);
+				ImGui::Checkbox(getString("auto_save_enable"), &autoSaveEnabled);
 				UI::beginPropertyColumns();
-				UI::addIntProperty("Auto Save Interval (min)", autoSaveInterval, 1, 60);
-				UI::addIntProperty("Maximum Auto Save Entries", autoSaveMaxCount, 1, 100);
+				UI::addIntProperty(getString("auto_save_interval"), autoSaveInterval, 1, 60);
+				UI::addIntProperty(getString("auto_save_count"), autoSaveMaxCount, 1, 100);
 				UI::endPropertyColumns();
 
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 			}
 
 			// theme
-			if (ImGui::CollapsingHeader("Accent Color", ImGuiTreeNodeFlags_DefaultOpen))
+			if (ImGui::CollapsingHeader(getString("accent_color"), ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 				
-				ImGui::TextWrapped("Select an accent color to apply. The first slot can be customized from the color controls below.");
+				ImGui::TextWrapped(getString("accent_color_help"));
 				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
 				ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.5f);
 
@@ -194,9 +195,9 @@ namespace MikuMikuWorld
 				static ColorDisplay displayMode = ColorDisplay::HEX;
 
 				ImGui::Separator();
-				ImGui::Text("Select A Custom Color");
+				ImGui::Text(getString("select_accent_color"));
 				UI::beginPropertyColumns();
-				UI::propertyLabel("Display Mode");
+				UI::propertyLabel(getString("display_mode"));
 				if (ImGui::BeginCombo("##color_display_mode", colorDisplayStr[(int)displayMode]))
 				{
 					for (int i = 0; i < 3; ++i)
@@ -209,7 +210,7 @@ namespace MikuMikuWorld
 					ImGui::EndCombo();
 				}
 				ImGui::NextColumn();
-				UI::propertyLabel("Custom Color");
+				UI::propertyLabel(getString("custom_color"));
 
 				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
 				ImGuiColorEditFlags flags = 1 << (20 + (int)displayMode);
@@ -230,7 +231,7 @@ namespace MikuMikuWorld
 			}
 
 			// charting
-			if (ImGui::CollapsingHeader("Timeline", ImGuiTreeNodeFlags_DefaultOpen))
+			if (ImGui::CollapsingHeader(getString("timeline"), ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 
@@ -240,13 +241,13 @@ namespace MikuMikuWorld
 				float smoothScrollingTime = editor->canvas.getSmoothScrollingTime();
 
 				UI::beginPropertyColumns();
-				UI::addSliderProperty("Lane Width", laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
-				UI::addSliderProperty("Notes Height", notesHeight, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT, "%d");
+				UI::addSliderProperty(getString("lane_width"), laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
+				UI::addSliderProperty(getString("notes_height"), notesHeight, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT, "%d");
 				
-				ImGui::Checkbox("Use Smooth Scrolling", &smoothScrolling);
+				ImGui::Checkbox(getString("use_smooth_scroll"), &smoothScrolling);
 				ImGui::NextColumn();
 				ImGui::NextColumn();
-				UI::addSliderProperty("Smooth Scrolling Time", smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
+				UI::addSliderProperty(getString("smooth_scroll_time"), smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
 				UI::endPropertyColumns();
 
 				if (laneWidth != editor->canvas.getLaneWidth())
@@ -265,10 +266,10 @@ namespace MikuMikuWorld
 			}
 
 			// graphics
-			if (ImGui::CollapsingHeader("Video", ImGuiTreeNodeFlags_DefaultOpen))
+			if (ImGui::CollapsingHeader(getString("video"), ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
-				if (ImGui::Checkbox("Enable VSync", &vsync))
+				if (ImGui::Checkbox(getString("vsync_enable"), &vsync))
 					glfwSwapInterval((int)vsync);
 
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);

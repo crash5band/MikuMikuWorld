@@ -141,4 +141,9 @@ namespace MikuMikuWorld
 
 		return wResult;
 	}
+
+	std::string concat(const char* s1, const char* s2, const char* join)
+	{
+		return std::string(s1).append(join).append(s2);
+	}
 }

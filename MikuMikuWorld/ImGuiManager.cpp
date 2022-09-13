@@ -179,11 +179,11 @@ namespace MikuMikuWorld
 			ImGuiID topRightId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Right, 0.25f, nullptr, &dockMainId);
 			ImGuiID bottomRightId = ImGui::DockBuilderSplitNode(topRightId, ImGuiDir_Down, 0.5f, nullptr, &topRightId);
 
-			ImGui::DockBuilderDockWindow(timelineWindowTitle, dockMainId);
-			ImGui::DockBuilderDockWindow(toolboxWindowTitle, topLeftId);
-			ImGui::DockBuilderDockWindow(controlsWindowTitle, bottomLeftId);
-			ImGui::DockBuilderDockWindow(detailsWindowTitle, topRightId);
-			ImGui::DockBuilderDockWindow(presetsWindowTitle, bottomRightId);
+			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"), dockMainId);
+			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_TOOLBOX, "toolbox"), topLeftId);
+			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_ADJUST, "controls"), bottomLeftId);
+			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_ALIGN_LEFT, "chart_properties"), topRightId);
+			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_DRAFTING_COMPASS, "presets"), bottomRightId);
 
 			ImGui::DockBuilderFinish(dockMainId);
 		}

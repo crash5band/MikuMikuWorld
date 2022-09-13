@@ -13,28 +13,29 @@
 #include "Tempo.h"
 #include "Colors.h"
 #include "Clipboard.h"
+#include "Localization.h"
 #include <algorithm>
 
 namespace MikuMikuWorld
 {
 	constexpr const char* uiFlickTypes[] =
 	{
-		"None", "Up", "Left", "Right"
+		"none", "up", "left", "right"
 	};
 
 	constexpr const char* uiStepTypes[] =
 	{
-		"Visible", "Invisible", "Ignored"
+		"visible", "invisible", "ignored"
 	};
 
 	constexpr const char* uiEaseTypes[] =
 	{
-		"Linear", "Ease-In", "Ease-Out"
+		"linear", "ease_in", "ease_out"
 	};
 
 	void ScoreEditor::toolboxWindow()
 	{
-		if (ImGui::Begin(toolboxWindowTitle))
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_TOOLBOX, "toolbox")))
 		{
 			ImVec2 btnSz{ ImGui::GetContentRegionAvail().x, 35.0f };
 			for (int i = 0; i < (int)TimelineMode::TimelineToolMax; ++i)
@@ -47,10 +48,11 @@ namespace MikuMikuWorld
 					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_TabActive]);
 				}
 
-				if (ImGui::Button(timelineModes[i], btnSz))
+				std::string str = getString(timelineModes[i]);
+				if (ImGui::Button(str.c_str(), btnSz))
 					changeMode((TimelineMode)i);
 
-				std::string txt = "(" + std::to_string(i + 1) + ") " + timelineModes[i];
+				std::string txt = "(" + std::to_string(i + 1) + ") " + str;
 				UI::tooltip(txt.c_str());
 
 				if (highlight)
@@ -64,19 +66,19 @@ namespace MikuMikuWorld
 
 			if (currentMode == TimelineMode::InsertBPM)
 			{
-				UI::addFloatProperty("BPM", defaultBPM, "%g BPM");
+				UI::addFloatProperty(getString("bpm"), defaultBPM, "%g BPM");
 				defaultBPM = std::clamp(defaultBPM, MIN_BPM, MAX_BPM);
 			}
 			else if (currentMode == TimelineMode::InsertTimeSign)
 			{
-				UI::addFractionProperty("Time Signature", defaultTimeSignN, defaultTimeSignD);
+				UI::addFractionProperty(getString("time_signature"), defaultTimeSignN, defaultTimeSignD);
 				defaultTimeSignN = std::clamp(defaultTimeSignN, MIN_TIME_SIGN, MAX_TIME_SIGN);
 				defaultTimeSignD = std::clamp(defaultTimeSignD, MIN_TIME_SIGN, MAX_TIME_SIGN);
 			}
 			else
 			{
-				UI::addIntProperty("Note Width", defaultNoteWidth, 1, 12);
-				UI::addSelectProperty("Step Type", defaultStepType, uiStepTypes, TXT_ARR_SZ(uiStepTypes));
+				UI::addIntProperty(getString("note_width"), defaultNoteWidth, 1, 12);
+				UI::addSelectProperty(getString("step_type"), defaultStepType, uiStepTypes, TXT_ARR_SZ(uiStepTypes));
 			}
 
 			UI::endPropertyColumns();
@@ -87,7 +89,8 @@ namespace MikuMikuWorld
 	
 	void ScoreEditor::updateTimeline(float frameTime, Renderer* renderer)
 	{
-		if (ImGui::Begin(timelineWindowTitle, NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"),
+			NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
 		{
 			windowFocused = ImGui::IsWindowFocused();
 			if (canvas.isMouseInCanvas() && !UI::isAnyPopupOpen())
@@ -103,7 +106,8 @@ namespace MikuMikuWorld
 
 					if (ImGui::IsMouseClicked(0))
 					{
-						if (!InputListener::isCtrlDown() && !InputListener::isAltDown() && !ImGui::IsPopupOpen(timelineWindowTitle))
+						if (!InputListener::isCtrlDown() && !InputListener::isAltDown() &&
+							!ImGui::IsPopupOpen(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline")))
 							selection.clear();
 
 						if (currentMode == TimelineMode::Select)
@@ -167,50 +171,50 @@ namespace MikuMikuWorld
 	void ScoreEditor::contextMenu()
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 10));
-		if (ImGui::BeginPopupContextWindow(timelineWindowTitle))
+		if (ImGui::BeginPopupContextWindow(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline")))
 		{
-			if (ImGui::MenuItem(ICON_FA_TRASH "\tDelete", "Delete", false, selection.hasSelection()))
+			if (ImGui::MenuItem(concat(ICON_FA_TRASH, getString("delete"), "\t").c_str(), "Delete", false, selection.hasSelection()))
 				deleteSelected();
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(ICON_FA_COPY "\tCopy", "Ctrl + C", false, selection.hasSelection()))
+			if (ImGui::MenuItem(concat(ICON_FA_COPY, getString("copy"), "\t").c_str(), "Ctrl + C", false, selection.hasSelection()))
 				copy();
 
-			if (ImGui::MenuItem(ICON_FA_PASTE "\tPaste", "Ctrl + V", false, Clipboard::hasData()))
+			if (ImGui::MenuItem(concat(ICON_FA_PASTE, getString("paste"), "\t").c_str(), "Ctrl + V", false, Clipboard::hasData()))
 				paste();
 
-			if (ImGui::MenuItem(ICON_FA_PASTE "\tFlip Paste", "Ctrl + Shift + V", false, Clipboard::hasData()))
+			if (ImGui::MenuItem(concat(ICON_FA_PASTE, getString("flip_paste"), "\t").c_str(), "Ctrl + Shift + V", false, Clipboard::hasData()))
 				flipPaste();
 
-			if (ImGui::MenuItem(ICON_FA_GRIP_LINES_VERTICAL "\tFlip", "Ctrl + F", false, selection.hasSelection()))
+			if (ImGui::MenuItem(concat(ICON_FA_GRIP_LINES_VERTICAL, getString("flip"), "\t").c_str(), "Ctrl + F", false, selection.hasSelection()))
 				flipSelected();
 
 			ImGui::Separator();
-			if (ImGui::BeginMenu("Ease Type", selection.hasEase()))
+			if (ImGui::BeginMenu(getString("ease_type"), selection.hasEase()))
 			{
 				for (int i = 0; i < TXT_ARR_SZ(uiEaseTypes); ++i)
 				{
-					if (ImGui::MenuItem(uiEaseTypes[i]))
+					if (ImGui::MenuItem(getString(uiEaseTypes[i])))
 						setEase((EaseType)i);
 				}
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::BeginMenu("Step Type", selection.hasStep()))
+			if (ImGui::BeginMenu(getString("step_type"), selection.hasStep()))
 			{
 				for (int i = 0; i < TXT_ARR_SZ(uiStepTypes); ++i)
 				{
-					if (ImGui::MenuItem(uiStepTypes[i]))
+					if (ImGui::MenuItem(getString(uiStepTypes[i])))
 						setStepType((HoldStepType)i);
 				}
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::BeginMenu("Flick Type", selection.hasFlickable()))
+			if (ImGui::BeginMenu(getString("flick_type"), selection.hasFlickable()))
 			{
 				for (int i = 0; i < TXT_ARR_SZ(uiFlickTypes); ++i)
 				{
-					if (ImGui::MenuItem(uiFlickTypes[i]))
+					if (ImGui::MenuItem(getString(uiFlickTypes[i])))
 						setFlick((FlickType)i);
 				}
 				ImGui::EndMenu();
@@ -230,17 +234,19 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::propertiesWindow()
 	{
-		if (ImGui::Begin(detailsWindowTitle, NULL, ImGuiWindowFlags_Static))
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_ALIGN_LEFT, "chart_properties"), NULL, ImGuiWindowFlags_Static))
 		{
-			if (ImGui::CollapsingHeader(ICON_FA_ALIGN_LEFT " Metadata", ImGuiTreeNodeFlags_DefaultOpen))
+			if (ImGui::CollapsingHeader(
+				concat(ICON_FA_ALIGN_LEFT, getString("metadata"), " ").c_str(),
+				ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				UI::beginPropertyColumns();
-				UI::addStringProperty("Title", workingData.title);
-				UI::addStringProperty("Designer", workingData.designer);
-				UI::addStringProperty("Artist", workingData.artist);
+				UI::addStringProperty(getString("title"), workingData.title);
+				UI::addStringProperty(getString("designer"), workingData.designer);
+				UI::addStringProperty(getString("artist"), workingData.artist);
 
 				std::string jacketFile = workingData.jacket.getFilename();
-				int result = UI::addFileProperty("Jacket", jacketFile);
+				int result = UI::addFileProperty(getString("jacket"), jacketFile);
 				if (result == 1)
 				{
 					workingData.jacket.load(jacketFile);
@@ -255,12 +261,14 @@ namespace MikuMikuWorld
 				UI::endPropertyColumns();
 			}
 
-			if (ImGui::CollapsingHeader(ICON_FA_VOLUME_UP " Audio", ImGuiTreeNodeFlags_DefaultOpen))
+			if (ImGui::CollapsingHeader(
+				concat(ICON_FA_VOLUME_UP, getString("audio"), " ").c_str(),
+				ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				UI::beginPropertyColumns();
 
 				std::string filename = workingData.musicFilename;
-				int filePickResult = UI::addFileProperty("Music File", filename);
+				int filePickResult = UI::addFileProperty(getString("music_file"), filename);
 				if (filePickResult == 1 && filename != workingData.musicFilename)
 				{
 					loadMusic(filename);
@@ -272,7 +280,7 @@ namespace MikuMikuWorld
 				}
 
 				float offset = workingData.musicOffset;
-				UI::addFloatProperty("Music Offset", offset, "%.03fms");
+				UI::addFloatProperty(getString("music_offset"), offset, "%.03fms");
 				if (offset != workingData.musicOffset)
 				{
 					workingData.musicOffset = offset;
@@ -281,9 +289,9 @@ namespace MikuMikuWorld
 
 				// volume controls
 				float master = masterVolume, bgm = bgmVolume, se = seVolume;
-				UI::addPercentSliderProperty("Master Volume", master);
-				UI::addPercentSliderProperty("BGM Volume", bgm);
-				UI::addPercentSliderProperty("SE Volume", se);
+				UI::addPercentSliderProperty(getString("volume_master"), master);
+				UI::addPercentSliderProperty(getString("volume_bgm"), bgm);
+				UI::addPercentSliderProperty(getString("volume_se"), se);
 
 				if (master != masterVolume)
 				{
@@ -306,15 +314,17 @@ namespace MikuMikuWorld
 				UI::endPropertyColumns();
 			}
 
-			if (ImGui::CollapsingHeader(ICON_FA_CHART_BAR " Statistics", ImGuiTreeNodeFlags_DefaultOpen))
+			if (ImGui::CollapsingHeader(
+				concat(ICON_FA_CHART_BAR, getString("statistics"), " ").c_str(),
+				ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				UI::beginPropertyColumns();
-				UI::addReadOnlyProperty("Taps", std::to_string(stats.getTaps()));
-				UI::addReadOnlyProperty("Flicks", std::to_string(stats.getFlicks()));
-				UI::addReadOnlyProperty("Holds", std::to_string(stats.getHolds()));
-				UI::addReadOnlyProperty("Steps", std::to_string(stats.getSteps()));
-				UI::addReadOnlyProperty("Total", std::to_string(stats.getTotal()));
-				UI::addReadOnlyProperty("Combo", std::to_string(stats.getCombo()));
+				UI::addReadOnlyProperty(getString("taps"), std::to_string(stats.getTaps()));
+				UI::addReadOnlyProperty(getString("flicks"), std::to_string(stats.getFlicks()));
+				UI::addReadOnlyProperty(getString("holds"), std::to_string(stats.getHolds()));
+				UI::addReadOnlyProperty(getString("steps"), std::to_string(stats.getSteps()));
+				UI::addReadOnlyProperty(getString("total"), std::to_string(stats.getTotal()));
+				UI::addReadOnlyProperty(getString("combo"), std::to_string(stats.getCombo()));
 				UI::endPropertyColumns();
 			}
 		}
@@ -328,19 +338,22 @@ namespace MikuMikuWorld
 		bool customSelected = divIndex == count - 1;
 
 		std::string prefix = "1/";
-		return (customSelected ? "Custom " : "") +
-			prefix + std::to_string((customSelected ? customDivision : divisions[divIndex]));
+		return
+			(customSelected ? getString("custom") : "")
+			+ prefix
+			+ std::to_string((customSelected ? customDivision : divisions[divIndex]))
+			+ getString("division_suffix");
 	}
 
 	void ScoreEditor::controlsWindow()
 	{
-		if (ImGui::Begin(controlsWindowTitle))
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_ADJUST, "controls")))
 		{
 			int measure = accumulateMeasures(currentTick, TICKS_PER_BEAT, score.timeSignatures);
 			const TimeSignature& ts = score.timeSignatures[findTimeSignature(measure, score.timeSignatures)];
 			const Tempo& tempo = getTempoAt(currentTick, score.tempoChanges);
 
-			std::string timeStr = formatString("Time: %02d:%02d:%02d", (int)time / 60, (int)time % 60, (int)((time - (int)time) * 100));
+			std::string timeStr = formatString("%02d:%02d:%02d", (int)time / 60, (int)time % 60, (int)((time - (int)time) * 100));
 			std::string signStr = formatString("\t|\t%d/%d, ", ts.numerator, ts.denominator);
 			std::string tempoStr = formatString("%g BPM", tempo.bpm);
 
@@ -367,7 +380,7 @@ namespace MikuMikuWorld
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
 			
 			UI::beginPropertyColumns();
-			UI::propertyLabel("Goto Measure");
+			UI::propertyLabel(getString("goto_measure"));
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - ImGui::GetStyle().ItemSpacing.x);
 			ImGui::InputInt("##goto_measure", &m, 0, 0);
 
@@ -376,7 +389,7 @@ namespace MikuMikuWorld
 				gotoMeasure(m);
 
 			ImGui::NextColumn();
-			UI::propertyLabel("Divison");
+			UI::propertyLabel(getString("division"));
 
 			int divCount = sizeof(divisions) / sizeof(int);
 			if (ImGui::BeginCombo("##division", getDivisonString(selectedDivision).c_str()))
@@ -399,7 +412,7 @@ namespace MikuMikuWorld
 			}
 
 			ImGui::NextColumn();
-			UI::propertyLabel("Custom Divison");
+			UI::propertyLabel(getString("custom_division"));
 			if (ImGui::InputInt("##custom_div", &customDivision, 1, 4))
 			{
 				customDivision = std::clamp(customDivision, 4, 1920);
@@ -408,9 +421,9 @@ namespace MikuMikuWorld
 			}
 
 			ImGui::NextColumn();
-			UI::addSelectProperty("Scroll Mode", scrollMode, scrollModes, (int)ScrollMode::ScrollModeMax);
+			UI::addSelectProperty(getString("scroll_mode"), scrollMode, scrollModes, (int)ScrollMode::ScrollModeMax);
 
-			UI::propertyLabel("Zoom");
+			UI::propertyLabel(getString("zoom"));
 			float _zoom = canvas.getZoom();
 			if (UI::transparentButton(ICON_FA_SEARCH_MINUS, UI::btnSmall))
 				_zoom -= 0.25f;
@@ -428,7 +441,7 @@ namespace MikuMikuWorld
 
 			UI::endPropertyColumns();
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
-			ImGui::Checkbox("Show Step Outlines", &drawHoldStepOutline);
+			ImGui::Checkbox(getString("show_step_outlines"), &drawHoldStepOutline);
 		}
 
 		ImGui::End();
@@ -436,7 +449,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::debugInfo()
 	{
-		if (ImGui::Begin(Title, NULL, ImGuiWindowFlags_Static))
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_BUG, "debug"), NULL, ImGuiWindowFlags_Static))
 		{
 			ImGuiIO io = ImGui::GetIO();
 			ImGui::Text("Canvas Size: (%f, %f)", canvas.getSize().x, canvas.getSize().y);
