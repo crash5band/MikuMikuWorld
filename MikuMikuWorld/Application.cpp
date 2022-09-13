@@ -541,6 +541,9 @@ namespace MikuMikuWorld
 
 		Localization::loadDefault();
 		Localization::setLanguage("en");
+
+		// load more languages here
+		// Localization::load("code", "path");
 	}
 
 	void Application::run()

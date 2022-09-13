@@ -80,6 +80,8 @@ namespace MikuMikuWorld
 		{"flip_paste", "Flip Paste"},
 		{"flip", "Flip"},
 		{"note_width", "Note Width"},
+		{"shrink_down", "Shrink Down"},
+		{"shrink_up", "Shrink Up"},
 		{"step_type", "Step Type"},
 		{"ease_type", "Ease Type"},
 		{"flick_type", "Flick Type"},
