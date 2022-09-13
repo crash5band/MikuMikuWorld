@@ -140,6 +140,7 @@ namespace MikuMikuWorld
 			noteCtrlHeight = canvas.getNotesHeight();
 			isHoveringNote = false;
 			hoveringNote = -1;
+			minNoteYDistance = 9999.0;
 			updateNotes(renderer);
 
 			// update dragging
@@ -218,6 +219,13 @@ namespace MikuMikuWorld
 				}
 				ImGui::EndMenu();
 			}
+
+			ImGui::Separator();
+			if (ImGui::MenuItem(ICON_FA_ARROW_DOWN "\tShrink to First", "Ctrl + H", false, selection.count() > 1))
+				shrinkSelected(0);
+			if (ImGui::MenuItem(ICON_FA_ARROW_UP "\tShrink to Last", "Ctrl + Shift + H", false, selection.count() > 1))
+				shrinkSelected(1);
+				
 
 			ImGui::EndPopup();
 		}

@@ -198,6 +198,44 @@ namespace MikuMikuWorld
 		pushHistory("Delete notes", prev, score);
 	}
 
+	void ScoreEditor::shrinkSelected(int direction)
+	{
+		if (selection.count() < 2)
+			return;
+
+		Score prev = score;
+		std::vector<int> sortedSelection(selection.getSelection().size());
+		std::copy(selection.getSelection().begin(), selection.getSelection().end(), sortedSelection.begin());
+		std::sort(sortedSelection.begin(), sortedSelection.end(), [prev](int a, int b) {
+			return prev.notes.at(a).tick < prev.notes.at(b).tick;
+		});
+
+		if(direction == 0){
+			int i = 0;
+			int firstTick = score.notes.at(*sortedSelection.begin()).tick;
+			
+			for (auto& id : sortedSelection)
+			{
+				auto& note = score.notes.at(id);
+				note.tick = firstTick + (i++);
+				if (note.parentID != -1)
+					sortHoldSteps(score, score.holdNotes.at(note.parentID));
+			}
+		}else if(direction == 1) {
+			int i = -selection.count() + 1;
+			int lastTick = score.notes.at(sortedSelection.back()).tick;
+			for (auto& id : sortedSelection)
+			{
+				auto& note = score.notes.at(id);
+				note.tick = lastTick + (i++);
+				if (note.parentID != -1)
+					sortHoldSteps(score, score.holdNotes.at(note.parentID));
+			}
+		}
+
+		pushHistory("Shrink notes", prev, score);
+	}
+
 	void ScoreEditor::insertNote(bool critical)
 	{
 		Score prev = score;
