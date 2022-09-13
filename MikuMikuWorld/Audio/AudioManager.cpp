@@ -178,8 +178,16 @@ namespace MikuMikuWorld
 		if (lengthResult != MA_SUCCESS)
 			return;
 
-		if (ma_sound_at_end(&bgm) && seekFrame < length)
+		if (seekFrame > length)
+		{
+			// seeking beyond the sound's length
+			bgm.atEnd = true;
+		}
+		else if (ma_sound_at_end(&bgm) && seekFrame < length)
+		{
+			// sound reached the end but seeked to an earlier frame
 			bgm.atEnd = false;
+		}
 	}
 
 	void AudioManager::setMasterVolume(float volume)
