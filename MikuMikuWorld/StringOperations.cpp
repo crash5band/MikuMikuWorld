@@ -115,29 +115,11 @@ namespace MikuMikuWorld
 		return result;
 	}
 
-	std::string wideAnsiStringToMb(const std::wstring& str)
-	{
-		int size = WideCharToMultiByte(CP_ACP, 0, &str[0], (int)str.size(), NULL, 0, NULL, NULL);
-		std::string result(size, 0);
-		WideCharToMultiByte(CP_ACP, 0, &str[0], (int)str.size(), &result[0], size, NULL, NULL);
-
-		return result;
-	}
-
 	std::wstring mbToWideStr(const std::string& str)
 	{
 		int size = MultiByteToWideChar(CP_UTF8, 0, &str[0], str.size(), NULL, 0);
 		std::wstring wResult(size, 0);
 		MultiByteToWideChar(CP_UTF8, 0, &str[0], str.size(), &wResult[0], size);
-
-		return wResult;
-	}
-
-	std::wstring mbToWideAnsiString(const std::string& str)
-	{
-		int size = MultiByteToWideChar(CP_ACP, 0, &str[0], str.size(), NULL, 0);
-		std::wstring wResult(size, 0);
-		MultiByteToWideChar(CP_ACP, 0, &str[0], str.size(), &wResult[0], size);
 
 		return wResult;
 	}

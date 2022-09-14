@@ -18,9 +18,7 @@ namespace MikuMikuWorld
 	std::vector<std::string> split(const std::string& line, const std::string& delim);
 
 	std::string wideStringToMb(const std::wstring& str);
-	std::string wideAnsiStringToMb(const std::wstring& str);
 	std::wstring mbToWideStr(const std::string& str);
-	std::wstring mbToWideAnsiString(const std::string& str);
 
 	std::string concat(const char* s1, const char* s2, const char* join = "");
 

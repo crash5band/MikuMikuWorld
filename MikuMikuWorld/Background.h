@@ -14,7 +14,6 @@ namespace MikuMikuWorld
 	{
 	private:
 		Texture texture;
-		Texture defaultTexture;
 		std::unique_ptr<Framebuffer> framebuffer;
 
 		float blur;
@@ -32,7 +31,6 @@ namespace MikuMikuWorld
 		Background();
 
 		void load(const Texture& tex);
-		void loadDefault(const Texture& tex);
 		void resize(const Vector2& target);
 		void process(Renderer* renderer);
 		

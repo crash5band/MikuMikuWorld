@@ -11,7 +11,7 @@ namespace MikuMikuWorld
 	void InputListener::update(GLFWwindow* window)
 	{
 		prevKeyState = keyState;
-		for (int i = 0; i < GLFW_KEY_LAST; ++i)
+		for (int i = GLFW_KEY_SPACE; i < GLFW_KEY_LAST; ++i)
 			keyState[i] = glfwGetKey(window, i);
 
 		prevMouse = mouse;

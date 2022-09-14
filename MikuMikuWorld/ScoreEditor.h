@@ -13,7 +13,6 @@
 #include "ScoreStats.h"
 #include "Canvas.h"
 #include "Selection.h"
-#include <unordered_set>
 
 // needed for miniaudio to work
 #undef min

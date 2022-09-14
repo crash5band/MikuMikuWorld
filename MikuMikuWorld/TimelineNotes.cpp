@@ -470,7 +470,7 @@ namespace MikuMikuWorld
 
 				// middle
 				renderer->drawSprite(pos, 0.0f, midSz, anchor, tex,
-					s.getX() + NOTES_X_SLICE, s.getX() + s.getWidth() - NOTES_X_SLICE,
+					s.getX() + NOTES_X_SLICE + 10, s.getX() + NOTES_X_SLICE + 20,
 					s.getY(), s.getY() + s.getHeight(), tint, 1
 				);
 				pos.x += midLen;

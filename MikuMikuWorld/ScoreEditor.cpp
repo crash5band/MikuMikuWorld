@@ -12,12 +12,7 @@
 #include "FileDialog.h"
 #include "StringOperations.h"
 #include "Localization.h"
-#include <string>
-#include <math.h>
-#include <map>
-#include <unordered_set>
 #include <algorithm>
-#include <filesystem>
 #include <Windows.h>
 
 #undef min
