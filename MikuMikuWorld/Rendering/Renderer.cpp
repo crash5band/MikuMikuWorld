@@ -133,7 +133,7 @@ namespace MikuMikuWorld
 		q.zIndex = z;
 		for (int i = 0; i < 4; ++i)
 		{
-			q.vertices[i].position = vPos[i];
+			q.vertices[i].position = pos[i];
 			q.vertices[i].color = col;
 			q.vertices[i].uv = uvCoords[i];
 		}

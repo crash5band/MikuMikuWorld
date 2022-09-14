@@ -9,8 +9,6 @@
 
 namespace MikuMikuWorld
 {
-	constexpr size_t maxVertices = 10000;
-	constexpr size_t maxIndices = 15000;
 	constexpr size_t maxQuads = 2500;
 
 	class Renderer

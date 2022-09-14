@@ -19,9 +19,6 @@ namespace MikuMikuWorld
 	const ImU32 warningColor	= ImGui::ColorConvertFloat4ToU32(ImVec4(0.96f, 0.26f, 0.21f, 0.50f));
 	const ImU32 bgFallbackColor = ImGui::ColorConvertFloat4ToU32(ImVec4(0.10f, 0.10f, 0.10f, 1.00f));
 
-	const ImVec4 selectedToolColor{ 0.15f, 0.15f, 0.15f, 1.00f };
-	const ImVec4 toolBtnColor{ 0.20f, 0.20f, 0.20f, 1.00f };
-
 	const Color noteTint{ 1.0f, 1.0f, 1.0f, 1.0f };
 	const Color hoverTint{ 1.0f, 1.0f, 1.0f, 0.70f };
 
