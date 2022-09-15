@@ -377,12 +377,12 @@ namespace MikuMikuWorld
 
 		ImVec2 p1 {
 			x + canvas.laneToPosition(data.lane),
-			y - (canvas.getNotesHeight() * 0.25f)
+			y - (canvas.getNotesHeight() * 0.15f)
 		};
 
 		ImVec2 p2 {
 			x + canvas.laneToPosition(data.lane + data.width),
-			y + (canvas.getNotesHeight() * 0.25f)
+			y + (canvas.getNotesHeight() * 0.15f)
 		};
 
 		ImU32 fill = data.type == HoldStepType::Ignored ? 0x55ffffaa : 0x55aaffaa;

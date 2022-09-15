@@ -1006,12 +1006,12 @@ namespace MikuMikuWorld
 			
 			ImVec2 p1 {
 				x + canvas.laneToPosition(note.lane) - 1,
-				y - (canvas.getNotesHeight() * 0.55f)
+				y - (canvas.getNotesHeight() * 0.35f)
 			};
 			
 			ImVec2 p2 {
 				x + canvas.laneToPosition(note.lane + note.width) + 3,
-				y + (canvas.getNotesHeight() * 0.55f)
+				y + (canvas.getNotesHeight() * 0.35f)
 			};
 
 			drawList->AddRectFilled(p1, p2, 0x33555555, 2.0f, ImDrawFlags_RoundCornersAll);
