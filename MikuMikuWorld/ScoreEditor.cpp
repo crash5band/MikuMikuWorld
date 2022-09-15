@@ -371,8 +371,8 @@ namespace MikuMikuWorld
 	{
 		songPosLastFrame = songPos;
 
-		if (audio.isMusicInitialized() && playing && audio.getAudioPosition() >= workingData.musicOffset && !audio.isMusicAtEnd())
-			songPos = audio.getAudioPosition();
+		if (audio.isMusicInitialized() && playing && audio.getAudioPosition() >= (workingData.musicOffset / 1000) && !audio.isMusicAtEnd())
+			songPos = audio.getAudioPosition() + (workingData.musicOffset / 1000);
 		else
 			songPos = time;
 
