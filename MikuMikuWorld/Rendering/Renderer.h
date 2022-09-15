@@ -9,7 +9,7 @@
 
 namespace MikuMikuWorld
 {
-	constexpr size_t maxQuads = 2500;
+	constexpr size_t maxQuads = 1500;
 
 	class Renderer
 	{
