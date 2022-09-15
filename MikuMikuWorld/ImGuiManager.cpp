@@ -11,7 +11,7 @@
 namespace MikuMikuWorld
 {
 	ImGuiManager::ImGuiManager() :
-		io{ nullptr }, configFilename{ "" }, dockspaceID{ 3939 }
+		io{ nullptr }, configFilename{ "" }
 	{
 
 	}
@@ -106,6 +106,7 @@ namespace MikuMikuWorld
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
+		io = nullptr;
 	}
 
 	void ImGuiManager::begin()
@@ -166,8 +167,10 @@ namespace MikuMikuWorld
 		ImGui::Begin("InvisibleWindow", nullptr, windowFlags); // This is basically the background window that contains all the dockable windows
 		ImGui::PopStyleVar(3);
 
-		ImGuiID dockSpaceId = ImGui::GetID("InvisibleWindowDockSpace");
+		std::string dockStrId{ "InvisibleWindowDockSpace-" };
+		dockStrId.append(Localization::currentLanguage->getCode());
 
+		ImGuiID dockSpaceId = ImGui::GetID(dockStrId.c_str());
 		if (!ImGui::DockBuilderGetNode(dockSpaceId))
 		{
 			ImGui::DockBuilderAddNode(dockSpaceId, ImGuiDockNodeFlags_DockSpace);

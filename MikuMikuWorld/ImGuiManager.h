@@ -11,7 +11,6 @@ namespace MikuMikuWorld
 	private:
 		ImGuiIO* io;
 		std::string configFilename;
-		ImGuiID dockspaceID;
 
 	public:
 		ImGuiManager();
