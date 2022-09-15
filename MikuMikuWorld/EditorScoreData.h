@@ -20,4 +20,12 @@ namespace MikuMikuWorld
 			jacket.clear();
 		}
 	};
+
+	struct StepDrawData
+	{
+		int tick;
+		int lane;
+		int width;
+		HoldStepType type;
+	};
 }

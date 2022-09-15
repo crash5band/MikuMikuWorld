@@ -39,6 +39,7 @@ namespace MikuMikuWorld
 		Score score;
 		EditorScoreData workingData;
 		std::unordered_map<std::string, int> tickSEMap;
+		std::vector<StepDrawData> drawSteps;
 
 		Note dummy;
 		Note dummyStart;
@@ -135,12 +136,13 @@ namespace MikuMikuWorld
 		void drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
 		void drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
 		void drawHoldNote(const std::unordered_map<int, Note>& notes, const HoldNote& hold, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
-		void drawHoldMid(const Note& note, HoldStepType type, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
+		void drawHoldMid(Note& note, HoldStepType type, Renderer* renderer, const Color& tint);
 		void drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
-		void drawHighlight(const Note& note, Renderer* renderer, const Color& tint, bool mid, const int offsetTick = 0, const int offsetLane = 0);
 		void drawDummyHold(Renderer* renderer);
 		void drawSelectionRectangle();
-		void drawSelectionBoxes(Renderer* renderer);
+		void drawSelectionBoxes();
+		void drawStepOutlines();
+		void drawOutline(const StepDrawData& data);
 		void drawBPM(const Tempo& bpm);
 		void drawBPM(float bpm, int tick);
 		void drawTimeSignature(const TimeSignature& ts);

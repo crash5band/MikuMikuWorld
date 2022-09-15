@@ -852,13 +852,15 @@ namespace MikuMikuWorld
 		}
 
 		renderer->endBatch();
-		drawSelectionBoxes(renderer);
 
 		glDisable(GL_DEPTH_TEST);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		unsigned int fbTex = framebuffer->getTexture();
 		drawList->AddImage((void*)fbTex, canvas.getPosition(), canvas.getPosition() + canvas.getSize());
+		drawSelectionBoxes();
+		drawStepOutlines();
+		drawSteps.clear();
 	}
 
 	void ScoreEditor::previewInput(Renderer* renderer)
@@ -870,6 +872,7 @@ namespace MikuMikuWorld
 		else if (currentMode == TimelineMode::InsertLongMid)
 		{
 			drawHoldMid(dummyMid, defaultStepType, renderer, hoverTint);
+			drawOutline(StepDrawData{ dummyMid.tick, dummyMid.lane, dummyMid.width, defaultStepType });
 		}
 		else if (currentMode == TimelineMode::InsertBPM)
 		{
@@ -986,15 +989,44 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void ScoreEditor::drawSelectionBoxes(Renderer* renderer)
+	void ScoreEditor::drawSelectionBoxes()
 	{
-		renderer->beginBatch();
-		for (const int& id : selection.getSelection())
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		if (!drawList)
+			return;
+
+		for (int id : selection.getSelection())
 		{
-			if (canvas.isNoteInCanvas(score.notes.at(id).tick))
-				drawHighlight(score.notes.at(id), renderer, noteTint, false);
+			const Note& note = score.notes.at(id);
+			if (!canvas.isNoteInCanvas(note.tick))
+				continue;
+
+			float x = canvas.getPosition().x;
+			float y = canvas.getPosition().y - canvas.tickToPosition(note.tick) + canvas.getVisualOffset();
+			
+			ImVec2 p1 {
+				x + canvas.laneToPosition(note.lane) - 1,
+				y - (canvas.getNotesHeight() * 0.55f)
+			};
+			
+			ImVec2 p2 {
+				x + canvas.laneToPosition(note.lane + note.width) + 3,
+				y + (canvas.getNotesHeight() * 0.55f)
+			};
+
+			drawList->AddRectFilled(p1, p2, 0x33555555, 2.0f, ImDrawFlags_RoundCornersAll);
+			drawList->AddRect(p1, p2, 0xcccccccc, 2.0f, ImDrawFlags_RoundCornersAll, 1.5f);
 		}
-		renderer->endBatch();
+	}
+
+	void ScoreEditor::drawStepOutlines()
+	{
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		if (!drawList)
+			return;
+
+		for (const auto& item : drawSteps)
+			drawOutline(item);
 	}
 
 	bool ScoreEditor::isHoldPathInTick(const Note& n1, const Note& n2, EaseType ease, float x, float y)

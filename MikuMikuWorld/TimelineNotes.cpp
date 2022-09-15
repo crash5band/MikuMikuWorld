@@ -204,19 +204,22 @@ namespace MikuMikuWorld
 			Vector2 p2{ xl1 + NOTES_SLICE_WIDTH, y1 };
 			Vector2 p3{ xl2, y2 };
 			Vector2 p4{ xl2 + NOTES_SLICE_WIDTH, y2 };
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, 0, HOLD_X_SLICE, 0, pathTex.getHeight(), tint);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, 0, HOLD_X_SLICE,
+				0, pathTex.getHeight(), tint);
 
 			p1.x = xl1 + NOTES_SLICE_WIDTH;
 			p2.x = xr1 - NOTES_SLICE_WIDTH;
 			p3.x = xl2 + NOTES_SLICE_WIDTH;
 			p4.x = xr2 - NOTES_SLICE_WIDTH;
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, HOLD_X_SLICE, pathTex.getWidth() - HOLD_X_SLICE, 0, pathTex.getHeight(), tint);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, HOLD_X_SLICE,
+				pathTex.getWidth() - HOLD_X_SLICE, 0, pathTex.getHeight(), tint);
 
 			p1.x = xr1 - NOTES_SLICE_WIDTH;
 			p2.x = xr1;
 			p3.x = xr2 - NOTES_SLICE_WIDTH;
 			p4.x = xr2;
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, pathTex.getWidth() - HOLD_X_SLICE, pathTex.getWidth(), 0, pathTex.getHeight(), tint);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, pathTex.getWidth() - HOLD_X_SLICE,
+				pathTex.getWidth(), 0, pathTex.getHeight(), tint);
 		}
 	}
 
@@ -288,7 +291,9 @@ namespace MikuMikuWorld
 					if (canvas.isNoteInCanvas(n3.tick + offsetTicks))
 					{
 						if (drawHoldStepOutline)
-							drawHighlight(n3, renderer, tint, true, offsetTicks, offsetLane);
+						{
+							drawSteps.emplace_back(StepDrawData{n3.tick + offsetTicks, n3.lane + offsetLane, n3.width, note.steps[i].type});
+						}
 
 						if (note.steps[i].type != HoldStepType::Invisible)
 						{
@@ -330,79 +335,60 @@ namespace MikuMikuWorld
 			drawHoldCurve(start, end, note.start.ease, renderer, tint, offsetTicks, offsetLane);
 		}
 
-		if (canvas.isNoteInCanvas(start.tick + offsetTicks)) drawNote(start, renderer, tint, offsetTicks, offsetLane);
-		if (canvas.isNoteInCanvas(end.tick + offsetTicks)) drawNote(end, renderer, tint, offsetTicks, offsetLane);
+		if (canvas.isNoteInCanvas(start.tick + offsetTicks))
+			drawNote(start, renderer, tint, offsetTicks, offsetLane);
+
+		if (canvas.isNoteInCanvas(end.tick + offsetTicks))
+			drawNote(end, renderer, tint, offsetTicks, offsetLane);
 	}
 
-	void ScoreEditor::drawHighlight(const Note& note, Renderer* renderer, const Color& tint, bool mid, const int offsetTick, const int offsetLane)
+	void ScoreEditor::drawHoldMid(Note& note, HoldStepType type, Renderer* renderer, const Color& tint)
 	{
-		Vector2 pos{ canvas.getNotePos(note.tick + offsetTick, note.lane + offsetLane) };
-		const Vector2 sliceSz(NOTES_SLICE_WIDTH, mid ? HIGHLIGHT_HEIGHT : canvas.getNotesHeight() + 5);
-		const AnchorType anchor = AnchorType::MiddleLeft;
+		if (type == HoldStepType::Invisible)
+			return;
 
-		const int texIndex = ResourceManager::getTexture(HIGHLIGHT_TEX);
-		if (texIndex != -1)
-		{
-			const Texture& tex = ResourceManager::textures[texIndex];
-			int sprIndex = mid ? 1 : 0;
-
-			if (sprIndex < 0 || sprIndex >= tex.sprites.size())
-				return;
-
-			const Sprite& s = tex.sprites[sprIndex];
-
-			const float midLen = (canvas.getLaneWidth() * note.width) - (NOTES_SLICE_WIDTH * 2) + NOTES_X_ADJUST + 5;
-			const Vector2 midSz(midLen, mid ? HIGHLIGHT_HEIGHT : canvas.getNotesHeight() + 5);
-
-			pos.x -= NOTES_X_ADJUST;
-
-			// left slice
-			renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
-				s.getX(), s.getX() + HIGHLIGHT_SLICE,
-				s.getY(), s.getY() + s.getHeight(), tint
-			);
-			pos.x += NOTES_SLICE_WIDTH;
-
-			// middle
-			renderer->drawSprite(pos, 0.0f, midSz, anchor, tex,
-				s.getX() + HIGHLIGHT_SLICE, s.getX() + s.getWidth() - HIGHLIGHT_SLICE,
-				s.getY(), s.getY() + s.getHeight(), tint
-			);
-			pos.x += midLen;
-
-			// right slice
-			renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
-				s.getX() + s.getWidth() - HIGHLIGHT_SLICE, s.getX() + s.getWidth(),
-				s.getY(), s.getY() + s.getHeight(), tint
-			);
-		}
-	}
-
-	void ScoreEditor::drawHoldMid(const Note& note, HoldStepType type, Renderer* renderer, const Color& tint,
-		const int offsetTick, const int offsetLane)
-	{
 		const int texIndex = ResourceManager::getTexture(NOTES_TEX);
 		if (texIndex == -1)
 			return;
 
 		const Texture& tex = ResourceManager::textures[texIndex];
-
-		const int sprIndex = getNoteSpriteIndex(note);
-		if (sprIndex < 0 || sprIndex >= tex.sprites.size())
-			return;
-
-		const Sprite& s = tex.sprites[sprIndex];
-		const Vector2 nodeSz{ canvas.getLaneWidth(), canvas.getLaneWidth() };
-
-		if (drawHoldStepOutline)
-			drawHighlight(note, renderer, tint, true, offsetTick, offsetLane);
-
-		if (type != HoldStepType::Invisible)
+		int sprIndex = getNoteSpriteIndex(note);
+		if (sprIndex > -1 && sprIndex < tex.sprites.size())
 		{
-			Vector2 pos{ canvas.laneToPosition(note.lane + offsetLane + ((note.width - 1) / 2.0f)), canvas.getNoteYPosFromTick(note.tick + offsetTick) };
-			renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleLeft, tex, s.getX(), s.getX() + s.getWidth(),
-				s.getY(), s.getHeight(), tint, 1);
+			const Sprite& s = tex.sprites[sprIndex];
+			// center diamond if width is even
+			Vector2 pos {
+				canvas.getNotePos(note.tick, note.lane + ((note.width) / 2.0f))
+			};
+
+			Vector2 nodeSz {
+				canvas.getLaneWidth(), canvas.getLaneWidth()
+			};
+
+			renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter,
+				tex, s.getX(), s.getX() + s.getWidth(), s.getY(), s.getHeight(), tint, 1);
 		}
+	}
+
+	void ScoreEditor::drawOutline(const StepDrawData& data)
+	{
+		float x = canvas.getPosition().x;
+		float y = canvas.getPosition().y - canvas.tickToPosition(data.tick) + canvas.getVisualOffset();
+
+		ImVec2 p1 {
+			x + canvas.laneToPosition(data.lane),
+			y - (canvas.getNotesHeight() * 0.25f)
+		};
+
+		ImVec2 p2 {
+			x + canvas.laneToPosition(data.lane + data.width),
+			y + (canvas.getNotesHeight() * 0.25f)
+		};
+
+		ImU32 fill = data.type == HoldStepType::Ignored ? 0x55ffffaa : 0x55aaffaa;
+		ImU32 outline = data.type == HoldStepType::Ignored ? 0xffffffaa : 0xffccffaa;
+		ImGui::GetWindowDrawList()->AddRectFilled(p1, p2, fill, 3.0f, ImDrawFlags_RoundCornersAll);
+		ImGui::GetWindowDrawList()->AddRect(p1, p2, outline, 3.0f, ImDrawFlags_RoundCornersAll, 3.0f);
 	}
 
 	void ScoreEditor::drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)

@@ -541,7 +541,6 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(appDir + "res/textures/tex_notes.png");
 		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path.png");
 		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path_crtcl.png");
-		ResourceManager::loadTexture(appDir + "res/textures/tex_note_common_all.png");
 		ResourceManager::loadTexture(appDir + "res/textures/default.png");
 
 		Localization::loadDefault();
