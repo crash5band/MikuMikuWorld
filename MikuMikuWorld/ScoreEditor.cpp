@@ -36,22 +36,14 @@ namespace MikuMikuWorld
 		framebuffer = new Framebuffer(1080, 1920);
 
 		time = 0;
-		masterVolume = 0.8f;
-		bgmVolume = 1.0f;
-		seVolume = 1.0f;
+		playStartTime = 0;
 		playing = false;
 		dragging = false;
 		hasEdit = false;
-		playStartTime = 0;
-
 		pasting = flipPasting = insertingPreset = false;
+		uptoDate = true;
 
 		audio.initAudio();
-		audio.setMasterVolume(masterVolume);
-		audio.setBGMVolume(bgmVolume);
-		audio.setSEVolume(seVolume);
-
-		uptoDate = true;
 	}
 
 	ScoreEditor::~ScoreEditor()

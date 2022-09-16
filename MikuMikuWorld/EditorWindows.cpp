@@ -287,30 +287,23 @@ namespace MikuMikuWorld
 				}
 
 				// volume controls
-				float master = masterVolume, bgm = bgmVolume, se = seVolume;
+				float master = audio.getMasterVolume();
+				float bgm = audio.getBGMVolume();
+				float se = audio.getSEVolume();
+
 				UI::addPercentSliderProperty(getString("volume_master"), master);
 				UI::addPercentSliderProperty(getString("volume_bgm"), bgm);
 				UI::addPercentSliderProperty(getString("volume_se"), se);
-
-				if (master != masterVolume)
-				{
-					audio.setMasterVolume(master);
-					masterVolume = master;
-				}
-
-				if (bgm != bgmVolume)
-				{
-					audio.setBGMVolume(bgm);
-					bgmVolume = bgm;
-				}
-
-				if (se != seVolume)
-				{
-					audio.setSEVolume(se);
-					seVolume = se;
-				}
-
 				UI::endPropertyColumns();
+
+				if (master != audio.getMasterVolume())
+					audio.setMasterVolume(master);
+
+				if (bgm != audio.getBGMVolume())
+					audio.setBGMVolume(bgm);
+
+				if (se != audio.getSEVolume())
+					audio.setSEVolume(se);
 			}
 
 			if (ImGui::CollapsingHeader(

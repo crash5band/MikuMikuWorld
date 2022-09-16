@@ -23,6 +23,10 @@ namespace MikuMikuWorld
 		float bgmOffset = 0.0f;
 		bool musicInitialized = false;
 
+		float masterVolume;
+		float bgmVolume;
+		float seVolume;
+
 	public:
 		void initAudio();
 		void loadSE();
@@ -46,5 +50,9 @@ namespace MikuMikuWorld
 		float getSongEndTime();
 		bool isMusicInitialized();
 		bool isMusicAtEnd();
+
+		float getMasterVolume();
+		float getBGMVolume();
+		float getSEVolume();
 	};
 }

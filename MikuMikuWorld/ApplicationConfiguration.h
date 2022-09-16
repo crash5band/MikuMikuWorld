@@ -35,6 +35,10 @@ namespace MikuMikuWorld
 		int autoSaveInterval;
 		int autoSaveMaxCount;
 
+		float masterVolume;
+		float bgmVolume;
+		float seVolume;
+
 		ApplicationConfiguration();
 
 		void read(const std::string& filename);

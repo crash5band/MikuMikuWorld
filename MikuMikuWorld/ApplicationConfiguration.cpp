@@ -105,24 +105,31 @@ namespace MikuMikuWorld
 		if (keyExists(config, "timeline"))
 		{
 			timelineWidth = tryGetInt(config["timeline"], "lane_width", 30);
-			notesHeight = tryGetInt(config["timeline"], "notes_height", 35);
+			notesHeight	= tryGetInt(config["timeline"], "notes_height", 35);
 			zoom = tryGetFloat(config["timeline"], "zoom", 2.0f);
 
-			useSmoothScrolling = tryGetBool(config["timeline"], "smooth_scrolling_enable", true);
+			useSmoothScrolling	= tryGetBool(config["timeline"], "smooth_scrolling_enable", true);
 			smoothScrollingTime = tryGetFloat(config["timeline"], "smooth_scrolling_time", 67.0f);
 		}
 
 		if (keyExists(config, "theme"))
 		{
 			accentColor = tryGetInt(config["theme"], "accent_color", 1);
-			userColor = tryGetColor(config["theme"], "user_color");
+			userColor	= tryGetColor(config["theme"], "user_color");
 		}
 
 		if (keyExists(config, "save"))
 		{
-			autoSaveEnabled = tryGetBool(config["save"], "auto_save_enabled", true);
+			autoSaveEnabled  = tryGetBool(config["save"], "auto_save_enabled", true);
 			autoSaveInterval = tryGetInt(config["save"], "auto_save_interval", 5);
 			autoSaveMaxCount = tryGetInt(config["save"], "auto_save_max_count", 100);
+		}
+
+		if (keyExists(config, "audio"))
+		{
+			masterVolume	= std::clamp(tryGetFloat(config["audio"], "master_volume", 0.8f), 0.0f, 1.0f);
+			bgmVolume		= std::clamp(tryGetFloat(config["audio"], "bgm_volume", 1.0f), 0.0f, 1.0f);
+			seVolume		= std::clamp(tryGetFloat(config["audio"], "se_volume", 1.0f), 0.0f, 1.0f);
 		}
 	}
 
@@ -164,6 +171,12 @@ namespace MikuMikuWorld
 			{"auto_save_max_count", autoSaveMaxCount}
 		};
 
+		config["audio"] = {
+			{"master_volume", masterVolume},
+			{"bgm_volume", bgmVolume},
+			{"se_volume", seVolume}
+		};
+
 		std::wstring wFilename = mbToWideStr(filename);
 		std::ofstream configFile(wFilename);
 		configFile << std::setw(4) << config;
@@ -189,5 +202,9 @@ namespace MikuMikuWorld
 		autoSaveEnabled = true;
 		autoSaveInterval = 5;
 		autoSaveMaxCount = 100;
+
+		masterVolume = 0.8f;
+		bgmVolume = 1.0f;
+		seVolume = 1.0f;
 	}
 }

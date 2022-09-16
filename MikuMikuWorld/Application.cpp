@@ -50,10 +50,13 @@ namespace MikuMikuWorld
 		editor->canvas.setUseSmoothScrolling(config.useSmoothScrolling);
 		editor->canvas.setSmoothScrollingTime(config.smoothScrollingTime);
 
+		editor->audio.setMasterVolume(config.masterVolume);
+		editor->audio.setBGMVolume(config.bgmVolume);
+		editor->audio.setSEVolume(config.seVolume);
+
 		editor->presetManager.loadPresets(appDir + "library/");
 
 		loadResources();
-
 		int bgTex = ResourceManager::getTexture("default");
 		if (bgTex != -1)
 			editor->canvas.changeBackground(ResourceManager::textures[bgTex]);
@@ -135,6 +138,10 @@ namespace MikuMikuWorld
 		config.autoSaveInterval = autoSaveInterval;
 		config.autoSaveMaxCount = autoSaveMaxCount;
 
+		config.masterVolume = editor->audio.getMasterVolume();
+		config.bgmVolume = editor->audio.getBGMVolume();
+		config.seVolume = editor->audio.getSEVolume();
+
 		config.write(appDir + APP_CONFIG_FILENAME);
 	}
 
@@ -148,9 +155,6 @@ namespace MikuMikuWorld
 		colors[ImGuiCol_SliderGrab] = color;
 		colors[ImGuiCol_SliderGrabActive] = darkColor;
 		colors[ImGuiCol_ButtonActive] = darkColor;
-		//colors[ImGuiCol_Header] = color;
-		//colors[ImGuiCol_HeaderHovered] = lightColor;
-		//colors[ImGuiCol_HeaderActive] = darkColor;
 		colors[ImGuiCol_SeparatorHovered] = lightColor;
 		colors[ImGuiCol_TabHovered] = lightColor;
 		colors[ImGuiCol_TabActive] = color;
@@ -547,9 +551,8 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path_crtcl.png");
 		ResourceManager::loadTexture(appDir + "res/textures/default.png");
 
-		Localization::loadDefault();
-
 		// load more languages here
+		Localization::loadDefault();
 		Localization::load("ja", appDir + "res/i18n/ja.csv");
 
 		std::string locale = Utilities::getSystemLocale();

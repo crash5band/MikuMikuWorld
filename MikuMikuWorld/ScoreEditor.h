@@ -96,9 +96,6 @@ namespace MikuMikuWorld
 		float songPos;
 		float songPosLastFrame;
 		bool playing;
-		float masterVolume;
-		float bgmVolume;
-		float seVolume;
 		const float audioLookAhead = 0.05f;
 
 		// update methods
