@@ -92,8 +92,7 @@ namespace MikuMikuWorld
 		ma_uint32 flags = MA_SOUND_FLAG_NO_PITCH
 			| MA_SOUND_FLAG_NO_SPATIALIZATION
 			| MA_SOUND_FLAG_DECODE
-			| MA_SOUND_FLAG_ASYNC
-			| MA_SOUND_FLAG_STREAM;
+			| MA_SOUND_FLAG_ASYNC;
 
 		ma_result bgmResult = ma_sound_init_from_file_w(&engine, wFilename.c_str(), flags, &bgmGroup, NULL, &bgm);
 		if (bgmResult != MA_SUCCESS)

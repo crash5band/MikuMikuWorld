@@ -53,6 +53,12 @@ namespace MikuMikuWorld
 
 		editor->presetManager.loadPresets(appDir + "library/");
 
+		loadResources();
+
+		int bgTex = ResourceManager::getTexture("default");
+		if (bgTex != -1)
+			editor->canvas.changeBackground(ResourceManager::textures[bgTex]);
+
 		initialized = true;
 	}
 
@@ -558,12 +564,6 @@ namespace MikuMikuWorld
 
 	void Application::run()
 	{
-		loadResources();
-
-		int bgTex = ResourceManager::getTexture("default");
-		if (bgTex != -1)
-			editor->canvas.changeBackground(ResourceManager::textures[bgTex]);
-
 		autoSaveTimer.reset();
 
 		while (!glfwWindowShouldClose(window))
