@@ -27,7 +27,6 @@ namespace MikuMikuWorld
 
 		int timelineWidth;
 		int notesHeight;
-		int division;
 		float zoom;
 		bool useSmoothScrolling;
 		float smoothScrollingTime;

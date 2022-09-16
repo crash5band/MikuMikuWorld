@@ -46,7 +46,6 @@ namespace MikuMikuWorld
 		// apply config settings
 		editor->canvas.setLaneWidth(config.timelineWidth);
 		editor->canvas.setNotesHeight(config.notesHeight);
-		editor->setDivision(config.division);
 		editor->canvas.setZoom(config.zoom);
 		editor->canvas.setUseSmoothScrolling(config.useSmoothScrolling);
 		editor->canvas.setSmoothScrollingTime(config.smoothScrollingTime);
@@ -128,7 +127,6 @@ namespace MikuMikuWorld
 
 		config.timelineWidth = editor->canvas.getLaneWidth();
 		config.notesHeight = editor->canvas.getNotesHeight();
-		config.division = editor->getDivision();
 		config.zoom = editor->canvas.getZoom();
 		config.useSmoothScrolling = editor->canvas.isUseSmoothScrolling();
 		config.smoothScrollingTime = editor->canvas.getSmoothScrollingTime();

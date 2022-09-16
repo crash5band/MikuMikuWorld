@@ -7,7 +7,7 @@ using namespace nlohmann;
 
 namespace MikuMikuWorld
 {
-	constexpr const char* CONFIG_VERSION{ "1.1.0" };
+	constexpr const char* CONFIG_VERSION{ "1.2.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -97,16 +97,15 @@ namespace MikuMikuWorld
 			windowSize = tryGetVector2(window, "size");
 			if (windowSize.x <= 0 || windowSize.y <= 0)
 			{
-				windowSize.x = 1280;
-				windowSize.y = 720;
+				windowSize.x = 1100;
+				windowSize.y = 800;
 			}
 		}
 
 		if (keyExists(config, "timeline"))
 		{
-			timelineWidth = tryGetInt(config["timeline"], "lane_width", 35);
-			notesHeight = tryGetInt(config["timeline"], "notes_height", 50);
-			division = tryGetInt(config["timeline"], "division", 8);
+			timelineWidth = tryGetInt(config["timeline"], "lane_width", 30);
+			notesHeight = tryGetInt(config["timeline"], "notes_height", 35);
 			zoom = tryGetFloat(config["timeline"], "zoom", 2.0f);
 
 			useSmoothScrolling = tryGetBool(config["timeline"], "smooth_scrolling_enable", true);
@@ -142,7 +141,6 @@ namespace MikuMikuWorld
 		config["timeline"] = {
 			{"lane_width", timelineWidth},
 			{"notes_height", notesHeight},
-			{"division", division},
 			{"zoom", zoom},
 			{"smooth_scrolling_enable", useSmoothScrolling},
 			{"smooth_scrolling_time", smoothScrollingTime}
@@ -176,15 +174,14 @@ namespace MikuMikuWorld
 	void ApplicationConfiguration::restoreDefault()
 	{
 		windowPos = Vector2(150, 100);
-		windowSize = Vector2(1280, 720);
+		windowSize = Vector2(1100, 800);
 		maximized = false;
 		vsync = true;
 		accentColor = 1;
 		userColor = Color(0.2f, 0.2f, 0.2f, 1.0f);
 		
-		timelineWidth = 35;
-		notesHeight = 50;
-		division = 8;
+		timelineWidth = 30;
+		notesHeight = 35;
 		zoom = 2.0f;
 		useSmoothScrolling = true;
 		smoothScrollingTime = 67.0f;
