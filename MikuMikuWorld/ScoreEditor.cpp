@@ -304,15 +304,8 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::setDivision(int div)
 	{
-		const int length = sizeof(divisions) / sizeof(int);
-		for (int i = 0; i < length - 1; ++i)
-		{
-			if (divisions[i] == div)
-			{
-				selectedDivision = i;
-				division = divisions[i];
-			}
-		}
+		if (div >= 4 && div <= 1920)
+			division = div;
 	}
 
 	void ScoreEditor::pushHistory(const std::string& description, const Score& prev, const Score& curr)

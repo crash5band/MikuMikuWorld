@@ -54,9 +54,6 @@ namespace MikuMikuWorld
 		const float noteCtrlWidth = NOTES_SLICE_WIDTH - 2.0f;
 
 		int division = 8;
-		int customDivision = 8;
-		int selectedDivision = 1;
-
 		int currentTick = 0;
 		int lastSelectedTick = 0;
 		int hoverTick = 0;
@@ -150,7 +147,6 @@ namespace MikuMikuWorld
 		void drawFever(int tick, bool start);
 
 		// helper methods
-		std::string getDivisonString(int divIndex);
 		int snapTickFromPos(float posY);
 		int snapTick(int tick, int div);
 		int roundTickDown(int tick, int div);

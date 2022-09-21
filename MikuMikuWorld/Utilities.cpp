@@ -1,9 +1,9 @@
 #include "Utilities.h"
 #include "Constants.h"
 #include "ImGui/imgui.h"
-#include <Windows.h>
+#include "Localization.h"
 #include "StringOperations.h"
-#include <locale>
+#include <Windows.h>
 #include <ctime>
 
 namespace MikuMikuWorld
@@ -29,6 +29,11 @@ namespace MikuMikuWorld
 
 		delete[] lpLocalName;
 		return wideStringToMb(wL);
+	}
+
+	std::string Utilities::getDivisionString(int div)
+	{
+		return std::to_string(div) + getString("division_suffix");
 	}
 
 	float Utilities::centerImGuiItem(const float width)
