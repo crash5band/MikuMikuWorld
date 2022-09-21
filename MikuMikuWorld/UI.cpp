@@ -176,8 +176,9 @@ namespace MikuMikuWorld
 	{
 		propertyLabel(label);
 
-		std::string idNumerator{ label };
-		std::string idDenominator{ label };
+		const char* id = labelID(label);
+		std::string idNumerator{ id };
+		std::string idDenominator{ id };
 		idNumerator.append("_numerator");
 		idDenominator.append("_denominator");
 

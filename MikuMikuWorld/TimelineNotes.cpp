@@ -32,10 +32,13 @@ namespace MikuMikuWorld
 
 				if (ImGui::IsMouseClicked(0) && !UI::isAnyPopupOpen())
 				{
-					if (!InputListener::isCtrlDown() && !selection.hasNote(note.ID))
+					if (!InputListener::isCtrlDown() && !InputListener::isAltDown() && !selection.hasNote(note.ID))
 						selection.clear();
 
 					selection.append(note.ID);
+
+					if (InputListener::isAltDown() && selection.hasNote(note.ID))
+						selection.remove(note.ID);
 				}
 			}
 		}

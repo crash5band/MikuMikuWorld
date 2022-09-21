@@ -958,9 +958,12 @@ namespace MikuMikuWorld
 		float endX = std::max(canvas.getPosition().x + dragStart.x, canvas.getPosition().x + mousePos.x);
 		float startY = std::min(canvas.getPosition().y + dragStart.y, canvas.getPosition().y + mousePos.y) + canvas.getVisualOffset();
 		float endY = std::max(canvas.getPosition().y + dragStart.y, canvas.getPosition().y + mousePos.y) + canvas.getVisualOffset();
+		ImVec2 start{ startX, startY };
+		ImVec2 end{ endX, endY };
 
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		drawList->AddRectFilled(ImVec2(startX, startY), ImVec2(endX, endY), selectionColor1);
+		drawList->AddRectFilled(start, end, selectionColor1);
+		drawList->AddRect(start, end, 0xbbcccccc, 0.2f, ImDrawFlags_RoundCornersAll, 1.0f);
 
 		ImVec2 iconPos = ImVec2(canvas.getPosition() + dragStart);
 		iconPos.y += canvas.getVisualOffset();
