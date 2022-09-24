@@ -7,7 +7,7 @@ using namespace nlohmann;
 
 namespace MikuMikuWorld
 {
-	constexpr const char* CONFIG_VERSION{ "1.1.0" };
+	constexpr const char* CONFIG_VERSION{ "1.2.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -97,33 +97,39 @@ namespace MikuMikuWorld
 			windowSize = tryGetVector2(window, "size");
 			if (windowSize.x <= 0 || windowSize.y <= 0)
 			{
-				windowSize.x = 1280;
-				windowSize.y = 720;
+				windowSize.x = 1100;
+				windowSize.y = 800;
 			}
 		}
 
 		if (keyExists(config, "timeline"))
 		{
-			timelineWidth = tryGetInt(config["timeline"], "lane_width", 35);
-			notesHeight = tryGetInt(config["timeline"], "notes_height", 50);
-			division = tryGetInt(config["timeline"], "division", 8);
+			timelineWidth = tryGetInt(config["timeline"], "lane_width", 30);
+			notesHeight	= tryGetInt(config["timeline"], "notes_height", 35);
 			zoom = tryGetFloat(config["timeline"], "zoom", 2.0f);
 
-			useSmoothScrolling = tryGetBool(config["timeline"], "smooth_scrolling_enable", true);
+			useSmoothScrolling	= tryGetBool(config["timeline"], "smooth_scrolling_enable", true);
 			smoothScrollingTime = tryGetFloat(config["timeline"], "smooth_scrolling_time", 67.0f);
 		}
 
 		if (keyExists(config, "theme"))
 		{
 			accentColor = tryGetInt(config["theme"], "accent_color", 1);
-			userColor = tryGetColor(config["theme"], "user_color");
+			userColor	= tryGetColor(config["theme"], "user_color");
 		}
 
 		if (keyExists(config, "save"))
 		{
-			autoSaveEnabled = tryGetBool(config["save"], "auto_save_enabled", true);
+			autoSaveEnabled  = tryGetBool(config["save"], "auto_save_enabled", true);
 			autoSaveInterval = tryGetInt(config["save"], "auto_save_interval", 5);
 			autoSaveMaxCount = tryGetInt(config["save"], "auto_save_max_count", 100);
+		}
+
+		if (keyExists(config, "audio"))
+		{
+			masterVolume	= std::clamp(tryGetFloat(config["audio"], "master_volume", 0.8f), 0.0f, 1.0f);
+			bgmVolume		= std::clamp(tryGetFloat(config["audio"], "bgm_volume", 1.0f), 0.0f, 1.0f);
+			seVolume		= std::clamp(tryGetFloat(config["audio"], "se_volume", 1.0f), 0.0f, 1.0f);
 		}
 	}
 
@@ -142,7 +148,6 @@ namespace MikuMikuWorld
 		config["timeline"] = {
 			{"lane_width", timelineWidth},
 			{"notes_height", notesHeight},
-			{"division", division},
 			{"zoom", zoom},
 			{"smooth_scrolling_enable", useSmoothScrolling},
 			{"smooth_scrolling_time", smoothScrollingTime}
@@ -166,6 +171,12 @@ namespace MikuMikuWorld
 			{"auto_save_max_count", autoSaveMaxCount}
 		};
 
+		config["audio"] = {
+			{"master_volume", masterVolume},
+			{"bgm_volume", bgmVolume},
+			{"se_volume", seVolume}
+		};
+
 		std::wstring wFilename = mbToWideStr(filename);
 		std::ofstream configFile(wFilename);
 		configFile << std::setw(4) << config;
@@ -176,15 +187,14 @@ namespace MikuMikuWorld
 	void ApplicationConfiguration::restoreDefault()
 	{
 		windowPos = Vector2(150, 100);
-		windowSize = Vector2(1280, 720);
+		windowSize = Vector2(1100, 800);
 		maximized = false;
 		vsync = true;
 		accentColor = 1;
 		userColor = Color(0.2f, 0.2f, 0.2f, 1.0f);
 		
-		timelineWidth = 35;
-		notesHeight = 50;
-		division = 8;
+		timelineWidth = 30;
+		notesHeight = 35;
 		zoom = 2.0f;
 		useSmoothScrolling = true;
 		smoothScrollingTime = 67.0f;
@@ -192,5 +202,9 @@ namespace MikuMikuWorld
 		autoSaveEnabled = true;
 		autoSaveInterval = 5;
 		autoSaveMaxCount = 100;
+
+		masterVolume = 0.8f;
+		bgmVolume = 1.0f;
+		seVolume = 1.0f;
 	}
 }

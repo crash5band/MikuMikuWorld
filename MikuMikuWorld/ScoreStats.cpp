@@ -38,11 +38,15 @@ namespace MikuMikuWorld
 
 			case NoteType::Hold:
 				++holds;
-
 				break;
 
 			case NoteType::HoldMid:
 				++steps;
+				break;
+
+			case NoteType::HoldEnd:
+				if (note.isFlick())
+					++flicks;
 				break;
 
 			default:

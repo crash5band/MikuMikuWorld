@@ -27,7 +27,6 @@ namespace MikuMikuWorld
 
 		int timelineWidth;
 		int notesHeight;
-		int division;
 		float zoom;
 		bool useSmoothScrolling;
 		float smoothScrollingTime;
@@ -35,6 +34,10 @@ namespace MikuMikuWorld
 		bool autoSaveEnabled;
 		int autoSaveInterval;
 		int autoSaveMaxCount;
+
+		float masterVolume;
+		float bgmVolume;
+		float seVolume;
 
 		ApplicationConfiguration();
 

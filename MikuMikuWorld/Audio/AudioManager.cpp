@@ -53,6 +53,10 @@ namespace MikuMikuWorld
 
 		musicInitialized = false;
 		loadSE();
+
+		masterVolume = 0.8f;
+		bgmVolume = 1.0f;
+		seVolume = 1.0f;
 	}
 
 	void AudioManager::loadSE()
@@ -92,8 +96,7 @@ namespace MikuMikuWorld
 		ma_uint32 flags = MA_SOUND_FLAG_NO_PITCH
 			| MA_SOUND_FLAG_NO_SPATIALIZATION
 			| MA_SOUND_FLAG_DECODE
-			| MA_SOUND_FLAG_ASYNC
-			| MA_SOUND_FLAG_STREAM;
+			| MA_SOUND_FLAG_ASYNC;
 
 		ma_result bgmResult = ma_sound_init_from_file_w(&engine, wFilename.c_str(), flags, &bgmGroup, NULL, &bgm);
 		if (bgmResult != MA_SUCCESS)
@@ -195,18 +198,36 @@ namespace MikuMikuWorld
 		}
 	}
 
+	float AudioManager::getMasterVolume()
+	{
+		return masterVolume;
+	}
+
 	void AudioManager::setMasterVolume(float volume)
 	{
+		masterVolume = volume;
 		ma_engine_set_volume(&engine, volume);
+	}
+
+	float AudioManager::getBGMVolume()
+	{
+		return bgmVolume;
 	}
 
 	void AudioManager::setBGMVolume(float volume)
 	{
+		bgmVolume = volume;
 		ma_sound_group_set_volume(&bgmGroup, volume);
+	}
+
+	float AudioManager::getSEVolume()
+	{
+		return seVolume;
 	}
 
 	void AudioManager::setSEVolume(float volume)
 	{
+		seVolume = volume;
 		ma_sound_group_set_volume(&seGroup, volume);
 	}
 

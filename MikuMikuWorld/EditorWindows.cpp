@@ -18,21 +18,6 @@
 
 namespace MikuMikuWorld
 {
-	constexpr const char* uiFlickTypes[] =
-	{
-		"none", "up", "left", "right"
-	};
-
-	constexpr const char* uiStepTypes[] =
-	{
-		"visible", "invisible", "ignored"
-	};
-
-	constexpr const char* uiEaseTypes[] =
-	{
-		"linear", "ease_in", "ease_out"
-	};
-
 	void ScoreEditor::toolboxWindow()
 	{
 		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_TOOLBOX, "toolbox")))
@@ -287,30 +272,23 @@ namespace MikuMikuWorld
 				}
 
 				// volume controls
-				float master = masterVolume, bgm = bgmVolume, se = seVolume;
+				float master = audio.getMasterVolume();
+				float bgm = audio.getBGMVolume();
+				float se = audio.getSEVolume();
+
 				UI::addPercentSliderProperty(getString("volume_master"), master);
 				UI::addPercentSliderProperty(getString("volume_bgm"), bgm);
 				UI::addPercentSliderProperty(getString("volume_se"), se);
-
-				if (master != masterVolume)
-				{
-					audio.setMasterVolume(master);
-					masterVolume = master;
-				}
-
-				if (bgm != bgmVolume)
-				{
-					audio.setBGMVolume(bgm);
-					bgmVolume = bgm;
-				}
-
-				if (se != seVolume)
-				{
-					audio.setSEVolume(se);
-					seVolume = se;
-				}
-
 				UI::endPropertyColumns();
+
+				if (master != audio.getMasterVolume())
+					audio.setMasterVolume(master);
+
+				if (bgm != audio.getBGMVolume())
+					audio.setBGMVolume(bgm);
+
+				if (se != audio.getSEVolume())
+					audio.setSEVolume(se);
 			}
 
 			if (ImGui::CollapsingHeader(
@@ -329,17 +307,6 @@ namespace MikuMikuWorld
 		}
 
 		ImGui::End();
-	}
-
-	std::string ScoreEditor::getDivisonString(int divIndex)
-	{
-		int count = sizeof(divisions) / sizeof(int);
-		bool customSelected = divIndex == count - 1;
-
-		return
-			(customSelected ? getString("custom") : "")
-			+ std::to_string((customSelected ? customDivision : divisions[divIndex]))
-			+ getString("division_suffix");
 	}
 
 	void ScoreEditor::controlsWindow()
@@ -377,6 +344,8 @@ namespace MikuMikuWorld
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
 			
 			UI::beginPropertyColumns();
+			UI::divisionSelect(getString("division"), division, divisions, sizeof(divisions) / sizeof(int));
+
 			UI::propertyLabel(getString("goto_measure"));
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - ImGui::GetStyle().ItemSpacing.x);
 			ImGui::InputInt("##goto_measure", &m, 0, 0);
@@ -384,61 +353,18 @@ namespace MikuMikuWorld
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_FA_ARROW_RIGHT, UI::btnSmall))
 				gotoMeasure(m);
-
 			ImGui::NextColumn();
-			UI::propertyLabel(getString("division"));
 
-			int divCount = sizeof(divisions) / sizeof(int);
-			if (ImGui::BeginCombo("##division", getDivisonString(selectedDivision).c_str()))
-			{
-				for (int i = 0; i < divCount; ++i)
-				{
-					const bool custom = i == divCount - 1;
-					const bool selected = selectedDivision == i;
-					if (ImGui::Selectable(getDivisonString(i).c_str(), selected))
-					{
-						selectedDivision = i;
-						if (selectedDivision < divCount - 1)
-							division = divisions[selectedDivision];
-						else
-							division = customDivision;
-					}
-				}
-				
-				ImGui::EndCombo();
-			}
-
-			ImGui::NextColumn();
-			UI::propertyLabel(getString("custom_division"));
-			if (ImGui::InputInt("##custom_div", &customDivision, 1, 4))
-			{
-				customDivision = std::clamp(customDivision, 4, 1920);
-				if ((selectedDivision == divCount - 1))
-					division = customDivision;
-			}
-
-			ImGui::NextColumn();
 			UI::addSelectProperty(getString("scroll_mode"), scrollMode, scrollModes, (int)ScrollMode::ScrollModeMax);
 
-			UI::propertyLabel(getString("zoom"));
 			float _zoom = canvas.getZoom();
-			if (UI::transparentButton(ICON_FA_SEARCH_MINUS, UI::btnSmall))
-				_zoom -= 0.25f;
-
-			ImGui::SameLine();
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - (ImGui::GetStyle().ItemSpacing.x));
-			ImGui::SliderFloat("##zoom", &_zoom, MIN_ZOOM, MAX_ZOOM, "%.2fx", ImGuiSliderFlags_AlwaysClamp);
-			ImGui::SameLine();
-
-			if (UI::transparentButton(ICON_FA_SEARCH_PLUS, UI::btnSmall))
-				_zoom += 0.25f;
-
-			if (canvas.getZoom() != _zoom)
+			if (UI::zoomControl(getString("zoom"), _zoom, MIN_ZOOM, MAX_ZOOM))
 				canvas.setZoom(_zoom);
 
 			UI::endPropertyColumns();
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
 			ImGui::Checkbox(getString("show_step_outlines"), &drawHoldStepOutline);
+
 		}
 
 		ImGui::End();

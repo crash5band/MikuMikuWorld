@@ -1,4 +1,5 @@
 #include "UI.h"
+#include "Utilities.h"
 #include <string>
 #include <algorithm>
 #include <GLFW/glfw3.h>
@@ -7,6 +8,7 @@ namespace MikuMikuWorld
 {
 	const ImVec2 UI::btnNormal{ 30, 30 };
 	const ImVec2 UI::btnSmall{ 22, 22 };
+	char UI::idStr[256];
 
 	std::vector<AccentColor> UI::accentColors{
 		AccentColor{ "User",			ImVec4(0.10f, 0.10f, 0.10f, 1.00f) },
@@ -19,6 +21,21 @@ namespace MikuMikuWorld
 		AccentColor{ "School Refusal",	ImVec4(0.50f, 0.25f, 0.55f, 1.00f) },
 		AccentColor{ "Plain",			ImVec4(0.40f, 0.40f, 0.40f, 1.00f) }
 	};
+
+	int filterNumsOnly(ImGuiInputTextCallbackData* data)
+	{
+		if (!std::isdigit(data->EventChar))
+			return 1;
+
+		return 0;
+	}
+
+	const char* UI::labelID(const char* label)
+	{
+		strcpy(idStr, "##");
+		strcpy(idStr + 2, label);
+		return idStr;
+	}
 
 	bool UI::transparentButton(const char* txt, ImVec2 size, bool repeat, bool enabled)
 	{
@@ -44,11 +61,8 @@ namespace MikuMikuWorld
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.3f, 0.3f, 0.3f, 0.4f));
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
 
-		std::string id{ "##" };
-		id.append(txt);
-
 		ImGui::SetCursorScreenPos(pos);
-		bool pressed = ImGui::Button(id.c_str(), size);
+		bool pressed = ImGui::Button(labelID(txt), size);
 
 		ImGui::PopStyleColor(3);
 		ImGui::PopStyleVar();
@@ -81,10 +95,7 @@ namespace MikuMikuWorld
 	{
 		propertyLabel(label);
 
-		std::string id("##");
-		id.append(label);
-
-		ImGui::InputText(id.c_str(), &val);
+		ImGui::InputText(labelID(label), &val);
 		ImGui::NextColumn();
 	}
 
@@ -92,10 +103,7 @@ namespace MikuMikuWorld
 	{
 		propertyLabel(label);
 		
-		std::string id("##");
-		id.append(label);
-
-		ImGui::InputInt(id.c_str(), &val, 1, 5);
+		ImGui::InputInt(labelID(label), &val, 1, 5);
 		if (lowerBound != higherBound)
 			val = std::clamp(val, lowerBound, higherBound);
 		ImGui::NextColumn();
@@ -105,10 +113,7 @@ namespace MikuMikuWorld
 	{
 		propertyLabel(label);
 		
-		std::string id("##");
-		id.append(label);
-
-		ImGui::InputFloat(id.c_str(), &val, 1.0f, 10.f, format);
+		ImGui::InputFloat(labelID(label), &val, 1.0f, 10.f, format);
 		ImGui::NextColumn();
 	}
 
@@ -123,10 +128,7 @@ namespace MikuMikuWorld
 	{
 		propertyLabel(label);
 
-		std::string id("##");
-		id.append(label);
-
-		ImGui::SliderInt(id.c_str(), &val, min, max, format, ImGuiSliderFlags_AlwaysClamp);
+		ImGui::SliderInt(labelID(label), &val, min, max, format, ImGuiSliderFlags_AlwaysClamp);
 		ImGui::NextColumn();
 	}
 
@@ -134,10 +136,7 @@ namespace MikuMikuWorld
 	{
 		propertyLabel(label);
 
-		std::string id("##");
-		id.append(label);
-
-		ImGui::SliderFloat(id.c_str(), &val, min, max, format, ImGuiSliderFlags_AlwaysClamp);
+		ImGui::SliderFloat(labelID(label), &val, min, max, format, ImGuiSliderFlags_AlwaysClamp);
 		ImGui::NextColumn();
 	}
 
@@ -145,11 +144,8 @@ namespace MikuMikuWorld
 	{
 		propertyLabel(label);
 
-		std::string id("##");
-		id.append(label);
-
 		float scaled = val * 100;
-		ImGui::SliderFloat(id.c_str(), &scaled, 0, 100, "%.0f%%", ImGuiSliderFlags_AlwaysClamp);
+		ImGui::SliderFloat(labelID(label), &scaled, 0, 100, "%.0f%%", ImGuiSliderFlags_AlwaysClamp);
 		ImGui::NextColumn();
 
 		val = scaled / 100.0f;
@@ -159,13 +155,10 @@ namespace MikuMikuWorld
 	{
 		propertyLabel(label);
 		
-		std::string id("##");
-		id.append(label);
-
 		int result = 0;
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - btnSmall.x - ImGui::GetStyle().ItemSpacing.x);
-		if (ImGui::InputTextWithHint(id.c_str(), "n/a", &val, ImGuiInputTextFlags_EnterReturnsTrue))
+		if (ImGui::InputTextWithHint(labelID(label), "n/a", &val, ImGuiInputTextFlags_EnterReturnsTrue))
 			result = 1;
 		ImGui::SameLine();
 
@@ -183,11 +176,10 @@ namespace MikuMikuWorld
 	{
 		propertyLabel(label);
 
-		std::string id("##");
-		id.append(label);
-
-		std::string idNumerator = id + "_numerator";
-		std::string idDenominator = id + "_denominator";
+		std::string idNumerator{ label };
+		std::string idDenominator{ label };
+		idNumerator.append("_numerator");
+		idDenominator.append("_denominator");
 
 		float controlWidth = (ImGui::GetContentRegionAvail().x / 2.0f) - (ImGui::CalcTextSize("/").x);
 		bool edit = false;
@@ -213,10 +205,7 @@ namespace MikuMikuWorld
 	{
 		propertyLabel(label);
 
-		std::string id("##");
-		id.append(label);
-
-		ImGui::InputTextMultiline(id.c_str(), &val, ImVec2(-1, 50));
+		ImGui::InputTextMultiline(labelID(label), &val, ImVec2(-1, 50));
 		ImGui::NextColumn();
 	}
 
@@ -232,13 +221,90 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void UI::setWindowTitle(const std::string& title)
+	bool UI::divisionSelect(const char* label, int& value, const int* items, size_t count)
+	{
+		propertyLabel(label);
+		
+		const char* id = labelID(label);
+		ImGui::PushID(id);
+
+		bool act = false;
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - ImGui::GetFrameHeight());
+		if (ImGui::InputScalar(id, ImGuiDataType_U32, (void*)(&value), 0, 0, Utilities::getDivisionString(value).c_str()))
+		{
+			value = std::clamp(value, 4, 1920);
+			act = true;
+		}
+		
+		// enable right-click
+		ImGui::OpenPopupOnItemClick("combobox");
+		ImVec2 pos = ImGui::GetItemRectMin();
+		ImVec2 size = ImGui::GetItemRectSize();
+
+		ImGui::SameLine(0, 0);
+		if (ImGui::ArrowButton("##open_combo", ImGuiDir_Down))
+			ImGui::OpenPopup("combobox");
+
+		// enable right-click
+		ImGui::OpenPopupOnItemClick("combobox");
+		
+		pos.y += size.y;
+		size.x += ImGui::GetItemRectSize().x;
+		size.y += size.y * 6;
+		ImGui::SetNextWindowPos(pos);
+		ImGui::SetNextWindowSize(size);
+		if (ImGui::BeginPopup("combobox", ImGuiWindowFlags_NoMove))
+		{
+			for (int i = 0; i < count; ++i)
+			{
+				if (ImGui::Selectable(Utilities::getDivisionString(items[i]).c_str(), value == items[i]))
+				{
+					value = items[i];
+					act = true;
+				}
+			}
+
+			ImGui::EndPopup();
+		}
+
+		ImGui::PopID();
+		ImGui::NextColumn();
+		return act;
+	}
+
+	bool UI::zoomControl(const char* label, float& value, float min, float max)
+	{
+		propertyLabel(getString("zoom"));
+		
+		bool act = false;
+		if (UI::transparentButton(ICON_FA_SEARCH_MINUS, UI::btnSmall))
+		{
+			value -= 0.25f;
+			act = true;
+		}
+
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - (ImGui::GetStyle().ItemSpacing.x));
+
+		act |= ImGui::SliderFloat(labelID(label), &value, min, max, "%.2fx", ImGuiSliderFlags_AlwaysClamp);
+		ImGui::SameLine();
+
+		if (UI::transparentButton(ICON_FA_SEARCH_PLUS, UI::btnSmall))
+		{
+			value += 0.25f;
+			act = true;
+		}
+
+		value = std::clamp(value, min, max);
+		return act;
+	}
+
+	void UI::setWindowTitle(std::string title)
 	{
 		GLFWwindow* window = glfwGetCurrentContext();
 		if (!window)
 			return;
 
-		std::string fullTitle = title + windowTitle;
-		glfwSetWindowTitle(window, fullTitle.c_str());
+		glfwSetWindowTitle(window, title.append(windowTitle).c_str());
 	}
 }

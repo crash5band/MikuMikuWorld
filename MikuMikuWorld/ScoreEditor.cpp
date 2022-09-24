@@ -36,22 +36,14 @@ namespace MikuMikuWorld
 		framebuffer = new Framebuffer(1080, 1920);
 
 		time = 0;
-		masterVolume = 0.8f;
-		bgmVolume = 1.0f;
-		seVolume = 1.0f;
+		playStartTime = 0;
 		playing = false;
 		dragging = false;
 		hasEdit = false;
-		playStartTime = 0;
-
 		pasting = flipPasting = insertingPreset = false;
+		uptoDate = true;
 
 		audio.initAudio();
-		audio.setMasterVolume(masterVolume);
-		audio.setBGMVolume(bgmVolume);
-		audio.setSEVolume(seVolume);
-
-		uptoDate = true;
 	}
 
 	ScoreEditor::~ScoreEditor()
@@ -312,15 +304,8 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::setDivision(int div)
 	{
-		const int length = sizeof(divisions) / sizeof(int);
-		for (int i = 0; i < length - 1; ++i)
-		{
-			if (divisions[i] == div)
-			{
-				selectedDivision = i;
-				division = divisions[i];
-			}
-		}
+		if (div >= 4 && div <= 1920)
+			division = div;
 	}
 
 	void ScoreEditor::pushHistory(const std::string& description, const Score& prev, const Score& curr)
@@ -371,7 +356,7 @@ namespace MikuMikuWorld
 	{
 		songPosLastFrame = songPos;
 
-		if (audio.isMusicInitialized() && playing && audio.getAudioPosition() >= (workingData.musicOffset / 1000) && !audio.isMusicAtEnd())
+		if (audio.isMusicInitialized() && playing && (audio.getAudioPosition() >= (workingData.musicOffset / 1000)) && !audio.isMusicAtEnd())
 			songPos = audio.getAudioPosition() + (workingData.musicOffset / 1000);
 		else
 			songPos = time;

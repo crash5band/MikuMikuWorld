@@ -42,8 +42,26 @@ namespace MikuMikuWorld
 		"RGB", "HSV", "Hex"
 	};
 
+	constexpr const char* uiFlickTypes[] =
+	{
+		"none", "up", "left", "right"
+	};
+
+	constexpr const char* uiStepTypes[] =
+	{
+		"visible", "invisible", "ignored"
+	};
+
+	constexpr const char* uiEaseTypes[] =
+	{
+		"linear", "ease_in", "ease_out"
+	};
+
 	class UI
 	{
+	private:
+		static char idStr[256];
+
 	public:
 		static const ImVec2 btnNormal;
 		static const ImVec2 btnSmall;
@@ -66,8 +84,11 @@ namespace MikuMikuWorld
 		static int addFileProperty(const char* label, std::string& val);
 		static void addMultilineString(const char* label, std::string& val);
 		static void tooltip(const char* label);
+		static const char* labelID(const char* label);
+		static bool divisionSelect(const char* label, int& value, const int* items, size_t count);
+		static bool zoomControl(const char* label, float& value, float min, float max);
 
-		static void setWindowTitle(const std::string& title);
+		static void setWindowTitle(std::string title);
 
 		/// <summary>
 		/// For use with sequential enums only

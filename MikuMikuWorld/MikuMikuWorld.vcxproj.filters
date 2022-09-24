@@ -157,6 +157,9 @@
     <ClCompile Include="Language.cpp">
       <Filter>UI\i18n</Filter>
     </ClCompile>
+    <ClCompile Include="ImGui\imgui_demo.cpp">
+      <Filter>Imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
