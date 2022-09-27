@@ -101,16 +101,18 @@ namespace MikuMikuWorld
 			std::string id("##");
 			id.append(label);
 
+			// fallback to array strings if localized string is not found
 			std::string curr = getString(items[(int)value]);
-			if (!curr.size())
+			if (curr == " ")
 				curr = items[(int)value];
+
 			if (ImGui::BeginCombo(id.c_str(), curr.c_str()))
 			{
 				for (int i = 0; i < count; ++i)
 				{
 					const bool selected = (int)value == i;
 					std::string str = getString(items[i]);
-					if (!str.size())
+					if (str == " ")
 						str = items[i];
 
 					if (ImGui::Selectable(str.c_str(), selected))

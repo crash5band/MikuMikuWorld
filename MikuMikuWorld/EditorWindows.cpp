@@ -424,6 +424,11 @@ namespace MikuMikuWorld
 
 			insertingPreset = true;
 		}
+
+		if (holdGenerator.updateWindow(selection.getHolds(score)))
+		{
+			holdGenerator.generate(score, selection);
+		}
 		
 		updateNoteSE();
 		

@@ -13,6 +13,7 @@
 #include "ScoreStats.h"
 #include "Canvas.h"
 #include "Selection.h"
+#include "HoldGenerator.h"
 
 // needed for miniaudio to work
 #undef min
@@ -34,6 +35,7 @@ namespace MikuMikuWorld
 		Framebuffer* framebuffer;
 		ScoreStats stats;
 		Selection selection;
+		HoldGenerator holdGenerator;
 
 		Score prevUpdateScore;
 		Score score;

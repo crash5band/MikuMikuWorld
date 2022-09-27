@@ -177,6 +177,7 @@
     <ClCompile Include="File.cpp" />
     <ClCompile Include="FileDialog.cpp" />
     <ClCompile Include="HistoryManager.cpp" />
+    <ClCompile Include="HoldGenerator.cpp" />
     <ClCompile Include="ImGuiManager.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
     <ClCompile Include="ImGui\imgui_demo.cpp" />
@@ -236,6 +237,7 @@
     <ClInclude Include="File.h" />
     <ClInclude Include="FileDialog.h" />
     <ClInclude Include="HistoryManager.h" />
+    <ClInclude Include="HoldGenerator.h" />
     <ClInclude Include="IconsFontAwesome5.h" />
     <ClInclude Include="ImGuiManager.h" />
     <ClInclude Include="ImGui\imconfig.h" />
