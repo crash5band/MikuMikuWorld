@@ -22,14 +22,6 @@ namespace MikuMikuWorld
 		AccentColor{ "Plain",			ImVec4(0.40f, 0.40f, 0.40f, 1.00f) }
 	};
 
-	int filterNumsOnly(ImGuiInputTextCallbackData* data)
-	{
-		if (!std::isdigit(data->EventChar))
-			return 1;
-
-		return 0;
-	}
-
 	const char* UI::labelID(const char* label)
 	{
 		strcpy(idStr, "##");
