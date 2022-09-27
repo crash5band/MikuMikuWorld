@@ -9,7 +9,7 @@
 - 最大1920分音符までのカスタム分割。
 - ノーツプリセットの作成・使用。
 
-# ダウンロード：
+## ダウンロード：
 最新版は[ここ](https://github.com/crash5band/MikuMikuWorld/releases/latest/download/MikuMikuWorld.zip)からダウンロードできます。
 
 ## スクリーンショット：
