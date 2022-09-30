@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_set>
 #include "NoteTypes.h"
+#include "IconsFontAwesome5.h"
 
 namespace MikuMikuWorld
 {
@@ -15,27 +16,67 @@ namespace MikuMikuWorld
 		PositionAndSize
 	};
 
-	constexpr const char* interpolationModes[] = {
+	enum class Alignment
+	{
+		Left,
+		LeftRight,
+		Right
+	};
+
+	enum class AlignmentStart
+	{
+		Left,
+		Right
+	};
+
+	enum class CurveType
+	{
+		Normal,
+		ShrinkGrow,
+		Wavy
+	};
+
+	constexpr const char* interpolationModes[] =
+	{
 		"None",
 		"Position",
 		"Size",
 		"Position & Size"
 	};
 
+	constexpr const char* alignmentModes[] =
+	{
+		ICON_FA_ALIGN_LEFT,
+		ICON_FA_ALIGN_CENTER,
+		ICON_FA_ALIGN_RIGHT
+	};
+
+	constexpr const char* alignmentStarts[] =
+	{
+		"Left",
+		"Right"
+	};
+
+	constexpr const char* curveTypes[] =
+	{
+		"Normal",
+		"ShrinkGrow",
+		"Wavy"
+	};
+
 	class HoldGenerator
 	{
 	private:
 		HoldStepType stepType;
+		EaseType easeType;
 		int laneOffset;
 		int division;
-
-		int lerpRadioGroup;
-		int alignRadioGroup;
-
 		InterpolationMode interpolation;
+		Alignment alignment;
+		AlignmentStart alignmentStart;
 
 		int getStepWidth(int start, int end, float ratio);
-		int getStepPosition(int start, int end, float ratio);
+		int getStepPosition(int start, int end, float ratio, int width, bool left);
 
 	public:
 		HoldGenerator();

@@ -5,6 +5,8 @@
 #include "TimelineMode.h"
 #include "Selection.h"
 #include "Math.h"
+#include "Constants.h"
+#include <algorithm>
 
 namespace MikuMikuWorld
 {
@@ -12,10 +14,12 @@ namespace MikuMikuWorld
 
 	HoldGenerator::HoldGenerator() :
 		stepType{ HoldStepType::Invisible },
+		easeType{ EaseType::None },
 		interpolation{ InterpolationMode::PositionAndSize },
 		division{ 16 },
 		laneOffset{ 3 },
-		alignRadioGroup{ 1 }
+		alignment{ Alignment::LeftRight },
+		alignmentStart{ AlignmentStart::Left }
 	{
 
 	}
@@ -32,16 +36,34 @@ namespace MikuMikuWorld
 		}
 	}
 
-	int HoldGenerator::getStepPosition(int start, int end, float ratio)
+	int HoldGenerator::getStepPosition(int start, int end, float ratio, int width, bool left)
 	{
+		int lerpOffset = 0;
 		if (interpolation == InterpolationMode::Position || interpolation == InterpolationMode::PositionAndSize)
 		{
-			return lerp(start, end, ratio);
+			lerpOffset = lerp(start, end, ratio) - start;
 		}
-		else
+
+		int leftFactor = 1;
+		int rightFactor = 1;
+		switch (alignment)
 		{
-			return start;
+		case Alignment::Left:
+			leftFactor = 0;
+			break;
+		case Alignment::LeftRight:
+			leftFactor = -1;
+			break;
+		case Alignment::Right:
+			leftFactor = -1;
+			rightFactor = 0;
+			break;
+		default:
+			break;
 		}
+
+		lerpOffset += roundf(laneOffset * (left ? leftFactor : rightFactor));
+		return std::clamp(start + lerpOffset, MIN_LANE, MAX_LANE - width);
 	}
 
 	bool HoldGenerator::updateWindow(const std::unordered_set<int>& selectedHolds)
@@ -52,7 +74,7 @@ namespace MikuMikuWorld
 		if (ImGui::Begin("[WIP] Hold Generator"))
 		{
 			ImVec2 childSize = ImGui::GetContentRegionAvail();
-			childSize.y -= ImGui::GetFrameHeightWithSpacing() + ImGui::GetStyle().WindowPadding.y;
+			childSize.y -= ImGui::GetFrameHeightWithSpacing() + (ImGui::GetStyle().WindowPadding.y * 2);
 
 			if (ImGui::BeginChild("hold_gen_options", childSize, true))
 			{
@@ -61,18 +83,42 @@ namespace MikuMikuWorld
 					UI::beginPropertyColumns();
 					UI::divisionSelect(getString("division"), division, divisions, sizeof(divisions) / sizeof(int));
 					UI::addSelectProperty(getString("step_type"), stepType, uiStepTypes, TXT_ARR_SZ(uiStepTypes));
-					UI::addIntProperty("Lane Offset", laneOffset);
+					UI::addSelectProperty(getString("ease_type"), easeType, uiEaseTypes, TXT_ARR_SZ(uiEaseTypes));
+					UI::addIntProperty("Lane Offset", laneOffset, 0, 11);
 					UI::endPropertyColumns();
 				}
 
-				ImGui::Separator();
-				ImGui::RadioButton("L", &alignRadioGroup, 0);
-				ImGui::RadioButton("R", &alignRadioGroup, 3);
-				ImGui::RadioButton("L <-> R", &alignRadioGroup, 1);
-				ImGui::RadioButton("R <-> L", &alignRadioGroup, 2);
-
-				if (ImGui::CollapsingHeader("Advanced Settings", defaultOpen))
+				if (ImGui::CollapsingHeader("Alignment", defaultOpen))
 				{
+					ImGui::SetCursorPosX(Utilities::centerImGuiItem(UI::btnNormal.x * 6));
+					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, ImGui::GetStyle().ItemSpacing.y));
+
+					for (int i = 0; i < 3; ++i)
+					{
+						const bool selected = (int)alignment == i;
+						if (selected)
+						{
+							// highlight selected mode
+							ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_TabActive]);
+							ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_TabActive]);
+						}
+
+						if (ImGui::Button(alignmentModes[i], ImVec2(UI::btnNormal.x * 2, UI::btnNormal.y)))
+							alignment = (Alignment)i;
+
+						if (selected)
+							ImGui::PopStyleColor(2);
+
+						if (i < 2)
+							ImGui::SameLine();
+					}
+
+					ImGui::PopStyleVar();
+
+					ImGui::Text("Alignment Starting Position");
+					ImGui::RadioButton(alignmentStarts[0], (int*)&alignmentStart, 0);
+					ImGui::RadioButton(alignmentStarts[1], (int*)&alignmentStart, 1);
+
 					UI::beginPropertyColumns();
 					UI::addSelectProperty("Interpolation", interpolation, interpolationModes, TXT_ARR_SZ(interpolationModes));
 					UI::endPropertyColumns();
@@ -81,7 +127,7 @@ namespace MikuMikuWorld
 			ImGui::EndChild();
 
 			ImGui::Separator();
-			if (ImGui::Button("Generate", ImVec2(-1, 0)))
+			if (ImGui::Button("Generate", ImVec2(-1, UI::btnSmall.y + 2.0f)))
 				gen = true;
 		}
 
@@ -103,11 +149,12 @@ namespace MikuMikuWorld
 			for (const auto& step : hold.steps)
 				score.notes.erase(step.ID);
 			hold.steps.clear();
+			hold.start.ease = easeType;
 
 			const Note& start = score.notes.at(hold.start.ID);
 			const Note& end = score.notes.at(hold.end);
 
-			bool left = alignRadioGroup >= 2 ? true : false;
+			bool left = alignmentStart == AlignmentStart::Left;
 			for (int t = start.tick + interval; t < end.tick; t += interval)
 			{
 				float ratio = (float)(t - start.tick) / (float)(end.tick - start.tick);
@@ -117,25 +164,9 @@ namespace MikuMikuWorld
 				mid.critical = start.critical;
 				mid.tick = t;
 				mid.width = getStepWidth(start.width, end.width, ratio);
-				mid.lane = getStepPosition(start.lane, end.lane, ratio);
+				mid.lane = getStepPosition(start.lane, end.lane, ratio, mid.width, left);
 
-				if (alignRadioGroup == 0)
-				{
-					// left aligned
-					mid.lane = roundf(start.lane + (laneOffset * (left ? 0 : 1)));
-				}
-				else if (alignRadioGroup == 1 || alignRadioGroup == 2)
-				{
-					// alternate left and right
-					mid.lane = roundf(start.lane + (laneOffset * (left ? -1 : 1)));
-				}
-				else if (alignRadioGroup == 3)
-				{
-					// left aligned
-					mid.lane = roundf(start.lane + (laneOffset * (left ? -1 : 0)));
-				}
-
-				HoldStep step{ mid.ID, stepType, EaseType::None };
+				HoldStep step{ mid.ID, stepType, easeType };
 				score.notes[mid.ID] = mid;
 				hold.steps.push_back(step);
 
