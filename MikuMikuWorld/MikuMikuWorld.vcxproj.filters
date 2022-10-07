@@ -160,6 +160,9 @@
     <ClCompile Include="ImGui\imgui_demo.cpp">
       <Filter>Imgui</Filter>
     </ClCompile>
+    <ClCompile Include="Color.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -344,6 +347,9 @@
     </ClInclude>
     <ClInclude Include="DefaultLanguage.h">
       <Filter>UI\i18n</Filter>
+    </ClInclude>
+    <ClInclude Include="Color.h">
+      <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

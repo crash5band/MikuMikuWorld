@@ -3,6 +3,7 @@
 #include "StringOperations.h"
 #include "InputListener.h"
 #include "Colors.h"
+#include "Color.h"
 #include "UI.h"
 #include "Utilities.h"
 #include "Localization.h"

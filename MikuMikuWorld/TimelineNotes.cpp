@@ -483,15 +483,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::drawBPM(float bpm, int tick)
 	{
-		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		if (!drawList)
-			return;
-
-		const float x1 = canvas.getTimelineStartX();
-		const float x2 = canvas.getTimelineEndX();
-		const float y = canvas.getPosition().y - canvas.tickToPosition(tick) + canvas.getVisualOffset();
-		drawList->AddLine(ImVec2(x1, y), ImVec2(x2 + MEASURE_WIDTH, y), tempoColor, 2.0f);
-		drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 + 5.0f, y - 25.0f), tempoColor, formatString("%g BPM", bpm).c_str());
+		drawEvent(tick, false, true, tempoColor, formatString("%g BPM", bpm).c_str());
 	}
 
 	void ScoreEditor::drawTimeSignature(const TimeSignature& ts)
@@ -502,15 +494,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::drawTimeSignature(int numerator, int denominator, int tick)
 	{
-		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		if (!drawList)
-			return;
-
-		const float x1 = canvas.getTimelineStartX();
-		const float x2 = canvas.getTimelineEndX();
-		const float y = canvas.getPosition().y - canvas.tickToPosition(tick) + canvas.getVisualOffset();
-		drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH - (ImGui::CalcTextSize("4/4").x * 0.5f), y), ImVec2(x2, y), timeColor, 2.0f);
-		drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x1 - 40.0f, y - 25.0f), timeColor, formatString("%d/%d", numerator, denominator).c_str());
+		drawEvent(tick, true, true, timeColor, formatString("%d/%d", numerator, denominator).c_str());
 	}
 
 	void ScoreEditor::drawSkill(const SkillTrigger& skill)
@@ -520,15 +504,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::drawSkill(int tick)
 	{
-		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		if (!drawList)
-			return;
-
-		const float x1 = canvas.getTimelineStartX();
-		const float x2 = canvas.getTimelineEndX();
-		const float y = canvas.getPosition().y - canvas.tickToPosition(tick) + canvas.getVisualOffset();
-		drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH - (ImGui::CalcTextSize("Skill").x * 0.5f), y), ImVec2(x2, y), skillColor, 2.0f);
-		drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x1 - 40.0f, y - 25.0f), skillColor, "Skill");
+		drawEvent(tick, true, false, skillColor, "Skill");
 	}
 
 	void ScoreEditor::drawFever(const Fever& fever)
@@ -542,18 +518,31 @@ namespace MikuMikuWorld
 		if (tick < 0)
 			return;
 
+		std::string txt = "FEVER ";
+		txt.append(start ? ICON_FA_CHEVRON_UP : ICON_FA_CHEVRON_DOWN);
+
+		drawEvent(tick, false, false, feverColor, txt.c_str());
+	}
+
+	void ScoreEditor::drawEvent(int tick, bool left, bool up, ImU32 color, const char* txt)
+	{
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		if (!drawList)
 			return;
 
-		const float x1 = canvas.getTimelineStartX();
-		const float x2 = canvas.getTimelineEndX();
+		float x1 = canvas.getTimelineStartX() - MEASURE_WIDTH;
+		float x2 = canvas.getTimelineStartX();
+		if (!left)
+		{
+			x1 = canvas.getTimelineEndX();
+			x2 = canvas.getTimelineEndX() + MEASURE_WIDTH;
+		}
 
-		std::string txt = "FEVER ";
-		txt.append(start ? ICON_FA_CHEVRON_UP : ICON_FA_CHEVRON_DOWN);
+		float y = canvas.getPosition().y - canvas.tickToPosition(tick) + canvas.getVisualOffset();
+		float yOffset = 25.0f * (up ? -1 : -2);
+		drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), color, 2.0f);
 
-		const float y = canvas.getPosition().y - canvas.tickToPosition(tick) + canvas.getVisualOffset();
-		drawList->AddLine(ImVec2(x1, y), ImVec2(x2 + MEASURE_WIDTH, y), feverColor, 2.0f);
-		drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(x2 + 5.0f, y - 25.0f), feverColor, txt.c_str());
+		float txtPos = (left ? x2 - (ImGui::CalcTextSize(txt).x + 8.0f) : x1 + 2.0f);
+		drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(txtPos, y + yOffset), color, txt);
 	}
 }

@@ -149,6 +149,9 @@ namespace MikuMikuWorld
 
 			selection.update(score);
 			drawList->PopClipRect();
+
+			ImGui::SetCursorPosY(ImGui::GetContentRegionMax().y - ImGui::GetFrameHeight() + 2);
+			ImGui::Text("%d Notes Selected", selection.count());
 		}
 		ImGui::End();
 	}
@@ -356,12 +359,12 @@ namespace MikuMikuWorld
 			ImGui::NextColumn();
 
 			UI::addSelectProperty(getString("scroll_mode"), scrollMode, scrollModes, (int)ScrollMode::ScrollModeMax);
+			UI::endPropertyColumns();
 
 			float _zoom = canvas.getZoom();
-			if (UI::zoomControl(getString("zoom"), _zoom, MIN_ZOOM, MAX_ZOOM))
+			if (UI::zoomControl("", _zoom, MIN_ZOOM, MAX_ZOOM))
 				canvas.setZoom(_zoom);
 
-			UI::endPropertyColumns();
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
 			ImGui::Checkbox(getString("show_step_outlines"), &drawHoldStepOutline);
 

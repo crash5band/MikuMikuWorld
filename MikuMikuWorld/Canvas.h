@@ -17,6 +17,7 @@ namespace MikuMikuWorld
 		float timelineVisualOffset = 0;
 		float timelineWidth;
 		float effectiveTickHeight;
+		int laneTransparency;
 
 		float scrollAmount;
 		float remainingScroll;
@@ -31,7 +32,6 @@ namespace MikuMikuWorld
 		ImRect boundaries;
 
 		Background background;
-
 	public:
 		Canvas();
 

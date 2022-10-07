@@ -2,6 +2,7 @@
 #include <string>
 #include "json.hpp"
 #include "Math.h"
+#include "Color.h"
 
 namespace MikuMikuWorld
 {

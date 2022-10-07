@@ -23,7 +23,7 @@ namespace MikuMikuWorld
 	class Renderer;
 	struct Score;
 	struct Note;
-	struct Color;
+	class Color;
 
 	class ScoreEditor
 	{
@@ -145,6 +145,7 @@ namespace MikuMikuWorld
 		void drawSkill(int tick);
 		void drawFever(const Fever& fever);
 		void drawFever(int tick, bool start);
+		void drawEvent(int tick, bool left, bool up, ImU32 color, const char* txt);
 
 		// helper methods
 		int snapTickFromPos(float posY);

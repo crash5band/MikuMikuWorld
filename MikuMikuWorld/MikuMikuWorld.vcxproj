@@ -171,6 +171,7 @@
     <ClCompile Include="BinaryWriter.cpp" />
     <ClCompile Include="Canvas.cpp" />
     <ClCompile Include="Clipboard.cpp" />
+    <ClCompile Include="Color.cpp" />
     <ClCompile Include="Dialogs.cpp" />
     <ClCompile Include="Editing.cpp" />
     <ClCompile Include="EditorWindows.cpp" />
@@ -229,6 +230,7 @@
     <ClInclude Include="Canvas.h" />
     <ClInclude Include="ChannelProvider.h" />
     <ClInclude Include="Clipboard.h" />
+    <ClInclude Include="Color.h" />
     <ClInclude Include="Colors.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DefaultLanguage.h" />

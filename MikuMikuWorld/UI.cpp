@@ -267,7 +267,7 @@ namespace MikuMikuWorld
 
 	bool UI::zoomControl(const char* label, float& value, float min, float max)
 	{
-		propertyLabel(getString("zoom"));
+		//propertyLabel(getString("zoom"));
 		
 		bool act = false;
 		if (UI::transparentButton(ICON_FA_SEARCH_MINUS, UI::btnSmall))

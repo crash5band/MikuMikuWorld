@@ -1,4 +1,5 @@
 #include "Canvas.h"
+#include "Color.h"
 #include "Constants.h"
 #include "UI.h"
 #include "Rendering/Renderer.h"
@@ -13,6 +14,7 @@ namespace MikuMikuWorld
 		useSmoothScrolling = true;
 		smoothScrollTime = 67.0f;
 		remainingScroll = scrollAmount = 0.0f;
+		laneTransparency = 0xcc;
 	}
 
 	float Canvas::getNoteYPosFromTick(int tick) const
@@ -218,7 +220,7 @@ namespace MikuMikuWorld
 			return;
 
 		//drawList->AddRectFilled(
-		//	ImVec2(getTimelineStartX() - MEASURE_WIDTH * 2, canvasPos.y),
+		//	ImVec2(getTimelineStartX() - MEASURE_WIDTH, canvasPos.y),
 		//	ImVec2(getTimelineStartX(), canvasPos.y + canvasSize.y),
 		//	0xe0161616
 		//);
@@ -226,7 +228,7 @@ namespace MikuMikuWorld
 		drawList->AddRectFilled(
 			ImVec2(getTimelineStartX(), canvasPos.y),
 			ImVec2(getTimelineEndX(), canvasPos.y + canvasSize.y),
-			0xcc1c1a1f
+			Color::abgrToInt(laneTransparency, 0x1c, 0x1a, 0x1f)
 		);
 
 		//drawList->AddRectFilled(
@@ -241,6 +243,7 @@ namespace MikuMikuWorld
 		prevPos		= canvasPos;
 		prevSize	= canvasSize;
 		canvasSize	= ImGui::GetContentRegionAvail();
+		canvasSize.y -= ImGui::GetFrameHeight();
 		canvasPos	= ImGui::GetCursorScreenPos();
 		boundaries	= ImRect(canvasPos, canvasPos + canvasSize);
 		mouseInCanvas = ImGui::IsMouseHoveringRect(canvasPos, canvasPos + canvasSize);
