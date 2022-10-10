@@ -235,7 +235,7 @@ namespace MikuMikuWorld
 		canvasSize.y -= ImGui::GetFrameHeight();
 		canvasPos	= ImGui::GetCursorScreenPos();
 		boundaries	= ImRect(canvasPos, canvasPos + canvasSize);
-		mouseInCanvas = ImGui::IsMouseHoveringRect(canvasPos, canvasPos + canvasSize) && ImGui::IsWindowHovered();
+		mouseInCanvas = ImGui::IsMouseHoveringRect(canvasPos, canvasPos + canvasSize);// && ImGui::IsWindowHovered();
 		
 		timelineWidth = NUM_LANES * laneWidth;
 		laneOffset = (canvasSize.x * 0.5f) - (timelineWidth * 0.5f);
