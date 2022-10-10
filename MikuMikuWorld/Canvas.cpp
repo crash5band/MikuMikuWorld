@@ -183,8 +183,7 @@ namespace MikuMikuWorld
 	void Canvas::changeBackground(const Texture& t)
 	{
 		background.load(t);
-		Vector2 targetSize{ canvasSize.x, canvasSize.y };
-		background.resize(targetSize);
+		background.resize(Vector2{ canvasSize.x, canvasSize.y });
 	}
 
 	void Canvas::drawBackground(Renderer* renderer)
@@ -197,19 +196,16 @@ namespace MikuMikuWorld
 		if (!bg)
 			return;
 
-		Vector2 tgtSize(canvasSize.x, canvasSize.y);
 		if (canvasSize.x != prevSize.x || canvasSize.y != prevSize.y)
-		{
-			background.resize(tgtSize);
-		}
+			background.resize(Vector2{ canvasSize.x, canvasSize.y });
 
 		if (background.isDirty())
 			background.process(renderer);
 
 		// center background
 		ImVec2 bgPos = canvasPos;
-		bgPos.x -= (background.getWidth() - tgtSize.x) / 2.0f;
-		bgPos.y -= (background.getHeight() - tgtSize.y) / 2.0f;
+		bgPos.x -= (background.getWidth() - canvasSize.x) / 2.0f;
+		bgPos.y -= (background.getHeight() - canvasSize.y) / 2.0f;
 		drawList->AddImage((void*)bg, bgPos, bgPos + ImVec2(background.getWidth(), background.getHeight()));
 	}
 
@@ -219,23 +215,11 @@ namespace MikuMikuWorld
 		if (!drawList)
 			return;
 
-		//drawList->AddRectFilled(
-		//	ImVec2(getTimelineStartX() - MEASURE_WIDTH, canvasPos.y),
-		//	ImVec2(getTimelineStartX(), canvasPos.y + canvasSize.y),
-		//	0xe0161616
-		//);
-
 		drawList->AddRectFilled(
 			ImVec2(getTimelineStartX(), canvasPos.y),
 			ImVec2(getTimelineEndX(), canvasPos.y + canvasSize.y),
 			Color::abgrToInt(laneTransparency, 0x1c, 0x1a, 0x1f)
 		);
-
-		//drawList->AddRectFilled(
-		//	ImVec2(getTimelineEndX(), canvasPos.y),
-		//	ImVec2(getTimelineEndX() + MEASURE_WIDTH * 2, canvasPos.y + canvasSize.y),
-		//	0xe0161616
-		//);
 	}
 
 	void Canvas::update(float dt)
@@ -246,7 +230,7 @@ namespace MikuMikuWorld
 		canvasSize.y -= ImGui::GetFrameHeight();
 		canvasPos	= ImGui::GetCursorScreenPos();
 		boundaries	= ImRect(canvasPos, canvasPos + canvasSize);
-		mouseInCanvas = ImGui::IsMouseHoveringRect(canvasPos, canvasPos + canvasSize);
+		mouseInCanvas = ImGui::IsMouseHoveringRect(canvasPos, canvasPos + canvasSize) && ImGui::IsWindowHovered();
 		
 		timelineWidth = NUM_LANES * laneWidth;
 		laneOffset = (canvasSize.x * 0.5f) - (timelineWidth * 0.5f);

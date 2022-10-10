@@ -37,7 +37,7 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void Background::resize(const Vector2& target)
+	void Background::resize(Vector2 target)
 	{
 		float w = texture.getWidth();
 		float h = texture.getHeight();

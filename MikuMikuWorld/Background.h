@@ -31,7 +31,7 @@ namespace MikuMikuWorld
 		Background();
 
 		void load(const Texture& tex);
-		void resize(const Vector2& target);
+		void resize(Vector2 target);
 		void process(Renderer* renderer);
 		
 		int getWidth() const;
