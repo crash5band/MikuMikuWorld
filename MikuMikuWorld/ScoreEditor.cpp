@@ -677,6 +677,24 @@ namespace MikuMikuWorld
 							std::swap(start.tick, end.tick);
 
 						sortHoldSteps(score, hold);
+
+						if (hold.steps.size())
+						{
+							// swap first mid and start if start's tick is greater
+							Note& firstMid = score.notes.at(hold.steps[0].ID);
+							if (start.tick > firstMid.tick)
+							{
+								std::swap(start.tick, firstMid.tick);
+								std::swap(start.lane, firstMid.lane);
+							}
+
+							Note& lastMid = score.notes.at(hold.steps[hold.steps.size() - 1].ID);
+							if (end.tick < lastMid.tick)
+							{
+								std::swap(end.tick, lastMid.tick);
+								std::swap(end.lane, lastMid.lane);
+							}
+						}
 						skipUpdateAfterSortingSteps = true;
 					}
 				}
