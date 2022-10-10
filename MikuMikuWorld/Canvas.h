@@ -48,6 +48,7 @@ namespace MikuMikuWorld
 		float getTimelineStartX() const;
 		float getTimelineEndX() const;
 
+		void setTimelineOffset(float offset);
 		void updateTimelineScrollAmount();
 		void updateScorllingPosition(float dt);
 		void centerCursor(int cursorTick, bool playing, int mode);

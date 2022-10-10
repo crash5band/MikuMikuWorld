@@ -86,7 +86,7 @@ namespace MikuMikuWorld
 
 		if (exec)
 		{
-			timelineOffset = cursorPos + offset;
+			setTimelineOffset(cursorPos + offset);
 
 			// scroll position changed
 			if (!playing)
@@ -110,6 +110,11 @@ namespace MikuMikuWorld
 	{
 		scrollAmount = timelineOffset - timelineVisualOffset;
 		remainingScroll = abs(scrollAmount);
+	}
+
+	void Canvas::setTimelineOffset(float offset)
+	{
+		timelineOffset = std::max(offset, timelineMinOffset);
 	}
 
 	void Canvas::updateScorllingPosition(float dt)
@@ -236,8 +241,9 @@ namespace MikuMikuWorld
 		laneOffset = (canvasSize.x * 0.5f) - (timelineWidth * 0.5f);
 		effectiveTickHeight = TICK_HEIGHT * zoom;
 
+		// change offset to min if min offset is lower than current offset
 		timelineMinOffset = ImGui::GetWindowHeight() - 200.0f;
-		timelineOffset = std::max(timelineOffset, timelineMinOffset);
+		setTimelineOffset(timelineOffset);
 
 		ImGui::ItemSize(boundaries);
 
@@ -249,7 +255,7 @@ namespace MikuMikuWorld
 			else
 			{
 				float offset = mouseWheelDelta * (InputListener::isShiftDown() ? 300.0f : 100.0f);
-				timelineOffset = std::max(timelineOffset + offset, timelineMinOffset);
+				setTimelineOffset(timelineOffset + offset);
 				if (abs(offset) > 0.0f)
 				{
 					updateTimelineScrollAmount();
