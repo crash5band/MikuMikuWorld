@@ -222,7 +222,17 @@ namespace MikuMikuWorld
 			static std::string presetDesc = "";
 			int removePattern = -1;
 
-			presetFilter.Draw("##preset_filter", concat(ICON_FA_SEARCH, getString("search"), " ").c_str(), -1);
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, ImGui::GetStyle().ItemSpacing.y));
+			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
+			float filterWidth = ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2;
+
+			presetFilter.Draw("##preset_filter", concat(ICON_FA_SEARCH, getString("search"), " ").c_str(), filterWidth);
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_FA_TIMES, UI::btnSmall))
+				presetFilter.Clear();
+
+			ImGui::PopStyleVar();
+			ImGui::PopStyleColor();
 
 			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.15f, 0.15f, 0.15f, 1.00f));
 			float windowHeight = ImGui::GetContentRegionAvail().y - ((ImGui::GetFrameHeight() * 3.0f) + 50);
