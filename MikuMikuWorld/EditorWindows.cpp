@@ -86,7 +86,7 @@ namespace MikuMikuWorld
 
 				if (!isHoveringNote && !isHoldingNote && !insertingHold)
 				{
-					if (ImGui::IsMouseDown(0) && ImGui::IsMouseDragPastThreshold(0, 10.0f))
+					if (mouseClickedOnTimeline && ImGui::IsMouseDown(0) && ImGui::IsMouseDragPastThreshold(0, 10.0f))
 						dragging = currentMode == TimelineMode::Select;
 
 					if (ImGui::IsMouseClicked(0))
@@ -96,15 +96,19 @@ namespace MikuMikuWorld
 							selection.clear();
 
 						if (currentMode == TimelineMode::Select)
+						{
 							dragStart = mousePos;
+							mouseClickedOnTimeline = true;
+						}
 					}
 				}
 			}
 
+			canvas.update(frameTime);
+
 			ImDrawList* drawList = ImGui::GetWindowDrawList();
 			drawList->PushClipRect(canvas.getBoundaries().Min, canvas.getBoundaries().Max, true);
 
-			canvas.update(frameTime);
 			canvas.updateScorllingPosition(frameTime);
 			canvas.drawBackground(renderer);
 			canvas.drawLanesBackground();
@@ -146,6 +150,9 @@ namespace MikuMikuWorld
 				else if (ImGui::IsMouseClicked(1))
 					cancelPaste();
 			}
+
+			if (ImGui::IsMouseReleased(0))
+				mouseClickedOnTimeline = false;
 
 			selection.update(score);
 			drawList->PopClipRect();

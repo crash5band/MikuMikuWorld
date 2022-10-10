@@ -26,6 +26,7 @@ namespace MikuMikuWorld
 	{
 		drawHoldStepOutline = true;
 		showRenderStats = true;
+		mouseClickedOnTimeline = false;
 
 		defaultNoteWidth = 3;
 		defaultStepType = HoldStepType::Visible;
