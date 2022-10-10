@@ -288,7 +288,6 @@ namespace MikuMikuWorld
 			act = true;
 		}
 
-		value = std::clamp(value, min, max);
 		return act;
 	}
 

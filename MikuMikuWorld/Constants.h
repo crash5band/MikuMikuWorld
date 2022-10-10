@@ -19,7 +19,7 @@ namespace MikuMikuWorld
 	constexpr int NUM_LANES			= 12;
 	constexpr float TICK_HEIGHT		= 0.15f;
 	constexpr float MIN_ZOOM		= 0.25f;
-	constexpr float MAX_ZOOM		= 10.0f;
+	constexpr float MAX_ZOOM		= 30.0f;
 	constexpr float MEASURE_WIDTH	= 30.0f;
 	constexpr int MIN_LANE_WIDTH	= 30;
 	constexpr int MAX_LANE_WIDTH	= 40;

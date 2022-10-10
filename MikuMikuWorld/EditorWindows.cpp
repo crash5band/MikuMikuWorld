@@ -362,7 +362,7 @@ namespace MikuMikuWorld
 			UI::endPropertyColumns();
 
 			float _zoom = canvas.getZoom();
-			if (UI::zoomControl("", _zoom, MIN_ZOOM, MAX_ZOOM))
+			if (UI::zoomControl("", _zoom, MIN_ZOOM, 10.0f))
 				canvas.setZoom(_zoom);
 
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
