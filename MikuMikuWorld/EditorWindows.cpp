@@ -156,9 +156,6 @@ namespace MikuMikuWorld
 
 			selection.update(score);
 			drawList->PopClipRect();
-
-			ImGui::SetCursorPosY(ImGui::GetContentRegionMax().y - ImGui::GetFrameHeight() + 2);
-			ImGui::Text("%d Notes Selected", selection.count());
 		}
 		ImGui::End();
 	}
@@ -350,12 +347,13 @@ namespace MikuMikuWorld
 			if (UI::transparentButton(ICON_FA_FORWARD, UI::btnNormal, true, !playing))
 				nextTick();
 
-			static int m = 0;
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+			ImGui::Text("%d Notes Selected", selection.count());
 			
 			UI::beginPropertyColumns();
 			UI::divisionSelect(getString("division"), division, divisions, sizeof(divisions) / sizeof(int));
 
+			static int m = 0;
 			UI::propertyLabel(getString("goto_measure"));
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - ImGui::GetStyle().ItemSpacing.x);
 			ImGui::InputInt("##goto_measure", &m, 0, 0);
@@ -366,15 +364,14 @@ namespace MikuMikuWorld
 			ImGui::NextColumn();
 
 			UI::addSelectProperty(getString("scroll_mode"), scrollMode, scrollModes, (int)ScrollMode::ScrollModeMax);
-			UI::endPropertyColumns();
-
+			
 			float _zoom = canvas.getZoom();
-			if (UI::zoomControl("", _zoom, MIN_ZOOM, 10.0f))
+			if (UI::zoomControl("zoom", _zoom, MIN_ZOOM, 10.0f))
 				canvas.setZoom(_zoom);
 
+			UI::endPropertyColumns();
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
 			ImGui::Checkbox(getString("show_step_outlines"), &drawHoldStepOutline);
-
 		}
 
 		ImGui::End();

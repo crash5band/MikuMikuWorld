@@ -232,7 +232,6 @@ namespace MikuMikuWorld
 		prevPos		= canvasPos;
 		prevSize	= canvasSize;
 		canvasSize	= ImGui::GetContentRegionAvail();
-		canvasSize.y -= ImGui::GetFrameHeight();
 		canvasPos	= ImGui::GetCursorScreenPos();
 		boundaries	= ImRect(canvasPos, canvasPos + canvasSize);
 		mouseInCanvas = ImGui::IsMouseHoveringRect(canvasPos, canvasPos + canvasSize);// && ImGui::IsWindowHovered();
