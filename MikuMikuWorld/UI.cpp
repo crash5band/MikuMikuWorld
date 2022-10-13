@@ -223,7 +223,8 @@ namespace MikuMikuWorld
 
 		bool act = false;
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - ImGui::GetFrameHeight());
-		if (ImGui::InputScalar(id, ImGuiDataType_U32, (void*)(&value), 0, 0, Utilities::getDivisionString(value).c_str()))
+		if (ImGui::InputScalar("##custom_input", ImGuiDataType_S32, (void*)(&value),
+			0, 0, concat("%d", getString("division_suffix")).c_str()))
 		{
 			value = std::clamp(value, 4, 1920);
 			act = true;
