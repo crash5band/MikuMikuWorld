@@ -14,7 +14,7 @@ namespace MikuMikuWorld
 		useSmoothScrolling = true;
 		smoothScrollTime = 67.0f;
 		remainingScroll = scrollAmount = 0.0f;
-		laneTransparency = 0xcc;
+		laneTransparency = 0.8f;
 	}
 
 	float Canvas::getNoteYPosFromTick(int tick) const
@@ -157,6 +157,11 @@ namespace MikuMikuWorld
 		timelineOffset += x1 - x2;
 	}
 
+	void Canvas::setLaneTransparency(float val)
+	{
+		laneTransparency = std::clamp(val, 0.0f, 1.0f);
+	}
+
 	void Canvas::setLaneWidth(float width)
 	{
 		laneWidth = std::clamp((int)width, MIN_LANE_WIDTH, MAX_LANE_WIDTH);
@@ -223,7 +228,7 @@ namespace MikuMikuWorld
 		drawList->AddRectFilled(
 			ImVec2(getTimelineStartX(), canvasPos.y),
 			ImVec2(getTimelineEndX(), canvasPos.y + canvasSize.y),
-			Color::abgrToInt(laneTransparency, 0x1c, 0x1a, 0x1f)
+			Color::abgrToInt(laneTransparency * 255, 0x1c, 0x1a, 0x1f)
 		);
 	}
 

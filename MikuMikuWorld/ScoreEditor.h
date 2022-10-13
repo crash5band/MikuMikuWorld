@@ -209,6 +209,9 @@ namespace MikuMikuWorld
 
 		inline int getDivision() { return division; }
 		void setDivision(int div);
+		inline ScrollMode getScrollMode() { return scrollMode; }
+		void setScrollMode(ScrollMode mode);
+		void setScrollMode(std::string mode);
 
 		// IO methods
 		void reset();

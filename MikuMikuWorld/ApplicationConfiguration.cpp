@@ -7,7 +7,7 @@ using namespace nlohmann;
 
 namespace MikuMikuWorld
 {
-	constexpr const char* CONFIG_VERSION{ "1.2.0" };
+	constexpr const char* CONFIG_VERSION{ "1.3.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -106,10 +106,16 @@ namespace MikuMikuWorld
 		{
 			timelineWidth = tryGetInt(config["timeline"], "lane_width", 30);
 			notesHeight	= tryGetInt(config["timeline"], "notes_height", 35);
+			division = tryGetInt(config["timeline"], "division", 8);
 			zoom = tryGetFloat(config["timeline"], "zoom", 2.0f);
+			timelineTansparency = tryGetFloat(config["timeline"], "lane_transparency", 0.8f);
 
 			useSmoothScrolling	= tryGetBool(config["timeline"], "smooth_scrolling_enable", true);
 			smoothScrollingTime = tryGetFloat(config["timeline"], "smooth_scrolling_time", 67.0f);
+
+			scrollMode = tryGetString(config["timeline"], "scroll_mode");
+			if (!scrollMode.size())
+				scrollMode = "follow_cursor";
 		}
 
 		if (keyExists(config, "theme"))
@@ -148,9 +154,12 @@ namespace MikuMikuWorld
 		config["timeline"] = {
 			{"lane_width", timelineWidth},
 			{"notes_height", notesHeight},
+			{"division", division},
 			{"zoom", zoom},
+			{"lane_transparency", timelineTansparency},
 			{"smooth_scrolling_enable", useSmoothScrolling},
-			{"smooth_scrolling_time", smoothScrollingTime}
+			{"smooth_scrolling_time", smoothScrollingTime},
+			{"scroll_mode", scrollMode}
 		};
 
 		config["theme"] = {
@@ -195,9 +204,12 @@ namespace MikuMikuWorld
 		
 		timelineWidth = 30;
 		notesHeight = 35;
+		division = 8;
 		zoom = 2.0f;
+		timelineTansparency = 0.8f;
 		useSmoothScrolling = true;
 		smoothScrollingTime = 67.0f;
+		scrollMode = "follow_cursor";
 
 		autoSaveEnabled = true;
 		autoSaveInterval = 5;

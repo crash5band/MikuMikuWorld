@@ -309,6 +309,26 @@ namespace MikuMikuWorld
 			division = div;
 	}
 
+	void ScoreEditor::setScrollMode(ScrollMode mode)
+	{
+		scrollMode = mode;
+	}
+
+	void ScoreEditor::setScrollMode(std::string mode)
+	{
+		int m = 0;
+		for (int i = 0; i < sizeof(scrollModes); ++i)
+		{
+			if (mode == scrollModes[i])
+			{
+				m = i;
+				break;
+			}
+		}
+
+		scrollMode = (ScrollMode)m;
+	}
+
 	void ScoreEditor::pushHistory(const std::string& description, const Score& prev, const Score& curr)
 	{
 		history.pushHistory(description, prev, curr);

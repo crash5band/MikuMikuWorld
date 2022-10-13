@@ -28,9 +28,12 @@ namespace MikuMikuWorld
 
 		int timelineWidth;
 		int notesHeight;
+		int division;
 		float zoom;
+		float timelineTansparency;
 		bool useSmoothScrolling;
 		float smoothScrollingTime;
+		std::string scrollMode;
 
 		bool autoSaveEnabled;
 		int autoSaveInterval;

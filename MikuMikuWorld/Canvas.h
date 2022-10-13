@@ -17,7 +17,7 @@ namespace MikuMikuWorld
 		float timelineVisualOffset = 0;
 		float timelineWidth;
 		float effectiveTickHeight;
-		int laneTransparency;
+		float laneTransparency;
 
 		float scrollAmount;
 		float remainingScroll;
@@ -63,6 +63,7 @@ namespace MikuMikuWorld
 		inline float getLaneWidth() { return laneWidth; }
 		inline float getNotesHeight() { return notesHeight; }
 		inline float getZoom() { return zoom; }
+		inline float getLaneTransparency() { return laneTransparency; }
 		inline float getSmoothScrollingTime() { return smoothScrollTime; }
 		inline float getOffset() { return timelineOffset; }
 		inline float getVisualOffset() { return timelineVisualOffset; }
@@ -73,6 +74,7 @@ namespace MikuMikuWorld
 		void setLaneWidth(float width);
 		void setNotesHeight(float height);
 		void setZoom(float val);
+		void setLaneTransparency(float val);
 		void setSmoothScrollingTime(float time);
 		void setUseSmoothScrolling(bool val);
 	};
