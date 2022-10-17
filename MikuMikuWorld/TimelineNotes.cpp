@@ -476,59 +476,58 @@ namespace MikuMikuWorld
 			drawFlickArrow(note, renderer, tint, offsetTick, offsetLane);
 	}
 
-	void ScoreEditor::drawBPM(const Tempo& tempo)
+	bool ScoreEditor::bpmControl(const Tempo& tempo)
 	{
-		drawBPM(tempo.bpm, tempo.tick);
+		return bpmControl(tempo.bpm, tempo.tick, true);
 	}
 
-	void ScoreEditor::drawBPM(float bpm, int tick)
+	bool ScoreEditor::bpmControl(float bpm, int tick, bool enabled)
 	{
-		drawEvent(tick, false, true, tempoColor, formatString("%g BPM", bpm).c_str());
+		return eventControl(tick, false, true, tempoColor, formatString("%g BPM", bpm).c_str(), enabled);
 	}
 
-	void ScoreEditor::drawTimeSignature(const TimeSignature& ts)
+	bool ScoreEditor::timeSignatureControl(const TimeSignature& ts)
 	{
 		int tick = measureToTicks(ts.measure, TICKS_PER_BEAT, score.timeSignatures);
-		drawTimeSignature(ts.numerator, ts.denominator, tick);
+		return timeSignatureControl(ts.numerator, ts.denominator, tick, true);
 	}
 
-	void ScoreEditor::drawTimeSignature(int numerator, int denominator, int tick)
+	bool ScoreEditor::timeSignatureControl(int numerator, int denominator, int tick, bool enabled)
 	{
-		drawEvent(tick, true, true, timeColor, formatString("%d/%d", numerator, denominator).c_str());
+		return eventControl(tick, true, true, timeColor, formatString("%d/%d", numerator, denominator).c_str(), enabled);
 	}
 
-	void ScoreEditor::drawSkill(const SkillTrigger& skill)
+	bool ScoreEditor::skillControl(const SkillTrigger& skill)
 	{
-		drawSkill(skill.tick);
+		return skillControl(skill.tick, true);
 	}
 
-	void ScoreEditor::drawSkill(int tick)
+	bool ScoreEditor::skillControl(int tick, bool enabled)
 	{
-		drawEvent(tick, true, false, skillColor, "Skill");
+		return eventControl(tick, true, false, skillColor, "Skill", enabled);
 	}
 
-	void ScoreEditor::drawFever(const Fever& fever)
+	bool ScoreEditor::feverControl(const Fever& fever)
 	{
-		drawFever(fever.startTick, true);
-		drawFever(fever.endTick, false);
+		return feverControl(fever.startTick, true, true) || feverControl(fever.endTick, false, true);
 	}
 
-	void ScoreEditor::drawFever(int tick, bool start)
+	bool ScoreEditor::feverControl(int tick, bool start, bool enabled)
 	{
 		if (tick < 0)
-			return;
+			return false;
 
-		std::string txt = "FEVER ";
+		std::string txt = "FEVER";
 		txt.append(start ? ICON_FA_CHEVRON_UP : ICON_FA_CHEVRON_DOWN);
 
-		drawEvent(tick, false, false, feverColor, txt.c_str());
+		return eventControl(tick, false, false, feverColor, txt.c_str(), enabled);
 	}
 
-	void ScoreEditor::drawEvent(int tick, bool left, bool up, ImU32 color, const char* txt)
+	bool ScoreEditor::eventControl(int tick, bool left, bool up, ImU32 color, const char* txt, bool enabled)
 	{
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		if (!drawList)
-			return;
+			return false;
 
 		float x1 = canvas.getTimelineStartX() - MEASURE_WIDTH;
 		float x2 = canvas.getTimelineStartX();
@@ -539,10 +538,12 @@ namespace MikuMikuWorld
 		}
 
 		float y = canvas.getPosition().y - canvas.tickToPosition(tick) + canvas.getVisualOffset();
-		float yOffset = 25.0f * (up ? -1 : -2);
+		float yOffset = 30.0f * (up ? -1 : -2);
 		drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), color, 2.0f);
 
-		float txtPos = (left ? x2 - (ImGui::CalcTextSize(txt).x + 8.0f) : x1 + 2.0f);
-		drawList->AddText(ImGui::GetFont(), 24.0f, ImVec2(txtPos, y + yOffset), color, txt);
+		float txtSize = std::max(ImGui::CalcTextSize(txt).x + 8.0f, 50.0f);
+		float x = (left ? x1 - txtSize + 10.0f : x2 - 15.0f);
+
+		return UI::coloredButton(txt, ImVec2{ x, y + yOffset }, ImVec2{ -1, -1 }, color, enabled);
 	}
 }

@@ -118,9 +118,9 @@ namespace MikuMikuWorld
 			updateTimeSignatures();
 			
 			for (const auto& skill : score.skills)
-				drawSkill(skill);
+				skillControl(skill);
 
-			drawFever(score.fever);
+			feverControl(score.fever);
 			drawLanes();
 
 			contextMenu();

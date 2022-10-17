@@ -138,15 +138,6 @@ namespace MikuMikuWorld
 		void drawSelectionBoxes();
 		void drawStepOutlines();
 		void drawOutline(const StepDrawData& data);
-		void drawBPM(const Tempo& bpm);
-		void drawBPM(float bpm, int tick);
-		void drawTimeSignature(const TimeSignature& ts);
-		void drawTimeSignature(int numerator, int denominator, int tick);
-		void drawSkill(const SkillTrigger& skill);
-		void drawSkill(int tick);
-		void drawFever(const Fever& fever);
-		void drawFever(int tick, bool start);
-		void drawEvent(int tick, bool left, bool up, ImU32 color, const char* txt);
 
 		// helper methods
 		int snapTickFromPos(float posY);
@@ -156,6 +147,15 @@ namespace MikuMikuWorld
 		int findClosestHold();
 		void calcDragSelection();
 		bool noteControl(const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor);
+		bool bpmControl(const Tempo& bpm);
+		bool bpmControl(float bpm, int tick, bool enabled);
+		bool timeSignatureControl(const TimeSignature& ts);
+		bool timeSignatureControl(int numerator, int denominator, int tick, bool enabled);
+		bool skillControl(const SkillTrigger& skill);
+		bool skillControl(int tick, bool enabled);
+		bool feverControl(const Fever& fever);
+		bool feverControl(int tick, bool start, bool enabled);
+		bool eventControl(int tick, bool left, bool up, ImU32 color, const char* txt, bool enabled);
 		bool isHoldPathInTick(const Note& n1, const Note& n2, EaseType ease, float x, float y);
 
 		void readScoreMetadata();

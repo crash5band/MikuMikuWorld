@@ -1,5 +1,6 @@
 #include "UI.h"
 #include "Utilities.h"
+#include "Colors.h"
 #include <string>
 #include <algorithm>
 #include <GLFW/glfw3.h>
@@ -58,6 +59,36 @@ namespace MikuMikuWorld
 
 		ImGui::PopStyleColor(3);
 		ImGui::PopStyleVar();
+		return pressed;
+	}
+
+	bool UI::coloredButton(const char* txt, ImVec2 pos, ImVec2 size, ImU32 col, bool enabled)
+	{
+		ImVec4 col4 = ImGui::ColorConvertU32ToFloat4(col);
+		ImVec4 colh = generateHighlightColor(col4);
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !enabled);
+		ImGui::PushStyleColor(ImGuiCol_Button, col4);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colh);
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, colh);
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.15f, 0.15f, 0.15f, 1.0));
+		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.4f * !enabled));
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5.0f);
+		float prevSize = ImGui::GetFont()->FontSize;
+		ImGui::GetFont()->FontSize = 16.0f;
+
+		ImGui::SetCursorScreenPos(pos);
+		ImVec2 sz = size;
+		if (sz.x <= 0)
+			sz.x = std::max(ImGui::CalcTextSize(txt).x + 10.0f, 50.0f);
+
+		if (sz.y <= 0)
+			sz.y = ImGui::GetTextLineHeightWithSpacing() + 4.0f;
+
+		bool pressed = ImGui::Button(txt, sz);
+		ImGui::PopStyleColor(4);
+		ImGui::PopStyleVar(2);
+		ImGui::PopItemFlag();
+		ImGui::GetFont()->FontSize = prevSize;
 		return pressed;
 	}
 
@@ -280,7 +311,7 @@ namespace MikuMikuWorld
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - (ImGui::GetStyle().ItemSpacing.x));
 
-		act |= ImGui::SliderFloat(labelID(label), &value, min, max, "%.2fx", ImGuiSliderFlags_AlwaysClamp);
+		act |= ImGui::SliderFloat(labelID(label), &value, min, max, "%.2fx");
 		ImGui::SameLine();
 
 		if (UI::transparentButton(ICON_FA_SEARCH_PLUS, UI::btnSmall))

@@ -525,7 +525,8 @@ namespace MikuMikuWorld
 		const float triXPos = x1 - (triPtOffset * 2);
 
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		drawList->AddTriangleFilled(
+		drawList->AddTriangleFilled
+		(
 			ImVec2(triXPos, y - triPtOffset),
 			ImVec2(triXPos, y + triPtOffset),
 			ImVec2(triXPos + (triPtOffset * 2), y), cursorColor
@@ -543,11 +544,7 @@ namespace MikuMikuWorld
 		for (int index = 0; index < score.tempoChanges.size(); ++index)
 		{
 			Tempo& tempo = score.tempoChanges[index];
-			drawBPM(tempo);
-
-			const float y = canvas.getPosition().y - canvas.tickToPosition(tempo.tick) + canvas.getVisualOffset();
-			std::string id = "bpm" + std::to_string(index);
-			if (UI::transparentButton2(id.c_str(), ImVec2(canvas.getTimelineEndX(), y - 30.0f), ImVec2(100.0f, 30.0f)))
+			if (bpmControl(tempo))
 				editBPM = tempo.bpm;
 
 			ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
@@ -600,12 +597,7 @@ namespace MikuMikuWorld
 
 		for (auto& [measure, ts] : score.timeSignatures)
 		{
-			const int ticks = measureToTicks(measure, TICKS_PER_BEAT, score.timeSignatures);
-			drawTimeSignature(ts);
-			const float y = canvas.getPosition().y - canvas.tickToPosition(ticks) + canvas.getVisualOffset();
-
-			std::string id = "ts-" + std::to_string(measure);
-			if (UI::transparentButton2(id.c_str(), ImVec2(canvas.getTimelineStartX() - 60.0f, y - 30.0f), ImVec2(60.0f, 30.0f)))
+			if (timeSignatureControl(ts))
 			{
 				// save current time signature
 				editTsNum = ts.numerator;
@@ -900,11 +892,11 @@ namespace MikuMikuWorld
 		}
 		else if (currentMode == TimelineMode::InsertBPM)
 		{
-			drawBPM(defaultBPM, hoverTick);
+			bpmControl(defaultBPM, hoverTick, false);
 		}
 		else if (currentMode == TimelineMode::InsertTimeSign)
 		{
-			drawTimeSignature(defaultTimeSignN, defaultTimeSignD, hoverTick);
+			timeSignatureControl(defaultTimeSignN, defaultTimeSignD, hoverTick, false);
 		}
 		else
 		{
