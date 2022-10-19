@@ -538,12 +538,15 @@ namespace MikuMikuWorld
 		}
 
 		float y = canvas.getPosition().y - canvas.tickToPosition(tick) + canvas.getVisualOffset();
-		float yOffset = 30.0f * (up ? -1 : -2);
+		float yOffset = 32.0f * (up ? -1 : -2);
 		drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), color, 2.0f);
 
 		float txtSize = std::max(ImGui::CalcTextSize(txt).x + 8.0f, 50.0f);
 		float x = (left ? x1 - txtSize + 10.0f : x2 - 15.0f);
 
-		return UI::coloredButton(txt, ImVec2{ x, y + yOffset }, ImVec2{ -1, -1 }, color, enabled);
+		ImGui::PushID(tick);
+		bool pressed = UI::coloredButton(txt, ImVec2{ x, y + yOffset }, ImVec2{ -1, -1 }, color, enabled);
+		ImGui::PopID();
+		return pressed;
 	}
 }

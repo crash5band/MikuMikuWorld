@@ -61,6 +61,12 @@ namespace MikuMikuWorld
 		int pasteLane = 0;
 		int holdLane = 0;
 		int holdTick = 0;
+		int editBPMIndex = -1;
+		int editTSIndex = -1;
+
+		float editBPM = 160.0f;
+		int editTsNum = 4;
+		int editTsDenom = 4;
 
 		int defaultNoteWidth;
 		HoldStepType defaultStepType;
@@ -112,6 +118,8 @@ namespace MikuMikuWorld
 		void propertiesWindow();
 		void contextMenu();
 		void debugInfo();
+		void bpmEditor();
+		void timeSignatureEditor();
 
 		// edit methods
 		void cycleFlicks();

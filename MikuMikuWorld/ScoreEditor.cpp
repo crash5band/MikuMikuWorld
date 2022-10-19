@@ -537,111 +537,29 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::updateTempoChanges()
 	{
-		static float editBPM = 0;
-		int removeBPM = -1;
-
-		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		for (int index = 0; index < score.tempoChanges.size(); ++index)
 		{
 			Tempo& tempo = score.tempoChanges[index];
 			if (bpmControl(tempo))
-				editBPM = tempo.bpm;
-
-			ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
-			if (ImGui::BeginPopupContextItem(std::to_string(index).c_str(), ImGuiPopupFlags_MouseButtonLeft | ImGuiPopupFlags_NoOpenOverExistingPopup))
 			{
-				ImGui::Text(getString("edit_bpm"));
-				ImGui::Separator();
-
-				UI::beginPropertyColumns();
-				UI::addReadOnlyProperty(getString("tick"), std::to_string(tempo.tick));
-				UI::addFloatProperty(getString("bpm"), editBPM, "%g");
-				UI::endPropertyColumns();
-
-				if (ImGui::IsItemDeactivatedAfterEdit())
-				{
-					Score prev = score;
-					tempo.bpm = std::clamp(editBPM, MIN_BPM, MAX_BPM);
-
-					pushHistory("Change tempo", prev, score);
-				}
-
-				// cannot remove the first tempo change
-				if (tempo.tick != 0)
-				{
-					if (ImGui::Button(getString("remove"), ImVec2(-1, UI::btnNormal.y)))
-					{
-						ImGui::CloseCurrentPopup();
-						removeBPM = index;
-					}
-				}
-
-				ImGui::EndPopup();
+				editBPMIndex = index;
+				editBPM = tempo.bpm;
+				ImGui::OpenPopup("edit_bpm");
 			}
-		}
-
-		if (removeBPM != -1)
-		{
-			Score prev = score;
-			score.tempoChanges.erase(score.tempoChanges.begin() + removeBPM);
-			pushHistory("Remove tempo change", prev, score);
 		}
 	}
 
 	void ScoreEditor::updateTimeSignatures()
 	{
-		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		static int editTsNum = 0;
-		static int editTsDen = 0;
-		int removeTS = -1;
-
 		for (auto& [measure, ts] : score.timeSignatures)
 		{
 			if (timeSignatureControl(ts))
 			{
-				// save current time signature
+				editTSIndex = measure;
 				editTsNum = ts.numerator;
-				editTsDen = ts.denominator;
+				editTsDenom = ts.denominator;
+				ImGui::OpenPopup("edit_ts");
 			}
-
-			ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
-			std::string wId = "TS-" + std::to_string(measure);
-			if (ImGui::BeginPopupContextItem(wId.c_str(), ImGuiPopupFlags_MouseButtonLeft | ImGuiPopupFlags_NoOpenOverExistingPopup))
-			{
-				ImGui::Text(getString("edit_time_signature"));
-				ImGui::Separator();
-
-				UI::beginPropertyColumns();
-				UI::addReadOnlyProperty(getString("measure"), std::to_string(measure));
-				if (UI::addFractionProperty(getString("time_signature"), editTsNum, editTsDen))
-				{
-					Score prev = score;
-					ts.numerator = std::clamp(abs(editTsNum), MIN_TIME_SIGN, MAX_TIME_SIGN);
-					ts.denominator = std::clamp(abs(editTsDen), MIN_TIME_SIGN, MAX_TIME_SIGN);
-
-					pushHistory("Change time signature", prev, score);
-				}
-				UI::endPropertyColumns();
-
-				// cannot remove the first time signature
-				if (measure != 0)
-				{
-					if (ImGui::Button(getString("remove"), ImVec2(-1, UI::btnNormal.y)))
-					{
-						ImGui::CloseCurrentPopup();
-						removeTS = measure;
-					}
-				}
-
-				ImGui::EndPopup();
-			}
-		}
-
-		if (score.timeSignatures.find(removeTS) != score.timeSignatures.end())
-		{
-			Score prev = score;
-			score.timeSignatures.erase(removeTS);
-			pushHistory("Remove time signature", prev, score);
 		}
 	}
 

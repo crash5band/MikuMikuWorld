@@ -116,6 +116,8 @@ namespace MikuMikuWorld
 			drawMeasures();
 			updateTempoChanges();
 			updateTimeSignatures();
+			bpmEditor();
+			timeSignatureEditor();
 			
 			for (const auto& skill : score.skills)
 				skillControl(skill);
@@ -375,6 +377,81 @@ namespace MikuMikuWorld
 		}
 
 		ImGui::End();
+	}
+
+	void ScoreEditor::bpmEditor()
+	{
+		ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
+		if (ImGui::BeginPopup("edit_bpm"))
+		{
+			ImGui::Text(getString("edit_bpm"));
+			ImGui::Separator();
+
+			Tempo& tempo = score.tempoChanges[editBPMIndex];
+			UI::beginPropertyColumns();
+			UI::addReadOnlyProperty(getString("tick"), std::to_string(tempo.tick));
+			UI::addFloatProperty(getString("bpm"), editBPM, "%g");
+			UI::endPropertyColumns();
+
+			if (ImGui::IsItemDeactivatedAfterEdit())
+			{
+				Score prev = score;
+				tempo.bpm = std::clamp(editBPM, MIN_BPM, MAX_BPM);
+
+				pushHistory("Change tempo", prev, score);
+			}
+
+			// cannot remove the first tempo change
+			if (tempo.tick != 0)
+			{
+				if (ImGui::Button(getString("remove"), ImVec2(-1, UI::btnNormal.y)))
+				{
+					ImGui::CloseCurrentPopup();
+					Score prev = score;
+					score.tempoChanges.erase(score.tempoChanges.begin() + editBPMIndex);
+					pushHistory("Remove tempo change", prev, score);
+				}
+			}
+
+			ImGui::EndPopup();
+		}
+	}
+
+	void ScoreEditor::timeSignatureEditor()
+	{
+		ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
+		if (ImGui::BeginPopup("edit_ts"))
+		{
+			ImGui::Text(getString("edit_time_signature"));
+			ImGui::Separator();
+
+			UI::beginPropertyColumns();
+			UI::addReadOnlyProperty(getString("measure"), std::to_string(editTSIndex));
+			if (UI::addFractionProperty(getString("time_signature"), editTsNum, editTsDenom))
+			{
+				Score prev = score;
+				TimeSignature& ts = score.timeSignatures[editTSIndex];
+				ts.numerator = std::clamp(abs(editTsNum), MIN_TIME_SIGN, MAX_TIME_SIGN);
+				ts.denominator = std::clamp(abs(editTsDenom), MIN_TIME_SIGN, MAX_TIME_SIGN);
+
+				pushHistory("Change time signature", prev, score);
+			}
+			UI::endPropertyColumns();
+
+			// cannot remove the first time signature
+			if (editTSIndex != 0)
+			{
+				if (ImGui::Button(getString("remove"), ImVec2(-1, UI::btnNormal.y)))
+				{
+					ImGui::CloseCurrentPopup();
+					Score prev = score;
+					score.timeSignatures.erase(editTSIndex);
+					pushHistory("Remove time signature", prev, score);
+				}
+			}
+
+			ImGui::EndPopup();
+		}
 	}
 
 	void ScoreEditor::debugInfo()
