@@ -116,6 +116,7 @@ namespace MikuMikuWorld
 		{"remove", "Remove"},
 		{"edit_time_signature", "Edit Time Signature"},
 		{"measure", "Measure"},
+		{"skill", "Skill"},
 
 		// preset manager
 		{"presets", "Presets"},

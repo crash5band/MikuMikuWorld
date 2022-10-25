@@ -504,7 +504,7 @@ namespace MikuMikuWorld
 
 	bool ScoreEditor::skillControl(int tick, bool enabled)
 	{
-		return eventControl(tick, true, false, skillColor, "Skill", enabled);
+		return eventControl(tick, true, false, skillColor, getString("skill"), enabled);
 	}
 
 	bool ScoreEditor::feverControl(const Fever& fever)
@@ -518,7 +518,7 @@ namespace MikuMikuWorld
 			return false;
 
 		std::string txt = "FEVER";
-		txt.append(start ? ICON_FA_CHEVRON_UP : ICON_FA_CHEVRON_DOWN);
+		txt.append(start ? ICON_FA_CARET_UP : ICON_FA_CARET_DOWN);
 
 		return eventControl(tick, false, false, feverColor, txt.c_str(), enabled);
 	}

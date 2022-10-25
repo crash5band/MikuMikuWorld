@@ -404,7 +404,8 @@ namespace MikuMikuWorld
 			// cannot remove the first tempo change
 			if (tempo.tick != 0)
 			{
-				if (ImGui::Button(getString("remove"), ImVec2(-1, UI::btnNormal.y)))
+				ImGui::Separator();
+				if (ImGui::Button(getString("remove"), ImVec2(-1, UI::btnSmall.y + 2)))
 				{
 					ImGui::CloseCurrentPopup();
 					Score prev = score;
@@ -441,7 +442,8 @@ namespace MikuMikuWorld
 			// cannot remove the first time signature
 			if (editTSIndex != 0)
 			{
-				if (ImGui::Button(getString("remove"), ImVec2(-1, UI::btnNormal.y)))
+				ImGui::Separator();
+				if (ImGui::Button(getString("remove"), ImVec2(-1, UI::btnSmall.y + 2)))
 				{
 					ImGui::CloseCurrentPopup();
 					Score prev = score;
