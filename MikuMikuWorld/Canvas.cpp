@@ -239,14 +239,14 @@ namespace MikuMikuWorld
 		canvasSize	= ImGui::GetContentRegionAvail();
 		canvasPos	= ImGui::GetCursorScreenPos();
 		boundaries	= ImRect(canvasPos, canvasPos + canvasSize);
-		mouseInCanvas = ImGui::IsMouseHoveringRect(canvasPos, canvasPos + canvasSize);// && ImGui::IsWindowHovered();
+		mouseInCanvas = ImGui::IsMouseHoveringRect(canvasPos, canvasPos + canvasSize);
 		
 		timelineWidth = NUM_LANES * laneWidth;
 		laneOffset = (canvasSize.x * 0.5f) - (timelineWidth * 0.5f);
 		effectiveTickHeight = TICK_HEIGHT * zoom;
 
 		// change offset to min if min offset is lower than current offset
-		timelineMinOffset = ImGui::GetWindowHeight() - 200.0f;
+		timelineMinOffset = ImGui::GetWindowHeight() - 100.0f;
 		setTimelineOffset(timelineOffset);
 
 		ImGui::ItemSize(boundaries);

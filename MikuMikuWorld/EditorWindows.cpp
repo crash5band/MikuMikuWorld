@@ -505,9 +505,7 @@ namespace MikuMikuWorld
 		
 		if (presetManager.updateWindow(score, selection.getSelection()))
 		{
-			if (isPasting())
-				cancelPaste();
-
+			cancelPaste();
 			insertingPreset = true;
 		}
 		
