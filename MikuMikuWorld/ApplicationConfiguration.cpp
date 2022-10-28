@@ -109,6 +109,7 @@ namespace MikuMikuWorld
 			division = tryGetInt(config["timeline"], "division", 8);
 			zoom = tryGetFloat(config["timeline"], "zoom", 2.0f);
 			timelineTansparency = tryGetFloat(config["timeline"], "lane_transparency", 0.8f);
+			backgroundBrightness = tryGetFloat(config["timeline"], "background_brightness", 0.4f);
 
 			useSmoothScrolling	= tryGetBool(config["timeline"], "smooth_scrolling_enable", true);
 			smoothScrollingTime = tryGetFloat(config["timeline"], "smooth_scrolling_time", 67.0f);
@@ -157,6 +158,7 @@ namespace MikuMikuWorld
 			{"division", division},
 			{"zoom", zoom},
 			{"lane_transparency", timelineTansparency},
+			{"background_brightness", backgroundBrightness},
 			{"smooth_scrolling_enable", useSmoothScrolling},
 			{"smooth_scrolling_time", smoothScrollingTime},
 			{"scroll_mode", scrollMode}
@@ -207,6 +209,7 @@ namespace MikuMikuWorld
 		division = 8;
 		zoom = 2.0f;
 		timelineTansparency = 0.8f;
+		backgroundBrightness = 0.4f;
 		useSmoothScrolling = true;
 		smoothScrollingTime = 67.0f;
 		scrollMode = "follow_cursor";

@@ -31,6 +31,7 @@ namespace MikuMikuWorld
 		int division;
 		float zoom;
 		float timelineTansparency;
+		float backgroundBrightness;
 		bool useSmoothScrolling;
 		float smoothScrollingTime;
 		std::string scrollMode;

@@ -162,6 +162,11 @@ namespace MikuMikuWorld
 		laneTransparency = std::clamp(val, 0.0f, 1.0f);
 	}
 
+	void Canvas::setBackgroundBrightness(float val)
+	{
+		background.setBrightness(val);
+	}
+
 	void Canvas::setLaneWidth(float width)
 	{
 		laneWidth = std::clamp((int)width, MIN_LANE_WIDTH, MAX_LANE_WIDTH);

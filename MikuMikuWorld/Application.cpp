@@ -53,6 +53,7 @@ namespace MikuMikuWorld
 		editor->canvas.setUseSmoothScrolling(config.useSmoothScrolling);
 		editor->canvas.setSmoothScrollingTime(config.smoothScrollingTime);
 		editor->canvas.setLaneTransparency(config.timelineTansparency);
+		editor->canvas.setBackgroundBrightness(config.backgroundBrightness);
 
 		editor->audio.setMasterVolume(config.masterVolume);
 		editor->audio.setBGMVolume(config.bgmVolume);
@@ -138,6 +139,7 @@ namespace MikuMikuWorld
 		config.division = editor->getDivision();
 		config.scrollMode = scrollModes[(int)editor->getScrollMode()];
 		config.timelineTansparency = editor->canvas.getLaneTransparency();
+		config.backgroundBrightness = editor->canvas.getBackgroundBrightness();
 		config.useSmoothScrolling = editor->canvas.isUseSmoothScrolling();
 		config.smoothScrollingTime = editor->canvas.getSmoothScrollingTime();
 
