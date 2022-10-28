@@ -593,44 +593,40 @@ namespace MikuMikuWorld
 			isHoldingNote = false;
 			if (hasEdit)
 			{
-				// only need to sort if the notes are moved
-				if (!strcmp(id, "M") && holdTick != hoverTick)
+				std::unordered_set<int> sortHolds = selection.getHolds(score);
+				for (int id : sortHolds)
 				{
-					std::unordered_set<int> sortHolds = selection.getHolds(score);
-					for (int id : sortHolds)
+					HoldNote& hold = score.holdNotes.at(id);
+					Note& start = score.notes.at(id);
+					Note& end = score.notes.at(hold.end);
+
+					if (start.tick > end.tick)
+						std::swap(start.tick, end.tick);
+
+					sortHoldSteps(score, hold);
+
+					if (hold.steps.size())
 					{
-						HoldNote& hold = score.holdNotes.at(id);
-						Note& start = score.notes.at(id);
-						Note& end = score.notes.at(hold.end);
-
-						if (start.tick > end.tick)
-							std::swap(start.tick, end.tick);
-
-						sortHoldSteps(score, hold);
-
-						if (hold.steps.size())
+						// swap first mid and start if start's tick is greater
+						Note& firstMid = score.notes.at(hold.steps[0].ID);
+						if (start.tick > firstMid.tick)
 						{
-							// swap first mid and start if start's tick is greater
-							Note& firstMid = score.notes.at(hold.steps[0].ID);
-							if (start.tick > firstMid.tick)
-							{
-								std::swap(start.tick, firstMid.tick);
-								std::swap(start.lane, firstMid.lane);
-							}
-
-							Note& lastMid = score.notes.at(hold.steps[hold.steps.size() - 1].ID);
-							if (end.tick < lastMid.tick)
-							{
-								std::swap(end.tick, lastMid.tick);
-								std::swap(end.lane, lastMid.lane);
-							}
+							std::swap(start.tick, firstMid.tick);
+							std::swap(start.lane, firstMid.lane);
 						}
-						skipUpdateAfterSortingSteps = true;
-					}
-				}
 
-				pushHistory("Update notes", prevUpdateScore, score);
-				hasEdit = false;
+						Note& lastMid = score.notes.at(hold.steps[hold.steps.size() - 1].ID);
+						if (end.tick < lastMid.tick)
+						{
+							std::swap(end.tick, lastMid.tick);
+							std::swap(end.lane, lastMid.lane);
+						}
+					}
+
+					pushHistory("Update notes", prevUpdateScore, score);
+					skipUpdateAfterSortingSteps = true;
+					hasEdit = false;
+				}
 			}
 		}
 

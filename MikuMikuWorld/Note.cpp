@@ -75,20 +75,14 @@ namespace MikuMikuWorld
 
 	void sortHoldSteps(const Score& score, HoldNote& note)
 	{
-		using tickStepPair = std::pair<int, HoldStep>;
-
-		std::vector<tickStepPair> stepsMap;
-		stepsMap.reserve(note.steps.size());
-		for (auto& step : note.steps)
-			stepsMap.push_back(tickStepPair(score.notes.at(step.ID).tick, step));
-
-		std::stable_sort(stepsMap.begin(), stepsMap.end(), [](const tickStepPair& a, const tickStepPair& b) {
-			return a.first < b.first;
-		});
-
-		note.steps.clear();
-		for (const auto& it : stepsMap)
-			note.steps.push_back(it.second);
+		std::stable_sort(note.steps.begin(), note.steps.end(),
+			[&score](const HoldStep& s1, const HoldStep& s2)
+			{
+				const Note& n1 = score.notes.at(s1.ID);
+				const Note& n2 = score.notes.at(s2.ID);
+				return n1.tick == n2.tick ? n1.lane < n2.lane : n1.tick < n2.tick;
+			}
+		);
 	}
 
 	int getFlickArrowSpriteIndex(const Note& note)
