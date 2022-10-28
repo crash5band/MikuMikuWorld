@@ -34,7 +34,7 @@ namespace MikuMikuWorld
 
 	int Canvas::positionToLane(float pos) const
 	{
-		return (pos - laneOffset) / laneWidth;
+		return floor((pos - laneOffset) / laneWidth);
 	}
 
 	float Canvas::laneToPosition(float lane) const

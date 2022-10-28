@@ -466,6 +466,7 @@ namespace MikuMikuWorld
 			ImGui::Text("Cursor pos: %f", canvas.tickToPosition(currentTick));
 			ImGui::Text("Mouse Pos: (%f, %f)", io.MousePos.x, io.MousePos.y);
 			ImGui::Text("Timeline Mouse Pos: (%f, %f)", mousePos.x, mousePos.y);
+			ImGui::Text("Hover lane: %d", hoverLane);
 			ImGui::Text("Hover tick: %d\n CurrentTick: %d", hoverTick, currentTick);
 			ImGui::Text("Current Measure: %d", accumulateMeasures(currentTick, TICKS_PER_BEAT, score.timeSignatures));
 			ImGui::Checkbox("Show render stats", &showRenderStats);
