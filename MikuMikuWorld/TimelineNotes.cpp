@@ -478,7 +478,7 @@ namespace MikuMikuWorld
 
 	bool ScoreEditor::bpmControl(const Tempo& tempo)
 	{
-		return bpmControl(tempo.bpm, tempo.tick, true);
+		return bpmControl(tempo.bpm, tempo.tick, !playing);
 	}
 
 	bool ScoreEditor::bpmControl(float bpm, int tick, bool enabled)
@@ -489,7 +489,7 @@ namespace MikuMikuWorld
 	bool ScoreEditor::timeSignatureControl(const TimeSignature& ts)
 	{
 		int tick = measureToTicks(ts.measure, TICKS_PER_BEAT, score.timeSignatures);
-		return timeSignatureControl(ts.numerator, ts.denominator, tick, true);
+		return timeSignatureControl(ts.numerator, ts.denominator, tick, !playing);
 	}
 
 	bool ScoreEditor::timeSignatureControl(int numerator, int denominator, int tick, bool enabled)
@@ -499,7 +499,7 @@ namespace MikuMikuWorld
 
 	bool ScoreEditor::skillControl(const SkillTrigger& skill)
 	{
-		return skillControl(skill.tick, true);
+		return skillControl(skill.tick, !playing);
 	}
 
 	bool ScoreEditor::skillControl(int tick, bool enabled)
@@ -509,7 +509,7 @@ namespace MikuMikuWorld
 
 	bool ScoreEditor::feverControl(const Fever& fever)
 	{
-		return feverControl(fever.startTick, true, true) || feverControl(fever.endTick, false, true);
+		return feverControl(fever.startTick, true, !playing) || feverControl(fever.endTick, false, !playing);
 	}
 
 	bool ScoreEditor::feverControl(int tick, bool start, bool enabled)
