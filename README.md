@@ -9,6 +9,13 @@ A chart editor and viewer for the mobile rhythm game Project Sekai Colorful Stag
 - Custom timeline divisions up to 1920.
 - Create and use custom note presets.
 
+## Requirements:
+- 64-bit Windows 10 or higher*
+- [Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe)
+- GPU with support for OpenGL 3.3 with latest drivers
+
+*Earlier versions of Windows may work but not tested.
+
 ## Download:
 The latest version can be downloaded [here](https://github.com/crash5band/MikuMikuWorld/releases/latest/download/MikuMikuWorld.zip)
 
