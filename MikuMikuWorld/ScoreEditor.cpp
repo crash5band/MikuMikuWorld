@@ -603,11 +603,9 @@ namespace MikuMikuWorld
 					if (start.tick > end.tick)
 						std::swap(start.tick, end.tick);
 
-					sortHoldSteps(score, hold);
-
 					if (hold.steps.size())
 					{
-						// swap first mid and start if start's tick is greater
+						// ensure hold steps are between the start and end
 						Note& firstMid = score.notes.at(hold.steps[0].ID);
 						if (start.tick > firstMid.tick)
 						{
@@ -623,6 +621,7 @@ namespace MikuMikuWorld
 						}
 					}
 
+					sortHoldSteps(score, hold);
 					pushHistory("Update notes", prevUpdateScore, score);
 					skipUpdateAfterSortingSteps = true;
 					hasEdit = false;
