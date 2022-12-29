@@ -601,8 +601,12 @@ namespace MikuMikuWorld
 					Note& end = score.notes.at(hold.end);
 
 					if (start.tick > end.tick)
+					{
 						std::swap(start.tick, end.tick);
+						std::swap(start.lane, end.lane);
+					}
 
+					sortHoldSteps(score, hold);
 					if (hold.steps.size())
 					{
 						// ensure hold steps are between the start and end
@@ -621,7 +625,6 @@ namespace MikuMikuWorld
 						}
 					}
 
-					sortHoldSteps(score, hold);
 					pushHistory("Update notes", prevUpdateScore, score);
 					skipUpdateAfterSortingSteps = true;
 					hasEdit = false;
