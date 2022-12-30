@@ -7,7 +7,7 @@ using namespace nlohmann;
 
 namespace MikuMikuWorld
 {
-	constexpr const char* CONFIG_VERSION{ "1.3.0" };
+	constexpr const char* CONFIG_VERSION{ "1.3.1" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
