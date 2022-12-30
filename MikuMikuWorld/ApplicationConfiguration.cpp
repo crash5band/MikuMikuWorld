@@ -97,15 +97,15 @@ namespace MikuMikuWorld
 			windowSize = tryGetVector2(window, "size");
 			if (windowSize.x <= 0 || windowSize.y <= 0)
 			{
-				windowSize.x = 1100;
+				windowSize.x = 1200;
 				windowSize.y = 800;
 			}
 		}
 
 		if (keyExists(config, "timeline"))
 		{
-			timelineWidth = tryGetInt(config["timeline"], "lane_width", 30);
-			notesHeight	= tryGetInt(config["timeline"], "notes_height", 35);
+			timelineWidth = tryGetInt(config["timeline"], "lane_width", 35);
+			notesHeight	= tryGetInt(config["timeline"], "notes_height", 45);
 			division = tryGetInt(config["timeline"], "division", 8);
 			zoom = tryGetFloat(config["timeline"], "zoom", 2.0f);
 			timelineTansparency = tryGetFloat(config["timeline"], "lane_transparency", 0.8f);
@@ -198,14 +198,14 @@ namespace MikuMikuWorld
 	void ApplicationConfiguration::restoreDefault()
 	{
 		windowPos = Vector2(150, 100);
-		windowSize = Vector2(1100, 800);
+		windowSize = Vector2(1200, 800);
 		maximized = false;
 		vsync = true;
 		accentColor = 1;
 		userColor = Color(0.2f, 0.2f, 0.2f, 1.0f);
 		
-		timelineWidth = 30;
-		notesHeight = 35;
+		timelineWidth = 35;
+		notesHeight = 45;
 		division = 8;
 		zoom = 2.0f;
 		timelineTansparency = 0.8f;
