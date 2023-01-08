@@ -1,7 +1,7 @@
-#include <Windows.h>
 #include "../Application.h"
 #include "../StringOperations.h"
 #include "../UI.h"
+#include <tinyfiledialogs.h>
 
 #define STB_VORBIS_HEADER_ONLY
 #include "stb_vorbis.c"
@@ -11,6 +11,9 @@
 #include <filesystem>
 #include <execution>
 #include "AudioManager.h"
+
+#undef min
+#undef max
 
 #undef STB_VORBIS_HEADER_ONLY
 
@@ -46,7 +49,7 @@ namespace MikuMikuWorld
 		catch (int)
 		{
 			err.append(ma_result_description(result));
-			MessageBox(NULL, err.c_str(), APP_NAME, MB_OK | MB_ICONERROR);
+			tinyfd_messageBox(APP_NAME, err.c_str(), "ok", "error", 1);
 
 			exit(result);
 		}

@@ -6,7 +6,7 @@
 #include "UI.h"
 #include "stb_image.h"
 #include <string>
-#include <Windows.h>
+#include <tinyfiledialogs.h>
 
 namespace MikuMikuWorld
 {
@@ -88,7 +88,7 @@ namespace MikuMikuWorld
 		window = glfwCreateWindow(config.windowSize.x, config.windowSize.y, APP_NAME, NULL, NULL);
 		if (window == NULL)
 		{
-			MessageBox(NULL, "Application::initOpenGL(): Failed to create GLFW Window. Aborting.", APP_NAME, MB_OK | MB_ICONERROR);
+			tinyfd_messageBox(APP_NAME, "Failed to create GLFW Window. Aborting.", "ok", "error", 1);
 			glfwTerminate();
 			return false;
 		}
@@ -100,7 +100,7 @@ namespace MikuMikuWorld
 		// GLAD initializtion
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		{
-			MessageBox(NULL, "Application::initOpenGL(): Failed to fetch OpenGL proc address. Aborting.", APP_NAME, MB_OK | MB_ICONERROR);
+			tinyfd_messageBox(APP_NAME, "Failed to fetch OpenGL proc address. Aborting.", "ok", "error", 1);
 			return false;
 		}
 

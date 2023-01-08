@@ -163,6 +163,8 @@
     <ClCompile Include="Color.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="..\Depends\nativefiledialog\nfd_win.cpp" />
+    <ClCompile Include="..\Depends\tinyfiledialogs\tinyfiledialogs.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />

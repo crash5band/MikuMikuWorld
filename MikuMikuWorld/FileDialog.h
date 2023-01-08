@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <nfd.h>
 
 namespace MikuMikuWorld
 {
@@ -16,11 +17,11 @@ namespace MikuMikuWorld
 	{
 	private:
 		static const wchar_t* getDialogTitle(FileType type);
-		static const wchar_t* getDialogFilters(FileType type);
+		static nfdfilteritem_t* getDialogFilters(FileType type);
+		static int getFilterCount(FileType type);
 
 	public:
 		static bool openFile(std::string& name, FileType type);
 		static bool saveFile(std::string& name, FileType type);
-		static const wchar_t* getExtensionFromType(FileType type);
 	};
 }

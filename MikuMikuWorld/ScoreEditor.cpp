@@ -12,11 +12,8 @@
 #include "FileDialog.h"
 #include "StringOperations.h"
 #include "Localization.h"
+#include <tinyfiledialogs.h>
 #include <algorithm>
-#include <Windows.h>
-
-#undef min
-#undef max
 
 namespace MikuMikuWorld
 {
@@ -102,7 +99,7 @@ namespace MikuMikuWorld
 			}
 			catch (std::runtime_error& err)
 			{
-				MessageBox(NULL, err.what(), APP_NAME, MB_OK | MB_ICONERROR);
+				tinyfd_messageBox(APP_NAME, err.what(), "ok", "error", 1);
 				score = Score{};
 			}
 		}

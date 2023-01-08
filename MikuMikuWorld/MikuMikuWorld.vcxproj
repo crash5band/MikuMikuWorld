@@ -119,7 +119,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_ENABLE_EXTENDED_ALIGNED_STORAGE;_DEBUG</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>../Depends/DirectXMath-master;../Depends/glad/include;../Depends/GLFW/include;../Depends/stb_image;../Depends/miniaudio;../Depends/json</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Depends/DirectXMath-master;../Depends/glad/include;../Depends/GLFW/include;../Depends/stb_image;../Depends/miniaudio;../Depends/json;../Depends/nativefiledialog/include;../Depends/tinyfiledialogs/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)</ObjectFileName>
     </ClCompile>
     <Link>
@@ -141,7 +141,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_ENABLE_EXTENDED_ALIGNED_STORAGE;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>../Depends/DirectXMath-master;../Depends/glad/include;../Depends/GLFW/include;../Depends/stb_image;../Depends/miniaudio;../Depends/json</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Depends/DirectXMath-master;../Depends/glad/include;../Depends/GLFW/include;../Depends/stb_image;../Depends/miniaudio;../Depends/json;../Depends/nativefiledialog/include;../Depends/tinyfiledialogs/include</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <ObjectFileName>$(IntDir)</ObjectFileName>
     </ClCompile>
@@ -160,6 +160,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Depends\glad\src\glad.c" />
+    <ClCompile Include="..\Depends\nativefiledialog\nfd_win.cpp" />
+    <ClCompile Include="..\Depends\tinyfiledialogs\tinyfiledialogs.c" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="ApplicationConfiguration.cpp" />
     <ClCompile Include="Audio\Sound.cpp" />

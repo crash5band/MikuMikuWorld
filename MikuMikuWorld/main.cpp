@@ -3,6 +3,7 @@
 #include "UI.h"
 #include <iostream>
 #include <Windows.h>
+#include <tinyfiledialogs.h>
 
 namespace mmw = MikuMikuWorld;
 
@@ -14,7 +15,7 @@ int main()
 	if (!args)
 	{
 		printf("main(): CommandLineToArgvW failed\n");
-		MessageBox(NULL, "main(): CommandLineToArgvW failed\n", APP_NAME, MB_OK | MB_ICONERROR);
+		tinyfd_messageBox(APP_NAME, "Could not parse command line arguments", "ok", "error", 1);
 
 		return 1;
 	}
@@ -35,7 +36,7 @@ int main()
 	{
 		std::string msg = "An unhandled exception has occured and the application will now close.\n";
 		msg.append(ex.what());
-		MessageBox(NULL, msg.c_str(), APP_NAME, MB_OK | MB_ICONERROR);
+		tinyfd_messageBox(APP_NAME, msg.c_str(), "ok", "error", 1);
 	}
 
 	app.dispose();
