@@ -115,9 +115,6 @@
       <Filter>Score\SUS</Filter>
     </ClCompile>
     <ClCompile Include="ApplicationConfiguration.cpp" />
-    <ClCompile Include="Audio\stb_vorbis.c">
-      <Filter>Components\Audio</Filter>
-    </ClCompile>
     <ClCompile Include="PresetManager.cpp">
       <Filter>Components</Filter>
     </ClCompile>
@@ -165,6 +162,7 @@
     </ClCompile>
     <ClCompile Include="..\Depends\nativefiledialog\nfd_win.cpp" />
     <ClCompile Include="..\Depends\tinyfiledialogs\tinyfiledialogs.c" />
+    <ClCompile Include="..\Depends\stb_vorbis\stb_vorbis.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />

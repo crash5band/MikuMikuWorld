@@ -79,7 +79,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <SourcePath>C:\Data\Repositories\MikuMikuWorld\MikuMikuWorld\Depends\ImGui;C:\Data\Repositories\MikuMikuWorld\MikuMikuWorld\Depends\glad\src;$(SourcePath)</SourcePath>
+    <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -119,7 +119,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_ENABLE_EXTENDED_ALIGNED_STORAGE;_DEBUG</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>../Depends/DirectXMath-master;../Depends/glad/include;../Depends/GLFW/include;../Depends/stb_image;../Depends/miniaudio;../Depends/json;../Depends/nativefiledialog/include;../Depends/tinyfiledialogs/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Depends/DirectXMath-master;../Depends/glad/include;../Depends/GLFW/include;../Depends/stb_image;../Depends/miniaudio;../Depends/json;../Depends/nativefiledialog/include;../Depends/tinyfiledialogs/include;../Depends/stb_vorbis</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)</ObjectFileName>
     </ClCompile>
     <Link>
@@ -141,7 +141,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_ENABLE_EXTENDED_ALIGNED_STORAGE;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>../Depends/DirectXMath-master;../Depends/glad/include;../Depends/GLFW/include;../Depends/stb_image;../Depends/miniaudio;../Depends/json;../Depends/nativefiledialog/include;../Depends/tinyfiledialogs/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Depends/DirectXMath-master;../Depends/glad/include;../Depends/GLFW/include;../Depends/stb_image;../Depends/miniaudio;../Depends/json;../Depends/nativefiledialog/include;../Depends/tinyfiledialogs/include;../Depends/stb_vorbis</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <ObjectFileName>$(IntDir)</ObjectFileName>
     </ClCompile>
@@ -161,13 +161,13 @@
   <ItemGroup>
     <ClCompile Include="..\Depends\glad\src\glad.c" />
     <ClCompile Include="..\Depends\nativefiledialog\nfd_win.cpp" />
+    <ClCompile Include="..\Depends\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="..\Depends\tinyfiledialogs\tinyfiledialogs.c" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="ApplicationConfiguration.cpp" />
     <ClCompile Include="Audio\Sound.cpp" />
     <ClCompile Include="Audio\AudioManager.cpp" />
     <ClCompile Include="Audio\SoundSource.cpp" />
-    <ClCompile Include="Audio\stb_vorbis.c" />
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="BinaryReader.cpp" />
     <ClCompile Include="BinaryWriter.cpp" />
