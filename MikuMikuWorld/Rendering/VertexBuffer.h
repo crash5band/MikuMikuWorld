@@ -11,6 +11,7 @@ namespace MikuMikuWorld
 		int indexCapacity;
 		int vertexCapcity;
 		int bufferPos;
+		int vertexCount;
 
 		unsigned int vao;
 		unsigned int vbo;
@@ -27,7 +28,10 @@ namespace MikuMikuWorld
 		void resetBufferPos();
 		void uploadBuffer();
 		void flushBuffer();
+		
 		int getCapacity() const;
 		int getSize() const;
+		int getVertexCount() const;
+		bool isFull() const;
 	};
 }

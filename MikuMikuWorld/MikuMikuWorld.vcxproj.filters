@@ -275,9 +275,6 @@
     <ClInclude Include="Rendering\VertexBuffer.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Vertex.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Framebuffer.h">
       <Filter>Rendering</Filter>
     </ClInclude>
