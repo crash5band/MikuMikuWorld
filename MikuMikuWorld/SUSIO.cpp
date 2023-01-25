@@ -27,7 +27,12 @@ namespace MikuMikuWorld
 	{
 		SUS sus = loadSUS(filename);
 
-		ScoreMetadata metadata{ sus.metadata.data["title"], sus.metadata.data["artist"], sus.metadata.data["designer"] };
+		ScoreMetadata metadata
+		{ 
+			sus.metadata.data["title"],
+			sus.metadata.data["artist"],
+			sus.metadata.data["designer"]
+		};
 		metadata.musicOffset = sus.metadata.waveOffset * 1000;
 
 		std::unordered_map<std::string, FlickType> flicks;
@@ -156,6 +161,8 @@ namespace MikuMikuWorld
 
 			HoldNote hold;
 			int startID = nextID++;
+			hold.steps.reserve(slide.size() - 2);
+
 			for (const auto& note : slide)
 			{
 				const std::string key = noteKey(note);
