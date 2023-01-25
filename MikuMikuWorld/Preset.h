@@ -1,5 +1,6 @@
 #pragma once
 #include "Note.h"
+#include "Result.h"
 #include <string>
 #include <unordered_map>
 #include <json.hpp>
@@ -33,7 +34,7 @@ namespace MikuMikuWorld
 		inline std::string getFilename() const { return filename; }
 		inline int getID() const { return ID; };
 
-		void read(const nlohmann::json& data, const std::string& filepath);
+		Result read(const nlohmann::json& data, const std::string& filepath);
 		nlohmann::json write();
 	};
 }

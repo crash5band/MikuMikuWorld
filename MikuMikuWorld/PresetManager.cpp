@@ -5,6 +5,7 @@
 #include "Utilities.h"
 #include "ImGui/imgui.h"
 #include "Localization.h"
+#include <tinyfiledialogs.h>
 #include <fstream>
 #include <filesystem>
 #include <execution>
@@ -29,7 +30,11 @@ namespace MikuMikuWorld
 
 		std::mutex m2;
 		presets.reserve(filenames.size());
-		std::for_each(std::execution::par, filenames.begin(), filenames.end(), [this, &m2](const auto& filename) {
+
+		std::vector<Result> warnings;
+		std::vector<Result> errors;
+
+		std::for_each(std::execution::par, filenames.begin(), filenames.end(), [this, &warnings, &errors, &m2](const auto& filename) {
 			std::wstring wFilename = mbToWideStr(filename);
 			std::ifstream presetFile(wFilename);
 
@@ -39,13 +44,36 @@ namespace MikuMikuWorld
 			int id = nextPresetID++;
 
 			NotesPreset preset(id, "");
-			preset.read(presetJson, filename);
-			if (preset.notes.size())
+			Result result = preset.read(presetJson, filename);
 			{
 				std::lock_guard<std::mutex> lock{ m2 };
-				presets.emplace(id, std::move(preset));
+				if (preset.notes.size())
+					presets.emplace(id, std::move(preset));
+
+				if (result.getStatus() == ResultStatus::Warning)
+					warnings.push_back(result);
+				else if (result.getStatus() == ResultStatus::Error)
+					errors.push_back(result);
 			}
 		});
+
+		if (errors.size())
+		{
+			std::string message;
+			for (auto& error : errors)
+				message += "- " + error.getMessage() + "\n";
+
+			tinyfd_messageBox(APP_NAME, message.c_str(), "ok", "error", 1);
+		}
+
+		if (warnings.size())
+		{
+			std::string message;
+			for (auto& warning : warnings)
+				message += "- " + warning.getMessage() + "\n";
+
+			tinyfd_messageBox(APP_NAME, message.c_str(), "ok", "warning", 1);
+		}
 	}
 
 	void PresetManager::savePresets(const std::string& path)

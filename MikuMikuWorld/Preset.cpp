@@ -56,15 +56,23 @@ namespace MikuMikuWorld
 	Note NotesPreset::readNote(const json& data, NoteType type)
 	{
 		Note note(type);
-		note.tick = data["tick"];
-		note.lane = data["lane"];
-		note.width = data["width"];
 
-		if (note.getType() != NoteType::HoldMid)
+		if (data.find("tick") != data.end())
+			note.tick = data["tick"];
+
+		if (data.find("lane") != data.end())
+			note.lane = data["lane"];
+		
+		if (data.find("width") != data.end())
+			note.width = data["width"];
+		else
+			note.width = 3;
+
+		if (note.getType() != NoteType::HoldMid && data.find("critical") != data.end())
 			note.critical = data["critical"];
 		
 		if (!note.hasEase())
-			note.flick = getNoteFlick(data["flick"]);
+			note.flick = getNoteFlick(data.find("flick") != data.end() ? data["flick"] : "");
 
 		return note;
 	}
@@ -82,7 +90,7 @@ namespace MikuMikuWorld
 			data["flick"] = flickTypes[(int)note.flick];
 	}
 
-	void NotesPreset::read(const json& data, const std::string& filepath)
+	Result NotesPreset::read(const json& data, const std::string& filepath)
 	{
 		filename = File::getFilenameWithoutExtension(filepath);
 		if (data.find("name") != data.end())
@@ -108,12 +116,22 @@ namespace MikuMikuWorld
 			holds.reserve(data["holds"].size());
 			for (const auto& holdData : data["holds"])
 			{
+				if (holdData.find("start") == holdData.end() || holdData.find("end") == holdData.end())
+				{
+					return Result(
+						ResultStatus::Warning,
+						formatString("A hold note in the preset %s is missing its start or end. Skipping hold...", filepath.c_str())
+					);
+				}
+
 				HoldNote hold;
 				Note start = readNote(holdData["start"], NoteType::Hold);
 				start.ID = id++;
 				notes[start.ID] = start;
 
-				hold.start = HoldStep{ start.ID, HoldStepType::Visible, getNoteEase(holdData["start"]["ease"]) };
+				std::string startEase = holdData["start"].find("ease") != holdData["start"].end() ? holdData["start"]["ease"] : "";
+
+				hold.start = HoldStep{ start.ID, HoldStepType::Visible, getNoteEase(startEase) };
 				if (holdData.find("steps") != holdData.end())
 				{
 					hold.steps.reserve(holdData["steps"].size());
@@ -125,7 +143,10 @@ namespace MikuMikuWorld
 						mid.critical = start.critical;
 						notes[mid.ID] = mid;
 
-						hold.steps.push_back(HoldStep{ mid.ID, getStepType(stepData["type"]), getNoteEase(stepData["ease"]) });
+						std::string stepType = stepData.find("type") != stepData.end() ? stepData["type"] : "";
+						std::string stepEase = stepData.find("ease") != stepData.end() ? stepData["ease"] : "";
+
+						hold.steps.push_back(HoldStep{ mid.ID, getStepType(stepType), getNoteEase(stepEase) });
 					}
 				}
 
@@ -138,6 +159,8 @@ namespace MikuMikuWorld
 				holds[start.ID] = hold;
 			}
 		}
+
+		return Result::Ok();
 	}
 
 	json NotesPreset::write()
