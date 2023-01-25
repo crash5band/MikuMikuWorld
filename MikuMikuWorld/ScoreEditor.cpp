@@ -99,7 +99,8 @@ namespace MikuMikuWorld
 			}
 			catch (std::runtime_error& err)
 			{
-				tinyfd_messageBox(APP_NAME, err.what(), "ok", "error", 1);
+				std::string message = "An error occured while reading the score file.\n" + std::string(err.what());
+				tinyfd_messageBox(APP_NAME, message.c_str(), "ok", "error", 1);
 				score = Score{};
 			}
 		}
