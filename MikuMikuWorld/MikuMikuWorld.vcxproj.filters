@@ -348,6 +348,9 @@
     <ClInclude Include="Color.h">
       <Filter>Math</Filter>
     </ClInclude>
+    <ClInclude Include="Result.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">

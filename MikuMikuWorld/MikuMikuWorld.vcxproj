@@ -272,6 +272,7 @@
     <ClInclude Include="Rendering\VertexBuffer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="Result.h" />
     <ClInclude Include="Score.h" />
     <ClInclude Include="ScoreEvents.h" />
     <ClInclude Include="ScoreStats.h" />
