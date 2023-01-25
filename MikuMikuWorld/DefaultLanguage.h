@@ -105,7 +105,7 @@ namespace MikuMikuWorld
 		{"combo", "Combo"},
 		{"goto_measure", "Go To Measure"},
 		{"division", "Division"},
-		{"division_suffix", " Divison"},
+		{"division_suffix", " Division"},
 		{"custom", "Custom "},
 		{"custom_division", "Custom Division"},
 		{"scroll_mode", "Scroll Mode"},
