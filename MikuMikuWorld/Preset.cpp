@@ -148,6 +148,14 @@ namespace MikuMikuWorld
 
 						hold.steps.push_back(HoldStep{ mid.ID, getStepType(stepType), getNoteEase(stepEase) });
 					}
+
+					std::stable_sort(hold.steps.begin(), hold.steps.end(),
+						[this](const HoldStep& s1, const HoldStep& s2)
+						{
+							const Note& n1 = notes.at(s1.ID);
+							const Note& n2 = notes.at(s2.ID);
+							return n1.tick == n2.tick ? n1.lane < n2.lane : n1.tick < n2.tick;
+						});
 				}
 
 				Note end = readNote(holdData["end"], NoteType::HoldEnd);
