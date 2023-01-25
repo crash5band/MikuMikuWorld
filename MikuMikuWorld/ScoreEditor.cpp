@@ -73,41 +73,48 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::loadScore(const std::string& filename)
 	{
-		resetEditor();
+		if (playing)
+			togglePlaying();
 
 		std::string extension = File::getFileExtension(filename);
 		std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 		std::string title = windowUntitled;
 
-		if (extension == SUS_EXTENSION)
+		try
 		{
-			SUSIO susIO;
-			score = susIO.importSUS(filename);
-			workingData.filename = "";
+			if (extension == SUS_EXTENSION)
+			{
+				SUSIO susIO;
+				score = susIO.importSUS(filename);
+				workingData.filename = "";
 
-			// project not saved
-			uptoDate = false;
-		}
-		else if (extension == MMWS_EXTENSION)
-		{
-			Score backup = score;
-			try
+				// project not saved
+				uptoDate = false;
+			}
+			else if (extension == MMWS_EXTENSION)
 			{
 				score = deserializeScore(filename);
+				uptoDate = true;
+
 				workingData.filename = filename;
 				title = File::getFilenameWithoutExtension(filename);
 			}
-			catch (std::runtime_error& err)
-			{
-				std::string message = "An error occured while reading the score file.\n" + std::string(err.what());
-				tinyfd_messageBox(APP_NAME, message.c_str(), "ok", "error", 1);
-				score = Score{};
-			}
-		}
 
-		readScoreMetadata();
-		stats.calculateStats(score);
-		UI::setWindowTitle(title);
+			workingData = EditorScoreData{};
+			selection.clear();
+			history.clear();
+			hasEdit = false;
+			resetNextID();
+
+			readScoreMetadata();
+			stats.calculateStats(score);
+			UI::setWindowTitle(title);
+		}
+		catch (std::runtime_error& err)
+		{
+			std::string errMsg = "An error occured while reading the score file.\n" + std::string(err.what());
+			tinyfd_messageBox(APP_NAME, errMsg.c_str(), "ok", "error", 1);
+		}
 	}
 
 	void ScoreEditor::loadMusic(const std::string& filename)

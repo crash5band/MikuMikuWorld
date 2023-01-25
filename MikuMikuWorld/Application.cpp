@@ -42,8 +42,8 @@ namespace MikuMikuWorld
 		imgui.initialize(window);
 		applyAccentColor(config.accentColor);
 
-		renderer = new Renderer();
-		editor = new ScoreEditor();
+		renderer = std::make_unique<Renderer>();
+		editor = std::make_unique<ScoreEditor>();
 
 		// apply config settings
 		editor->setDivision(config.division);
@@ -90,9 +90,6 @@ namespace MikuMikuWorld
 
 	void Application::dispose()
 	{
-		delete editor;
-		delete renderer;
-
 		if (initialized)
 		{
 			imgui.shutdown();
@@ -524,7 +521,7 @@ namespace MikuMikuWorld
 		InputListener::update(window);
 		processInput();
 		menuBar();
-		editor->update(frameDelta, renderer);
+		editor->update(frameDelta, renderer.get());
 		updateDialogs();
 
 		if (glfwGetTime() - lastAppTimeUpdate >= 0.05f)

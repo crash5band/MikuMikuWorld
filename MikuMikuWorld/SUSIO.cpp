@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include <algorithm>
 #include <numeric>
+#include <stdexcept>
 
 namespace MikuMikuWorld
 {
@@ -230,6 +231,9 @@ namespace MikuMikuWorld
 					break;
 				}
 			}
+
+			if (hold.start.ID == 0 || hold.end == 0)
+				throw std::runtime_error("Invalid hold note.");
 
 			holds[startID] = hold;
 			if (notes.at(hold.end).critical && !notes.at(hold.end).isFlick())

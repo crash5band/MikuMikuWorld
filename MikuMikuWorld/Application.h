@@ -13,8 +13,8 @@ namespace MikuMikuWorld
 	{
 	private:
 		GLFWwindow* window;
-		Renderer* renderer;
-		ScoreEditor* editor;
+		std::unique_ptr<Renderer> renderer;
+		std::unique_ptr<ScoreEditor> editor;
 		ImGuiManager imgui;
 		ApplicationConfiguration config;
 
