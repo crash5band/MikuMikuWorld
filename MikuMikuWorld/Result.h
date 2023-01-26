@@ -33,6 +33,11 @@ namespace MikuMikuWorld
 			return message;
 		}
 
+		bool isOk() const
+		{
+			return status == ResultStatus::Success;
+		}
+
 		static Result Ok()
 		{
 			return Result(ResultStatus::Success);
