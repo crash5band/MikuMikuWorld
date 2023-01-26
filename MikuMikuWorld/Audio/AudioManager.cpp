@@ -46,7 +46,7 @@ namespace MikuMikuWorld
 				throw(result);
 			}
 		}
-		catch (int)
+		catch (ma_result)
 		{
 			err.append(ma_result_description(result));
 			tinyfd_messageBox(APP_NAME, err.c_str(), "ok", "error", 1);
@@ -65,7 +65,7 @@ namespace MikuMikuWorld
 	void AudioManager::loadSE()
 	{
 		std::string path{ Application::getAppDir() + "res/sound/" };
-		for (int i = 0; i < 10; ++i)
+		for (int i = 0; i < sizeof(SE_NAMES) / sizeof(const char*); ++i)
 			sounds.emplace(std::move(std::pair<std::string, std::unique_ptr<Sound>>(SE_NAMES[i], std::make_unique<Sound>())));
 
 		std::for_each(std::execution::par, sounds.begin(), sounds.end(), [&](auto& s) {
