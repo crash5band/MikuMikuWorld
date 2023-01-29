@@ -7,6 +7,7 @@
 #include "UI.h"
 #include "Utilities.h"
 #include "Localization.h"
+#include "tinyfiledialogs.h"
 #include <nfd.h>
 #include <filesystem>
 
@@ -36,14 +37,18 @@ namespace MikuMikuWorld
 
 		readSettings();
 
-		if (!initOpenGL())
+		Result openglResult = initOpenGL();
+		if (!openglResult.isOk())
+		{
+			tinyfd_messageBox(APP_NAME, openglResult.getMessage().c_str(), "ok", "error", 1);
 			exit(1);
+		}
 
 		imgui.initialize(window);
 		applyAccentColor(config.accentColor);
 
-		renderer = std::make_unique<Renderer>();
-		editor = std::make_unique<ScoreEditor>();
+		renderer = new Renderer();
+		editor = new ScoreEditor();
 
 		// apply config settings
 		editor->setDivision(config.division);
@@ -521,7 +526,7 @@ namespace MikuMikuWorld
 		InputListener::update(window);
 		processInput();
 		menuBar();
-		editor->update(frameDelta, renderer.get());
+		editor->update(frameDelta, renderer);
 		updateDialogs();
 
 		if (glfwGetTime() - lastAppTimeUpdate >= 0.05f)

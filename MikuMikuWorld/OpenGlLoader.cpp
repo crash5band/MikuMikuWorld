@@ -4,6 +4,7 @@
 #include "Application.h"
 #include "StringOperations.h"
 #include "UI.h"
+#include "Result.h"
 #include "stb_image.h"
 #include <string>
 #include <tinyfiledialogs.h>
@@ -77,7 +78,7 @@ namespace MikuMikuWorld
 		glfwSetWindowMaximizeCallback(window, windowMaximizeCallback);
 	}
 
-	bool Application::initOpenGL()
+	Result Application::initOpenGL()
 	{
 		// GLFW initializion
 		glfwInit();
@@ -88,9 +89,8 @@ namespace MikuMikuWorld
 		window = glfwCreateWindow(config.windowSize.x, config.windowSize.y, APP_NAME, NULL, NULL);
 		if (window == NULL)
 		{
-			tinyfd_messageBox(APP_NAME, "Failed to create GLFW Window. Aborting.", "ok", "error", 1);
 			glfwTerminate();
-			return false;
+			return Result(ResultStatus::Error, "Failed to create GLFW Window.");
 		}
 
 		glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
@@ -100,8 +100,8 @@ namespace MikuMikuWorld
 		// GLAD initializtion
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		{
-			tinyfd_messageBox(APP_NAME, "Failed to fetch OpenGL proc address. Aborting.", "ok", "error", 1);
-			return false;
+			glfwTerminate();
+			return Result(ResultStatus::Error, "Failed to fetch OpenGL proc address.");
 		}
 
 		glfwSwapInterval(config.vsync);
@@ -118,6 +118,6 @@ namespace MikuMikuWorld
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		glViewport(0, 0, config.windowSize.x, config.windowSize.y);
 
-		return true;
+		return Result::Ok();
 	}
 }

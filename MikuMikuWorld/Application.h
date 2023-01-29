@@ -13,8 +13,8 @@ namespace MikuMikuWorld
 	{
 	private:
 		GLFWwindow* window;
-		std::unique_ptr<Renderer> renderer;
-		std::unique_ptr<ScoreEditor> editor;
+		Renderer* renderer;
+		ScoreEditor* editor;
 		ImGuiManager imgui;
 		ApplicationConfiguration config;
 
@@ -41,7 +41,7 @@ namespace MikuMikuWorld
 		Stopwatch stopwatch;
 		Stopwatch autoSaveTimer;
 
-		bool initOpenGL();
+		Result initOpenGL();
 		void update();
 		void updateDialogs();
 		void installCallbacks();
