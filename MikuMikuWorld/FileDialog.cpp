@@ -81,6 +81,10 @@ namespace MikuMikuWorld
 		nfdchar_t* outPath;
 		nfdfilteritem_t* filters = getDialogFilters(type);
 		nfdresult_t result = NFD_OpenDialog(&outPath, filters, getFilterCount(type), nullptr);
+
+		if (filters)
+			free(filters);
+
 		if (result == NFD_OKAY)
 		{
 			name = outPath;
@@ -97,6 +101,10 @@ namespace MikuMikuWorld
 		nfdchar_t* outPath;
 		nfdfilteritem_t* filters = getDialogFilters(type);
 		nfdresult_t result = NFD_SaveDialog(&outPath, filters, getFilterCount(type), nullptr, nullptr);
+
+		if (filters)
+			free(filters);
+
 		if (result == NFD_OKAY)
 		{
 			name = outPath;
