@@ -6,6 +6,7 @@
 #include "File.h"
 #include "Constants.h"
 #include "UI.h"
+#include "Result.h"
 #include "IconsFontAwesome5.h"
 
 namespace MikuMikuWorld
@@ -16,7 +17,7 @@ namespace MikuMikuWorld
 
 	}
 
-	bool ImGuiManager::initialize(GLFWwindow* window)
+	Result ImGuiManager::initialize(GLFWwindow* window)
 	{
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -33,8 +34,11 @@ namespace MikuMikuWorld
 		io->KeyRepeatRate = 0.15f;
 		io->IniFilename = configFilename.c_str();
 
-		ImGui_ImplGlfw_InitForOpenGL(window, true);
-		ImGui_ImplOpenGL3_Init("#version 130");
+		if (!ImGui_ImplGlfw_InitForOpenGL(window, true))
+			return Result(ResultStatus::Error, "Failed to initialize ImGui GLFW implementation.");
+
+		if (!ImGui_ImplOpenGL3_Init("#version 130"))
+			return Result(ResultStatus::Error, "Failed to initialize ImGui OpenGL implementation.");
 
 		std::string baseDir = Application::getAppDir();
 		loadFont(baseDir + "res/fonts/NotoSansCJK-Regular.ttc", 18.0f);
@@ -42,7 +46,7 @@ namespace MikuMikuWorld
 
 		setStyle();
 
-		return true;
+		return Result::Ok();
 	}
 
 	void ImGuiManager::setStyle()

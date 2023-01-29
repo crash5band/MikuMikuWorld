@@ -9,6 +9,8 @@
 
 namespace MikuMikuWorld
 {
+	class Result;
+
 	class Application
 	{
 	private:

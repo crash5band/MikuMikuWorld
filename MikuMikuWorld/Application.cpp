@@ -44,7 +44,13 @@ namespace MikuMikuWorld
 			exit(1);
 		}
 
-		imgui.initialize(window);
+		Result imguiResult = imgui.initialize(window);
+		if (!imguiResult.isOk())
+		{
+			tinyfd_messageBox(APP_NAME, imguiResult.getMessage().c_str(), "ok", "error", 1);
+			exit(1);
+		}
+
 		applyAccentColor(config.accentColor);
 
 		renderer = new Renderer();

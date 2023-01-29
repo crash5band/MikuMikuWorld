@@ -6,6 +6,8 @@ struct GLFWwindow;
 
 namespace MikuMikuWorld
 {
+	class Result;
+
 	class ImGuiManager
 	{
 	private:
@@ -15,7 +17,7 @@ namespace MikuMikuWorld
 	public:
 		ImGuiManager();
 
-		bool initialize(GLFWwindow* window);
+		Result initialize(GLFWwindow* window);
 		void initializeLayout();
 		void shutdown();
 		void setStyle();
