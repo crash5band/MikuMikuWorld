@@ -43,4 +43,17 @@ namespace MikuMikuWorld
 		return -1;
 	}
 
+	void ResourceManager::disposeTexture(int texID)
+	{
+		for (int i = 0; i < textures.size(); ++i)
+		{
+			if (textures[i].getID() == texID)
+			{
+				textures[i].dispose();
+				textures.erase(textures.begin() + i);
+				return;
+			}
+		}
+	}
+
 }

@@ -16,6 +16,8 @@ namespace MikuMikuWorld
 
 		static void loadShader(const std::string& filename);
 		static int getShader(const std::string& name);
+
+		static void disposeTexture(int texID);
 	};
 }
 
