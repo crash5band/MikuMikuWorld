@@ -108,7 +108,7 @@ namespace MikuMikuWorld
 			notesHeight	= tryGetInt(config["timeline"], "notes_height", 45);
 			division = tryGetInt(config["timeline"], "division", 8);
 			zoom = tryGetFloat(config["timeline"], "zoom", 2.0f);
-			timelineTansparency = tryGetFloat(config["timeline"], "lane_transparency", 0.8f);
+			timelineTransparency = tryGetFloat(config["timeline"], "lane_transparency", 0.8f);
 			backgroundBrightness = tryGetFloat(config["timeline"], "background_brightness", 0.4f);
 
 			useSmoothScrolling	= tryGetBool(config["timeline"], "smooth_scrolling_enable", true);
@@ -157,7 +157,7 @@ namespace MikuMikuWorld
 			{"notes_height", notesHeight},
 			{"division", division},
 			{"zoom", zoom},
-			{"lane_transparency", timelineTansparency},
+			{"lane_transparency", timelineTransparency},
 			{"background_brightness", backgroundBrightness},
 			{"smooth_scrolling_enable", useSmoothScrolling},
 			{"smooth_scrolling_time", smoothScrollingTime},
@@ -208,7 +208,7 @@ namespace MikuMikuWorld
 		notesHeight = 45;
 		division = 8;
 		zoom = 2.0f;
-		timelineTansparency = 0.8f;
+		timelineTransparency = 0.8f;
 		backgroundBrightness = 0.4f;
 		useSmoothScrolling = true;
 		smoothScrollingTime = 67.0f;
