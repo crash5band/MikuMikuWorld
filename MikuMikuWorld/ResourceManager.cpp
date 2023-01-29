@@ -15,6 +15,12 @@ namespace MikuMikuWorld
 			return;
 		}
 
+		for (int i = 0; i < textures.size(); ++i)
+		{
+			if (textures[i].getFilename() == filename)
+				return;
+		}
+
 		Texture tex(filename);
 		textures.push_back(tex);
 	}
@@ -23,6 +29,15 @@ namespace MikuMikuWorld
 	{
 		for (int i = 0; i < textures.size(); ++i)
 			if (textures[i].getName() == name)
+				return i;
+
+		return -1;
+	}
+
+	int ResourceManager::getTextureByFilename(const std::string& filename)
+	{
+		for (int i = 0; i < textures.size(); ++i)
+			if (textures[i].getFilename() == filename)
 				return i;
 
 		return -1;

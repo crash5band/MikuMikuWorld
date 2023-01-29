@@ -16,6 +16,7 @@ namespace MikuMikuWorld
 	{
 	private:
 		std::string name;
+		std::string filename;
 		int width;
 		int height;
 		unsigned int glID;
@@ -32,6 +33,7 @@ namespace MikuMikuWorld
 		inline int getHeight() const { return height; }
 		inline unsigned int getID() const { return glID; }
 		inline const std::string& getName() const { return name; }
+		inline const std::string& getFilename() const { return filename; }
 
 		void bind() const;
 		void dispose();

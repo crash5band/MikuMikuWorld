@@ -13,6 +13,7 @@ namespace MikuMikuWorld
 
 		static void loadTexture(const std::string filename);
 		static int getTexture(const std::string& name);
+		static int getTextureByFilename(const std::string& filename);
 
 		static void loadShader(const std::string& filename);
 		static int getShader(const std::string& name);

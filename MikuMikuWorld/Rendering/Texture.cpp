@@ -11,6 +11,7 @@ namespace MikuMikuWorld
 {
 	Texture::Texture(const std::string& filename)
 	{
+		this->filename = filename;
 		name = File::getFilenameWithoutExtension(filename);
 		read(filename);
 
