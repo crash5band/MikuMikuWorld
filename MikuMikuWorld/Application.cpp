@@ -200,6 +200,8 @@ namespace MikuMikuWorld
 				else
 					editor->save();
 			}
+			else if (InputListener::isTapped(GLFW_KEY_E))
+				editor->exportSUS();
 
 			if (InputListener::isTapped(GLFW_KEY_C))
 				editor->copy();
@@ -347,7 +349,7 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(getString("save_as"), "Ctrl + Shift + S"))
 				editor->saveAs();
 
-			if (ImGui::MenuItem(getString("export")))
+			if (ImGui::MenuItem(getString("export"), "Ctrl + E"))
 				editor->exportSUS();
 
 			ImGui::Separator();
