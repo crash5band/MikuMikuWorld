@@ -80,8 +80,6 @@ namespace MikuMikuWorld
 		void loadResources();
 		void dispose();
 
-		bool trySetLanguage(const char* code);
-
 		static const std::string& getAppDir();
 		static const std::string& getAppVersion();
 	};
