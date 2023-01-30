@@ -8,7 +8,6 @@
 #include "Utilities.h"
 #include "Localization.h"
 #include "tinyfiledialogs.h"
-#include <nfd.h>
 #include <filesystem>
 
 namespace MikuMikuWorld
@@ -74,8 +73,6 @@ namespace MikuMikuWorld
 		editor->presetManager.loadPresets(appDir + "library/");
 
 		loadResources();
-
-		NFD_Init();
 		initialized = true;
 	}
 
@@ -610,7 +607,5 @@ namespace MikuMikuWorld
 
 		writeSettings();
 		editor->presetManager.savePresets(appDir + "library/");
-
-		NFD_Quit();
 	}
 }
