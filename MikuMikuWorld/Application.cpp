@@ -74,9 +74,6 @@ namespace MikuMikuWorld
 		editor->presetManager.loadPresets(appDir + "library/");
 
 		loadResources();
-		int bgTex = ResourceManager::getTexture("default");
-		if (bgTex != -1)
-			editor->canvas.changeBackground(ResourceManager::textures[bgTex]);
 
 		NFD_Init();
 		initialized = true;
@@ -552,14 +549,16 @@ namespace MikuMikuWorld
 
 		if (showPerformanceMetrics)
 		{
-			ImGui::BeginMainMenuBar();
-			ImGui::SetCursorPosX(ImGui::GetMainViewport()->WorkSize.x - 300);
-			ImGui::Text("app time: %.2fms :: frame time: %.2fms (%.0fFPS)",
+			std::string frameInfo = formatString(
+				"app time: %.2fms :: frame time: %.2fms (%.0fFPS)",
 				appTime * 1000,
 				appFrame * 1000,
 				1 / appFrame
 			);
 
+			ImGui::BeginMainMenuBar();
+			ImGui::SetCursorPosX(ImGui::GetMainViewport()->WorkSize.x - ImGui::CalcTextSize(frameInfo.c_str()).x - 10.0f);
+			ImGui::Text(frameInfo.c_str());
 			ImGui::EndMainMenuBar();
 		}
 	}
@@ -571,6 +570,10 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path.png");
 		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path_crtcl.png");
 		ResourceManager::loadTexture(appDir + "res/textures/default.png");
+
+		int bgTex = ResourceManager::getTexture("default");
+		if (bgTex != -1)
+			editor->canvas.changeBackground(ResourceManager::textures[bgTex]);
 
 		// load more languages here
 		Localization::loadDefault();
