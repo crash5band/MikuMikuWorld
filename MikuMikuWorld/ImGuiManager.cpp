@@ -181,9 +181,9 @@ namespace MikuMikuWorld
 			ImGui::DockBuilderSetNodeSize(dockSpaceId, viewport->WorkSize);
 
 			ImGuiID dockMainId = dockSpaceId;
-			ImGuiID topLeftId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Left, 0.175f, nullptr, &dockMainId);
-			ImGuiID bottomLeftId = ImGui::DockBuilderSplitNode(topLeftId, ImGuiDir_Down, 0.5f, nullptr, &topLeftId);
-			ImGuiID topRightId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Right, 0.25f, nullptr, &dockMainId);
+			ImGuiID topLeftId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Left, 0.225f, nullptr, &dockMainId);
+			ImGuiID bottomLeftId = ImGui::DockBuilderSplitNode(topLeftId, ImGuiDir_Down, 0.4f, nullptr, &topLeftId);
+			ImGuiID topRightId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Right, 0.3f, nullptr, &dockMainId);
 			ImGuiID bottomRightId = ImGui::DockBuilderSplitNode(topRightId, ImGuiDir_Down, 0.5f, nullptr, &topRightId);
 
 			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"), dockMainId);
