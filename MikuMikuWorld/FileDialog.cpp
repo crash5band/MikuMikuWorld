@@ -85,12 +85,15 @@ namespace MikuMikuWorld
 
 	bool FileDialog::saveFile(std::string& name, FileType type)
 	{
-		wchar_t* filename = (wchar_t*)malloc(1024);
+		std::unique_ptr<wchar_t[]> filename(new wchar_t[1024]);
+		if (!filename)
+			return false;
+
 		filename[0] = L'\0';
 		if (name.size())
 		{
 			std::wstring wFilename = mbToWideStr(name);
-			filename = lstrcpyW(filename, wFilename.c_str());
+			lstrcpyW(filename.get(), wFilename.c_str());
 		}
 
 		std::wstring title{ L"Save " };
@@ -101,7 +104,7 @@ namespace MikuMikuWorld
 		ofn.lStructSize = sizeof(ofn);
 		ofn.lpstrFilter = getDialogFilters(type);
 		ofn.nFilterIndex = 1;
-		ofn.lpstrFile = filename;
+		ofn.lpstrFile = filename.get();
 		ofn.nMaxFile = MAX_PATH;
 		ofn.lpstrTitle = title.c_str();
 		ofn.lpstrDefExt = getExtensionFromType(type);
