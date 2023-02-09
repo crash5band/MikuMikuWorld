@@ -80,8 +80,10 @@ namespace MikuMikuWorld
 		std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 		std::string title = windowUntitled;
 
+		int nextIdBackup = nextID;
 		try
 		{
+			resetNextID();
 			if (extension == SUS_EXTENSION)
 			{
 				SUSIO susIO;
@@ -100,11 +102,9 @@ namespace MikuMikuWorld
 				title = File::getFilenameWithoutExtension(filename);
 			}
 
-			workingData = EditorScoreData{};
 			selection.clear();
 			history.clear();
 			hasEdit = false;
-			resetNextID();
 
 			readScoreMetadata();
 			stats.calculateStats(score);
@@ -112,6 +112,8 @@ namespace MikuMikuWorld
 		}
 		catch (std::runtime_error& err)
 		{
+			nextID = nextIdBackup;
+
 			std::string errMsg = "An error occured while reading the score file.\n" + std::string(err.what());
 			tinyfd_messageBox(APP_NAME, errMsg.c_str(), "ok", "error", 1);
 		}
