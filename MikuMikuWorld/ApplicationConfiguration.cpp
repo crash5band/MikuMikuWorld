@@ -21,17 +21,26 @@ namespace MikuMikuWorld
 
 	int ApplicationConfiguration::tryGetInt(const json& js, const char* key, int def)
 	{
-		return keyExists(js, key) ? (int)js[key] : def;
+		if (keyExists(js, key))
+			return js[key].is_number() ? (int)js[key] : def;
+		
+		return def;
 	}
 
 	float ApplicationConfiguration::tryGetFloat(const json& js, const char* key, float def)
 	{
-		return keyExists(js, key) ? (float)js[key] : def;
+		if (keyExists(js, key))
+			return js[key].is_number() ? (float)js[key] : def;
+
+		return def;
 	}
 
 	bool ApplicationConfiguration::tryGetBool(const json& js, const char* key, bool def)
 	{
-		return keyExists(js, key) ? (bool)js[key] : def;
+		if (keyExists(js, key))
+			return js[key].is_boolean() ? (bool)js[key] : def;
+
+		return def;
 	}
 
 	Vector2 ApplicationConfiguration::tryGetVector2(const json& js, const char* key)
@@ -62,11 +71,10 @@ namespace MikuMikuWorld
 
 	std::string ApplicationConfiguration::tryGetString(const json& js, const char* key)
 	{
-		std::string s;
 		if (keyExists(js, key))
-			s = (std::string)js[key];
+			return js[key].is_string() ? js[key] : "";
 
-		return s;
+		return "";
 	}
 
 	void ApplicationConfiguration::read(const std::string& filename)
@@ -108,7 +116,7 @@ namespace MikuMikuWorld
 			notesHeight	= tryGetInt(config["timeline"], "notes_height", 45);
 			division = tryGetInt(config["timeline"], "division", 8);
 			zoom = tryGetFloat(config["timeline"], "zoom", 2.0f);
-			timelineTansparency = tryGetFloat(config["timeline"], "lane_transparency", 0.8f);
+			timelineTransparency = tryGetFloat(config["timeline"], "lane_transparency", 0.8f);
 			backgroundBrightness = tryGetFloat(config["timeline"], "background_brightness", 0.4f);
 
 			useSmoothScrolling	= tryGetBool(config["timeline"], "smooth_scrolling_enable", true);
@@ -146,9 +154,16 @@ namespace MikuMikuWorld
 
 		// update to latest version
 		config["version"] =	CONFIG_VERSION;
+		config["window"]["position"] = { 
+			{"x", windowPos.x},
+			{"y", windowPos.y} 
+		};
 
-		config["window"]["position"] = { {"x", windowPos.x}, {"y", windowPos.y} };
-		config["window"]["size"] = { {"x", windowSize.x}, {"y", windowSize.y} };
+		config["window"]["size"] = {
+			{"x", windowSize.x},
+			{"y", windowSize.y}
+		};
+
 		config["window"]["maximized"] = maximized;
 		config["window"]["vsync"] = vsync;
 
@@ -157,7 +172,7 @@ namespace MikuMikuWorld
 			{"notes_height", notesHeight},
 			{"division", division},
 			{"zoom", zoom},
-			{"lane_transparency", timelineTansparency},
+			{"lane_transparency", timelineTransparency},
 			{"background_brightness", backgroundBrightness},
 			{"smooth_scrolling_enable", useSmoothScrolling},
 			{"smooth_scrolling_time", smoothScrollingTime},
@@ -208,7 +223,7 @@ namespace MikuMikuWorld
 		notesHeight = 45;
 		division = 8;
 		zoom = 2.0f;
-		timelineTansparency = 0.8f;
+		timelineTransparency = 0.8f;
 		backgroundBrightness = 0.4f;
 		useSmoothScrolling = true;
 		smoothScrollingTime = 67.0f;
