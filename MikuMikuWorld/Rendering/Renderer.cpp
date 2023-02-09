@@ -16,10 +16,10 @@ namespace MikuMikuWorld
 	void Renderer::init()
 	{
 		// order: top-right, bottom-right, bottom-left, top-left
-		vPos[0] = DirectX::XMVectorSet(0.5f, 0.5f, 0.0f, 1.0f);
-		vPos[1] = DirectX::XMVectorSet(0.5f, -0.5f, 0.0f, 1.0f);
-		vPos[2] = DirectX::XMVectorSet(-0.5f, -0.5f, 0.0f, 1.0f);
-		vPos[3] = DirectX::XMVectorSet(-0.5f, 0.5f, 0.0f, 1.0f);
+		vPos[0] = DirectX::XMVECTOR{ 0.5f, 0.5f, 0.0f, 1.0f };
+		vPos[1] = DirectX::XMVECTOR{ 0.5f, -0.5f, 0.0f, 1.0f };
+		vPos[2] = DirectX::XMVECTOR{ -0.5f, -0.5f, 0.0f, 1.0f };
+		vPos[3] = DirectX::XMVECTOR{ -0.5f, 0.5f, 0.0f, 1.0f };
 	}
 
 	void Renderer::setAnchor(AnchorType type)
@@ -54,23 +54,23 @@ namespace MikuMikuWorld
 		default: break;
 		}
 
-		vPos[0] = DirectX::XMVectorSet(right, top, 0.0f, 1.0f);
-		vPos[1] = DirectX::XMVectorSet(right, bottom, 0.0f, 1.0f);
-		vPos[2] = DirectX::XMVectorSet(left, bottom, 0.0f, 1.0f);
-		vPos[3] = DirectX::XMVectorSet(left, top, 0.0f, 1.0f);
+		vPos[0] = DirectX::XMVECTOR{ right, top, 0.0f, 1.0f };
+		vPos[1] = DirectX::XMVECTOR{ right, bottom, 0.0f, 1.0f };
+		vPos[2] = DirectX::XMVECTOR{ left, bottom, 0.0f, 1.0f };
+		vPos[3] = DirectX::XMVECTOR{ left, top, 0.0f, 1.0f };
 	}
 
 	void Renderer::setUVCoords(const Texture& tex, float x1, float x2, float y1, float y2)
 	{
-		float left		= x1 / tex.getWidth();
-		float right		= x2 / tex.getWidth();
-		float top		= y1 / tex.getHeight();
-		float bottom	= y2 / tex.getHeight();
+		float left = x1 / tex.getWidth();
+		float right = x2 / tex.getWidth();
+		float top = y1 / tex.getHeight();
+		float bottom = y2 / tex.getHeight();
 
-		uvCoords[0] = DirectX::XMVectorSet(right, top, 0.0f, 0.0f);
-		uvCoords[1] = DirectX::XMVectorSet(right, bottom, 0.0f, 0.0f);
-		uvCoords[2] = DirectX::XMVectorSet(left, bottom, 0.0f, 0.0f);
-		uvCoords[3] = DirectX::XMVectorSet(left, top, 0.0f, 0.0f);
+		uvCoords[0] = DirectX::XMVECTOR{ right, top, 0.0f, 0.0f };
+		uvCoords[1] = DirectX::XMVECTOR{ right, bottom, 0.0f, 0.0f };
+		uvCoords[2] = DirectX::XMVECTOR{ left, bottom, 0.0f, 0.0f };
+		uvCoords[3] = DirectX::XMVECTOR{ left, top, 0.0f, 0.0f };
 	}
 
 	DirectX::XMMATRIX Renderer::getModelMatrix(const Vector2& pos, const float rot, const Vector2& sz)
@@ -94,7 +94,7 @@ namespace MikuMikuWorld
 		const Texture& tex, float x1, float x2, float y1, float y2, const Color& tint, int z)
 	{
 		DirectX::XMMATRIX model = getModelMatrix(pos, rot, sz);
-		DirectX::XMVECTOR color = DirectX::XMVectorSet(tint.r, tint.g, tint.b, tint.a);
+		DirectX::XMVECTOR color{ tint.r, tint.g, tint.b, tint.a };
 		setUVCoords(tex, x1, x2, y1, y2);
 		setAnchor(anchor);
 
@@ -105,11 +105,11 @@ namespace MikuMikuWorld
 		const Texture& tex, float x1, float x2, float y1, float y2, const Color& tint, int z)
 	{
 		setUVCoords(tex, x1, x2, y1, y2);
-		vPos[0] = DirectX::XMVectorSet(p4.x, p4.y, 0.0f, 1.0f);
-		vPos[1] = DirectX::XMVectorSet(p2.x, p2.y, 0.0f, 1.0f);
-		vPos[2] = DirectX::XMVectorSet(p1.x, p1.y, 0.0f, 1.0f);
-		vPos[3] = DirectX::XMVectorSet(p3.x, p3.y, 0.0f, 1.0f);
-		DirectX::XMVECTOR color = DirectX::XMVectorSet(tint.r, tint.g, tint.b, tint.a);
+		vPos[0] = DirectX::XMVECTOR{ p4.x, p4.y, 0.0f, 1.0f };
+		vPos[1] = DirectX::XMVECTOR{ p2.x, p2.y, 0.0f, 1.0f };
+		vPos[2] = DirectX::XMVECTOR{ p1.x, p1.y, 0.0f, 1.0f };
+		vPos[3] = DirectX::XMVECTOR{ p3.x, p3.y, 0.0f, 1.0f };
+		DirectX::XMVECTOR color{ tint.r, tint.g, tint.b, tint.a };
 
 		pushQuad(vPos, uvCoords, DirectX::XMMatrixIdentity(), color, tex.getID(), z);
 	}
@@ -179,20 +179,24 @@ namespace MikuMikuWorld
 			[](const Quad& q1, const Quad& q2) {return q1.zIndex < q2.zIndex; });
 		bindTexture(quads[0].texture);
 
+		int vertexCount = 0;
+
 		for (const auto& q : quads)
 		{
-			if (texID != q.texture || vBuffer.isFull())
+			if (texID != q.texture || vertexCount + 4 >= vBuffer.getCapacity())
 			{
 				vBuffer.uploadBuffer();
 				flush();
-
 				vBuffer.resetBufferPos();
 				resetRenderStats();
+
+				vertexCount = 0;
 
 				bindTexture(q.texture);
 			}
 
 			vBuffer.pushBuffer(q);
+			vertexCount += 4;
 		}
 
 		vBuffer.uploadBuffer();

@@ -5,7 +5,7 @@
 namespace MikuMikuWorld
 {
 	VertexBuffer::VertexBuffer(int _capacity) :
-		vertexCapcity{ _capacity }, bufferPos{ 0 }, vao{ 0 }, vbo{ 0 }, ebo{ 0 }, vertexCount{ 0 }
+		vertexCapcity{ _capacity }, bufferPos{ 0 }, vao{ 0 }, vbo{ 0 }, ebo{ 0 }
 	{
 		buffer = nullptr;
 		indices = nullptr;
@@ -87,16 +87,6 @@ namespace MikuMikuWorld
 		return vertexCapcity;
 	}
 
-	int VertexBuffer::getVertexCount() const
-	{
-		return vertexCount;
-	}
-
-	bool VertexBuffer::isFull() const
-	{
-		return vertexCount + 4 >= vertexCapcity;
-	}
-
 	void VertexBuffer::pushBuffer(const Quad& q)
 	{
 		for (int offset = 0; offset < 4; ++offset)
@@ -107,7 +97,6 @@ namespace MikuMikuWorld
 		}
 
 		bufferPos += 4;
-		++vertexCount;
 	}
 
 	void VertexBuffer::resetBufferPos()
