@@ -8,7 +8,6 @@
 #include "Utilities.h"
 #include "Localization.h"
 #include "tinyfiledialogs.h"
-#include <nfd.h>
 #include <filesystem>
 
 namespace MikuMikuWorld
@@ -78,7 +77,6 @@ namespace MikuMikuWorld
 		if (bgTex != -1)
 			editor->canvas.changeBackground(ResourceManager::textures[bgTex]);
 
-		NFD_Init();
 		initialized = true;
 	}
 
@@ -607,7 +605,5 @@ namespace MikuMikuWorld
 
 		writeSettings();
 		editor->presetManager.savePresets(appDir + "library/");
-
-		NFD_Quit();
 	}
 }
