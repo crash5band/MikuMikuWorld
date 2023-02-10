@@ -22,26 +22,20 @@ namespace MikuMikuWorld
 		version = getVersion();
 	}
 
-	void Application::initialize()
+	Result Application::initialize()
 	{
 		if (initialized)
-			return;
+			return Result(ResultStatus::Success, "App is already initialized");
 
 		readSettings();
 
-		Result openglResult = initOpenGL();
-		if (!openglResult.isOk())
-		{
-			tinyfd_messageBox(APP_NAME, openglResult.getMessage().c_str(), "ok", "error", 1);
-			exit(1);
-		}
+		Result result = initOpenGL();
+		if (!result.isOk())
+			return result;
 
-		Result imguiResult = imgui.initialize(window);
-		if (!imguiResult.isOk())
-		{
-			tinyfd_messageBox(APP_NAME, imguiResult.getMessage().c_str(), "ok", "error", 1);
-			exit(1);
-		}
+		result = imgui.initialize(window);
+		if (!result.isOk())
+			return result;
 
 		renderer = new Renderer();
 		editor = new ScoreEditor();
@@ -74,6 +68,7 @@ namespace MikuMikuWorld
 			editor->canvas.changeBackground(ResourceManager::textures[bgTex]);
 
 		initialized = true;
+		return Result::Ok();;
 	}
 
 	const std::string& Application::getAppDir()

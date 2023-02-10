@@ -60,7 +60,7 @@ namespace MikuMikuWorld
 
 		Application(const std::string &rootPath);
 
-		void initialize();
+		Result initialize();
 		void reset();
 		void open();
 		void run();

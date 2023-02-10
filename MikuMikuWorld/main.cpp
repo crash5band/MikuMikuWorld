@@ -23,7 +23,13 @@ int main()
 
 	try
 	{
-		app.initialize();
+		mmw::Result result = app.initialize();
+		if (!result.isOk())
+		{
+			tinyfd_messageBox(APP_NAME, result.getMessage().c_str(), "ok", "error", 1);
+			return 1;
+		}
+
 		for (int i = 1; i < argc; ++i)
 			app.appendOpenFile(mmw::wideStringToMb(args[i]));
 		
