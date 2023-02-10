@@ -160,9 +160,11 @@
     <ClCompile Include="Color.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="..\Depends\nativefiledialog\nfd_win.cpp" />
     <ClCompile Include="..\Depends\tinyfiledialogs\tinyfiledialogs.c" />
     <ClCompile Include="..\Depends\stb_vorbis\stb_vorbis.c" />
+    <ClCompile Include="AutoSaveManager.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -353,6 +355,9 @@
     </ClInclude>
     <ClInclude Include="Result.h">
       <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoSaveManager.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

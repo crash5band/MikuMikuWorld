@@ -167,6 +167,7 @@
     <ClCompile Include="Audio\Sound.cpp" />
     <ClCompile Include="Audio\AudioManager.cpp" />
     <ClCompile Include="Audio\SoundSource.cpp" />
+    <ClCompile Include="AutoSaveManager.cpp" />
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="BinaryReader.cpp" />
     <ClCompile Include="BinaryWriter.cpp" />
@@ -225,6 +226,7 @@
     <ClInclude Include="Audio\Sound.h" />
     <ClInclude Include="Audio\AudioManager.h" />
     <ClInclude Include="Audio\SoundSource.h" />
+    <ClInclude Include="AutoSaveManager.h" />
     <ClInclude Include="Background.h" />
     <ClInclude Include="BinaryReader.h" />
     <ClInclude Include="BinaryWriter.h" />

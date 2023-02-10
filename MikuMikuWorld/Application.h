@@ -6,6 +6,7 @@
 #include "Stopwatch.h"
 #include "ApplicationConfiguration.h"
 #include "ImGuiManager.h"
+#include "AutoSaveManager.h"
 
 namespace MikuMikuWorld
 {
@@ -18,6 +19,7 @@ namespace MikuMikuWorld
 		Renderer* renderer;
 		ScoreEditor* editor;
 		ImGuiManager imgui;
+		AutoSaveManager autoSave;
 		ApplicationConfiguration config;
 
 		float lastFrame;
@@ -32,16 +34,12 @@ namespace MikuMikuWorld
 		bool settingsOpen;
 		bool unsavedOpen;
 		bool shouldPickScore;
-		bool autoSaveEnabled;
-		int autoSaveInterval; // in minutes
-		int autoSaveMaxCount;
 
 		std::string pendingDropScoreFile;
 		static std::string version;
 		static std::string appDir;
 
 		Stopwatch stopwatch;
-		Stopwatch autoSaveTimer;
 
 		Result initOpenGL();
 		void update();
@@ -75,8 +73,6 @@ namespace MikuMikuWorld
 		void handlePendingOpenFiles();
 		void readSettings();
 		void writeSettings();
-		void autoSave();
-		void deleteOldAutoSave(const std::string& path, int count);
 		void loadResources();
 		void dispose();
 

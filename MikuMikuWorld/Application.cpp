@@ -72,6 +72,9 @@ namespace MikuMikuWorld
 
 		editor->presetManager.loadPresets(appDir + "library/");
 
+		autoSave.setEditorInstance(editor);
+		autoSave.readConfig(config);
+
 		loadResources();
 		int bgTex = ResourceManager::getTexture("default");
 		if (bgTex != -1)
@@ -122,10 +125,6 @@ namespace MikuMikuWorld
 			config.userColor.b,
 			config.userColor.a
 		};
-
-		autoSaveEnabled = config.autoSaveEnabled;
-		autoSaveInterval = config.autoSaveInterval;
-		autoSaveMaxCount = config.autoSaveMaxCount;
 	}
 
 	void Application::writeSettings()
@@ -150,10 +149,6 @@ namespace MikuMikuWorld
 		config.backgroundBrightness = editor->canvas.getBackgroundBrightness();
 		config.useSmoothScrolling = editor->canvas.isUseSmoothScrolling();
 		config.smoothScrollingTime = editor->canvas.getSmoothScrollingTime();
-
-		config.autoSaveEnabled = autoSaveEnabled;
-		config.autoSaveInterval = autoSaveInterval;
-		config.autoSaveMaxCount = autoSaveMaxCount;
 
 		config.masterVolume = editor->audio.getMasterVolume();
 		config.bgmVolume = editor->audio.getBGMVolume();
@@ -271,61 +266,6 @@ namespace MikuMikuWorld
 		shouldPickScore = true;
 	}
 
-	void Application::autoSave()
-	{
-		std::string autoSaveDir = appDir + "auto_save/";
-		std::wstring wAutoSaveDir = mbToWideStr(autoSaveDir);
-
-		// create auto save directory if none exists
-		if (!std::filesystem::exists(wAutoSaveDir))
-			std::filesystem::create_directory(wAutoSaveDir);
-
-		editor->save(autoSaveDir + "mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION);
-
-		// get mmws files
-		int mmwsCount = 0;
-		for (const auto& file : std::filesystem::directory_iterator(wAutoSaveDir))
-		{
-			std::string extension = file.path().extension().string();
-			std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-			mmwsCount += extension == MMWS_EXTENSION;
-		}
-
-		// delete older files
-		if (mmwsCount > autoSaveMaxCount)
-			deleteOldAutoSave(autoSaveDir, mmwsCount - autoSaveMaxCount);
-	}
-
-	void Application::deleteOldAutoSave(const std::string& path, int count)
-	{
-		std::wstring wAutoSaveDir = mbToWideStr(path);
-		if (!std::filesystem::exists(wAutoSaveDir))
-			return;
-
-		// get mmws files
-		using entry = std::filesystem::directory_entry;
-		std::vector<entry> deleteFiles;
-		for (const auto& file : std::filesystem::directory_iterator(wAutoSaveDir))
-		{
-			std::string extension = file.path().extension().string();
-			std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-			if (extension == MMWS_EXTENSION)
-				deleteFiles.push_back(file);
-		}
-
-		// sort files by modification date
-		std::sort(deleteFiles.begin(), deleteFiles.end(), [](const entry& f1, const entry& f2){
-			return f1.last_write_time() < f2.last_write_time();
-		});
-
-		while (count)
-		{
-			std::filesystem::remove(deleteFiles.begin()->path());
-			deleteFiles.erase(deleteFiles.begin());
-			--count;
-		}
-	}
-
 	void Application::menuBar()
 	{
 		ImGui::BeginMainMenuBar();
@@ -390,7 +330,7 @@ namespace MikuMikuWorld
 		if (ImGui::BeginMenu(getString("debug")))
 		{
 			if (ImGui::MenuItem(getString("create_auto_save")))
-				autoSave();
+				autoSave.save();
 
 			ImGui::EndMenu();
 		}
@@ -532,20 +472,15 @@ namespace MikuMikuWorld
 		InputListener::update(window);
 		processInput();
 		menuBar();
-		editor->update(frameDelta, renderer);
 		updateDialogs();
+		editor->update(frameDelta, renderer);
+		autoSave.update();
 
 		if (glfwGetTime() - lastAppTimeUpdate >= 0.05f)
 		{
 			appTime = stopwatch.elapsed();
 			appFrame = frameDelta;
 			lastAppTimeUpdate = glfwGetTime();
-		}
-
-		if (autoSaveEnabled && autoSaveTimer.elapsedMinutes() >= autoSaveInterval)
-		{
-			autoSave();
-			autoSaveTimer.reset();
 		}
 
 		if (showPerformanceMetrics)
@@ -584,8 +519,6 @@ namespace MikuMikuWorld
 
 	void Application::run()
 	{
-		autoSaveTimer.reset();
-
 		while (!glfwWindowShouldClose(window))
 		{
 			stopwatch.reset();
@@ -605,5 +538,6 @@ namespace MikuMikuWorld
 
 		writeSettings();
 		editor->presetManager.savePresets(appDir + "library/");
+		autoSave.writeConfig(config);
 	}
 }

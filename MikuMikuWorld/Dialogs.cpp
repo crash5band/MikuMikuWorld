@@ -150,15 +150,7 @@ namespace MikuMikuWorld
 			// auto save
 			if (ImGui::CollapsingHeader(getString("auto_save"), ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
-				
-				ImGui::Checkbox(getString("auto_save_enable"), &autoSaveEnabled);
-				UI::beginPropertyColumns();
-				UI::addIntProperty(getString("auto_save_interval"), autoSaveInterval, 1, 60);
-				UI::addIntProperty(getString("auto_save_count"), autoSaveMaxCount, 1, 100);
-				UI::endPropertyColumns();
-
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+				autoSave.settings();
 			}
 
 			// theme
