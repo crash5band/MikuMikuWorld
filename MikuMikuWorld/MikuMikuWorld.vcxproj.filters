@@ -23,9 +23,6 @@
     <ClCompile Include="ImGui\imgui_widgets.cpp">
       <Filter>Imgui</Filter>
     </ClCompile>
-    <ClCompile Include="File.cpp">
-      <Filter>IO</Filter>
-    </ClCompile>
     <ClCompile Include="Score.cpp">
       <Filter>Score</Filter>
     </ClCompile>
@@ -71,9 +68,6 @@
     <ClCompile Include="Stopwatch.cpp">
       <Filter>Misc</Filter>
     </ClCompile>
-    <ClCompile Include="FileDialog.cpp">
-      <Filter>IO</Filter>
-    </ClCompile>
     <ClCompile Include="StringOperations.cpp">
       <Filter>IO</Filter>
     </ClCompile>
@@ -89,38 +83,16 @@
     <ClCompile Include="Rendering\Shader.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Sprite.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Texture.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\VertexBuffer.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Framebuffer.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Dialogs.cpp" />
     <ClCompile Include="UI.cpp">
       <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="BinaryReader.cpp">
-      <Filter>IO</Filter>
-    </ClCompile>
-    <ClCompile Include="BinaryWriter.cpp">
-      <Filter>IO</Filter>
     </ClCompile>
     <ClCompile Include="SUSIO.cpp">
       <Filter>Score\SUS</Filter>
     </ClCompile>
     <ClCompile Include="ApplicationConfiguration.cpp" />
-    <ClCompile Include="PresetManager.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Preset.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
     <ClCompile Include="Audio\Sound.cpp">
       <Filter>Components\Audio</Filter>
     </ClCompile>
@@ -129,9 +101,6 @@
     </ClCompile>
     <ClCompile Include="Canvas.cpp">
       <Filter>Components\ScoreEditor</Filter>
-    </ClCompile>
-    <ClCompile Include="Background.cpp">
-      <Filter>Components</Filter>
     </ClCompile>
     <ClCompile Include="ScoreStats.cpp">
       <Filter>Score</Filter>
@@ -145,9 +114,6 @@
     <ClCompile Include="ImGuiManager.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="Jacket.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
     <ClCompile Include="Localization.cpp">
       <Filter>UI\i18n</Filter>
     </ClCompile>
@@ -160,10 +126,50 @@
     <ClCompile Include="Color.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="..\Depends\tinyfiledialogs\tinyfiledialogs.c" />
-    <ClCompile Include="..\Depends\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="AutoSaveManager.cpp">
       <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="PresetManager.cpp">
+      <Filter>Components\Presets</Filter>
+    </ClCompile>
+    <ClCompile Include="Preset.cpp">
+      <Filter>Components\Presets</Filter>
+    </ClCompile>
+    <ClCompile Include="BinaryReader.cpp">
+      <Filter>IO\File</Filter>
+    </ClCompile>
+    <ClCompile Include="BinaryWriter.cpp">
+      <Filter>IO\File</Filter>
+    </ClCompile>
+    <ClCompile Include="File.cpp">
+      <Filter>IO\File</Filter>
+    </ClCompile>
+    <ClCompile Include="FileDialog.cpp">
+      <Filter>IO\File</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Texture.cpp">
+      <Filter>Rendering\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Sprite.cpp">
+      <Filter>Rendering\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Framebuffer.cpp">
+      <Filter>Rendering\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Jacket.cpp">
+      <Filter>Components\Image</Filter>
+    </ClCompile>
+    <ClCompile Include="Background.cpp">
+      <Filter>Components\Image</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Depends\tinyfiledialogs\tinyfiledialogs.c">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Depends\stb_vorbis\stb_vorbis.c">
+      <Filter>Components\Audio\Lib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -204,9 +210,6 @@
     <ClInclude Include="Utilities.h">
       <Filter>Misc</Filter>
     </ClInclude>
-    <ClInclude Include="File.h">
-      <Filter>IO</Filter>
-    </ClInclude>
     <ClInclude Include="Score.h">
       <Filter>Score</Filter>
     </ClInclude>
@@ -216,7 +219,6 @@
     <ClInclude Include="Math.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="IconsFontAwesome5.h" />
     <ClInclude Include="Tempo.h">
       <Filter>Score</Filter>
     </ClInclude>
@@ -224,15 +226,11 @@
     <ClInclude Include="InputListener.h">
       <Filter>IO</Filter>
     </ClInclude>
-    <ClInclude Include="Colors.h" />
     <ClInclude Include="ScoreEditor.h">
       <Filter>Components\ScoreEditor</Filter>
     </ClInclude>
     <ClInclude Include="HistoryManager.h">
       <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Audio\miniaudio.h">
-      <Filter>Components\Audio</Filter>
     </ClInclude>
     <ClInclude Include="Audio\AudioManager.h">
       <Filter>Components\Audio</Filter>
@@ -242,9 +240,6 @@
     </ClInclude>
     <ClInclude Include="Stopwatch.h">
       <Filter>Misc</Filter>
-    </ClInclude>
-    <ClInclude Include="FileDialog.h">
-      <Filter>IO</Filter>
     </ClInclude>
     <ClInclude Include="ZIndex.h" />
     <ClInclude Include="StringOperations.h">
@@ -259,28 +254,13 @@
     <ClInclude Include="Rendering\Camera.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Quad.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Renderer.h">
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Shader.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Sprite.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Texture.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\VertexBuffer.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Vertex.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Framebuffer.h">
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\AnchorType.h">
@@ -295,22 +275,10 @@
     <ClInclude Include="UI.h">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="BinaryReader.h">
-      <Filter>IO</Filter>
-    </ClInclude>
-    <ClInclude Include="BinaryWriter.h">
-      <Filter>IO</Filter>
-    </ClInclude>
     <ClInclude Include="SUSIO.h">
       <Filter>Score\SUS</Filter>
     </ClInclude>
     <ClInclude Include="ApplicationConfiguration.h" />
-    <ClInclude Include="PresetManager.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Preset.h">
-      <Filter>Components</Filter>
-    </ClInclude>
     <ClInclude Include="ScoreStats.h">
       <Filter>Score</Filter>
     </ClInclude>
@@ -323,9 +291,6 @@
     <ClInclude Include="Canvas.h">
       <Filter>Components\ScoreEditor</Filter>
     </ClInclude>
-    <ClInclude Include="Background.h">
-      <Filter>Components</Filter>
-    </ClInclude>
     <ClInclude Include="Selection.h">
       <Filter>Components\ScoreEditor</Filter>
     </ClInclude>
@@ -337,9 +302,6 @@
     </ClInclude>
     <ClInclude Include="ImGuiManager.h">
       <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="Jacket.h">
-      <Filter>Components</Filter>
     </ClInclude>
     <ClInclude Include="Language.h">
       <Filter>UI\i18n</Filter>
@@ -358,6 +320,54 @@
     </ClInclude>
     <ClInclude Include="AutoSaveManager.h">
       <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Colors.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="IconsFontAwesome5.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="PresetManager.h">
+      <Filter>Components\Presets</Filter>
+    </ClInclude>
+    <ClInclude Include="Preset.h">
+      <Filter>Components\Presets</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryReader.h">
+      <Filter>IO\File</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryWriter.h">
+      <Filter>IO\File</Filter>
+    </ClInclude>
+    <ClInclude Include="File.h">
+      <Filter>IO\File</Filter>
+    </ClInclude>
+    <ClInclude Include="FileDialog.h">
+      <Filter>IO\File</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Texture.h">
+      <Filter>Rendering\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Sprite.h">
+      <Filter>Rendering\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Framebuffer.h">
+      <Filter>Rendering\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Vertex.h">
+      <Filter>Rendering\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Quad.h">
+      <Filter>Rendering\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Jacket.h">
+      <Filter>Components\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="Background.h">
+      <Filter>Components\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\miniaudio.h">
+      <Filter>Components\Audio\Lib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -402,6 +412,24 @@
     </Filter>
     <Filter Include="UI\i18n">
       <UniqueIdentifier>{9bc8aca5-08f3-4a55-be78-9a7c8f6fc65b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Presets">
+      <UniqueIdentifier>{03d3aab7-fc71-443b-8a41-45df76e832fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IO\File">
+      <UniqueIdentifier>{0b3ab42a-66f9-477f-84a2-7a2cb442c80c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Texture">
+      <UniqueIdentifier>{fa5aded9-8a02-461c-86e9-77f2355cb811}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Primitives">
+      <UniqueIdentifier>{bc89c641-d508-4977-8b01-3886f0d25802}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Image">
+      <UniqueIdentifier>{63566ecb-df58-439e-89a0-c59239fb9ca5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Audio\Lib">
+      <UniqueIdentifier>{85856c44-1a6c-4a5c-ba83-d119dc2aa064}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
