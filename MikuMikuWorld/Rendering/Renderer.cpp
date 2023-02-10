@@ -62,10 +62,10 @@ namespace MikuMikuWorld
 
 	void Renderer::setUVCoords(const Texture& tex, float x1, float x2, float y1, float y2)
 	{
-		float left = x1 / tex.getWidth();
-		float right = x2 / tex.getWidth();
-		float top = y1 / tex.getHeight();
-		float bottom = y2 / tex.getHeight();
+		float left		= x1 / tex.getWidth();
+		float right		= x2 / tex.getWidth();
+		float top		= y1 / tex.getHeight();
+		float bottom	= y2 / tex.getHeight();
 
 		uvCoords[0] = DirectX::XMVECTOR{ right, top, 0.0f, 0.0f };
 		uvCoords[1] = DirectX::XMVECTOR{ right, bottom, 0.0f, 0.0f };
@@ -177,8 +177,8 @@ namespace MikuMikuWorld
 
 		std::stable_sort(quads.begin(), quads.end(),
 			[](const Quad& q1, const Quad& q2) {return q1.zIndex < q2.zIndex; });
+		
 		bindTexture(quads[0].texture);
-
 		int vertexCount = 0;
 
 		for (const auto& q : quads)
@@ -186,10 +186,8 @@ namespace MikuMikuWorld
 			if (texID != q.texture || vertexCount + 4 >= vBuffer.getCapacity())
 			{
 				vBuffer.uploadBuffer();
-				flush();
+				vBuffer.flushBuffer();
 				vBuffer.resetBufferPos();
-				resetRenderStats();
-
 				vertexCount = 0;
 
 				bindTexture(q.texture);
@@ -200,13 +198,8 @@ namespace MikuMikuWorld
 		}
 
 		vBuffer.uploadBuffer();
-		flush();
+		vBuffer.flushBuffer();
 
 		batchStarted = false;
-	}
-
-	void Renderer::flush()
-	{
-		vBuffer.flushBuffer();
 	}
 }

@@ -55,7 +55,6 @@ namespace MikuMikuWorld
 		void bindTexture(int tex);
 		void beginBatch();
 		void endBatch();
-		void flush();
 
 		inline int getNumVertices() const { return numBatchVertices; }
 		inline int getNumQuads() const { return numBatchQuads; }
