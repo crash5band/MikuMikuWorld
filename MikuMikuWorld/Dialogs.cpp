@@ -48,15 +48,14 @@ namespace MikuMikuWorld
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(ImVec2(450, 200), ImGuiCond_Always);
 
-		ImVec2 padding = ImGui::GetStyle().WindowPadding;
-		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
-
 		bool result = false;
 		if (ImGui::BeginPopupModal(MODAL_TITLE("unsaved_changes"), NULL, ImGuiWindowFlags_NoResize))
 		{
 			ImGui::Text(getString("ask_save"));
 			ImGui::Text(getString("warn_unsaved"));
 
+			ImVec2 padding = ImGui::GetStyle().WindowPadding;
+			ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
 			float xPos = padding.x;
 			float yPos = ImGui::GetWindowSize().y - UI::btnNormal.y - padding.y;
 			ImGui::SetCursorPos(ImVec2(xPos, yPos));
@@ -97,35 +96,22 @@ namespace MikuMikuWorld
 	{
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_Always);
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 4));
-
-		ImVec2 padding = ImGui::GetStyle().WindowPadding;
-		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
-
 		if (ImGui::BeginPopupModal(MODAL_TITLE("about"), NULL, ImGuiWindowFlags_NoResize))
 		{
-			// only need the title bar to be bigger
-			ImGui::PopStyleVar();
 
 			ImGui::Text("MikuMikuWorld\nCopyright (C) 2022 Crash5b\n\n");
 			ImGui::Separator();
 
 			ImGui::Text("Version %s", version.c_str());
+			ImGui::SetCursorPos(ImVec2 {
+				ImGui::GetStyle().WindowPadding.x,
+				ImGui::GetWindowSize().y - UI::btnNormal.y - ImGui::GetStyle().WindowPadding.y
+			});
 
-			float xPos = padding.x;
-			float yPos = ImGui::GetWindowSize().y - UI::btnNormal.y - padding.y;
-			ImGui::SetCursorPos(ImVec2(xPos, yPos));
-
-			ImVec2 btnSz = ImVec2((ImGui::GetContentRegionAvail().x), UI::btnNormal.y);
-
-			if (ImGui::Button("OK", btnSz))
+			if (ImGui::Button("OK", ImVec2((ImGui::GetContentRegionAvail().x), UI::btnNormal.y)))
 				ImGui::CloseCurrentPopup();
 
 			ImGui::EndPopup();
-		}
-		else
-		{
-			ImGui::PopStyleVar();
 		}
 	}
 
@@ -134,16 +120,11 @@ namespace MikuMikuWorld
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(ImVec2(750, 600), ImGuiCond_Always);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 10));
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 4));
-
-		ImVec2 padding = ImGui::GetStyle().WindowPadding;
-		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
 
 		if (ImGui::BeginPopupModal(MODAL_TITLE("settings"), NULL, ImGuiWindowFlags_NoResize))
 		{
-			// only need the title bar to be bigger
-			ImGui::PopStyleVar();
-
+			ImVec2 padding = ImGui::GetStyle().WindowPadding;
+			ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
 			ImVec2 confirmBtnPos = ImGui::GetWindowSize() + ImVec2(-100, -UI::btnNormal.y) - padding;
 			ImGui::BeginChild("##settings_panel", ImGui::GetContentRegionAvail() - ImVec2(0, UI::btnNormal.y + padding.y));
 
@@ -273,10 +254,6 @@ namespace MikuMikuWorld
 				ImGui::CloseCurrentPopup();
 
 			ImGui::EndPopup();
-		}
-		else
-		{
-			ImGui::PopStyleVar();
 		}
 
 		ImGui::PopStyleVar();
