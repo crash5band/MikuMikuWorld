@@ -35,7 +35,7 @@ namespace MikuMikuWorld
 
 	void AutoSaveManager::update()
 	{
-		if (editorInstance && timer.elapsedMinutes() >= interval)
+		if (editorInstance && enabled && timer.elapsedMinutes() >= interval)
 		{
 			save();
 			timer.reset();
