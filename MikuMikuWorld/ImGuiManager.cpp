@@ -165,7 +165,12 @@ namespace MikuMikuWorld
 		ImGui::SetNextWindowPos(viewport->WorkPos);
 		ImGui::SetNextWindowSize(viewport->WorkSize);
 		ImGui::SetNextWindowViewport(viewport->ID);
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::Begin("InvisibleWindow", nullptr, windowFlags); // This is basically the background window that contains all the dockable windows
+		ImGui::PopStyleVar(3);
 
 		std::string dockStrId{ "InvisibleWindowDockSpace-" };
 		dockStrId.append(Localization::currentLanguage->getCode());
