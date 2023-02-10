@@ -146,7 +146,7 @@ namespace MikuMikuWorld
 				for (int i = 0; i < UI::accentColors.size(); ++i)
 				{
 					bool apply = false;
-					std::string id = i == config.accentColor ? ICON_FA_CHECK : i == 0 ? "C" : "##" + std::to_string(i);
+					std::string id = i == imgui.getAccentColor() ? ICON_FA_CHECK : i == 0 ? "C" : "##" + std::to_string(i);
 					ImGui::PushStyleColor(ImGuiCol_Button, UI::accentColors[i].color);
 					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, UI::accentColors[i].color);
 					ImGui::PushStyleColor(ImGuiCol_ButtonActive, UI::accentColors[i].color);
@@ -159,7 +159,7 @@ namespace MikuMikuWorld
 						ImGui::SameLine();
 
 					if (apply)
-						applyAccentColor(i);
+						imgui.applyAccentColor(i);
 				}
 				ImGui::PopStyleVar(2);
 
@@ -196,8 +196,8 @@ namespace MikuMikuWorld
 
 				UI::endPropertyColumns();
 
-				if (ImGui::IsItemDeactivated() && config.accentColor == 0)
-					applyAccentColor(0);
+				if (ImGui::IsItemDeactivated() && imgui.getAccentColor() == 0)
+					imgui.applyAccentColor(0);
 
 				ImGui::PopStyleVar();
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);

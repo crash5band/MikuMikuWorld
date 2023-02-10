@@ -50,8 +50,6 @@ namespace MikuMikuWorld
 			exit(1);
 		}
 
-		applyAccentColor(config.accentColor);
-
 		renderer = new Renderer();
 		editor = new ScoreEditor();
 
@@ -71,6 +69,8 @@ namespace MikuMikuWorld
 		editor->audio.setSEVolume(config.seVolume);
 
 		editor->presetManager.loadPresets(appDir + "library/");
+
+		imgui.applyAccentColor(config.accentColor);
 
 		autoSave.setEditorInstance(editor);
 		autoSave.readConfig(config);
@@ -140,6 +140,8 @@ namespace MikuMikuWorld
 			UI::accentColors[0].color.w
 		};
 
+		config.accentColor = imgui.getAccentColor();
+
 		config.timelineWidth = editor->canvas.getLaneWidth();
 		config.notesHeight = editor->canvas.getNotesHeight();
 		config.zoom = editor->canvas.getZoom();
@@ -155,24 +157,6 @@ namespace MikuMikuWorld
 		config.seVolume = editor->audio.getSEVolume();
 
 		config.write(appDir + APP_CONFIG_FILENAME);
-	}
-
-	void Application::applyAccentColor(int colIndex)
-	{
-		ImVec4* colors = ImGui::GetStyle().Colors;
-		const ImVec4 color = UI::accentColors[colIndex].color;
-		const ImVec4 darkColor = generateDarkColor(color);
-		const ImVec4 lightColor = generateHighlightColor(color);
-
-		colors[ImGuiCol_SliderGrab] = color;
-		colors[ImGuiCol_SliderGrabActive] = darkColor;
-		colors[ImGuiCol_ButtonActive] = darkColor;
-		colors[ImGuiCol_SeparatorHovered] = lightColor;
-		colors[ImGuiCol_TabHovered] = lightColor;
-		colors[ImGuiCol_TabActive] = color;
-		colors[ImGuiCol_CheckMark] = color;
-
-		config.accentColor = colIndex;
 	}
 
 	void Application::processInput()

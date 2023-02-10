@@ -8,6 +8,7 @@
 #include "UI.h"
 #include "Result.h"
 #include "IconsFontAwesome5.h"
+#include "Colors.h"
 
 namespace MikuMikuWorld
 {
@@ -164,12 +165,7 @@ namespace MikuMikuWorld
 		ImGui::SetNextWindowPos(viewport->WorkPos);
 		ImGui::SetNextWindowSize(viewport->WorkSize);
 		ImGui::SetNextWindowViewport(viewport->ID);
-
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::Begin("InvisibleWindow", nullptr, windowFlags); // This is basically the background window that contains all the dockable windows
-		ImGui::PopStyleVar(3);
 
 		std::string dockStrId{ "InvisibleWindowDockSpace-" };
 		dockStrId.append(Localization::currentLanguage->getCode());
@@ -197,5 +193,28 @@ namespace MikuMikuWorld
 
 		ImGui::DockSpace(dockSpaceId, ImVec2(), ImGuiDockNodeFlags_PassthruCentralNode);
 		ImGui::End();
+	}
+
+	void ImGuiManager::applyAccentColor(int colIndex)
+	{
+		ImVec4* colors = ImGui::GetStyle().Colors;
+		const ImVec4 color = UI::accentColors[colIndex].color;
+		const ImVec4 darkColor = generateDarkColor(color);
+		const ImVec4 lightColor = generateHighlightColor(color);
+
+		colors[ImGuiCol_SliderGrab] = color;
+		colors[ImGuiCol_SliderGrabActive] = darkColor;
+		colors[ImGuiCol_ButtonActive] = darkColor;
+		colors[ImGuiCol_SeparatorHovered] = lightColor;
+		colors[ImGuiCol_TabHovered] = lightColor;
+		colors[ImGuiCol_TabActive] = color;
+		colors[ImGuiCol_CheckMark] = color;
+
+		accentColor = colIndex;
+	}
+
+	int ImGuiManager::getAccentColor() const
+	{
+		return accentColor;
 	}
 }

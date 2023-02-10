@@ -14,6 +14,8 @@ namespace MikuMikuWorld
 		ImGuiIO* io;
 		std::string configFilename;
 
+		int accentColor;
+
 	public:
 		ImGuiManager();
 
@@ -25,5 +27,8 @@ namespace MikuMikuWorld
 		void loadFont(const std::string& filename, float size);
 		void loadIconFont(const std::string& filename, int start, int end, float size);
 		void draw(GLFWwindow* window);
+
+		void applyAccentColor(int colIndex);
+		int getAccentColor() const;
 	};
 }

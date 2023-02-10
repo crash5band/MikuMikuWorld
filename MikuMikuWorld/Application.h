@@ -69,7 +69,6 @@ namespace MikuMikuWorld
 		void about();
 		void settingsDialog();
 		void processInput();
-		void applyAccentColor(int col);
 		void handlePendingOpenFiles();
 		void readSettings();
 		void writeSettings();
