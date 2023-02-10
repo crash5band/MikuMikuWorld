@@ -14,9 +14,7 @@ int main()
 	args = CommandLineToArgvW(GetCommandLineW(), &argc);
 	if (!args)
 	{
-		printf("main(): CommandLineToArgvW failed\n");
 		tinyfd_messageBox(APP_NAME, "Could not parse command line arguments", "ok", "error", 1);
-
 		return 1;
 	}
 
@@ -27,7 +25,7 @@ int main()
 	{
 		app.initialize();
 		for (int i = 1; i < argc; ++i)
-			mmw::Application::pendingOpenFiles.push_back(mmw::wideStringToMb(args[i]));
+			app.appendOpenFile(mmw::wideStringToMb(args[i]));
 		
 		app.handlePendingOpenFiles();
 		app.run();

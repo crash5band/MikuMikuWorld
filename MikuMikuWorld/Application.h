@@ -34,8 +34,11 @@ namespace MikuMikuWorld
 		bool settingsOpen;
 		bool unsavedOpen;
 		bool shouldPickScore;
+		bool dragDropHandled;
 
+		std::vector<std::string> pendingOpenFiles;
 		std::string pendingDropScoreFile;
+
 		static std::string version;
 		static std::string appDir;
 
@@ -49,13 +52,11 @@ namespace MikuMikuWorld
 		std::string getVersion();
 
 	public:
-		static std::vector<std::string> pendingOpenFiles;
-		static bool dragDropHandled;
-		static bool exiting;
-		static bool resetting;
-		static bool maximized;
-		static Vector2 windowPos;
-		static Vector2 windowSize;
+		bool exiting;
+		bool resetting;
+		bool maximized;
+		Vector2 windowPos;
+		Vector2 windowSize;
 
 		Application(const std::string &rootPath);
 
@@ -69,6 +70,7 @@ namespace MikuMikuWorld
 		void about();
 		void settingsDialog();
 		void processInput();
+		void appendOpenFile(std::string filename);
 		void handlePendingOpenFiles();
 		void readSettings();
 		void writeSettings();

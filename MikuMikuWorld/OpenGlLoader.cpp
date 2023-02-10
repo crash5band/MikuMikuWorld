@@ -18,43 +18,54 @@ namespace MikuMikuWorld
 
 	void windowSizeCallback(GLFWwindow* window, int width, int height)
 	{
-		if (!Application::maximized)
+		Application* app = (Application*)glfwGetWindowUserPointer(window);
+		if (!app)
+			return;
+
+		if (!app->maximized)
 		{
-			Application::windowSize.x = width;
-			Application::windowSize.y = height;
+			app->windowSize.x = width;
+			app->windowSize.y = height;
 		}
 	}
 
 	void windowPositionCallback(GLFWwindow* window, int x, int y)
 	{
-		if (!Application::maximized)
+		Application* app = (Application*)glfwGetWindowUserPointer(window);
+		if (!app)
+			return;
+
+		if (!app->maximized)
 		{
-			Application::windowPos.x = x;
-			Application::windowPos.y = y;
+			app->windowPos.x = x;
+			app->windowPos.y = y;
 		}
 	}
 
 	void dropCallback(GLFWwindow* window, int count, const char** paths)
 	{
-		for (int i = 0; i < count; ++i)
-		{
-			std::string path{ paths[i] };
-			Application::pendingOpenFiles.reserve(Application::pendingOpenFiles.size() + count);
-			Application::pendingOpenFiles.push_back(path);
-		}
+		Application* app = (Application*)glfwGetWindowUserPointer(window);
+		if (!app)
+			return;
 
-		Application::dragDropHandled = false;
+		for (int i = 0; i < count; ++i)
+			app->appendOpenFile(paths[i]);
 	}
 
 	void windowCloseCallback(GLFWwindow* window)
 	{
 		glfwSetWindowShouldClose(window, 0);
-		Application::exiting = true;
+
+		Application* app = (Application*)glfwGetWindowUserPointer(window);
+		if (app)
+			app->exiting = true;
 	}
 
 	void windowMaximizeCallback(GLFWwindow* window, int _maximized)
 	{
-		Application::maximized = _maximized;
+		Application* app = (Application*)glfwGetWindowUserPointer(window);
+		if (app)
+			app->maximized = _maximized;
 	}
 
 	void loadIcon(std::string filepath, GLFWwindow* window)
@@ -104,6 +115,7 @@ namespace MikuMikuWorld
 			return Result(ResultStatus::Error, "Failed to fetch OpenGL proc address.");
 		}
 
+		glfwSetWindowUserPointer(window, this);
 		glfwSwapInterval(config.vsync);
 		installCallbacks();
 		loadIcon(appDir + "res/mmw_icon.png", window);

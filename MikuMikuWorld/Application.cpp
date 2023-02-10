@@ -14,13 +14,6 @@ namespace MikuMikuWorld
 {
 	std::string Application::version;
 	std::string Application::appDir;
-	std::vector<std::string> Application::pendingOpenFiles;
-	bool Application::dragDropHandled = true;
-	bool Application::exiting = false;
-	bool Application::resetting = false;
-	bool Application::maximized = false;
-	Vector2 Application::windowPos;
-	Vector2 Application::windowSize;
 
 	Application::Application(const std::string& root) :
 		lastAppTimeUpdate{ 0 }, appFrame{ 0 }, appTime{ 0 }, initialized{ false }
@@ -413,6 +406,12 @@ namespace MikuMikuWorld
 		}
 	}
 
+	void Application::appendOpenFile(std::string filename)
+	{
+		pendingOpenFiles.push_back(filename);
+		dragDropHandled = false;
+	}
+
 	void Application::handlePendingOpenFiles()
 	{
 		std::string scoreFile = "";
@@ -442,16 +441,15 @@ namespace MikuMikuWorld
 			editor->loadMusic(musicFile);
 
 		pendingOpenFiles.clear();
+		dragDropHandled = true;
 	}
 
 	void Application::update()
 	{
-		imgui.initializeLayout();
 		if (!dragDropHandled)
-		{
 			handlePendingOpenFiles();
-			dragDropHandled = true;
-		}
+
+		imgui.initializeLayout();
 
 		InputListener::update(window);
 		processInput();
