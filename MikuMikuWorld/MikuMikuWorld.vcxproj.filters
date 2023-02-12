@@ -171,6 +171,15 @@
     <ClCompile Include="..\Depends\stb_vorbis\stb_vorbis.c">
       <Filter>Components\Audio\Lib</Filter>
     </ClCompile>
+    <ClCompile Include="Commands\Command.cpp">
+      <Filter>Components\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\CommandKeyParser.cpp">
+      <Filter>Components\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\CommandManager.cpp">
+      <Filter>Components\Commands</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -369,6 +378,21 @@
     <ClInclude Include="Audio\miniaudio.h">
       <Filter>Components\Audio\Lib</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\Command.h">
+      <Filter>Components\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\CommandManager.h">
+      <Filter>Components\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\CommandKey.h">
+      <Filter>Components\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\CommandKeyParser.h">
+      <Filter>Components\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyNames.h">
+      <Filter>IO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">
@@ -430,6 +454,9 @@
     </Filter>
     <Filter Include="Components\Audio\Lib">
       <UniqueIdentifier>{85856c44-1a6c-4a5c-ba83-d119dc2aa064}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Commands">
+      <UniqueIdentifier>{b4f18122-a436-41b5-a8e8-964292f6ae7b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
