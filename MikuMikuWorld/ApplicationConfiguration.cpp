@@ -146,6 +146,18 @@ namespace MikuMikuWorld
 			bgmVolume		= std::clamp(tryGetFloat(config["audio"], "bgm_volume", 1.0f), 0.0f, 1.0f);
 			seVolume		= std::clamp(tryGetFloat(config["audio"], "se_volume", 1.0f), 0.0f, 1.0f);
 		}
+
+		if (keyExists(config, "input") && keyExists(config["input"], "bindings"))
+		{
+			for (auto& [key, value] : config["input"]["bindings"].items())
+			{
+				//std::vector<std::string> bindings;
+				//for (const auto& v : value)
+				//	bindings.push_back((std::string)v);
+
+				keyConfigMap[key] = KeyConfiguration{ key, value };
+			}
+		}
 	}
 
 	void ApplicationConfiguration::write(const std::string& filename)
@@ -201,6 +213,20 @@ namespace MikuMikuWorld
 			{"master_volume", masterVolume},
 			{"bgm_volume", bgmVolume},
 			{"se_volume", seVolume}
+		};
+
+		json bindings;
+		for (const auto& [_, command] : keyConfigMap)
+		{
+			//json commandKeys;
+			//for (const auto& key : command.keyBindings)
+			//	commandKeys.push_back(key);
+
+			bindings[command.commandName] = command.keyBindings;
+		}
+
+		config["input"] = {
+			{"bindings", bindings}
 		};
 
 		std::wstring wFilename = mbToWideStr(filename);

@@ -6,6 +6,12 @@
 
 namespace MikuMikuWorld
 {
+	struct KeyConfiguration
+	{
+		std::string commandName;
+		std::vector<std::string> keyBindings;
+	};
+
 	class ApplicationConfiguration
 	{
 	private:
@@ -43,6 +49,8 @@ namespace MikuMikuWorld
 		float masterVolume;
 		float bgmVolume;
 		float seVolume;
+
+		std::unordered_map<std::string, KeyConfiguration> keyConfigMap;
 
 		ApplicationConfiguration();
 
