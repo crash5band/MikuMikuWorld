@@ -1,13 +1,21 @@
 #pragma once
 #include "Command.h"
 #include "CommandKeyParser.h"
+#include "../Stopwatch.h"
 
 namespace MikuMikuWorld
 {
+	class ApplicationConfiguration;
+
 	class CommandManager
 	{
 	private:
 		std::vector<Command> commands;
+		Stopwatch inputTimer;
+
+		const int inputTimeoutSeconds = 5;
+		bool listeningForInput = false;
+		int editCommandIndex = -1;
 
 	public:
 		CommandManager();
@@ -20,5 +28,10 @@ namespace MikuMikuWorld
 
 		bool setCommandKeys(std::string cmd, std::string keys);
 		std::string getCommandKeys(std::string cmd);
+
+		void writeCommands(ApplicationConfiguration& config);
+		void readCommands(const ApplicationConfiguration& config);
+		
+		void updateWindow();
 	};
 }
