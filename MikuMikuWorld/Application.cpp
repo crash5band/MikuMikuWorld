@@ -62,6 +62,8 @@ namespace MikuMikuWorld
 		autoSave.setEditorInstance(editor);
 		autoSave.readConfig(config);
 
+		setupCommands();
+
 		loadResources();
 		int bgTex = ResourceManager::getTexture("default");
 		if (bgTex != -1)
@@ -144,84 +146,9 @@ namespace MikuMikuWorld
 		config.bgmVolume = editor->audio.getBGMVolume();
 		config.seVolume = editor->audio.getSEVolume();
 
+		commandManager.writeCommands(config);
+
 		config.write(appDir + APP_CONFIG_FILENAME);
-	}
-
-	void Application::processInput()
-	{
-		if (ImGui::GetIO().WantCaptureKeyboard)
-			return;
-
-		if (InputListener::isCtrlDown())
-		{
-			if (InputListener::isTapped(GLFW_KEY_N))
-				reset();
-			else if (InputListener::isTapped(GLFW_KEY_O))
-				open();
-			else if (InputListener::isTapped(GLFW_KEY_S))
-			{
-				if (InputListener::isShiftDown())
-					editor->saveAs();
-				else
-					editor->save();
-			}
-			else if (InputListener::isTapped(GLFW_KEY_E))
-				editor->exportSUS();
-
-			if (InputListener::isTapped(GLFW_KEY_C))
-				editor->copy();
-			else if (InputListener::isTapped(GLFW_KEY_V))
-			{
-				if (InputListener::isShiftDown())
-					editor->flipPaste();
-				else
-					editor->paste();
-			}
-			else if (InputListener::isTapped(GLFW_KEY_Z))
-				editor->undo();
-			else if (InputListener::isTapped(GLFW_KEY_Y))
-				editor->redo();
-			else if (InputListener::isTapped(GLFW_KEY_F))
-				editor->flipSelected();
-			else if (InputListener::isTapped(GLFW_KEY_H))
-				if (InputListener::isShiftDown())
-					editor->shrinkSelected(1);
-				else
-					editor->shrinkSelected(0);
-			else if (InputListener::isTapped(GLFW_KEY_A) && !editor->isPlaying())
-				editor->selectAll();
-		}
-		else
-		{
-			if (InputListener::isTapped(GLFW_KEY_ESCAPE))
-				editor->cancelPaste();
-
-			for (int k = GLFW_KEY_1; k < GLFW_KEY_1 + (int)TimelineMode::TimelineToolMax; ++k)
-				if (InputListener::isTapped(k))
-					editor->changeMode((TimelineMode)(k - GLFW_KEY_1));
-
-			for (int k = GLFW_KEY_KP_1; k < GLFW_KEY_KP_1 + (int)TimelineMode::TimelineToolMax; ++k)
-				if (InputListener::isTapped(k))
-					editor->changeMode((TimelineMode)(k - GLFW_KEY_KP_1));
-
-			if (InputListener::isTapped(GLFW_KEY_DELETE))
-				editor->deleteSelected();
-			else if (InputListener::isTapped(GLFW_KEY_DOWN) && !editor->isPlaying())
-				editor->previousTick();
-			else if (InputListener::isTapped(GLFW_KEY_SPACE))
-			{
-				if (InputListener::isShiftDown())
-					editor->stopAtLastSelectedTick();
-				else
-					editor->togglePlaying();
-			}
-			else if (InputListener::isTapped(GLFW_KEY_BACKSPACE))
-				editor->stop();
-			else if (InputListener::isTapped(GLFW_KEY_UP) && !editor->isPlaying())
-				editor->nextTick();
-			else if (InputListener::isTapped(GLFW_KEY_A) && editor->isPlaying())
-				editor->insertNotePlaying();
-		}
 	}
 
 	void Application::reset()
@@ -447,10 +374,13 @@ namespace MikuMikuWorld
 		imgui.initializeLayout();
 
 		InputListener::update(window);
-		processInput();
+		if (!ImGui::GetIO().WantCaptureKeyboard)
+			commandManager.processKeyboardShortcuts();
+
 		menuBar();
 		updateDialogs();
 		editor->update(frameDelta, renderer);
+		commandManager.updateWindow();
 		autoSave.update();
 
 		if (glfwGetTime() - lastAppTimeUpdate >= 0.05f)
@@ -492,6 +422,60 @@ namespace MikuMikuWorld
 			// fallback to default language if language resource file is not found.
 			Localization::setLanguage("en");
 		}
+	}
+
+	void Application::setupCommands()
+	{
+		commandManager.add("cmd_reset", { {CTRL, GLFW_KEY_N} }, [this] { this->reset(); });
+		commandManager.add("cmd_open", { {CTRL, GLFW_KEY_O} }, [this] { this->open(); });
+		commandManager.add("cmd_save", { {CTRL, GLFW_KEY_S} }, [this] { this->editor->saveAs(); });
+		commandManager.add("cmd_save_as", { {CTRL | SHIFT, GLFW_KEY_S} }, [this] { this->editor->saveAs(); });
+		commandManager.add("cmd_export", { {CTRL, GLFW_KEY_E} }, [this] { this->editor->exportSUS(); });
+		commandManager.add("cmd_toggle_playback", { {NONE, GLFW_KEY_SPACE} }, [this] { editor->togglePlaying(); });
+		commandManager.add("cmd_copy", { {CTRL, GLFW_KEY_C} }, [this] { editor->copy(); });
+		commandManager.add("cmd_paste", { {CTRL, GLFW_KEY_V} }, [this] { editor->paste(); });
+		commandManager.add("cmd_flip_paste", { {CTRL | SHIFT, GLFW_KEY_V} }, [this] { editor->flipPaste(); });
+		commandManager.add("cmd_undo", { {CTRL, GLFW_KEY_Z} }, [this] { editor->undo(); });
+		commandManager.add("cmd_redo", { {CTRL, GLFW_KEY_Y} }, [this] { editor->redo(); });
+		commandManager.add("cmd_select_all", { {CTRL, GLFW_KEY_A} }, [this] { editor->selectAll(); },
+			[this] { return !editor->isPlaying(); });
+
+		commandManager.add("cmd_cancel_paste", { {NONE, GLFW_KEY_ESCAPE} }, [this] { editor->cancelPaste(); });
+		commandManager.add("cmd_delete_selected", { {NONE, GLFW_KEY_DELETE} }, [this] { editor->deleteSelected(); });
+		commandManager.add("cmd_stop", { {NONE, GLFW_KEY_BACKSPACE} }, [this] { editor->stop(); });
+		commandManager.add("cmd_flip_selected", { {CTRL, GLFW_KEY_F} }, [this] { editor->flipSelected(); });
+		commandManager.add("cmd_shrink_down", { {CTRL, GLFW_KEY_H} }, [this] { editor->shrinkSelected(0); });
+		commandManager.add("cmd_shrink_up", { {CTRL | SHIFT, GLFW_KEY_H} }, [this] { editor->shrinkSelected(1); });
+		commandManager.add("cmd_prev_tick", { {NONE, GLFW_KEY_DOWN} }, [this] { editor->previousTick(); },
+			[this] { return !editor->isPlaying(); });
+		commandManager.add("cmd_next_tick", { {NONE, GLFW_KEY_UP} }, [this] { editor->nextTick(); },
+			[this] { return !editor->isPlaying();  });
+
+		commandManager.add("cmd_timeline_select", { {NONE, GLFW_KEY_1}, {NONE, GLFW_KEY_KP_1} },
+			[this] { editor->changeMode(TimelineMode::Select); });
+
+		commandManager.add("cmd_timeline_tap", { {NONE, GLFW_KEY_2}, {NONE, GLFW_KEY_KP_2} },
+			[this] { editor->changeMode(TimelineMode::InsertTap); });
+
+		commandManager.add("cmd_timeline_hold", { {NONE, GLFW_KEY_3}, {NONE, GLFW_KEY_KP_3} },
+			[this] { editor->changeMode(TimelineMode::InsertLong); });
+
+		commandManager.add("cmd_timeline_hold_mid", { {NONE, GLFW_KEY_4}, {NONE, GLFW_KEY_KP_4} },
+			[this] { editor->changeMode(TimelineMode::InsertLongMid); });
+
+		commandManager.add("cmd_timeline_flick", { {NONE, GLFW_KEY_5}, {NONE, GLFW_KEY_KP_5} },
+			[this] { editor->changeMode(TimelineMode::InsertFlick); });
+
+		commandManager.add("cmd_timeline_make_critical", { {NONE, GLFW_KEY_6}, {NONE, GLFW_KEY_KP_6} },
+			[this] { editor->changeMode(TimelineMode::MakeCritical); });
+
+		commandManager.add("cmd_timeline_bpm", { {NONE, GLFW_KEY_7}, {NONE, GLFW_KEY_KP_7} },
+			[this] { editor->changeMode(TimelineMode::InsertBPM); });
+
+		commandManager.add("cmd_timeline_time_signature", { {NONE, GLFW_KEY_8}, {NONE, GLFW_KEY_KP_8} },
+			[this] { editor->changeMode(TimelineMode::InsertTimeSign); });
+
+		commandManager.readCommands(config);
 	}
 
 	void Application::run()

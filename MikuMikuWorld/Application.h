@@ -7,6 +7,7 @@
 #include "ApplicationConfiguration.h"
 #include "ImGuiManager.h"
 #include "AutoSaveManager.h"
+#include "Commands/CommandManager.h"
 
 namespace MikuMikuWorld
 {
@@ -21,6 +22,7 @@ namespace MikuMikuWorld
 		ImGuiManager imgui;
 		AutoSaveManager autoSave;
 		ApplicationConfiguration config;
+		CommandManager commandManager;
 
 		float lastFrame;
 		float frameDelta;
@@ -69,12 +71,12 @@ namespace MikuMikuWorld
 		bool warnUnsaved();
 		void about();
 		void settingsDialog();
-		void processInput();
 		void appendOpenFile(std::string filename);
 		void handlePendingOpenFiles();
 		void readSettings();
 		void writeSettings();
 		void loadResources();
+		void setupCommands();
 		void dispose();
 
 		static const std::string& getAppDir();
