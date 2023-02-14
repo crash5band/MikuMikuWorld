@@ -13,23 +13,29 @@ namespace MikuMikuWorld
 	{
 	private:
 		std::string name;
-		CommandKeys keys;
+		std::vector<CommandKeys> keys;
 
 		Action action;
 		Predicate predicate;
 
 	public:
-		Command(std::string name, CommandKeys keys, Action action, Predicate predicate = []{ return true; });
+		Command(std::string name, std::vector<CommandKeys> keys, Action action, Predicate predicate = []{ return true; });
 
 		std::string getName() const;
+		std::string getDisplayName() const;
 
-		std::string getKeysString() const;
-		void setKeys(CommandKeys keys);
+		std::string getKeysString(int index) const;
+		std::string getAllKeysString() const;
+
+		void setKeys(int index, CommandKeys keys);
+		void addKeys(CommandKeys keys);
+		void removeKeys(int index);
 
 		bool canExecute();
 		void execute();
 
-		inline int getMods() const { return keys.modifiers; }
-		inline int getKey() const { return keys.keyCode; }
+		int getMods(int index) const;
+		int getKey(int index) const;
+		int getBindingsCount() const;
 	};
 }

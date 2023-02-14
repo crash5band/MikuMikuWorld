@@ -11,7 +11,7 @@ namespace MikuMikuWorld
 
 	}
 
-	void CommandManager::add(std::string name, CommandKeys keys, Action action, Predicate predicate)
+	void CommandManager::add(std::string name, std::vector<CommandKeys> keys, Action action, Predicate predicate)
 	{
 		commands.push_back(Command(name, keys, action, predicate));
 	}
@@ -51,50 +51,97 @@ namespace MikuMikuWorld
 		}
 	}
 
-	bool CommandManager::testCommand(Command cmd, int mods)
+	int CommandManager::findCommand(std::string name)
 	{
-		if (mods != cmd.getMods() || cmd.getKey() == 0)
-			return false;
+		for (int i = 0; i < commands.size(); ++i)
+		{
+			if (commands[i].getName() == name)
+				return i;
+		}
 
-		return InputListener::isTapped(cmd.getKey());
+		return -1;
 	}
 
-	std::string CommandManager::getCommandKeys(std::string cmd)
+	bool CommandManager::testCommand(Command cmd, int mods)
+	{
+		for (int i = 0; i < cmd.getBindingsCount(); ++i)
+		{
+			if (mods != cmd.getMods(i) || cmd.getKey(i) == 0)
+				continue;
+			
+			if (InputListener::isTapped(cmd.getKey(i)))
+				return true;
+		}
+
+		return false;
+	}
+
+	std::string CommandManager::getCommandKeys(std::string cmd, int index)
 	{
 		for (auto& command : commands)
 			if (command.getName() == cmd)
-				return command.getKeysString();
+				return command.getKeysString(index);
 
 		return "";
 	}
 
-	bool CommandManager::setCommandKeys(std::string cmd, std::string keys)
+	bool CommandManager::setCommandKeys(int cmdIndex, int keysIndex, std::string keys)
 	{
-		for (auto& command : commands)
-		{
-			if (command.getName() == cmd)
-			{
-				command.setKeys(CommandKeyParser::deserialize(keys));
-				return true;
-			}
-		}
+		if (cmdIndex < 0 || cmdIndex >= commands.size())
+			return false;
 
-		return false;
+		commands[cmdIndex].setKeys(keysIndex, CommandKeyParser::deserialize(keys));
+		return true;
+	}
+
+	void CommandManager::addCommandKeys(int index, std::string keys)
+	{
+		if (index < 0 || index >= commands.size())
+			return;
+
+		commands[index].addKeys(CommandKeyParser::deserialize(keys));
+	}
+
+	void CommandManager::removeCommandKeys(int index)
+	{
+		if (index < 0 || index >= commands.size())
+			return;
+
+		commands.erase(commands.begin() + index);
 	}
 
 	void CommandManager::writeCommands(ApplicationConfiguration& config)
 	{
 		config.keyConfigMap.clear();
 		for (auto& command : commands)
-			config.keyConfigMap[command.getName()] = KeyConfiguration{ command.getName(), {command.getKeysString()}};
+		{
+			std::vector<std::string> bindings;
+			for (int i = 0; i < command.getBindingsCount(); ++i)
+				bindings.push_back(command.getKeysString(i));
+
+			config.keyConfigMap[command.getName()] = KeyConfiguration{ command.getName(), bindings };
+		}
 	}
 
 	void CommandManager::readCommands(const ApplicationConfiguration& config)
 	{
 		for (const auto& [_, keyConfig] : config.keyConfigMap)
 		{
-			if (keyConfig.keyBindings.size())
-				setCommandKeys(keyConfig.commandName, keyConfig.keyBindings[0]);
+			int cmdIndex = findCommand(keyConfig.commandName);
+			if (cmdIndex == -1)
+				continue;
+
+			for (int i = 0; i < keyConfig.keyBindings.size(); ++i)
+			{
+				if (i >= commands[cmdIndex].getBindingsCount())
+				{
+					addCommandKeys(cmdIndex, keyConfig.keyBindings[i]);
+				}
+				else
+				{
+					setCommandKeys(cmdIndex, i, keyConfig.keyBindings[i]);
+				}
+			}
 		}
 	}
 
@@ -102,30 +149,58 @@ namespace MikuMikuWorld
 	{
 		if (ImGui::Begin("Input Bindings"))
 		{
-			ImGui::Text("INPUT TIME: %f", inputTimer.elapsed());
-
-			UI::beginPropertyColumns();
+			ImVec2 size = ImVec2(-1, ImGui::GetContentRegionAvail().y - 200);
+			ImGui::BeginChild("##command_select_window", size, true);
 			for (int i = 0; i < commands.size(); ++i)
 			{
-				ImGui::Text(commands[i].getName().c_str());
-				ImGui::NextColumn();
-
-				std::string buttonText = commands[i].getKeysString();
-				if (listeningForInput && editCommandIndex == i)
-					buttonText = "Waiting for input...";
-
-				if (ImGui::Button(buttonText.c_str(), ImVec2(-1, UI::btnSmall.y)))
+				std::string itemText = commands[i].getDisplayName() + "(" + commands[i].getAllKeysString() + ")";
+				if (ImGui::Selectable(itemText.c_str(), selectedCommandIndex == i, ImGuiSelectableFlags_SpanAvailWidth))
 				{
-					inputTimer.reset();
-					listeningForInput = true;
-					editCommandIndex = i;
+					selectedCommandIndex = i;
 				}
 
-				ImGui::NextColumn();
 				ImGui::Separator();
 			}
+			ImGui::EndChild();
+		}
 
-			UI::endPropertyColumns();
+		if (selectedCommandIndex > -1)
+		{
+			int deleteBinding = -1;
+			if (ImGui::Button("Add", ImVec2(-1, UI::btnSmall.y)))
+				commands[selectedCommandIndex].addKeys(CommandKeys{});
+
+			ImGui::BeginChild("##command_edit_windw", ImVec2(-1, -1), true);
+			for (int b = 0; b < commands[selectedCommandIndex].getBindingsCount(); ++b)
+			{
+				ImGui::PushID(b);
+
+				std::string buttonText;
+				std::string cmdText = commands[selectedCommandIndex].getKeysString(b);
+				if (cmdText == "")
+					cmdText = "None";
+
+				buttonText = listeningForInput && editBindingIndex == b ? "Listening for input..." : cmdText;
+				if (ImGui::Button(buttonText.c_str(), ImVec2(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 5, UI::btnSmall.y)))
+				{
+					listeningForInput = true;
+					inputTimer.reset();
+					editBindingIndex = b;
+				}
+
+				ImGui::SameLine();
+				if (ImGui::Button(ICON_FA_TRASH, UI::btnSmall))
+					deleteBinding = b;
+
+				ImGui::PopID();
+			}
+			ImGui::EndChild();
+
+			if (deleteBinding > -1)
+			{
+				listeningForInput = false;
+				commands[selectedCommandIndex].removeKeys(deleteBinding);
+			}
 		}
 
 		ImGui::End();
@@ -135,7 +210,7 @@ namespace MikuMikuWorld
 			if (inputTimer.elapsed() >= inputTimeoutSeconds)
 			{
 				listeningForInput = false;
-				editCommandIndex = -1;
+				editBindingIndex = -1;
 			}
 
 			for (int i = GLFW_KEY_SPACE; i < GLFW_KEY_LAST; ++i)
@@ -151,9 +226,9 @@ namespace MikuMikuWorld
 					mods |= ALT & InputListener::isAltDown();
 					mods |= SHIFT & InputListener::isShiftDown();
 
-					commands[editCommandIndex].setKeys(CommandKeys{ mods, i });
+					commands[selectedCommandIndex].setKeys(editBindingIndex, CommandKeys{ mods, i });
 					listeningForInput = false;
-					editCommandIndex = -1;
+					editBindingIndex = -1;
 				}
 			}
 		}
