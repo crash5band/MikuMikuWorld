@@ -165,88 +165,6 @@ namespace MikuMikuWorld
 		shouldPickScore = true;
 	}
 
-	void Application::menuBar()
-	{
-		ImGui::BeginMainMenuBar();
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 3));
-		
-		if (ImGui::BeginMenu(getString("file")))
-		{
-			if (ImGui::MenuItem(getString("new"), "Ctrl + N"))
-				reset();
-
-			if (ImGui::MenuItem(getString("open"), "Ctrl + O"))
-				open();
-
-			ImGui::Separator();
-
-			if (ImGui::MenuItem(getString("save"), "Ctrl + S"))
-				editor->save();
-
-			if (ImGui::MenuItem(getString("save_as"), "Ctrl + Shift + S"))
-				editor->saveAs();
-
-			if (ImGui::MenuItem(getString("export"), "Ctrl + E"))
-				editor->exportSUS();
-
-			ImGui::Separator();
-
-			if (ImGui::MenuItem(getString("exit"), "Alt + F4"))
-				exiting = true;
-
-			ImGui::EndMenu();
-		}
-
-		if (ImGui::BeginMenu(getString("edit")))
-		{
-			if (ImGui::MenuItem(getString("undo"), "Ctrl + Z", false, editor->history.hasUndo()))
-				editor->undo();
-
-			if (ImGui::MenuItem(getString("redo"), "Ctrl + Y", false, editor->history.hasRedo()))
-				editor->redo();
-
-			ImGui::Separator();
-			if (ImGui::MenuItem(getString("select_all"), "Ctrl + A"))
-				editor->selectAll();
-
-			if (ImGui::MenuItem(getString("settings")))
-				settingsOpen = true;
-
-			ImGui::EndMenu();
-		}
-
-		if (ImGui::BeginMenu(getString("window")))
-		{
-			if (ImGui::MenuItem(getString("vsync"), NULL, &vsync))
-				glfwSwapInterval((int)vsync);
-
-			ImGui::MenuItem(getString("show_performance"), NULL, &showPerformanceMetrics);
-
-			ImGui::EndMenu();
-		}
-
-#ifdef _DEBUG
-		if (ImGui::BeginMenu(getString("debug")))
-		{
-			if (ImGui::MenuItem(getString("create_auto_save")))
-				autoSave.save();
-
-			ImGui::EndMenu();
-		}
-#endif // _DEBUG
-
-		if (ImGui::BeginMenu(getString("about")))
-		{
-			if (ImGui::MenuItem(getString("about")))
-				aboutOpen = true;
-
-			ImGui::EndMenu();
-		}
-
-		ImGui::PopStyleVar();
-		ImGui::EndMainMenuBar();
-	}
-
 	void Application::updateDialogs()
 	{
 		if (aboutOpen)
@@ -377,7 +295,7 @@ namespace MikuMikuWorld
 		if (!ImGui::GetIO().WantCaptureKeyboard)
 			commandManager.processKeyboardShortcuts();
 
-		menuBar();
+		menubar.update(settingsOpen, aboutOpen, vsync, exiting, showPerformanceMetrics);
 		updateDialogs();
 		editor->update(frameDelta, renderer);
 		commandManager.updateWindow();
@@ -476,6 +394,7 @@ namespace MikuMikuWorld
 			[this] { editor->changeMode(TimelineMode::InsertTimeSign); });
 
 		commandManager.readCommands(config);
+		menubar.setCommandManagerInstance(&commandManager);
 	}
 
 	void Application::run()

@@ -8,6 +8,7 @@
 #include "ImGuiManager.h"
 #include "AutoSaveManager.h"
 #include "Commands/CommandManager.h"
+#include "Menubar.h"
 
 namespace MikuMikuWorld
 {
@@ -23,6 +24,7 @@ namespace MikuMikuWorld
 		AutoSaveManager autoSave;
 		ApplicationConfiguration config;
 		CommandManager commandManager;
+		Menubar menubar;
 
 		float lastFrame;
 		float frameDelta;

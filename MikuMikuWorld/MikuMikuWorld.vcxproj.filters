@@ -180,6 +180,9 @@
     <ClCompile Include="Commands\CommandManager.cpp">
       <Filter>Components\Commands</Filter>
     </ClCompile>
+    <ClCompile Include="Menubar.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -392,6 +395,9 @@
     </ClInclude>
     <ClInclude Include="KeyNames.h">
       <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Menubar.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

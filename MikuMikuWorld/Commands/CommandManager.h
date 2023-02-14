@@ -10,7 +10,6 @@ namespace MikuMikuWorld
 	class CommandManager
 	{
 	private:
-		std::vector<Command> commands;
 		Stopwatch inputTimer;
 
 		const int inputTimeoutSeconds = 5;
@@ -19,6 +18,8 @@ namespace MikuMikuWorld
 		int selectedCommandIndex = -1;
 
 	public:
+		std::vector<Command> commands;
+
 		CommandManager();
 
 		void add(std::string name, std::vector<CommandKeys> keys, Action action, Predicate predicate = [] { return true; });
@@ -28,6 +29,7 @@ namespace MikuMikuWorld
 		void processKeyboardShortcuts();
 
 		int findCommand(std::string name);
+
 		bool setCommandKeys(int cmd, int binding, std::string keys);
 		void addCommandKeys(int index, std::string keys);
 		void removeCommandKeys(int index);

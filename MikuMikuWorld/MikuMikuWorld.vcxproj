@@ -198,6 +198,7 @@
     <ClCompile Include="Localization.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math.cpp" />
+    <ClCompile Include="Menubar.cpp" />
     <ClCompile Include="Note.cpp" />
     <ClCompile Include="OpenGlLoader.cpp" />
     <ClCompile Include="Preset.cpp" />
@@ -266,6 +267,7 @@
     <ClInclude Include="Localization.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Audio\miniaudio.h" />
+    <ClInclude Include="Menubar.h" />
     <ClInclude Include="Note.h" />
     <ClInclude Include="NoteTypes.h" />
     <ClInclude Include="Preset.h" />
