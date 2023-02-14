@@ -222,9 +222,9 @@ namespace MikuMikuWorld
 				if (!isControl && !isShift && !isAlt && InputListener::isTapped(i))
 				{
 					int mods = 0;
-					mods |= CTRL & InputListener::isCtrlDown();
-					mods |= ALT & InputListener::isAltDown();
-					mods |= SHIFT & InputListener::isShiftDown();
+					if (InputListener::isCtrlDown()) mods |= CTRL;
+					if (InputListener::isShiftDown()) mods |= SHIFT;
+					if (InputListener::isAltDown()) mods |= ALT;
 
 					commands[selectedCommandIndex].setKeys(editBindingIndex, CommandKeys{ mods, i });
 					listeningForInput = false;
