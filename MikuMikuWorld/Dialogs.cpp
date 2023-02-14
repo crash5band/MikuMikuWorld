@@ -45,10 +45,10 @@ namespace MikuMikuWorld
 
 	bool Application::warnUnsaved()
 	{
+		bool result = false;
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(ImVec2(450, 200), ImGuiCond_Always);
-
-		bool result = false;
+		ImGui::SetNextWindowViewport(ImGui::GetWindowViewport()->ID);
 		if (ImGui::BeginPopupModal(MODAL_TITLE("unsaved_changes"), NULL, ImGuiWindowFlags_NoResize))
 		{
 			ImGui::Text(getString("ask_save"));
@@ -96,6 +96,7 @@ namespace MikuMikuWorld
 	{
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_Always);
+		ImGui::SetNextWindowViewport(ImGui::GetWindowViewport()->ID);
 		if (ImGui::BeginPopupModal(MODAL_TITLE("about"), NULL, ImGuiWindowFlags_NoResize))
 		{
 
@@ -120,7 +121,7 @@ namespace MikuMikuWorld
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(ImVec2(750, 600), ImGuiCond_Always);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 10));
-
+		ImGui::SetNextWindowViewport(ImGui::GetWindowViewport()->ID);
 		if (ImGui::BeginPopupModal(MODAL_TITLE("settings"), NULL, ImGuiWindowFlags_NoResize))
 		{
 			ImVec2 padding = ImGui::GetStyle().WindowPadding;
