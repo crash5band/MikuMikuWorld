@@ -13,15 +13,15 @@ namespace MikuMikuWorld
 	void Menubar::setCommandManagerInstance(CommandManager* commandManager)
 	{
 		this->commandManager = commandManager;
-		commandsCache["cmd_reset"] = commandManager->findCommand("cmd_reset");
-		commandsCache["cmd_open"] = commandManager->findCommand("cmd_open");
-		commandsCache["cmd_save"] = commandManager->findCommand("cmd_save");
-		commandsCache["cmd_save_as"] = commandManager->findCommand("cmd_save_as");
-		commandsCache["cmd_export"] = commandManager->findCommand("cmd_export");
+		commandsCache["reset"] = commandManager->findCommand("reset");
+		commandsCache["open"] = commandManager->findCommand("open");
+		commandsCache["save"] = commandManager->findCommand("save");
+		commandsCache["save_as"] = commandManager->findCommand("save_as");
+		commandsCache["export"] = commandManager->findCommand("export");
 
-		commandsCache["cmd_undo"] = commandManager->findCommand("cmd_undo");
-		commandsCache["cmd_redo"] = commandManager->findCommand("cmd_redo");
-		commandsCache["cmd_select_all"] = commandManager->findCommand("cmd_select_all");
+		commandsCache["undo"] = commandManager->findCommand("undo");
+		commandsCache["redo"] = commandManager->findCommand("redo");
+		commandsCache["select_all"] = commandManager->findCommand("select_all");
 	}
 
 	void Menubar::menuItem(std::string label, Command& cmd, bool selected)
@@ -37,11 +37,11 @@ namespace MikuMikuWorld
 
 		if (ImGui::BeginMenu(getString("file")))
 		{
-			Command& reset = commandManager->commands[commandsCache["cmd_reset"]];
-			Command& open = commandManager->commands[commandsCache["cmd_open"]];
-			Command& save = commandManager->commands[commandsCache["cmd_save"]];
-			Command& saveAs = commandManager->commands[commandsCache["cmd_save_as"]];
-			Command& exportSUS = commandManager->commands[commandsCache["cmd_export"]];
+			Command& reset = commandManager->commands[commandsCache["reset"]];
+			Command& open = commandManager->commands[commandsCache["open"]];
+			Command& save = commandManager->commands[commandsCache["save"]];
+			Command& saveAs = commandManager->commands[commandsCache["save_as"]];
+			Command& exportSUS = commandManager->commands[commandsCache["export"]];
 
 			menuItem("new", reset);
 			menuItem("open", open);
@@ -60,9 +60,9 @@ namespace MikuMikuWorld
 
 		if (ImGui::BeginMenu(getString("edit")))
 		{
-			Command& undo = commandManager->commands[commandsCache["cmd_undo"]];
-			Command& redo = commandManager->commands[commandsCache["cmd_redo"]];
-			Command& selectAll = commandManager->commands[commandsCache["cmd_select_all"]];
+			Command& undo = commandManager->commands[commandsCache["undo"]];
+			Command& redo = commandManager->commands[commandsCache["redo"]];
+			Command& selectAll = commandManager->commands[commandsCache["select_all"]];
 
 			menuItem("undo", undo);
 			menuItem("redo", redo);

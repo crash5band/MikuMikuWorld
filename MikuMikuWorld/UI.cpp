@@ -1,6 +1,7 @@
 #include "UI.h"
 #include "Utilities.h"
 #include "Colors.h"
+#include "Commands/Command.h"
 #include <string>
 #include <algorithm>
 #include <GLFW/glfw3.h>
@@ -329,5 +330,11 @@ namespace MikuMikuWorld
 			return;
 
 		glfwSetWindowTitle(window, title.append(windowTitle).c_str());
+	}
+
+	void UI::contextMenuItem(const char* icon, Command& command)
+	{
+		if (ImGui::MenuItem(concat(icon, command.getDisplayName().c_str(), "\t").c_str(), command.getKeysString(0).c_str(), false, command.canExecute()))
+			command.execute();
 	}
 }

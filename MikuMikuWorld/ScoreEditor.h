@@ -24,6 +24,7 @@ namespace MikuMikuWorld
 	struct Score;
 	struct Note;
 	class Color;
+	class CommandManager;
 
 	class ScoreEditor
 	{
@@ -110,13 +111,13 @@ namespace MikuMikuWorld
 		void updateTempoChanges();
 		void updateTimeSignatures();
 		void updateCursor();
-		void updateTimeline(float frameTime, Renderer* renderer);
+		void updateTimeline(float frameTime, Renderer* renderer, CommandManager* commandManager);
 		
 		// window update methods
 		void toolboxWindow();
 		void controlsWindow();
 		void propertiesWindow();
-		void contextMenu();
+		void contextMenu(CommandManager* commandManager);
 		void debugInfo();
 		void bpmEditor();
 		void timeSignatureEditor();
@@ -180,7 +181,7 @@ namespace MikuMikuWorld
 		~ScoreEditor();
 
 		// main update method
-		void update(float frameTime, Renderer* renderer);
+		void update(float frameTime, Renderer* renderer, CommandManager* commandManager);
 
 		// edit methods
 		void gotoMeasure(int measure);
@@ -204,6 +205,7 @@ namespace MikuMikuWorld
 		void deleteSelected();
 		void shrinkSelected(int direction);
 		bool isPasting() const;
+		bool isAnyNoteSelected() const;
 
 		// playback methods
 		void togglePlaying();

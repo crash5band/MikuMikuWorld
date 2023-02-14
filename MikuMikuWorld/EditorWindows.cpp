@@ -14,6 +14,7 @@
 #include "Colors.h"
 #include "Clipboard.h"
 #include "Localization.h"
+#include "Commands/CommandManager.h"
 #include <algorithm>
 
 namespace MikuMikuWorld
@@ -72,7 +73,7 @@ namespace MikuMikuWorld
 		ImGui::End();
 	}
 	
-	void ScoreEditor::updateTimeline(float frameTime, Renderer* renderer)
+	void ScoreEditor::updateTimeline(float frameTime, Renderer* renderer, CommandManager* commandManager)
 	{
 		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"),
 			NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
@@ -125,7 +126,7 @@ namespace MikuMikuWorld
 			feverControl(score.fever);
 			drawLanes();
 
-			contextMenu();
+			contextMenu(commandManager);
 			updateCursor();
 
 			noteCtrlHeight = canvas.getNotesHeight();
@@ -162,26 +163,24 @@ namespace MikuMikuWorld
 		ImGui::End();
 	}
 
-	void ScoreEditor::contextMenu()
+	void ScoreEditor::contextMenu(CommandManager* commandManager)
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 10));
 		if (ImGui::BeginPopupContextWindow(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline")))
 		{
-			if (ImGui::MenuItem(concat(ICON_FA_TRASH, getString("delete"), "\t").c_str(), "Delete", false, selection.hasSelection()))
-				deleteSelected();
+			int deleteCmd = commandManager->findCommand("delete");
+			int copyCmd = commandManager->findCommand("copy");
+			int pasteCmd = commandManager->findCommand("paste");
+			int flipCmd = commandManager->findCommand("flip");
+			int flipPasteCmd = commandManager->findCommand("flip_paste");
+			int shrinkDownCmd = commandManager->findCommand("shrink_down");
+			int shrinkUpCmd = commandManager->findCommand("shrink_up");
 
-			ImGui::Separator();
-			if (ImGui::MenuItem(concat(ICON_FA_COPY, getString("copy"), "\t").c_str(), "Ctrl + C", false, selection.hasSelection()))
-				copy();
-
-			if (ImGui::MenuItem(concat(ICON_FA_PASTE, getString("paste"), "\t").c_str(), "Ctrl + V", false, Clipboard::hasData()))
-				paste();
-
-			if (ImGui::MenuItem(concat(ICON_FA_PASTE, getString("flip_paste"), "\t").c_str(), "Ctrl + Shift + V", false, Clipboard::hasData()))
-				flipPaste();
-
-			if (ImGui::MenuItem(concat(ICON_FA_GRIP_LINES_VERTICAL, getString("flip"), "\t").c_str(), "Ctrl + F", false, selection.hasSelection()))
-				flipSelected();
+			UI::contextMenuItem(ICON_FA_TRASH, commandManager->commands[deleteCmd]);
+			UI::contextMenuItem(ICON_FA_COPY, commandManager->commands[copyCmd]);
+			UI::contextMenuItem(ICON_FA_PASTE, commandManager->commands[pasteCmd]);
+			UI::contextMenuItem(ICON_FA_PASTE, commandManager->commands[flipCmd]);
+			UI::contextMenuItem(ICON_FA_GRIP_LINES_VERTICAL, commandManager->commands[flipPasteCmd]);
 
 			ImGui::Separator();
 			if (ImGui::BeginMenu(getString("ease_type"), selection.hasEase()))
@@ -215,10 +214,8 @@ namespace MikuMikuWorld
 			}
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(concat(ICON_FA_ARROW_DOWN, getString("shrink_down"), "\t").c_str(), "Ctrl + H", false, selection.count() > 1))
-				shrinkSelected(0);
-			if (ImGui::MenuItem(concat(ICON_FA_ARROW_UP, getString("shrink_up"), "\t").c_str(), "Ctrl + Shift + H", false, selection.count() > 1))
-				shrinkSelected(1);
+			UI::contextMenuItem(ICON_FA_ARROW_DOWN, commandManager->commands[shrinkDownCmd]);
+			UI::contextMenuItem(ICON_FA_ARROW_UP, commandManager->commands[shrinkUpCmd]);
 
 			ImGui::EndPopup();
 		}
@@ -497,11 +494,11 @@ namespace MikuMikuWorld
 		ImGui::End();
 	}
 
-	void ScoreEditor::update(float frameTime, Renderer* renderer)
+	void ScoreEditor::update(float frameTime, Renderer* renderer, CommandManager* commandManager)
 	{
 		toolboxWindow();
 		controlsWindow();
-		updateTimeline(frameTime, renderer);
+		updateTimeline(frameTime, renderer, commandManager);
 		propertiesWindow();
 		
 		if (presetManager.updateWindow(score, selection.getSelection()))

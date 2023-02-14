@@ -124,6 +124,22 @@ namespace MikuMikuWorld
 		{"name", "Name"},
 		{"description", "Description"},
 		{"create_preset", "Create Preset"},
-		{"search", "Search..."}
+		{"search", "Search..."},
+
+		// commands
+		{"reset", "Reset"},
+		{"toggle_playback", "Toggle Playback"},
+		{"cancel_paste", "Cancel Paste"},
+		{"stop", "Stop"},
+		{"prev_tick", "Previous Tick"},
+		{"next_tick", "Next Tick"},
+		{"timeline_select", "Timeline - Select"},
+		{"timeline_tap", "Timeline - Insert Tap"},
+		{"timeline_hold", "Timeline - Insert Hold"},
+		{"timeline_hold_mid", "Timeline - Insert Hold Mid"},
+		{"timeline_flick", "Timeline - Insert Flick"},
+		{"timeline_make_critical", "Timeline - Insert Critical"},
+		{"timeline_bpm", "Timeline - Insert BPM"},
+		{"timeline_time_signature", "Timeline - Insert Time Signature"}
 	};
 }

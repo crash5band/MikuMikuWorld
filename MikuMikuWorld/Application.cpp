@@ -8,6 +8,7 @@
 #include "Utilities.h"
 #include "Localization.h"
 #include "tinyfiledialogs.h"
+#include "Clipboard.h"
 #include <filesystem>
 
 namespace MikuMikuWorld
@@ -297,7 +298,7 @@ namespace MikuMikuWorld
 
 		menubar.update(settingsOpen, aboutOpen, vsync, exiting, showPerformanceMetrics);
 		updateDialogs();
-		editor->update(frameDelta, renderer);
+		editor->update(frameDelta, renderer, &commandManager);
 		commandManager.updateWindow();
 		autoSave.update();
 
@@ -344,53 +345,72 @@ namespace MikuMikuWorld
 
 	void Application::setupCommands()
 	{
-		commandManager.add("cmd_reset", { {CTRL, GLFW_KEY_N} }, [this] { this->reset(); });
-		commandManager.add("cmd_open", { {CTRL, GLFW_KEY_O} }, [this] { this->open(); });
-		commandManager.add("cmd_save", { {CTRL, GLFW_KEY_S} }, [this] { this->editor->saveAs(); });
-		commandManager.add("cmd_save_as", { {CTRL | SHIFT, GLFW_KEY_S} }, [this] { this->editor->saveAs(); });
-		commandManager.add("cmd_export", { {CTRL, GLFW_KEY_E} }, [this] { this->editor->exportSUS(); });
-		commandManager.add("cmd_toggle_playback", { {NONE, GLFW_KEY_SPACE} }, [this] { editor->togglePlaying(); });
-		commandManager.add("cmd_copy", { {CTRL, GLFW_KEY_C} }, [this] { editor->copy(); });
-		commandManager.add("cmd_paste", { {CTRL, GLFW_KEY_V} }, [this] { editor->paste(); });
-		commandManager.add("cmd_flip_paste", { {CTRL | SHIFT, GLFW_KEY_V} }, [this] { editor->flipPaste(); });
-		commandManager.add("cmd_undo", { {CTRL, GLFW_KEY_Z} }, [this] { editor->undo(); });
-		commandManager.add("cmd_redo", { {CTRL, GLFW_KEY_Y} }, [this] { editor->redo(); });
-		commandManager.add("cmd_select_all", { {CTRL, GLFW_KEY_A} }, [this] { editor->selectAll(); },
+		commandManager.add("reset", { {CTRL, GLFW_KEY_N} }, [this] { this->reset(); });
+		commandManager.add("open", { {CTRL, GLFW_KEY_O} }, [this] { this->open(); });
+		commandManager.add("save", { {CTRL, GLFW_KEY_S} }, [this] { this->editor->saveAs(); });
+		commandManager.add("save_as", { {CTRL | SHIFT, GLFW_KEY_S} }, [this] { this->editor->saveAs(); });
+		commandManager.add("export", { {CTRL, GLFW_KEY_E} }, [this] { this->editor->exportSUS(); });
+		commandManager.add("toggle_playback", { {NONE, GLFW_KEY_SPACE} }, [this] { editor->togglePlaying(); });
+		commandManager.add("copy", { {CTRL, GLFW_KEY_C} }, [this] { editor->copy(); },
+			[this] { return editor->isAnyNoteSelected(); });
+
+		commandManager.add("paste", { {CTRL, GLFW_KEY_V} }, [this] { editor->paste(); },
+			[] { return Clipboard::hasData(); });
+
+		commandManager.add("flip_paste", { {CTRL | SHIFT, GLFW_KEY_V} }, [this] { editor->flipPaste(); },
+			[] { return Clipboard::hasData(); });
+
+		commandManager.add("undo", { {CTRL, GLFW_KEY_Z} }, [this] { editor->undo(); },
+			[this] { return editor->history.hasUndo(); });
+
+		commandManager.add("redo", { {CTRL, GLFW_KEY_Y} }, [this] { editor->redo(); },
+			[this] { return editor->history.hasRedo(); });
+
+		commandManager.add("select_all", { {CTRL, GLFW_KEY_A} }, [this] { editor->selectAll(); },
 			[this] { return !editor->isPlaying(); });
 
-		commandManager.add("cmd_cancel_paste", { {NONE, GLFW_KEY_ESCAPE} }, [this] { editor->cancelPaste(); });
-		commandManager.add("cmd_delete_selected", { {NONE, GLFW_KEY_DELETE} }, [this] { editor->deleteSelected(); });
-		commandManager.add("cmd_stop", { {NONE, GLFW_KEY_BACKSPACE} }, [this] { editor->stop(); });
-		commandManager.add("cmd_flip_selected", { {CTRL, GLFW_KEY_F} }, [this] { editor->flipSelected(); });
-		commandManager.add("cmd_shrink_down", { {CTRL, GLFW_KEY_H} }, [this] { editor->shrinkSelected(0); });
-		commandManager.add("cmd_shrink_up", { {CTRL | SHIFT, GLFW_KEY_H} }, [this] { editor->shrinkSelected(1); });
-		commandManager.add("cmd_prev_tick", { {NONE, GLFW_KEY_DOWN} }, [this] { editor->previousTick(); },
+		commandManager.add("cancel_paste", { {NONE, GLFW_KEY_ESCAPE} }, [this] { editor->cancelPaste(); });
+		commandManager.add("delete", { {NONE, GLFW_KEY_DELETE} }, [this] { editor->deleteSelected(); },
+			[this] { return editor->isAnyNoteSelected(); });
+
+		commandManager.add("stop", { {NONE, GLFW_KEY_BACKSPACE} }, [this] { editor->stop(); });
+		commandManager.add("flip", { {CTRL, GLFW_KEY_F} }, [this] { editor->flipSelected(); },
+			[this] { return editor->isAnyNoteSelected(); });
+
+		commandManager.add("shrink_down", { {CTRL, GLFW_KEY_H} }, [this] { editor->shrinkSelected(0); },
+			[this] { return editor->isAnyNoteSelected(); });
+
+		commandManager.add("shrink_up", { {CTRL | SHIFT, GLFW_KEY_H} }, [this] { editor->shrinkSelected(1); },
+			[this] { return editor->isAnyNoteSelected(); });
+
+		commandManager.add("prev_tick", { {NONE, GLFW_KEY_DOWN} }, [this] { editor->previousTick(); },
 			[this] { return !editor->isPlaying(); });
-		commandManager.add("cmd_next_tick", { {NONE, GLFW_KEY_UP} }, [this] { editor->nextTick(); },
+
+		commandManager.add("next_tick", { {NONE, GLFW_KEY_UP} }, [this] { editor->nextTick(); },
 			[this] { return !editor->isPlaying();  });
 
-		commandManager.add("cmd_timeline_select", { {NONE, GLFW_KEY_1}, {NONE, GLFW_KEY_KP_1} },
+		commandManager.add("timeline_select", { {NONE, GLFW_KEY_1}, {NONE, GLFW_KEY_KP_1} },
 			[this] { editor->changeMode(TimelineMode::Select); });
 
-		commandManager.add("cmd_timeline_tap", { {NONE, GLFW_KEY_2}, {NONE, GLFW_KEY_KP_2} },
+		commandManager.add("timeline_tap", { {NONE, GLFW_KEY_2}, {NONE, GLFW_KEY_KP_2} },
 			[this] { editor->changeMode(TimelineMode::InsertTap); });
 
-		commandManager.add("cmd_timeline_hold", { {NONE, GLFW_KEY_3}, {NONE, GLFW_KEY_KP_3} },
+		commandManager.add("timeline_hold", { {NONE, GLFW_KEY_3}, {NONE, GLFW_KEY_KP_3} },
 			[this] { editor->changeMode(TimelineMode::InsertLong); });
 
-		commandManager.add("cmd_timeline_hold_mid", { {NONE, GLFW_KEY_4}, {NONE, GLFW_KEY_KP_4} },
+		commandManager.add("timeline_hold_mid", { {NONE, GLFW_KEY_4}, {NONE, GLFW_KEY_KP_4} },
 			[this] { editor->changeMode(TimelineMode::InsertLongMid); });
 
-		commandManager.add("cmd_timeline_flick", { {NONE, GLFW_KEY_5}, {NONE, GLFW_KEY_KP_5} },
+		commandManager.add("timeline_flick", { {NONE, GLFW_KEY_5}, {NONE, GLFW_KEY_KP_5} },
 			[this] { editor->changeMode(TimelineMode::InsertFlick); });
 
-		commandManager.add("cmd_timeline_make_critical", { {NONE, GLFW_KEY_6}, {NONE, GLFW_KEY_KP_6} },
+		commandManager.add("timeline_make_critical", { {NONE, GLFW_KEY_6}, {NONE, GLFW_KEY_KP_6} },
 			[this] { editor->changeMode(TimelineMode::MakeCritical); });
 
-		commandManager.add("cmd_timeline_bpm", { {NONE, GLFW_KEY_7}, {NONE, GLFW_KEY_KP_7} },
+		commandManager.add("timeline_bpm", { {NONE, GLFW_KEY_7}, {NONE, GLFW_KEY_KP_7} },
 			[this] { editor->changeMode(TimelineMode::InsertBPM); });
 
-		commandManager.add("cmd_timeline_time_signature", { {NONE, GLFW_KEY_8}, {NONE, GLFW_KEY_KP_8} },
+		commandManager.add("timeline_time_signature", { {NONE, GLFW_KEY_8}, {NONE, GLFW_KEY_KP_8} },
 			[this] { editor->changeMode(TimelineMode::InsertTimeSign); });
 
 		commandManager.readCommands(config);

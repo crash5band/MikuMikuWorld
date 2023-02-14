@@ -19,6 +19,11 @@ namespace MikuMikuWorld
 		selection.clear();
 	}
 
+	bool ScoreEditor::isAnyNoteSelected() const
+	{
+		return selection.count();
+	}
+
 	void ScoreEditor::copy()
 	{
 		if (!selection.hasSelection())
