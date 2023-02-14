@@ -222,9 +222,6 @@ namespace MikuMikuWorld
 				bool isShift = i == GLFW_KEY_LEFT_SHIFT || i == GLFW_KEY_RIGHT_SHIFT;
 				bool isAlt = i == GLFW_KEY_LEFT_ALT || i == GLFW_KEY_RIGHT_ALT;
 
-				if (InputListener::isTapped(i))
-					printf("%d\n", i);
-
 				if (!isControl && !isShift && !isAlt && InputListener::isTapped(i))
 				{
 					int mods = 0;
