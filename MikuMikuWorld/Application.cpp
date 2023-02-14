@@ -299,7 +299,6 @@ namespace MikuMikuWorld
 		menubar.update(settingsOpen, aboutOpen, vsync, exiting, showPerformanceMetrics);
 		updateDialogs();
 		editor->update(frameDelta, renderer, &commandManager);
-		commandManager.updateWindow();
 		autoSave.update();
 
 		if (glfwGetTime() - lastAppTimeUpdate >= 0.05f)

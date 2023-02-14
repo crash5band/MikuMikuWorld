@@ -38,6 +38,6 @@ namespace MikuMikuWorld
 		void writeCommands(ApplicationConfiguration& config);
 		void readCommands(const ApplicationConfiguration& config);
 		
-		void updateWindow();
+		void inputSettings();
 	};
 }

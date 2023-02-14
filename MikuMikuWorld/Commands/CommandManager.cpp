@@ -145,32 +145,37 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void CommandManager::updateWindow()
+	void CommandManager::inputSettings()
 	{
-		if (ImGui::Begin("Input Bindings"))
+		ImVec2 size = ImVec2(-1, ImGui::GetContentRegionAvail().y - 200);
+		ImGui::Text("Commands");
+		ImGui::Separator();
+		ImGui::BeginChild("##command_select_window", size, true);
+		for (int i = 0; i < commands.size(); ++i)
 		{
-			ImVec2 size = ImVec2(-1, ImGui::GetContentRegionAvail().y - 200);
-			ImGui::BeginChild("##command_select_window", size, true);
-			for (int i = 0; i < commands.size(); ++i)
-			{
-				std::string itemText = commands[i].getDisplayName() + "(" + commands[i].getAllKeysString() + ")";
-				if (ImGui::Selectable(itemText.c_str(), selectedCommandIndex == i, ImGuiSelectableFlags_SpanAvailWidth))
-				{
-					selectedCommandIndex = i;
-				}
+			std::string itemText = commands[i].getDisplayName() + "(" + commands[i].getAllKeysString() + ")";
+			if (ImGui::Selectable(itemText.c_str(), selectedCommandIndex == i, ImGuiSelectableFlags_SpanAvailWidth))
+				selectedCommandIndex = i;
 
-				ImGui::Separator();
-			}
-			ImGui::EndChild();
+			ImGui::Separator();
 		}
+		ImGui::EndChild();
+		ImGui::Separator();
 
 		if (selectedCommandIndex > -1)
 		{
 			int deleteBinding = -1;
+			ImGui::Text("Bound Keys");
+
+			UI::beginPropertyColumns();
+			ImGui::Text("Command: %s", commands[selectedCommandIndex].getDisplayName().c_str());
+			ImGui::NextColumn();
 			if (ImGui::Button("Add", ImVec2(-1, UI::btnSmall.y)))
 				commands[selectedCommandIndex].addKeys(CommandKeys{});
 
-			ImGui::BeginChild("##command_edit_windw", ImVec2(-1, -1), true);
+			UI::endPropertyColumns();
+
+			ImGui::BeginChild("##command_edit_window", ImVec2(-1, -1), true);
 			for (int b = 0; b < commands[selectedCommandIndex].getBindingsCount(); ++b)
 			{
 				ImGui::PushID(b);
@@ -203,8 +208,6 @@ namespace MikuMikuWorld
 			}
 		}
 
-		ImGui::End();
-
 		if (listeningForInput)
 		{
 			if (inputTimer.elapsed() >= inputTimeoutSeconds)
@@ -218,6 +221,9 @@ namespace MikuMikuWorld
 				bool isControl = i == GLFW_KEY_LEFT_CONTROL || i == GLFW_KEY_RIGHT_CONTROL;
 				bool isShift = i == GLFW_KEY_LEFT_SHIFT || i == GLFW_KEY_RIGHT_SHIFT;
 				bool isAlt = i == GLFW_KEY_LEFT_ALT || i == GLFW_KEY_RIGHT_ALT;
+
+				if (InputListener::isTapped(i))
+					printf("%d\n", i);
 
 				if (!isControl && !isShift && !isAlt && InputListener::isTapped(i))
 				{

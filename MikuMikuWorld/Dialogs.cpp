@@ -128,125 +128,145 @@ namespace MikuMikuWorld
 			ImVec2 confirmBtnPos = ImGui::GetWindowSize() + ImVec2(-100, -UI::btnNormal.y) - padding;
 			ImGui::BeginChild("##settings_panel", ImGui::GetContentRegionAvail() - ImVec2(0, UI::btnNormal.y + padding.y));
 
-			// auto save
-			if (ImGui::CollapsingHeader(getString("auto_save"), ImGuiTreeNodeFlags_DefaultOpen))
+			if (ImGui::BeginTabBar("##settings_tabs"))
 			{
-				autoSave.settings();
-			}
-
-			// theme
-			if (ImGui::CollapsingHeader(getString("accent_color"), ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
-				
-				ImGui::TextWrapped(getString("accent_color_help"));
-				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
-				ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.5f);
-
-				for (int i = 0; i < UI::accentColors.size(); ++i)
+				if (ImGui::BeginTabItem("General"))
 				{
-					bool apply = false;
-					std::string id = i == imgui.getAccentColor() ? ICON_FA_CHECK : i == 0 ? "C" : "##" + std::to_string(i);
-					ImGui::PushStyleColor(ImGuiCol_Button, UI::accentColors[i].color);
-					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, UI::accentColors[i].color);
-					ImGui::PushStyleColor(ImGuiCol_ButtonActive, UI::accentColors[i].color);
-
-					apply = ImGui::Button(id.c_str(), UI::btnNormal);
-
-					ImGui::PopStyleColor(3);
-
-					if ((i < UI::accentColors.size() - 1) && ImGui::GetCursorPosX() < ImGui::GetWindowSize().x - UI::btnNormal.x - 50.0f)
-						ImGui::SameLine();
-
-					if (apply)
-						imgui.applyAccentColor(i);
-				}
-				ImGui::PopStyleVar(2);
-
-				ImVec4& customColor = UI::accentColors[0].color;
-				float col[]{customColor.x, customColor.y, customColor.z};
-				static ColorDisplay displayMode = ColorDisplay::HEX;
-
-				ImGui::Separator();
-				ImGui::Text(getString("select_accent_color"));
-				UI::beginPropertyColumns();
-				UI::propertyLabel(getString("display_mode"));
-				if (ImGui::BeginCombo("##color_display_mode", colorDisplayStr[(int)displayMode]))
-				{
-					for (int i = 0; i < 3; ++i)
+					if (ImGui::CollapsingHeader(getString("auto_save"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
-						const bool selected = (int)displayMode == i;
-						if (ImGui::Selectable(colorDisplayStr[i], selected))
-							displayMode = (ColorDisplay)i;
+						autoSave.settings();
 					}
 
-					ImGui::EndCombo();
-				}
-				ImGui::NextColumn();
-				UI::propertyLabel(getString("custom_color"));
+					// theme
+					if (ImGui::CollapsingHeader(getString("accent_color"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 
-				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
-				ImGuiColorEditFlags flags = 1 << (20 + (int)displayMode);
-				if (ImGui::ColorEdit3("##custom_accent_color", col, flags))
+						ImGui::TextWrapped(getString("accent_color_help"));
+						ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
+						ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.5f);
+
+						for (int i = 0; i < UI::accentColors.size(); ++i)
+						{
+							bool apply = false;
+							std::string id = i == imgui.getAccentColor() ? ICON_FA_CHECK : i == 0 ? "C" : "##" + std::to_string(i);
+							ImGui::PushStyleColor(ImGuiCol_Button, UI::accentColors[i].color);
+							ImGui::PushStyleColor(ImGuiCol_ButtonHovered, UI::accentColors[i].color);
+							ImGui::PushStyleColor(ImGuiCol_ButtonActive, UI::accentColors[i].color);
+
+							apply = ImGui::Button(id.c_str(), UI::btnNormal);
+
+							ImGui::PopStyleColor(3);
+
+							if ((i < UI::accentColors.size() - 1) && ImGui::GetCursorPosX() < ImGui::GetWindowSize().x - UI::btnNormal.x - 50.0f)
+								ImGui::SameLine();
+
+							if (apply)
+								imgui.applyAccentColor(i);
+						}
+						ImGui::PopStyleVar(2);
+
+						ImVec4& customColor = UI::accentColors[0].color;
+						float col[]{ customColor.x, customColor.y, customColor.z };
+						static ColorDisplay displayMode = ColorDisplay::HEX;
+
+						ImGui::Separator();
+						ImGui::Text(getString("select_accent_color"));
+						UI::beginPropertyColumns();
+						UI::propertyLabel(getString("display_mode"));
+						if (ImGui::BeginCombo("##color_display_mode", colorDisplayStr[(int)displayMode]))
+						{
+							for (int i = 0; i < 3; ++i)
+							{
+								const bool selected = (int)displayMode == i;
+								if (ImGui::Selectable(colorDisplayStr[i], selected))
+									displayMode = (ColorDisplay)i;
+							}
+
+							ImGui::EndCombo();
+						}
+						ImGui::NextColumn();
+						UI::propertyLabel(getString("custom_color"));
+
+						ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
+						ImGuiColorEditFlags flags = 1 << (20 + (int)displayMode);
+						if (ImGui::ColorEdit3("##custom_accent_color", col, flags))
+						{
+							customColor.x = col[0];
+							customColor.y = col[1];
+							customColor.z = col[2];
+						}
+
+						UI::endPropertyColumns();
+
+						if (ImGui::IsItemDeactivated() && imgui.getAccentColor() == 0)
+							imgui.applyAccentColor(0);
+
+						ImGui::PopStyleVar();
+						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+					}
+
+					// graphics
+					if (ImGui::CollapsingHeader(getString("video"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+						if (ImGui::Checkbox(getString("vsync_enable"), &vsync))
+							glfwSwapInterval((int)vsync);
+
+						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+					}
+
+					ImGui::EndTabItem();
+				}
+
+				if (ImGui::BeginTabItem("Charting"))
 				{
-					customColor.x = col[0];
-					customColor.y = col[1];
-					customColor.z = col[2];
+					// charting
+					if (ImGui::CollapsingHeader(getString("timeline"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+
+						int laneWidth = editor->canvas.getLaneWidth();
+						int notesHeight = editor->canvas.getNotesHeight();
+						bool smoothScrolling = editor->canvas.isUseSmoothScrolling();
+						float smoothScrollingTime = editor->canvas.getSmoothScrollingTime();
+
+						UI::beginPropertyColumns();
+						UI::addSliderProperty(getString("lane_width"), laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
+						UI::addSliderProperty(getString("notes_height"), notesHeight, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT, "%d");
+
+						ImGui::Checkbox(getString("use_smooth_scroll"), &smoothScrolling);
+						ImGui::NextColumn();
+						ImGui::NextColumn();
+						UI::addSliderProperty(getString("smooth_scroll_time"), smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
+						UI::endPropertyColumns();
+
+						if (laneWidth != editor->canvas.getLaneWidth())
+							editor->canvas.setLaneWidth(laneWidth);
+
+						if (notesHeight != editor->canvas.getNotesHeight())
+							editor->canvas.setNotesHeight(notesHeight);
+
+						if (smoothScrolling != editor->canvas.isUseSmoothScrolling())
+							editor->canvas.setUseSmoothScrolling(smoothScrolling);
+
+						if (smoothScrollingTime != editor->canvas.getSmoothScrollingTime())
+							editor->canvas.setSmoothScrollingTime(smoothScrollingTime);
+
+						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+					}
+
+					ImGui::EndTabItem();
 				}
 
-				UI::endPropertyColumns();
+				if (ImGui::BeginTabItem("Input Bindings"))
+				{
+					commandManager.inputSettings();
+					ImGui::EndTabItem();
+				}
 
-				if (ImGui::IsItemDeactivated() && imgui.getAccentColor() == 0)
-					imgui.applyAccentColor(0);
-
-				ImGui::PopStyleVar();
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 			}
-
-			// charting
-			if (ImGui::CollapsingHeader(getString("timeline"), ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
-
-				int laneWidth = editor->canvas.getLaneWidth();
-				int notesHeight = editor->canvas.getNotesHeight();
-				bool smoothScrolling = editor->canvas.isUseSmoothScrolling();
-				float smoothScrollingTime = editor->canvas.getSmoothScrollingTime();
-
-				UI::beginPropertyColumns();
-				UI::addSliderProperty(getString("lane_width"), laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
-				UI::addSliderProperty(getString("notes_height"), notesHeight, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT, "%d");
-				
-				ImGui::Checkbox(getString("use_smooth_scroll"), &smoothScrolling);
-				ImGui::NextColumn();
-				ImGui::NextColumn();
-				UI::addSliderProperty(getString("smooth_scroll_time"), smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
-				UI::endPropertyColumns();
-
-				if (laneWidth != editor->canvas.getLaneWidth())
-					editor->canvas.setLaneWidth(laneWidth);
-
-				if (notesHeight != editor->canvas.getNotesHeight())
-					editor->canvas.setNotesHeight(notesHeight);
-
-				if (smoothScrolling != editor->canvas.isUseSmoothScrolling())
-					editor->canvas.setUseSmoothScrolling(smoothScrolling);
-
-				if (smoothScrollingTime != editor->canvas.getSmoothScrollingTime())
-					editor->canvas.setSmoothScrollingTime(smoothScrollingTime);
-
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
-			}
-
-			// graphics
-			if (ImGui::CollapsingHeader(getString("video"), ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
-				if (ImGui::Checkbox(getString("vsync_enable"), &vsync))
-					glfwSwapInterval((int)vsync);
-
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
-			}
+			ImGui::EndTabBar();
 
 			ImGui::EndChild();
 			ImGui::SetCursorPos(confirmBtnPos);
