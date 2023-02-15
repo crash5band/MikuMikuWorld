@@ -117,7 +117,11 @@ namespace MikuMikuWorld
 		{
 			std::vector<std::string> bindings;
 			for (int i = 0; i < command.getBindingsCount(); ++i)
-				bindings.push_back(command.getKeysString(i));
+			{
+				// Do not add empty key bindings
+				if (command.getKey(i) != 0)
+					bindings.push_back(command.getKeysString(i));
+			}
 
 			config.keyConfigMap[command.getName()] = KeyConfiguration{ command.getName(), bindings };
 		}
@@ -147,19 +151,31 @@ namespace MikuMikuWorld
 
 	void CommandManager::inputSettings()
 	{
-		ImVec2 size = ImVec2(-1, ImGui::GetContentRegionAvail().y - 200);
-		ImGui::Text("Commands");
-		ImGui::Separator();
-		ImGui::BeginChild("##command_select_window", size, true);
-		for (int i = 0; i < commands.size(); ++i)
+		ImVec2 size = ImVec2(-1, ImGui::GetContentRegionAvail().y * 0.7);
+		const ImGuiTableFlags tableFlags = ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg;
+		const ImGuiSelectableFlags selectionFlags = ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap;
+		int rowHeight = ImGui::GetFrameHeight() + 2;
+		
+		if (ImGui::BeginTable("##commands_table", 2, tableFlags, size))
 		{
-			std::string itemText = commands[i].getDisplayName() + "(" + commands[i].getAllKeysString() + ")";
-			if (ImGui::Selectable(itemText.c_str(), selectedCommandIndex == i, ImGuiSelectableFlags_SpanAvailWidth))
-				selectedCommandIndex = i;
+			ImGui::TableSetupColumn("Command");
+			ImGui::TableSetupColumn("Bindings");
+			ImGui::TableSetupScrollFreeze(0, 1);
+			ImGui::TableHeadersRow();
 
-			ImGui::Separator();
+			for (int c = 0; c < commands.size(); ++c)
+			{
+				ImGui::TableNextRow(rowHeight);
+				
+				ImGui::TableSetColumnIndex(0);
+				if (ImGui::Selectable(commands[c].getDisplayName().c_str(), c == selectedCommandIndex, selectionFlags))
+					selectedCommandIndex = c;
+
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text(commands[c].getAllKeysString().c_str());
+			}
+			ImGui::EndTable();
 		}
-		ImGui::EndChild();
 		ImGui::Separator();
 
 		if (selectedCommandIndex > -1)
@@ -175,6 +191,7 @@ namespace MikuMikuWorld
 
 			UI::endPropertyColumns();
 
+			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
 			ImGui::BeginChild("##command_edit_window", ImVec2(-1, -1), true);
 			for (int b = 0; b < commands[selectedCommandIndex].getBindingsCount(); ++b)
 			{
@@ -200,12 +217,17 @@ namespace MikuMikuWorld
 				ImGui::PopID();
 			}
 			ImGui::EndChild();
+			ImGui::PopStyleColor();
 
 			if (deleteBinding > -1)
 			{
 				listeningForInput = false;
 				commands[selectedCommandIndex].removeKeys(deleteBinding);
 			}
+		}
+		else
+		{
+			ImGui::Text("Select a command to edit it's key bindings.");
 		}
 
 		if (listeningForInput)
@@ -216,20 +238,21 @@ namespace MikuMikuWorld
 				editBindingIndex = -1;
 			}
 
-			for (int i = GLFW_KEY_SPACE; i < GLFW_KEY_LAST; ++i)
+			for (int key = GLFW_KEY_SPACE; key < GLFW_KEY_LAST; ++key)
 			{
-				bool isControl = i == GLFW_KEY_LEFT_CONTROL || i == GLFW_KEY_RIGHT_CONTROL;
-				bool isShift = i == GLFW_KEY_LEFT_SHIFT || i == GLFW_KEY_RIGHT_SHIFT;
-				bool isAlt = i == GLFW_KEY_LEFT_ALT || i == GLFW_KEY_RIGHT_ALT;
+				const bool isControl = key == GLFW_KEY_LEFT_CONTROL || key == GLFW_KEY_RIGHT_CONTROL;
+				const bool isShift = key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT;
+				const bool isAlt = key == GLFW_KEY_LEFT_ALT || key == GLFW_KEY_RIGHT_ALT;
 
-				if (!isControl && !isShift && !isAlt && InputListener::isTapped(i))
+				// execute if a non-modifier key is tapped
+				if (!isControl && !isShift && !isAlt && InputListener::isTapped(key))
 				{
 					int mods = 0;
 					if (InputListener::isCtrlDown()) mods |= CTRL;
 					if (InputListener::isShiftDown()) mods |= SHIFT;
 					if (InputListener::isAltDown()) mods |= ALT;
 
-					commands[selectedCommandIndex].setKeys(editBindingIndex, CommandKeys{ mods, i });
+					commands[selectedCommandIndex].setKeys(editBindingIndex, CommandKeys{ mods, key });
 					listeningForInput = false;
 					editBindingIndex = -1;
 				}
