@@ -1,5 +1,6 @@
 #pragma once
 #include "Commands/CommandManager.h"
+#include "WindowState.h"
 
 namespace MikuMikuWorld
 {
@@ -9,12 +10,12 @@ namespace MikuMikuWorld
 		CommandManager* commandManager;
 		std::unordered_map<std::string, int> commandsCache;
 
-		void menuItem(std::string label, Command& cmd, bool selected = false);
+		void menuCommand(Command& cmd, bool selected = false);
 
 	public:
 		Menubar();
 
 		void setCommandManagerInstance(CommandManager* commandManager);
-		void update(bool& settingsOpen, bool& aboutOpen, bool& vsync, bool& exiting, bool& showPerformanceMetrics);
+		void update(WindowState& state);
 	};
 }

@@ -38,9 +38,6 @@ namespace MikuMikuWorld
 				if (ImGui::Button(str.c_str(), btnSz))
 					changeMode((TimelineMode)i);
 
-				std::string txt = "(" + std::to_string(i + 1) + ") " + str;
-				UI::tooltip(txt.c_str());
-
 				if (highlight)
 					ImGui::PopStyleColor(2);
 

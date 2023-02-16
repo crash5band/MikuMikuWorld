@@ -106,10 +106,10 @@ namespace MikuMikuWorld
 	{
 		config.read(appDir + APP_CONFIG_FILENAME);
 
-		windowPos = config.windowPos;
-		windowSize = config.windowSize;
-		maximized = config.maximized;
-		vsync = config.vsync;
+		windowState.position = config.windowPos;
+		windowState.size = config.windowSize;
+		windowState.maximized = config.maximized;
+		windowState.vsync = config.vsync;
 		UI::accentColors[0].color = ImVec4{
 			config.userColor.r,
 			config.userColor.g,
@@ -120,10 +120,10 @@ namespace MikuMikuWorld
 
 	void Application::writeSettings()
 	{
-		config.maximized = maximized;
-		config.vsync = vsync;
-		config.windowPos = windowPos;
-		config.windowSize = windowSize;
+		config.maximized = windowState.maximized;
+		config.vsync = windowState.vsync;
+		config.windowPos = windowState.position;
+		config.windowSize = windowState.size;
 		config.userColor = Color{
 			UI::accentColors[0].color.x,
 			UI::accentColors[0].color.y,
@@ -168,16 +168,16 @@ namespace MikuMikuWorld
 
 	void Application::updateDialogs()
 	{
-		if (aboutOpen)
+		if (windowState.aboutOpen)
 		{
 			ImGui::OpenPopup(MODAL_TITLE("about"));
-			aboutOpen = false;
+			windowState.aboutOpen = false;
 		}
 
-		if (settingsOpen)
+		if (windowState.settingsOpen)
 		{
 			ImGui::OpenPopup(MODAL_TITLE("settings"));
-			settingsOpen = false;
+			windowState.settingsOpen = false;
 		}
 
 		about();
@@ -187,10 +187,10 @@ namespace MikuMikuWorld
 		{
 			if (!editor->isUptoDate())
 			{
-				if (!unsavedOpen)
+				if (!windowState.unsavedOpen)
 				{
 					ImGui::OpenPopup(MODAL_TITLE("unsaved_changes"));
-					unsavedOpen = true;
+					windowState.unsavedOpen = true;
 				}
 
 				if (warnUnsaved())
@@ -227,14 +227,14 @@ namespace MikuMikuWorld
 			}
 		}
 
-		if (exiting)
+		if (windowState.closing)
 		{
 			if (!editor->isUptoDate())
 			{
-				if (!unsavedOpen)
+				if (!windowState.unsavedOpen)
 				{
 					ImGui::OpenPopup(MODAL_TITLE("unsaved_changes"));
-					unsavedOpen = true;
+					windowState.unsavedOpen = true;
 				}
 
 				if (warnUnsaved())
@@ -296,7 +296,7 @@ namespace MikuMikuWorld
 		if (!ImGui::GetIO().WantCaptureKeyboard)
 			commandManager.processKeyboardShortcuts();
 
-		menubar.update(settingsOpen, aboutOpen, vsync, exiting, showPerformanceMetrics);
+		menubar.update(windowState);
 		updateDialogs();
 		editor->update(frameDelta, renderer, &commandManager);
 		autoSave.update();
@@ -308,7 +308,7 @@ namespace MikuMikuWorld
 			lastAppTimeUpdate = glfwGetTime();
 		}
 
-		if (showPerformanceMetrics)
+		if (windowState.showPerformanceMetrics)
 		{
 			ImGui::BeginMainMenuBar();
 			ImGui::SetCursorPosX(ImGui::GetMainViewport()->WorkSize.x - 300);

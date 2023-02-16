@@ -67,7 +67,7 @@ namespace MikuMikuWorld
 				ImGui::CloseCurrentPopup();
 				editor->save();
 				result = true;
-				unsavedOpen = false;
+				windowState.unsavedOpen = false;
 			}
 
 			ImGui::SameLine();
@@ -75,14 +75,14 @@ namespace MikuMikuWorld
 			{
 				ImGui::CloseCurrentPopup();
 				result = true;
-				unsavedOpen = false;
+				windowState.unsavedOpen = false;
 			}
 
 			ImGui::SameLine();
 			if (ImGui::Button(getString("cancel"), btnSz))
 			{
 				ImGui::CloseCurrentPopup();
-				resetting = exiting = unsavedOpen = false;
+				resetting = windowState.closing = windowState.unsavedOpen = false;
 				result = false;
 			}
 
@@ -211,8 +211,8 @@ namespace MikuMikuWorld
 					if (ImGui::CollapsingHeader(getString("video"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
-						if (ImGui::Checkbox(getString("vsync_enable"), &vsync))
-							glfwSwapInterval((int)vsync);
+						if (ImGui::Checkbox(getString("vsync_enable"), &windowState.vsync))
+							glfwSwapInterval((int)windowState.vsync);
 
 						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 					}

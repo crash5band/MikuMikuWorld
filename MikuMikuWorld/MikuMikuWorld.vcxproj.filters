@@ -399,6 +399,7 @@
     <ClInclude Include="Menubar.h">
       <Filter>Components</Filter>
     </ClInclude>
+    <ClInclude Include="WindowState.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">

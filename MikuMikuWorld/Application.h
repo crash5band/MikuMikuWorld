@@ -9,6 +9,7 @@
 #include "AutoSaveManager.h"
 #include "Commands/CommandManager.h"
 #include "Menubar.h"
+#include "WindowState.h"
 
 namespace MikuMikuWorld
 {
@@ -32,11 +33,8 @@ namespace MikuMikuWorld
 		float appTime;
 		float lastAppTimeUpdate;
 		bool initialized;
-		bool vsync;
-		bool showPerformanceMetrics;
-		bool aboutOpen;
-		bool settingsOpen;
-		bool unsavedOpen;
+		bool resetting;
+		
 		bool shouldPickScore;
 		bool dragDropHandled;
 
@@ -56,11 +54,7 @@ namespace MikuMikuWorld
 		std::string getVersion();
 
 	public:
-		bool exiting;
-		bool resetting;
-		bool maximized;
-		Vector2 windowPos;
-		Vector2 windowSize;
+		WindowState windowState;
 
 		Application(const std::string &rootPath);
 
@@ -69,7 +63,6 @@ namespace MikuMikuWorld
 		void open();
 		void run();
 		void frameTime();
-		void menuBar();
 		bool warnUnsaved();
 		void about();
 		void settingsDialog();

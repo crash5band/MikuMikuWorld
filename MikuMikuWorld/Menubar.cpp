@@ -6,6 +6,7 @@
 namespace MikuMikuWorld
 {
 	Menubar::Menubar()
+		: commandManager{ nullptr }
 	{
 
 	}
@@ -24,13 +25,13 @@ namespace MikuMikuWorld
 		commandsCache["select_all"] = commandManager->findCommand("select_all");
 	}
 
-	void Menubar::menuItem(std::string label, Command& cmd, bool selected)
+	void Menubar::menuCommand(Command& cmd, bool selected)
 	{
-		if (ImGui::MenuItem(getString(label), cmd.getKeysString(0).c_str(), selected, cmd.canExecute()))
+		if (ImGui::MenuItem(cmd.getDisplayName().c_str(), cmd.getKeysString(0).c_str(), selected, cmd.canExecute()))
 			cmd.execute();
 	}
 
-	void Menubar::update(bool& settingsOpen, bool& aboutOpen, bool& vsync, bool& exiting, bool& showPerformanceMetrics)
+	void Menubar::update(WindowState& state)
 	{
 		ImGui::BeginMainMenuBar();
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 3));
@@ -43,17 +44,17 @@ namespace MikuMikuWorld
 			Command& saveAs = commandManager->commands[commandsCache["save_as"]];
 			Command& exportSUS = commandManager->commands[commandsCache["export"]];
 
-			menuItem("new", reset);
-			menuItem("open", open);
+			menuCommand(reset);
+			menuCommand(open);
 			ImGui::Separator();
 
-			menuItem("save", save);
-			menuItem("save_as", saveAs);
-			menuItem("export", exportSUS);
+			menuCommand(save);
+			menuCommand(saveAs);
+			menuCommand(exportSUS);
 			ImGui::Separator();
 
 			if (ImGui::MenuItem(getString("exit"), "Alt + F4"))
-				exiting = true;
+				state.closing = true;
 
 			ImGui::EndMenu();
 		}
@@ -64,24 +65,24 @@ namespace MikuMikuWorld
 			Command& redo = commandManager->commands[commandsCache["redo"]];
 			Command& selectAll = commandManager->commands[commandsCache["select_all"]];
 
-			menuItem("undo", undo);
-			menuItem("redo", redo);
+			menuCommand(undo);
+			menuCommand(redo);
 			ImGui::Separator();
 
-			menuItem("select_all", selectAll);
+			menuCommand(selectAll);
 
 			if (ImGui::MenuItem(getString("settings")))
-				settingsOpen = true;
+				state.settingsOpen = true;
 
 			ImGui::EndMenu();
 		}
 
 		if (ImGui::BeginMenu(getString("window")))
 		{
-			if (ImGui::MenuItem(getString("vsync"), NULL, &vsync))
-				glfwSwapInterval((int)vsync);
+			if (ImGui::MenuItem(getString("vsync"), NULL, &state.vsync))
+				glfwSwapInterval((int)state.vsync);
 
-			ImGui::MenuItem(getString("show_performance"), NULL, &showPerformanceMetrics);
+			ImGui::MenuItem(getString("show_performance"), NULL, &state.showPerformanceMetrics);
 
 			ImGui::EndMenu();
 		}
@@ -89,7 +90,7 @@ namespace MikuMikuWorld
 		if (ImGui::BeginMenu(getString("about")))
 		{
 			if (ImGui::MenuItem(getString("about")))
-				aboutOpen = true;
+				state.aboutOpen = true;
 
 			ImGui::EndMenu();
 		}

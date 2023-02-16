@@ -22,10 +22,10 @@ namespace MikuMikuWorld
 		if (!app)
 			return;
 
-		if (!app->maximized)
+		if (!app->windowState.maximized)
 		{
-			app->windowSize.x = width;
-			app->windowSize.y = height;
+			app->windowState.size.x = width;
+			app->windowState.size.y = height;
 		}
 	}
 
@@ -35,10 +35,10 @@ namespace MikuMikuWorld
 		if (!app)
 			return;
 
-		if (!app->maximized)
+		if (!app->windowState.maximized)
 		{
-			app->windowPos.x = x;
-			app->windowPos.y = y;
+			app->windowState.position.x = x;
+			app->windowState.position.y = y;
 		}
 	}
 
@@ -58,14 +58,14 @@ namespace MikuMikuWorld
 
 		Application* app = (Application*)glfwGetWindowUserPointer(window);
 		if (app)
-			app->exiting = true;
+			app->windowState.closing = true;
 	}
 
 	void windowMaximizeCallback(GLFWwindow* window, int _maximized)
 	{
 		Application* app = (Application*)glfwGetWindowUserPointer(window);
 		if (app)
-			app->maximized = _maximized;
+			app->windowState.maximized = _maximized;
 	}
 
 	void loadIcon(std::string filepath, GLFWwindow* window)

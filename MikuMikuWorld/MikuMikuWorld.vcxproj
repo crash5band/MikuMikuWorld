@@ -298,6 +298,7 @@
     <ClInclude Include="TimelineMode.h" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="Utilities.h" />
+    <ClInclude Include="WindowState.h" />
     <ClInclude Include="ZIndex.h" />
   </ItemGroup>
   <ItemGroup>
