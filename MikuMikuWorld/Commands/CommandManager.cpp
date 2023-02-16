@@ -158,8 +158,8 @@ namespace MikuMikuWorld
 		
 		if (ImGui::BeginTable("##commands_table", 2, tableFlags, size))
 		{
-			ImGui::TableSetupColumn("Command");
-			ImGui::TableSetupColumn("Bindings");
+			ImGui::TableSetupColumn(getString("action"));
+			ImGui::TableSetupColumn(getString("keys"));
 			ImGui::TableSetupScrollFreeze(0, 1);
 			ImGui::TableHeadersRow();
 
@@ -181,17 +181,17 @@ namespace MikuMikuWorld
 		if (selectedCommandIndex > -1)
 		{
 			int deleteBinding = -1;
-			ImGui::Text("Bound Keys");
 
 			UI::beginPropertyColumns();
-			ImGui::Text("Command: %s", commands[selectedCommandIndex].getDisplayName().c_str());
+			ImGui::Text(concat("action", ": %s").c_str(), commands[selectedCommandIndex].getDisplayName().c_str());
 			ImGui::NextColumn();
-			if (ImGui::Button("Add", ImVec2(-1, UI::btnSmall.y)))
+			if (ImGui::Button(getString("add"), ImVec2(-1, UI::btnSmall.y)))
 				commands[selectedCommandIndex].addKeys(CommandKeys{});
 
 			UI::endPropertyColumns();
 
 			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5, 5));
 			ImGui::BeginChild("##command_edit_window", ImVec2(-1, -1), true);
 			for (int b = 0; b < commands[selectedCommandIndex].getBindingsCount(); ++b)
 			{
@@ -200,10 +200,10 @@ namespace MikuMikuWorld
 				std::string buttonText;
 				std::string cmdText = commands[selectedCommandIndex].getKeysString(b);
 				if (cmdText == "")
-					cmdText = "None";
+					cmdText = getString("none");
 
-				buttonText = listeningForInput && editBindingIndex == b ? "Listening for input..." : cmdText;
-				if (ImGui::Button(buttonText.c_str(), ImVec2(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 5, UI::btnSmall.y)))
+				buttonText = listeningForInput && editBindingIndex == b ? getString("cmd_key_listen") : cmdText;
+				if (ImGui::Button(buttonText.c_str(), ImVec2(ImGui::GetContentRegionAvail().x - 105, UI::btnSmall.y)))
 				{
 					listeningForInput = true;
 					inputTimer.reset();
@@ -211,12 +211,13 @@ namespace MikuMikuWorld
 				}
 
 				ImGui::SameLine();
-				if (ImGui::Button(ICON_FA_TRASH, UI::btnSmall))
+				if (ImGui::Button(getString("remove"), ImVec2(100, UI::btnSmall.y)))
 					deleteBinding = b;
 
 				ImGui::PopID();
 			}
 			ImGui::EndChild();
+			ImGui::PopStyleVar();
 			ImGui::PopStyleColor();
 
 			if (deleteBinding > -1)
@@ -227,7 +228,7 @@ namespace MikuMikuWorld
 		}
 		else
 		{
-			ImGui::Text("Select a command to edit it's key bindings.");
+			ImGui::Text(getString("cmd_help_text"));
 		}
 
 		if (listeningForInput)

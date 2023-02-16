@@ -131,7 +131,7 @@ namespace MikuMikuWorld
 
 			if (ImGui::BeginTabBar("##settings_tabs"))
 			{
-				if (ImGui::BeginTabItem("General"))
+				if (ImGui::BeginTabItem(getString("general")))
 				{
 					if (ImGui::CollapsingHeader(getString("auto_save"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
@@ -220,7 +220,7 @@ namespace MikuMikuWorld
 					ImGui::EndTabItem();
 				}
 
-				if (ImGui::BeginTabItem("Charting"))
+				if (ImGui::BeginTabItem(getString("charting")))
 				{
 					// charting
 					if (ImGui::CollapsingHeader(getString("timeline"), ImGuiTreeNodeFlags_DefaultOpen))
@@ -260,7 +260,7 @@ namespace MikuMikuWorld
 					ImGui::EndTabItem();
 				}
 
-				if (ImGui::BeginTabItem("Input Bindings"))
+				if (ImGui::BeginTabItem(getString("key_config")))
 				{
 					commandManager.inputSettings();
 					ImGui::EndTabItem();
