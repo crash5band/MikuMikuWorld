@@ -32,6 +32,9 @@ namespace MikuMikuWorld
 		{"save_changes", "Save Changes"},
 		{"discard_changes", "Discard Changes"},
 		{"cancel", "Cancel"},
+		{"general", "General"},
+		{"charting", "Charting"},
+		{"key_config", "Key Config"},
 		{"auto_save", "Auto Save"},
 		{"auto_save_enable", "Auto Save Enabled"},
 		{"auto_save_interval", "Auto Save Interval (min)"},
@@ -127,7 +130,12 @@ namespace MikuMikuWorld
 		{"search", "Search..."},
 
 		// commands
-		{"reset", "Reset"},
+		{"action", "Action"},
+		{"keys", "Keys"},
+		{"add", "Add"},
+		{"cmd_key_listen", "Listening for input..."},
+		{"cmd_help_text", "Select a command to edit it's key bindings." },
+		{"reset", "New Chart"},
 		{"toggle_playback", "Toggle Playback"},
 		{"cancel_paste", "Cancel Paste"},
 		{"stop", "Stop"},
