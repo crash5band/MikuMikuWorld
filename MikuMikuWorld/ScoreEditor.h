@@ -102,6 +102,7 @@ namespace MikuMikuWorld
 		float songPosLastFrame;
 		bool playing;
 		const float audioLookAhead = 0.05f;
+		const float audioOffsetCorrection = 1 / 60.0f;
 
 		// update methods
 		void updateNotes(Renderer* renderer);
