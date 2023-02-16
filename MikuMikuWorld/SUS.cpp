@@ -60,10 +60,10 @@ namespace MikuMikuWorld
 		return slides;
 	}
 
-	std::vector<SUSNote> toNotes(const std::string& header, const std::string& data, const std::vector<Bar>& bars)
+	std::vector<SUSNote> toNotes(const std::string& header, const std::string& data, const std::vector<Bar>& bars, int measureBase)
 	{
 		std::vector<SUSNote> notes;
-		int measure = std::stoul(header.substr(0, 3).c_str(), nullptr, 10);
+		int measure = measureBase + std::stoul(header.substr(0, 3).c_str(), nullptr, 10);
 		for (int i = 0; i < data.size(); i += 2)
 		{
 			// no data
@@ -80,16 +80,17 @@ namespace MikuMikuWorld
 	}
 
 	void appendData(int tick, std::string info, std::string data,
-		const std::vector<std::pair<BarLength, int>>& barLengths, int ticksPerBeat, std::map<std::string, NoteMap>& noteMaps)
+		const std::vector<std::pair<BarLength, int>>& barLengths, int ticksPerBeat, std::map<int, MeasureMap>& measureMaps)
 	{
 		for (const auto&[barLength, barTicks] : barLengths)
 		{
 			if (tick >= barTicks)
 			{
 				int currentMeasure = barLength.bar + ((float)(tick - barTicks) / (float)ticksPerBeat / barLength.length);
-				std::string key = formatString("%03d", currentMeasure) + info;
+				MeasureMap& measureMap = measureMaps[currentMeasure];
+				measureMap.measure = currentMeasure;
 
-				NoteMap& map = noteMaps[key];
+				NoteMap& map = measureMap.notesMap[info];
 				map.data.push_back(NoteMap::RawData{ tick - barTicks, data });
 				map.ticksPerMeasure = barLength.length * ticksPerBeat;
 				break;
@@ -98,7 +99,7 @@ namespace MikuMikuWorld
 	}
 
 	void appendNoteData(const SUSNote& note, const std::string infoPrefix, const std::string channel,
-		const std::vector<std::pair<BarLength, int>>& barLengths, int ticksPerBeat, std::map<std::string, NoteMap>& noteMaps)
+		const std::vector<std::pair<BarLength, int>>& barLengths, int ticksPerBeat, std::map<int, MeasureMap>& measureMaps)
 	{
 		char buff1[10];
 		std::string info = infoPrefix + tostringBaseN(buff1, note.lane, 36);
@@ -107,7 +108,7 @@ namespace MikuMikuWorld
 
 		char buff2[10];
 		std::string data = std::to_string(note.type) + tostringBaseN(buff2, note.width, 36);
-		appendData(note.tick, info, data, barLengths, ticksPerBeat, noteMaps);
+		appendData(note.tick, info, data, barLengths, ticksPerBeat, measureMaps);
 	}
 
 	SUSMetadata processSUSMetadata(const std::unordered_map<std::string, std::string>& data)
@@ -159,6 +160,9 @@ namespace MikuMikuWorld
 		for (const auto& line : score)
 		{
 			auto l = split(line, ":");
+			if (l.size() < 2)
+				continue;
+
 			std::string header = l[0].substr(1);
 			std::string data = l[1];
 
@@ -184,6 +188,7 @@ namespace MikuMikuWorld
 		std::sort(bars.begin(), bars.end(),
 			[](const Bar& b1, const Bar& b2) { return b1.measure < b2.measure; });
 
+		int baseMeasure = 0;
 		std::unordered_map<std::string, float> bpmMap;
 		std::unordered_map<int, std::string> bpmChanges;
 		std::vector<SUSNote> taps;
@@ -192,13 +197,20 @@ namespace MikuMikuWorld
 		for (const auto& line : score)
 		{
 			auto l = split(line, ":");
+			if (l.size() < 2) // no ':' found
+				l = split(line, " ");
+
 			std::string header = l[0].substr(1);
-			std::string data = l[1];
 			header = trim(header);
-			data = trim(data);
+
+			std::string data = l.size() > 1? trim(l[1]) : "";
 
 			if (header.size() == 5 && startsWith(header, "BPM"))
 				bpmMap[header.substr(3)] = atof(data.c_str());
+			else if (startsWith(header, "MEASUREBS"))
+			{
+				baseMeasure = atoi(data.c_str());
+			}
 			else if (header.size() == 5 && header.substr(header.size() - 2, 2) == "08")
 			{
 				for (int i = 0; i < data.size(); i += 2)
@@ -207,27 +219,27 @@ namespace MikuMikuWorld
 					if (subdata == "00")
 						continue;
 
-					int measure = std::stoul(header.substr(0, 3), nullptr, 10);
+					int measure = baseMeasure + std::stoul(header.substr(0, 3), nullptr, 10);
 					int t = toTicks(measure, i, data.size(), bars);
 					bpmChanges[t] = subdata;
 				}
 			}
 			else if (header.size() == 5 && header[3] == '1')
 			{
-				std::vector<SUSNote> appendNotes = toNotes(header, data, bars);
+				std::vector<SUSNote> appendNotes = toNotes(header, data, bars, baseMeasure);
 				taps.reserve(taps.size() + appendNotes.size());
 				taps.insert(taps.end(), appendNotes.begin(), appendNotes.end());
 			}
 			else if (header.size() == 6 && header[3] == '3')
 			{
 				int channel = std::stoul(header.substr(5, 1), nullptr, 36);
-				std::vector<SUSNote> appendNotes = toNotes(header, data, bars);
+				std::vector<SUSNote> appendNotes = toNotes(header, data, bars, baseMeasure);
 				streams[channel].reserve(streams[channel].size() + appendNotes.size());
 				streams[channel].insert(streams[channel].end(), appendNotes.begin(), appendNotes.end());
 			}
 			else if (header.size() == 5 && header[3] == '5')
 			{
-				std::vector<SUSNote> appendNotes = toNotes(header, data, bars);
+				std::vector<SUSNote> appendNotes = toNotes(header, data, bars, baseMeasure);
 				directionals.reserve(directionals.size() + appendNotes.size());
 				directionals.insert(directionals.end(), appendNotes.begin(), appendNotes.end());
 			}
@@ -275,7 +287,7 @@ namespace MikuMikuWorld
 
 			line = trim(line);
 			std::regex_match(line.cbegin(), line.cend(), sm, regex);
-			if (sm.size())
+			if (sm.size() || startsWith(line, "#MEASUREBS"))
 				scoredata.push_back(line);
 			else
 			{
@@ -317,7 +329,7 @@ namespace MikuMikuWorld
 
 		lines.push_back(std::string("#WAVEOFFSET " + std::to_string(score.metadata.waveOffset)));
 
-		std::map<std::string, NoteMap> noteMaps;
+		std::map<int, MeasureMap> measureMaps;
 
 		auto barLengths = score.barlengths;
 		std::stable_sort(barLengths.begin(), barLengths.end(),
@@ -389,14 +401,14 @@ namespace MikuMikuWorld
 				lines.push_back(line);
 			}
 
-			appendData(bpm.tick, "08", bpmIdentifiers[bpm.bpm], barLengthTicks, ticksPerBeat, noteMaps);
+			appendData(bpm.tick, "08", bpmIdentifiers[bpm.bpm], barLengthTicks, ticksPerBeat, measureMaps);
 		}
 
 		for (const auto& tap : taps)
-			appendNoteData(tap, "1", "-1", barLengthTicks, ticksPerBeat, noteMaps);
+			appendNoteData(tap, "1", "-1", barLengthTicks, ticksPerBeat, measureMaps);
 
 		for (const auto& directional : directionals)
-			appendNoteData(directional, "5", "-1", barLengthTicks, ticksPerBeat, noteMaps);
+			appendNoteData(directional, "5", "-1", barLengthTicks, ticksPerBeat, measureMaps);
 
 		ChannelProvider provider;
 		for (const auto& steps : slides)
@@ -408,34 +420,45 @@ namespace MikuMikuWorld
 			char buf[10];
 			std::string chStr(tostringBaseN(buf, channel, 36));
 			for (const auto& note : steps)
-				appendNoteData(note, "3", chStr, barLengthTicks, ticksPerBeat, noteMaps);
+				appendNoteData(note, "3", chStr, barLengthTicks, ticksPerBeat, measureMaps);
 		}
 
 		
-		for (const auto&[tag, map] : noteMaps)
+		int lastBaseMeasure = 0;
+		for (const auto&[measure, map] : measureMaps)
 		{
-			int gcd = map.ticksPerMeasure;
-			for (const auto& raw : map.data)
-				gcd = std::gcd(raw.tick, gcd);
-
-			std::map<int, std::string> data;
-			for (const auto& raw : map.data)
-				data[raw.tick % map.ticksPerMeasure] = raw.data;
-
-			std::vector<std::string> values;
-			for (int i = 0; i < map.ticksPerMeasure; i += gcd)
+			int baseMeasure = measure - (measure % 1000);
+			if (baseMeasure > lastBaseMeasure)
 			{
-				if (data.find(i) != data.end())
-					values.push_back(data[i]);
-				else
-					values.push_back("00");
+				lines.push_back(formatString("#MEASUREBS %d", baseMeasure));
+				lastBaseMeasure = baseMeasure;
 			}
 
-			std::string line = "#" + tag + ":";
-			for (const auto& value : values)
-				line.append(value);
+			for (const auto& [info, notes] : map.notesMap)
+			{
+				int gcd = notes.ticksPerMeasure;
+				for (const auto& raw : notes.data)
+					gcd = std::gcd(raw.tick, gcd);
 
-			lines.push_back(line);
+				std::map<int, std::string> data;
+				for (const auto& raw : notes.data)
+					data[raw.tick % notes.ticksPerMeasure] = raw.data;
+
+				std::vector<std::string> values;
+				for (int i = 0; i < notes.ticksPerMeasure; i += gcd)
+				{
+					if (data.find(i) != data.end())
+						values.push_back(data[i]);
+					else
+						values.push_back("00");
+				}
+
+				std::string line = formatString("#%03d%s:", measure - baseMeasure, info.c_str());
+				for (const auto& value : values)
+					line.append(value);
+
+				lines.push_back(line);
+			}
 		}
 
 		std::wstring wFilename = mbToWideStr(filename);

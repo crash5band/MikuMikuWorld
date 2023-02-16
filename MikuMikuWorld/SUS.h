@@ -1,5 +1,6 @@
 #pragma once
 #include <unordered_map>
+#include <map>
 #include <vector>
 #include <string>
 
@@ -42,6 +43,12 @@ namespace MikuMikuWorld
 
 		std::vector<RawData> data;
 		int ticksPerMeasure;
+	};
+
+	struct MeasureMap
+	{
+		int measure;
+		std::map<std::string, NoteMap> notesMap;
 	};
 
 	struct SUSMetadata
