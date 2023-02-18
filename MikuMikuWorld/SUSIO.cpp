@@ -14,14 +14,16 @@ namespace MikuMikuWorld
 
 	std::pair<int, int> SUSIO::barLengthToFraction(float length, float fractionDenom)
 	{
-		int n = length * 4;
-		int d = fractionDenom * 4;
-		int g = std::gcd(n, d);
-		n /= g;
-		d /= g;
-		if (n == d)
-			n = d = 4;
-		return std::pair<int, int>(n, d);
+		int factor = 1;
+		for (int i = 2; i < 10; ++i)
+		{
+			if (fmodf(factor * length, 1) == 0)
+				return std::pair<int, int>(factor * length, pow(2, i));
+
+			factor *= 2;
+		}
+
+		return std::pair<int, int>(4, 4);
 	}
 
 	Score SUSIO::importSUS(const std::string& filename)
