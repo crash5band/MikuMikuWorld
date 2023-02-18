@@ -349,7 +349,8 @@ namespace MikuMikuWorld
 		commandManager.add("save", { {CTRL, GLFW_KEY_S} }, [this] { this->editor->saveAs(); });
 		commandManager.add("save_as", { {CTRL | SHIFT, GLFW_KEY_S} }, [this] { this->editor->saveAs(); });
 		commandManager.add("export", { {CTRL, GLFW_KEY_E} }, [this] { this->editor->exportSUS(); });
-		commandManager.add("toggle_playback", { {NONE, GLFW_KEY_SPACE} }, [this] { editor->togglePlaying(); });
+		commandManager.add("toggle_playback_play_pause", { {NONE, GLFW_KEY_SPACE} }, [this] { editor->togglePlaying(); });
+		commandManager.add("toggle_playback_play_stop", { {SHIFT, GLFW_KEY_SPACE} }, [this] { editor->stopAtLastSelectedTick(); });
 		commandManager.add("copy", { {CTRL, GLFW_KEY_C} }, [this] { editor->copy(); },
 			[this] { return editor->isAnyNoteSelected(); });
 
