@@ -176,8 +176,8 @@ namespace MikuMikuWorld
 			UI::contextMenuItem(ICON_FA_TRASH, commandManager->commands[deleteCmd]);
 			UI::contextMenuItem(ICON_FA_COPY, commandManager->commands[copyCmd]);
 			UI::contextMenuItem(ICON_FA_PASTE, commandManager->commands[pasteCmd]);
-			UI::contextMenuItem(ICON_FA_PASTE, commandManager->commands[flipCmd]);
-			UI::contextMenuItem(ICON_FA_GRIP_LINES_VERTICAL, commandManager->commands[flipPasteCmd]);
+			UI::contextMenuItem(ICON_FA_GRIP_LINES_VERTICAL, commandManager->commands[flipCmd]);
+			UI::contextMenuItem(ICON_FA_PASTE, commandManager->commands[flipPasteCmd]);
 
 			ImGui::Separator();
 			if (ImGui::BeginMenu(getString("ease_type"), selection.hasEase()))
