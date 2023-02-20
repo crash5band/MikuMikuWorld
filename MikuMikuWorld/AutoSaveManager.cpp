@@ -24,8 +24,8 @@ namespace MikuMikuWorld
 	{
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 
-		ImGui::Checkbox(getString("auto_save_enable"), &enabled);
 		UI::beginPropertyColumns();
+		UI::addCheckboxProperty(getString("auto_save_enable"), enabled);
 		UI::addIntProperty(getString("auto_save_interval"), interval, 1, 60);
 		UI::addIntProperty(getString("auto_save_count"), fileLimit, 1, 100);
 		UI::endPropertyColumns();

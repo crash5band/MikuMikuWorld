@@ -225,6 +225,14 @@ namespace MikuMikuWorld
 		return edit;
 	}
 
+	void UI::addCheckboxProperty(const char* label, bool& val)
+	{
+		propertyLabel(label);
+		
+		ImGui::Checkbox(labelID(label), &val);
+		ImGui::NextColumn();
+	}
+
 	void UI::addMultilineString(const char* label, std::string& val)
 	{
 		propertyLabel(label);

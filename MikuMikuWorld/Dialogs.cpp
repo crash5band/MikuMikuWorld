@@ -238,9 +238,7 @@ namespace MikuMikuWorld
 						UI::addSliderProperty(getString("lane_width"), laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
 						UI::addSliderProperty(getString("notes_height"), notesHeight, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT, "%d");
 
-						ImGui::Checkbox(getString("use_smooth_scroll"), &smoothScrolling);
-						ImGui::NextColumn();
-						ImGui::NextColumn();
+						UI::addCheckboxProperty(getString("use_smooth_scroll"), smoothScrolling);
 						UI::addSliderProperty(getString("smooth_scroll_time"), smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
 						UI::endPropertyColumns();
 
