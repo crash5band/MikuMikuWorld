@@ -344,7 +344,6 @@ namespace MikuMikuWorld
 				nextTick();
 
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
-			ImGui::Text("%d Notes Selected", selection.count());
 			
 			UI::beginPropertyColumns();
 			UI::divisionSelect(getString("division"), division, divisions, sizeof(divisions) / sizeof(int));

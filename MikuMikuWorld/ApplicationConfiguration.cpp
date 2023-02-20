@@ -116,7 +116,7 @@ namespace MikuMikuWorld
 			notesHeight	= tryGetInt(config["timeline"], "notes_height", 45);
 			division = tryGetInt(config["timeline"], "division", 8);
 			zoom = tryGetFloat(config["timeline"], "zoom", 2.0f);
-			timelineTransparency = tryGetFloat(config["timeline"], "lane_transparency", 0.8f);
+			laneOpacity = tryGetFloat(config["timeline"], "lane_opacity", 0.8f);
 			backgroundBrightness = tryGetFloat(config["timeline"], "background_brightness", 0.4f);
 
 			useSmoothScrolling	= tryGetBool(config["timeline"], "smooth_scrolling_enable", true);
@@ -150,13 +150,7 @@ namespace MikuMikuWorld
 		if (keyExists(config, "input") && keyExists(config["input"], "bindings"))
 		{
 			for (auto& [key, value] : config["input"]["bindings"].items())
-			{
-				//std::vector<std::string> bindings;
-				//for (const auto& v : value)
-				//	bindings.push_back((std::string)v);
-
 				keyConfigMap[key] = KeyConfiguration{ key, value };
-			}
 		}
 	}
 
@@ -184,7 +178,7 @@ namespace MikuMikuWorld
 			{"notes_height", notesHeight},
 			{"division", division},
 			{"zoom", zoom},
-			{"lane_transparency", timelineTransparency},
+			{"lane_opacity", laneOpacity},
 			{"background_brightness", backgroundBrightness},
 			{"smooth_scrolling_enable", useSmoothScrolling},
 			{"smooth_scrolling_time", smoothScrollingTime},
@@ -217,13 +211,7 @@ namespace MikuMikuWorld
 
 		json bindings;
 		for (const auto& [_, command] : keyConfigMap)
-		{
-			//json commandKeys;
-			//for (const auto& key : command.keyBindings)
-			//	commandKeys.push_back(key);
-
 			bindings[command.commandName] = command.keyBindings;
-		}
 
 		config["input"] = {
 			{"bindings", bindings}
@@ -249,7 +237,7 @@ namespace MikuMikuWorld
 		notesHeight = 45;
 		division = 8;
 		zoom = 2.0f;
-		timelineTransparency = 0.8f;
+		laneOpacity = 0.8f;
 		backgroundBrightness = 0.4f;
 		useSmoothScrolling = true;
 		smoothScrollingTime = 67.0f;

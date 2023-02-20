@@ -63,7 +63,7 @@ namespace MikuMikuWorld
 		inline float getLaneWidth() { return laneWidth; }
 		inline float getNotesHeight() { return notesHeight; }
 		inline float getZoom() { return zoom; }
-		inline float getLaneTransparency() { return laneTransparency; }
+		inline float getLaneOpacity() { return laneTransparency; }
 		inline float getBackgroundBrightness() { return background.getBrightness(); }
 		inline float getSmoothScrollingTime() { return smoothScrollTime; }
 		inline float getOffset() { return timelineOffset; }
@@ -75,7 +75,7 @@ namespace MikuMikuWorld
 		void setLaneWidth(float width);
 		void setNotesHeight(float height);
 		void setZoom(float val);
-		void setLaneTransparency(float val);
+		void setLaneOpacity(float val);
 		void setBackgroundBrightness(float val);
 		void setSmoothScrollingTime(float time);
 		void setUseSmoothScrolling(bool val);

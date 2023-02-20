@@ -157,7 +157,7 @@ namespace MikuMikuWorld
 		timelineOffset += x1 - x2;
 	}
 
-	void Canvas::setLaneTransparency(float val)
+	void Canvas::setLaneOpacity(float val)
 	{
 		laneTransparency = std::clamp(val, 0.0f, 1.0f);
 	}

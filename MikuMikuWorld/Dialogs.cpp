@@ -220,7 +220,7 @@ namespace MikuMikuWorld
 					ImGui::EndTabItem();
 				}
 
-				if (ImGui::BeginTabItem(getString("charting")))
+				if (ImGui::BeginTabItem(getString("timeline")))
 				{
 					// charting
 					if (ImGui::CollapsingHeader(getString("timeline"), ImGuiTreeNodeFlags_DefaultOpen))
@@ -231,6 +231,8 @@ namespace MikuMikuWorld
 						int notesHeight = editor->canvas.getNotesHeight();
 						bool smoothScrolling = editor->canvas.isUseSmoothScrolling();
 						float smoothScrollingTime = editor->canvas.getSmoothScrollingTime();
+						float backgroundBrightness = editor->canvas.getBackgroundBrightness();
+						float laneOpacity = editor->canvas.getLaneOpacity();
 
 						UI::beginPropertyColumns();
 						UI::addSliderProperty(getString("lane_width"), laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
@@ -240,6 +242,13 @@ namespace MikuMikuWorld
 						ImGui::NextColumn();
 						ImGui::NextColumn();
 						UI::addSliderProperty(getString("smooth_scroll_time"), smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
+						UI::endPropertyColumns();
+
+						ImGui::Separator();
+
+						UI::beginPropertyColumns();
+						UI::addPercentSliderProperty(getString("background_brightnes"), backgroundBrightness);
+						UI::addPercentSliderProperty(getString("lanes_opacity"), laneOpacity);
 						UI::endPropertyColumns();
 
 						if (laneWidth != editor->canvas.getLaneWidth())
@@ -253,6 +262,12 @@ namespace MikuMikuWorld
 
 						if (smoothScrollingTime != editor->canvas.getSmoothScrollingTime())
 							editor->canvas.setSmoothScrollingTime(smoothScrollingTime);
+						
+						if (backgroundBrightness != editor->canvas.getBackgroundBrightness())
+							editor->canvas.setBackgroundBrightness(backgroundBrightness);
+
+						if (laneOpacity != editor->canvas.getLaneOpacity())
+							editor->canvas.setLaneOpacity(laneOpacity);
 
 						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 					}
