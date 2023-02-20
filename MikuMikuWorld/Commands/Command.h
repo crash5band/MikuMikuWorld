@@ -30,6 +30,7 @@ namespace MikuMikuWorld
 		void setKeys(int index, CommandKeys keys);
 		void addKeys(CommandKeys keys);
 		void removeKeys(int index);
+		void clearKeys();
 
 		bool canExecute();
 		void execute();

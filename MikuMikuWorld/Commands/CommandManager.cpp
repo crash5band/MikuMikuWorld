@@ -120,7 +120,9 @@ namespace MikuMikuWorld
 			{
 				// Do not add empty key bindings
 				if (command.getKey(i) != 0)
+				{
 					bindings.push_back(command.getKeysString(i));
+				}
 			}
 
 			config.keyConfigMap[command.getName()] = KeyConfiguration{ command.getName(), bindings };
@@ -134,6 +136,9 @@ namespace MikuMikuWorld
 			int cmdIndex = findCommand(keyConfig.commandName);
 			if (cmdIndex == -1)
 				continue;
+
+			if (!keyConfig.keyBindings.size())
+				commands[cmdIndex].clearKeys();
 
 			for (int i = 0; i < keyConfig.keyBindings.size(); ++i)
 			{
@@ -152,20 +157,22 @@ namespace MikuMikuWorld
 	void CommandManager::inputSettings()
 	{
 		ImVec2 size = ImVec2(-1, ImGui::GetContentRegionAvail().y * 0.7);
-		const ImGuiTableFlags tableFlags = ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg;
+		const ImGuiTableFlags tableFlags = 
+			ImGuiTableFlags_BordersOuter
+			| ImGuiTableFlags_BordersInnerH
+			| ImGuiTableFlags_ScrollY
+			| ImGuiTableFlags_RowBg;
+
 		const ImGuiSelectableFlags selectionFlags = ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap;
-		int rowHeight = ImGui::GetFrameHeight() + 2;
+		int rowHeight = ImGui::GetFrameHeight() + 5;
 		
 		if (ImGui::BeginTable("##commands_table", 2, tableFlags, size))
 		{
 			ImGui::TableSetupColumn(getString("action"));
 			ImGui::TableSetupColumn(getString("keys"));
-			ImGui::TableSetupScrollFreeze(0, 1);
-			ImGui::TableHeadersRow();
-
 			for (int c = 0; c < commands.size(); ++c)
 			{
-				ImGui::TableNextRow(rowHeight);
+				ImGui::TableNextRow(0, rowHeight);
 				
 				ImGui::TableSetColumnIndex(0);
 				if (ImGui::Selectable(commands[c].getDisplayName().c_str(), c == selectedCommandIndex, selectionFlags))
@@ -178,12 +185,12 @@ namespace MikuMikuWorld
 		}
 		ImGui::Separator();
 
-		if (selectedCommandIndex > -1)
+		if (selectedCommandIndex > -1 && selectedCommandIndex < commands.size())
 		{
 			int deleteBinding = -1;
 
 			UI::beginPropertyColumns();
-			ImGui::Text(concat("action", ": %s").c_str(), commands[selectedCommandIndex].getDisplayName().c_str());
+			ImGui::Text(commands[selectedCommandIndex].getDisplayName().c_str());
 			ImGui::NextColumn();
 			if (ImGui::Button(getString("add"), ImVec2(-1, UI::btnSmall.y)))
 				commands[selectedCommandIndex].addKeys(CommandKeys{});
@@ -225,10 +232,6 @@ namespace MikuMikuWorld
 				listeningForInput = false;
 				commands[selectedCommandIndex].removeKeys(deleteBinding);
 			}
-		}
-		else
-		{
-			ImGui::Text(getString("cmd_help_text"));
 		}
 
 		if (listeningForInput)

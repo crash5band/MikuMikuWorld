@@ -15,7 +15,7 @@ namespace MikuMikuWorld
 		const int inputTimeoutSeconds = 5;
 		bool listeningForInput = false;
 		int editBindingIndex = -1;
-		int selectedCommandIndex = -1;
+		int selectedCommandIndex = 0;
 
 	public:
 		std::vector<Command> commands;

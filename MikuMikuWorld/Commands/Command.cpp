@@ -63,6 +63,11 @@ namespace MikuMikuWorld
 		this->keys.erase(this->keys.begin() + index);
 	}
 
+	void Command::clearKeys()
+	{
+		this->keys.clear();
+	}
+
 	int Command::getBindingsCount() const
 	{
 		return this->keys.size();

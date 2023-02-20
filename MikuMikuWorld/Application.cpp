@@ -348,9 +348,9 @@ namespace MikuMikuWorld
 		commandManager.add("open", { {CTRL, GLFW_KEY_O} }, [this] { this->open(); });
 		commandManager.add("save", { {CTRL, GLFW_KEY_S} }, [this] { this->editor->saveAs(); });
 		commandManager.add("save_as", { {CTRL | SHIFT, GLFW_KEY_S} }, [this] { this->editor->saveAs(); });
-		commandManager.add("export", { {CTRL, GLFW_KEY_E} }, [this] { this->editor->exportSUS(); });
+		commandManager.add("export", { }, [this] { this->editor->exportSUS(); });
 		commandManager.add("toggle_playback_play_pause", { {NONE, GLFW_KEY_SPACE} }, [this] { editor->togglePlaying(); });
-		commandManager.add("toggle_playback_play_stop", { {SHIFT, GLFW_KEY_SPACE} }, [this] { editor->stopAtLastSelectedTick(); });
+		commandManager.add("toggle_playback_play_stop", { }, [this] { editor->stopAtLastSelectedTick(); });
 		commandManager.add("copy", { {CTRL, GLFW_KEY_C} }, [this] { editor->copy(); },
 			[this] { return editor->isAnyNoteSelected(); });
 
@@ -373,44 +373,44 @@ namespace MikuMikuWorld
 		commandManager.add("delete", { {NONE, GLFW_KEY_DELETE} }, [this] { editor->deleteSelected(); },
 			[this] { return editor->isAnyNoteSelected(); });
 
-		commandManager.add("stop", { {NONE, GLFW_KEY_BACKSPACE} }, [this] { editor->stop(); });
+		commandManager.add("stop", { }, [this] { editor->stop(); });
 		commandManager.add("flip", { {CTRL, GLFW_KEY_F} }, [this] { editor->flipSelected(); },
 			[this] { return editor->isAnyNoteSelected(); });
 
-		commandManager.add("shrink_down", { {CTRL, GLFW_KEY_H} }, [this] { editor->shrinkSelected(0); },
+		commandManager.add("shrink_down", { }, [this] { editor->shrinkSelected(0); },
 			[this] { return editor->isAnyNoteSelected(); });
 
-		commandManager.add("shrink_up", { {CTRL | SHIFT, GLFW_KEY_H} }, [this] { editor->shrinkSelected(1); },
+		commandManager.add("shrink_up", { }, [this] { editor->shrinkSelected(1); },
 			[this] { return editor->isAnyNoteSelected(); });
 
-		commandManager.add("prev_tick", { {NONE, GLFW_KEY_DOWN} }, [this] { editor->previousTick(); },
+		commandManager.add("prev_tick", { }, [this] { editor->previousTick(); },
 			[this] { return !editor->isPlaying(); });
 
-		commandManager.add("next_tick", { {NONE, GLFW_KEY_UP} }, [this] { editor->nextTick(); },
+		commandManager.add("next_tick", { }, [this] { editor->nextTick(); },
 			[this] { return !editor->isPlaying();  });
 
-		commandManager.add("timeline_select", { {NONE, GLFW_KEY_1}, {NONE, GLFW_KEY_KP_1} },
+		commandManager.add("timeline_select", { {NONE, GLFW_KEY_1} },
 			[this] { editor->changeMode(TimelineMode::Select); });
 
-		commandManager.add("timeline_tap", { {NONE, GLFW_KEY_2}, {NONE, GLFW_KEY_KP_2} },
+		commandManager.add("timeline_tap", { {NONE, GLFW_KEY_2} },
 			[this] { editor->changeMode(TimelineMode::InsertTap); });
 
-		commandManager.add("timeline_hold", { {NONE, GLFW_KEY_3}, {NONE, GLFW_KEY_KP_3} },
+		commandManager.add("timeline_hold", { {NONE, GLFW_KEY_3} },
 			[this] { editor->changeMode(TimelineMode::InsertLong); });
 
-		commandManager.add("timeline_hold_mid", { {NONE, GLFW_KEY_4}, {NONE, GLFW_KEY_KP_4} },
+		commandManager.add("timeline_hold_mid", { {NONE, GLFW_KEY_4} },
 			[this] { editor->changeMode(TimelineMode::InsertLongMid); });
 
-		commandManager.add("timeline_flick", { {NONE, GLFW_KEY_5}, {NONE, GLFW_KEY_KP_5} },
+		commandManager.add("timeline_flick", { {NONE, GLFW_KEY_5} },
 			[this] { editor->changeMode(TimelineMode::InsertFlick); });
 
-		commandManager.add("timeline_make_critical", { {NONE, GLFW_KEY_6}, {NONE, GLFW_KEY_KP_6} },
+		commandManager.add("timeline_make_critical", { {NONE, GLFW_KEY_6} },
 			[this] { editor->changeMode(TimelineMode::MakeCritical); });
 
-		commandManager.add("timeline_bpm", { {NONE, GLFW_KEY_7}, {NONE, GLFW_KEY_KP_7} },
+		commandManager.add("timeline_bpm", { {NONE, GLFW_KEY_7} },
 			[this] { editor->changeMode(TimelineMode::InsertBPM); });
 
-		commandManager.add("timeline_time_signature", { {NONE, GLFW_KEY_8}, {NONE, GLFW_KEY_KP_8} },
+		commandManager.add("timeline_time_signature", { {NONE, GLFW_KEY_8} },
 			[this] { editor->changeMode(TimelineMode::InsertTimeSign); });
 
 		commandManager.readCommands(config);
