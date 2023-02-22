@@ -116,6 +116,7 @@ tick, 拍子
 remove, 削除
 edit_time_signature, 拍子を編集
 measure, 小節
+skill, スキル
 
 # preset manager
 presets, プリセット
