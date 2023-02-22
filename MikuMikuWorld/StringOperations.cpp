@@ -57,7 +57,7 @@ namespace MikuMikuWorld
 
 	bool endsWith(const std::string& line, const std::string& key)
 	{
-		return line.substr(line.size() - key.size()) == key;
+		return line.find_last_of(key) == line.size() - key.size();
 	}
 
 	bool isDigit(const std::string& str)

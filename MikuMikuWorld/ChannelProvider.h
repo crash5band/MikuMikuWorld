@@ -10,8 +10,7 @@ private:
 public:
 	ChannelProvider()
 	{
-		for (int i = 0; i < 36; ++i)
-			channels[i] = TickRange{ 0, 0 };
+		clear();
 	}
 
 	int generateChannel(int startTick, int endTick)
@@ -28,5 +27,11 @@ public:
 		}
 
 		throw("No more channels available");
+	}
+
+	void clear()
+	{
+		for (int i = 0; i < 36; ++i)
+			channels[i] = TickRange{ 0, 0 };
 	}
 };

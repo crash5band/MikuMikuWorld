@@ -71,9 +71,6 @@
     <ClCompile Include="StringOperations.cpp">
       <Filter>IO</Filter>
     </ClCompile>
-    <ClCompile Include="SUS.cpp">
-      <Filter>Score\SUS</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Camera.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
@@ -88,9 +85,6 @@
     </ClCompile>
     <ClCompile Include="UI.cpp">
       <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="SUSIO.cpp">
-      <Filter>Score\SUS</Filter>
     </ClCompile>
     <ClCompile Include="ApplicationConfiguration.cpp" />
     <ClCompile Include="Audio\Sound.cpp">
@@ -182,6 +176,15 @@
     </ClCompile>
     <ClCompile Include="Menubar.cpp">
       <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SusParser.cpp">
+      <Filter>Score\SUS</Filter>
+    </ClCompile>
+    <ClCompile Include="SusExporter.cpp">
+      <Filter>Score\SUS</Filter>
+    </ClCompile>
+    <ClCompile Include="ScoreConverter.cpp">
+      <Filter>Score</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -286,9 +289,6 @@
     </ClInclude>
     <ClInclude Include="UI.h">
       <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="SUSIO.h">
-      <Filter>Score\SUS</Filter>
     </ClInclude>
     <ClInclude Include="ApplicationConfiguration.h" />
     <ClInclude Include="ScoreStats.h">
@@ -400,6 +400,15 @@
       <Filter>Components</Filter>
     </ClInclude>
     <ClInclude Include="WindowState.h" />
+    <ClInclude Include="SusParser.h">
+      <Filter>Score\SUS</Filter>
+    </ClInclude>
+    <ClInclude Include="SusExporter.h">
+      <Filter>Score\SUS</Filter>
+    </ClInclude>
+    <ClInclude Include="ScoreConverter.h">
+      <Filter>Score</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">

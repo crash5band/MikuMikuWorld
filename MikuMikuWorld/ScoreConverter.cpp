@@ -1,18 +1,19 @@
-#include "SUSIO.h"
+#include "ScoreConverter.h"
+#include "SUS.h"
+#include "Score.h"
+#include <stdexcept>
 #include "Constants.h"
 #include <unordered_set>
 #include <algorithm>
-#include <numeric>
-#include <stdexcept>
 
 namespace MikuMikuWorld
 {
-	std::string SUSIO::noteKey(const SUSNote& note)
+	std::string ScoreConverter::noteKey(const SUSNote& note)
 	{
 		return std::to_string(note.tick) + "-" + std::to_string(note.lane);
 	}
 
-	std::pair<int, int> SUSIO::barLengthToFraction(float length, float fractionDenom)
+	std::pair<int, int> ScoreConverter::barLengthToFraction(float length, float fractionDenom)
 	{
 		int factor = 1;
 		for (int i = 2; i < 10; ++i)
@@ -26,17 +27,17 @@ namespace MikuMikuWorld
 		return std::pair<int, int>(4, 4);
 	}
 
-	Score SUSIO::importSUS(const std::string& filename)
+	Score ScoreConverter::susToScore(const SUS& sus)
 	{
-		SUS sus = loadSUS(filename);
-
 		ScoreMetadata metadata
-		{ 
-			sus.metadata.data["title"],
-			sus.metadata.data["artist"],
-			sus.metadata.data["designer"]
+		{
+			sus.metadata.data.at("title"),
+			sus.metadata.data.at("artist"),
+			sus.metadata.data.at("designer"),
+			"",
+			"",
+			sus.metadata.waveOffset * 1000 // seconds -> milliseconds
 		};
-		metadata.musicOffset = sus.metadata.waveOffset * 1000;
 
 		std::unordered_map<std::string, FlickType> flicks;
 		std::unordered_set<std::string> criticals;
@@ -178,7 +179,7 @@ namespace MikuMikuWorld
 
 				switch (note.type)
 				{
-				// start
+					// start
 				case 1:
 				{
 					Note n(NoteType::Hold);
@@ -271,7 +272,7 @@ namespace MikuMikuWorld
 		return score;
 	}
 
-	void SUSIO::exportSUS(const Score& score, const std::string& filename)
+	SUS ScoreConverter::scoreToSus(const Score& score)
 	{
 		std::unordered_map<FlickType, int> flickToType;
 		flickToType[FlickType::Up] = 1;
@@ -283,7 +284,7 @@ namespace MikuMikuWorld
 		std::vector<BPM> bpms;
 		std::vector<BarLength> barlengths;
 
-		for (const auto&[id, note] : score.notes)
+		for (const auto& [id, note] : score.notes)
 		{
 			if (note.getType() == NoteType::Tap)
 			{
@@ -293,7 +294,7 @@ namespace MikuMikuWorld
 			}
 		}
 
-		for (const auto&[id, hold] : score.holdNotes)
+		for (const auto& [id, hold] : score.holdNotes)
 		{
 			std::vector<SUSNote> slide;
 			slide.reserve(hold.steps.size() + 2);
@@ -364,7 +365,7 @@ namespace MikuMikuWorld
 		std::stable_sort(bpms.begin(), bpms.end(),
 			[](const BPM& a, const BPM& b) { return a.tick < b.tick; });
 
-		for (const auto&[measure, ts] : score.timeSignatures)
+		for (const auto& [measure, ts] : score.timeSignatures)
 			barlengths.push_back(BarLength{ ts.measure, ((float)ts.numerator / (float)ts.denominator) * 4 });
 
 		std::stable_sort(barlengths.begin(), barlengths.end(),
@@ -374,10 +375,11 @@ namespace MikuMikuWorld
 		metadata.data["title"] = score.metadata.title;
 		metadata.data["artist"] = score.metadata.artist;
 		metadata.data["designer"] = score.metadata.author;
-		metadata.waveOffset = score.metadata.musicOffset / 1000.0f;
 		metadata.requests.push_back("ticks_per_beat 480");
 
-		SUS sus{ metadata, taps, directionals, slides, bpms, barlengths };
-		saveSUS(sus, filename);
+		// milliseconds -> seconds
+		metadata.waveOffset = score.metadata.musicOffset / 1000.0f;
+
+		return SUS{ metadata, taps, directionals, slides, bpms, barlengths };
 	}
 }

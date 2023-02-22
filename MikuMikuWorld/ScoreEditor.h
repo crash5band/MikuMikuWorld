@@ -13,6 +13,8 @@
 #include "ScoreStats.h"
 #include "Canvas.h"
 #include "Selection.h"
+#include "SusParser.h"
+#include "SusExporter.h"
 
 // needed for miniaudio to work
 #undef min
@@ -41,6 +43,10 @@ namespace MikuMikuWorld
 		EditorScoreData workingData;
 		std::unordered_map<std::string, int> tickSEMap;
 		std::vector<StepDrawData> drawSteps;
+
+		SusParser susParser;
+		SusExporter susExporter;
+		std::string susExportComment;
 
 		Note dummy;
 		Note dummyStart;
