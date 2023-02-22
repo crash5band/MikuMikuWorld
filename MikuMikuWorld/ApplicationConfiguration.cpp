@@ -7,7 +7,7 @@ using namespace nlohmann;
 
 namespace MikuMikuWorld
 {
-	constexpr const char* CONFIG_VERSION{ "1.3.1" };
+	constexpr const char* CONFIG_VERSION{ "1.4.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -112,12 +112,12 @@ namespace MikuMikuWorld
 
 		if (keyExists(config, "timeline"))
 		{
-			timelineWidth = tryGetInt(config["timeline"], "lane_width", 35);
-			notesHeight	= tryGetInt(config["timeline"], "notes_height", 45);
+			timelineWidth = tryGetInt(config["timeline"], "lane_width", 30);
+			notesHeight	= tryGetInt(config["timeline"], "notes_height", 35);
 			division = tryGetInt(config["timeline"], "division", 8);
 			zoom = tryGetFloat(config["timeline"], "zoom", 2.0f);
-			laneOpacity = tryGetFloat(config["timeline"], "lane_opacity", 0.8f);
-			backgroundBrightness = tryGetFloat(config["timeline"], "background_brightness", 0.4f);
+			laneOpacity = tryGetFloat(config["timeline"], "lane_opacity", 0.6f);
+			backgroundBrightness = tryGetFloat(config["timeline"], "background_brightness", 0.5f);
 
 			useSmoothScrolling	= tryGetBool(config["timeline"], "smooth_scrolling_enable", true);
 			smoothScrollingTime = tryGetFloat(config["timeline"], "smooth_scrolling_time", 67.0f);
@@ -233,12 +233,12 @@ namespace MikuMikuWorld
 		accentColor = 1;
 		userColor = Color(0.2f, 0.2f, 0.2f, 1.0f);
 		
-		timelineWidth = 35;
-		notesHeight = 45;
+		timelineWidth = 30;
+		notesHeight = 35;
 		division = 8;
 		zoom = 2.0f;
-		laneOpacity = 0.8f;
-		backgroundBrightness = 0.4f;
+		laneOpacity = 0.6f;
+		backgroundBrightness = 0.5f;
 		useSmoothScrolling = true;
 		smoothScrollingTime = 67.0f;
 		scrollMode = "follow_cursor";
