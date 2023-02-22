@@ -2,6 +2,8 @@
 #include "Utilities.h"
 #include "Colors.h"
 #include "Commands/Command.h"
+#include "Tempo.h"
+#include "TimelineMode.h"
 #include <string>
 #include <algorithm>
 #include <GLFW/glfw3.h>
@@ -329,6 +331,51 @@ namespace MikuMikuWorld
 		}
 
 		return act;
+	}
+
+	bool UI::timeSignatureSelect(int& numerator, int& denominator)
+	{
+		propertyLabel(getString("time_signature"));
+
+		float controlWidth = (ImGui::GetContentRegionAvail().x / 2.0f) - (ImGui::CalcTextSize("/").x);
+		bool edit = false;
+
+		ImGui::SetNextItemWidth(controlWidth);
+		if (ImGui::BeginCombo("##ts_num", std::to_string(numerator).c_str()))
+		{
+			for (int i = 1; i <= 64; ++i)
+			{
+				if (ImGui::Selectable(std::to_string(i).c_str()))
+				{
+					edit = numerator != i;
+					numerator = i;
+				}
+			}
+
+			ImGui::EndCombo();
+		}
+
+		ImGui::SameLine();
+		ImGui::Text("/");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(controlWidth);
+
+		if (ImGui::BeginCombo("##ts_denom", std::to_string(denominator).c_str()))
+		{
+			for (int i = 0; i < sizeof(timeSignatureDenominators) / sizeof(int); ++i)
+			{
+				if (ImGui::Selectable(std::to_string(timeSignatureDenominators[i]).c_str()))
+				{
+					edit = denominator != timeSignatureDenominators[i];
+					denominator = timeSignatureDenominators[i];
+				}
+			}
+
+			ImGui::EndCombo();
+		}
+
+		ImGui::NextColumn();
+		return edit;
 	}
 
 	void UI::setWindowTitle(std::string title)

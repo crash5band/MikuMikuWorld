@@ -16,6 +16,7 @@
 namespace MikuMikuWorld
 {
 	class Command;
+	struct TimeSignature;
 
 	constexpr const char* windowTitle = " - " APP_NAME;
 	constexpr const char* windowUntitled = "Untitled";
@@ -91,6 +92,7 @@ namespace MikuMikuWorld
 		static const char* labelID(const char* label);
 		static bool divisionSelect(const char* label, int& value, const int* items, size_t count);
 		static bool zoomControl(const char* label, float& value, float min, float max);
+		static bool timeSignatureSelect(int &numerator, int &denominator);
 		static void contextMenuItem(const char* icon, Command& command);
 
 		static void setWindowTitle(std::string title);

@@ -54,9 +54,7 @@ namespace MikuMikuWorld
 			}
 			else if (currentMode == TimelineMode::InsertTimeSign)
 			{
-				UI::addFractionProperty(getString("time_signature"), defaultTimeSignN, defaultTimeSignD);
-				defaultTimeSignN = std::clamp(defaultTimeSignN, MIN_TIME_SIGN, MAX_TIME_SIGN);
-				defaultTimeSignD = std::clamp(defaultTimeSignD, MIN_TIME_SIGN, MAX_TIME_SIGN);
+				UI::timeSignatureSelect(defaultTimeSignN, defaultTimeSignD);
 			}
 			else
 			{
@@ -421,7 +419,7 @@ namespace MikuMikuWorld
 
 			UI::beginPropertyColumns();
 			UI::addReadOnlyProperty(getString("measure"), std::to_string(editTSIndex));
-			if (UI::addFractionProperty(getString("time_signature"), editTsNum, editTsDenom))
+			if (UI::timeSignatureSelect(editTsNum, editTsDenom))
 			{
 				Score prev = score;
 				TimeSignature& ts = score.timeSignatures[editTSIndex];
