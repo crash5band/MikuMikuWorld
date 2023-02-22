@@ -27,6 +27,9 @@ namespace MikuMikuWorld
 		float bgmVolume;
 		float seVolume;
 
+		float bgmVolumeFactor = 0.60f;
+		float seVolumeFactor = 0.63f;
+
 	public:
 		void initAudio();
 		void loadSE();

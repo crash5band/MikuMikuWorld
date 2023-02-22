@@ -57,9 +57,9 @@ namespace MikuMikuWorld
 		musicInitialized = false;
 		loadSE();
 
-		masterVolume = 0.8f;
-		bgmVolume = 1.0f;
-		seVolume = 1.0f;
+		setMasterVolume(0.8f);
+		setBGMVolume(1.0f);
+		setSEVolume(1.0f);
 	}
 
 	void AudioManager::loadSE()
@@ -220,7 +220,7 @@ namespace MikuMikuWorld
 	void AudioManager::setBGMVolume(float volume)
 	{
 		bgmVolume = volume;
-		ma_sound_group_set_volume(&bgmGroup, volume);
+		ma_sound_group_set_volume(&bgmGroup, volume * bgmVolumeFactor);
 	}
 
 	float AudioManager::getSEVolume()
@@ -231,7 +231,7 @@ namespace MikuMikuWorld
 	void AudioManager::setSEVolume(float volume)
 	{
 		seVolume = volume;
-		ma_sound_group_set_volume(&seGroup, volume);
+		ma_sound_group_set_volume(&seGroup, volume * seVolumeFactor);
 	}
 
 	void AudioManager::playSound(const char* se, double start, double end)
