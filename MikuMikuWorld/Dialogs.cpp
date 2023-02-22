@@ -57,10 +57,10 @@ namespace MikuMikuWorld
 			ImVec2 padding = ImGui::GetStyle().WindowPadding;
 			ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
 			float xPos = padding.x;
-			float yPos = ImGui::GetWindowSize().y - UI::btnNormal.y - padding.y;
+			float yPos = ImGui::GetWindowSize().y - UI::btnSmall.y - 2.0f - padding.y;
 			ImGui::SetCursorPos(ImVec2(xPos, yPos));
 
-			ImVec2 btnSz = ImVec2((ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) / 3.0f, UI::btnNormal.y);
+			ImVec2 btnSz = ImVec2((ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) / 3.0f, UI::btnSmall.y + 2.0f);
 
 			if (ImGui::Button(getString("save_changes"), btnSz))
 			{
