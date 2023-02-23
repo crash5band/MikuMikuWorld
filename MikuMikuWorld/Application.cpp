@@ -17,7 +17,7 @@ namespace MikuMikuWorld
 	std::string Application::appDir;
 
 	Application::Application(const std::string& root) :
-		lastAppTimeUpdate{ 0 }, appFrame{ 0 }, appTime{ 0 }, initialized{ false }
+		initialized{ false }
 	{
 		appDir = root;
 		version = getVersion();
@@ -301,22 +301,13 @@ namespace MikuMikuWorld
 		editor->update(frameDelta, renderer, &commandManager);
 		autoSave.update();
 
-		if (glfwGetTime() - lastAppTimeUpdate >= 0.05f)
-		{
-			appTime = stopwatch.elapsed();
-			appFrame = frameDelta;
-			lastAppTimeUpdate = glfwGetTime();
-		}
-
 		if (windowState.showPerformanceMetrics)
 		{
 			ImGui::BeginMainMenuBar();
-			ImGui::SetCursorPosX(ImGui::GetMainViewport()->WorkSize.x - 300);
-			ImGui::Text("app time: %.2fms :: frame time: %.2fms (%.0fFPS)",
-				appTime * 1000,
-				appFrame * 1000,
-				1 / appFrame
-			);
+			
+			std::string frameTimeString = formatString("%.2fms (%.0fFPS)", frameDelta * 1000, 1 / frameDelta);
+			ImGui::SetCursorPosX(ImGui::GetMainViewport()->WorkSize.x - ImGui::CalcTextSize(frameTimeString.c_str()).x - 10.0f);
+			ImGui::Text(frameTimeString.c_str());
 
 			ImGui::EndMainMenuBar();
 		}
@@ -421,8 +412,6 @@ namespace MikuMikuWorld
 	{
 		while (!glfwWindowShouldClose(window))
 		{
-			stopwatch.reset();
-
 			glfwPollEvents();
 			frameTime();
 

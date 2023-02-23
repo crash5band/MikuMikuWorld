@@ -29,9 +29,6 @@ namespace MikuMikuWorld
 
 		float lastFrame;
 		float frameDelta;
-		float appFrame;
-		float appTime;
-		float lastAppTimeUpdate;
 		bool initialized;
 		bool resetting;
 		
@@ -43,8 +40,6 @@ namespace MikuMikuWorld
 
 		static std::string version;
 		static std::string appDir;
-
-		Stopwatch stopwatch;
 
 		Result initOpenGL();
 		void update();
