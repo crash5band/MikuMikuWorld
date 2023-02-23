@@ -318,11 +318,12 @@ namespace MikuMikuWorld
 			const TimeSignature& ts = score.timeSignatures[findTimeSignature(measure, score.timeSignatures)];
 			const Tempo& tempo = getTempoAt(currentTick, score.tempoChanges);
 
-			std::string timeStr = formatString("%02d:%02d:%02d", (int)time / 60, (int)time % 60, (int)((time - (int)time) * 100));
-			std::string signStr = formatString("\t|\t%d/%d, ", ts.numerator, ts.denominator);
-			std::string tempoStr = formatString("%g BPM", tempo.bpm);
-
-			Utilities::ImGuiCenteredText(timeStr + signStr + tempoStr);
+			Utilities::ImGuiCenteredText(formatString(
+				"%02d:%02d:%02d\t|\t%d/%d\t|\t%g BPM",
+				(int)time / 60, (int)time % 60, (int)((time - (int)time) * 100),
+				ts.numerator, ts.denominator,
+				tempo.bpm
+			));
 
 			// center playback controls
 			ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x * 0.5f) - ((UI::btnNormal.x + ImGui::GetStyle().ItemSpacing.x) * 2));
