@@ -129,6 +129,7 @@ namespace MikuMikuWorld
 		{"description", "Description"},
 		{"create_preset", "Create Preset"},
 		{"search", "Search..."},
+		{"confirm", "Confirm"},
 
 		// commands
 		{"action", "Action"},

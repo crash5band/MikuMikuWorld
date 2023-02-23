@@ -244,10 +244,11 @@ namespace MikuMikuWorld
 	bool PresetManager::updateWindow(const Score& score, const std::unordered_set<int>& selection)
 	{
 		bool selected = false;
+		static bool dialogOpen = false;
+		static std::string presetName = "";
+		static std::string presetDesc = "";
 		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_DRAFTING_COMPASS, "presets")))
 		{
-			static std::string presetName = "";
-			static std::string presetDesc = "";
 			int removePattern = -1;
 
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, ImGui::GetStyle().ItemSpacing.y));
@@ -263,7 +264,7 @@ namespace MikuMikuWorld
 			ImGui::PopStyleColor();
 
 			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
-			float windowHeight = ImGui::GetContentRegionAvail().y - ((ImGui::GetFrameHeight() * 3.0f) + 50);
+			float windowHeight = ImGui::GetContentRegionAvail().y - ((ImGui::GetFrameHeight()) + 10.0f);
 			if (ImGui::BeginChild("presets_child_window", ImVec2(-1, windowHeight), true))
 			{
 				if (!presets.size())
@@ -299,21 +300,12 @@ namespace MikuMikuWorld
 				}
 			}
 			ImGui::EndChild();
-
-			UI::beginPropertyColumns();
-			UI::addStringProperty(getString("name"), presetName);
-			UI::addMultilineString(getString("description"), presetDesc);
-			UI::endPropertyColumns();
 			ImGui::Separator();
 
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !presetName.size() || !selection.size());
-			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * (!presetName.size() || !selection.size())));
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !selection.size());
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * !selection.size()));
 			if (ImGui::Button(getString("create_preset"), ImVec2(-1, UI::btnSmall.y + 2.0f)))
-			{
-				createPreset(score, selection, presetName, presetDesc);
-				presetName.clear();
-				presetDesc.clear();
-			}
+				dialogOpen = true;
 
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
@@ -324,6 +316,67 @@ namespace MikuMikuWorld
 		}
 
 		ImGui::End();
+
+		if (dialogOpen)
+		{
+			ImGui::OpenPopup(MODAL_TITLE("create_preset"));
+			dialogOpen = false;
+		}
+
+		if (updatePresetCreationDialog(presetName, presetDesc))
+		{
+			createPreset(score, selection, presetName, presetDesc);
+			presetName.clear();
+			presetDesc.clear();
+		}
+
 		return selected;
+	}
+
+	bool PresetManager::updatePresetCreationDialog(std::string& name, std::string& description)
+	{
+		bool result = false;
+
+		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+		ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_Always);
+		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
+		if (ImGui::BeginPopupModal(MODAL_TITLE("create_preset"), NULL, ImGuiWindowFlags_NoResize))
+		{
+			ImVec2 padding = ImGui::GetStyle().WindowPadding;
+			ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
+
+			float xPos = padding.x;
+			float yPos = ImGui::GetWindowSize().y - UI::btnSmall.y - 2.0f - (padding.y * 2);
+			
+			ImGui::Text(getString("name"));
+			ImGui::SetNextItemWidth(-1);
+			ImGui::InputText("##preset_name", &name);
+
+			ImGui::Text(getString("description"));
+			ImGui::InputTextMultiline("##preset_desc", &description,
+				{ -1, ImGui::GetContentRegionAvail().y - UI::btnSmall.y - 10.0f - padding.y});
+
+			ImVec2 btnSz{ (ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) / 2.0f, UI::btnSmall.y + 2.0f };
+			ImGui::SetCursorPos(ImVec2(xPos, yPos));
+			if (ImGui::Button(getString("cancel"), btnSz))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::SameLine();
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !name.size());
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * !name.size()));
+			if (ImGui::Button(getString("confirm"), btnSz))
+			{
+				result = true;
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::PopItemFlag();
+			ImGui::PopStyleVar();
+			ImGui::EndPopup();
+		}
+
+		return result;
 	}
 }

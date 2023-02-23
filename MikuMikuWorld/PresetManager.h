@@ -67,6 +67,7 @@ namespace MikuMikuWorld
 		std::string fixFilename(const std::string& name);
 
 		bool updateWindow(const Score& score, const std::unordered_set<int>& selection);
+		bool updatePresetCreationDialog(std::string& name, std::string& description);
 		const NotesPreset& getSelected() const;
 	};
 }

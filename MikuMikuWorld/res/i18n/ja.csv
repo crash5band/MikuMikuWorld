@@ -125,6 +125,7 @@ name, 名前
 description, 説明
 create_preset, プリセットを登録
 search, 検索
+confirm, 決定
 
 # commands
 action, コマンド
