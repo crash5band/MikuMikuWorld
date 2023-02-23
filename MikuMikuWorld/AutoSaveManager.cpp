@@ -9,14 +9,14 @@
 namespace MikuMikuWorld
 {
 	AutoSaveManager::AutoSaveManager()
-		: editorInstance{ nullptr }
+		: editorInstance{ nullptr }, autoSavePath{ }, enabled{ true }, interval{ 5 }, fileLimit{ 100 }
 	{
-		autoSavePath = Application::getAppDir() + "auto_save/";
 	}
 
 	void AutoSaveManager::setEditorInstance(ScoreEditor* instance)
 	{
 		editorInstance = instance;
+		autoSavePath = Application::getAppDir() + "auto_save/";
 		timer.reset();
 	}
 
