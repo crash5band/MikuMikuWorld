@@ -1,5 +1,13 @@
 #include "FileDialog.h"
 #include "StringOperations.h"
+
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
+#define GLFW_EXPOSE_NATIVE_WIN32
+#define GLFW_EXPOSE_NATIVE_WGL
+#define GLFW_NATIVE_INCLUDE_NONE
+#include "GLFW/glfw3native.h"
+
 #include <Windows.h>
 
 namespace MikuMikuWorld
@@ -63,8 +71,16 @@ namespace MikuMikuWorld
 		std::wstring title{ L"Open " };
 		title.append(getDialogTitle(type));
 
+		HWND ownerHandle = NULL;
+		GLFWwindow* owner = glfwGetCurrentContext();
+		if (owner)
+		{
+			ownerHandle = glfwGetWin32Window(owner);
+		}
+
 		OPENFILENAMEW ofn;
 		memset(&ofn, 0, sizeof(ofn));
+		ofn.hwndOwner = ownerHandle;
 		ofn.lStructSize = sizeof(ofn);
 		ofn.lpstrFilter = getDialogFilters(type);
 		ofn.nFilterIndex = 1;
@@ -97,8 +113,16 @@ namespace MikuMikuWorld
 		std::wstring title{ L"Save " };
 		title.append(getDialogTitle(type));
 
+		HWND ownerHandle = NULL;
+		GLFWwindow* owner = glfwGetCurrentContext();
+		if (owner)
+		{
+			ownerHandle = glfwGetWin32Window(owner);
+		}
+
 		OPENFILENAMEW ofn;
 		memset(&ofn, 0, sizeof(ofn));
+		ofn.hwndOwner = ownerHandle;
 		ofn.lStructSize = sizeof(ofn);
 		ofn.lpstrFilter = getDialogFilters(type);
 		ofn.nFilterIndex = 1;
