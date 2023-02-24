@@ -32,7 +32,7 @@ namespace MikuMikuWorld
 		case FileType::ScoreFile:
 			return L"Score File";
 		case FileType::MMWSFile:
-			return L"Miku Miku World Score";
+			return L"MikuMikuWorld Score";
 		case FileType::SUSFile:
 			return L"Sliding Universal Score";
 		case FileType::AudioFile:

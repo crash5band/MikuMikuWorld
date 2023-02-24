@@ -340,7 +340,7 @@ namespace MikuMikuWorld
 	{
 		commandManager.add("reset", { {CTRL, GLFW_KEY_N} }, [this] { this->reset(); });
 		commandManager.add("open", { {CTRL, GLFW_KEY_O} }, [this] { this->open(); });
-		commandManager.add("save", { {CTRL, GLFW_KEY_S} }, [this] { this->editor->saveAs(); });
+		commandManager.add("save", { {CTRL, GLFW_KEY_S} }, [this] { this->editor->save(); });
 		commandManager.add("save_as", { {CTRL | SHIFT, GLFW_KEY_S} }, [this] { this->editor->saveAs(); });
 		commandManager.add("export", { }, [this] { this->editor->exportSUS(); });
 		commandManager.add("toggle_playback_play_pause", { {NONE, GLFW_KEY_SPACE} }, [this] { editor->togglePlaying(); });
