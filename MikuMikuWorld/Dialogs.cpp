@@ -95,7 +95,7 @@ namespace MikuMikuWorld
 	void Application::about()
 	{
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_Always);
+		ImGui::SetNextWindowSize(ImVec2(450, 250), ImGuiCond_Always);
 		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
 		if (ImGui::BeginPopupModal(MODAL_TITLE("about"), NULL, ImGuiWindowFlags_NoResize))
 		{
@@ -104,12 +104,12 @@ namespace MikuMikuWorld
 			ImGui::Separator();
 
 			ImGui::Text("Version %s", version.c_str());
-			ImGui::SetCursorPos(ImVec2 {
+			ImGui::SetCursorPos({
 				ImGui::GetStyle().WindowPadding.x,
-				ImGui::GetWindowSize().y - UI::btnNormal.y - ImGui::GetStyle().WindowPadding.y
+				ImGui::GetWindowSize().y - UI::btnSmall.y - ImGui::GetStyle().WindowPadding.y
 			});
 
-			if (ImGui::Button("OK", ImVec2((ImGui::GetContentRegionAvail().x), UI::btnNormal.y)))
+			if (ImGui::Button("OK", { ImGui::GetContentRegionAvail().x, UI::btnSmall.y }))
 				ImGui::CloseCurrentPopup();
 
 			ImGui::EndPopup();
