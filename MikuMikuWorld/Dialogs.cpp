@@ -222,7 +222,7 @@ namespace MikuMikuWorld
 
 				if (ImGui::BeginTabItem(getString("timeline")))
 				{
-					// charting
+					// timeline
 					if (ImGui::CollapsingHeader(getString("timeline"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
@@ -231,8 +231,6 @@ namespace MikuMikuWorld
 						int notesHeight = editor->canvas.getNotesHeight();
 						bool smoothScrolling = editor->canvas.isUseSmoothScrolling();
 						float smoothScrollingTime = editor->canvas.getSmoothScrollingTime();
-						float backgroundBrightness = editor->canvas.getBackgroundBrightness();
-						float laneOpacity = editor->canvas.getLaneOpacity();
 
 						UI::beginPropertyColumns();
 						UI::addSliderProperty(getString("lane_width"), laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
@@ -240,13 +238,6 @@ namespace MikuMikuWorld
 
 						UI::addCheckboxProperty(getString("use_smooth_scroll"), smoothScrolling);
 						UI::addSliderProperty(getString("smooth_scroll_time"), smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
-						UI::endPropertyColumns();
-
-						ImGui::Separator();
-
-						UI::beginPropertyColumns();
-						UI::addPercentSliderProperty(getString("background_brightnes"), backgroundBrightness);
-						UI::addPercentSliderProperty(getString("lanes_opacity"), laneOpacity);
 						UI::endPropertyColumns();
 
 						if (laneWidth != editor->canvas.getLaneWidth())
@@ -260,14 +251,26 @@ namespace MikuMikuWorld
 
 						if (smoothScrollingTime != editor->canvas.getSmoothScrollingTime())
 							editor->canvas.setSmoothScrollingTime(smoothScrollingTime);
-						
+					}
+
+					// background
+					if (ImGui::CollapsingHeader(getString("background"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+
+						float backgroundBrightness = editor->canvas.getBackgroundBrightness();
+						float laneOpacity = editor->canvas.getLaneOpacity();
+
+						UI::beginPropertyColumns();
+						UI::addPercentSliderProperty(getString("background_brightnes"), backgroundBrightness);
+						UI::addPercentSliderProperty(getString("lanes_opacity"), laneOpacity);
+						UI::endPropertyColumns();
+
 						if (backgroundBrightness != editor->canvas.getBackgroundBrightness())
 							editor->canvas.setBackgroundBrightness(backgroundBrightness);
 
 						if (laneOpacity != editor->canvas.getLaneOpacity())
 							editor->canvas.setLaneOpacity(laneOpacity);
-
-						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 					}
 
 					ImGui::EndTabItem();

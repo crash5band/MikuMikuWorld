@@ -44,6 +44,7 @@ lane_width, レーンの幅
 notes_height, ノーツの高さ
 use_smooth_scroll, スムーズスクロール
 smooth_scroll_time, スムーズスクロールの時間
+background, 背景
 background_brightnes, 背景の明るさ
 lanes_opacity, レーンの不透明度
 video, 画面

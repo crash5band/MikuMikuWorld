@@ -48,6 +48,7 @@ namespace MikuMikuWorld
 		{"notes_height", "Notes Height"},
 		{"use_smooth_scroll", "Use Smooth Scrolling"},
 		{"smooth_scroll_time", "Smooth Scrolling Time"},
+		{"background", "Background"},
 		{"background_brightnes", "Background Brightness"},
 		{"lanes_opacity", "Lanes Transparency"},
 		{"video", "Video"},
