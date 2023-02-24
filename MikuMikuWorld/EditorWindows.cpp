@@ -160,22 +160,22 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::contextMenu(CommandManager* commandManager)
 	{
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 10));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 8));
 		if (ImGui::BeginPopupContextWindow(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline")))
 		{
 			int deleteCmd = commandManager->findCommand("delete");
 			int copyCmd = commandManager->findCommand("copy");
 			int pasteCmd = commandManager->findCommand("paste");
-			int flipCmd = commandManager->findCommand("flip");
 			int flipPasteCmd = commandManager->findCommand("flip_paste");
+			int flipCmd = commandManager->findCommand("flip");
 			int shrinkDownCmd = commandManager->findCommand("shrink_down");
 			int shrinkUpCmd = commandManager->findCommand("shrink_up");
 
 			UI::contextMenuItem(ICON_FA_TRASH, commandManager->commands[deleteCmd]);
 			UI::contextMenuItem(ICON_FA_COPY, commandManager->commands[copyCmd]);
 			UI::contextMenuItem(ICON_FA_PASTE, commandManager->commands[pasteCmd]);
-			UI::contextMenuItem(ICON_FA_GRIP_LINES_VERTICAL, commandManager->commands[flipCmd]);
 			UI::contextMenuItem(ICON_FA_PASTE, commandManager->commands[flipPasteCmd]);
+			UI::contextMenuItem(ICON_FA_GRIP_LINES_VERTICAL, commandManager->commands[flipCmd]);
 
 			ImGui::Separator();
 			if (ImGui::BeginMenu(getString("ease_type"), selection.hasEase()))
