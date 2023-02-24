@@ -3,6 +3,12 @@
 #include "Localization.h"
 #include <GLFW/glfw3.h>
 
+#ifdef _MSC_VER
+#include <windows.h>
+#include <shellapi.h>
+#endif // _MSC_VER
+
+
 namespace MikuMikuWorld
 {
 	Menubar::Menubar()
@@ -29,6 +35,11 @@ namespace MikuMikuWorld
 	{
 		if (ImGui::MenuItem(cmd.getDisplayName().c_str(), cmd.getKeysString(0).c_str(), selected, cmd.canExecute()))
 			cmd.execute();
+	}
+
+	void Menubar::openHelpPage()
+	{
+		ShellExecuteW(0, 0, L"https://github.com/crash5band/MikuMikuWorld/wiki", 0, 0, SW_SHOW);
 	}
 
 	void Menubar::update(WindowState& state)
@@ -87,8 +98,11 @@ namespace MikuMikuWorld
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu(getString("about")))
+		if (ImGui::BeginMenu(getString("help")))
 		{
+			if (ImGui::MenuItem(getString("help")))
+				openHelpPage();
+
 			if (ImGui::MenuItem(getString("about")))
 				state.aboutOpen = true;
 

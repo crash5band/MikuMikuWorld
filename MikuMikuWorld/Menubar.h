@@ -11,6 +11,7 @@ namespace MikuMikuWorld
 		std::unordered_map<std::string, int> commandsCache;
 
 		void menuCommand(Command& cmd, bool selected = false);
+		void openHelpPage();
 
 	public:
 		Menubar();

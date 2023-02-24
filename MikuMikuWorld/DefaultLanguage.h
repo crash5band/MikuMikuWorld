@@ -23,6 +23,7 @@ namespace MikuMikuWorld
 		{"show_performance", "Show Performance Metrics"},
 		{"debug", "Debug"},
 		{"create_auto_save", "Create Auto Save"},
+		{"help", "Help"},
 		{"about", "About"},
 
 		// dialogs
