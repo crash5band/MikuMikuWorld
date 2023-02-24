@@ -82,6 +82,7 @@ namespace MikuMikuWorld
 		{"ease_out", "Ease-Out"},
 		{"delete", "Delete"},
 		{"copy", "Copy"},
+		{"cut", "Cut"},
 		{"paste", "Paste"},
 		{"flip_paste", "Flip Paste"},
 		{"flip", "Flip"},

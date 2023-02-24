@@ -32,6 +32,12 @@ namespace MikuMikuWorld
 		Clipboard::copy(score, selection.getSelection());
 	}
 
+	void ScoreEditor::cut()
+	{
+		copy();
+		deleteSelected();
+	}
+
 	void ScoreEditor::paste()
 	{
 		if (pasting)

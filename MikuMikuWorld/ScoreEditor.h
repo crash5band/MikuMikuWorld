@@ -200,6 +200,7 @@ namespace MikuMikuWorld
 		void insertTempo();
 		void insertTimeSignature();
 		void copy();
+		void cut();
 		void previewPaste(Renderer* renderer);
 		void paste();
 		void flipSelected();

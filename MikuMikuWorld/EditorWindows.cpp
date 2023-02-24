@@ -165,6 +165,7 @@ namespace MikuMikuWorld
 		{
 			int deleteCmd = commandManager->findCommand("delete");
 			int copyCmd = commandManager->findCommand("copy");
+			int cutCmd = commandManager->findCommand("cut");
 			int pasteCmd = commandManager->findCommand("paste");
 			int flipPasteCmd = commandManager->findCommand("flip_paste");
 			int flipCmd = commandManager->findCommand("flip");
@@ -172,8 +173,13 @@ namespace MikuMikuWorld
 			int shrinkUpCmd = commandManager->findCommand("shrink_up");
 
 			UI::contextMenuItem(ICON_FA_TRASH, commandManager->commands[deleteCmd]);
+
+			ImGui::Separator();
+			UI::contextMenuItem(ICON_FA_CUT, commandManager->commands[cutCmd]);
 			UI::contextMenuItem(ICON_FA_COPY, commandManager->commands[copyCmd]);
 			UI::contextMenuItem(ICON_FA_PASTE, commandManager->commands[pasteCmd]);
+
+			ImGui::Separator();
 			UI::contextMenuItem(ICON_FA_PASTE, commandManager->commands[flipPasteCmd]);
 			UI::contextMenuItem(ICON_FA_GRIP_LINES_VERTICAL, commandManager->commands[flipCmd]);
 

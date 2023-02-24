@@ -348,6 +348,9 @@ namespace MikuMikuWorld
 		commandManager.add("copy", { {CTRL, GLFW_KEY_C} }, [this] { editor->copy(); },
 			[this] { return editor->isAnyNoteSelected(); });
 
+		commandManager.add("cut", { {CTRL, GLFW_KEY_X} }, [this] { editor->cut(); },
+			[this] { return editor->isAnyNoteSelected(); });
+
 		commandManager.add("paste", { {CTRL, GLFW_KEY_V} }, [this] { editor->paste(); },
 			[] { return Clipboard::hasData(); });
 

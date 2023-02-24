@@ -78,6 +78,7 @@ ease_in, 加速
 ease_out, 減速
 delete, 削除
 copy, コピー
+cut, 切り取り
 paste, ペースト
 flip_paste, 反転ペースト
 flip, 反転
