@@ -68,6 +68,15 @@ namespace MikuMikuWorld
 			app->windowState.maximized = _maximized;
 	}
 
+	void windowKeyCallback(GLFWwindow* window, int key, int scan, int action, int mods)
+	{
+		Application* app = (Application*)glfwGetWindowUserPointer(window);
+		if (action == GLFW_PRESS && app)
+		{
+			app->windowState.shouldTestKeyboardShortcuts = true;
+		}
+	}
+
 	void loadIcon(std::string filepath, GLFWwindow* window)
 	{
 		if (!File::exists(filepath))
@@ -87,6 +96,7 @@ namespace MikuMikuWorld
 		glfwSetDropCallback(window, dropCallback);
 		glfwSetWindowCloseCallback(window, windowCloseCallback);
 		glfwSetWindowMaximizeCallback(window, windowMaximizeCallback);
+		glfwSetKeyCallback(window, windowKeyCallback);
 	}
 
 	Result Application::initOpenGL()

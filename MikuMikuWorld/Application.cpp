@@ -293,8 +293,11 @@ namespace MikuMikuWorld
 		imgui.initializeLayout();
 
 		InputListener::update(window);
-		if (!ImGui::GetIO().WantCaptureKeyboard)
+		if (!ImGui::GetIO().WantCaptureKeyboard && windowState.shouldTestKeyboardShortcuts)
+		{
 			commandManager.processKeyboardShortcuts();
+			windowState.shouldTestKeyboardShortcuts = false;
+		}
 
 		menubar.update(windowState);
 		updateDialogs();

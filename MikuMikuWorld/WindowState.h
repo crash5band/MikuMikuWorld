@@ -12,19 +12,21 @@ namespace MikuMikuWorld
 		bool unsavedOpen;
 		bool maximized;
 		bool closing;
+		bool shouldTestKeyboardShortcuts;
 
 		Vector2 position;
 		Vector2 size;
 
 		WindowState()
 		{
-			vsync = true;
-			maximized = false;
-			showPerformanceMetrics = false;
-			aboutOpen = false;
-			settingsOpen = false;
-			unsavedOpen = false;
-			closing = false;
+			vsync						= true;
+			maximized					= false;
+			showPerformanceMetrics		= false;
+			aboutOpen					= false;
+			settingsOpen				= false;
+			unsavedOpen					= false;
+			closing						= false;
+			shouldTestKeyboardShortcuts	= false;
 		}
 	};
 }
