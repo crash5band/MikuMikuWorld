@@ -57,8 +57,7 @@ namespace MikuMikuWorld
 		if (comment.size())
 		{
 			// make sure the comment is ignored by parsers. 
-			comment = comment.find_first_not_of("#");
-			lines.push_back(comment);
+			lines.push_back(comment.substr(comment.find_first_not_of("#")));
 		}
 
 		// write metadata
@@ -105,7 +104,7 @@ namespace MikuMikuWorld
 		for (const auto& barLength : barLengths)
 		{
 			int base = (barLength.bar / 1000) * 1000;
-			int offset = (barLength.bar % 1000);
+			int offset = barLength.bar % 1000;
 			if (base != baseMeasure)
 			{
 				lines.push_back("#MEASUREBS " + std::to_string(base));
@@ -157,7 +156,7 @@ namespace MikuMikuWorld
 		{
 			int measure = getMeasureFromTicks(bpm.tick);
 			int base = (measure / 1000) * 1000;
-			int offset = (measure % 1000);
+			int offset = measure % 1000;
 			if (base != baseMeasure)
 			{
 				lines.push_back("#MEASUREBS " + std::to_string(base));
@@ -192,7 +191,7 @@ namespace MikuMikuWorld
 		for (const auto& [measure, map] : measuresMap)
 		{
 			int base = (measure / 1000) * 1000;
-			int offset = (measure % 1000);
+			int offset = measure % 1000;
 			if (base != baseMeasure)
 			{
 				lines.push_back("#MEASUREBS " + std::to_string(base));
