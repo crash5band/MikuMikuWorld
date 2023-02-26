@@ -51,7 +51,7 @@ namespace MikuMikuWorld
 		{"smooth_scroll_time", "Smooth Scrolling Time"},
 		{"background", "Background"},
 		{"background_brightnes", "Background Brightness"},
-		{"lanes_opacity", "Lanes Transparency"},
+		{"lanes_opacity", "Lanes Opacity"},
 		{"video", "Video"},
 		{"vsync_enable", "Enable VSync"},
 
