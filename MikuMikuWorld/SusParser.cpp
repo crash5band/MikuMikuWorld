@@ -138,19 +138,22 @@ namespace MikuMikuWorld
 		std::vector<SusLineData> noteLines;
 		std::vector<SusLineData> bpmLines;
 		std::vector<BarLength> barLengths;
+		bpmDefinitions.clear();
+		measureOffset = 0;
+
 		for (int i = 0; i < lines.size(); ++i)
 		{
-			lines[i] = trim(lines[i]);
-			if (!startsWith(lines[i], "#"))
+			std::string line = trim(lines[i]);
+			if (!startsWith(line, "#"))
 				continue;
 
-			if (isCommand(lines[i]))
+			if (isCommand(line))
 			{
-				processCommand(lines[i]);
+				processCommand(line);
 			}
 			else
 			{
-				auto l = split(lines[i], ":");
+				auto l = split(line, ":");
 				if (l.size() < 2) // no ':' found
 					continue;
 
@@ -167,11 +170,11 @@ namespace MikuMikuWorld
 				}
 				else if (header.size() == 5 && header.substr(header.size() - 2, 2) == "08")
 				{
-					bpmLines.push_back({ i, measureOffset, lines[i] });
+					bpmLines.push_back({ i, measureOffset, line });
 				}
 				else if (header.size() == 5 || header.size() == 6)
 				{
-					noteLines.push_back({ i, measureOffset, lines[i] });
+					noteLines.push_back({ i, measureOffset, line });
 				}
 			}
 		}
@@ -214,9 +217,8 @@ namespace MikuMikuWorld
 				int tick = toTicks(line.measureOffset + atoi(header.substr(0, 3).c_str()), i, data.size());
 				float bpm = 120;
 
-				std::string definition = data.substr(i, 2);
-				if (bpmDefinitions.find(definition) != bpmDefinitions.end())
-					bpm = bpmDefinitions[definition];
+				if (bpmDefinitions.find(subData) != bpmDefinitions.end())
+					bpm = bpmDefinitions[subData];
 
 				bpms.push_back({tick, bpm});
 			}
@@ -240,20 +242,18 @@ namespace MikuMikuWorld
 			if (header.size() == 5 && header[3] == '1')
 			{
 				std::vector<SUSNote> appendNotes = toNotes(header, data, line.measureOffset);
-				taps.reserve(taps.size() + appendNotes.size());
 				taps.insert(taps.end(), appendNotes.begin(), appendNotes.end());
 			}
 			else if (header.size() == 6 && header[3] == '3')
 			{
 				int channel = std::stoul(header.substr(5, 1), nullptr, 36);
+
 				std::vector<SUSNote> appendNotes = toNotes(header, data, line.measureOffset);
-				streams[channel].reserve(streams[channel].size() + appendNotes.size());
 				streams[channel].insert(streams[channel].end(), appendNotes.begin(), appendNotes.end());
 			}
 			else if (header.size() == 5 && header[3] == '5')
 			{
 				std::vector<SUSNote> appendNotes = toNotes(header, data, line.measureOffset);
-				directionals.reserve(directionals.size() + appendNotes.size());
 				directionals.insert(directionals.end(), appendNotes.begin(), appendNotes.end());
 			}
 		}
@@ -262,7 +262,6 @@ namespace MikuMikuWorld
 		for (auto& stream : streams)
 		{
 			auto appendSlides = toSlides(stream.second);
-			slides.reserve(slides.size() + appendSlides.size());
 			slides.insert(slides.end(), appendSlides.begin(), appendSlides.end());
 		}
 

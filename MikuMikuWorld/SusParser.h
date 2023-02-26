@@ -40,6 +40,5 @@ namespace MikuMikuWorld
 
 		SUS parse(const std::string& filename);
 		void processCommand(std::string& line);
-		SusLineData parseSusLine(std::string& line);
 	};
 }
