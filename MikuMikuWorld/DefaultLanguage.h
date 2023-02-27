@@ -124,6 +124,8 @@ namespace MikuMikuWorld
 		{"edit_time_signature", "Edit Time Signature"},
 		{"measure", "Measure"},
 		{"skill", "Skill"},
+		{"increase_note_size", "Increase Note Size"},
+		{"decrease_note_size", "Decrease Note Size"},
 
 		// preset manager
 		{"presets", "Presets"},

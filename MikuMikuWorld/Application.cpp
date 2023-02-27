@@ -410,6 +410,12 @@ namespace MikuMikuWorld
 		commandManager.add("timeline_time_signature", { {NONE, GLFW_KEY_8} },
 			[this] { editor->changeMode(TimelineMode::InsertTimeSign); });
 
+		commandManager.add("decrease_note_size", { {NONE, GLFW_KEY_MINUS} },
+			[this] { editor->changeNoteWidth(-1); });
+
+		commandManager.add("increase_note_size", { {NONE, GLFW_KEY_EQUAL} },
+			[this] { editor->changeNoteWidth(1); });
+
 		commandManager.readCommands(config);
 		menubar.setCommandManagerInstance(&commandManager);
 	}

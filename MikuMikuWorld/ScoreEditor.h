@@ -212,6 +212,7 @@ namespace MikuMikuWorld
 		void clearSelection();
 		void deleteSelected();
 		void shrinkSelected(int direction);
+		void changeNoteWidth(int factor);
 		bool isPasting() const;
 		bool isAnyNoteSelected() const;
 

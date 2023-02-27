@@ -120,6 +120,8 @@ remove, 削除
 edit_time_signature, 拍子を編集
 measure, 小節
 skill, スキル
+increase_note_width, ノーツの幅を広げる
+decrease_note_width, ノーツの幅を狭める
 
 # preset manager
 presets, プリセット

@@ -906,6 +906,11 @@ namespace MikuMikuWorld
 		currentMode = mode;
 	}
 
+	void ScoreEditor::changeNoteWidth(int factor)
+	{
+		defaultNoteWidth = std::clamp(defaultNoteWidth + factor, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
+	}
+
 	void ScoreEditor::drawSelectionRectangle()
 	{
 		float startX = std::min(canvas.getPosition().x + dragStart.x, canvas.getPosition().x + mousePos.x);
