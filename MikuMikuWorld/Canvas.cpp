@@ -16,7 +16,6 @@ namespace MikuMikuWorld
 		smoothScrollTime = 67.0f;
 		remainingScroll = scrollAmount = 0.0f;
 		laneOpacity = 0.8f;
-		scrolledWithBar = false;
 	}
 
 	float Canvas::getNoteYPosFromTick(int tick) const
@@ -225,8 +224,6 @@ namespace MikuMikuWorld
 		ImGuiCol handleColor = ImGuiCol_ScrollbarGrab;
 		ImGui::SetCursorScreenPos(scrollHandleMin);
 		ImGui::InvisibleButton("##scroll_handle", ImVec2{ scrollbarWidth, handleHeight });
-
-		scrolledWithBar = false;
 		if (ImGui::IsItemHovered())
 			handleColor = ImGuiCol_ScrollbarGrabHovered;
 
@@ -248,9 +245,6 @@ namespace MikuMikuWorld
 				scrollStartY = ImGui::GetMousePos().y;
 			}
 		}
-
-		if (ImGui::IsItemDeactivated())
-			scrolledWithBar = true;
 
 		ImGui::SetCursorScreenPos(windowEndTop);
 		ImGui::InvisibleButton("##scroll_background", ImVec2{ scrollbarWidth, scrollHeight + handleHeight }, ImGuiButtonFlags_AllowItemOverlap);
@@ -360,7 +354,7 @@ namespace MikuMikuWorld
 		}
 
 		// increase scroll limit once we reach the end
-		if (timelineOffset > (timelineMaxOffset - 300) * zoom && scrolledWithBar)
+		if (timelineOffset > (timelineMaxOffset - 300) * zoom)
 			timelineMaxOffset += 1000;
 	}
 }

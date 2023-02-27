@@ -28,7 +28,6 @@ namespace MikuMikuWorld
 		float smoothScrollTime;
 		bool useSmoothScrolling;
 		bool mouseInCanvas;
-		bool scrolledWithBar;
 
 		ImVec2 size;
 		ImVec2 position;
