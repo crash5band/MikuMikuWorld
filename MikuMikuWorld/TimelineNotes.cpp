@@ -494,7 +494,7 @@ namespace MikuMikuWorld
 
 	bool ScoreEditor::timeSignatureControl(int numerator, int denominator, int tick, bool enabled)
 	{
-		return eventControl(tick, true, true, timeColor, formatString("%d/%d", numerator, denominator).c_str(), enabled);
+		return eventControl(tick, false, false, timeColor, formatString("%d/%d", numerator, denominator).c_str(), enabled);
 	}
 
 	bool ScoreEditor::skillControl(const SkillTrigger& skill)
@@ -520,7 +520,7 @@ namespace MikuMikuWorld
 		std::string txt = "FEVER";
 		txt.append(start ? ICON_FA_CARET_UP : ICON_FA_CARET_DOWN);
 
-		return eventControl(tick, false, false, feverColor, txt.c_str(), enabled);
+		return eventControl(tick, true, true, feverColor, txt.c_str(), enabled);
 	}
 
 	bool ScoreEditor::eventControl(int tick, bool left, bool up, ImU32 color, const char* txt, bool enabled)
@@ -538,7 +538,7 @@ namespace MikuMikuWorld
 		}
 
 		float y = canvas.getPosition().y - canvas.tickToPosition(tick) + canvas.getVisualOffset();
-		float yOffset = 32.0f * (up ? -1 : -2);
+		float yOffset = 32.0f * (up ? -2 : -1);
 		drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), color, 2.0f);
 
 		float txtSize = std::max(ImGui::CalcTextSize(txt).x + 8.0f, 50.0f);
