@@ -106,6 +106,8 @@ namespace MikuMikuWorld
 			readScoreMetadata();
 			stats.calculateStats(score);
 			UI::setWindowTitle(title);
+
+			canvas.calculateMaxTimelineOffsetFromScore(score);
 		}
 		catch (std::runtime_error& err)
 		{

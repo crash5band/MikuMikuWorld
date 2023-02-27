@@ -154,6 +154,8 @@ namespace MikuMikuWorld
 
 			selection.update(score);
 			drawList->PopClipRect();
+
+			canvas.updateTimelineScrollbar();
 		}
 		ImGui::End();
 	}
@@ -461,6 +463,9 @@ namespace MikuMikuWorld
 			ImGuiIO io = ImGui::GetIO();
 			ImGui::Text("Canvas Size: (%f, %f)", canvas.getSize().x, canvas.getSize().y);
 			ImGui::Text("Timeline Offset: %f", canvas.getOffset());
+			ImGui::Text("Timeline Min Offset: %f", canvas.getMinOffset());
+			ImGui::Text("Timeline Max Offset: %f", canvas.getMaxOffset());
+			ImGui::Text("Timeline Max Offset (Zoom): %f", canvas.getMaxOffset() * canvas.getZoom());
 			ImGui::Text("Cursor pos: %f", canvas.tickToPosition(currentTick));
 			ImGui::Text("Mouse Pos: (%f, %f)", io.MousePos.x, io.MousePos.y);
 			ImGui::Text("Timeline Mouse Pos: (%f, %f)", mousePos.x, mousePos.y);

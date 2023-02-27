@@ -5,28 +5,33 @@
 
 namespace MikuMikuWorld
 {
+	struct Score;
+
 	class Canvas
 	{
 	private:
-		int laneOffset = 0.0f;
+		float laneOffset = 0.0f;
 		float laneWidth = 35.0f;
 		float notesHeight = 50.0f;
 		float zoom = 2.0f;
+		float timelineMaxOffset = 10000;
 		float timelineMinOffset = 0;
 		float timelineOffset = 0;
 		float timelineVisualOffset = 0;
 		float timelineWidth;
 		float effectiveTickHeight;
-		float laneTransparency;
+		float laneOpacity;
 
+		float scrollStartY;
 		float scrollAmount;
 		float remainingScroll;
 		float smoothScrollTime;
 		bool useSmoothScrolling;
 		bool mouseInCanvas;
+		bool scrolledWithBar;
 
-		ImVec2 canvasSize;
-		ImVec2 canvasPos;
+		ImVec2 size;
+		ImVec2 position;
 		ImVec2 prevPos;
 		ImVec2 prevSize;
 		ImRect boundaries;
@@ -57,19 +62,23 @@ namespace MikuMikuWorld
 		void drawBackground(Renderer* rednerer);
 		void drawLanesBackground();
 		void changeBackground(const Texture& t);
+		void updateTimelineScrollbar();
+		void calculateMaxTimelineOffsetFromScore(const Score& score);
 
 		inline bool isMouseInCanvas() { return mouseInCanvas; }
 		inline bool isUseSmoothScrolling() { return useSmoothScrolling; }
 		inline float getLaneWidth() { return laneWidth; }
 		inline float getNotesHeight() { return notesHeight; }
 		inline float getZoom() { return zoom; }
-		inline float getLaneOpacity() { return laneTransparency; }
+		inline float getLaneOpacity() { return laneOpacity; }
 		inline float getBackgroundBrightness() { return background.getBrightness(); }
 		inline float getSmoothScrollingTime() { return smoothScrollTime; }
 		inline float getOffset() { return timelineOffset; }
 		inline float getVisualOffset() { return timelineVisualOffset; }
-		inline ImVec2 getPosition() const { return canvasPos; }
-		inline ImVec2 getSize() const { return canvasSize; }
+		inline float getMinOffset() { return timelineMinOffset; }
+		inline float getMaxOffset() { return timelineMaxOffset; }
+		inline ImVec2 getPosition() const { return position; }
+		inline ImVec2 getSize() const { return size; }
 		inline ImRect getBoundaries() const { return boundaries; }
 
 		void setLaneWidth(float width);
@@ -79,6 +88,7 @@ namespace MikuMikuWorld
 		void setBackgroundBrightness(float val);
 		void setSmoothScrollingTime(float time);
 		void setUseSmoothScrolling(bool val);
+		void setTimelineMaxOffset(float offset) { timelineMaxOffset = offset; }
 	};
 }
 

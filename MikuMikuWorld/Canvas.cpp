@@ -5,6 +5,7 @@
 #include "Rendering/Renderer.h"
 #include "ResourceManager.h"
 #include "InputListener.h"
+#include "Score.h"
 #include <algorithm>
 
 namespace MikuMikuWorld
@@ -14,12 +15,13 @@ namespace MikuMikuWorld
 		useSmoothScrolling = true;
 		smoothScrollTime = 67.0f;
 		remainingScroll = scrollAmount = 0.0f;
-		laneTransparency = 0.8f;
+		laneOpacity = 0.8f;
+		scrolledWithBar = false;
 	}
 
 	float Canvas::getNoteYPosFromTick(int tick) const
 	{
-		return canvasPos.y + tickToPosition(tick) - timelineVisualOffset + canvasSize.y;
+		return position.y + tickToPosition(tick) - timelineVisualOffset + size.y;
 	}
 
 	int Canvas::positionToTick(float pos, int div) const
@@ -45,7 +47,7 @@ namespace MikuMikuWorld
 	bool Canvas::isNoteInCanvas(const int tick) const
 	{
 		const float y = getNoteYPosFromTick(tick);
-		return y >= 0 && y <= canvasSize.y + canvasPos.y + 100;
+		return y >= 0 && y <= size.y + position.y + 100;
 	}
 
 	Vector2 Canvas::getNotePos(int tick, float lane) const
@@ -55,7 +57,7 @@ namespace MikuMikuWorld
 
 	float Canvas::getTimelineStartX() const
 	{
-		return canvasPos.x + laneOffset;
+		return position.x + laneOffset;
 	}
 
 	float Canvas::getTimelineEndX() const
@@ -66,7 +68,7 @@ namespace MikuMikuWorld
 	void Canvas::centerCursor(int cursorTick, bool playing, int mode)
 	{
 		float cursorPos = tickToPosition(cursorTick);
-		float offset = canvasSize.y * 0.5f;
+		float offset = size.y * 0.5f;
 
 		bool exec = false;
 		switch (mode)
@@ -102,7 +104,7 @@ namespace MikuMikuWorld
 
 	void Canvas::scrollPage(float cursorPos)
 	{
-		timelineOffset = cursorPos + canvasSize.y;
+		timelineOffset = cursorPos + size.y;
 		timelineVisualOffset = timelineOffset;
 	}
 
@@ -148,18 +150,18 @@ namespace MikuMikuWorld
 
 	void Canvas::setZoom(float val)
 	{
-		int tick = positionToTick(timelineOffset - canvasSize.y);
-		float x1 = canvasPos.y - tickToPosition(tick) + timelineOffset;
+		int tick = positionToTick(timelineOffset - size.y);
+		float x1 = position.y - tickToPosition(tick) + timelineOffset;
 
 		zoom = std::clamp(val, MIN_ZOOM, MAX_ZOOM);
 
-		float x2 = canvasPos.y - tickToPosition(tick) + timelineOffset;
+		float x2 = position.y - tickToPosition(tick) + timelineOffset;
 		timelineOffset += x1 - x2;
 	}
 
 	void Canvas::setLaneOpacity(float val)
 	{
-		laneTransparency = std::clamp(val, 0.0f, 1.0f);
+		laneOpacity = std::clamp(val, 0.0f, 1.0f);
 	}
 
 	void Canvas::setBackgroundBrightness(float val)
@@ -195,10 +197,95 @@ namespace MikuMikuWorld
 			smoothScrollTime = time;
 	}
 
+	void Canvas::updateTimelineScrollbar()
+	{
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		if (!drawList)
+			return;
+
+		float scrollbarWidth = ImGui::GetStyle().ScrollbarSize;
+		float paddingY = 30.0f;
+		ImVec2 windowEndTop = ImGui::GetWindowPos() + ImVec2{ ImGui::GetWindowSize().x - scrollbarWidth - 4, paddingY };
+		ImVec2 windowEndBottom = windowEndTop + ImVec2{ scrollbarWidth + 2, ImGui::GetWindowSize().y - (paddingY * 1.3f) };
+
+		// calculate handle height
+		float heightRatio = size.y / ((timelineMaxOffset - timelineMinOffset) * zoom);
+		float handleHeight = std::max(20.0f, ((windowEndBottom.y - windowEndTop.y) * heightRatio) + 30.0f);
+		float scrollHeight = windowEndBottom.y - windowEndTop.y - handleHeight;
+
+		// calculate handle position
+		float currentOffset = timelineOffset - timelineMinOffset;
+		float positionRatio = std::min(1.0f, currentOffset / ((timelineMaxOffset * zoom) - timelineMinOffset));
+		float handlePosition = windowEndBottom.y - (scrollHeight * positionRatio) - handleHeight;
+
+		ImVec2 scrollHandleMin = ImVec2{ windowEndTop.x + 2, handlePosition };
+		ImVec2 scrollHandleMax = ImVec2{ windowEndTop.x + scrollbarWidth - 2, handlePosition + handleHeight };
+
+		// handle button
+		ImGuiCol handleColor = ImGuiCol_ScrollbarGrab;
+		ImGui::SetCursorScreenPos(scrollHandleMin);
+		ImGui::InvisibleButton("##scroll_handle", ImVec2{ scrollbarWidth, handleHeight });
+
+		scrolledWithBar = false;
+		if (ImGui::IsItemHovered())
+			handleColor = ImGuiCol_ScrollbarGrabHovered;
+
+		if (ImGui::IsItemActivated())
+			scrollStartY = ImGui::GetMousePos().y;
+
+		if (ImGui::IsItemActive())
+		{
+			handleColor = ImGuiCol_ScrollbarGrabActive;
+			float dragDeltaY = scrollStartY - ImGui::GetMousePos().y;
+			if (abs(dragDeltaY) > 0)
+			{
+				// convert handle position to timeline offset
+				handlePosition -= dragDeltaY;
+				positionRatio = std::min(1.0f, 1 - ((handlePosition - windowEndTop.y) / scrollHeight));
+				float newOffset = ((timelineMaxOffset * zoom) - timelineMinOffset) * positionRatio;
+
+				timelineOffset = newOffset + timelineMinOffset;
+				scrollStartY = ImGui::GetMousePos().y;
+			}
+		}
+
+		if (ImGui::IsItemDeactivated())
+			scrolledWithBar = true;
+
+		ImGui::SetCursorScreenPos(windowEndTop);
+		ImGui::InvisibleButton("##scroll_background", ImVec2{ scrollbarWidth, scrollHeight + handleHeight }, ImGuiButtonFlags_AllowItemOverlap);
+		if (ImGui::IsItemActivated())
+		{
+			float yPos = std::clamp(ImGui::GetMousePos().y, windowEndTop.y, windowEndBottom.y - handleHeight);
+
+			// convert handle position to timeline offset
+			positionRatio = std::clamp(1 - ((yPos - windowEndTop.y)) / scrollHeight, 0.0f, 1.0f);
+			float newOffset = ((timelineMaxOffset * zoom) - timelineMinOffset) * positionRatio;
+
+			timelineOffset = newOffset + timelineMinOffset;
+		}
+
+		ImU32 scrollBgColor = ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_ScrollbarBg));
+		ImU32 scrollHandleColor = ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(handleColor));
+		drawList->AddRectFilled(windowEndTop, windowEndBottom, scrollBgColor, 0);
+		drawList->AddRectFilled(scrollHandleMin, scrollHandleMax, scrollHandleColor, ImGui::GetStyle().ScrollbarRounding, ImDrawFlags_RoundCornersAll);
+	}
+
+	void Canvas::calculateMaxTimelineOffsetFromScore(const Score& score)
+	{
+		int maxTick = 0;
+		for (const auto& [id, note] : score.notes)
+			maxTick = std::max(maxTick, note.tick);
+
+		// current offset maybe greater than calculated offset from score
+		float scoreOffset = (maxTick * TICK_HEIGHT) + timelineMinOffset + 1000;
+		timelineMaxOffset = std::max(timelineOffset, scoreOffset);
+	}
+
 	void Canvas::changeBackground(const Texture& t)
 	{
 		background.load(t);
-		background.resize(Vector2{ canvasSize.x, canvasSize.y });
+		background.resize(Vector2{ size.x, size.y });
 	}
 
 	void Canvas::drawBackground(Renderer* renderer)
@@ -211,16 +298,16 @@ namespace MikuMikuWorld
 		if (!bg)
 			return;
 
-		if (canvasSize.x != prevSize.x || canvasSize.y != prevSize.y)
-			background.resize(Vector2{ canvasSize.x, canvasSize.y });
+		if (size.x != prevSize.x || size.y != prevSize.y)
+			background.resize(Vector2{ size.x, size.y });
 
 		if (background.isDirty())
 			background.process(renderer);
 
 		// center background
-		ImVec2 bgPos = canvasPos;
-		bgPos.x -= (background.getWidth() - canvasSize.x) / 2.0f;
-		bgPos.y -= (background.getHeight() - canvasSize.y) / 2.0f;
+		ImVec2 bgPos = position;
+		bgPos.x -= (background.getWidth() - size.x) / 2.0f;
+		bgPos.y -= (background.getHeight() - size.y) / 2.0f;
 		drawList->AddImage((void*)bg, bgPos, bgPos + ImVec2(background.getWidth(), background.getHeight()));
 	}
 
@@ -231,23 +318,23 @@ namespace MikuMikuWorld
 			return;
 
 		drawList->AddRectFilled(
-			ImVec2(getTimelineStartX(), canvasPos.y),
-			ImVec2(getTimelineEndX(), canvasPos.y + canvasSize.y),
-			Color::abgrToInt(laneTransparency * 255, 0x1c, 0x1a, 0x1f)
+			ImVec2(getTimelineStartX(), position.y),
+			ImVec2(getTimelineEndX(), position.y + size.y),
+			Color::abgrToInt(laneOpacity * 255, 0x1c, 0x1a, 0x1f)
 		);
 	}
 
 	void Canvas::update(float dt)
 	{
-		prevPos		= canvasPos;
-		prevSize	= canvasSize;
-		canvasSize	= ImGui::GetContentRegionAvail();
-		canvasPos	= ImGui::GetCursorScreenPos();
-		boundaries	= ImRect(canvasPos, canvasPos + canvasSize);
-		mouseInCanvas = ImGui::IsMouseHoveringRect(canvasPos, canvasPos + canvasSize);
+		prevPos		= position;
+		prevSize	= size;
+		position	= ImGui::GetCursorScreenPos();
+		size	= ImGui::GetContentRegionAvail() - ImVec2{ ImGui::GetStyle().ScrollbarSize, 0 };
+		boundaries	= ImRect(position, position + size);
+		mouseInCanvas = ImGui::IsMouseHoveringRect(position, position + size);
 		
 		timelineWidth = NUM_LANES * laneWidth;
-		laneOffset = (canvasSize.x * 0.5f) - (timelineWidth * 0.5f);
+		laneOffset = (size.x * 0.5f) - (timelineWidth * 0.5f);
 		effectiveTickHeight = TICK_HEIGHT * zoom;
 
 		// change offset to min if min offset is lower than current offset
@@ -271,5 +358,9 @@ namespace MikuMikuWorld
 				}
 			}
 		}
+
+		// increase scroll limit once we reach the end
+		if (timelineOffset > (timelineMaxOffset - 300) * zoom && scrolledWithBar)
+			timelineMaxOffset += 1000;
 	}
 }
