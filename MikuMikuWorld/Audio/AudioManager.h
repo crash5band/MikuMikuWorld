@@ -13,10 +13,8 @@ namespace MikuMikuWorld
 	{
 	private:
 		ma_engine engine;
-		ma_sound_group_config bgmGroupConfig;
 		ma_sound_group bgmGroup;
 		ma_sound_group seGroup;
-		ma_sound_config bgmConfig;
 		ma_sound bgm;
 		std::unordered_map<std::string, std::unique_ptr<Sound>> sounds;
 
@@ -27,7 +25,7 @@ namespace MikuMikuWorld
 		float bgmVolume;
 		float seVolume;
 
-		float bgmVolumeFactor = 0.60f;
+		float bgmVolumeFactor = 1.0f;
 		float seVolumeFactor = 0.63f;
 
 	public:
