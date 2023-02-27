@@ -632,10 +632,11 @@ namespace MikuMikuWorld
 						}
 					}
 
-					pushHistory("Update notes", prevUpdateScore, score);
 					skipUpdateAfterSortingSteps = true;
-					hasEdit = false;
 				}
+
+				pushHistory("Update notes", prevUpdateScore, score);
+				hasEdit = false;
 			}
 		}
 
