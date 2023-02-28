@@ -26,6 +26,7 @@ namespace MikuMikuWorld
 		std::unordered_map<int, HoldNote> holdNotes;
 		std::vector<Tempo> tempoChanges;
 		std::map<int, TimeSignature> timeSignatures;
+		std::vector<HiSpeedChange> hiSpeedChanges;
 		std::vector<SkillTrigger> skills;
 		Fever fever;
 

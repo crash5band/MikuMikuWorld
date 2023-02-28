@@ -15,4 +15,10 @@ namespace MikuMikuWorld
 		int startTick;
 		int endTick;
 	};
+
+	struct HiSpeedChange
+	{
+		int tick;
+		float speed;
+	};
 }

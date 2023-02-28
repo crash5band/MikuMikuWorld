@@ -260,12 +260,18 @@ namespace MikuMikuWorld
 				TimeSignature{ sign.bar, fraction.first, fraction.second }));
 		}
 
+		std::vector<HiSpeedChange> hiSpeedChanges;
+		hiSpeedChanges.reserve(sus.hiSpeeds.size());
+		for (const auto& speed : sus.hiSpeeds)
+			hiSpeedChanges.push_back({ speed.tick, speed.speed });
+
 		Score score;
 		score.metadata = metadata;
 		score.notes = notes;
 		score.holdNotes = holds;
 		score.tempoChanges = tempos;
 		score.timeSignatures = timeSignatures;
+		score.hiSpeedChanges = hiSpeedChanges;
 		score.skills = skills;
 		score.fever = fever;
 
