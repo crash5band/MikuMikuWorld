@@ -17,7 +17,11 @@ namespace MikuMikuWorld
 		// test for text value commands
 		if (line.find_first_of('"') != std::string::npos)
 		{
-			if (split(line, " ").size() < 2)
+			std::vector<std::string> lineSplit = split(line, " ");
+			if (lineSplit.size() < 2)
+				return false;
+
+			if (lineSplit[0].find_first_of(':') != std::string::npos)
 				return false;
 
 			int firstQuote = line.find_first_of('"');
@@ -137,6 +141,7 @@ namespace MikuMikuWorld
 
 		std::vector<SusLineData> noteLines;
 		std::vector<SusLineData> bpmLines;
+		std::vector<SusLineData> hiSpeedLines;
 		std::vector<BarLength> barLengths;
 		bpmDefinitions.clear();
 		measureOffset = 0;
@@ -171,6 +176,10 @@ namespace MikuMikuWorld
 				else if (header.size() == 5 && header.substr(header.size() - 2, 2) == "08")
 				{
 					bpmLines.push_back({ i, measureOffset, line });
+				}
+				else if (header.size() == 5 && header.substr(0, 3) == "TIL")
+				{
+					hiSpeedLines.push_back({ i, measureOffset, line });
 				}
 				else if (header.size() == 5 || header.size() == 6)
 				{
@@ -226,6 +235,39 @@ namespace MikuMikuWorld
 		std::sort(bpms.begin(), bpms.end(),
 			[](const BPM& a, const BPM& b) { return a.tick < b.tick; });
 
+		// process hi-speed changes
+		std::vector<HiSpeed> hiSpeeds;
+		for (auto& line : hiSpeedLines)
+		{
+			std::string lineData = line.line;
+			int firstQuote = lineData.find_first_of('"') + 1;
+			int lastQuote = lineData.find_last_of('"');
+			lineData = lineData.substr(firstQuote, lastQuote - firstQuote);
+			std::vector<std::string> speedChanges = split(lineData, ",");
+			for (const auto& change : speedChanges)
+			{
+				int measure = 0;
+				int tick = 0;
+				float speed = 1.0f;
+
+				int i1 = 0;
+				int i2 = 0;
+
+				i2 = change.find_first_of("'", i1);
+				measure = atoi(change.substr(i1, i2 - i1).c_str());
+
+				i1 = ++i2;
+				i2 = change.find_first_of(":", i2);
+				tick = atoi(change.substr(i1, i2 - i1).c_str());
+
+				i1 = ++i2;
+				speed = atof(change.substr(i1).c_str());
+
+				int measureTicks = toTicks(measure, 0, 1);
+				hiSpeeds.push_back({ measureTicks + tick, speed });
+			}
+		}
+
 		// process notes
 		std::vector<SUSNote> taps;
 		std::vector<SUSNote> directionals;
@@ -271,6 +313,6 @@ namespace MikuMikuWorld
 		metadata.data["designer"] = designer;
 		metadata.waveOffset = waveOffset;
 
-		return SUS{ metadata, taps, directionals, slides, bpms, barLengths };
+		return SUS{ metadata, taps, directionals, slides, bpms, barLengths, hiSpeeds };
 	}
 }

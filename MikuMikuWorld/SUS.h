@@ -32,6 +32,12 @@ namespace MikuMikuWorld
 		float length;
 	};
 
+	struct HiSpeed
+	{
+		int tick;
+		float speed;
+	};
+
 	struct SUSMetadata
 	{
 		std::unordered_map<std::string, std::string> data;
@@ -52,5 +58,6 @@ namespace MikuMikuWorld
 		std::vector<std::vector<SUSNote>> slides;
 		std::vector<BPM> bpms;
 		std::vector<BarLength> barlengths;
+		std::vector<HiSpeed> hiSpeeds;
 	};
 }
