@@ -90,6 +90,13 @@ namespace MikuMikuWorld
 	/// <returns>The measure of the time signature</returns>
 	int findTimeSignature(int measure, const std::map<int, TimeSignature>& ts);
 
+	/// <summary>
+	/// Finds the hi-speed change of the specified tick
+	/// </summary>
+	/// <param name="tick">The tick number</param>
+	/// <param name="hiSpeeds">A list of hi-speed changes to search</param>
+	/// <returns>The index of the hi-speed change if a match is found. Otherwise -1</returns>
+	int findHighSpeedChange(int tick, const std::vector<HiSpeedChange>& hiSpeeds);
 
 	/// <summary>
 	/// Finds the BPM at the specified tick

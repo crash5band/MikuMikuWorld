@@ -146,6 +146,17 @@ namespace MikuMikuWorld
 		return 0;
 	}
 
+	int findHighSpeedChange(int tick, const std::vector<HiSpeedChange>& hiSpeeds)
+	{
+		for (int i = hiSpeeds.size() - 1; i >= 0; --i)
+		{
+			if (hiSpeeds[i].tick <= tick)
+				return i;
+		}
+		
+		return -1;
+	}
+
 	const Tempo& getTempoAt(int tick, const std::vector<Tempo>& tempos)
 	{
 		for (auto it = tempos.rbegin(); it != tempos.rend(); ++it)
