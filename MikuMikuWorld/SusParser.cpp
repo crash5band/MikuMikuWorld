@@ -268,6 +268,9 @@ namespace MikuMikuWorld
 			}
 		}
 
+		std::stable_sort(hiSpeeds.begin(), hiSpeeds.end(),
+			[](const HiSpeed& a, const HiSpeed& b) {return a.tick < b.tick; });
+
 		// process notes
 		std::vector<SUSNote> taps;
 		std::vector<SUSNote> directionals;
