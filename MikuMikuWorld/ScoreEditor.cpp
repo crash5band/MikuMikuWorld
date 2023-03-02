@@ -542,7 +542,7 @@ namespace MikuMikuWorld
 		drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), cursorColor, primaryLineThickness + 1.0f);
 	}
 
-	void ScoreEditor::updateTempoChanges()
+	void ScoreEditor::updateScoreEvents()
 	{
 		for (int index = 0; index < score.tempoChanges.size(); ++index)
 		{
@@ -554,10 +554,7 @@ namespace MikuMikuWorld
 				ImGui::OpenPopup("edit_bpm");
 			}
 		}
-	}
 
-	void ScoreEditor::updateTimeSignatures()
-	{
 		for (auto& [measure, ts] : score.timeSignatures)
 		{
 			if (timeSignatureControl(ts))
@@ -568,6 +565,25 @@ namespace MikuMikuWorld
 				ImGui::OpenPopup("edit_ts");
 			}
 		}
+
+		for (int index = 0; index < score.hiSpeedChanges.size(); ++index)
+		{
+			HiSpeedChange& hiSpeed = score.hiSpeedChanges[index];
+			if (hiSpeedControl(hiSpeed))
+			{
+				editHiSpeedIndex = index;
+				editHiSpeed = hiSpeed.speed;
+				ImGui::OpenPopup("edit_hi_speed");
+			}
+		}
+
+		for (const auto& skill : score.skills)
+			skillControl(skill);
+
+		bpmEditor();
+		timeSignatureEditor();
+		hiSpeedEditor();
+		feverControl(score.fever);
 	}
 
 	bool ScoreEditor::noteControl(const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor)

@@ -523,6 +523,17 @@ namespace MikuMikuWorld
 		return eventControl(tick, true, true, feverColor, txt.c_str(), enabled);
 	}
 
+	bool ScoreEditor::hiSpeedControl(const HiSpeedChange& hiSpeed)
+	{
+		return hiSpeedControl(hiSpeed.tick, hiSpeed.speed);
+	}
+
+	bool ScoreEditor::hiSpeedControl(int tick, float speed)
+	{
+		std::string txt = formatString("%.2fx", speed);
+		return eventControl(tick, true, true, speedColor, txt.c_str(), true);
+	}
+
 	bool ScoreEditor::eventControl(int tick, bool left, bool up, ImU32 color, const char* txt, bool enabled)
 	{
 		ImDrawList* drawList = ImGui::GetWindowDrawList();

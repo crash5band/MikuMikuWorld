@@ -70,10 +70,12 @@ namespace MikuMikuWorld
 		int holdTick = 0;
 		int editBPMIndex = -1;
 		int editTSIndex = -1;
+		int editHiSpeedIndex = -1;
 
 		float editBPM = 160.0f;
 		int editTsNum = 4;
 		int editTsDenom = 4;
+		float editHiSpeed = 1.0f;
 
 		int defaultNoteWidth;
 		HoldStepType defaultStepType;
@@ -115,8 +117,7 @@ namespace MikuMikuWorld
 		void updateNote(Note& note);
 		void updateDummyNotes();
 		void updateDummyHold();
-		void updateTempoChanges();
-		void updateTimeSignatures();
+		void updateScoreEvents();
 		void updateCursor();
 		void updateTimeline(float frameTime, Renderer* renderer, CommandManager* commandManager);
 		
@@ -128,6 +129,7 @@ namespace MikuMikuWorld
 		void debugInfo();
 		void bpmEditor();
 		void timeSignatureEditor();
+		void hiSpeedEditor();
 
 		// edit methods
 		void cycleFlicks();
@@ -171,6 +173,8 @@ namespace MikuMikuWorld
 		bool skillControl(int tick, bool enabled);
 		bool feverControl(const Fever& fever);
 		bool feverControl(int tick, bool start, bool enabled);
+		bool hiSpeedControl(const HiSpeedChange& hiSpeed);
+		bool hiSpeedControl(int tick, float speed);
 		bool eventControl(int tick, bool left, bool up, ImU32 color, const char* txt, bool enabled);
 		bool isHoldPathInTick(const Note& n1, const Note& n2, EaseType ease, float x, float y);
 

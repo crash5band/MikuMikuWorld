@@ -110,16 +110,8 @@ namespace MikuMikuWorld
 			canvas.drawLanesBackground();
 			
 			drawMeasures();
-			updateTempoChanges();
-			updateTimeSignatures();
-			bpmEditor();
-			timeSignatureEditor();
-			
-			for (const auto& skill : score.skills)
-				skillControl(skill);
-
-			feverControl(score.fever);
 			drawLanes();
+			updateScoreEvents();
 
 			contextMenu(commandManager);
 			updateCursor();
@@ -326,11 +318,15 @@ namespace MikuMikuWorld
 			const TimeSignature& ts = score.timeSignatures[findTimeSignature(measure, score.timeSignatures)];
 			const Tempo& tempo = getTempoAt(currentTick, score.tempoChanges);
 
+			int hiSpeed = findHighSpeedChange(currentTick, score.hiSpeedChanges);
+			float speed = (hiSpeed == -1 ? 1.0f : score.hiSpeedChanges[hiSpeed].speed);
+
 			Utilities::ImGuiCenteredText(formatString(
-				"%02d:%02d:%02d\t|\t%d/%d\t|\t%g BPM",
+				"%02d:%02d:%02d\t|\t%d/%d\t|\t%g BPM\t|\t%gx",
 				(int)time / 60, (int)time % 60, (int)((time - (int)time) * 100),
 				ts.numerator, ts.denominator,
-				tempo.bpm
+				tempo.bpm,
+				speed
 			));
 
 			// center playback controls
@@ -450,6 +446,41 @@ namespace MikuMikuWorld
 					score.timeSignatures.erase(editTSIndex);
 					pushHistory("Remove time signature", prev, score);
 				}
+			}
+
+			ImGui::EndPopup();
+		}
+	}
+
+	void ScoreEditor::hiSpeedEditor()
+	{
+		ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
+		if (ImGui::BeginPopup("edit_hi_speed"))
+		{
+			ImGui::Text(getString("edit_hi_speed"));
+			ImGui::Separator();
+
+			HiSpeedChange& hiSpeed = score.hiSpeedChanges[editHiSpeedIndex];
+			UI::beginPropertyColumns();
+			UI::addReadOnlyProperty(getString("tick"), std::to_string(hiSpeed.tick));
+			UI::addFloatProperty(getString("speed"), editHiSpeed, "%g");
+			UI::endPropertyColumns();
+
+			if (ImGui::IsItemDeactivatedAfterEdit())
+			{
+				Score prev = score;
+				hiSpeed.speed = editHiSpeed;
+
+				pushHistory("Change hi speed", prev, score);
+			}
+
+			ImGui::Separator();
+			if (ImGui::Button(getString("remove"), ImVec2(-1, UI::btnSmall.y + 2)))
+			{
+				ImGui::CloseCurrentPopup();
+				Score prev = score;
+				score.hiSpeedChanges.erase(score.hiSpeedChanges.begin() + editHiSpeedIndex);
+				pushHistory("Remove hi-speed change", prev, score);
 			}
 
 			ImGui::EndPopup();
