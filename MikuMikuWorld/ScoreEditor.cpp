@@ -842,7 +842,7 @@ namespace MikuMikuWorld
 			break;
 
 		case TimelineMode::InsertHiSpeed:
-			hiSpeedControl(hoverTick, 1.0f);
+			hiSpeedControl(hoverTick, defaultHiSpeed);
 			break;
 
 		default:
