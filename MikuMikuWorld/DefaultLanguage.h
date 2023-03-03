@@ -126,6 +126,7 @@ namespace MikuMikuWorld
 		{"skill", "Skill"},
 		{"increase_note_size", "Increase Note Size"},
 		{"decrease_note_size", "Decrease Note Size"},
+		{"hi_speed", "Hi-Speed"},
 		{"edit_hi_speed", "Edit Hi-Speed"},
 		{"hi_speed_speed", "Speed"},
 

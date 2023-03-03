@@ -389,7 +389,6 @@ namespace MikuMikuWorld
 
 			Tempo& tempo = score.tempoChanges[editBPMIndex];
 			UI::beginPropertyColumns();
-			UI::addReadOnlyProperty(getString("tick"), std::to_string(tempo.tick));
 			UI::addFloatProperty(getString("bpm"), editBPM, "%g");
 			UI::endPropertyColumns();
 
@@ -466,8 +465,7 @@ namespace MikuMikuWorld
 
 			HiSpeedChange& hiSpeed = score.hiSpeedChanges[editHiSpeedIndex];
 			UI::beginPropertyColumns();
-			UI::addReadOnlyProperty(getString("tick"), std::to_string(hiSpeed.tick));
-			UI::addFloatProperty(getString("hi_speed"), editHiSpeed, "%g");
+			UI::addFloatProperty(getString("hi_speed_speed"), editHiSpeed, "%g");
 			UI::endPropertyColumns();
 
 			if (ImGui::IsItemDeactivatedAfterEdit())
