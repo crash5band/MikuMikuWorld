@@ -821,26 +821,32 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::previewInput(Renderer* renderer)
 	{
-		if (currentMode == TimelineMode::InsertLong)
+		switch (currentMode)
 		{
+		case TimelineMode::InsertLong:
 			drawDummyHold(renderer);
-		}
-		else if (currentMode == TimelineMode::InsertLongMid)
-		{
+			break;
+
+		case TimelineMode::InsertLongMid:
 			drawHoldMid(dummyMid, defaultStepType, renderer, hoverTint);
 			drawOutline(StepDrawData{ dummyMid.tick, dummyMid.lane, dummyMid.width, defaultStepType });
-		}
-		else if (currentMode == TimelineMode::InsertBPM)
-		{
+			break;
+
+		case TimelineMode::InsertBPM:
 			bpmControl(defaultBPM, hoverTick, false);
-		}
-		else if (currentMode == TimelineMode::InsertTimeSign)
-		{
+			break;
+
+		case TimelineMode::InsertTimeSign:
 			timeSignatureControl(defaultTimeSignN, defaultTimeSignD, hoverTick, false);
-		}
-		else
-		{
+			break;
+
+		case TimelineMode::InsertHiSpeed:
+			hiSpeedControl(hoverTick, 1.0f);
+			break;
+
+		default:
 			drawNote(dummy, renderer, hoverTint);
+			break;
 		}
 	}
 
@@ -863,6 +869,10 @@ namespace MikuMikuWorld
 		else if (currentMode == TimelineMode::InsertTimeSign)
 		{
 			insertTimeSignature();
+		}
+		else if (currentMode == TimelineMode::InsertHiSpeed)
+		{
+			insertHiSpeedChange();
 		}
 		else
 		{

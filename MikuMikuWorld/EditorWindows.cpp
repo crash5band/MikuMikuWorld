@@ -463,7 +463,7 @@ namespace MikuMikuWorld
 			HiSpeedChange& hiSpeed = score.hiSpeedChanges[editHiSpeedIndex];
 			UI::beginPropertyColumns();
 			UI::addReadOnlyProperty(getString("tick"), std::to_string(hiSpeed.tick));
-			UI::addFloatProperty(getString("speed"), editHiSpeed, "%g");
+			UI::addFloatProperty(getString("hi_speed"), editHiSpeed, "%g");
 			UI::endPropertyColumns();
 
 			if (ImGui::IsItemDeactivatedAfterEdit())
@@ -471,7 +471,7 @@ namespace MikuMikuWorld
 				Score prev = score;
 				hiSpeed.speed = editHiSpeed;
 
-				pushHistory("Change hi speed", prev, score);
+				pushHistory("Change hi-speed", prev, score);
 			}
 
 			ImGui::Separator();

@@ -203,6 +203,7 @@ namespace MikuMikuWorld
 		void insertHoldStep(HoldNote& note);
 		void insertTempo();
 		void insertTimeSignature();
+		void insertHiSpeedChange();
 		void copy();
 		void cut();
 		void previewPaste(Renderer* renderer);

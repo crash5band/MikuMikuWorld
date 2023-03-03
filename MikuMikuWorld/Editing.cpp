@@ -568,4 +568,19 @@ namespace MikuMikuWorld
 		score.timeSignatures[measure] = TimeSignature{ measure, defaultTimeSignN, defaultTimeSignD };
 		pushHistory("Add time signature change", prev, score);
 	}
+
+	void ScoreEditor::insertHiSpeedChange()
+	{
+		int tick = hoverTick;
+		for (const auto& hiSpeed : score.hiSpeedChanges)
+			if (hiSpeed.tick == tick)
+				return;
+
+		Score prev = score;
+		score.hiSpeedChanges.push_back({ tick, 1.0f });
+		std::sort(score.hiSpeedChanges.begin(), score.hiSpeedChanges.end(),
+			[](HiSpeedChange& a, HiSpeedChange& b) { return a.tick < b.tick; });
+
+		pushHistory("Add hi-speed change", prev, score);
+	}
 }
