@@ -82,6 +82,7 @@ namespace MikuMikuWorld
 		float defaultBPM;
 		int defaultTimeSignN;
 		int defaultTimeSignD;
+		float defaultHiSpeed;
 
 		bool windowFocused;
 		bool drawHoldStepOutline;

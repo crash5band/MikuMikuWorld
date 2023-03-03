@@ -24,6 +24,7 @@ namespace MikuMikuWorld
 		defaultStepType = HoldStepType::Visible;
 		defaultBPM = 160.0f;
 		defaultTimeSignN = defaultTimeSignD = 4;
+		defaultHiSpeed = 1.0f;
 
 		skipUpdateAfterSortingSteps = false;
 		framebuffer = new Framebuffer(1080, 1920);

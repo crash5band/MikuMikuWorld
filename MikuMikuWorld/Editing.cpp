@@ -577,7 +577,7 @@ namespace MikuMikuWorld
 				return;
 
 		Score prev = score;
-		score.hiSpeedChanges.push_back({ tick, 1.0f });
+		score.hiSpeedChanges.push_back({ tick, defaultHiSpeed });
 		std::sort(score.hiSpeedChanges.begin(), score.hiSpeedChanges.end(),
 			[](HiSpeedChange& a, HiSpeedChange& b) { return a.tick < b.tick; });
 

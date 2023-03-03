@@ -56,6 +56,10 @@ namespace MikuMikuWorld
 			{
 				UI::timeSignatureSelect(defaultTimeSignN, defaultTimeSignD);
 			}
+			else if (currentMode == TimelineMode::InsertHiSpeed)
+			{
+				UI::addFloatProperty(getString("hi_speed_speed"), defaultHiSpeed, "%gx");
+			}
 			else
 			{
 				UI::addIntProperty(getString("note_width"), defaultNoteWidth, 1, 12);
