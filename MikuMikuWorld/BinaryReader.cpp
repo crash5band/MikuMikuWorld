@@ -71,4 +71,10 @@ namespace MikuMikuWorld
 		}
 		return data;
 	}
+
+	void BinaryReader::seek(size_t pos)
+	{
+		if (stream)
+			fseek(stream, pos, SEEK_SET);
+	}
 }
