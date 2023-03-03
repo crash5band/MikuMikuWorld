@@ -122,6 +122,8 @@ measure, 小節
 skill, スキル
 increase_note_width, ノーツの幅を広げる
 decrease_note_width, ノーツの幅を狭める
+edit_hi_speed, ハイスピードを編集
+hi_speed_speed, ハイスピード速度
 
 # preset manager
 presets, プリセット
@@ -152,3 +154,4 @@ timeline_flick, タイムライン「フリック」
 timeline_make_critical, タイムライン「クリティカル」
 timeline_bpm, タイムライン「BPM」
 timeline_time_signature, タイムライン「拍子」
+timeline_hi_speed, タイムライン「ハイスピード」

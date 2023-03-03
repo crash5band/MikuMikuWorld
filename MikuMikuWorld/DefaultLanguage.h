@@ -126,6 +126,8 @@ namespace MikuMikuWorld
 		{"skill", "Skill"},
 		{"increase_note_size", "Increase Note Size"},
 		{"decrease_note_size", "Decrease Note Size"},
+		{"edit_hi_speed", "Edit Hi-Speed"},
+		{"hi_speed_speed", "Speed"},
 
 		// preset manager
 		{"presets", "Presets"},
@@ -155,6 +157,7 @@ namespace MikuMikuWorld
 		{"timeline_flick", "Timeline - Insert Flick"},
 		{"timeline_make_critical", "Timeline - Insert Critical"},
 		{"timeline_bpm", "Timeline - Insert BPM"},
-		{"timeline_time_signature", "Timeline - Insert Time Signature"}
+		{"timeline_time_signature", "Timeline - Insert Time Signature"},
+		{"timeline_hi_speed", "Timeline - Insert Hi-Speed Change"}
 	};
 }
