@@ -16,7 +16,7 @@ namespace MikuMikuWorld
 		metadata.musicOffset = 0;
 
 		tempoChanges.push_back(Tempo());
-		timeSignatures.insert(std::pair<int, TimeSignature>(0, TimeSignature{ 0, 4, 4 }));
+		timeSignatures[0] = { 0, 4, 4 };
 
 		fever.startTick = fever.endTick = -1;
 	}
@@ -71,6 +71,95 @@ namespace MikuMikuWorld
 		writer->writeString(File::fixPath(metadata.jacketFile));
 	}
 
+	void readScoreEvents(Score& score, int version, BinaryReader* reader)
+	{
+		// time signature
+		int timeSignatureCount = reader->readInt32();
+		if (timeSignatureCount)
+			score.timeSignatures.clear();
+
+		for (int i = 0; i < timeSignatureCount; ++i)
+		{
+			int measure = reader->readInt32();
+			int numerator = reader->readInt32();
+			int denominator = reader->readInt32();
+			score.timeSignatures[measure] = { measure, numerator, denominator };
+		}
+
+		// bpm
+		int tempoCount = reader->readInt32();
+		if (tempoCount)
+			score.tempoChanges.clear();
+
+		for (int i = 0; i < tempoCount; ++i)
+		{
+			int tick = reader->readInt32();
+			float bpm = reader->readSingle();
+			score.tempoChanges.push_back({ tick, bpm });
+		}
+
+		// hi-speed
+		if (version > 2)
+		{
+			int hiSpeedCount = reader->readInt32();
+			for (int i = 0; i < hiSpeedCount; ++i)
+			{
+				int tick = reader->readInt32();
+				float speed = reader->readSingle();
+
+				score.hiSpeedChanges.push_back({ tick, speed });
+			}
+		}
+
+		// skills and fever
+		if (version > 1)
+		{
+			int skillCount = reader->readInt32();
+			for (int i = 0; i < skillCount; ++i)
+			{
+				int tick = reader->readInt32();
+				score.skills.push_back({ nextSkillID++, tick });
+			}
+
+			score.fever.startTick = reader->readInt32();
+			score.fever.endTick = reader->readInt32();
+		}
+	}
+
+	void writeScoreEvents(const Score& score, BinaryWriter* writer)
+	{
+		writer->writeInt32(score.timeSignatures.size());
+		for (const auto& [_, timeSignature] : score.timeSignatures)
+		{
+			writer->writeInt32(timeSignature.measure);
+			writer->writeInt32(timeSignature.numerator);
+			writer->writeInt32(timeSignature.denominator);
+		}
+
+		writer->writeInt32(score.tempoChanges.size());
+		for (const auto& tempo : score.tempoChanges)
+		{
+			writer->writeInt32(tempo.tick);
+			writer->writeSingle(tempo.bpm);
+		}
+
+		writer->writeInt32(score.hiSpeedChanges.size());
+		for (const auto& hiSpeed : score.hiSpeedChanges)
+		{
+			writer->writeInt32(hiSpeed.tick);
+			writer->writeSingle(hiSpeed.speed);
+		}
+
+		writer->writeInt32(score.skills.size());
+		for (const auto& skill : score.skills)
+		{
+			writer->writeInt32(skill.tick);
+		}
+
+		writer->writeInt32(score.fever.startTick);
+		writer->writeInt32(score.fever.endTick);
+	}
+
 	Score deserializeScore(const std::string& filename)
 	{
 		Score score;
@@ -80,47 +169,33 @@ namespace MikuMikuWorld
 
 		std::string signature = reader.readString();
 		if (signature != "MMWS")
-			throw std::runtime_error("Invalid mmws file signature.");
+			throw std::runtime_error("Not a MMWS file.");
 
 		int version = reader.readInt32();
 
+		uint32_t metadataAddress = 0;
+		uint32_t eventsAddress = 0;
+		uint32_t tapsAddress = 0;
+		uint32_t holdsAddress = 0;
+		if (version > 2)
+		{
+			metadataAddress = reader.readInt32();
+			eventsAddress = reader.readInt32();
+			tapsAddress = reader.readInt32();
+			holdsAddress = reader.readInt32();
+
+			reader.seek(metadataAddress);
+		}
+
 		score.metadata = readMetadata(&reader, version);
 
-		int timeSignatureCount = reader.readInt32();
-		if (timeSignatureCount)
-			score.timeSignatures.clear();
+		if (version > 2)
+			reader.seek(eventsAddress);
 
-		for (int i = 0; i < timeSignatureCount; ++i)
-		{
-			int measure = reader.readInt32();
-			int numerator = reader.readInt32();
-			int denominator = reader.readInt32();
-			score.timeSignatures[measure] = TimeSignature{ measure, numerator, denominator };
-		}
+		readScoreEvents(score, version, &reader);
 
-		int tempoCount = reader.readInt32();
-		if (tempoCount)
-			score.tempoChanges.clear();
-
-		for (int i = 0; i < tempoCount; ++i)
-		{
-			int tick = reader.readInt32();
-			float bpm = reader.readSingle();
-			score.tempoChanges.push_back(Tempo{ tick, bpm });
-		}
-
-		if (version > 1)
-		{
-			int skillCount = reader.readInt32();
-			for (int i = 0; i < skillCount; ++i)
-			{
-				int tick = reader.readInt32();
-				score.skills.push_back(SkillTrigger{ nextSkillID++, tick });
-			}
-
-			score.fever.startTick = reader.readInt32();
-			score.fever.endTick = reader.readInt32();
-		}
+		if (version > 2)
+			reader.seek(tapsAddress);
 
 		int noteCount = reader.readInt32();
 		score.notes.reserve(noteCount);
@@ -130,6 +205,9 @@ namespace MikuMikuWorld
 			note.ID = nextID++;
 			score.notes[note.ID] = note;
 		}
+
+		if (version > 2)
+			reader.seek(holdsAddress);
 
 		int holdCount = reader.readInt32();
 		score.holdNotes.reserve(holdCount);
@@ -182,41 +260,19 @@ namespace MikuMikuWorld
 		writer.writeString("MMWS");
 
 		// verison
-		writer.writeInt32(2);
+		writer.writeInt32(3);
 
+		// offsets address in order: metadata -> events -> taps -> holds
+		uint32_t offsetsAddress = writer.getStreamPosition();
+		writer.writeNull(sizeof(uint32_t) * 4);
+
+		uint32_t metadataAddress = writer.getStreamPosition();
 		writeMetadata(score.metadata, &writer);
 
-		int timeSignatureCount = score.timeSignatures.size();
-		writer.writeInt32(timeSignatureCount);
+		uint32_t eventsAddress = writer.getStreamPosition();
+		writeScoreEvents(score, &writer);
 
-		for (const auto&[measure, ts] : score.timeSignatures)
-		{
-			writer.writeInt32(ts.measure);
-			writer.writeInt32(ts.numerator);
-			writer.writeInt32(ts.denominator);
-		}
-
-		int tempoCount = score.tempoChanges.size();
-		writer.writeInt32(tempoCount);
-
-		for (int i = 0; i < tempoCount; ++i)
-		{
-			writer.writeInt32(score.tempoChanges[i].tick);
-			writer.writeSingle(score.tempoChanges[i].bpm);
-		}
-
-		int skillCount = score.skills.size();
-		writer.writeInt32(skillCount);
-
-		for (int i = 0; i < skillCount; ++i)
-		{
-			writer.writeInt32(score.skills[i].tick);
-		}
-
-		writer.writeInt32(score.fever.startTick);
-		writer.writeInt32(score.fever.endTick);
-
-		size_t noteCountAddress = writer.getStreamPosition();
+		uint32_t tapsAddress = writer.getStreamPosition();
 		writer.writeNull(sizeof(uint32_t));
 
 		int noteCount = 0;
@@ -228,14 +284,15 @@ namespace MikuMikuWorld
 			writeNote(note, &writer);
 			++noteCount;
 		}
-
-		size_t holdsAddress = writer.getStreamPosition();
-		writer.seek(noteCountAddress);
+		
+		uint32_t holdsAddress = writer.getStreamPosition();
+		
+		// write taps count
+		writer.seek(tapsAddress);
 		writer.writeInt32(noteCount);
 		writer.seek(holdsAddress);
-			
-		int holdCount = score.holdNotes.size();
-		writer.writeInt32(holdCount);
+		
+		writer.writeInt32(score.holdNotes.size());
 		for (const auto&[id, hold] : score.holdNotes)
 		{	
 			// note data
@@ -258,6 +315,13 @@ namespace MikuMikuWorld
 			const Note& end = score.notes.at(hold.end);
 			writeNote(end, &writer);
 		}
+
+		// write offset addresses
+		writer.seek(offsetsAddress);
+		writer.writeInt32(metadataAddress);
+		writer.writeInt32(eventsAddress);
+		writer.writeInt32(tapsAddress);
+		writer.writeInt32(holdsAddress);
 
 		writer.flush();
 		writer.close();
