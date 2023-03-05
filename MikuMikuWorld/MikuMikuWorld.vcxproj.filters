@@ -186,6 +186,9 @@
     <ClCompile Include="ScoreConverter.cpp">
       <Filter>Score</Filter>
     </ClCompile>
+    <ClCompile Include="Toolbar.cpp">
+      <Filter>Components\ScoreEditor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -408,6 +411,9 @@
     </ClInclude>
     <ClInclude Include="ScoreConverter.h">
       <Filter>Score</Filter>
+    </ClInclude>
+    <ClInclude Include="Toolbar.h">
+      <Filter>Components\ScoreEditor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -205,7 +205,7 @@ namespace MikuMikuWorld
 		float scrollbarWidth = ImGui::GetStyle().ScrollbarSize;
 		float paddingY = 30.0f;
 		ImVec2 windowEndTop = ImGui::GetWindowPos() + ImVec2{ ImGui::GetWindowSize().x - scrollbarWidth - 4, paddingY };
-		ImVec2 windowEndBottom = windowEndTop + ImVec2{ scrollbarWidth + 2, ImGui::GetWindowSize().y - (paddingY * 1.3f) };
+		ImVec2 windowEndBottom = windowEndTop + ImVec2{ scrollbarWidth + 2, ImGui::GetWindowSize().y - (paddingY * 1.3f) - UI::toolbarBtnSize.y - 5 };
 
 		// calculate handle height
 		float heightRatio = size.y / ((timelineMaxOffset - timelineMinOffset) * zoom);
@@ -323,7 +323,7 @@ namespace MikuMikuWorld
 		prevPos		= position;
 		prevSize	= size;
 		position	= ImGui::GetCursorScreenPos();
-		size	= ImGui::GetContentRegionAvail() - ImVec2{ ImGui::GetStyle().ScrollbarSize, 0 };
+		size	= ImGui::GetContentRegionAvail() - ImVec2{ ImGui::GetStyle().ScrollbarSize, ImGui::GetFrameHeightWithSpacing() + 5 };
 		boundaries	= ImRect(position, position + size);
 		mouseInCanvas = ImGui::IsMouseHoveringRect(position, position + size);
 		

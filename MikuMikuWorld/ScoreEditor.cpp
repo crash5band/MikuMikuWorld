@@ -903,6 +903,11 @@ namespace MikuMikuWorld
 		dummyEnd.tick = hoverTick;
 	}
 
+	TimelineMode ScoreEditor::getTimelineMode() const
+	{
+		return currentMode;
+	}
+
 	void ScoreEditor::changeMode(TimelineMode mode)
 	{
 		switch (mode)

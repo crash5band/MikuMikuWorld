@@ -9,6 +9,7 @@
 #include "Localization.h"
 #include "tinyfiledialogs.h"
 #include "Clipboard.h"
+#include "Toolbar.h"
 #include <filesystem>
 
 namespace MikuMikuWorld
@@ -285,6 +286,54 @@ namespace MikuMikuWorld
 		dragDropHandled = true;
 	}
 
+	void Application::updateToolbar()
+	{
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImVec2 toolbarSize{ viewport->WorkSize.x, UI::toolbarBtnSize.y + ImGui::GetStyle().WindowPadding.y + 5 };
+
+		// keep toolbar on top in main viewport
+		ImGui::SetNextWindowViewport(viewport->ID);
+		ImGui::SetNextWindowPos(viewport->WorkPos);
+		ImGui::SetNextWindowSize(toolbarSize, ImGuiCond_Always);
+		ImGui::Begin("##app_toolbar", NULL, ImGuiWindowFlags_Toolbar);
+
+		// make buttons transparent
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
+
+		// general actions
+		toolbarButton(commandManager, "reset", ICON_FA_FILE);
+		toolbarButton(commandManager, "open", ICON_FA_FOLDER);
+		toolbarButton(commandManager, "save", ICON_FA_SAVE);
+		toolbarButton(commandManager, "export", ICON_FA_FILE_EXPORT);
+
+		toolbarSeparator();
+
+		toolbarButton(commandManager, "undo", ICON_FA_UNDO);
+		toolbarButton(commandManager, "redo", ICON_FA_REDO);
+
+		toolbarSeparator();
+
+		toolbarButton(commandManager, "cut", ICON_FA_CUT);
+		toolbarButton(commandManager, "copy", ICON_FA_COPY);
+		toolbarButton(commandManager, "paste", ICON_FA_PASTE);
+
+		toolbarSeparator();
+
+		// timeline actions
+		ImVec2 itemSpacing = ImGui::GetStyle().ItemSpacing;
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ itemSpacing.x +3.0f, itemSpacing.y });
+		for (int i = 0; i < (int)TimelineMode::TimelineToolMax; ++i)
+		{
+			std::string cmdName = "timeline_" + std::string{ timelineModes[i] };
+			std::string texName = cmdName;
+			toolbarImageButton(commandManager, cmdName, texName, (int)editor->getTimelineMode() == i);
+		}
+
+		ImGui::PopStyleVar();
+		ImGui::PopStyleColor();
+		ImGui::End();
+	}
+
 	void Application::update()
 	{
 		if (!dragDropHandled)
@@ -300,6 +349,7 @@ namespace MikuMikuWorld
 		}
 
 		menubar.update(windowState);
+		updateToolbar();
 		updateDialogs();
 		editor->update(frameDelta, renderer, &commandManager);
 		autoSave.update();
@@ -323,6 +373,16 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path.png");
 		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path_crtcl.png");
 		ResourceManager::loadTexture(appDir + "res/textures/default.png");
+
+		ResourceManager::loadTexture(appDir + "res/textures/timeline_select.png");
+		ResourceManager::loadTexture(appDir + "res/textures/timeline_tap.png");
+		ResourceManager::loadTexture(appDir + "res/textures/timeline_hold.png");
+		ResourceManager::loadTexture(appDir + "res/textures/timeline_hold_step.png");
+		ResourceManager::loadTexture(appDir + "res/textures/timeline_flick.png");
+		ResourceManager::loadTexture(appDir + "res/textures/timeline_critical.png");
+		ResourceManager::loadTexture(appDir + "res/textures/timeline_bpm.png");
+		ResourceManager::loadTexture(appDir + "res/textures/timeline_time_signature.png");
+		ResourceManager::loadTexture(appDir + "res/textures/timeline_hi_speed.png");
 
 		// load more languages here
 		Localization::loadDefault();
@@ -395,13 +455,13 @@ namespace MikuMikuWorld
 		commandManager.add("timeline_hold", { {NONE, GLFW_KEY_3} },
 			[this] { editor->changeMode(TimelineMode::InsertLong); });
 
-		commandManager.add("timeline_hold_mid", { {NONE, GLFW_KEY_4} },
+		commandManager.add("timeline_hold_step", { {NONE, GLFW_KEY_4} },
 			[this] { editor->changeMode(TimelineMode::InsertLongMid); });
 
 		commandManager.add("timeline_flick", { {NONE, GLFW_KEY_5} },
 			[this] { editor->changeMode(TimelineMode::InsertFlick); });
 
-		commandManager.add("timeline_make_critical", { {NONE, GLFW_KEY_6} },
+		commandManager.add("timeline_critical", { {NONE, GLFW_KEY_6} },
 			[this] { editor->changeMode(TimelineMode::MakeCritical); });
 
 		commandManager.add("timeline_bpm", { {NONE, GLFW_KEY_7} },
@@ -409,6 +469,9 @@ namespace MikuMikuWorld
 
 		commandManager.add("timeline_time_signature", { {NONE, GLFW_KEY_8} },
 			[this] { editor->changeMode(TimelineMode::InsertTimeSign); });
+
+		commandManager.add("timeline_hi_speed", { {NONE, GLFW_KEY_9} },
+			[this] { editor->changeMode(TimelineMode::InsertHiSpeed); });
 
 		commandManager.add("decrease_note_size", { {NONE, GLFW_KEY_MINUS} },
 			[this] { editor->changeNoteWidth(-1); });

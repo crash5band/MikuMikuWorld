@@ -26,6 +26,14 @@ namespace MikuMikuWorld
 	constexpr float toolTipDelay = 0.5f;
 
 	constexpr ImGuiWindowFlags ImGuiWindowFlags_Static = ImGuiWindowFlags_NoCollapse;
+	constexpr ImGuiWindowFlags ImGuiWindowFlags_Toolbar = ImGuiWindowFlags_NoCollapse
+		| ImGuiWindowFlags_NoDocking
+		| ImGuiWindowFlags_NoMove
+		| ImGuiWindowFlags_NoResize
+		| ImGuiWindowFlags_NoScrollbar
+		| ImGuiWindowFlags_NoScrollWithMouse
+		| ImGuiWindowFlags_NoTitleBar;
+
 
 	struct AccentColor
 	{
@@ -68,6 +76,7 @@ namespace MikuMikuWorld
 	public:
 		static const ImVec2 btnNormal;
 		static const ImVec2 btnSmall;
+		static const ImVec2 toolbarBtnSize;
 		static std::vector<AccentColor> accentColors;
 
 		static bool transparentButton(const char* txt, ImVec2 size = btnNormal, bool repeat = false, bool enabled = true);

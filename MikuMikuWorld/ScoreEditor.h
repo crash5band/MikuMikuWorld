@@ -123,9 +123,9 @@ namespace MikuMikuWorld
 		void updateTimeline(float frameTime, Renderer* renderer, CommandManager* commandManager);
 		
 		// window update methods
-		void toolboxWindow();
-		void controlsWindow();
+		void timelineStatusBar();
 		void propertiesWindow();
+		void toolOptionsWindow();
 		void contextMenu(CommandManager* commandManager);
 		void debugInfo();
 		void bpmEditor();
@@ -255,5 +255,7 @@ namespace MikuMikuWorld
 		void redo();
 
 		bool isWindowFocused() const;
+
+		TimelineMode getTimelineMode() const;
 	};
 }

@@ -15,63 +15,11 @@
 #include "Clipboard.h"
 #include "Localization.h"
 #include "Commands/CommandManager.h"
+#include "Toolbar.h"
 #include <algorithm>
 
 namespace MikuMikuWorld
 {
-	void ScoreEditor::toolboxWindow()
-	{
-		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_TOOLBOX, "toolbox")))
-		{
-			ImVec2 btnSz{ ImGui::GetContentRegionAvail().x, 35.0f };
-			for (int i = 0; i < (int)TimelineMode::TimelineToolMax; ++i)
-			{
-				ImGui::PushID(i);
-				bool highlight = (int)currentMode == i;
-				if (highlight)
-				{
-					ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_TabActive]);
-					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_TabActive]);
-				}
-
-				std::string str = getString(timelineModes[i]);
-				if (ImGui::Button(str.c_str(), btnSz))
-					changeMode((TimelineMode)i);
-
-				if (highlight)
-					ImGui::PopStyleColor(2);
-
-				ImGui::PopID();
-			}
-
-			ImGui::Separator();
-			UI::beginPropertyColumns();
-
-			if (currentMode == TimelineMode::InsertBPM)
-			{
-				UI::addFloatProperty(getString("bpm"), defaultBPM, "%g BPM");
-				defaultBPM = std::clamp(defaultBPM, MIN_BPM, MAX_BPM);
-			}
-			else if (currentMode == TimelineMode::InsertTimeSign)
-			{
-				UI::timeSignatureSelect(defaultTimeSignN, defaultTimeSignD);
-			}
-			else if (currentMode == TimelineMode::InsertHiSpeed)
-			{
-				UI::addFloatProperty(getString("hi_speed_speed"), defaultHiSpeed, "%gx");
-			}
-			else
-			{
-				UI::addIntProperty(getString("note_width"), defaultNoteWidth, 1, 12);
-				UI::addSelectProperty(getString("step_type"), defaultStepType, uiStepTypes, TXT_ARR_SZ(uiStepTypes));
-			}
-
-			UI::endPropertyColumns();
-		}
-
-		ImGui::End();
-	}
-	
 	void ScoreEditor::updateTimeline(float frameTime, Renderer* renderer, CommandManager* commandManager)
 	{
 		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"),
@@ -152,6 +100,7 @@ namespace MikuMikuWorld
 			drawList->PopClipRect();
 
 			canvas.updateTimelineScrollbar();
+			timelineStatusBar();
 		}
 		ImGui::End();
 	}
@@ -314,66 +263,103 @@ namespace MikuMikuWorld
 		ImGui::End();
 	}
 
-	void ScoreEditor::controlsWindow()
+	void ScoreEditor::timelineStatusBar()
 	{
-		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_ADJUST, "controls")))
+		ImGui::SetCursorPos(ImVec2{ 5, UI::toolbarBtnSize.y + canvas.getSize().y + 8 });
+
+		if (UI::transparentButton(ICON_FA_BACKWARD, UI::btnNormal, true, !playing))
+			previousTick();
+
+		ImGui::SameLine();
+		if (UI::transparentButton(ICON_FA_STOP))
+			stop();
+
+		ImGui::SameLine();
+		if (UI::transparentButton(playing ? ICON_FA_PAUSE : ICON_FA_PLAY))
+			togglePlaying();
+
+		ImGui::SameLine();
+		if (UI::transparentButton(ICON_FA_FORWARD, UI::btnNormal, true, !playing))
+			nextTick();
+
+		ImGui::SameLine();
+		ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+		ImGui::SameLine();
+		UI::divisionSelect(getString("division"), division, divisions, sizeof(divisions) / sizeof(int));
+		
+		ImGui::SameLine();
+		std::string curr = getString(scrollModes[(int)scrollMode]);
+		if (!curr.size())
+			curr = scrollModes[(int)scrollMode];
+
+		ImGui::SetNextItemWidth(120);
+		if (ImGui::BeginCombo("##scroll_mode", curr.c_str()))
 		{
-			int measure = accumulateMeasures(currentTick, TICKS_PER_BEAT, score.timeSignatures);
-			const TimeSignature& ts = score.timeSignatures[findTimeSignature(measure, score.timeSignatures)];
-			const Tempo& tempo = getTempoAt(currentTick, score.tempoChanges);
+			for (int i = 0; i < (int)ScrollMode::ScrollModeMax; ++i)
+			{
+				const bool selected = (int)scrollMode == i;
+				std::string str = getString(scrollModes[i]);
+				if (!str.size())
+					str = scrollModes[i];
 
-			int hiSpeed = findHighSpeedChange(currentTick, score.hiSpeedChanges);
-			float speed = (hiSpeed == -1 ? 1.0f : score.hiSpeedChanges[hiSpeed].speed);
+				if (ImGui::Selectable(str.c_str(), selected))
+					scrollMode = (ScrollMode)i;
+			}
 
-			Utilities::ImGuiCenteredText(formatString(
-				"%02d:%02d:%02d\t|\t%d/%d\t|\t%g BPM\t|\t%gx",
-				(int)time / 60, (int)time % 60, (int)((time - (int)time) * 100),
-				ts.numerator, ts.denominator,
-				tempo.bpm,
-				speed
-			));
+			ImGui::EndCombo();
+		}
 
-			// center playback controls
-			ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x * 0.5f) - ((UI::btnNormal.x + ImGui::GetStyle().ItemSpacing.x) * 2));
-			if (UI::transparentButton(ICON_FA_BACKWARD, UI::btnNormal, true, !playing))
-				previousTick();
+		ImGui::SameLine();
+		float _zoom = canvas.getZoom();
+		if (UI::zoomControl("zoom", _zoom, MIN_ZOOM, 10.0f))
+			canvas.setZoom(_zoom);
 
-			ImGui::SameLine();
-			if (UI::transparentButton(ICON_FA_STOP))
-				stop();
+		ImGui::SameLine();
+		ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+		ImGui::SameLine();
+		int measure = accumulateMeasures(currentTick, TICKS_PER_BEAT, score.timeSignatures);
+		const TimeSignature& ts = score.timeSignatures[findTimeSignature(measure, score.timeSignatures)];
+		const Tempo& tempo = getTempoAt(currentTick, score.tempoChanges);
 
-			ImGui::SameLine();
-			if (UI::transparentButton(playing ? ICON_FA_PAUSE : ICON_FA_PLAY))
-				togglePlaying();
+		int hiSpeed = findHighSpeedChange(currentTick, score.hiSpeedChanges);
+		float speed = (hiSpeed == -1 ? 1.0f : score.hiSpeedChanges[hiSpeed].speed);
 
-			ImGui::SameLine();
-			if (UI::transparentButton(ICON_FA_FORWARD, UI::btnNormal, true, !playing))
-				nextTick();
+		ImGui::Text(formatString(
+			"%02d:%02d:%02d  |  %d/%d  |  %g BPM  |  %gx",
+			(int)time / 60, (int)time % 60, (int)((time - (int)time) * 100),
+			ts.numerator, ts.denominator,
+			tempo.bpm,
+			speed
+		).c_str());
+	}
 
-			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
-			
+	void ScoreEditor::toolOptionsWindow()
+	{
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_WRENCH, "settings")))
+		{
 			UI::beginPropertyColumns();
-			UI::divisionSelect(getString("division"), division, divisions, sizeof(divisions) / sizeof(int));
+			UI::addCheckboxProperty(getString("show_step_outlines"), drawHoldStepOutline);
+			switch (currentMode)
+			{
+			case TimelineMode::InsertBPM:
+				UI::addFloatProperty(getString("bpm"), defaultBPM, "%g BPM");
+				defaultBPM = std::clamp(defaultBPM, MIN_BPM, MAX_BPM);
+				break;
 
-			static int m = 0;
-			UI::propertyLabel(getString("goto_measure"));
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - ImGui::GetStyle().ItemSpacing.x);
-			ImGui::InputInt("##goto_measure", &m, 0, 0);
+			case TimelineMode::InsertTimeSign:
+				UI::timeSignatureSelect(defaultTimeSignN, defaultTimeSignD);
+				break;
 
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_ARROW_RIGHT, UI::btnSmall))
-				gotoMeasure(m);
-			ImGui::NextColumn();
+			case TimelineMode::InsertHiSpeed:
+				UI::addFloatProperty(getString("hi_speed_speed"), defaultHiSpeed, "%gx");
+				break;
 
-			UI::addSelectProperty(getString("scroll_mode"), scrollMode, scrollModes, (int)ScrollMode::ScrollModeMax);
-			
-			float _zoom = canvas.getZoom();
-			if (UI::zoomControl("zoom", _zoom, MIN_ZOOM, 10.0f))
-				canvas.setZoom(_zoom);
-
+			default:
+				UI::addIntProperty(getString("note_width"), defaultNoteWidth, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
+				UI::addSelectProperty(getString("step_type"), defaultStepType, uiStepTypes, TXT_ARR_SZ(uiStepTypes));
+				break;
+			}
 			UI::endPropertyColumns();
-			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
-			ImGui::Checkbox(getString("show_step_outlines"), &drawHoldStepOutline);
 		}
 
 		ImGui::End();
@@ -535,11 +521,9 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::update(float frameTime, Renderer* renderer, CommandManager* commandManager)
 	{
-		toolboxWindow();
-		controlsWindow();
 		updateTimeline(frameTime, renderer, commandManager);
 		propertiesWindow();
-		
+		toolOptionsWindow();
 		if (presetManager.updateWindow(score, selection.getSelection()))
 		{
 			cancelPaste();

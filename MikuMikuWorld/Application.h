@@ -67,6 +67,7 @@ namespace MikuMikuWorld
 		void writeSettings();
 		void loadResources();
 		void setupCommands();
+		void updateToolbar();
 		void dispose();
 
 		static const std::string& getAppDir();

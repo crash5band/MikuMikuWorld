@@ -164,8 +164,9 @@ namespace MikuMikuWorld
 			ImGuiWindowFlags_NoBackground;
 
 		ImGuiViewport* viewport = ImGui::GetMainViewport();
-		ImGui::SetNextWindowPos(viewport->WorkPos);
-		ImGui::SetNextWindowSize(viewport->WorkSize);
+		ImVec2 viewportOffset{ 0, UI::toolbarBtnSize.y + ImGui::GetStyle().WindowPadding.y + 5 };
+		ImGui::SetNextWindowPos(viewport->WorkPos + viewportOffset);
+		ImGui::SetNextWindowSize(viewport->WorkSize - viewportOffset);
 		ImGui::SetNextWindowViewport(viewport->ID);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
@@ -181,18 +182,16 @@ namespace MikuMikuWorld
 		if (!ImGui::DockBuilderGetNode(dockSpaceId))
 		{
 			ImGui::DockBuilderAddNode(dockSpaceId, ImGuiDockNodeFlags_DockSpace);
-			ImGui::DockBuilderSetNodeSize(dockSpaceId, viewport->WorkSize);
+			ImGui::DockBuilderSetNodeSize(dockSpaceId, viewport->WorkSize - viewportOffset);
 
 			ImGuiID dockMainId = dockSpaceId;
-			ImGuiID topLeftId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Left, 0.175f, nullptr, &dockMainId);
-			ImGuiID bottomLeftId = ImGui::DockBuilderSplitNode(topLeftId, ImGuiDir_Down, 0.5f, nullptr, &topLeftId);
-			ImGuiID topRightId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Right, 0.25f, nullptr, &dockMainId);
-			ImGuiID bottomRightId = ImGui::DockBuilderSplitNode(topRightId, ImGuiDir_Down, 0.5f, nullptr, &topRightId);
+			ImGuiID midRightId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Right, 0.25f, nullptr, &dockMainId);
+			ImGuiID topRightId = ImGui::DockBuilderSplitNode(midRightId, ImGuiDir_Up, 0.15f, nullptr, &midRightId);
+			ImGuiID bottomRightId = ImGui::DockBuilderSplitNode(midRightId, ImGuiDir_Down, 0.3f, nullptr, &midRightId);
 
 			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"), dockMainId);
-			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_TOOLBOX, "toolbox"), topLeftId);
-			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_ADJUST, "controls"), bottomLeftId);
-			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_ALIGN_LEFT, "chart_properties"), topRightId);
+			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_ALIGN_LEFT, "chart_properties"), midRightId);
+			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_WRENCH, "settings"), topRightId);
 			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_DRAFTING_COMPASS, "presets"), bottomRightId);
 
 			ImGui::DockBuilderFinish(dockMainId);

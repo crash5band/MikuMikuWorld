@@ -12,6 +12,7 @@ namespace MikuMikuWorld
 {
 	const ImVec2 UI::btnNormal{ 30, 30 };
 	const ImVec2 UI::btnSmall{ 22, 22 };
+	const ImVec2 UI::toolbarBtnSize{ 28, 28 };
 	char UI::idStr[256];
 
 	std::vector<AccentColor> UI::accentColors{
@@ -257,13 +258,11 @@ namespace MikuMikuWorld
 
 	bool UI::divisionSelect(const char* label, int& value, const int* items, size_t count)
 	{
-		propertyLabel(label);
-		
 		const char* id = labelID(label);
 		ImGui::PushID(id);
 
 		bool act = false;
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - ImGui::GetFrameHeight());
+		ImGui::SetNextItemWidth(100);
 		if (ImGui::InputScalar("##custom_input", ImGuiDataType_S32, (void*)(&value),
 			0, 0, concat("%d", getString("division_suffix")).c_str()))
 		{
@@ -283,9 +282,9 @@ namespace MikuMikuWorld
 		// enable right-click
 		ImGui::OpenPopupOnItemClick("combobox");
 		
-		pos.y += size.y;
 		size.x += ImGui::GetItemRectSize().x;
 		size.y += size.y * 6;
+		pos.y -= size.y;
 		ImGui::SetNextWindowPos(pos);
 		ImGui::SetNextWindowSize(size);
 		if (ImGui::BeginPopup("combobox", ImGuiWindowFlags_NoMove))
@@ -303,14 +302,11 @@ namespace MikuMikuWorld
 		}
 
 		ImGui::PopID();
-		ImGui::NextColumn();
 		return act;
 	}
 
 	bool UI::zoomControl(const char* label, float& value, float min, float max)
 	{
-		propertyLabel(getString(label));
-		
 		bool act = false;
 		if (UI::transparentButton(ICON_FA_SEARCH_MINUS, UI::btnSmall))
 		{
@@ -319,7 +315,7 @@ namespace MikuMikuWorld
 		}
 
 		ImGui::SameLine();
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - (ImGui::GetStyle().ItemSpacing.x));
+		ImGui::SetNextItemWidth(100);
 
 		act |= ImGui::SliderFloat(labelID(label), &value, min, max, "%.2fx");
 		ImGui::SameLine();
