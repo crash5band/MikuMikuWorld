@@ -289,6 +289,7 @@ namespace MikuMikuWorld
 		std::vector<std::vector<SUSNote>> slides;
 		std::vector<BPM> bpms;
 		std::vector<BarLength> barlengths;
+		std::vector<HiSpeed> hiSpeeds;
 
 		for (const auto& [id, note] : score.notes)
 		{
@@ -377,6 +378,10 @@ namespace MikuMikuWorld
 		std::stable_sort(barlengths.begin(), barlengths.end(),
 			[](const BarLength& a, const BarLength& b) { return a.bar < b.bar; });
 
+		hiSpeeds.reserve(score.hiSpeedChanges.size());
+		for (const auto& hiSpeed : score.hiSpeedChanges)
+			hiSpeeds.push_back(HiSpeed{ hiSpeed.tick, hiSpeed.speed });
+
 		SUSMetadata metadata;
 		metadata.data["title"] = score.metadata.title;
 		metadata.data["artist"] = score.metadata.artist;
@@ -386,6 +391,6 @@ namespace MikuMikuWorld
 		// milliseconds -> seconds
 		metadata.waveOffset = score.metadata.musicOffset / 1000.0f;
 
-		return SUS{ metadata, taps, directionals, slides, bpms, barlengths };
+		return SUS{ metadata, taps, directionals, slides, bpms, barlengths, hiSpeeds };
 	}
 }

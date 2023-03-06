@@ -13,6 +13,21 @@ namespace MikuMikuWorld
 
 	}
 
+	int SusExporter::getTicksFromMeasure(int measure)
+	{
+		int barLengthIndex = 0;
+		for (int i = 0; i < barLengthTicks.size(); ++i)
+		{
+			if (barLengthTicks[i].barLength.bar >= measure)
+				barLengthIndex = std::max(0, i - 1);
+		}
+
+		const BarLengthTicks& blt = barLengthTicks[barLengthIndex];
+		int measureDiff = measure - blt.barLength.bar;
+		int ticksPerMeasure = blt.barLength.length * ticksPerBeat;
+		return blt.ticks + (measureDiff * ticksPerMeasure);
+	}
+
 	int SusExporter::getMeasureFromTicks(int ticks)
 	{
 		for (const auto& [barLength, barTicks] : barLengthTicks)
@@ -166,6 +181,25 @@ namespace MikuMikuWorld
 			lines.push_back(formatString("#%03d08: %s", offset, bpmIdentifiers[bpm.bpm].c_str()));
 		}
 
+		lines.push_back("");
+
+		std::string speedLine = "\"";
+		for (int i = 0; i < sus.hiSpeeds.size(); ++i)
+		{
+			int measure = getMeasureFromTicks(sus.hiSpeeds[i].tick);
+			int offsetTicks = sus.hiSpeeds[i].tick - getTicksFromMeasure(measure);
+			float speed = sus.hiSpeeds[i].speed;
+
+			speedLine.append(formatString("%d'%d:%g", measure, offsetTicks, speed));
+
+			if (i < sus.hiSpeeds.size() - 1)
+				speedLine.append(", ");
+		}
+		speedLine.append("\"");
+		
+		lines.push_back(formatString("#TIL00: %s", speedLine.c_str()));
+		lines.push_back("#HISPEED 00");
+		lines.push_back("#MEASUREHS 00");
 		lines.push_back("");
 
 		// prepare note data

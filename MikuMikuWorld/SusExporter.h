@@ -42,6 +42,7 @@ namespace MikuMikuWorld
 		ChannelProvider channelProvider;
 
 		int getMeasureFromTicks(int ticks);
+		int getTicksFromMeasure(int measure);
 
 	public:
 		SusExporter();
