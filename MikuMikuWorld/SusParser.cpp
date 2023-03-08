@@ -242,7 +242,11 @@ namespace MikuMikuWorld
 			std::string lineData = line.line;
 			int firstQuote = lineData.find_first_of('"') + 1;
 			int lastQuote = lineData.find_last_of('"');
+			
 			lineData = lineData.substr(firstQuote, lastQuote - firstQuote);
+			if (!lineData.size())
+				continue;
+
 			std::vector<std::string> speedChanges = split(lineData, ",");
 			for (const auto& change : speedChanges)
 			{
