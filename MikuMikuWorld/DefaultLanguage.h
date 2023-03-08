@@ -154,9 +154,9 @@ namespace MikuMikuWorld
 		{"timeline_select", "Timeline - Select"},
 		{"timeline_tap", "Timeline - Insert Tap"},
 		{"timeline_hold", "Timeline - Insert Hold"},
-		{"timeline_hold_mid", "Timeline - Insert Hold Mid"},
+		{"timeline_hold_step", "Timeline - Insert Hold Mid"},
 		{"timeline_flick", "Timeline - Insert Flick"},
-		{"timeline_make_critical", "Timeline - Insert Critical"},
+		{"timeline_critical", "Timeline - Insert Critical"},
 		{"timeline_bpm", "Timeline - Insert BPM"},
 		{"timeline_time_signature", "Timeline - Insert Time Signature"},
 		{"timeline_hi_speed", "Timeline - Insert Hi-Speed Change"}

@@ -150,9 +150,9 @@ next_tick, 次の拍子
 timeline_select, タイムライン「選択」
 timeline_tap, タイムライン「タップ」
 timeline_hold, タイムライン「スライド」
-timeline_hold_mid, タイムライン「スライド中継点」
+timeline_hold_step, タイムライン「スライド中継点」
 timeline_flick, タイムライン「フリック」
-timeline_make_critical, タイムライン「クリティカル」
+timeline_critical, タイムライン「クリティカル」
 timeline_bpm, タイムライン「BPM」
 timeline_time_signature, タイムライン「拍子」
 timeline_hi_speed, タイムライン「ハイスピード」
