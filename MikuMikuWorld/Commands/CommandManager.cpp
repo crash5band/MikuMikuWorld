@@ -68,8 +68,13 @@ namespace MikuMikuWorld
 		{
 			if (mods != cmd.getMods(i) || cmd.getKey(i) == 0)
 				continue;
-			
+
 			if (InputListener::isTapped(cmd.getKey(i)))
+				return true;
+
+			if ((GLFW_KEY_0 <= cmd.getKey(i)) &&
+				(cmd.getKey(i) <= GLFW_KEY_9) &&
+				InputListener::isTapped(cmd.getKey(i) + (GLFW_KEY_KP_0 - GLFW_KEY_0)))
 				return true;
 		}
 
@@ -157,7 +162,7 @@ namespace MikuMikuWorld
 	void CommandManager::inputSettings()
 	{
 		ImVec2 size = ImVec2(-1, ImGui::GetContentRegionAvail().y * 0.7);
-		const ImGuiTableFlags tableFlags = 
+		const ImGuiTableFlags tableFlags =
 			ImGuiTableFlags_BordersOuter
 			| ImGuiTableFlags_BordersInnerH
 			| ImGuiTableFlags_ScrollY
@@ -165,7 +170,7 @@ namespace MikuMikuWorld
 
 		const ImGuiSelectableFlags selectionFlags = ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap;
 		int rowHeight = ImGui::GetFrameHeight() + 5;
-		
+
 		if (ImGui::BeginTable("##commands_table", 2, tableFlags, size))
 		{
 			ImGui::TableSetupColumn(getString("action"));
@@ -173,7 +178,7 @@ namespace MikuMikuWorld
 			for (int c = 0; c < commands.size(); ++c)
 			{
 				ImGui::TableNextRow(0, rowHeight);
-				
+
 				ImGui::TableSetColumnIndex(0);
 				if (ImGui::Selectable(commands[c].getDisplayName().c_str(), c == selectedCommandIndex, selectionFlags))
 					selectedCommandIndex = c;
