@@ -16,10 +16,10 @@ namespace MikuMikuWorld
 	int SusExporter::getTicksFromMeasure(int measure)
 	{
 		int barLengthIndex = 0;
-		for (int i = 0; i < barLengthTicks.size(); ++i)
+		for (int i = barLengthTicks.size() - 1; i >= 0; --i)
 		{
-			if (barLengthTicks[i].barLength.bar >= measure)
-				barLengthIndex = std::max(0, i - 1);
+			if (barLengthTicks[i].barLength.bar <= measure)
+				barLengthIndex = std::max(0, i);
 		}
 
 		const BarLengthTicks& blt = barLengthTicks[barLengthIndex];
