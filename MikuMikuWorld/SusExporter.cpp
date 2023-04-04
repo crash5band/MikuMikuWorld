@@ -167,9 +167,16 @@ namespace MikuMikuWorld
 			}
 		}
 
+		// group bpms by measure
+		std::map<int, std::vector<BPM>> measuresBpms;
 		for (const auto& bpm : bpms)
 		{
 			int measure = getMeasureFromTicks(bpm.tick);
+			measuresBpms[measure].push_back(bpm);
+		}
+
+		for (const auto& [measure, bpms] : measuresBpms)
+		{
 			int base = (measure / 1000) * 1000;
 			int offset = measure % 1000;
 			if (base != baseMeasure)
@@ -178,7 +185,21 @@ namespace MikuMikuWorld
 				baseMeasure = base;
 			}
 
-			lines.push_back(formatString("#%03d08: %s", offset, bpmIdentifiers[bpm.bpm].c_str()));
+			int ticksPerMeasure = getTicksFromMeasure(measure + 1) - getTicksFromMeasure(measure);
+			int gcd = ticksPerMeasure;
+
+			for (const auto& bpm : bpms)
+				gcd = std::gcd(bpm.tick, gcd);
+
+			std::map<int, std::string> data;
+			for (const auto& bpm : bpms)
+				data[bpm.tick % ticksPerMeasure] = bpmIdentifiers[bpm.bpm];
+
+			std::string values;
+			for (int i = 0; i < ticksPerMeasure; i += gcd)
+				values += (data.find(i) == data.end() ? "00" : data[i]);
+
+			lines.push_back(formatString("#%03d08: %s", offset, values.c_str()));
 		}
 
 		lines.push_back("");
