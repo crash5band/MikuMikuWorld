@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "UI.h"
 #include "json.hpp"
 #include "Math.h"
 #include "Color.h"
@@ -31,6 +32,7 @@ namespace MikuMikuWorld
 		bool vsync;
 		int accentColor;
 		Color userColor;
+		BaseTheme baseTheme;
 
 		int timelineWidth;
 		int notesHeight;

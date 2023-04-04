@@ -128,7 +128,7 @@ namespace MikuMikuWorld
 	void UI::addIntProperty(const char* label, int& val, int lowerBound, int higherBound)
 	{
 		propertyLabel(label);
-		
+
 		ImGui::InputInt(labelID(label), &val, 1, 5);
 		if (lowerBound != higherBound)
 			val = std::clamp(val, lowerBound, higherBound);
@@ -138,7 +138,7 @@ namespace MikuMikuWorld
 	void UI::addFloatProperty(const char* label, float& val, const char* format)
 	{
 		propertyLabel(label);
-		
+
 		ImGui::InputFloat(labelID(label), &val, 1.0f, 10.f, format);
 		ImGui::NextColumn();
 	}
@@ -166,7 +166,7 @@ namespace MikuMikuWorld
 		ImGui::NextColumn();
 	}
 
-	void UI::addPercentSliderProperty(const char* label, float &val)
+	void UI::addPercentSliderProperty(const char* label, float& val)
 	{
 		propertyLabel(label);
 
@@ -180,7 +180,7 @@ namespace MikuMikuWorld
 	int UI::addFileProperty(const char* label, std::string& val)
 	{
 		propertyLabel(label);
-		
+
 		int result = 0;
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - btnSmall.x - ImGui::GetStyle().ItemSpacing.x);
@@ -210,7 +210,7 @@ namespace MikuMikuWorld
 
 		float controlWidth = (ImGui::GetContentRegionAvail().x / 2.0f) - (ImGui::CalcTextSize("/").x);
 		bool edit = false;
-		
+
 		ImGui::SetNextItemWidth(controlWidth);
 		ImGui::InputInt(idNumerator.c_str(), &numerator, 0, 0);
 
@@ -231,7 +231,7 @@ namespace MikuMikuWorld
 	void UI::addCheckboxProperty(const char* label, bool& val)
 	{
 		propertyLabel(label);
-		
+
 		ImGui::Checkbox(labelID(label), &val);
 		ImGui::NextColumn();
 	}
@@ -269,7 +269,7 @@ namespace MikuMikuWorld
 			value = std::clamp(value, 4, 1920);
 			act = true;
 		}
-		
+
 		// enable right-click
 		ImGui::OpenPopupOnItemClick("combobox");
 		ImVec2 pos = ImGui::GetItemRectMin();
@@ -281,7 +281,7 @@ namespace MikuMikuWorld
 
 		// enable right-click
 		ImGui::OpenPopupOnItemClick("combobox");
-		
+
 		size.x += ImGui::GetItemRectSize().x;
 		size.y += size.y * 6;
 		pos.y -= size.y;
@@ -387,5 +387,41 @@ namespace MikuMikuWorld
 	{
 		if (ImGui::MenuItem(concat(icon, command.getDisplayName().c_str(), "\t").c_str(), command.getKeysString(0).c_str(), false, command.canExecute()))
 			command.execute();
+	}
+
+	std::string UI::baseThemeToStr(BaseTheme theme)
+	{
+		switch (theme) {
+		case(BaseTheme::DARK):
+			return getString("theme_dark");
+		case(BaseTheme::LIGHT):
+			return getString("theme_light");
+		default:
+			throw std::runtime_error("Unreachable");
+		}
+	}
+
+	int UI::baseThemeToInt(BaseTheme theme)
+	{
+		switch (theme) {
+		case(BaseTheme::DARK):
+			return 0;
+		case(BaseTheme::LIGHT):
+			return 1;
+		default:
+			throw std::runtime_error("Unreachable");
+		}
+	}
+
+	BaseTheme UI::intToBaseTheme(int theme)
+	{
+		switch (theme) {
+		case(0):
+			return BaseTheme::DARK;
+		case(1):
+			return BaseTheme::LIGHT;
+		default:
+			throw std::runtime_error("Unreachable");
+		}
 	}
 }
