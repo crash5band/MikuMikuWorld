@@ -11,10 +11,10 @@ namespace MikuMikuWorld
 		wchar_t filename[1024];
 		lstrcpyW(filename, mbToWideStr(std::string(appDir + "MikuMikuWorld.exe")).c_str());
 
-		DWORD  verHandle	= 0;
-		UINT   size			= 0;
-		LPBYTE lpBuffer		= NULL;
-		DWORD  verSize		= GetFileVersionInfoSizeW(filename, &verHandle);
+		DWORD  verHandle = 0;
+		UINT   size = 0;
+		LPBYTE lpBuffer = NULL;
+		DWORD  verSize = GetFileVersionInfoSizeW(filename, &verHandle);
 
 		int major = 0, minor = 0, build = 0, rev = 0;
 		if (verSize != NULL)
@@ -107,7 +107,7 @@ namespace MikuMikuWorld
 			ImGui::SetCursorPos({
 				ImGui::GetStyle().WindowPadding.x,
 				ImGui::GetWindowSize().y - UI::btnSmall.y - ImGui::GetStyle().WindowPadding.y
-			});
+				});
 
 			if (ImGui::Button("OK", { ImGui::GetContentRegionAvail().x, UI::btnSmall.y }))
 				ImGui::CloseCurrentPopup();
@@ -139,6 +139,33 @@ namespace MikuMikuWorld
 					}
 
 					// theme
+					if (ImGui::CollapsingHeader(getString("base_theme"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+
+						UI::beginPropertyColumns();
+						UI::propertyLabel(getString("base_theme"));
+						if (ImGui::BeginCombo("##color_theme", UI::baseThemeToStr(
+							imgui.getBaseTheme()
+						).c_str()))
+						{
+							for (int i = 0; i < 2; ++i)
+							{
+								const BaseTheme theme = UI::intToBaseTheme(i);
+								const bool selected = (int)imgui.getBaseTheme() == i;
+								if (ImGui::Selectable(UI::baseThemeToStr(theme).c_str(), selected)) {
+									imgui.setBaseTheme(UI::intToBaseTheme(i));
+									imgui.applyAccentColor(config.accentColor);
+								}
+							}
+
+							ImGui::EndCombo();
+						}
+						UI::endPropertyColumns();
+						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+					}
+
+					// accent color
 					if (ImGui::CollapsingHeader(getString("accent_color"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);

@@ -60,6 +60,7 @@ namespace MikuMikuWorld
 		editor->presetManager.loadPresets(appDir + "library/");
 
 		imgui.applyAccentColor(config.accentColor);
+		imgui.setBaseTheme(config.baseTheme);
 
 		autoSave.setEditorInstance(editor);
 		autoSave.readConfig(config);
@@ -133,6 +134,7 @@ namespace MikuMikuWorld
 		};
 
 		config.accentColor = imgui.getAccentColor();
+		config.baseTheme = imgui.getBaseTheme();
 
 		config.timelineWidth = editor->canvas.getLaneWidth();
 		config.notesHeight = editor->canvas.getNotesHeight();
