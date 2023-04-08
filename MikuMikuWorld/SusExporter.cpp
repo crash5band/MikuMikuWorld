@@ -185,7 +185,8 @@ namespace MikuMikuWorld
 				baseMeasure = base;
 			}
 
-			int ticksPerMeasure = getTicksFromMeasure(measure + 1) - getTicksFromMeasure(measure);
+			int measureTicks = getTicksFromMeasure(measure);
+			int ticksPerMeasure = getTicksFromMeasure(measure + 1) - measureTicks;
 			int gcd = ticksPerMeasure;
 
 			for (const auto& bpm : bpms)
@@ -193,7 +194,7 @@ namespace MikuMikuWorld
 
 			std::map<int, std::string> data;
 			for (const auto& bpm : bpms)
-				data[bpm.tick % ticksPerMeasure] = bpmIdentifiers[bpm.bpm];
+				data[bpm.tick - measureTicks] = bpmIdentifiers[bpm.bpm];
 
 			std::string values;
 			for (int i = 0; i < ticksPerMeasure; i += gcd)
