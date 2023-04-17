@@ -38,7 +38,7 @@ namespace MikuMikuWorld
 		if (!ImGui_ImplGlfw_InitForOpenGL(window, true))
 			return Result(ResultStatus::Error, "Failed to initialize ImGui GLFW implementation.");
 
-		if (!ImGui_ImplOpenGL3_Init("#version 130"))
+		if (!ImGui_ImplOpenGL3_Init("#version 150"))
 			return Result(ResultStatus::Error, "Failed to initialize ImGui OpenGL implementation.");
 
 		std::string baseDir = Application::getAppDir();

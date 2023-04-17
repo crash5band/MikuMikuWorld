@@ -102,16 +102,28 @@ namespace MikuMikuWorld
 	Result Application::initOpenGL()
 	{
 		// GLFW initializion
+		const char* glfwErrorDescription = NULL;
+		int possibleError = GLFW_NO_ERROR;
+
 		glfwInit();
+		possibleError = glfwGetError(&glfwErrorDescription);
+		if (possibleError != GLFW_NO_ERROR)
+		{
+			glfwTerminate();
+			return Result(ResultStatus::Error, "Failed to initialize GLFW.\n" + std::string(glfwErrorDescription));
+		}
+
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 		window = glfwCreateWindow(config.windowSize.x, config.windowSize.y, APP_NAME, NULL, NULL);
-		if (window == NULL)
+		possibleError = glfwGetError(&glfwErrorDescription);
+		if (possibleError != GLFW_NO_ERROR)
 		{
 			glfwTerminate();
-			return Result(ResultStatus::Error, "Failed to create GLFW Window.");
+			return Result(ResultStatus::Error, "Failed to create GLFW Window.\n" + std::string(glfwErrorDescription));
 		}
 
 		glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
