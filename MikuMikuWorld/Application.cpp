@@ -59,8 +59,8 @@ namespace MikuMikuWorld
 
 		editor->presetManager.loadPresets(appDir + "library/");
 
-		imgui.applyAccentColor(config.accentColor);
 		imgui.setBaseTheme(config.baseTheme);
+		imgui.applyAccentColor(config.accentColor);
 
 		autoSave.setEditorInstance(editor);
 		autoSave.readConfig(config);
