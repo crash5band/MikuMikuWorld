@@ -25,7 +25,8 @@ namespace MikuMikuWorld
 		for (const auto& file : std::filesystem::directory_iterator(wPath))
 		{
 			// look only for json files and ignore any dot files present
-			if (file.path().extension().wstring() == L".json" && file.path().string()[0] != '.')
+			std::wstring wFilename = file.path().filename().wstring();
+			if (file.path().extension().wstring() == L".json" && wFilename[0] != L'.')
 				filenames.push_back(wideStringToMb(file.path().wstring()));
 		}
 
