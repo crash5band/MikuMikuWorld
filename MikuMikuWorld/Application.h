@@ -1,39 +1,43 @@
 #pragma once
 #include "../Depends/glad/include/glad/glad.h"
 #include "../Depends/GLFW/include/GLFW/glfw3.h"
-#include "Rendering/Renderer.h"
 #include "ScoreEditor.h"
 #include "Stopwatch.h"
 #include "ApplicationConfiguration.h"
 #include "ImGuiManager.h"
-#include "AutoSaveManager.h"
-#include "Commands/CommandManager.h"
-#include "Menubar.h"
-#include "WindowState.h"
 
 namespace MikuMikuWorld
 {
 	class Result;
 
+	struct WindowState
+	{
+		bool resetting = false;
+		bool vsync = true;
+		bool showPerformanceMetrics = false;
+		bool maximized = false;
+		bool closing = false;
+		bool shouldPickScore = false;
+		bool dragDropHandled = true;
+		Vector2 position;
+		Vector2 size;
+	};
+
 	class Application
 	{
 	private:
 		GLFWwindow* window;
-		Renderer* renderer;
-		ScoreEditor* editor;
-		ImGuiManager imgui;
-		AutoSaveManager autoSave;
+		std::unique_ptr<ScoreEditor> editor;
+		std::unique_ptr<ImGuiManager> imgui;
 		ApplicationConfiguration config;
-		CommandManager commandManager;
-		Menubar menubar;
+
+		UnsavedChangesDialog unsavedChangesDialog;
+		AboutDialog aboutDialog;
 
 		float lastFrame;
 		float frameDelta;
 		bool initialized;
-		bool resetting;
-		
 		bool shouldPickScore;
-		bool dragDropHandled;
 
 		std::vector<std::string> pendingOpenFiles;
 		std::string pendingDropScoreFile;
@@ -43,31 +47,24 @@ namespace MikuMikuWorld
 
 		Result initOpenGL();
 		void update();
-		void updateDialogs();
 		void installCallbacks();
 
 		std::string getVersion();
 
 	public:
-		WindowState windowState;
+		static WindowState windowState;
 
 		Application(const std::string &rootPath);
 
 		Result initialize();
-		void reset();
-		void open();
 		void run();
 		void frameTime();
-		bool warnUnsaved();
-		void about();
 		void settingsDialog();
 		void appendOpenFile(std::string filename);
 		void handlePendingOpenFiles();
 		void readSettings();
 		void writeSettings();
 		void loadResources();
-		void setupCommands();
-		void updateToolbar();
 		void dispose();
 
 		static const std::string& getAppDir();

@@ -16,14 +16,6 @@ namespace MikuMikuWorld
 		TimelineToolMax
 	};
 
-	enum class ScrollMode
-	{
-		None,
-		Page,
-		FollowCursor,
-		ScrollModeMax
-	};
-
 	constexpr const char* timelineModes[]
 	{
 		"select",
@@ -37,13 +29,6 @@ namespace MikuMikuWorld
 		"hi_speed"
 	};
 
-	constexpr const char* scrollModes[]
-	{
-		"none",
-		"page",
-		"follow_cursor"
-	};
-
 	constexpr int divisions[]
 	{
 		4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192
@@ -52,5 +37,15 @@ namespace MikuMikuWorld
 	constexpr int timeSignatureDenominators[]
 	{
 		2, 4, 8, 16, 32, 64
+	};
+
+	enum class EventType
+	{
+		None = -1,
+		Bpm,
+		TimeSignature,
+		HiSpeed,
+		Skill,
+		Fever
 	};
 }

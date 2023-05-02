@@ -51,4 +51,12 @@ namespace MikuMikuWorld
 		ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(str).x) * 0.5f);
 		ImGui::Text(str);
 	}
+
+	void drawShadedText(ImDrawList* drawList, ImVec2 textPos, float fontSize, ImU32 fontColor, const char* text)
+	{
+		if (!drawList) return;
+
+		drawList->AddText(ImGui::GetFont(), fontSize, textPos + ImVec2{ 1.5f, 1.5f }, 0xff111111, text);
+		drawList->AddText(ImGui::GetFont(), fontSize, textPos, fontColor, text);
+	}
 }

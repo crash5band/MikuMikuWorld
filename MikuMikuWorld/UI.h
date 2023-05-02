@@ -18,11 +18,11 @@ namespace MikuMikuWorld
 	class Command;
 	struct TimeSignature;
 
-	constexpr const char* windowTitle = " - " APP_NAME;
+	constexpr const char* windowTitle = APP_NAME " - ";
 	constexpr const char* windowUntitled = "Untitled";
 
-	constexpr float primaryLineThickness = 0.50f;
-	constexpr float secondaryLineThickness = 0.25f;
+	constexpr float primaryLineThickness = 0.250f;
+	constexpr float secondaryLineThickness = 0.175f;
 	constexpr float toolTipDelay = 0.5f;
 
 	constexpr ImGuiWindowFlags ImGuiWindowFlags_Static = ImGuiWindowFlags_NoCollapse;
@@ -91,10 +91,9 @@ namespace MikuMikuWorld
 		static void beginPropertyColumns();
 		static void endPropertyColumns();
 		static void propertyLabel(const char* label);
-		static void addStringProperty(const char* label, std::string& val);
 		static void addIntProperty(const char* label, int& val, int lowerBound = 0, int higherBound = 0);
 		static void addFloatProperty(const char* label, float& val, const char* format);
-		static void addReadOnlyProperty(const char* label, std::string val);
+		static void addStringProperty(const char* label, std::string& val);
 		static void addSliderProperty(const char* label, int& val, int min, int max, const char* format);
 		static void addSliderProperty(const char* label, float& val, float min, float max, const char* format);
 		static void addPercentSliderProperty(const char* label, float& val);
@@ -107,6 +106,9 @@ namespace MikuMikuWorld
 		static bool divisionSelect(const char* label, int& value, const int* items, size_t count);
 		static bool zoomControl(const char* label, float& value, float min, float max);
 		static bool timeSignatureSelect(int& numerator, int& denominator);
+		static bool toolbarButton(const char* icon, const char* label, const char* shortcut, bool enabled = true, bool selected = false);
+		static bool toolbarImageButton(const char* img, const char* label, const char* shortcut, bool enabled = true, bool selected = false);
+		static void toolbarSeparator();
 		static void contextMenuItem(const char* icon, Command& command);
 
 		static std::string baseThemeToStr(BaseTheme theme);
@@ -114,6 +116,14 @@ namespace MikuMikuWorld
 		static BaseTheme intToBaseTheme(int theme);
 
 		static void setWindowTitle(std::string title);
+
+		template <typename T>
+		static void addReadOnlyProperty(const char* label, T val)
+		{
+			propertyLabel(label);
+			ImGui::Text(std::to_string(val).c_str());
+			ImGui::NextColumn();
+		}
 
 		/// <summary>
 		/// For use with sequential enums only

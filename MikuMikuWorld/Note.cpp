@@ -59,13 +59,7 @@ namespace MikuMikuWorld
 
 	void cycleStepEase(HoldStep& note)
 	{
-		EaseType ease = (EaseType)(((int)note.ease + 1) % 3);
-		setStepEase(note, ease);
-	}
-
-	void setStepEase(HoldStep& step, EaseType ease)
-	{
-		step.ease = ease;
+		note.ease = (EaseType)(((int)note.ease + 1) % 3);
 	}
 
 	void cycleStepType(HoldStep& note)

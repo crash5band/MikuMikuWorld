@@ -1,5 +1,6 @@
 #include "ApplicationConfiguration.h"
 #include "StringOperations.h"
+#include "JsonIO.h"
 #include <filesystem>
 #include <fstream>
 
@@ -14,69 +15,6 @@ namespace MikuMikuWorld
 		restoreDefault();
 	}
 
-	bool ApplicationConfiguration::keyExists(const json& js, const char* key)
-	{
-		return (js.find(key) != js.end());
-	}
-
-	int ApplicationConfiguration::tryGetInt(const json& js, const char* key, int def)
-	{
-		if (keyExists(js, key))
-			return js[key].is_number() ? (int)js[key] : def;
-
-		return def;
-	}
-
-	float ApplicationConfiguration::tryGetFloat(const json& js, const char* key, float def)
-	{
-		if (keyExists(js, key))
-			return js[key].is_number() ? (float)js[key] : def;
-
-		return def;
-	}
-
-	bool ApplicationConfiguration::tryGetBool(const json& js, const char* key, bool def)
-	{
-		if (keyExists(js, key))
-			return js[key].is_boolean() ? (bool)js[key] : def;
-
-		return def;
-	}
-
-	Vector2 ApplicationConfiguration::tryGetVector2(const json& js, const char* key)
-	{
-		Vector2 v;
-		if (keyExists(js, key))
-		{
-			v.x = tryGetFloat(js[key], "x", 0.0f);
-			v.y = tryGetFloat(js[key], "y", 0.0f);
-		}
-
-		return v;
-	}
-
-	Color ApplicationConfiguration::tryGetColor(const json& js, const char* key)
-	{
-		Color c;
-		if (keyExists(js, key))
-		{
-			c.r = tryGetFloat(js[key], "r", 1.0f);
-			c.g = tryGetFloat(js[key], "g", 1.0f);
-			c.b = tryGetFloat(js[key], "b", 1.0f);
-			c.a = tryGetFloat(js[key], "a", 1.0f);
-		}
-
-		return c;
-	}
-
-	std::string ApplicationConfiguration::tryGetString(const json& js, const char* key)
-	{
-		if (keyExists(js, key))
-			return js[key].is_string() ? js[key] : "";
-
-		return "";
-	}
-
 	void ApplicationConfiguration::read(const std::string& filename)
 	{
 		std::wstring wFilename = mbToWideStr(filename);
@@ -88,21 +26,21 @@ namespace MikuMikuWorld
 		configFile >> config;
 		configFile.close();
 
-		version = tryGetString(config, "version");
+		version = jsonIO::tryGetValue<std::string>(config, "version", "1.0");
 		if (!version.size())
 			version = "1.0.0";
 
-		if (keyExists(config, "window"))
+		if (jsonIO::keyExists(config, "window"))
 		{
 			const json& window = config["window"];
-			maximized = tryGetBool(window, "maximized", false);
-			vsync = tryGetBool(window, "vsync", true);
+			maximized = jsonIO::tryGetValue<bool>(window, "maximized", false);
+			vsync = jsonIO::tryGetValue<bool>(window, "vsync", true);
 
-			windowPos = tryGetVector2(window, "position");
+			windowPos = jsonIO::tryGetValue(window, "position", Vector2{});
 			if (windowPos.x <= 0) windowPos.x = 150;
 			if (windowPos.y <= 0) windowPos.y = 100;
 
-			windowSize = tryGetVector2(window, "size");
+			windowSize = jsonIO::tryGetValue(window, "size", Vector2{});
 			if (windowSize.x <= 0 || windowSize.y <= 0)
 			{
 				windowSize.x = 1200;
@@ -110,45 +48,45 @@ namespace MikuMikuWorld
 			}
 		}
 
-		if (keyExists(config, "timeline"))
+		if (jsonIO::keyExists(config, "timeline"))
 		{
-			timelineWidth = tryGetInt(config["timeline"], "lane_width", 30);
-			notesHeight = tryGetInt(config["timeline"], "notes_height", 35);
-			division = tryGetInt(config["timeline"], "division", 8);
-			zoom = tryGetFloat(config["timeline"], "zoom", 2.0f);
-			laneOpacity = tryGetFloat(config["timeline"], "lane_opacity", 0.6f);
-			backgroundBrightness = tryGetFloat(config["timeline"], "background_brightness", 0.5f);
+			timelineWidth = jsonIO::tryGetValue<int>(config["timeline"], "lane_width", 30);
+			notesHeight = jsonIO::tryGetValue<int>(config["timeline"], "notes_height", 35);
+			division = jsonIO::tryGetValue<int>(config["timeline"], "division", 8);
+			zoom = jsonIO::tryGetValue<float>(config["timeline"], "zoom", 2.0f);
+			laneOpacity = jsonIO::tryGetValue<float>(config["timeline"], "lane_opacity", 0.6f);
+			backgroundBrightness = jsonIO::tryGetValue<float>(config["timeline"], "background_brightness", 0.5f);
 
-			useSmoothScrolling = tryGetBool(config["timeline"], "smooth_scrolling_enable", true);
-			smoothScrollingTime = tryGetFloat(config["timeline"], "smooth_scrolling_time", 67.0f);
+			useSmoothScrolling = jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
+			smoothScrollingTime = jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 67.0f);
 
-			scrollMode = tryGetString(config["timeline"], "scroll_mode");
+			scrollMode = jsonIO::tryGetValue<std::string>(config["timeline"], "scroll_mode");
 			if (!scrollMode.size())
 				scrollMode = "follow_cursor";
 		}
 
-		if (keyExists(config, "theme"))
+		if (jsonIO::keyExists(config, "theme"))
 		{
-			accentColor = tryGetInt(config["theme"], "accent_color", 1);
-			userColor	= tryGetColor(config["theme"], "user_color");
-			baseTheme = UI::intToBaseTheme(tryGetInt(config["theme"], "base_theme", 0));
+			accentColor = jsonIO::tryGetValue<int>(config["theme"], "accent_color", 1);
+			userColor = jsonIO::tryGetValue(config["theme"], "user_color", Color{});
+			baseTheme = UI::intToBaseTheme(jsonIO::tryGetValue<int>(config["theme"], "base_theme", 0));
 		}
 
-		if (keyExists(config, "save"))
+		if (jsonIO::keyExists(config, "save"))
 		{
-			autoSaveEnabled	= tryGetBool(config["save"], "auto_save_enabled", true);
-			autoSaveInterval = tryGetInt(config["save"], "auto_save_interval", 5);
-			autoSaveMaxCount = tryGetInt(config["save"], "auto_save_max_count", 100);
+			autoSaveEnabled	= jsonIO::tryGetValue<bool>(config["save"], "auto_save_enabled", true);
+			autoSaveInterval = jsonIO::tryGetValue<int>(config["save"], "auto_save_interval", 5);
+			autoSaveMaxCount = jsonIO::tryGetValue<int>(config["save"], "auto_save_max_count", 100);
 		}
 
-		if (keyExists(config, "audio"))
+		if (jsonIO::keyExists(config, "audio"))
 		{
-			masterVolume	= std::clamp(tryGetFloat(config["audio"], "master_volume", 0.8f), 0.0f, 1.0f);
-			bgmVolume	= std::clamp(tryGetFloat(config["audio"], "bgm_volume", 1.0f), 0.0f, 1.0f);
-			seVolume	= std::clamp(tryGetFloat(config["audio"], "se_volume", 1.0f), 0.0f, 1.0f);
+			masterVolume	= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "master_volume", 0.8f), 0.0f, 1.0f);
+			bgmVolume		= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "bgm_volume", 1.0f), 0.0f, 1.0f);
+			seVolume		= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "se_volume", 1.0f), 0.0f, 1.0f);
 		}
 
-		if (keyExists(config, "input") && keyExists(config["input"], "bindings"))
+		if (jsonIO::keyExists(config, "input") && jsonIO::keyExists(config["input"], "bindings"))
 		{
 			for (auto& [key, value] : config["input"]["bindings"].items())
 				keyConfigMap[key] = KeyConfiguration{ key, value };

@@ -55,13 +55,14 @@ namespace MikuMikuWorld
 	};
 
 	void resetNextID();
+
 	void cycleFlick(Note& note);
 	void cycleStepEase(HoldStep& note);
-	void setStepEase(HoldStep& step, EaseType ease);
 	void cycleStepType(HoldStep& note);
 	void sortHoldSteps(const Score& score, HoldNote& note);
+	int findHoldStep(const HoldNote& note, int stepID);
+
 	int getFlickArrowSpriteIndex(const Note& note);
 	int getNoteSpriteIndex(const Note& note);
-	int findHoldStep(const HoldNote& note, int stepID);
 	std::string getNoteSE(const Note& note, const Score& score);
 }

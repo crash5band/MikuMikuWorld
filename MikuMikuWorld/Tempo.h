@@ -105,4 +105,6 @@ namespace MikuMikuWorld
 	/// <param name="tempos">A list of BPMs to search</param>
 	/// <returns>The tempo change at the specified tick</returns>
 	const Tempo& getTempoAt(int tick, const std::vector<Tempo>& tempos);
+
+	int snapTick(int tick, int div);
 }

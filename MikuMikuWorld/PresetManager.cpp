@@ -3,15 +3,16 @@
 #include "Application.h"
 #include "File.h"
 #include "Utilities.h"
-#include "ImGui/imgui.h"
-#include "Localization.h"
 #include <tinyfiledialogs.h>
 #include <fstream>
 #include <filesystem>
 #include <execution>
-#include "UI.h"
+#include "JsonIO.h"
 
-using namespace nlohmann;
+#undef min;
+#undef max;
+
+using nlohmann::json;
 
 namespace MikuMikuWorld
 {
@@ -37,19 +38,13 @@ namespace MikuMikuWorld
 		std::vector<Result> errors;
 
 		std::for_each(std::execution::par, filenames.begin(), filenames.end(), [this, &warnings, &errors, &m2](const auto& filename) {
-			std::wstring wFilename = mbToWideStr(filename);
-			std::ifstream presetFile(wFilename);
-
-			json presetJson;
-			presetFile >> presetJson;
-			presetFile.close();
 			int id = nextPresetID++;
 
 			NotesPreset preset(id, "");
-			Result result = preset.read(presetJson, filename);
+			Result result = preset.read(filename);
 			{
 				std::lock_guard<std::mutex> lock{ m2 };
-				if (preset.notes.size())
+				if (result.getStatus() == ResultStatus::Success)
 					presets.emplace(id, std::move(preset));
 
 				if (result.getStatus() == ResultStatus::Warning)
@@ -93,44 +88,12 @@ namespace MikuMikuWorld
 
 		std::for_each(std::execution::par, createPresets.begin(), createPresets.end(), [this, &path](int id) {
 			if (presets.find(id) != presets.end())
-				writePreset(presets.at(id), path, false);
+			{
+				NotesPreset& preset = presets.at(id);
+				std::string filename = path + fixFilename(preset.getName()) + ".json";
+				preset.write(filename, false);
+			}
 		});
-	}
-
-	void PresetManager::writePreset(NotesPreset& preset, const std::string& path, bool overwrite)
-	{
-		std::string filename = path + fixFilename(preset.getName()) + ".json";
-		std::wstring wFilename = mbToWideStr(filename);
-
-		if (!overwrite)
-		{
-			int count = 1;
-			std::wstring suffix = L"";
-			while (std::filesystem::exists(wFilename + suffix))
-				suffix = L"(" + std::to_wstring(count++) + L")";
-
-			wFilename += suffix;
-		}
-
-		std::ofstream presetFile(wFilename);
-
-		json presetJson = preset.write();
-		presetFile << std::setw(2) << presetJson;
-		presetFile.flush();
-		presetFile.close();
-	}
-
-	void PresetManager::normalizeTicks(NotesPreset& preset)
-	{
-		int leastTick = preset.notes.begin()->second.tick;
-		for (auto& [id, note] : preset.notes)
-		{
-			if (note.tick < leastTick)
-				leastTick = note.tick;
-		}
-
-		for (auto& [id, note] : preset.notes)
-			note.tick -= leastTick;
 	}
 
 	void PresetManager::createPreset(const Score& score, const std::unordered_set<int>& selectedNotes,
@@ -143,66 +106,9 @@ namespace MikuMikuWorld
 		preset.name = name;
 		preset.description = desc;
 
-		// copy notes
-		int noteID = 0;
-		std::unordered_set<int> selectHolds;
-		for (int id : selectedNotes)
-		{
-			Note note = score.notes.at(id);
-			switch (note.getType())
-			{
-			case NoteType::Tap:
-				note.ID = noteID++;
-				preset.notes[note.ID] = note;
-				break;
+		int baseTick = getBaseTick(score, selectedNotes);
+		preset.data = jsonIO::noteSelectionToJson(score, selectedNotes, baseTick);
 
-			case NoteType::Hold:
-				selectHolds.insert(note.ID);
-				break;
-
-			case NoteType::HoldMid:
-			case NoteType::HoldEnd:
-				selectHolds.insert(note.parentID);
-				break;
-
-			default:
-				break;
-			}
-		}
-
-		for (int id : selectHolds)
-		{
-			HoldNote hold = score.holdNotes.at(id);
-			HoldNote newHold = hold;
-			Note start = score.notes.at(hold.start.ID);
-			Note end = score.notes.at(hold.end);
-
-			start.ID = noteID++;
-			end.ID = noteID++;
-			end.parentID = start.ID;
-			preset.notes[start.ID] = start;
-			preset.notes[end.ID] = end;
-
-			newHold.start.ID = start.ID;
-			newHold.end = end.ID;
-			newHold.steps.clear();
-
-			for (const auto& step : hold.steps)
-			{
-				Note mid = score.notes.at(step.ID);
-				mid.ID = noteID++;
-				mid.parentID = start.ID;
-				preset.notes[mid.ID] = mid;
-
-				HoldStep newStep = step;
-				newStep.ID = mid.ID;
-				newHold.steps.push_back(newStep);
-			}
-
-			preset.holds[start.ID] = newHold;
-		}
-
-		normalizeTicks(preset);
 		presets[preset.getID()] = preset;
 		createPresets.insert(preset.getID());
 	}
@@ -238,147 +144,96 @@ namespace MikuMikuWorld
 		return result;
 	}
 
-	const NotesPreset& PresetManager::getSelected() const
+	int PresetManager::getBaseTick(const Score& score, const std::unordered_set<int>& selection)
 	{
-		return selectedPreset;
+		int minTick = INT_MAX;
+		for (const int id : selection)
+		{
+			auto it = score.notes.find(id);
+			if (it == score.notes.end())
+				continue;
+
+			minTick = std::min(minTick, it->second.tick);
+		}
+
+		return minTick;
 	}
 
-	bool PresetManager::updateWindow(const Score& score, const std::unordered_set<int>& selection)
+	void PresetManager::applyPreset(int presetId, ScoreContext& context)
 	{
-		bool selected = false;
-		static bool dialogOpen = false;
-		static std::string presetName = "";
-		static std::string presetDesc = "";
-		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_DRAFTING_COMPASS, "presets")))
+		if (presets.find(presetId) == presets.end())
+			return;
+
+		// copy the preset notes, and assign new IDs
+		NotesPreset& preset = presets.at(presetId);
+		std::unordered_map<int, Note> notes;
+		std::unordered_map<int, HoldNote> holdNotes;
+
+		if (jsonIO::keyExists(preset.data, "notes") && !preset.data["notes"].is_null())
 		{
-			int removePattern = -1;
-
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, ImGui::GetStyle().ItemSpacing.y));
-			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
-			float filterWidth = ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2;
-
-			presetFilter.Draw("##preset_filter", concat(ICON_FA_SEARCH, getString("search"), " ").c_str(), filterWidth);
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_TIMES, UI::btnSmall))
-				presetFilter.Clear();
-
-			ImGui::PopStyleVar();
-			ImGui::PopStyleColor();
-
-			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
-			float windowHeight = ImGui::GetContentRegionAvail().y - ((ImGui::GetFrameHeight()) + 10.0f);
-			if (ImGui::BeginChild("presets_child_window", ImVec2(-1, windowHeight), true))
+			for (const auto& entry : preset.data["notes"])
 			{
-				if (!presets.size())
+				Note note = jsonIO::jsonToNote(entry, NoteType::Tap);
+				note.tick += context.currentTick;
+				note.ID = nextID++;
+
+				notes[note.ID] = note;
+			}
+		}
+
+		if (jsonIO::keyExists(preset.data, "holds") && !preset.data["holds"].is_null())
+		{
+			for (const auto& entry : preset.data["holds"])
+			{
+				Note start = jsonIO::jsonToNote(entry["start"], NoteType::Hold);
+				start.tick += context.currentTick;
+				start.ID = nextID++;
+				notes[start.ID] = start;
+
+				Note end = jsonIO::jsonToNote(entry["end"], NoteType::HoldEnd);
+				end.tick += context.currentTick;
+				end.ID = nextID++;
+				end.parentID = start.ID;
+				notes[end.ID] = end;
+
+				std::string startEase = entry["start"]["ease"];
+				HoldNote hold;
+				hold.start = { start.ID, HoldStepType::Visible, (EaseType)findArrayItem(startEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes)) };
+				hold.end = end.ID;
+
+				if (jsonIO::keyExists(entry, "steps"))
 				{
-					ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
-					Utilities::ImGuiCenteredText(getString("no_presets"));
-					ImGui::PopStyleVar();
-				}
-				else
-				{
-					for (const auto& [id, preset] : presets)
+					hold.steps.reserve(entry["steps"].size());
+					for (const auto& step : entry["steps"])
 					{
-						if (!presetFilter.PassFilter(preset.getName().c_str()))
-							continue;
+						Note mid = jsonIO::jsonToNote(step, NoteType::HoldMid);
+						mid.tick += context.currentTick;
+						mid.critical = start.critical;
+						mid.ID = nextID++;
+						mid.parentID = start.ID;
+						notes[mid.ID] = mid;
 
-						std::string strID = std::to_string(id) + "_" + preset.getName();
-						ImGui::PushID(strID.c_str());
-						if (ImGui::Button(preset.getName().c_str(), ImVec2(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2.0f, UI::btnSmall.y + 2.0f)))
-						{
-							selectedPreset = preset;
-							selected = true;
-						}
-
-						if (preset.description.size())
-							UI::tooltip(preset.description.c_str());
-
-						ImGui::SameLine();
-						if (UI::transparentButton(ICON_FA_TRASH, ImVec2(UI::btnSmall.x, UI::btnSmall.y + 2.0f)))
-							removePattern = id;
-
-						ImGui::PopID();
+						std::string midType = step["type"];
+						std::string midEase = step["ease"];
+						hold.steps.push_back(
+							{
+								mid.ID,
+								(HoldStepType)findArrayItem(midType.c_str(), stepTypes, TXT_ARR_SZ(stepTypes)),
+								(EaseType)findArrayItem(midEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes))
+							});
 					}
 				}
+
+				holdNotes[hold.start.ID] = hold;
 			}
-			ImGui::EndChild();
-			ImGui::Separator();
-
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !selection.size());
-			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * !selection.size()));
-			if (ImGui::Button(getString("create_preset"), ImVec2(-1, UI::btnSmall.y + 2.0f)))
-				dialogOpen = true;
-
-			ImGui::PopStyleColor();
-			ImGui::PopStyleVar();
-			ImGui::PopItemFlag();
-
-			if (removePattern != -1)
-				removePreset(removePattern);
 		}
 
-		ImGui::End();
+		context.selectedNotes.clear();
+		std::transform(notes.begin(), notes.end(),
+			std::inserter(context.selectedNotes, context.selectedNotes.end()),
+			[this](const auto& it) { return it.second.ID; });
 
-		if (dialogOpen)
-		{
-			ImGui::OpenPopup(MODAL_TITLE("create_preset"));
-			dialogOpen = false;
-		}
-
-		if (updatePresetCreationDialog(presetName, presetDesc))
-		{
-			createPreset(score, selection, presetName, presetDesc);
-			presetName.clear();
-			presetDesc.clear();
-		}
-
-		return selected;
-	}
-
-	bool PresetManager::updatePresetCreationDialog(std::string& name, std::string& description)
-	{
-		bool result = false;
-
-		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_Always);
-		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
-		if (ImGui::BeginPopupModal(MODAL_TITLE("create_preset"), NULL, ImGuiWindowFlags_NoResize))
-		{
-			ImVec2 padding = ImGui::GetStyle().WindowPadding;
-			ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
-
-			float xPos = padding.x;
-			float yPos = ImGui::GetWindowSize().y - UI::btnSmall.y - 2.0f - (padding.y * 2);
-			
-			ImGui::Text(getString("name"));
-			ImGui::SetNextItemWidth(-1);
-			ImGui::InputText("##preset_name", &name);
-
-			ImGui::Text(getString("description"));
-			ImGui::InputTextMultiline("##preset_desc", &description,
-				{ -1, ImGui::GetContentRegionAvail().y - UI::btnSmall.y - 10.0f - padding.y});
-
-			ImVec2 btnSz{ (ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) / 2.0f, UI::btnSmall.y + 2.0f };
-			ImGui::SetCursorPos(ImVec2(xPos, yPos));
-			if (ImGui::Button(getString("cancel"), btnSz))
-			{
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::SameLine();
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !name.size());
-			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * !name.size()));
-			if (ImGui::Button(getString("confirm"), btnSz))
-			{
-				result = true;
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::PopItemFlag();
-			ImGui::PopStyleVar();
-			ImGui::EndPopup();
-		}
-
-		return result;
+		context.score.notes.insert(notes.begin(), notes.end());
+		context.score.holdNotes.insert(holdNotes.begin(), holdNotes.end());
 	}
 }

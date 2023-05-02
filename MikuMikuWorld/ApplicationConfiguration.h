@@ -15,15 +15,6 @@ namespace MikuMikuWorld
 
 	class ApplicationConfiguration
 	{
-	private:
-		bool keyExists(const nlohmann::json&, const char* key);
-		int tryGetInt(const nlohmann::json&, const char* key, int def);
-		float tryGetFloat(const nlohmann::json&, const char* key, float def);
-		bool tryGetBool(const nlohmann::json&, const char* key, bool def);
-		Vector2 tryGetVector2(const nlohmann::json&, const char* key);
-		Color tryGetColor(const nlohmann::json&, const char* key);
-		std::string tryGetString(const nlohmann::json&, const char* key);
-
 	public:
 		std::string version;
 		Vector2 windowPos;

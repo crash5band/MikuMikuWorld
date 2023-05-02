@@ -47,23 +47,11 @@
     <ClCompile Include="Tempo.cpp">
       <Filter>Score</Filter>
     </ClCompile>
-    <ClCompile Include="TimelineNotes.cpp">
-      <Filter>Components\ScoreEditor</Filter>
-    </ClCompile>
     <ClCompile Include="ScoreEditor.cpp">
-      <Filter>Components\ScoreEditor</Filter>
-    </ClCompile>
-    <ClCompile Include="Editing.cpp">
-      <Filter>Components\ScoreEditor</Filter>
-    </ClCompile>
-    <ClCompile Include="HistoryManager.cpp">
-      <Filter>Components</Filter>
+      <Filter>ScoreEditor</Filter>
     </ClCompile>
     <ClCompile Include="Audio\AudioManager.cpp">
-      <Filter>Components\Audio</Filter>
-    </ClCompile>
-    <ClCompile Include="EditorWindows.cpp">
-      <Filter>Components\ScoreEditor</Filter>
+      <Filter>Audio</Filter>
     </ClCompile>
     <ClCompile Include="Stopwatch.cpp">
       <Filter>Misc</Filter>
@@ -88,22 +76,13 @@
     </ClCompile>
     <ClCompile Include="ApplicationConfiguration.cpp" />
     <ClCompile Include="Audio\Sound.cpp">
-      <Filter>Components\Audio</Filter>
+      <Filter>Audio</Filter>
     </ClCompile>
     <ClCompile Include="Audio\SoundSource.cpp">
-      <Filter>Components\Audio</Filter>
-    </ClCompile>
-    <ClCompile Include="Canvas.cpp">
-      <Filter>Components\ScoreEditor</Filter>
+      <Filter>Audio</Filter>
     </ClCompile>
     <ClCompile Include="ScoreStats.cpp">
       <Filter>Score</Filter>
-    </ClCompile>
-    <ClCompile Include="Selection.cpp">
-      <Filter>Components\ScoreEditor</Filter>
-    </ClCompile>
-    <ClCompile Include="Clipboard.cpp">
-      <Filter>Components</Filter>
     </ClCompile>
     <ClCompile Include="ImGuiManager.cpp">
       <Filter>UI</Filter>
@@ -120,17 +99,14 @@
     <ClCompile Include="Color.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="AutoSaveManager.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
     <ClCompile Include="Dialogs.cpp">
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="PresetManager.cpp">
-      <Filter>Components\Presets</Filter>
+      <Filter>Presets</Filter>
     </ClCompile>
     <ClCompile Include="Preset.cpp">
-      <Filter>Components\Presets</Filter>
+      <Filter>Presets</Filter>
     </ClCompile>
     <ClCompile Include="BinaryReader.cpp">
       <Filter>IO\File</Filter>
@@ -154,28 +130,25 @@
       <Filter>Rendering\Texture</Filter>
     </ClCompile>
     <ClCompile Include="Jacket.cpp">
-      <Filter>Components\Image</Filter>
+      <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Background.cpp">
-      <Filter>Components\Image</Filter>
+      <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\Depends\tinyfiledialogs\tinyfiledialogs.c">
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="..\Depends\stb_vorbis\stb_vorbis.c">
-      <Filter>Components\Audio\Lib</Filter>
+      <Filter>Audio\Lib</Filter>
     </ClCompile>
     <ClCompile Include="Commands\Command.cpp">
-      <Filter>Components\Commands</Filter>
+      <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="Commands\CommandKeyParser.cpp">
-      <Filter>Components\Commands</Filter>
+      <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="Commands\CommandManager.cpp">
-      <Filter>Components\Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="Menubar.cpp">
-      <Filter>Components</Filter>
+      <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="SusParser.cpp">
       <Filter>Score\SUS</Filter>
@@ -186,8 +159,20 @@
     <ClCompile Include="ScoreConverter.cpp">
       <Filter>Score</Filter>
     </ClCompile>
-    <ClCompile Include="Toolbar.cpp">
-      <Filter>Components\ScoreEditor</Filter>
+    <ClCompile Include="ScoreEditorWindows.cpp">
+      <Filter>ScoreEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="ScoreEditorTimeline.cpp">
+      <Filter>ScoreEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="ScoreContext.cpp">
+      <Filter>ScoreEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="HistoryManager.cpp">
+      <Filter>ScoreEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="jsonIO.cpp">
+      <Filter>IO</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -245,21 +230,14 @@
       <Filter>IO</Filter>
     </ClInclude>
     <ClInclude Include="ScoreEditor.h">
-      <Filter>Components\ScoreEditor</Filter>
-    </ClInclude>
-    <ClInclude Include="HistoryManager.h">
-      <Filter>Components</Filter>
+      <Filter>ScoreEditor</Filter>
     </ClInclude>
     <ClInclude Include="Audio\AudioManager.h">
-      <Filter>Components\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="TimelineMode.h">
-      <Filter>Components\ScoreEditor</Filter>
+      <Filter>Audio</Filter>
     </ClInclude>
     <ClInclude Include="Stopwatch.h">
       <Filter>Misc</Filter>
     </ClInclude>
-    <ClInclude Include="ZIndex.h" />
     <ClInclude Include="StringOperations.h">
       <Filter>IO</Filter>
     </ClInclude>
@@ -284,9 +262,6 @@
     <ClInclude Include="Rendering\AnchorType.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="EditorScoreData.h">
-      <Filter>Components\ScoreEditor</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Resources</Filter>
     </ClInclude>
@@ -298,22 +273,13 @@
       <Filter>Score</Filter>
     </ClInclude>
     <ClInclude Include="Audio\Sound.h">
-      <Filter>Components\Audio</Filter>
+      <Filter>Audio</Filter>
     </ClInclude>
     <ClInclude Include="Audio\SoundSource.h">
-      <Filter>Components\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="Canvas.h">
-      <Filter>Components\ScoreEditor</Filter>
-    </ClInclude>
-    <ClInclude Include="Selection.h">
-      <Filter>Components\ScoreEditor</Filter>
+      <Filter>Audio</Filter>
     </ClInclude>
     <ClInclude Include="ScoreEvents.h">
       <Filter>Score</Filter>
-    </ClInclude>
-    <ClInclude Include="Clipboard.h">
-      <Filter>Components</Filter>
     </ClInclude>
     <ClInclude Include="ImGuiManager.h">
       <Filter>UI</Filter>
@@ -333,9 +299,6 @@
     <ClInclude Include="Result.h">
       <Filter>Misc</Filter>
     </ClInclude>
-    <ClInclude Include="AutoSaveManager.h">
-      <Filter>Components</Filter>
-    </ClInclude>
     <ClInclude Include="Colors.h">
       <Filter>UI</Filter>
     </ClInclude>
@@ -343,10 +306,10 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="PresetManager.h">
-      <Filter>Components\Presets</Filter>
+      <Filter>Presets</Filter>
     </ClInclude>
     <ClInclude Include="Preset.h">
-      <Filter>Components\Presets</Filter>
+      <Filter>Presets</Filter>
     </ClInclude>
     <ClInclude Include="BinaryReader.h">
       <Filter>IO\File</Filter>
@@ -376,33 +339,29 @@
       <Filter>Rendering\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Jacket.h">
-      <Filter>Components\Image</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Background.h">
-      <Filter>Components\Image</Filter>
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Audio\miniaudio.h">
-      <Filter>Components\Audio\Lib</Filter>
+      <Filter>Audio\Lib</Filter>
     </ClInclude>
     <ClInclude Include="Commands\Command.h">
-      <Filter>Components\Commands</Filter>
+      <Filter>Commands</Filter>
     </ClInclude>
     <ClInclude Include="Commands\CommandManager.h">
-      <Filter>Components\Commands</Filter>
+      <Filter>Commands</Filter>
     </ClInclude>
     <ClInclude Include="Commands\CommandKey.h">
-      <Filter>Components\Commands</Filter>
+      <Filter>Commands</Filter>
     </ClInclude>
     <ClInclude Include="Commands\CommandKeyParser.h">
-      <Filter>Components\Commands</Filter>
+      <Filter>Commands</Filter>
     </ClInclude>
     <ClInclude Include="KeyNames.h">
       <Filter>IO</Filter>
     </ClInclude>
-    <ClInclude Include="Menubar.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowState.h" />
     <ClInclude Include="SusParser.h">
       <Filter>Score\SUS</Filter>
     </ClInclude>
@@ -412,16 +371,31 @@
     <ClInclude Include="ScoreConverter.h">
       <Filter>Score</Filter>
     </ClInclude>
-    <ClInclude Include="Toolbar.h">
-      <Filter>Components\ScoreEditor</Filter>
+    <ClInclude Include="ScoreEditorWindows.h">
+      <Filter>ScoreEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="ScoreContext.h">
+      <Filter>ScoreEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="ScoreEditorTimeline.h">
+      <Filter>ScoreEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="NoteGraphics.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="HistoryManager.h">
+      <Filter>ScoreEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonIO.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="TimelineMode.h">
+      <Filter>Score</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">
       <UniqueIdentifier>{5f869be1-f56e-434b-96dc-24a484a6636e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components">
-      <UniqueIdentifier>{26295dea-e1bf-464f-ab4c-a34372ae0316}</UniqueIdentifier>
     </Filter>
     <Filter Include="Misc">
       <UniqueIdentifier>{0c4ff5d0-d352-4a81-91ac-37102b327cbd}</UniqueIdentifier>
@@ -441,12 +415,6 @@
     <Filter Include="Rendering">
       <UniqueIdentifier>{84bd1600-f676-4951-9eac-806c31068b2b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Components\Audio">
-      <UniqueIdentifier>{5c331f6f-7245-4f01-b6f5-b8e331e5d12d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\ScoreEditor">
-      <UniqueIdentifier>{9b7e5692-fc35-4f4c-9b06-172b56eed59d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Score\SUS">
       <UniqueIdentifier>{14ac77c3-608e-4655-a23c-8d69317ed7e5}</UniqueIdentifier>
     </Filter>
@@ -459,9 +427,6 @@
     <Filter Include="UI\i18n">
       <UniqueIdentifier>{9bc8aca5-08f3-4a55-be78-9a7c8f6fc65b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Components\Presets">
-      <UniqueIdentifier>{03d3aab7-fc71-443b-8a41-45df76e832fb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="IO\File">
       <UniqueIdentifier>{0b3ab42a-66f9-477f-84a2-7a2cb442c80c}</UniqueIdentifier>
     </Filter>
@@ -471,14 +436,23 @@
     <Filter Include="Rendering\Primitives">
       <UniqueIdentifier>{bc89c641-d508-4977-8b01-3886f0d25802}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Components\Image">
-      <UniqueIdentifier>{63566ecb-df58-439e-89a0-c59239fb9ca5}</UniqueIdentifier>
+    <Filter Include="Audio">
+      <UniqueIdentifier>{5c331f6f-7245-4f01-b6f5-b8e331e5d12d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Components\Audio\Lib">
+    <Filter Include="Audio\Lib">
       <UniqueIdentifier>{85856c44-1a6c-4a5c-ba83-d119dc2aa064}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Components\Commands">
+    <Filter Include="Commands">
       <UniqueIdentifier>{b4f18122-a436-41b5-a8e8-964292f6ae7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{63566ecb-df58-439e-89a0-c59239fb9ca5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Presets">
+      <UniqueIdentifier>{03d3aab7-fc71-443b-8a41-45df76e832fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ScoreEditor">
+      <UniqueIdentifier>{9b7e5692-fc35-4f4c-9b06-172b56eed59d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

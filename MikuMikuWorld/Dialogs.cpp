@@ -6,116 +6,6 @@
 
 namespace MikuMikuWorld
 {
-	std::string Application::getVersion()
-	{
-		wchar_t filename[1024];
-		lstrcpyW(filename, mbToWideStr(std::string(appDir + "MikuMikuWorld.exe")).c_str());
-
-		DWORD  verHandle = 0;
-		UINT   size = 0;
-		LPBYTE lpBuffer = NULL;
-		DWORD  verSize = GetFileVersionInfoSizeW(filename, &verHandle);
-
-		int major = 0, minor = 0, build = 0, rev = 0;
-		if (verSize != NULL)
-		{
-			LPSTR verData = new char[verSize];
-
-			if (GetFileVersionInfoW(filename, verHandle, verSize, verData))
-			{
-				if (VerQueryValue(verData, "\\", (VOID FAR * FAR*) & lpBuffer, &size))
-				{
-					if (size)
-					{
-						VS_FIXEDFILEINFO* verInfo = (VS_FIXEDFILEINFO*)lpBuffer;
-						if (verInfo->dwSignature == 0xfeef04bd)
-						{
-							major = (verInfo->dwFileVersionMS >> 16) & 0xffff;
-							minor = (verInfo->dwFileVersionMS >> 0) & 0xffff;
-							rev = (verInfo->dwFileVersionLS >> 16) & 0xffff;
-						}
-					}
-				}
-			}
-			delete[] verData;
-		}
-
-		return formatString("%d.%d.%d", major, minor, rev);
-	}
-
-	bool Application::warnUnsaved()
-	{
-		bool result = false;
-		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		ImGui::SetNextWindowSize(ImVec2(450, 200), ImGuiCond_Always);
-		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
-		if (ImGui::BeginPopupModal(MODAL_TITLE("unsaved_changes"), NULL, ImGuiWindowFlags_NoResize))
-		{
-			ImGui::Text(getString("ask_save"));
-			ImGui::Text(getString("warn_unsaved"));
-
-			ImVec2 padding = ImGui::GetStyle().WindowPadding;
-			ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
-			float xPos = padding.x;
-			float yPos = ImGui::GetWindowSize().y - UI::btnSmall.y - 2.0f - padding.y;
-			ImGui::SetCursorPos(ImVec2(xPos, yPos));
-
-			ImVec2 btnSz = ImVec2((ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) / 3.0f, UI::btnSmall.y + 2.0f);
-
-			if (ImGui::Button(getString("save_changes"), btnSz))
-			{
-				ImGui::CloseCurrentPopup();
-				editor->save();
-				result = true;
-				windowState.unsavedOpen = false;
-			}
-
-			ImGui::SameLine();
-			if (ImGui::Button(getString("discard_changes"), btnSz))
-			{
-				ImGui::CloseCurrentPopup();
-				result = true;
-				windowState.unsavedOpen = false;
-			}
-
-			ImGui::SameLine();
-			if (ImGui::Button(getString("cancel"), btnSz))
-			{
-				ImGui::CloseCurrentPopup();
-				resetting = windowState.closing = windowState.unsavedOpen = false;
-				result = false;
-			}
-
-			ImGui::EndPopup();
-		}
-
-		return result;
-	}
-
-	void Application::about()
-	{
-		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		ImGui::SetNextWindowSize(ImVec2(450, 250), ImGuiCond_Always);
-		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
-		if (ImGui::BeginPopupModal(MODAL_TITLE("about"), NULL, ImGuiWindowFlags_NoResize))
-		{
-
-			ImGui::Text("MikuMikuWorld\nCopyright (C) 2022 Crash5b\n\n");
-			ImGui::Separator();
-
-			ImGui::Text("Version %s", version.c_str());
-			ImGui::SetCursorPos({
-				ImGui::GetStyle().WindowPadding.x,
-				ImGui::GetWindowSize().y - UI::btnSmall.y - ImGui::GetStyle().WindowPadding.y
-				});
-
-			if (ImGui::Button("OK", { ImGui::GetContentRegionAvail().x, UI::btnSmall.y }))
-				ImGui::CloseCurrentPopup();
-
-			ImGui::EndPopup();
-		}
-	}
-
 	void Application::settingsDialog()
 	{
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
@@ -135,7 +25,7 @@ namespace MikuMikuWorld
 				{
 					if (ImGui::CollapsingHeader(getString("auto_save"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
-						autoSave.settings();
+						//autoSave.settings();
 					}
 
 					// theme
@@ -146,16 +36,16 @@ namespace MikuMikuWorld
 						UI::beginPropertyColumns();
 						UI::propertyLabel(getString("base_theme"));
 						if (ImGui::BeginCombo("##color_theme", UI::baseThemeToStr(
-							imgui.getBaseTheme()
+							imgui->getBaseTheme()
 						).c_str()))
 						{
 							for (int i = 0; i < 2; ++i)
 							{
 								const BaseTheme theme = UI::intToBaseTheme(i);
-								const bool selected = (int)imgui.getBaseTheme() == i;
+								const bool selected = (int)imgui->getBaseTheme() == i;
 								if (ImGui::Selectable(UI::baseThemeToStr(theme).c_str(), selected)) {
-									imgui.setBaseTheme(UI::intToBaseTheme(i));
-									imgui.applyAccentColor(config.accentColor);
+									imgui->setBaseTheme(UI::intToBaseTheme(i));
+									imgui->applyAccentColor(config.accentColor);
 								}
 							}
 
@@ -177,7 +67,7 @@ namespace MikuMikuWorld
 						for (int i = 0; i < UI::accentColors.size(); ++i)
 						{
 							bool apply = false;
-							std::string id = i == imgui.getAccentColor() ? ICON_FA_CHECK : i == 0 ? "C" : "##" + std::to_string(i);
+							std::string id = i == imgui->getAccentColor() ? ICON_FA_CHECK : i == 0 ? "C" : "##" + std::to_string(i);
 							ImGui::PushStyleColor(ImGuiCol_Button, UI::accentColors[i].color);
 							ImGui::PushStyleColor(ImGuiCol_ButtonHovered, UI::accentColors[i].color);
 							ImGui::PushStyleColor(ImGuiCol_ButtonActive, UI::accentColors[i].color);
@@ -190,7 +80,7 @@ namespace MikuMikuWorld
 								ImGui::SameLine();
 
 							if (apply)
-								imgui.applyAccentColor(i);
+								imgui->applyAccentColor(i);
 						}
 						ImGui::PopStyleVar(2);
 
@@ -227,8 +117,8 @@ namespace MikuMikuWorld
 
 						UI::endPropertyColumns();
 
-						if (ImGui::IsItemDeactivated() && imgui.getAccentColor() == 0)
-							imgui.applyAccentColor(0);
+						if (ImGui::IsItemDeactivated() && imgui->getAccentColor() == 0)
+							imgui->applyAccentColor(0);
 
 						ImGui::PopStyleVar();
 						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
@@ -254,30 +144,30 @@ namespace MikuMikuWorld
 					{
 						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 
-						int laneWidth = editor->canvas.getLaneWidth();
-						int notesHeight = editor->canvas.getNotesHeight();
-						bool smoothScrolling = editor->canvas.isUseSmoothScrolling();
-						float smoothScrollingTime = editor->canvas.getSmoothScrollingTime();
+						//int laneWidth = editor->canvas.getLaneWidth();
+						//int notesHeight = editor->canvas.getNotesHeight();
+						//bool smoothScrolling = editor->canvas.isUseSmoothScrolling();
+						//float smoothScrollingTime = editor->canvas.getSmoothScrollingTime();
 
-						UI::beginPropertyColumns();
-						UI::addSliderProperty(getString("lane_width"), laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
-						UI::addSliderProperty(getString("notes_height"), notesHeight, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT, "%d");
+						//UI::beginPropertyColumns();
+						//UI::addSliderProperty(getString("lane_width"), laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
+						//UI::addSliderProperty(getString("notes_height"), notesHeight, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT, "%d");
 
-						UI::addCheckboxProperty(getString("use_smooth_scroll"), smoothScrolling);
-						UI::addSliderProperty(getString("smooth_scroll_time"), smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
-						UI::endPropertyColumns();
+						//UI::addCheckboxProperty(getString("use_smooth_scroll"), smoothScrolling);
+						//UI::addSliderProperty(getString("smooth_scroll_time"), smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
+						//UI::endPropertyColumns();
 
-						if (laneWidth != editor->canvas.getLaneWidth())
-							editor->canvas.setLaneWidth(laneWidth);
+						//if (laneWidth != editor->canvas.getLaneWidth())
+						//	editor->canvas.setLaneWidth(laneWidth);
 
-						if (notesHeight != editor->canvas.getNotesHeight())
-							editor->canvas.setNotesHeight(notesHeight);
+						//if (notesHeight != editor->canvas.getNotesHeight())
+						//	editor->canvas.setNotesHeight(notesHeight);
 
-						if (smoothScrolling != editor->canvas.isUseSmoothScrolling())
-							editor->canvas.setUseSmoothScrolling(smoothScrolling);
+						//if (smoothScrolling != editor->canvas.isUseSmoothScrolling())
+						//	editor->canvas.setUseSmoothScrolling(smoothScrolling);
 
-						if (smoothScrollingTime != editor->canvas.getSmoothScrollingTime())
-							editor->canvas.setSmoothScrollingTime(smoothScrollingTime);
+						//if (smoothScrollingTime != editor->canvas.getSmoothScrollingTime())
+						//	editor->canvas.setSmoothScrollingTime(smoothScrollingTime);
 					}
 
 					// background
@@ -285,30 +175,23 @@ namespace MikuMikuWorld
 					{
 						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
 
-						float backgroundBrightness = editor->canvas.getBackgroundBrightness();
-						float laneOpacity = editor->canvas.getLaneOpacity();
+						//float backgroundBrightness = editor->canvas.getBackgroundBrightness();
+						//float laneOpacity = editor->canvas.getLaneOpacity();
 
-						UI::beginPropertyColumns();
-						UI::addPercentSliderProperty(getString("background_brightnes"), backgroundBrightness);
-						UI::addPercentSliderProperty(getString("lanes_opacity"), laneOpacity);
-						UI::endPropertyColumns();
+						//UI::beginPropertyColumns();
+						//UI::addPercentSliderProperty(getString("background_brightnes"), backgroundBrightness);
+						//UI::addPercentSliderProperty(getString("lanes_opacity"), laneOpacity);
+						//UI::endPropertyColumns();
 
-						if (backgroundBrightness != editor->canvas.getBackgroundBrightness())
-							editor->canvas.setBackgroundBrightness(backgroundBrightness);
+						//if (backgroundBrightness != editor->canvas.getBackgroundBrightness())
+						//	editor->canvas.setBackgroundBrightness(backgroundBrightness);
 
-						if (laneOpacity != editor->canvas.getLaneOpacity())
-							editor->canvas.setLaneOpacity(laneOpacity);
+						//if (laneOpacity != editor->canvas.getLaneOpacity())
+						//	editor->canvas.setLaneOpacity(laneOpacity);
 					}
 
 					ImGui::EndTabItem();
 				}
-
-				if (ImGui::BeginTabItem(getString("key_config")))
-				{
-					commandManager.inputSettings();
-					ImGui::EndTabItem();
-				}
-
 			}
 			ImGui::EndTabBar();
 

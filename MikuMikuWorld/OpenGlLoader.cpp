@@ -22,10 +22,10 @@ namespace MikuMikuWorld
 		if (!app)
 			return;
 
-		if (!app->windowState.maximized)
+		if (!Application::windowState.maximized)
 		{
-			app->windowState.size.x = width;
-			app->windowState.size.y = height;
+			Application::windowState.size.x = width;
+			Application::windowState.size.y = height;
 		}
 	}
 
@@ -35,10 +35,10 @@ namespace MikuMikuWorld
 		if (!app)
 			return;
 
-		if (!app->windowState.maximized)
+		if (!Application::windowState.maximized)
 		{
-			app->windowState.position.x = x;
-			app->windowState.position.y = y;
+			Application::windowState.position.x = x;
+			Application::windowState.position.y = y;
 		}
 	}
 
@@ -58,14 +58,14 @@ namespace MikuMikuWorld
 
 		Application* app = (Application*)glfwGetWindowUserPointer(window);
 		if (app)
-			app->windowState.closing = true;
+			Application::windowState.closing = true;
 	}
 
 	void windowMaximizeCallback(GLFWwindow* window, int _maximized)
 	{
 		Application* app = (Application*)glfwGetWindowUserPointer(window);
 		if (app)
-			app->windowState.maximized = _maximized;
+			Application::windowState.maximized = _maximized;
 	}
 
 	void windowKeyCallback(GLFWwindow* window, int key, int scan, int action, int mods)
@@ -73,7 +73,7 @@ namespace MikuMikuWorld
 		Application* app = (Application*)glfwGetWindowUserPointer(window);
 		if (action == GLFW_PRESS && app)
 		{
-			app->windowState.shouldTestKeyboardShortcuts = true;
+			//Application::windowState.shouldTestKeyboardShortcuts = true;
 		}
 	}
 
@@ -128,7 +128,7 @@ namespace MikuMikuWorld
 
 		glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
 		glfwMakeContextCurrent(window);
-		glfwSetWindowTitle(window, "Untitled - " APP_NAME);
+		glfwSetWindowTitle(window, APP_NAME " - Untitled");
 
 		// GLAD initializtion
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))

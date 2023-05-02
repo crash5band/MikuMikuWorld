@@ -167,19 +167,14 @@
     <ClCompile Include="Audio\Sound.cpp" />
     <ClCompile Include="Audio\AudioManager.cpp" />
     <ClCompile Include="Audio\SoundSource.cpp" />
-    <ClCompile Include="AutoSaveManager.cpp" />
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="BinaryReader.cpp" />
     <ClCompile Include="BinaryWriter.cpp" />
-    <ClCompile Include="Canvas.cpp" />
-    <ClCompile Include="Clipboard.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="Commands\Command.cpp" />
     <ClCompile Include="Commands\CommandKeyParser.cpp" />
     <ClCompile Include="Commands\CommandManager.cpp" />
     <ClCompile Include="Dialogs.cpp" />
-    <ClCompile Include="Editing.cpp" />
-    <ClCompile Include="EditorWindows.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="FileDialog.cpp" />
     <ClCompile Include="HistoryManager.cpp" />
@@ -194,11 +189,11 @@
     <ClCompile Include="ImGui\imgui_widgets.cpp" />
     <ClCompile Include="InputListener.cpp" />
     <ClCompile Include="Jacket.cpp" />
+    <ClCompile Include="jsonIO.cpp" />
     <ClCompile Include="Language.cpp" />
     <ClCompile Include="Localization.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math.cpp" />
-    <ClCompile Include="Menubar.cpp" />
     <ClCompile Include="Note.cpp" />
     <ClCompile Include="OpenGlLoader.cpp" />
     <ClCompile Include="Preset.cpp" />
@@ -212,17 +207,17 @@
     <ClCompile Include="Rendering\VertexBuffer.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Score.cpp" />
+    <ClCompile Include="ScoreContext.cpp" />
     <ClCompile Include="ScoreConverter.cpp" />
+    <ClCompile Include="ScoreEditorTimeline.cpp" />
+    <ClCompile Include="ScoreEditorWindows.cpp" />
     <ClCompile Include="ScoreStats.cpp" />
-    <ClCompile Include="Selection.cpp" />
     <ClCompile Include="Stopwatch.cpp" />
     <ClCompile Include="StringOperations.cpp" />
     <ClCompile Include="SusExporter.cpp" />
     <ClCompile Include="SusParser.cpp" />
     <ClCompile Include="Tempo.cpp" />
     <ClCompile Include="ScoreEditor.cpp" />
-    <ClCompile Include="TimelineNotes.cpp" />
-    <ClCompile Include="Toolbar.cpp" />
     <ClCompile Include="UI.cpp" />
     <ClCompile Include="Utilities.cpp" />
   </ItemGroup>
@@ -232,13 +227,10 @@
     <ClInclude Include="Audio\Sound.h" />
     <ClInclude Include="Audio\AudioManager.h" />
     <ClInclude Include="Audio\SoundSource.h" />
-    <ClInclude Include="AutoSaveManager.h" />
     <ClInclude Include="Background.h" />
     <ClInclude Include="BinaryReader.h" />
     <ClInclude Include="BinaryWriter.h" />
-    <ClInclude Include="Canvas.h" />
     <ClInclude Include="ChannelProvider.h" />
-    <ClInclude Include="Clipboard.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Colors.h" />
     <ClInclude Include="Commands\Command.h" />
@@ -247,7 +239,6 @@
     <ClInclude Include="Commands\CommandManager.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DefaultLanguage.h" />
-    <ClInclude Include="EditorScoreData.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="FileDialog.h" />
     <ClInclude Include="HistoryManager.h" />
@@ -264,13 +255,14 @@
     <ClInclude Include="ImGui\imstb_truetype.h" />
     <ClInclude Include="InputListener.h" />
     <ClInclude Include="Jacket.h" />
+    <ClInclude Include="JsonIO.h" />
     <ClInclude Include="KeyNames.h" />
     <ClInclude Include="Language.h" />
     <ClInclude Include="Localization.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Audio\miniaudio.h" />
-    <ClInclude Include="Menubar.h" />
     <ClInclude Include="Note.h" />
+    <ClInclude Include="NoteGraphics.h" />
     <ClInclude Include="NoteTypes.h" />
     <ClInclude Include="Preset.h" />
     <ClInclude Include="PresetManager.h" />
@@ -288,10 +280,12 @@
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Result.h" />
     <ClInclude Include="Score.h" />
+    <ClInclude Include="ScoreContext.h" />
     <ClInclude Include="ScoreConverter.h" />
+    <ClInclude Include="ScoreEditorTimeline.h" />
+    <ClInclude Include="ScoreEditorWindows.h" />
     <ClInclude Include="ScoreEvents.h" />
     <ClInclude Include="ScoreStats.h" />
-    <ClInclude Include="Selection.h" />
     <ClInclude Include="Stopwatch.h" />
     <ClInclude Include="StringOperations.h" />
     <ClInclude Include="SUS.h" />
@@ -300,11 +294,8 @@
     <ClInclude Include="Tempo.h" />
     <ClInclude Include="ScoreEditor.h" />
     <ClInclude Include="TimelineMode.h" />
-    <ClInclude Include="Toolbar.h" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="Utilities.h" />
-    <ClInclude Include="WindowState.h" />
-    <ClInclude Include="ZIndex.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="mmw_icon.ico" />

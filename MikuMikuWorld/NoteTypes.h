@@ -16,7 +16,8 @@ namespace MikuMikuWorld
 		None,
 		Up,
 		Left,
-		Right
+		Right,
+		FlickTypeCount
 	};
 
 	constexpr const char* flickTypes[]
@@ -31,7 +32,8 @@ namespace MikuMikuWorld
 	{
 		Visible,
 		Invisible,
-		Ignored
+		Ignored,
+		HoldStepTypeCount
 	};
 
 	constexpr const char* stepTypes[]
@@ -45,7 +47,8 @@ namespace MikuMikuWorld
 	{
 		None,
 		EaseIn,
-		EaseOut
+		EaseOut,
+		EaseTypeCount
 	};
 
 	constexpr const char* easeTypes[]

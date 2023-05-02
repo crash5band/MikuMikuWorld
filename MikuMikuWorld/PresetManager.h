@@ -1,9 +1,7 @@
 #pragma once
 #include "Preset.h"
-#include "Score.h"
-#include "json.hpp"
+#include "ScoreContext.h"
 #include <unordered_set>
-#include "ImGui/imgui.h"
 #include <atomic>
 
 namespace MikuMikuWorld
@@ -20,17 +18,14 @@ namespace MikuMikuWorld
 	{
 	private:
 		std::atomic<int> nextPresetID;
-		std::unordered_map<int, NotesPreset> presets;
 		std::unordered_set<int> createPresets;
 		std::unordered_set<std::string> deletePresets;
 
-		NotesPreset selectedPreset;
-		ImGuiTextFilter presetFilter;
-
-		void normalizeTicks(NotesPreset& preset);
-		void writePreset(NotesPreset& preset, const std::string& path, bool overwrite);
+		int getBaseTick(const Score& score, const std::unordered_set<int>& selection);
 
 	public:
+		std::unordered_map<int, NotesPreset> presets;
+
 		/// <summary>
 		/// Loads note presets from the specified directory
 		/// </summary>
@@ -66,8 +61,6 @@ namespace MikuMikuWorld
 		/// <returns></returns>
 		std::string fixFilename(const std::string& name);
 
-		bool updateWindow(const Score& score, const std::unordered_set<int>& selection);
-		bool updatePresetCreationDialog(std::string& name, std::string& description);
-		const NotesPreset& getSelected() const;
+		void applyPreset(int presetId, ScoreContext& context);
 	};
 }

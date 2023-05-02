@@ -1,4 +1,5 @@
 #include "Tempo.h"
+#include "Constants.h"
 
 namespace MikuMikuWorld
 {
@@ -164,5 +165,18 @@ namespace MikuMikuWorld
 				return *it;
 
 		return tempos[0];
+	}
+
+	int snapTick(int tick, int div)
+	{
+		int half = (TICKS_PER_BEAT / (div / 4)) / 2;
+		int remaining = tick % (TICKS_PER_BEAT / (div / 4));
+
+		// round to closest division
+		tick -= remaining;
+		if (remaining >= half)
+			tick += half * 2;
+
+		return std::max(tick, 0);
 	}
 }

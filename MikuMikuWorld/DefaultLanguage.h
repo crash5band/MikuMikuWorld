@@ -17,6 +17,8 @@ namespace MikuMikuWorld
 		{"undo", "Undo"},
 		{"redo", "Redo"},
 		{"select_all", "Select All"},
+		{"view", "View"},
+		{"playback_auto_scroll", "Playback Auto Scroll"},
 		{"settings", "Settings"},
 		{"window", "Window"},
 		{"vsync", "VSync"},

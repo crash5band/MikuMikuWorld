@@ -8,14 +8,15 @@
 #include "Utilities.h"
 #include "Localization.h"
 #include "tinyfiledialogs.h"
-#include "Clipboard.h"
-#include "Toolbar.h"
+#include "Constants.h"
 #include <filesystem>
+#include <Windows.h>
 
 namespace MikuMikuWorld
 {
 	std::string Application::version;
 	std::string Application::appDir;
+	WindowState Application::windowState;
 
 	Application::Application(const std::string& root) :
 		initialized{ false }
@@ -35,42 +36,18 @@ namespace MikuMikuWorld
 		if (!result.isOk())
 			return result;
 
-		result = imgui.initialize(window);
+		imgui = std::make_unique<ImGuiManager>();
+		result = imgui->initialize(window);
 		if (!result.isOk())
 			return result;
 
-		renderer = new Renderer();
-		editor = new ScoreEditor();
-
-		// apply config settings
-		editor->setDivision(config.division);
-		editor->setScrollMode(config.scrollMode);
-		editor->canvas.setLaneWidth(config.timelineWidth);
-		editor->canvas.setNotesHeight(config.notesHeight);
-		editor->canvas.setZoom(config.zoom);
-		editor->canvas.setUseSmoothScrolling(config.useSmoothScrolling);
-		editor->canvas.setSmoothScrollingTime(config.smoothScrollingTime);
-		editor->canvas.setLaneOpacity(config.laneOpacity);
-		editor->canvas.setBackgroundBrightness(config.backgroundBrightness);
-
-		editor->audio.setMasterVolume(config.masterVolume);
-		editor->audio.setBGMVolume(config.bgmVolume);
-		editor->audio.setSEVolume(config.seVolume);
-
-		editor->presetManager.loadPresets(appDir + "library/");
-
-		imgui.setBaseTheme(config.baseTheme);
-		imgui.applyAccentColor(config.accentColor);
-
-		autoSave.setEditorInstance(editor);
-		autoSave.readConfig(config);
-
-		setupCommands();
+		imgui->setBaseTheme(config.baseTheme);
+		imgui->applyAccentColor(config.accentColor);
 
 		loadResources();
-		int bgTex = ResourceManager::getTexture("default");
-		if (bgTex != -1)
-			editor->canvas.changeBackground(ResourceManager::textures[bgTex]);
+
+		editor = std::make_unique<ScoreEditor>();
+		editor->loadPresets(appDir + "library");
 
 		initialized = true;
 		return Result::Ok();;
@@ -79,6 +56,43 @@ namespace MikuMikuWorld
 	const std::string& Application::getAppDir()
 	{
 		return appDir;
+	}
+
+	std::string Application::getVersion()
+	{
+		wchar_t filename[1024];
+		lstrcpyW(filename, mbToWideStr(std::string(appDir + "MikuMikuWorld.exe")).c_str());
+
+		DWORD  verHandle = 0;
+		UINT   size = 0;
+		LPBYTE lpBuffer = NULL;
+		DWORD  verSize = GetFileVersionInfoSizeW(filename, &verHandle);
+
+		int major = 0, minor = 0, build = 0, rev = 0;
+		if (verSize != NULL)
+		{
+			LPSTR verData = new char[verSize];
+
+			if (GetFileVersionInfoW(filename, verHandle, verSize, verData))
+			{
+				if (VerQueryValue(verData, "\\", (VOID FAR * FAR*) & lpBuffer, &size))
+				{
+					if (size)
+					{
+						VS_FIXEDFILEINFO* verInfo = (VS_FIXEDFILEINFO*)lpBuffer;
+						if (verInfo->dwSignature == 0xfeef04bd)
+						{
+							major = (verInfo->dwFileVersionMS >> 16) & 0xffff;
+							minor = (verInfo->dwFileVersionMS >> 0) & 0xffff;
+							rev = (verInfo->dwFileVersionLS >> 16) & 0xffff;
+						}
+					}
+				}
+			}
+			delete[] verData;
+		}
+
+		return formatString("%d.%d.%d", major, minor, rev);
 	}
 
 	const std::string& Application::getAppVersion()
@@ -97,7 +111,8 @@ namespace MikuMikuWorld
 	{
 		if (initialized)
 		{
-			imgui.shutdown();
+			editor->uninitialize();
+			imgui->shutdown();
 			glfwDestroyWindow(window);
 			glfwTerminate();
 		}
@@ -133,127 +148,16 @@ namespace MikuMikuWorld
 			UI::accentColors[0].color.w
 		};
 
-		config.accentColor = imgui.getAccentColor();
-		config.baseTheme = imgui.getBaseTheme();
-
-		config.timelineWidth = editor->canvas.getLaneWidth();
-		config.notesHeight = editor->canvas.getNotesHeight();
-		config.zoom = editor->canvas.getZoom();
-		config.division = editor->getDivision();
-		config.scrollMode = scrollModes[(int)editor->getScrollMode()];
-		config.laneOpacity = editor->canvas.getLaneOpacity();
-		config.backgroundBrightness = editor->canvas.getBackgroundBrightness();
-		config.useSmoothScrolling = editor->canvas.isUseSmoothScrolling();
-		config.smoothScrollingTime = editor->canvas.getSmoothScrollingTime();
-
-		config.masterVolume = editor->audio.getMasterVolume();
-		config.bgmVolume = editor->audio.getBGMVolume();
-		config.seVolume = editor->audio.getSEVolume();
-
-		commandManager.writeCommands(config);
+		config.accentColor = imgui->getAccentColor();
+		config.baseTheme = imgui->getBaseTheme();
 
 		config.write(appDir + APP_CONFIG_FILENAME);
-	}
-
-	void Application::reset()
-	{
-		if (!editor->isUptoDate())
-			resetting = true;
-		else
-			editor->reset();
-	}
-
-	void Application::open()
-	{
-		resetting = true;
-		shouldPickScore = true;
-	}
-
-	void Application::updateDialogs()
-	{
-		if (windowState.aboutOpen)
-		{
-			ImGui::OpenPopup(MODAL_TITLE("about"));
-			windowState.aboutOpen = false;
-		}
-
-		if (windowState.settingsOpen)
-		{
-			ImGui::OpenPopup(MODAL_TITLE("settings"));
-			windowState.settingsOpen = false;
-		}
-
-		about();
-		settingsDialog();
-
-		if (resetting)
-		{
-			if (!editor->isUptoDate())
-			{
-				if (!windowState.unsavedOpen)
-				{
-					ImGui::OpenPopup(MODAL_TITLE("unsaved_changes"));
-					windowState.unsavedOpen = true;
-				}
-
-				if (warnUnsaved())
-				{
-					if (pendingDropScoreFile.size())
-					{
-						editor->loadScore(pendingDropScoreFile);
-						pendingDropScoreFile = "";
-					}
-					else if (shouldPickScore)
-					{
-						editor->open();
-						shouldPickScore = false;
-					}
-					else
-					{
-						editor->reset();
-					}
-
-					resetting = false;
-				}
-			}
-			else if (shouldPickScore)
-			{
-				editor->open();
-				resetting = false;
-				shouldPickScore = false;
-			}
-			else if (pendingDropScoreFile.size())
-			{
-				editor->loadScore(pendingDropScoreFile);
-				pendingDropScoreFile = "";
-				resetting = false;
-			}
-		}
-
-		if (windowState.closing)
-		{
-			if (!editor->isUptoDate())
-			{
-				if (!windowState.unsavedOpen)
-				{
-					ImGui::OpenPopup(MODAL_TITLE("unsaved_changes"));
-					windowState.unsavedOpen = true;
-				}
-
-				if (warnUnsaved())
-					glfwSetWindowShouldClose(window, 1);
-			}
-			else
-			{
-				glfwSetWindowShouldClose(window, 1);
-			}
-		}
 	}
 
 	void Application::appendOpenFile(std::string filename)
 	{
 		pendingOpenFiles.push_back(filename);
-		dragDropHandled = false;
+		windowState.dragDropHandled = false;
 	}
 
 	void Application::handlePendingOpenFiles()
@@ -277,7 +181,7 @@ namespace MikuMikuWorld
 
 		if (scoreFile.size())
 		{
-			resetting = true;
+			windowState.resetting = true;
 			pendingDropScoreFile = scoreFile;
 		}
 
@@ -285,87 +189,76 @@ namespace MikuMikuWorld
 			editor->loadMusic(musicFile);
 
 		pendingOpenFiles.clear();
-		dragDropHandled = true;
-	}
-
-	void Application::updateToolbar()
-	{
-		ImGuiViewport* viewport = ImGui::GetMainViewport();
-		ImVec2 toolbarSize{ viewport->WorkSize.x, UI::toolbarBtnSize.y + ImGui::GetStyle().WindowPadding.y + 5 };
-
-		// keep toolbar on top in main viewport
-		ImGui::SetNextWindowViewport(viewport->ID);
-		ImGui::SetNextWindowPos(viewport->WorkPos);
-		ImGui::SetNextWindowSize(toolbarSize, ImGuiCond_Always);
-		ImGui::Begin("##app_toolbar", NULL, ImGuiWindowFlags_Toolbar);
-
-		// make buttons transparent
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
-
-		// general actions
-		toolbarButton(commandManager, "reset", ICON_FA_FILE);
-		toolbarButton(commandManager, "open", ICON_FA_FOLDER);
-		toolbarButton(commandManager, "save", ICON_FA_SAVE);
-		toolbarButton(commandManager, "export", ICON_FA_FILE_EXPORT);
-
-		toolbarSeparator();
-
-		toolbarButton(commandManager, "undo", ICON_FA_UNDO);
-		toolbarButton(commandManager, "redo", ICON_FA_REDO);
-
-		toolbarSeparator();
-
-		toolbarButton(commandManager, "cut", ICON_FA_CUT);
-		toolbarButton(commandManager, "copy", ICON_FA_COPY);
-		toolbarButton(commandManager, "paste", ICON_FA_PASTE);
-
-		toolbarSeparator();
-
-		// timeline actions
-		ImVec2 itemSpacing = ImGui::GetStyle().ItemSpacing;
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ itemSpacing.x +3.0f, itemSpacing.y });
-		for (int i = 0; i < (int)TimelineMode::TimelineToolMax; ++i)
-		{
-			std::string cmdName = "timeline_" + std::string{ timelineModes[i] };
-			std::string texName = cmdName;
-			toolbarImageButton(commandManager, cmdName, texName, (int)editor->getTimelineMode() == i);
-		}
-
-		ImGui::PopStyleVar();
-		ImGui::PopStyleColor();
-		ImGui::End();
+		windowState.dragDropHandled = true;
 	}
 
 	void Application::update()
 	{
-		if (!dragDropHandled)
+		if (!windowState.dragDropHandled)
 			handlePendingOpenFiles();
 
-		imgui.initializeLayout();
+		imgui->initializeLayout();
 
 		InputListener::update(window);
-		if (!ImGui::GetIO().WantCaptureKeyboard && windowState.shouldTestKeyboardShortcuts)
+
+		if ((windowState.closing || windowState.resetting) && !editor->isUpToDate() && !unsavedChangesDialog.open)
 		{
-			commandManager.processKeyboardShortcuts();
-			windowState.shouldTestKeyboardShortcuts = false;
+			unsavedChangesDialog.open = true;
+			ImGui::OpenPopup(MODAL_TITLE("unsaved_changes"));
 		}
 
-		menubar.update(windowState);
-		updateToolbar();
-		updateDialogs();
-		editor->update(frameDelta, renderer, &commandManager);
-		autoSave.update();
+		auto unsavedChangesResult = unsavedChangesDialog.update();
 
-		if (windowState.showPerformanceMetrics)
+		if (windowState.closing)
 		{
-			ImGui::BeginMainMenuBar();
-			
-			std::string frameTimeString = formatString("%.2fms (%.0fFPS)", frameDelta * 1000, 1 / frameDelta);
-			ImGui::SetCursorPosX(ImGui::GetMainViewport()->WorkSize.x - ImGui::CalcTextSize(frameTimeString.c_str()).x - 10.0f);
-			ImGui::Text(frameTimeString.c_str());
-
-			ImGui::EndMainMenuBar();
+			if (!editor->isUpToDate())
+			{
+				switch (unsavedChangesResult)
+				{
+				case DialogResult::Yes: editor->trySave(editor->getWorkingFilename()); glfwSetWindowShouldClose(window, 1); break;
+				case DialogResult::No: glfwSetWindowShouldClose(window, 1); break;
+				case DialogResult::Cancel: windowState.closing = false; break;
+				default: break;
+				}
+			}
+			else
+			{
+				glfwSetWindowShouldClose(window, 1);
+			}
 		}
+
+		if (windowState.resetting)
+		{
+			if (!editor->isUpToDate())
+			{
+				switch (unsavedChangesResult)
+				{
+				case DialogResult::Yes: editor->trySave(editor->getWorkingFilename()); windowState.resetting = false; break;
+				case DialogResult::No: windowState.resetting = false; break;
+				case DialogResult::Cancel:windowState.resetting = shouldPickScore = false; pendingDropScoreFile.clear(); break;
+				default: break;
+				}
+			}
+
+			// already saved or clicked save changes or discard changes
+			if (editor->isUpToDate() || (unsavedChangesResult != DialogResult::Cancel && unsavedChangesResult != DialogResult::None))
+			{
+				windowState.resetting = false;
+				if (pendingDropScoreFile.size())
+				{
+					editor->loadScore(pendingDropScoreFile);
+					pendingDropScoreFile.clear();
+				}
+
+				if (windowState.shouldPickScore)
+				{
+					editor->open();
+					windowState.shouldPickScore = false;
+				}
+			}
+		}
+
+		editor->update();
 	}
 
 	void Application::loadResources()
@@ -398,93 +291,6 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void Application::setupCommands()
-	{
-		commandManager.add("reset", { {CTRL, GLFW_KEY_N} }, [this] { this->reset(); });
-		commandManager.add("open", { {CTRL, GLFW_KEY_O} }, [this] { this->open(); });
-		commandManager.add("save", { {CTRL, GLFW_KEY_S} }, [this] { this->editor->save(); });
-		commandManager.add("save_as", { {CTRL | SHIFT, GLFW_KEY_S} }, [this] { this->editor->saveAs(); });
-		commandManager.add("export", { }, [this] { this->editor->exportSUS(); });
-		commandManager.add("toggle_playback_play_pause", { {NONE, GLFW_KEY_SPACE} }, [this] { editor->togglePlaying(); });
-		commandManager.add("toggle_playback_play_stop", { }, [this] { editor->stopAtLastSelectedTick(); });
-		commandManager.add("copy", { {CTRL, GLFW_KEY_C} }, [this] { editor->copy(); },
-			[this] { return editor->isAnyNoteSelected(); });
-
-		commandManager.add("cut", { {CTRL, GLFW_KEY_X} }, [this] { editor->cut(); },
-			[this] { return editor->isAnyNoteSelected(); });
-
-		commandManager.add("paste", { {CTRL, GLFW_KEY_V} }, [this] { editor->paste(); },
-			[] { return Clipboard::hasData(); });
-
-		commandManager.add("flip_paste", { {CTRL | SHIFT, GLFW_KEY_V} }, [this] { editor->flipPaste(); },
-			[] { return Clipboard::hasData(); });
-
-		commandManager.add("undo", { {CTRL, GLFW_KEY_Z} }, [this] { editor->undo(); },
-			[this] { return editor->history.hasUndo(); });
-
-		commandManager.add("redo", { {CTRL, GLFW_KEY_Y} }, [this] { editor->redo(); },
-			[this] { return editor->history.hasRedo(); });
-
-		commandManager.add("select_all", { {CTRL, GLFW_KEY_A} }, [this] { editor->selectAll(); },
-			[this] { return !editor->isPlaying(); });
-
-		commandManager.add("cancel_paste", { {NONE, GLFW_KEY_ESCAPE} }, [this] { editor->cancelPaste(); });
-		commandManager.add("delete", { {NONE, GLFW_KEY_DELETE} }, [this] { editor->deleteSelected(); },
-			[this] { return editor->isAnyNoteSelected(); });
-
-		commandManager.add("stop", { }, [this] { editor->stop(); });
-		commandManager.add("flip", { {CTRL, GLFW_KEY_F} }, [this] { editor->flipSelected(); },
-			[this] { return editor->isAnyNoteSelected(); });
-
-		commandManager.add("shrink_down", { }, [this] { editor->shrinkSelected(0); },
-			[this] { return editor->isAnyNoteSelected(); });
-
-		commandManager.add("shrink_up", { }, [this] { editor->shrinkSelected(1); },
-			[this] { return editor->isAnyNoteSelected(); });
-
-		commandManager.add("prev_tick", { }, [this] { editor->previousTick(); },
-			[this] { return !editor->isPlaying(); });
-
-		commandManager.add("next_tick", { }, [this] { editor->nextTick(); },
-			[this] { return !editor->isPlaying();  });
-
-		commandManager.add("timeline_select", { {NONE, GLFW_KEY_1} },
-			[this] { editor->changeMode(TimelineMode::Select); });
-
-		commandManager.add("timeline_tap", { {NONE, GLFW_KEY_2} },
-			[this] { editor->changeMode(TimelineMode::InsertTap); });
-
-		commandManager.add("timeline_hold", { {NONE, GLFW_KEY_3} },
-			[this] { editor->changeMode(TimelineMode::InsertLong); });
-
-		commandManager.add("timeline_hold_step", { {NONE, GLFW_KEY_4} },
-			[this] { editor->changeMode(TimelineMode::InsertLongMid); });
-
-		commandManager.add("timeline_flick", { {NONE, GLFW_KEY_5} },
-			[this] { editor->changeMode(TimelineMode::InsertFlick); });
-
-		commandManager.add("timeline_critical", { {NONE, GLFW_KEY_6} },
-			[this] { editor->changeMode(TimelineMode::MakeCritical); });
-
-		commandManager.add("timeline_bpm", { {NONE, GLFW_KEY_7} },
-			[this] { editor->changeMode(TimelineMode::InsertBPM); });
-
-		commandManager.add("timeline_time_signature", { {NONE, GLFW_KEY_8} },
-			[this] { editor->changeMode(TimelineMode::InsertTimeSign); });
-
-		commandManager.add("timeline_hi_speed", { {NONE, GLFW_KEY_9} },
-			[this] { editor->changeMode(TimelineMode::InsertHiSpeed); });
-
-		commandManager.add("decrease_note_size", { {NONE, GLFW_KEY_MINUS} },
-			[this] { editor->changeNoteWidth(-1); });
-
-		commandManager.add("increase_note_size", { {NONE, GLFW_KEY_EQUAL} },
-			[this] { editor->changeNoteWidth(1); });
-
-		commandManager.readCommands(config);
-		menubar.setCommandManagerInstance(&commandManager);
-	}
-
 	void Application::run()
 	{
 		while (!glfwWindowShouldClose(window))
@@ -492,18 +298,17 @@ namespace MikuMikuWorld
 			glfwPollEvents();
 			frameTime();
 
-			imgui.begin();
+			imgui->begin();
 			update();
 
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			imgui.draw(window);
+			imgui->draw(window);
 			glfwSwapBuffers(window);
 		}
 
+		editor->savePresets(appDir + "library");
 		writeSettings();
-		editor->presetManager.savePresets(appDir + "library/");
-		autoSave.writeConfig(config);
 	}
 }

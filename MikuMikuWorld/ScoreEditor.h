@@ -1,261 +1,45 @@
-#pragma once
-#include "Score.h"
-#include "ImGui/imgui.h"
-#include "ImGui/imgui_internal.h"
-#include "Rendering/Camera.h"
-#include "Rendering/Framebuffer.h"
-#include "Constants.h"
-#include "TimelineMode.h"
-#include "EditorScoreData.h"
-#include "HistoryManager.h"
-#include "Audio/AudioManager.h"
-#include "PresetManager.h"
-#include "ScoreStats.h"
-#include "Canvas.h"
-#include "Selection.h"
-#include "SusParser.h"
-#include "SusExporter.h"
-
-// needed for miniaudio to work
-#undef min
-#undef max
+#include "ScoreEditorWindows.h"
 
 namespace MikuMikuWorld
 {
-	class Renderer;
-	struct Score;
-	struct Note;
-	class Color;
-	class CommandManager;
-
 	class ScoreEditor
 	{
 	private:
-		TimelineMode currentMode = TimelineMode::Select;
-		ScrollMode scrollMode = ScrollMode::FollowCursor;
-		Camera camera;
-		Framebuffer* framebuffer;
-		ScoreStats stats;
-		Selection selection;
-
-		Score prevUpdateScore;
-		Score score;
-		EditorScoreData workingData;
-		std::unordered_map<std::string, int> tickSEMap;
-		std::vector<StepDrawData> drawSteps;
-
-		SusParser susParser;
-		SusExporter susExporter;
-		std::string susExportComment;
-
-		Note dummy;
-		Note dummyStart;
-		Note dummyEnd;
-		Note dummyMid;
-		HoldNote dummyHold;
-		int hoveringNote;
-
-		float minNoteYDistance;
-
-		float noteCtrlHeight;
-		const float noteCtrlWidth = NOTES_SLICE_WIDTH - 2.0f;
-
-		int division = 8;
-		int currentTick = 0;
-		int lastSelectedTick = 0;
-		int hoverTick = 0;
-		int hoverLane = 0;
-		int pasteLane = 0;
-		int holdLane = 0;
-		int holdTick = 0;
-		int editBPMIndex = -1;
-		int editTSIndex = -1;
-		int editHiSpeedIndex = -1;
-
-		float editBPM = 160.0f;
-		int editTsNum = 4;
-		int editTsDenom = 4;
-		float editHiSpeed = 1.0f;
-
-		int defaultNoteWidth;
-		HoldStepType defaultStepType;
-		float defaultBPM;
-		int defaultTimeSignN;
-		int defaultTimeSignD;
-		float defaultHiSpeed;
-
-		bool windowFocused;
-		bool drawHoldStepOutline;
-		bool showRenderStats;
-		bool isHoveringNote;
-		bool isHoldingNote;
-		bool isMovingNote;
-		bool skipUpdateAfterSortingSteps;
-		bool mouseClickedOnTimeline;
-		bool dragging;
-		bool insertingHold;
-		bool pasting;
-		bool flipPasting;
-		bool insertingPreset;
-		bool hasEdit;
-		bool uptoDate;
-
-		ImVec2 ctrlMousePos;
-		ImVec2 dragStart;
-		ImVec2 mousePos;
-
-		float time;
-		float timeLastFrame;
-		float playStartTime;
-		float songPos;
-		float songPosLastFrame;
-		bool playing;
-		const float audioLookAhead = 0.05f;
-		const float audioOffsetCorrection = 0.02f;
-
-		// update methods
-		void updateNotes(Renderer* renderer);
-		void updateNote(Note& note);
-		void updateDummyNotes();
-		void updateDummyHold();
-		void updateScoreEvents();
-		void updateCursor();
-		void updateTimeline(float frameTime, Renderer* renderer, CommandManager* commandManager);
-		
-		// window update methods
-		void timelineStatusBar();
-		void propertiesWindow();
-		void toolOptionsWindow();
-		void contextMenu(CommandManager* commandManager);
-		void debugInfo();
-		void bpmEditor();
-		void timeSignatureEditor();
-		void hiSpeedEditor();
-
-		// edit methods
-		void cycleFlicks();
-		void setFlick(FlickType flick);
-		void cycleEase();
-		void setEase(EaseType ease);
-		void toggleCriticals();
-		void cycleStepType();
-		void setStepType(HoldStepType type);
-		void pushHistory(const std::string& description, const Score& prev, const Score& curr);
-		void previewInput(Renderer* renderer);
-		void executeInput();
-
-		// draw methods
-		void drawMeasures();
-		void drawLanes();
-		void drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
-		void drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
-		void drawHoldNote(const std::unordered_map<int, Note>& notes, const HoldNote& hold, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
-		void drawHoldMid(Note& note, HoldStepType type, Renderer* renderer, const Color& tint);
-		void drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
-		void drawDummyHold(Renderer* renderer);
-		void drawSelectionRectangle();
-		void drawSelectionBoxes();
-		void drawStepOutlines();
-		void drawOutline(const StepDrawData& data);
-
-		// helper methods
-		int snapTickFromPos(float posY);
-		int snapTick(int tick, int div);
-		int roundTickDown(int tick, int div);
-		int laneFromCenterPos(int lane, int width);
-		int findClosestHold();
-		void calcDragSelection();
-		bool noteControl(const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor);
-		bool bpmControl(const Tempo& bpm);
-		bool bpmControl(float bpm, int tick, bool enabled);
-		bool timeSignatureControl(const TimeSignature& ts);
-		bool timeSignatureControl(int numerator, int denominator, int tick, bool enabled);
-		bool skillControl(const SkillTrigger& skill);
-		bool skillControl(int tick, bool enabled);
-		bool feverControl(const Fever& fever);
-		bool feverControl(int tick, bool start, bool enabled);
-		bool hiSpeedControl(const HiSpeedChange& hiSpeed);
-		bool hiSpeedControl(int tick, float speed);
-		bool eventControl(int tick, bool left, bool up, ImU32 color, const char* txt, bool enabled);
-		bool isHoldPathInTick(const Note& n1, const Note& n2, EaseType ease, float x, float y);
-
-		void readScoreMetadata();
-		void writeScoreMetadata();
-		void resetEditor();
-
-	public:
-		Canvas canvas;
-		AudioManager audio;
-		HistoryManager history;
+		ScoreContext context{};
+		EditArgs edit{};
+		std::unique_ptr<Renderer> renderer;
 		PresetManager presetManager;
 
+		ScoreEditorTimeline timeline{};
+		ScorePropertiesWindow propertiesWindow{};
+		ScoreOptionsWindow optionsWindow{};
+		PresetsWindow presetsWindow{};
+
+		std::string exportComment;
+
+		bool save(std::string filename);
+
+	public:
 		ScoreEditor();
-		~ScoreEditor();
 
-		// main update method
-		void update(float frameTime, Renderer* renderer, CommandManager* commandManager);
+		void update();
 
-		// edit methods
-		void gotoMeasure(int measure);
-		void changeMode(TimelineMode mode);
-		void insertNote(bool critical);
-		void insertNotePlaying();
-		void insertHoldNote();
-		void insertHoldStep(HoldNote& note);
-		void insertTempo();
-		void insertTimeSignature();
-		void insertHiSpeedChange();
-		void copy();
-		void cut();
-		void previewPaste(Renderer* renderer);
-		void paste();
-		void flipSelected();
-		void flip();
-		void flipPaste();
-		void confirmPaste();
-		void cancelPaste();
-		void selectAll();
-		void clearSelection();
-		void deleteSelected();
-		void shrinkSelected(int direction);
-		void changeNoteWidth(int factor);
-		bool isPasting() const;
-		bool isAnyNoteSelected() const;
-
-		// playback methods
-		void togglePlaying();
-		void stop();
-		void stopAtLastSelectedTick();
-		void restart();
-		void nextTick();
-		void previousTick();
-		void updateNoteSE();
-		bool isPlaying();
-
-		inline int getDivision() { return division; }
-		void setDivision(int div);
-		inline ScrollMode getScrollMode() { return scrollMode; }
-		void setScrollMode(ScrollMode mode);
-		void setScrollMode(std::string mode);
-
-		// IO methods
-		void reset();
+		void create();
 		void open();
-		void save();
-		void save(const std::string& filename);
-		void saveAs();
-		void exportSUS();
-		void loadScore(const std::string& filename);
-		void loadMusic(const std::string& filename);
-		bool isUptoDate() const;
-		std::string getWorkingFilename() const;
+		void loadScore(std::string filename);
+		void exportSus();
+		bool saveAs();
+		bool trySave(std::string filename = "");
 
-		// history methods
-		void undo();
-		void redo();
+		void drawMenubar();
+		void drawToolbar();
 
-		bool isWindowFocused() const;
+		inline void loadPresets(std::string path) { presetManager.loadPresets(path); }
+		inline void savePresets(std::string path) { presetManager.savePresets(path); }
+		inline void loadMusic(std::string path) { context.audio.changeBGM(path); }
 
-		TimelineMode getTimelineMode() const;
+		inline void uninitialize() { context.audio.uninitAudio(); }
+		inline const char* getWorkingFilename() const { return context.workingData.filename.c_str(); }
+		constexpr inline bool isUpToDate() const { return context.upToDate; }
 	};
 }
