@@ -124,8 +124,9 @@ namespace MikuMikuWorld
 		context.score = {};
 		context.workingData = {};
 		context.history.clear();
-		context.scoreStats.calculateStats(context.score);
+		context.scoreStats.reset();
 		context.audio.disposeBGM();
+		context.upToDate = true; // new score; nothing to save
 	}
 
 	void ScoreEditor::loadScore(std::string filename)

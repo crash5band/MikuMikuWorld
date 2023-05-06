@@ -177,6 +177,9 @@ namespace MikuMikuWorld
 
 	void Application::update()
 	{
+		frameTime();
+		imgui->begin();
+
 		if (!windowState.dragDropHandled)
 			handlePendingOpenFiles();
 
@@ -223,9 +226,8 @@ namespace MikuMikuWorld
 			{
 				switch (unsavedChangesResult)
 				{
-				case DialogResult::Yes: editor->trySave(editor->getWorkingFilename()); windowState.resetting = false; break;
-				case DialogResult::No: windowState.resetting = false; break;
-				case DialogResult::Cancel:windowState.resetting = shouldPickScore = false; pendingDropScoreFile.clear(); break;
+				case DialogResult::Yes: editor->trySave(editor->getWorkingFilename()); break;
+				case DialogResult::Cancel: windowState.resetting = shouldPickScore = false; pendingDropScoreFile.clear(); break;
 				default: break;
 				}
 			}
@@ -233,7 +235,9 @@ namespace MikuMikuWorld
 			// already saved or clicked save changes or discard changes
 			if (editor->isUpToDate() || (unsavedChangesResult != DialogResult::Cancel && unsavedChangesResult != DialogResult::None))
 			{
+				editor->create();
 				windowState.resetting = false;
+
 				if (pendingDropScoreFile.size())
 				{
 					editor->loadScore(pendingDropScoreFile);
@@ -249,6 +253,12 @@ namespace MikuMikuWorld
 		}
 
 		editor->update();
+
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		imgui->draw(window);
+		glfwSwapBuffers(window);
 	}
 
 	void Application::loadResources()
@@ -286,16 +296,7 @@ namespace MikuMikuWorld
 		while (!glfwWindowShouldClose(window))
 		{
 			glfwPollEvents();
-			frameTime();
-
-			imgui->begin();
 			update();
-
-			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			imgui->draw(window);
-			glfwSwapBuffers(window);
 		}
 
 		editor->savePresets(appDir + "library");

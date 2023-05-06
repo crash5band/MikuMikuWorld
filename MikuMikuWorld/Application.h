@@ -44,7 +44,6 @@ namespace MikuMikuWorld
 		static std::string appDir;
 
 		Result initOpenGL();
-		void update();
 		void installCallbacks();
 
 		std::string getVersion();
@@ -56,8 +55,8 @@ namespace MikuMikuWorld
 
 		Result initialize();
 		void run();
+		void update();
 		void frameTime();
-		void settingsDialog();
 		void appendOpenFile(std::string filename);
 		void handlePendingOpenFiles();
 		void readSettings();
