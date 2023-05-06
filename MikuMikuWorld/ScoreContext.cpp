@@ -356,6 +356,41 @@ namespace MikuMikuWorld
 			pushHistory("Paste notes", prev, score);
 	}
 
+	void ScoreContext::shrinkSelection(ShrinkDirection direction)
+	{
+		if (selectedNotes.size() < 2)
+			return;
+
+		Score prev = score;
+
+		std::vector<int> sortedSelection(selectedNotes.begin(), selectedNotes.end());
+		std::sort(sortedSelection.begin(), sortedSelection.end(), [this](int a, int b) 
+			{
+				const Note& n1 = score.notes.at(a);
+				const Note& n2 = score.notes.at(b);
+				return n1.tick == n2.tick ? n1.lane < n2.lane : n1.tick < n2.tick;
+			}
+		);
+
+		int factor = 1; // tick increment/decrement amount
+		if (direction == ShrinkDirection::Up)
+		{
+			// start from the last note
+			std::reverse(sortedSelection.begin(), sortedSelection.end());
+			factor = -1;
+		}
+
+		int firstTick = score.notes.at(*sortedSelection.begin()).tick;
+		for (int i = 0; i < sortedSelection.size(); ++i)
+			score.notes[sortedSelection[i]].tick = firstTick + (i * factor);
+
+		const std::unordered_set<int> holds = getHoldsFromSelection();
+		for (const auto& hold : holds)
+			sortHoldSteps(score, score.holdNotes.at(hold));
+
+		pushHistory("Shrink notes", prev, score);
+	}
+
 	void ScoreContext::undo()
 	{
 		if (history.hasUndo())
@@ -392,5 +427,23 @@ namespace MikuMikuWorld
 		scoreStats.calculateStats(score);
 
 		upToDate = false;
+	}
+
+	bool ScoreContext::selectionHasEase() const
+	{
+		return std::find_if(selectedNotes.begin(), selectedNotes.end(), 
+			[this](const int id) { return score.notes.at(id).hasEase(); }) != selectedNotes.end();
+	}
+
+	bool ScoreContext::selectionHasStep() const
+	{
+		return std::find_if(selectedNotes.begin(), selectedNotes.end(),
+			[this](const int id) { return score.notes.at(id).getType() == NoteType::HoldMid; }) != selectedNotes.end();
+	}
+
+	bool ScoreContext::selectionHasFlickable() const
+	{
+		return std::find_if(selectedNotes.begin(), selectedNotes.end(),
+			[this](const int id) { return !score.notes.at(id).hasEase(); }) != selectedNotes.end();
 	}
 }

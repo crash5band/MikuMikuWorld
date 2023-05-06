@@ -2,7 +2,6 @@
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_stdlib.h"
 #include "ImGui/imgui_internal.h"
-#include "Rendering/Texture.h"
 #include "IconsFontAwesome5.h"
 #include "Localization.h"
 #include "StringOperations.h"
@@ -11,13 +10,10 @@
 #define APP_NAME "MikuMikuWorld"
 
 #define IMGUI_TITLE(icon, title) concat(icon, getString(title), " ").c_str()
-#define MODAL_TITLE(title) concat(getString(title), APP_NAME, " - ").c_str()
+#define MODAL_TITLE(title) concat(APP_NAME, getString(title), " - ").c_str()
 
 namespace MikuMikuWorld
 {
-	class Command;
-	struct TimeSignature;
-
 	constexpr const char* windowTitle = APP_NAME " - ";
 	constexpr const char* windowUntitled = "Untitled";
 
@@ -34,13 +30,6 @@ namespace MikuMikuWorld
 		| ImGuiWindowFlags_NoScrollWithMouse
 		| ImGuiWindowFlags_NoTitleBar;
 
-
-	struct AccentColor
-	{
-		std::string name;
-		ImVec4 color;
-	};
-
 	enum class ColorDisplay
 	{
 		RGB,
@@ -48,9 +37,11 @@ namespace MikuMikuWorld
 		HEX
 	};
 
-	enum class BaseTheme {
+	enum class BaseTheme
+	{
 		DARK,
 		LIGHT,
+		BASE_THEME_MAX
 	};
 
 	constexpr const char* colorDisplayStr[]
@@ -58,19 +49,9 @@ namespace MikuMikuWorld
 		"RGB", "HSV", "Hex"
 	};
 
-	constexpr const char* uiFlickTypes[] =
+	constexpr const char* baseThemes[]
 	{
-		"none", "up", "left", "right"
-	};
-
-	constexpr const char* uiStepTypes[] =
-	{
-		"visible", "invisible", "ignored"
-	};
-
-	constexpr const char* uiEaseTypes[] =
-	{
-		"linear", "ease_in", "ease_out"
+		"theme_dark", "theme_light"
 	};
 
 	class UI
@@ -82,7 +63,7 @@ namespace MikuMikuWorld
 		static const ImVec2 btnNormal;
 		static const ImVec2 btnSmall;
 		static const ImVec2 toolbarBtnSize;
-		static std::vector<AccentColor> accentColors;
+		static std::vector<ImVec4> accentColors;
 
 		static bool transparentButton(const char* txt, ImVec2 size = btnNormal, bool repeat = false, bool enabled = true);
 		static bool transparentButton2(const char* txt, ImVec2 pos, ImVec2 size);
@@ -109,11 +90,8 @@ namespace MikuMikuWorld
 		static bool toolbarButton(const char* icon, const char* label, const char* shortcut, bool enabled = true, bool selected = false);
 		static bool toolbarImageButton(const char* img, const char* label, const char* shortcut, bool enabled = true, bool selected = false);
 		static void toolbarSeparator();
-		static void contextMenuItem(const char* icon, Command& command);
-
-		static std::string baseThemeToStr(BaseTheme theme);
-		static int baseThemeToInt(BaseTheme theme);
-		static BaseTheme intToBaseTheme(int theme);
+		static void beginNextItemDisabled();
+		static void endNextItemDisabled();
 
 		static void setWindowTitle(std::string title);
 

@@ -1,6 +1,5 @@
 #include "Background.h"
 #include "Math.h"
-#include "Color.h"
 #include "ResourceManager.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/Framebuffer.h"

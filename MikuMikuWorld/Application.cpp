@@ -1,9 +1,7 @@
 #include "Application.h"
 #include "ResourceManager.h"
 #include "StringOperations.h"
-#include "InputListener.h"
 #include "Colors.h"
-#include "Color.h"
 #include "UI.h"
 #include "Utilities.h"
 #include "Localization.h"
@@ -18,8 +16,7 @@ namespace MikuMikuWorld
 	std::string Application::appDir;
 	WindowState Application::windowState;
 
-	Application::Application(const std::string& root) :
-		initialized{ false }
+	Application::Application(const std::string& root) : initialized{ false }
 	{
 		appDir = root;
 		version = getVersion();
@@ -30,6 +27,7 @@ namespace MikuMikuWorld
 		if (initialized)
 			return Result(ResultStatus::Success, "App is already initialized");
 
+		config.read(appDir + APP_CONFIG_FILENAME);
 		readSettings();
 
 		Result result = initOpenGL();
@@ -121,18 +119,11 @@ namespace MikuMikuWorld
 
 	void Application::readSettings()
 	{
-		config.read(appDir + APP_CONFIG_FILENAME);
-
 		windowState.position = config.windowPos;
 		windowState.size = config.windowSize;
 		windowState.maximized = config.maximized;
 		windowState.vsync = config.vsync;
-		UI::accentColors[0].color = ImVec4{
-			config.userColor.r,
-			config.userColor.g,
-			config.userColor.b,
-			config.userColor.a
-		};
+		UI::accentColors[0] = config.userColor.toImVec4();
 	}
 
 	void Application::writeSettings()
@@ -141,15 +132,7 @@ namespace MikuMikuWorld
 		config.vsync = windowState.vsync;
 		config.windowPos = windowState.position;
 		config.windowSize = windowState.size;
-		config.userColor = Color{
-			UI::accentColors[0].color.x,
-			UI::accentColors[0].color.y,
-			UI::accentColors[0].color.z,
-			UI::accentColors[0].color.w
-		};
-
-		config.accentColor = imgui->getAccentColor();
-		config.baseTheme = imgui->getBaseTheme();
+		config.userColor = Color::fromImVec4(UI::accentColors[0]);
 
 		config.write(appDir + APP_CONFIG_FILENAME);
 	}
@@ -199,7 +182,14 @@ namespace MikuMikuWorld
 
 		imgui->initializeLayout();
 
-		InputListener::update(window);
+		if (config.accentColor != imgui->getAccentColor())
+			imgui->applyAccentColor(config.accentColor);
+
+		if (config.userColor != Color::fromImVec4(UI::accentColors[0]) && config.accentColor == 0)
+			imgui->applyAccentColor(config.accentColor);
+
+		if (config.baseTheme != imgui->getBaseTheme())
+			imgui->setBaseTheme(config.baseTheme);
 
 		if ((windowState.closing || windowState.resetting) && !editor->isUpToDate() && !unsavedChangesDialog.open)
 		{

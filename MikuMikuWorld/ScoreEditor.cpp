@@ -8,9 +8,26 @@
 #include "Constants.h"
 #include <tinyfiledialogs.h>
 #include "Utilities.h"
+#include <Windows.h>
+
+#undef min
+#undef max
 
 namespace MikuMikuWorld
 {
+	static MultiInputBinding* timelineModeBindings[] =
+	{
+		&config.input.timelineSelect,
+		&config.input.timelineTap,
+		&config.input.timelineHold,
+		&config.input.timelineHoldMid,
+		&config.input.timelineFlick,
+		&config.input.timelineCritical,
+		&config.input.timelineBpm,
+		&config.input.timelineTimeSignature,
+		&config.input.timelineHiSpeed,
+	};
+
 	ScoreEditor::ScoreEditor()
 	{
 		renderer = std::make_unique<Renderer>();
@@ -23,6 +40,55 @@ namespace MikuMikuWorld
 	{
 		drawMenubar();
 		drawToolbar();
+
+		if (!ImGui::GetIO().WantCaptureKeyboard)
+		{
+			if (ImGui::IsAnyPressed(config.input.create)) Application::windowState.resetting = true;
+			if (ImGui::IsAnyPressed(config.input.open))
+			{
+				Application::windowState.resetting = true;
+				Application::windowState.shouldPickScore = true;
+			}
+
+			if (ImGui::IsAnyPressed(config.input.save)) trySave(context.workingData.filename);
+			if (ImGui::IsAnyPressed(config.input.saveAs)) saveAs();
+			if (ImGui::IsAnyPressed(config.input.exportSus)) exportSus();
+			if (ImGui::IsAnyPressed(config.input.togglePlayback)) timeline.togglePlaying(context);
+			if (ImGui::IsAnyPressed(config.input.previousTick, true)) timeline.previousTick(context);
+			if (ImGui::IsAnyPressed(config.input.nextTick, true)) timeline.nextTick(context);
+			if (ImGui::IsAnyPressed(config.input.selectAll)) context.selectAll();
+			if (ImGui::IsAnyPressed(config.input.deleteSelection)) context.deleteSelection();
+			if (ImGui::IsAnyPressed(config.input.cutSelection)) context.cutSelection();
+			if (ImGui::IsAnyPressed(config.input.copySelection)) context.copySelection();
+			if (ImGui::IsAnyPressed(config.input.paste)) context.paste(false);
+			if (ImGui::IsAnyPressed(config.input.flipPaste)) context.paste(true);
+			if (ImGui::IsAnyPressed(config.input.flip)) context.flipSelection();
+			if (ImGui::IsAnyPressed(config.input.undo)) context.undo();
+			if (ImGui::IsAnyPressed(config.input.redo)) context.redo();
+
+			for (int i = 0; i < (int)TimelineMode::TimelineModeMax; ++i)
+				if (ImGui::IsAnyPressed(*timelineModeBindings[i])) timeline.currentMode = (TimelineMode)i;
+		}
+
+		if (config.timelineWidth != timeline.laneWidth)
+			timeline.laneWidth = config.timelineWidth;
+
+		if (config.backgroundBrightness != timeline.background.getBrightness())
+			timeline.background.setBrightness(config.backgroundBrightness);
+
+		if (settingsWindow.open)
+		{
+			ImGui::OpenPopup(MODAL_TITLE("settings"));
+			settingsWindow.open = false;
+		}
+		settingsWindow.update();
+
+		if (aboutDialog.open)
+		{
+			ImGui::OpenPopup(MODAL_TITLE("about"));
+			aboutDialog.open = false;
+		}
+		aboutDialog.update();
 
 		ImGui::Begin(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"), NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 		timeline.update(context, edit, renderer.get());
@@ -51,8 +117,6 @@ namespace MikuMikuWorld
 			presetsWindow.update(context, presetManager);
 		}
 		ImGui::End();
-
-		// other windows here
 	}
 
 	void ScoreEditor::create()
@@ -184,66 +248,60 @@ namespace MikuMikuWorld
 
 		if (ImGui::BeginMenu(getString("file")))
 		{
-			if (ImGui::MenuItem(getString("new")))
-			{
+			if (ImGui::MenuItem(getString("new"), ToShortcutString(config.input.create)))
 				Application::windowState.resetting = true;
-			}
 
-			if (ImGui::MenuItem(getString("open")))
+			if (ImGui::MenuItem(getString("open"), ToShortcutString(config.input.open)))
 			{
 				Application::windowState.resetting = true;
 				Application::windowState.shouldPickScore = true;
 			}
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(getString("save")))
+			if (ImGui::MenuItem(getString("save"), ToShortcutString(config.input.save)))
 				trySave(context.workingData.filename);
 
-			if (ImGui::MenuItem(getString("save_as")))
+			if (ImGui::MenuItem(getString("save_as"), ToShortcutString(config.input.saveAs)))
 				saveAs();
 
-			if (ImGui::MenuItem(getString("export")))
+			if (ImGui::MenuItem(getString("export"), ToShortcutString(config.input.exportSus)))
 				exportSus();
 
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("exit")))
-			{
-				// set exit state here
-			}
+				Application::windowState.closing = true;
 
 			ImGui::EndMenu();
 		}
 
 		if (ImGui::BeginMenu(getString("edit")))
 		{
-			if (ImGui::MenuItem(getString("undo")))
+			if (ImGui::MenuItem(getString("undo"), ToShortcutString(config.input.undo), false, context.history.hasUndo()))
 				context.undo();
 
-			if (ImGui::MenuItem(getString("redo")))
+			if (ImGui::MenuItem(getString("redo"), ToShortcutString(config.input.redo), false, context.history.hasRedo()))
 				context.redo();
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(getString("delete")))
+			if (ImGui::MenuItem(getString("delete"), ToShortcutString(config.input.deleteSelection), false, context.selectedNotes.size()))
 				context.deleteSelection();
 
-			if (ImGui::MenuItem(getString("cut")))
+			if (ImGui::MenuItem(getString("cut"), ToShortcutString(config.input.cutSelection), false, context.selectedNotes.size()))
 				context.cutSelection();
 
-			if (ImGui::MenuItem(getString("copy")))
+			if (ImGui::MenuItem(getString("copy"), ToShortcutString(config.input.copySelection), false, context.selectedNotes.size()))
 				context.copySelection();
 
-			if (ImGui::MenuItem(getString("paste")))
+			if (ImGui::MenuItem(getString("paste"), ToShortcutString(config.input.paste)))
 				context.paste(false);
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(getString("select_all")))
+			if (ImGui::MenuItem(getString("select_all"), ToShortcutString(config.input.selectAll)))
 				context.selectAll();
 
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("settings")))
-			{
-				// open settings here
-			}
+				settingsWindow.open = true;
 
 			ImGui::EndMenu();
 		}
@@ -258,13 +316,26 @@ namespace MikuMikuWorld
 
 		if (ImGui::BeginMenu(getString("window")))
 		{
+			if (ImGui::MenuItem(getString("vsync"), NULL, &config.vsync))
+				glfwSwapInterval(config.vsync);
+
 			ImGui::EndMenu();
 		}
 
 		if (ImGui::BeginMenu(getString("help")))
 		{
+			if (ImGui::MenuItem(getString("help")))
+				ShellExecuteW(0, 0, L"https://github.com/crash5band/MikuMikuWorld/wiki", 0, 0, SW_SHOW);
+
+			if (ImGui::MenuItem(getString("about")))
+				aboutDialog.open = true;
+
 			ImGui::EndMenu();
 		}
+
+		std::string fps = formatString("%.3fms (%.1fFPS)", ImGui::GetIO().DeltaTime * 1000, ImGui::GetIO().Framerate);
+		ImGui::SetCursorPosX(ImGui::GetWindowSize().x - ImGui::CalcTextSize(fps.c_str()).x - ImGui::GetStyle().WindowPadding.x);
+		ImGui::Text(fps.c_str());
 
 		ImGui::PopStyleVar();
 		ImGui::EndMainMenuBar();
@@ -284,51 +355,49 @@ namespace MikuMikuWorld
 		// make buttons transparent
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
 		
-		if (UI::toolbarButton(ICON_FA_FILE, getString("new"), NULL))
+		if (UI::toolbarButton(ICON_FA_FILE, getString("new"), ToShortcutString(config.input.create)))
 		{
 			Application::windowState.resetting = true;
 		}
 
-		if (UI::toolbarButton(ICON_FA_FOLDER_OPEN, getString("open"), NULL))
+		if (UI::toolbarButton(ICON_FA_FOLDER_OPEN, getString("open"), ToShortcutString(config.input.open)))
 		{
 			Application::windowState.resetting = true;
 			Application::windowState.shouldPickScore = true;
 		}
 
-		if (UI::toolbarButton(ICON_FA_SAVE, getString("save"), NULL))
+		if (UI::toolbarButton(ICON_FA_SAVE, getString("save"), ToShortcutString(config.input.save)))
 			trySave(context.workingData.filename);
 
-		if (UI::toolbarButton(ICON_FA_FILE_EXPORT, getString("export"), NULL))
+		if (UI::toolbarButton(ICON_FA_FILE_EXPORT, getString("export"), ToShortcutString(config.input.exportSus)))
 			exportSus();
 
 		UI::toolbarSeparator();
 
-		if (UI::toolbarButton(ICON_FA_CUT, getString("cut"), NULL, context.selectedNotes.size() > 0))
+		if (UI::toolbarButton(ICON_FA_CUT, getString("cut"), ToShortcutString(config.input.cutSelection), context.selectedNotes.size() > 0))
 			context.cutSelection();
 
-		if (UI::toolbarButton(ICON_FA_COPY, getString("copy"), NULL, context.selectedNotes.size() > 0))
+		if (UI::toolbarButton(ICON_FA_COPY, getString("copy"), ToShortcutString(config.input.copySelection), context.selectedNotes.size() > 0))
 			context.copySelection();
 
-		if (UI::toolbarButton(ICON_FA_PASTE, getString("paste"), NULL))
+		if (UI::toolbarButton(ICON_FA_PASTE, getString("paste"), ToShortcutString(config.input.paste)))
 			context.paste(false);
 
 		UI::toolbarSeparator();
 
-		if (UI::toolbarButton(ICON_FA_UNDO, getString("undo"), NULL, context.history.hasUndo()))
+		if (UI::toolbarButton(ICON_FA_UNDO, getString("undo"), ToShortcutString(config.input.undo), context.history.hasUndo()))
 			context.undo();
 
-		if (UI::toolbarButton(ICON_FA_REDO, getString("redo"), NULL, context.history.hasRedo()))
+		if (UI::toolbarButton(ICON_FA_REDO, getString("redo"), ToShortcutString(config.input.redo), context.history.hasRedo()))
 			context.redo();
 
 		UI::toolbarSeparator();
 
 		for (int i = 0; i < TXT_ARR_SZ(timelineModes); ++i)
 		{
-			if (UI::toolbarImageButton((std::string{"timeline_"} + timelineModes[i]).c_str(), getString(timelineModes[i]), NULL, true, (int)timeline.currentMode == i))
+			if (UI::toolbarImageButton((std::string{"timeline_"} + timelineModes[i]).c_str(), getString(timelineModes[i]), ToShortcutString(*timelineModeBindings[i]), true, (int)timeline.currentMode == i))
 				timeline.currentMode = (TimelineMode)i;
 		}
-
-		// add toolbar buttons here
 
 		ImGui::PopStyleColor();
 		ImGui::End();

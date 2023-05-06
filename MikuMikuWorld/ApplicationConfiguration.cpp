@@ -8,6 +8,7 @@ using namespace nlohmann;
 
 namespace MikuMikuWorld
 {
+	ApplicationConfiguration config{};
 	constexpr const char* CONFIG_VERSION{ "1.4.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
@@ -27,8 +28,6 @@ namespace MikuMikuWorld
 		configFile.close();
 
 		version = jsonIO::tryGetValue<std::string>(config, "version", "1.0");
-		if (!version.size())
-			version = "1.0.0";
 
 		if (jsonIO::keyExists(config, "window"))
 		{
@@ -59,17 +58,13 @@ namespace MikuMikuWorld
 
 			useSmoothScrolling = jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
 			smoothScrollingTime = jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 67.0f);
-
-			scrollMode = jsonIO::tryGetValue<std::string>(config["timeline"], "scroll_mode");
-			if (!scrollMode.size())
-				scrollMode = "follow_cursor";
 		}
 
 		if (jsonIO::keyExists(config, "theme"))
 		{
 			accentColor = jsonIO::tryGetValue<int>(config["theme"], "accent_color", 1);
 			userColor = jsonIO::tryGetValue(config["theme"], "user_color", Color{});
-			baseTheme = UI::intToBaseTheme(jsonIO::tryGetValue<int>(config["theme"], "base_theme", 0));
+			baseTheme = (BaseTheme)jsonIO::tryGetValue<int>(config["theme"], "base_theme", 0);
 		}
 
 		if (jsonIO::keyExists(config, "save"))
@@ -89,7 +84,19 @@ namespace MikuMikuWorld
 		if (jsonIO::keyExists(config, "input") && jsonIO::keyExists(config["input"], "bindings"))
 		{
 			for (auto& [key, value] : config["input"]["bindings"].items())
-				keyConfigMap[key] = KeyConfiguration{ key, value };
+			{
+				for (int i = 0; i < sizeof(bindings) / sizeof(MultiInputBinding*); ++i)
+				{
+					if (bindings[i]->name == key)
+					{
+						int keysCount = std::min(value.size(), bindings[i]->bindings.size());
+						for (int k = 0; k < keysCount; ++k)
+							bindings[i]->bindings[k] = FromSerializedString(value[k]);
+
+						bindings[i]->count = keysCount;
+					}
+				}
+			}
 		}
 	}
 
@@ -121,7 +128,6 @@ namespace MikuMikuWorld
 			{"background_brightness", backgroundBrightness},
 			{"smooth_scrolling_enable", useSmoothScrolling},
 			{"smooth_scrolling_time", smoothScrollingTime},
-			{"scroll_mode", scrollMode}
 		};
 
 		config["theme"] = {
@@ -135,7 +141,7 @@ namespace MikuMikuWorld
 				}
 			},
 			{
-				"base_theme", UI::baseThemeToInt(baseTheme)
+				"base_theme", (int)baseTheme
 			}
 		};
 
@@ -151,12 +157,21 @@ namespace MikuMikuWorld
 			{"se_volume", seVolume}
 		};
 
-		json bindings;
-		for (const auto& [_, command] : keyConfigMap)
-			bindings[command.commandName] = command.keyBindings;
+		json keyBindings;
+		for (const auto& binding : bindings)
+		{
+			json keys;
+			for (int k = 0; k < binding->count; ++k)
+			{
+				if (binding->bindings[k].keyCode != ImGuiKey_None)
+					keys.push_back(ToSerializedString(binding->bindings[k]));
+			}
+
+			keyBindings[binding->name] = keys;
+		}
 
 		config["input"] = {
-			{"bindings", bindings}
+			{"bindings", keyBindings}
 		};
 
 		std::wstring wFilename = mbToWideStr(filename);
@@ -183,7 +198,6 @@ namespace MikuMikuWorld
 		backgroundBrightness = 0.5f;
 		useSmoothScrolling = true;
 		smoothScrollingTime = 67.0f;
-		scrollMode = "follow_cursor";
 
 		autoSaveEnabled = true;
 		autoSaveInterval = 5;

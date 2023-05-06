@@ -12,8 +12,7 @@
 
 namespace MikuMikuWorld
 {
-	ImGuiManager::ImGuiManager() :
-		io{ nullptr }, configFilename{ "" }
+	ImGuiManager::ImGuiManager() 
 	{
 
 	}
@@ -25,15 +24,14 @@ namespace MikuMikuWorld
 
 		configFilename = Application::getAppDir() + IMGUI_CONFIG_FILENAME;
 
-		io = &ImGui::GetIO();
-		io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-		io->ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-		io->ConfigWindowsMoveFromTitleBarOnly = true;
-		io->ConfigViewportsNoDefaultParent = false;
-		io->ConfigViewportsNoAutoMerge = true;
-		io->ConfigViewportsNoDecoration = false;
-		io->KeyRepeatRate = 0.15f;
-		io->IniFilename = configFilename.c_str();
+		ImGuiIO& io = ImGui::GetIO();
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		io.ConfigWindowsMoveFromTitleBarOnly = true;
+		io.ConfigViewportsNoDefaultParent = false;
+		io.ConfigViewportsNoAutoMerge = true;
+		io.ConfigViewportsNoDecoration = false;
+		io.IniFilename = configFilename.c_str();
 
 		if (!ImGui_ImplGlfw_InitForOpenGL(window, true))
 			return Result(ResultStatus::Error, "Failed to initialize ImGui GLFW implementation.");
@@ -53,28 +51,29 @@ namespace MikuMikuWorld
 	void ImGuiManager::setBaseTheme(BaseTheme theme)
 	{
 		ImGuiStyle* style = &ImGui::GetStyle();
-		style->FramePadding.x = 4;
-		style->FramePadding.y = 2;
-		style->ItemSpacing.x = 3;
-		style->ItemSpacing.y = 4;
-		style->WindowPadding.x = 8;
-		style->WindowRounding = 4;
-		style->WindowBorderSize = 1;
-		style->FrameBorderSize = 0;
-		style->FrameRounding = 0.5f;
-		style->ScrollbarRounding = 2;
-		style->ChildRounding = 1;
-		style->PopupRounding = 2;
-		style->GrabRounding = 0.5f;
-		style->TabRounding = 1;
-		style->ScrollbarSize = 14;
+		style->FramePadding.x		= 4;
+		style->FramePadding.y		= 2;
+		style->ItemSpacing.x		= 3;
+		style->ItemSpacing.y		= 4;
+		style->WindowPadding.x		= 8;
+		style->WindowRounding		= 4;
+		style->WindowBorderSize		= 1;
+		style->FrameBorderSize		= 0;
+		style->FrameRounding		= 0.5f;
+		style->ScrollbarRounding	= 8;
+		style->ChildRounding		= 1;
+		style->PopupRounding		= 2;
+		style->GrabRounding			= 0.5f;
+		style->TabRounding			= 1;
+		style->ScrollbarSize		= 14;
 
 		style->AntiAliasedLines = true;
 		style->AntiAliasedFill = true;
 
 		ImVec4* colors = style->Colors;
 
-		if (theme == BaseTheme::LIGHT) {
+		if (theme == BaseTheme::LIGHT)
+		{
 			ImGui::StyleColorsLight();
 			colors[ImGuiCol_Text] = ImVec4(0.05f, 0.05f, 0.05f, 1.00f);
 			colors[ImGuiCol_WindowBg] = ImVec4(1.0f, 1.0f, 1.0f, 1.00f);
@@ -109,7 +108,8 @@ namespace MikuMikuWorld
 			colors[ImGuiCol_TableRowBg] = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
 			colors[ImGuiCol_TableRowBgAlt] = ImVec4(0.91f, 0.91f, 0.91f, 1.00f);
 		}
-		else {
+		else
+		{
 			ImGui::StyleColorsDark();
 			colors[ImGuiCol_WindowBg] = ImVec4(0.196f, 0.196f, 0.196f, 1.00f);
 			colors[ImGuiCol_Border] = ImVec4(0.10f, 0.10f, 0.10f, 0.85f);
@@ -144,12 +144,7 @@ namespace MikuMikuWorld
 			colors[ImGuiCol_TableRowBgAlt] = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
 		}
 
-		baseTheme = theme;
-	}
-
-	BaseTheme ImGuiManager::getBaseTheme() const
-	{
-		return baseTheme;
+		this->theme = theme;
 	}
 
 	void ImGuiManager::shutdown()
@@ -157,7 +152,6 @@ namespace MikuMikuWorld
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
-		io = nullptr;
 	}
 
 	void ImGuiManager::begin()
@@ -184,20 +178,20 @@ namespace MikuMikuWorld
 	void ImGuiManager::loadFont(const std::string& filename, float size)
 	{
 		if (File::exists(filename))
-			io->Fonts->AddFontFromFileTTF(filename.c_str(), size, NULL, io->Fonts->GetGlyphRangesChineseFull());
+			ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), size, NULL, ImGui::GetIO().Fonts->GetGlyphRangesChineseFull());
 	}
 
 	void ImGuiManager::loadIconFont(const std::string& filename, int start, int end, float size)
 	{
-		if (File::exists(filename))
-		{
-			ImFontConfig fontConfig;
-			fontConfig.MergeMode = true;
-			fontConfig.GlyphMinAdvanceX = 13.0f;
-			static const ImWchar iconRanges[] = { start, end, 0 };
+		if (!File::exists(filename))
+			return;
 
-			io->Fonts->AddFontFromFileTTF(filename.c_str(), size, &fontConfig, iconRanges);
-		}
+		ImFontConfig fontConfig;
+		fontConfig.MergeMode = true;
+		fontConfig.GlyphMinAdvanceX = 13.0f;
+		static const ImWchar iconRanges[] = { start, end, 0 };
+
+		ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), size, &fontConfig, iconRanges);
 	}
 
 	void ImGuiManager::initializeLayout()
@@ -248,7 +242,7 @@ namespace MikuMikuWorld
 	void ImGuiManager::applyAccentColor(int colIndex)
 	{
 		ImVec4* colors = ImGui::GetStyle().Colors;
-		const ImVec4 color = UI::accentColors[colIndex].color;
+		const ImVec4 color = UI::accentColors[colIndex];
 		const ImVec4 darkColor = generateDarkColor(color);
 		const ImVec4 lightColor = generateHighlightColor(color);
 
@@ -261,10 +255,5 @@ namespace MikuMikuWorld
 		colors[ImGuiCol_CheckMark] = color;
 
 		accentColor = colIndex;
-	}
-
-	int ImGuiManager::getAccentColor() const
-	{
-		return accentColor;
 	}
 }

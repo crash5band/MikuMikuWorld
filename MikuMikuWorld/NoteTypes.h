@@ -54,7 +54,7 @@ namespace MikuMikuWorld
 	constexpr const char* easeTypes[]
 	{
 		"none",
-		"in",
-		"out"
+		"ease_in",
+		"ease_out"
 	};
 }

@@ -4,6 +4,7 @@
 #include "HistoryManager.h"
 #include "Audio/AudioManager.h"
 #include "Jacket.h"
+#include "TimelineMode.h"
 #include <unordered_set>
 
 namespace MikuMikuWorld
@@ -66,6 +67,9 @@ namespace MikuMikuWorld
 			return holds;
 		}
 
+		bool selectionHasEase() const;
+		bool selectionHasStep() const;
+		bool selectionHasFlickable() const;
 		inline bool isNoteSelected(const Note& note) { return selectedNotes.find(note.ID) != selectedNotes.end(); }
 		inline void selectAll() { selectedNotes.clear(); for (auto& it : score.notes) selectedNotes.insert(it.first); }
 		inline void clearSelection() { selectedNotes.clear(); }
@@ -80,6 +84,7 @@ namespace MikuMikuWorld
 		void cutSelection();
 		void copySelection();
 		void paste(bool flip);
+		void shrinkSelection(ShrinkDirection direction);
 
 		void undo();
 		void redo();

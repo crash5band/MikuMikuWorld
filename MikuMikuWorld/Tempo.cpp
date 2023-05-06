@@ -1,4 +1,5 @@
 #include "Tempo.h"
+#include "Score.h"
 #include "Constants.h"
 
 namespace MikuMikuWorld

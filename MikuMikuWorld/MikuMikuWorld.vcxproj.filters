@@ -35,12 +35,6 @@
     <ClCompile Include="Utilities.cpp">
       <Filter>Misc</Filter>
     </ClCompile>
-    <ClCompile Include="Math.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
-    <ClCompile Include="InputListener.cpp">
-      <Filter>IO</Filter>
-    </ClCompile>
     <ClCompile Include="Note.cpp">
       <Filter>Score\Notes</Filter>
     </ClCompile>
@@ -96,12 +90,6 @@
     <ClCompile Include="ImGui\imgui_demo.cpp">
       <Filter>Imgui</Filter>
     </ClCompile>
-    <ClCompile Include="Color.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Dialogs.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="PresetManager.cpp">
       <Filter>Presets</Filter>
     </ClCompile>
@@ -141,15 +129,6 @@
     <ClCompile Include="..\Depends\stb_vorbis\stb_vorbis.c">
       <Filter>Audio\Lib</Filter>
     </ClCompile>
-    <ClCompile Include="Commands\Command.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="Commands\CommandKeyParser.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="Commands\CommandManager.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
     <ClCompile Include="SusParser.cpp">
       <Filter>Score\SUS</Filter>
     </ClCompile>
@@ -171,8 +150,14 @@
     <ClCompile Include="HistoryManager.cpp">
       <Filter>ScoreEditor</Filter>
     </ClCompile>
-    <ClCompile Include="jsonIO.cpp">
+    <ClCompile Include="JsonIO.cpp">
       <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="InputBinding.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Math.cpp">
+      <Filter>Misc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -219,16 +204,10 @@
     <ClInclude Include="ResourceManager.h">
       <Filter>IO</Filter>
     </ClInclude>
-    <ClInclude Include="Math.h">
-      <Filter>Math</Filter>
-    </ClInclude>
     <ClInclude Include="Tempo.h">
       <Filter>Score</Filter>
     </ClInclude>
     <ClInclude Include="Constants.h" />
-    <ClInclude Include="InputListener.h">
-      <Filter>IO</Filter>
-    </ClInclude>
     <ClInclude Include="ScoreEditor.h">
       <Filter>ScoreEditor</Filter>
     </ClInclude>
@@ -278,9 +257,6 @@
     <ClInclude Include="Audio\SoundSource.h">
       <Filter>Audio</Filter>
     </ClInclude>
-    <ClInclude Include="ScoreEvents.h">
-      <Filter>Score</Filter>
-    </ClInclude>
     <ClInclude Include="ImGuiManager.h">
       <Filter>UI</Filter>
     </ClInclude>
@@ -292,9 +268,6 @@
     </ClInclude>
     <ClInclude Include="DefaultLanguage.h">
       <Filter>UI\i18n</Filter>
-    </ClInclude>
-    <ClInclude Include="Color.h">
-      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Result.h">
       <Filter>Misc</Filter>
@@ -347,21 +320,6 @@
     <ClInclude Include="Audio\miniaudio.h">
       <Filter>Audio\Lib</Filter>
     </ClInclude>
-    <ClInclude Include="Commands\Command.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="Commands\CommandManager.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="Commands\CommandKey.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="Commands\CommandKeyParser.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="KeyNames.h">
-      <Filter>IO</Filter>
-    </ClInclude>
     <ClInclude Include="SusParser.h">
       <Filter>Score\SUS</Filter>
     </ClInclude>
@@ -389,8 +347,14 @@
     <ClInclude Include="JsonIO.h">
       <Filter>IO</Filter>
     </ClInclude>
+    <ClInclude Include="InputBinding.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Math.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
     <ClInclude Include="TimelineMode.h">
-      <Filter>Score</Filter>
+      <Filter>ScoreEditor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -408,9 +372,6 @@
     </Filter>
     <Filter Include="Score\Notes">
       <UniqueIdentifier>{e98c2efa-9545-4859-8f61-46e311d17416}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Math">
-      <UniqueIdentifier>{66454ca1-1915-4c0b-9b62-d5dd815f024e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Rendering">
       <UniqueIdentifier>{84bd1600-f676-4951-9eac-806c31068b2b}</UniqueIdentifier>
@@ -441,9 +402,6 @@
     </Filter>
     <Filter Include="Audio\Lib">
       <UniqueIdentifier>{85856c44-1a6c-4a5c-ba83-d119dc2aa064}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Commands">
-      <UniqueIdentifier>{b4f18122-a436-41b5-a8e8-964292f6ae7b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics">
       <UniqueIdentifier>{63566ecb-df58-439e-89a0-c59239fb9ca5}</UniqueIdentifier>

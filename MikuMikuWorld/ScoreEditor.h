@@ -14,6 +14,8 @@ namespace MikuMikuWorld
 		ScorePropertiesWindow propertiesWindow{};
 		ScoreOptionsWindow optionsWindow{};
 		PresetsWindow presetsWindow{};
+		SettingsWindow settingsWindow{};
+		AboutDialog aboutDialog{};
 
 		std::string exportComment;
 

@@ -13,7 +13,7 @@ namespace MikuMikuWorld
 		InsertBPM,
 		InsertTimeSign,
 		InsertHiSpeed,
-		TimelineToolMax
+		TimelineModeMax
 	};
 
 	constexpr const char* timelineModes[]
@@ -46,6 +46,14 @@ namespace MikuMikuWorld
 		TimeSignature,
 		HiSpeed,
 		Skill,
-		Fever
+		Fever,
+		EventTypeMax
+	};
+
+	enum class ShrinkDirection
+	{
+		Down,
+		Up,
+		ShrinkDirectionMax
 	};
 }

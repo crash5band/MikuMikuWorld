@@ -4,6 +4,7 @@
 #include "Constants.h"
 #include "Utilities.h"
 #include "Application.h"
+#include "ApplicationConfiguration.h"
 
 namespace MikuMikuWorld
 {
@@ -42,10 +43,9 @@ namespace MikuMikuWorld
 			{
 				context.audio.changeBGM(filename);
 			}
-			else if (filePickResult == 2)
+			else if (filePickResult == 2 && FileDialog::openFile(filename, FileType::AudioFile) && filename != context.workingData.musicFilename)
 			{
-				if (FileDialog::openFile(filename, FileType::AudioFile) && filename != context.workingData.musicFilename)
-					context.audio.changeBGM(filename);
+				context.audio.changeBGM(filename);
 			}
 
 			float offset = context.workingData.musicOffset;
@@ -320,6 +320,265 @@ namespace MikuMikuWorld
 			ImGui::EndPopup();
 		}
 
+		return DialogResult::None;
+	}
+
+	void SettingsWindow::updateKeyConfig(MultiInputBinding* bindings[], int count)
+	{
+		ImVec2 size = ImVec2(-1, ImGui::GetContentRegionAvail().y * 0.7);
+		const ImGuiTableFlags tableFlags =
+			ImGuiTableFlags_BordersOuter
+			| ImGuiTableFlags_BordersInnerH
+			| ImGuiTableFlags_ScrollY
+			| ImGuiTableFlags_RowBg;
+
+		const ImGuiSelectableFlags selectionFlags = ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap;
+		int rowHeight = ImGui::GetFrameHeight() + 5;
+
+		if (ImGui::BeginTable("##commands_table", 2, tableFlags, size))
+		{
+			ImGui::TableSetupColumn(getString("action"));
+			ImGui::TableSetupColumn(getString("keys"));
+			for (int i = 0; i < count; ++i)
+			{
+				ImGui::TableNextRow(0, rowHeight);
+
+				ImGui::TableSetColumnIndex(0);
+				ImGui::PushID(i);
+				if (ImGui::Selectable(getString(bindings[i]->name), i == selectedBindingIndex, selectionFlags))
+					selectedBindingIndex = i;
+
+				ImGui::PopID();
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text(ToFullShortcutsString(*bindings[i]).c_str());
+			}
+			ImGui::EndTable();
+		}
+		ImGui::Separator();
+
+		if (selectedBindingIndex > -1 && selectedBindingIndex < count)
+		{
+			int deleteBinding = -1;
+			const bool canAdd = bindings[selectedBindingIndex]->count < 4;
+
+			UI::beginPropertyColumns();
+			ImGui::Text(getString(bindings[selectedBindingIndex]->name));
+			ImGui::NextColumn();
+
+			if (!canAdd)
+				UI::beginNextItemDisabled();
+
+			if (ImGui::Button(getString("add"), ImVec2(-1, UI::btnSmall.y)))
+				bindings[selectedBindingIndex]->addBinding(InputBinding{});
+
+			if (!canAdd)
+				UI::endNextItemDisabled();
+
+			UI::endPropertyColumns();
+
+			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5, 5));
+			ImGui::BeginChild("##binding_keys_edit_window", ImVec2(-1, -1), true);
+			for (int b = 0; b < bindings[selectedBindingIndex]->count; ++b)
+			{
+				ImGui::PushID(b);
+
+				std::string buttonText;
+				std::string cmdText = ToShortcutString(bindings[selectedBindingIndex]->bindings[b]);
+
+				buttonText = listeningForInput && editBindingIndex == b ? getString("cmd_key_listen") : cmdText;
+				if (ImGui::Button(buttonText.c_str(), ImVec2(ImGui::GetContentRegionAvail().x - 105, UI::btnSmall.y)))
+				{
+					listeningForInput = true;
+					inputTimer.reset();
+					editBindingIndex = b;
+				}
+
+				ImGui::SameLine();
+				if (ImGui::Button(getString("remove"), ImVec2(100, UI::btnSmall.y)))
+					deleteBinding = b;
+
+				ImGui::PopID();
+			}
+			ImGui::EndChild();
+			ImGui::PopStyleVar();
+			ImGui::PopStyleColor();
+
+			if (deleteBinding > -1)
+			{
+				listeningForInput = false;
+				bindings[selectedBindingIndex]->removeAt(deleteBinding);
+			}
+		}
+
+		if (listeningForInput)
+		{
+			if (inputTimer.elapsed() >= inputTimeoutSeconds)
+			{
+				listeningForInput = false;
+				editBindingIndex = -1;
+			}
+			else
+			{
+				for (ImGuiKey key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_MouseLeft; ++key)
+				{
+					bool isCtrl = key == ImGuiKey_LeftCtrl || key == ImGuiKey_RightCtrl || key == ImGuiKey_ModCtrl;
+					bool isShift = key == ImGuiKey_LeftShift || key == ImGuiKey_RightShift || key == ImGuiKey_ModShift;
+					bool isAlt = key == ImGuiKey_LeftAlt || key == ImGuiKey_RightAlt || key == ImGuiKey_ModAlt;
+					bool isSuper = key == ImGuiKey_LeftSuper || key == ImGuiKey_RightSuper || key == ImGuiKey_ModSuper;
+
+					// execute if a non-modifier key is tapped
+					if (ImGui::IsKeyPressed(key) && !isCtrl && !isShift && !isAlt && !isSuper)
+					{
+						bindings[selectedBindingIndex]->bindings[editBindingIndex] = InputBinding{ (uint16_t)key, (uint8_t)ImGui::GetIO().KeyMods };
+						listeningForInput = false;
+						editBindingIndex = -1;
+					}
+				}
+			}
+		}
+	}
+
+	DialogResult SettingsWindow::update()
+	{
+		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+		ImGui::SetNextWindowSize(ImVec2(750, 600), ImGuiCond_Always);
+		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 10));
+
+		if (ImGui::BeginPopupModal(MODAL_TITLE("settings"), NULL, ImGuiWindowFlags_NoResize))
+		{
+			ImVec2 padding = ImGui::GetStyle().WindowPadding;
+			ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
+			ImVec2 confirmBtnPos = ImGui::GetWindowSize() + ImVec2(-100, -UI::btnNormal.y) - padding;
+			ImGui::BeginChild("##settings_panel", ImGui::GetContentRegionAvail() - ImVec2(0, UI::btnNormal.y + padding.y));
+
+			if (ImGui::BeginTabBar("##settings_tabs"))
+			{
+				if (ImGui::BeginTabItem(getString("general")))
+				{
+					if (ImGui::CollapsingHeader(getString("auto_save"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						UI::beginPropertyColumns();
+						UI::addCheckboxProperty(getString("auto_save_enable"), config.autoSaveEnabled);
+						UI::addIntProperty(getString("auto_save_interval"), config.autoSaveInterval);
+						UI::addIntProperty(getString("auto_save_count"), config.autoSaveMaxCount);
+						UI::endPropertyColumns();
+					}
+
+					if (ImGui::CollapsingHeader(getString("theme"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						UI::beginPropertyColumns();
+						UI::addSelectProperty(getString("base_theme"), config.baseTheme, baseThemes, (int)BaseTheme::BASE_THEME_MAX);
+						UI::endPropertyColumns();
+
+						ImGui::TextWrapped(getString("accent_color_help"));
+						ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
+						ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.5f);
+
+						for (int i = 0; i < UI::accentColors.size(); ++i)
+						{
+							bool apply = false;
+							std::string id = i == config.accentColor ? ICON_FA_CHECK : i == 0 ? "C" : "##" + std::to_string(i);
+							ImGui::PushStyleColor(ImGuiCol_Button, UI::accentColors[i]);
+							ImGui::PushStyleColor(ImGuiCol_ButtonHovered, UI::accentColors[i]);
+							ImGui::PushStyleColor(ImGuiCol_ButtonActive, UI::accentColors[i]);
+
+							apply = ImGui::Button(id.c_str(), UI::btnNormal);
+
+							ImGui::PopStyleColor(3);
+
+							if ((i < UI::accentColors.size() - 1) && ImGui::GetCursorPosX() < ImGui::GetWindowSize().x - UI::btnNormal.x - 50.0f)
+								ImGui::SameLine();
+
+							if (apply)
+								config.accentColor = i;
+						}
+						ImGui::PopStyleVar(2);
+
+						ImVec4& customColor = UI::accentColors[0];
+						float col[]{ customColor.x, customColor.y, customColor.z };
+						static ColorDisplay displayMode = ColorDisplay::HEX;
+
+						ImGui::Separator();
+						ImGui::Text(getString("select_accent_color"));
+						UI::beginPropertyColumns();
+						UI::propertyLabel(getString("display_mode"));
+						if (ImGui::BeginCombo("##color_display_mode", colorDisplayStr[(int)displayMode]))
+						{
+							for (int i = 0; i < 3; ++i)
+							{
+								const bool selected = (int)displayMode == i;
+								if (ImGui::Selectable(colorDisplayStr[i], selected))
+									displayMode = (ColorDisplay)i;
+							}
+
+							ImGui::EndCombo();
+						}
+						ImGui::NextColumn();
+						UI::propertyLabel(getString("custom_color"));
+
+						ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
+						ImGuiColorEditFlags flags = 1 << (20 + (int)displayMode);
+						if (ImGui::ColorEdit3("##custom_accent_color", col, flags))
+						{
+							customColor.x = col[0];
+							customColor.y = col[1];
+							customColor.z = col[2];
+						}
+
+						UI::endPropertyColumns();
+						ImGui::PopStyleVar();
+					}
+
+					if (ImGui::CollapsingHeader(getString("video"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						if (ImGui::Checkbox(getString("vsync_enable"), &Application::windowState.vsync))
+							glfwSwapInterval((int)Application::windowState.vsync);
+					}
+
+					ImGui::EndTabItem();
+				}
+
+				if (ImGui::BeginTabItem(getString("timeline")))
+				{
+					if (ImGui::CollapsingHeader(getString("timeline"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						UI::beginPropertyColumns();
+						UI::addSliderProperty(getString("lane_width"), config.timelineWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
+						UI::addCheckboxProperty(getString("use_smooth_scroll"), config.useSmoothScrolling);
+						UI::addSliderProperty(getString("smooth_scroll_time"), config.smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
+						UI::endPropertyColumns();
+					}
+
+					if (ImGui::CollapsingHeader(getString("background"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						UI::beginPropertyColumns();
+						UI::addPercentSliderProperty(getString("background_brightnes"), config.backgroundBrightness);
+						UI::addPercentSliderProperty(getString("lanes_opacity"), config.laneOpacity);
+						UI::endPropertyColumns();
+					}
+
+					ImGui::EndTabItem();
+				}
+
+				if (ImGui::BeginTabItem(getString("key_config")))
+				{
+					updateKeyConfig(bindings, sizeof(bindings) / sizeof(MultiInputBinding*));
+					ImGui::EndTabItem();
+				}
+			}
+			ImGui::EndTabBar();
+
+			ImGui::EndChild();
+			ImGui::SetCursorPos(confirmBtnPos);
+			if (ImGui::Button("OK", ImVec2(100, UI::btnNormal.y - 5)))
+				ImGui::CloseCurrentPopup();
+
+			ImGui::EndPopup();
+		}
+
+		ImGui::PopStyleVar();
 		return DialogResult::None;
 	}
 }

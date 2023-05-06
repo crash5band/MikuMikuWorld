@@ -12,11 +12,10 @@ namespace MikuMikuWorld
 	class ImGuiManager
 	{
 	private:
-		ImGuiIO* io;
-		std::string configFilename;
-
-		int accentColor;
-		BaseTheme baseTheme;
+		std::string configFilename{};
+		
+		BaseTheme theme{};
+		int accentColor{ 1 };
 
 	public:
 		ImGuiManager();
@@ -30,9 +29,9 @@ namespace MikuMikuWorld
 		void draw(GLFWwindow* window);
 
 		void setBaseTheme(BaseTheme theme);
-		BaseTheme getBaseTheme() const;
-
 		void applyAccentColor(int colIndex);
-		int getAccentColor() const;
+
+		inline constexpr BaseTheme getBaseTheme() const { return theme; }
+		inline constexpr int getAccentColor() const { return accentColor; }
 	};
 }

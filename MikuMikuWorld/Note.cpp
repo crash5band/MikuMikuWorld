@@ -19,11 +19,6 @@ namespace MikuMikuWorld
 
 	}
 
-	NoteType Note::getType() const
-	{
-		return type;
-	}
-
 	bool Note::isFlick() const
 	{
 		return flick != FlickType::None && type != NoteType::Hold && type != NoteType::HoldMid;
@@ -32,16 +27,6 @@ namespace MikuMikuWorld
 	bool Note::hasEase() const
 	{
 		return type == NoteType::Hold || type == NoteType::HoldMid;
-	}
-
-	void Note::setLane(int l)
-	{
-		lane = std::clamp(l, MIN_LANE, MAX_LANE - width + 1);
-	}
-
-	void Note::setWidth(int w)
-	{
-		width = std::clamp(w, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH - lane);
 	}
 
 	void resetNextID()

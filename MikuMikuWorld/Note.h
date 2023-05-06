@@ -26,17 +26,13 @@ namespace MikuMikuWorld
 		Note(NoteType _type);
 		Note();
 
-		NoteType getType() const;
+		inline constexpr NoteType getType() const { return type; }
+
 		bool isFlick() const;
 		bool hasEase() const;
 
 		void setLane(int l);
 		void setWidth(int w);
-
-		inline bool operator<(const Note& other)
-		{
-			return tick < other.tick;
-		}
 	};
 
 	struct HoldStep

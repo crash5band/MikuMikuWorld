@@ -6,7 +6,6 @@
 #include "Rendering/Renderer.h"
 #include "TimelineMode.h"
 #include "Background.h"
-#include "Color.h"
 
 namespace MikuMikuWorld
 {
@@ -22,8 +21,6 @@ namespace MikuMikuWorld
 		float unitHeight = 0.15f;
 
 		float scrollStartY;
-		float smoothScrollTime = 48;
-		bool useSmoothScrolling = true;
 		bool mouseInTimeline;
 
 		float noteControlWidth = 12;
@@ -121,6 +118,8 @@ namespace MikuMikuWorld
 		void insertEvent(ScoreContext& context, EditArgs& edit);
 
 		void updateNoteSE(ScoreContext& context);
+
+		void contextMenu(ScoreContext& context);
 
 	public:
 		float laneWidth = 26;

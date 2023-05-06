@@ -29,10 +29,8 @@ namespace MikuMikuWorld
 		GLFWwindow* window;
 		std::unique_ptr<ScoreEditor> editor;
 		std::unique_ptr<ImGuiManager> imgui;
-		ApplicationConfiguration config;
 
 		UnsavedChangesDialog unsavedChangesDialog;
-		AboutDialog aboutDialog;
 
 		float lastFrame;
 		float frameDelta;

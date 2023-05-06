@@ -1,7 +1,6 @@
 #pragma once
 #include "Note.h"
 #include "Tempo.h"
-#include "ScoreEvents.h"
 #include <string>
 #include <map>
 #include <unordered_map>
@@ -9,6 +8,26 @@
 
 namespace MikuMikuWorld
 {
+	extern int nextSkillID;
+
+	struct SkillTrigger
+	{
+		int ID;
+		int tick;
+	};
+
+	struct Fever
+	{
+		int startTick;
+		int endTick;
+	};
+
+	struct HiSpeedChange
+	{
+		int tick;
+		float speed;
+	};
+
 	struct ScoreMetadata
 	{
 		std::string title;

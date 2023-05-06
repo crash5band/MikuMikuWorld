@@ -3,10 +3,10 @@
 #include "UI.h"
 #include "Colors.h"
 #include "ResourceManager.h"
-#include "InputListener.h"
 #include "Tempo.h"
 #include "Utilities.h"
 #include "NoteGraphics.h"
+#include "ApplicationConfiguration.h"
 #include <algorithm>
 
 #undef min
@@ -71,10 +71,10 @@ namespace MikuMikuWorld
 		float x1 = position.y - tickToPosition(tick) + offset;
 
 		zoom = std::clamp(value, MIN_ZOOM, MAX_ZOOM);
+		config.zoom = zoom;
 
 		float x2 = position.y - tickToPosition(tick) + offset;
-		offset += x1 - x2;
-		visualOffset = offset; // prevent jittery movement when zooming
+		visualOffset = offset = std::max(offset + x1 - x2, minOffset); // prevent jittery movement when zooming
 	}
 
 	int ScoreEditorTimeline::snapTickFromPos(float posY)
@@ -172,11 +172,11 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::updateScrollingPosition()
 	{
-		if (useSmoothScrolling)
+		if (config.useSmoothScrolling)
 		{
 			float scrollAmount = offset - visualOffset;
 			float remainingScroll = abs(scrollAmount);
-			float delta = scrollAmount / (smoothScrollTime / (ImGui::GetIO().DeltaTime * 1000));
+			float delta = scrollAmount / (config.smoothScrollingTime / (ImGui::GetIO().DeltaTime * 1000));
 
 			visualOffset += std::min(remainingScroll, delta);
 			remainingScroll = std::max(0.0f, remainingScroll - abs(delta));
@@ -184,6 +184,66 @@ namespace MikuMikuWorld
 		else
 		{
 			visualOffset = offset;
+		}
+	}
+
+	void ScoreEditorTimeline::contextMenu(ScoreContext& context)
+	{
+		if (ImGui::BeginPopupContextWindow(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline")))
+		{
+			if (ImGui::MenuItem(getString("delete"), ToShortcutString(config.input.deleteSelection), false, context.selectedNotes.size()))
+				context.deleteSelection();
+			
+			ImGui::Separator();
+			if (ImGui::MenuItem(getString("cut"), ToShortcutString(config.input.cutSelection), false, context.selectedNotes.size()))
+				context.cutSelection();
+
+			if (ImGui::MenuItem(getString("copy"), ToShortcutString(config.input.copySelection), false, context.selectedNotes.size()))
+				context.copySelection();
+
+			if (ImGui::MenuItem(getString("paste"), ToShortcutString(config.input.paste)))
+				context.paste(false);
+
+			if (ImGui::MenuItem(getString("flip_paste"), ToShortcutString(config.input.flipPaste)))
+				context.paste(true);
+
+			if (ImGui::MenuItem(getString("flip"), ToShortcutString(config.input.flip), false, context.selectedNotes.size()))
+				context.flipSelection();
+
+			const bool hasEase = context.selectionHasEase();
+			const bool hasStep = context.selectionHasStep();
+			const bool hasFlick = context.selectionHasFlickable();
+
+			ImGui::Separator();
+			if (ImGui::BeginMenu(getString("ease_type"), hasEase))
+			{
+				for (int i = 0; i < TXT_ARR_SZ(easeTypes); ++i)
+					if (ImGui::MenuItem(getString(easeTypes[i]))) context.setEase((EaseType)i);
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu(getString("step_type"), hasStep))
+			{
+				for (int i = 0; i < TXT_ARR_SZ(stepTypes); ++i)
+					if (ImGui::MenuItem(getString(stepTypes[i]))) context.setStep((HoldStepType)i);
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu(getString("flick_type"), hasFlick))
+			{
+				for (int i = 0; i < TXT_ARR_SZ(flickTypes); ++i)
+					if (ImGui::MenuItem(getString(flickTypes[i]))) context.setFlick((FlickType)i);
+				ImGui::EndMenu();
+			}
+
+			ImGui::Separator();
+			if (ImGui::MenuItem(getString("shrink_up"), NULL, false, context.selectedNotes.size() > 1))
+				context.shrinkSelection(ShrinkDirection::Up);
+
+			if (ImGui::MenuItem(getString("shrink_down"), NULL, false, context.selectedNotes.size() > 1))
+				context.shrinkSelection(ShrinkDirection::Down);
+
+			ImGui::EndPopup();
 		}
 	}
 
@@ -222,20 +282,22 @@ namespace MikuMikuWorld
 		if (ImGui::IsMouseClicked(0))
 			clickedOnTimeline = mouseInTimeline;
 
+		const ImGuiIO& io = ImGui::GetIO();
+		
+		// get mouse position relative to timeline
+		mousePos = io.MousePos - position;
+		mousePos.y -= offset;
+		float mouseWheelDelta = io.MouseWheel;
+
 		if (mouseInTimeline && !UI::isAnyPopupOpen())
 		{
-			// get mouse position relative to timeline
-			mousePos = ImGui::GetIO().MousePos - position;
-			mousePos.y -= offset;
-
-			float mouseWheelDelta = ImGui::GetIO().MouseWheel;
-			if (InputListener::isCtrlDown())
+			if (io.KeyCtrl)
 			{
 				setZoom(zoom + (mouseWheelDelta * 0.1f));
 			}
 			else
 			{
-				offset += mouseWheelDelta * (InputListener::isShiftDown() ? 300.0f : 100.0f);
+				offset += mouseWheelDelta * (io.KeyShift ? 300.0f : 100.0f);
 			}
 
 			if (!isHoveringNote && !isHoldingNote && !insertingHold && currentMode == TimelineMode::Select)
@@ -244,7 +306,7 @@ namespace MikuMikuWorld
 				if (ImGui::IsMouseClicked(0))
 				{
 					dragStart = mousePos;
-					if (!InputListener::isCtrlDown() && !InputListener::isAltDown() && !ImGui::IsPopupOpen(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline")))
+					if (!io.KeyCtrl && !io.KeyAlt && !ImGui::IsPopupOpen(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline")))
 						context.selectedNotes.clear();
 				}
 
@@ -272,11 +334,11 @@ namespace MikuMikuWorld
 
 			ImVec2 iconPos = ImVec2(position + dragStart);
 			iconPos.y += visualOffset;
-			if (InputListener::isCtrlDown())
+			if (io.KeyCtrl)
 			{
 				drawList->AddText(ImGui::GetFont(), 12, iconPos, 0xdddddddd, ICON_FA_PLUS_CIRCLE);
 			}
-			else if (InputListener::isAltDown())
+			else if (io.KeyAlt)
 			{
 				drawList->AddText(ImGui::GetFont(), 12, iconPos, 0xdddddddd, ICON_FA_MINUS_CIRCLE);
 			}
@@ -289,7 +351,7 @@ namespace MikuMikuWorld
 				float top = std::min(dragStart.y, mousePos.y);
 				float bottom = std::max(dragStart.y, mousePos.y);
 
-				if (!InputListener::isAltDown() && !InputListener::isCtrlDown())
+				if (!io.KeyAlt && !io.KeyCtrl)
 					context.selectedNotes.clear();
 
 				float yThreshold = (notesHeight * 0.5f) + 2.0f;
@@ -301,7 +363,7 @@ namespace MikuMikuWorld
 
 					if (right > x1 && left < x2 && isWithinRange(y, top - yThreshold, bottom + yThreshold))
 					{
-						if (InputListener::isAltDown())
+						if (io.KeyAlt)
 							context.selectedNotes.erase(id);
 						else
 							context.selectedNotes.insert(id);
@@ -315,6 +377,8 @@ namespace MikuMikuWorld
 		// draw measures
 		const float x1 = getTimelineStartX();
 		const float x2 = getTimelineEndX();
+
+		//drawList->AddRectFilled(ImVec2{ x1 - (MEASURE_WIDTH * 2), position.y}, ImVec2{x2 + MEASURE_WIDTH, position.y + size.y}, 0xff202020);
 
 		int firstTick = std::max(0, positionToTick(visualOffset - size.y));
 		int lastTick = positionToTick(visualOffset);
@@ -377,9 +441,10 @@ namespace MikuMikuWorld
 		const float y = position.y - tickToPosition(context.currentTick) + visualOffset;
 		const float triPtOffset = 5.0f;
 		const float triXPos = x1 - (triPtOffset * 2);
-
 		drawList->AddTriangleFilled(ImVec2(triXPos, y - triPtOffset), ImVec2(triXPos, y + triPtOffset), ImVec2(triXPos + (triPtOffset * 2), y), cursorColor);
 		drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), cursorColor, primaryLineThickness + 1.0f);
+
+		contextMenu(context);
 
 		// update hi-speed changes
 		for (int index = 0; index < context.score.hiSpeedChanges.size(); ++index)
@@ -615,8 +680,8 @@ namespace MikuMikuWorld
 	void ScoreEditorTimeline::updateInputNotes(EditArgs& edit)
 	{
 		int lane = laneFromCenterPosition(hoverLane, edit.noteWidth);
-		int tick = hoverTick;
 		int width = edit.noteWidth;
+		int tick = hoverTick;
 
 		inputNotes.tap.lane = lane;
 		inputNotes.tap.width = width;
@@ -873,23 +938,24 @@ namespace MikuMikuWorld
 		ImVec2 noteSz{ laneToPosition(note.lane + note.width) + position.x + 2.0f - btnPosX, notesHeight };
 		ImVec2 sz{ noteControlWidth, notesHeight };
 
+		const ImGuiIO& io = ImGui::GetIO();
 		if (ImGui::IsMouseHoveringRect(pos, pos + noteSz))
 		{
 			isHoveringNote = true;
 
 			float noteYDistance = std::abs((btnPosY + notesHeight / 2 - visualOffset - position.y) - mousePos.y);
-			if (noteYDistance < minNoteYDistance || InputListener::isCtrlDown())
+			if (noteYDistance < minNoteYDistance || io.KeyCtrl)
 			{
 				minNoteYDistance = noteYDistance;
 				hoveringNote = note.ID;
 				if (ImGui::IsMouseClicked(0) && !UI::isAnyPopupOpen())
 				{
-					if (!InputListener::isCtrlDown() && !InputListener::isAltDown() && !context.isNoteSelected(note))
+					if (!io.KeyCtrl && !io.KeyAlt && !context.isNoteSelected(note))
 						context.selectedNotes.clear();
 
 					context.selectedNotes.insert(note.ID);
 
-					if (InputListener::isAltDown() && context.isNoteSelected(note))
+					if (io.KeyAlt && context.isNoteSelected(note))
 						context.selectedNotes.erase(note.ID);
 				}
 			}
@@ -903,7 +969,7 @@ namespace MikuMikuWorld
 			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
 			int diff = curLane - grabLane;
 
-			if (abs(diff) > 0 && curLane >= MIN_LANE && curLane <= MAX_LANE)
+			if (abs(diff) > 0)
 			{
 				bool canResize = true;
 				for (int id : context.selectedNotes)
@@ -926,8 +992,8 @@ namespace MikuMikuWorld
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
-						n.lane += diff;
-						n.width -= diff;
+						n.lane = std::clamp(n.lane + diff, MIN_LANE, MAX_LANE - n.width + 1);
+						n.width = std::clamp(n.width - diff, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH - n.lane);
 					}
 				}
 			}
@@ -968,7 +1034,7 @@ namespace MikuMikuWorld
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
-						n.setLane(n.lane + diff);
+						n.lane = std::clamp(n.lane + diff, MIN_LANE, MAX_LANE - n.width + 1);
 					}
 				}
 			}
@@ -1021,7 +1087,7 @@ namespace MikuMikuWorld
 
 				case TimelineMode::InsertLong:
 				case TimelineMode::InsertLongMid:
-					if (InputListener::isAltDown())
+					if (io.KeyAlt)
 						context.setStep(HoldStepType::Visible);
 					else
 						context.setEase(EaseType::None);
@@ -1045,7 +1111,7 @@ namespace MikuMikuWorld
 			int curLane = positionToLane(mousePos.x);
 
 			int diff = curLane - grabLane;
-			if (abs(diff) > 0 && curLane >= MIN_LANE && curLane <= MAX_LANE)
+			if (abs(diff) > 0)
 			{
 				bool canResize = true;
 				for (int id : context.selectedNotes)
@@ -1067,7 +1133,7 @@ namespace MikuMikuWorld
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
-						n.width += diff;
+						n.width = std::clamp(n.width + diff, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH - n.lane);
 					}
 				}
 			}
@@ -1664,6 +1730,7 @@ namespace MikuMikuWorld
 			background.load(ResourceManager::textures[bgTexIndex]);
 		}
 		background.setBrightness(0.67);
+		setZoom(config.zoom);
 	}
 
 	void ScoreEditorTimeline::togglePlaying(ScoreContext& context)

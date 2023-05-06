@@ -168,6 +168,7 @@ namespace MikuMikuWorld
 		NotesPreset& preset = presets.at(presetId);
 		std::unordered_map<int, Note> notes;
 		std::unordered_map<int, HoldNote> holdNotes;
+		Score prev = context.score;
 
 		if (jsonIO::keyExists(preset.data, "notes") && !preset.data["notes"].is_null())
 		{
@@ -216,11 +217,11 @@ namespace MikuMikuWorld
 						std::string midType = step["type"];
 						std::string midEase = step["ease"];
 						hold.steps.push_back(
-							{
-								mid.ID,
-								(HoldStepType)findArrayItem(midType.c_str(), stepTypes, TXT_ARR_SZ(stepTypes)),
-								(EaseType)findArrayItem(midEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes))
-							});
+						{
+							mid.ID,
+							(HoldStepType)findArrayItem(midType.c_str(), stepTypes, TXT_ARR_SZ(stepTypes)),
+							(EaseType)findArrayItem(midEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes))
+						});
 					}
 				}
 
@@ -235,5 +236,7 @@ namespace MikuMikuWorld
 
 		context.score.notes.insert(notes.begin(), notes.end());
 		context.score.holdNotes.insert(holdNotes.begin(), holdNotes.end());
+
+		context.pushHistory("Insert preset notes", prev, context.score);
 	}
 }

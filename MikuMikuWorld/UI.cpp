@@ -1,7 +1,6 @@
 #include "UI.h"
 #include "Utilities.h"
 #include "Colors.h"
-#include "Commands/Command.h"
 #include "Tempo.h"
 #include "ResourceManager.h"
 #include "TimelineMode.h"
@@ -16,16 +15,15 @@ namespace MikuMikuWorld
 	const ImVec2 UI::toolbarBtnSize{ 28, 28 };
 	char UI::idStr[256];
 
-	std::vector<AccentColor> UI::accentColors{
-		AccentColor{ "User",			ImVec4(0.10f, 0.10f, 0.10f, 1.00f) },
-		AccentColor{ "Default",			ImVec4(0.15f, 0.46f, 0.82f, 1.00f) },
-		AccentColor{ "MikuMikuWorld",	ImVec4(0.19f, 0.75f, 0.62f, 1.00f) },
-		AccentColor{ "Light Music",		ImVec4(0.30f, 0.31f, 0.86f, 1.00f) },
-		AccentColor{ "Idol", 			ImVec4(0.40f, 0.69f, 0.15f, 1.00f) },
-		AccentColor{ "Street", 			ImVec4(0.76f, 0.05f, 0.32f, 1.00f) },
-		AccentColor{ "Theme Park", 		ImVec4(0.81f, 0.45f, 0.06f, 1.00f) },
-		AccentColor{ "School Refusal",	ImVec4(0.50f, 0.25f, 0.55f, 1.00f) },
-		AccentColor{ "Plain",			ImVec4(0.40f, 0.40f, 0.40f, 1.00f) }
+	std::vector<ImVec4> UI::accentColors
+	{
+		ImVec4{ 0.10f, 0.10f, 0.10f, 1.00f }, // User
+		ImVec4{ 0.30f, 0.31f, 0.86f, 1.00f }, // Light Music
+		ImVec4{ 0.40f, 0.69f, 0.15f, 1.00f }, // Idol
+		ImVec4{ 0.76f, 0.05f, 0.32f, 1.00f }, // Street
+		ImVec4{ 0.81f, 0.45f, 0.06f, 1.00f }, // Theme Park
+		ImVec4{ 0.50f, 0.25f, 0.55f, 1.00f }, // School Refusal
+		ImVec4{ 0.40f, 0.40f, 0.40f, 1.00f }  // Plain
 	};
 
 	const char* UI::labelID(const char* label)
@@ -69,14 +67,15 @@ namespace MikuMikuWorld
 
 	bool UI::coloredButton(const char* txt, ImVec2 pos, ImVec2 size, ImU32 col, bool enabled)
 	{
-		//ImVec4 col4 = ImGui::ColorConvertU32ToFloat4(col);
-		//ImVec4 colh = generateHighlightColor(col4);
+		ImVec4 col4 = ImGui::ColorConvertU32ToFloat4(col);
+		ImVec4 colh = generateHighlightColor(col4);
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !enabled);
 		//ImGui::PushStyleColor(ImGuiCol_Button, col4);
 		//ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colh);
 		//ImGui::PushStyleColor(ImGuiCol_ButtonActive, colh);
 		//ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.15f, 0.15f, 0.15f, 1.0));
-		//ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
+		//ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 2.0f);
+		//ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
 		float prevSize = ImGui::GetFont()->FontSize;
 		ImGui::GetFont()->FontSize = 18.0f;
 
@@ -92,7 +91,7 @@ namespace MikuMikuWorld
 
 		bool pressed = ImGui::Button(txt, sz);
 		//ImGui::PopStyleColor(4);
-		//ImGui::PopStyleVar();
+		//ImGui::PopStyleVar(1);
 		ImGui::PopItemFlag();
 		ImGui::GetFont()->FontSize = prevSize;
 		return pressed;
@@ -396,11 +395,11 @@ namespace MikuMikuWorld
 		bool activated = ImGui::Button(icon, UI::toolbarBtnSize);
 
 		std::string tooltipLabel = label;
-		if (shortcut)
-			tooltipLabel.append(" - ") + shortcut;
+		if (shortcut && strlen(shortcut))
+			tooltipLabel.append(" (").append(shortcut).append(")");
 
 		if (tooltipLabel.size())
-			tooltip(label);
+			tooltip(tooltipLabel.c_str());
 
 		if (selected)
 			ImGui::PopStyleColor(2);
@@ -442,12 +441,13 @@ namespace MikuMikuWorld
 		}
 
 		bool activated = ImGui::ImageButton(lblId.c_str(), (void*)ResourceManager::textures[texIndex].getID(), ImVec2{ UI::toolbarBtnSize.x - 4, UI::toolbarBtnSize.y - 4 });
+		
 		std::string tooltipLabel = label;
-		if (shortcut)
-			tooltipLabel.append(" - ") + shortcut;
+		if (shortcut && strlen(shortcut))
+			tooltipLabel.append(" (").append(shortcut).append(")");
 
 		if (tooltipLabel.size())
-			tooltip(label);
+			tooltip(tooltipLabel.c_str());
 
 		if (selected)
 			ImGui::PopStyleColor(2);
@@ -471,45 +471,15 @@ namespace MikuMikuWorld
 		ImGui::SameLine();
 	}
 
-	void UI::contextMenuItem(const char* icon, Command& command)
+	void UI::beginNextItemDisabled()
 	{
-		if (ImGui::MenuItem(concat(icon, command.getDisplayName().c_str(), "\t").c_str(), command.getKeysString(0).c_str(), false, command.canExecute()))
-			command.execute();
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
 	}
 
-	std::string UI::baseThemeToStr(BaseTheme theme)
+	void UI::endNextItemDisabled()
 	{
-		switch (theme) {
-		case(BaseTheme::DARK):
-			return getString("theme_dark");
-		case(BaseTheme::LIGHT):
-			return getString("theme_light");
-		default:
-			throw std::runtime_error("Unreachable");
-		}
-	}
-
-	int UI::baseThemeToInt(BaseTheme theme)
-	{
-		switch (theme) {
-		case(BaseTheme::DARK):
-			return 0;
-		case(BaseTheme::LIGHT):
-			return 1;
-		default:
-			throw std::runtime_error("Unreachable");
-		}
-	}
-
-	BaseTheme UI::intToBaseTheme(int theme)
-	{
-		switch (theme) {
-		case(0):
-			return BaseTheme::DARK;
-		case(1):
-			return BaseTheme::LIGHT;
-		default:
-			throw std::runtime_error("Unreachable");
-		}
+		ImGui::PopStyleVar();
+		ImGui::PopItemFlag();
 	}
 }

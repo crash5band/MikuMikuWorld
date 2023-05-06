@@ -21,8 +21,8 @@ namespace MikuMikuWorld
 	constexpr float MIN_ZOOM		= 0.25f;
 	constexpr float MAX_ZOOM		= 30.0f;
 	constexpr float MEASURE_WIDTH	= 30.0f;
-	constexpr int MIN_LANE_WIDTH	= 30;
-	constexpr int MAX_LANE_WIDTH	= 40;
+	constexpr int MIN_LANE_WIDTH	= 24;
+	constexpr int MAX_LANE_WIDTH	= 36;
 	constexpr int MIN_NOTES_HEIGHT	= 30;
 	constexpr int MAX_NOTES_HEIGHT	= 60;
 	constexpr float MIN_BPM			= 10;
@@ -47,7 +47,8 @@ namespace MikuMikuWorld
 	constexpr const char* SE_CRITICAL_CONNECT	= "critical_connect";
 	constexpr const char* SE_CRITICAL_TICK		= "critical_tick";
 
-	constexpr const char* SE_NAMES[] = {
+	constexpr const char* SE_NAMES[] = 
+	{
 		SE_PERFECT,
 		SE_GREAT,
 		SE_GOOD,

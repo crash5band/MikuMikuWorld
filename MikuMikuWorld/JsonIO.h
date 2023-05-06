@@ -1,6 +1,5 @@
 #pragma once
 #include "Math.h"
-#include "Color.h"
 #include "Score.h"
 #include <json.hpp>
 #include <unordered_set>

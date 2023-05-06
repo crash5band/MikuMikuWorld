@@ -1,6 +1,8 @@
 #pragma once
 #include "PresetManager.h"
 #include "ScoreEditorTimeline.h"
+#include "Stopwatch.h"
+#include "InputBinding.h"
 
 namespace MikuMikuWorld
 {
@@ -42,6 +44,15 @@ namespace MikuMikuWorld
 
 	class SettingsWindow
 	{
+	private:
+		Stopwatch inputTimer;
+		const int inputTimeoutSeconds = 5;
+		bool listeningForInput = false;
+		int editBindingIndex = -1;
+		int selectedBindingIndex = 0;
+
+		void updateKeyConfig(MultiInputBinding* bindings[], int count);
+
 	public:
 		bool open = false;
 		DialogResult update();
@@ -60,8 +71,6 @@ namespace MikuMikuWorld
 	{
 	public:
 		bool open = false;
-		inline void close() { ImGui::CloseCurrentPopup(); open = false; }
-
 		DialogResult update();
 	};
 }

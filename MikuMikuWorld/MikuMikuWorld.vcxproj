@@ -170,11 +170,6 @@
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="BinaryReader.cpp" />
     <ClCompile Include="BinaryWriter.cpp" />
-    <ClCompile Include="Color.cpp" />
-    <ClCompile Include="Commands\Command.cpp" />
-    <ClCompile Include="Commands\CommandKeyParser.cpp" />
-    <ClCompile Include="Commands\CommandManager.cpp" />
-    <ClCompile Include="Dialogs.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="FileDialog.cpp" />
     <ClCompile Include="HistoryManager.cpp" />
@@ -187,9 +182,9 @@
     <ClCompile Include="ImGui\imgui_stdlib.cpp" />
     <ClCompile Include="ImGui\imgui_tables.cpp" />
     <ClCompile Include="ImGui\imgui_widgets.cpp" />
-    <ClCompile Include="InputListener.cpp" />
+    <ClCompile Include="InputBinding.cpp" />
     <ClCompile Include="Jacket.cpp" />
-    <ClCompile Include="jsonIO.cpp" />
+    <ClCompile Include="JsonIO.cpp" />
     <ClCompile Include="Language.cpp" />
     <ClCompile Include="Localization.cpp" />
     <ClCompile Include="main.cpp" />
@@ -231,12 +226,7 @@
     <ClInclude Include="BinaryReader.h" />
     <ClInclude Include="BinaryWriter.h" />
     <ClInclude Include="ChannelProvider.h" />
-    <ClInclude Include="Color.h" />
     <ClInclude Include="Colors.h" />
-    <ClInclude Include="Commands\Command.h" />
-    <ClInclude Include="Commands\CommandKey.h" />
-    <ClInclude Include="Commands\CommandKeyParser.h" />
-    <ClInclude Include="Commands\CommandManager.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DefaultLanguage.h" />
     <ClInclude Include="File.h" />
@@ -253,10 +243,9 @@
     <ClInclude Include="ImGui\imstb_rectpack.h" />
     <ClInclude Include="ImGui\imstb_textedit.h" />
     <ClInclude Include="ImGui\imstb_truetype.h" />
-    <ClInclude Include="InputListener.h" />
+    <ClInclude Include="InputBinding.h" />
     <ClInclude Include="Jacket.h" />
     <ClInclude Include="JsonIO.h" />
-    <ClInclude Include="KeyNames.h" />
     <ClInclude Include="Language.h" />
     <ClInclude Include="Localization.h" />
     <ClInclude Include="Math.h" />
@@ -284,7 +273,6 @@
     <ClInclude Include="ScoreConverter.h" />
     <ClInclude Include="ScoreEditorTimeline.h" />
     <ClInclude Include="ScoreEditorWindows.h" />
-    <ClInclude Include="ScoreEvents.h" />
     <ClInclude Include="ScoreStats.h" />
     <ClInclude Include="Stopwatch.h" />
     <ClInclude Include="StringOperations.h" />
