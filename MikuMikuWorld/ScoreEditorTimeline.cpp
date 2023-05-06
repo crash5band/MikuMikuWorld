@@ -1153,13 +1153,13 @@ namespace MikuMikuWorld
 		float endX2 = laneToPosition(n2.lane + n2.width + offsetLane);
 		float endY = getNoteYPosFromTick(n2.tick + offsetTick);
 
-		int texIndex = ResourceManager::getTexture(n1.critical ? HOLD_PATH_CRTCL_TEX : HOLD_PATH_TEX);
+		const int texIndex = ResourceManager::getTexture(n1.critical ? HOLD_PATH_CRTCL_TEX : HOLD_PATH_TEX);
 		if (texIndex == -1)
 			return;
 
-		Texture& pathTex = ResourceManager::textures[texIndex];
+		const Texture& pathTex = ResourceManager::textures[texIndex];
 
-		float steps = std::ceilf(abs((endY - startY)) / 10);
+		float steps = std::max(15.0f, std::ceilf(abs((endY - startY)) / 10));
 		for (int y = 0; y < steps; ++y)
 		{
 			const float percent1 = y / steps;
