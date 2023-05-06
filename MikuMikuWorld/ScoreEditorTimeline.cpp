@@ -87,6 +87,23 @@ namespace MikuMikuWorld
 		return std::clamp(lane - (width / 2), MIN_LANE, MAX_LANE - width + 1);
 	}
 
+	void ScoreEditorTimeline::focusCursor(ScoreContext& context, Direction direction)
+	{
+		float cursorY = tickToPosition(context.currentTick);
+		if (direction == Direction::Down)
+		{
+			float timelineOffset = size.y * (1.0f - config.cursorPositionThreshold);
+			if (cursorY <= offset - timelineOffset)
+				offset = cursorY + timelineOffset;
+		}
+		else
+		{
+			float timelineOffset = size.y * config.cursorPositionThreshold;
+			if (cursorY >= offset - timelineOffset)
+				offset = cursorY + timelineOffset;
+		}
+	}
+
 	void ScoreEditorTimeline::updateScrollbar()
 	{
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
@@ -238,10 +255,10 @@ namespace MikuMikuWorld
 
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("shrink_up"), NULL, false, context.selectedNotes.size() > 1))
-				context.shrinkSelection(ShrinkDirection::Up);
+				context.shrinkSelection(Direction::Up);
 
 			if (ImGui::MenuItem(getString("shrink_down"), NULL, false, context.selectedNotes.size() > 1))
-				context.shrinkSelection(ShrinkDirection::Down);
+				context.shrinkSelection(Direction::Down);
 
 			ImGui::EndPopup();
 		}
@@ -579,11 +596,11 @@ namespace MikuMikuWorld
 			context.currentTick = accumulateTicks(time, TICKS_PER_BEAT, context.score.tempoChanges);
 
 			float cursorY = tickToPosition(context.currentTick);
-			if (playbackAutoScroll)
+			if (config.followCursorInPlayback)
 			{
-				float halfTimelineHeight = size.y * 0.5f;
-				if (cursorY >= offset - halfTimelineHeight)
-					visualOffset = offset = cursorY + halfTimelineHeight;
+				float timelineOffset = size.y * (1.0f - config.cursorPositionThreshold);
+				if (cursorY >= offset - timelineOffset)
+					visualOffset = offset = cursorY + timelineOffset;
 			}
 			else if (cursorY > offset)
 			{
@@ -687,6 +704,7 @@ namespace MikuMikuWorld
 		inputNotes.tap.width = width;
 		inputNotes.tap.tick = tick;
 		inputNotes.tap.flick = currentMode == TimelineMode::InsertFlick ? edit.flickType : FlickType::None;
+		inputNotes.tap.critical = currentMode == TimelineMode::MakeCritical;
 
 		inputNotes.holdStep.lane = lane;
 		inputNotes.holdStep.width = width;
@@ -1617,11 +1635,13 @@ namespace MikuMikuWorld
 	void ScoreEditorTimeline::previousTick(ScoreContext& context)
 	{
 		context.currentTick = std::max(roundTickDown(context.currentTick, division) - (TICKS_PER_BEAT / (division / 4)), 0);
+		focusCursor(context, Direction::Down);
 	}
 
 	void ScoreEditorTimeline::nextTick(ScoreContext& context)
 	{
 		context.currentTick = roundTickDown(context.currentTick, division) + (TICKS_PER_BEAT / (division / 4));
+		focusCursor(context, Direction::Up);
 	}
 
 	int ScoreEditorTimeline::roundTickDown(int tick, int division)
@@ -1746,6 +1766,11 @@ namespace MikuMikuWorld
 		}
 		else
 		{
+			if (config.returnToLastSelectedTickOnPause)
+			{
+				context.currentTick = lastSelectedTick;
+			}
+
 			context.audio.stopSounds(false);
 			context.audio.stopBGM();
 		}

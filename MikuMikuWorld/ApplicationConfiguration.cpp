@@ -49,7 +49,7 @@ namespace MikuMikuWorld
 
 		if (jsonIO::keyExists(config, "timeline"))
 		{
-			timelineWidth = jsonIO::tryGetValue<int>(config["timeline"], "lane_width", 30);
+			timelineWidth = jsonIO::tryGetValue<int>(config["timeline"], "lane_width", 26);
 			notesHeight = jsonIO::tryGetValue<int>(config["timeline"], "notes_height", 35);
 			division = jsonIO::tryGetValue<int>(config["timeline"], "division", 8);
 			zoom = jsonIO::tryGetValue<float>(config["timeline"], "zoom", 2.0f);
@@ -58,6 +58,9 @@ namespace MikuMikuWorld
 
 			useSmoothScrolling = jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
 			smoothScrollingTime = jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 67.0f);
+
+			returnToLastSelectedTickOnPause = jsonIO::tryGetValue<bool>(config["timeline"], "return_to_last_tick_on_pause", false);
+			cursorPositionThreshold = jsonIO::tryGetValue<float>(config["timeline"], "cursor_position_threshold", 0.7f);
 		}
 
 		if (jsonIO::keyExists(config, "theme"))
@@ -128,6 +131,8 @@ namespace MikuMikuWorld
 			{"background_brightness", backgroundBrightness},
 			{"smooth_scrolling_enable", useSmoothScrolling},
 			{"smooth_scrolling_time", smoothScrollingTime},
+			{"return_to_last_tick_on_pause", returnToLastSelectedTickOnPause},
+			{"cursor_position_threshold", cursorPositionThreshold}
 		};
 
 		config["theme"] = {
@@ -140,9 +145,7 @@ namespace MikuMikuWorld
 					{"a", userColor.a}
 				}
 			},
-			{
-				"base_theme", (int)baseTheme
-			}
+			{ "base_theme", (int)baseTheme }
 		};
 
 		config["save"] = {
@@ -198,6 +201,9 @@ namespace MikuMikuWorld
 		backgroundBrightness = 0.5f;
 		useSmoothScrolling = true;
 		smoothScrollingTime = 67.0f;
+		cursorPositionThreshold = 0.7;
+		followCursorInPlayback = true;
+		returnToLastSelectedTickOnPause = false;
 
 		autoSaveEnabled = true;
 		autoSaveInterval = 5;

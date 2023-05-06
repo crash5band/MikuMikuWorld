@@ -546,8 +546,14 @@ namespace MikuMikuWorld
 					{
 						UI::beginPropertyColumns();
 						UI::addSliderProperty(getString("lane_width"), config.timelineWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
+						ImGui::Separator();
+
 						UI::addCheckboxProperty(getString("use_smooth_scroll"), config.useSmoothScrolling);
 						UI::addSliderProperty(getString("smooth_scroll_time"), config.smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
+						ImGui::Separator();
+
+						UI::addCheckboxProperty("Cursor Auto Scroll While Playing", config.followCursorInPlayback);
+						UI::addPercentSliderProperty("Cursor Auto Scroll Percentage From Timeline", config.cursorPositionThreshold);
 						UI::endPropertyColumns();
 					}
 

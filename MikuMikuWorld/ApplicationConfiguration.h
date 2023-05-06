@@ -59,6 +59,8 @@ namespace MikuMikuWorld
 		float backgroundBrightness;
 		bool useSmoothScrolling;
 		float smoothScrollingTime;
+		float cursorPositionThreshold;
+		bool returnToLastSelectedTickOnPause;
 		bool followCursorInPlayback;
 		bool autoSaveEnabled;
 		int autoSaveInterval;

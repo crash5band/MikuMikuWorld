@@ -84,7 +84,7 @@ namespace MikuMikuWorld
 		void cutSelection();
 		void copySelection();
 		void paste(bool flip);
-		void shrinkSelection(ShrinkDirection direction);
+		void shrinkSelection(Direction direction);
 
 		void undo();
 		void redo();

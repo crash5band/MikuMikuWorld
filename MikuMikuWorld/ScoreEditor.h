@@ -18,6 +18,7 @@ namespace MikuMikuWorld
 		AboutDialog aboutDialog{};
 
 		std::string exportComment;
+		bool showImGuiDemoWindow;
 
 		bool save(std::string filename);
 

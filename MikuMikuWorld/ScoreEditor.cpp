@@ -117,6 +117,9 @@ namespace MikuMikuWorld
 			presetsWindow.update(context, presetManager);
 		}
 		ImGui::End();
+
+		if (showImGuiDemoWindow)
+			ImGui::ShowDemoWindow(&showImGuiDemoWindow);
 	}
 
 	void ScoreEditor::create()
@@ -310,7 +313,7 @@ namespace MikuMikuWorld
 		if (ImGui::BeginMenu(getString("view")))
 		{
 			ImGui::MenuItem(getString("show_step_outlines"), NULL, &timeline.drawHoldStepOutlines);
-			ImGui::MenuItem(getString("playback_auto_scroll"), NULL, &timeline.playbackAutoScroll);
+			ImGui::MenuItem(getString("playback_auto_scroll"), NULL, &config.followCursorInPlayback);
 
 			ImGui::EndMenu();
 		}
@@ -319,6 +322,8 @@ namespace MikuMikuWorld
 		{
 			if (ImGui::MenuItem(getString("vsync"), NULL, &config.vsync))
 				glfwSwapInterval(config.vsync);
+
+			ImGui::MenuItem("ImGui Demo Window", NULL, &showImGuiDemoWindow);
 
 			ImGui::EndMenu();
 		}

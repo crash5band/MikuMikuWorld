@@ -50,10 +50,10 @@ namespace MikuMikuWorld
 		EventTypeMax
 	};
 
-	enum class ShrinkDirection
+	enum class Direction
 	{
 		Down,
 		Up,
-		ShrinkDirectionMax
+		DirectionMax
 	};
 }

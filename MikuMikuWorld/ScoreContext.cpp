@@ -356,7 +356,7 @@ namespace MikuMikuWorld
 			pushHistory("Paste notes", prev, score);
 	}
 
-	void ScoreContext::shrinkSelection(ShrinkDirection direction)
+	void ScoreContext::shrinkSelection(Direction direction)
 	{
 		if (selectedNotes.size() < 2)
 			return;
@@ -373,7 +373,7 @@ namespace MikuMikuWorld
 		);
 
 		int factor = 1; // tick increment/decrement amount
-		if (direction == ShrinkDirection::Up)
+		if (direction == Direction::Up)
 		{
 			// start from the last note
 			std::reverse(sortedSelection.begin(), sortedSelection.end());

@@ -124,7 +124,6 @@ namespace MikuMikuWorld
 	public:
 		float laneWidth = 26;
 		float notesHeight = 28;
-		bool playbackAutoScroll = true;
 		bool drawHoldStepOutlines = true;
 		TimelineMode currentMode;
 		Background background;
@@ -178,6 +177,7 @@ namespace MikuMikuWorld
 		void previousTick(ScoreContext& context);
 		void nextTick(ScoreContext& context);
 		int roundTickDown(int tick, int division);
+		void focusCursor(ScoreContext& context, Direction direction);
 	
 		constexpr inline bool isPasting() const { return pasting || flipPasting; }
 
