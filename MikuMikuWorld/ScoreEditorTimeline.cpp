@@ -858,6 +858,7 @@ namespace MikuMikuWorld
 	{
 		ImGui::SetCursorScreenPos(pos);
 		ImGui::InvisibleButton(id, sz);
+		ImGui::SetItemAllowOverlap();
 		if (ImGui::IsItemHovered())
 			ImGui::SetMouseCursor(cursor);
 
@@ -939,7 +940,7 @@ namespace MikuMikuWorld
 		ImVec2 sz{ noteControlWidth, notesHeight };
 
 		const ImGuiIO& io = ImGui::GetIO();
-		if (ImGui::IsMouseHoveringRect(pos, pos + noteSz))
+		if (ImGui::IsMouseHoveringRect(pos, pos + noteSz, false) && mouseInTimeline)
 		{
 			isHoveringNote = true;
 
