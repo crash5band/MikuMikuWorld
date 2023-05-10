@@ -1769,6 +1769,7 @@ namespace MikuMikuWorld
 			if (config.returnToLastSelectedTickOnPause)
 			{
 				context.currentTick = lastSelectedTick;
+				offset = std::max(minOffset, tickToPosition(context.currentTick) + (size.y * (1.0f - config.cursorPositionThreshold)));
 			}
 
 			context.audio.stopSounds(false);
@@ -1783,6 +1784,8 @@ namespace MikuMikuWorld
 
 		context.audio.stopSounds(false);
 		context.audio.stopBGM();
+		
+		offset = std::max(minOffset, tickToPosition(context.currentTick) + (size.y * (1.0f - config.cursorPositionThreshold)));
 	}
 
 	void ScoreEditorTimeline::updateNoteSE(ScoreContext& context)

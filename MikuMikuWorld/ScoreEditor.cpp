@@ -314,6 +314,7 @@ namespace MikuMikuWorld
 		{
 			ImGui::MenuItem(getString("show_step_outlines"), NULL, &timeline.drawHoldStepOutlines);
 			ImGui::MenuItem(getString("playback_auto_scroll"), NULL, &config.followCursorInPlayback);
+			ImGui::MenuItem(getString("return_to_last_tick"), NULL, &config.returnToLastSelectedTickOnPause);
 
 			ImGui::EndMenu();
 		}
