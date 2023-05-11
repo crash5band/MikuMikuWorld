@@ -337,58 +337,35 @@ namespace MikuMikuWorld
 		updateScrollingPosition();
 
 		// selection rectangle
-		if (dragging)
+		// draw selection rectangle after notes are rendered
+		if (dragging && ImGui::IsMouseReleased(0))
 		{
-			float startX = std::min(position.x + dragStart.x, position.x + mousePos.x);
-			float endX = std::max(position.x + dragStart.x, position.x + mousePos.x);
-			float startY = std::min(position.y + dragStart.y, position.y + mousePos.y) + visualOffset;
-			float endY = std::max(position.y + dragStart.y, position.y + mousePos.y) + visualOffset;
-			ImVec2 start{ startX, startY };
-			ImVec2 end{ endX, endY };
+			// calculate drag selection
+			float left = std::min(dragStart.x, mousePos.x);
+			float right = std::max(dragStart.x, mousePos.x);
+			float top = std::min(dragStart.y, mousePos.y);
+			float bottom = std::max(dragStart.y, mousePos.y);
 
-			drawList->AddRectFilled(start, end, selectionColor1);
-			drawList->AddRect(start, end, 0xbbcccccc, 0.2f, ImDrawFlags_RoundCornersAll, 1.0f);
+			if (!io.KeyAlt && !io.KeyCtrl)
+				context.selectedNotes.clear();
 
-			ImVec2 iconPos = ImVec2(position + dragStart);
-			iconPos.y += visualOffset;
-			if (io.KeyCtrl)
+			float yThreshold = (notesHeight * 0.5f) + 2.0f;
+			for (const auto& [id, note] : context.score.notes)
 			{
-				drawList->AddText(ImGui::GetFont(), 12, iconPos, 0xdddddddd, ICON_FA_PLUS_CIRCLE);
-			}
-			else if (io.KeyAlt)
-			{
-				drawList->AddText(ImGui::GetFont(), 12, iconPos, 0xdddddddd, ICON_FA_MINUS_CIRCLE);
-			}
+				float x1 = laneToPosition(note.lane);
+				float x2 = laneToPosition(note.lane + note.width);
+				float y = -tickToPosition(note.tick);
 
-			if (ImGui::IsMouseReleased(0))
-			{
-				// calculate drag selection
-				float left = std::min(dragStart.x, mousePos.x);
-				float right = std::max(dragStart.x, mousePos.x);
-				float top = std::min(dragStart.y, mousePos.y);
-				float bottom = std::max(dragStart.y, mousePos.y);
-
-				if (!io.KeyAlt && !io.KeyCtrl)
-					context.selectedNotes.clear();
-
-				float yThreshold = (notesHeight * 0.5f) + 2.0f;
-				for (const auto& [id, note] : context.score.notes)
+				if (right > x1 && left < x2 && isWithinRange(y, top - yThreshold, bottom + yThreshold))
 				{
-					float x1 = laneToPosition(note.lane);
-					float x2 = laneToPosition(note.lane + note.width);
-					float y = -tickToPosition(note.tick);
-
-					if (right > x1 && left < x2 && isWithinRange(y, top - yThreshold, bottom + yThreshold))
-					{
-						if (io.KeyAlt)
-							context.selectedNotes.erase(id);
-						else
-							context.selectedNotes.insert(id);
-					}
+					if (io.KeyAlt)
+						context.selectedNotes.erase(id);
+					else
+						context.selectedNotes.insert(id);
 				}
-
-				dragging = false;
 			}
+
+			dragging = false;
 		}
 
 		// draw measures
@@ -535,6 +512,30 @@ namespace MikuMikuWorld
 
 			drawList->AddRectFilled(p1, p2, 0x20f4f4f4, 2.0f, ImDrawFlags_RoundCornersAll);
 			drawList->AddRect(p1, p2, 0xcccccccc, 2.0f, ImDrawFlags_RoundCornersAll, 2.0f);
+		}
+
+		if (dragging)
+		{
+			float startX = std::min(position.x + dragStart.x, position.x + mousePos.x);
+			float endX = std::max(position.x + dragStart.x, position.x + mousePos.x);
+			float startY = std::min(position.y + dragStart.y, position.y + mousePos.y) + visualOffset;
+			float endY = std::max(position.y + dragStart.y, position.y + mousePos.y) + visualOffset;
+			ImVec2 start{ startX, startY };
+			ImVec2 end{ endX, endY };
+
+			drawList->AddRectFilled(start, end, selectionColor1);
+			drawList->AddRect(start, end, 0xbbcccccc, 0.2f, ImDrawFlags_RoundCornersAll, 1.0f);
+
+			ImVec2 iconPos = ImVec2(position + dragStart);
+			iconPos.y += visualOffset;
+			if (io.KeyCtrl)
+			{
+				drawList->AddText(ImGui::GetFont(), 12, iconPos, 0xdddddddd, ICON_FA_PLUS_CIRCLE);
+			}
+			else if (io.KeyAlt)
+			{
+				drawList->AddText(ImGui::GetFont(), 12, iconPos, 0xdddddddd, ICON_FA_MINUS_CIRCLE);
+			}
 		}
 
 		drawList->PopClipRect();
