@@ -50,6 +50,9 @@ namespace MikuMikuWorld
 				Application::windowState.shouldPickScore = true;
 			}
 
+			if (ImGui::IsAnyPressed(config.input.openSettings)) settingsWindow.open = true;
+			if (ImGui::IsAnyPressed(config.input.openHelp)) ShellExecuteW(0, 0, L"https://github.com/crash5band/MikuMikuWorld/wiki", 0, 0, SW_SHOW);
+
 			if (ImGui::IsAnyPressed(config.input.save)) trySave(context.workingData.filename);
 			if (ImGui::IsAnyPressed(config.input.saveAs)) saveAs();
 			if (ImGui::IsAnyPressed(config.input.exportSus)) exportSus();
@@ -65,6 +68,12 @@ namespace MikuMikuWorld
 			if (ImGui::IsAnyPressed(config.input.flip)) context.flipSelection();
 			if (ImGui::IsAnyPressed(config.input.undo)) context.undo();
 			if (ImGui::IsAnyPressed(config.input.redo)) context.redo();
+			if (ImGui::IsAnyPressed(config.input.zoomOut, true)) timeline.setZoom(timeline.getZoom() - 0.25f);
+			if (ImGui::IsAnyPressed(config.input.zoomIn, true)) timeline.setZoom(timeline.getZoom() + 0.25f);
+			if (ImGui::IsAnyPressed(config.input.decreaseNoteSize, true)) edit.noteWidth = std::clamp(edit.noteWidth - 1, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
+			if (ImGui::IsAnyPressed(config.input.increaseNoteSize, true)) edit.noteWidth = std::clamp(edit.noteWidth + 1, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
+			if (ImGui::IsAnyPressed(config.input.shrinkDown)) context.shrinkSelection(Direction::Down);
+			if (ImGui::IsAnyPressed(config.input.shrinkUp)) context.shrinkSelection(Direction::Up);
 
 			for (int i = 0; i < (int)TimelineMode::TimelineModeMax; ++i)
 				if (ImGui::IsAnyPressed(*timelineModeBindings[i])) timeline.currentMode = (TimelineMode)i;
@@ -272,7 +281,7 @@ namespace MikuMikuWorld
 				exportSus();
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(getString("exit")))
+			if (ImGui::MenuItem(getString("exit"), ToShortcutString(ImGuiKey_F4, ImGuiKeyModFlags_Alt)))
 				Application::windowState.closing = true;
 
 			ImGui::EndMenu();
@@ -304,7 +313,7 @@ namespace MikuMikuWorld
 				context.selectAll();
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(getString("settings")))
+			if (ImGui::MenuItem(getString("settings"), ToShortcutString(config.input.openSettings)))
 				settingsWindow.open = true;
 
 			ImGui::EndMenu();
@@ -331,7 +340,7 @@ namespace MikuMikuWorld
 
 		if (ImGui::BeginMenu(getString("help")))
 		{
-			if (ImGui::MenuItem(getString("help")))
+			if (ImGui::MenuItem(getString("help"), ToShortcutString(config.input.openHelp)))
 				ShellExecuteW(0, 0, L"https://github.com/crash5band/MikuMikuWorld/wiki", 0, 0, SW_SHOW);
 
 			if (ImGui::MenuItem(getString("about")))
@@ -357,10 +366,15 @@ namespace MikuMikuWorld
 		ImGui::SetNextWindowViewport(viewport->ID);
 		ImGui::SetNextWindowPos(viewport->WorkPos);
 		ImGui::SetNextWindowSize(toolbarSize, ImGuiCond_Always);
-		ImGui::Begin("##app_toolbar", NULL, ImGuiWindowFlags_Toolbar);
 
-		// make buttons transparent
+		// toolbar style
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
+		ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_NavWindowingHighlight));
+		ImGui::PushStyleColor(ImGuiCol_Separator, ImGui::GetStyleColorVec4(ImGuiCol_WindowBg));
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarBg));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		ImGui::Begin("##app_toolbar", NULL, ImGuiWindowFlags_Toolbar);
 		
 		if (UI::toolbarButton(ICON_FA_FILE, getString("new"), ToShortcutString(config.input.create)))
 		{
@@ -406,7 +420,8 @@ namespace MikuMikuWorld
 				timeline.currentMode = (TimelineMode)i;
 		}
 
-		ImGui::PopStyleColor();
+		ImGui::PopStyleColor(4);
+		ImGui::PopStyleVar(2);
 		ImGui::End();
 	}
 }
