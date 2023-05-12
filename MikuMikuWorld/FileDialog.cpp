@@ -1,5 +1,5 @@
 #include "FileDialog.h"
-#include "StringOperations.h"
+#include "IO.h"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -10,15 +10,15 @@
 
 #include <Windows.h>
 
-namespace MikuMikuWorld
+namespace IO
 {
 	const wchar_t* FileDialog::getExtensionFromType(FileType type)
 	{
 		switch (type)
 		{
-		case MikuMikuWorld::FileType::MMWSFile:
+		case FileType::MMWSFile:
 			return L".mmws";
-		case MikuMikuWorld::FileType::SUSFile:
+		case FileType::SUSFile:
 			return L".sus";
 		default:
 			return L"";

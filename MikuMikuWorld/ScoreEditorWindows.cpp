@@ -10,7 +10,7 @@ namespace MikuMikuWorld
 {
 	void ScorePropertiesWindow::update(ScoreContext& context)
 	{
-		if (ImGui::CollapsingHeader(concat(ICON_FA_ALIGN_LEFT, getString("metadata"), " ").c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+		if (ImGui::CollapsingHeader(IO::concat(ICON_FA_ALIGN_LEFT, getString("metadata"), " ").c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			UI::beginPropertyColumns();
 			UI::addStringProperty(getString("title"), context.workingData.title);
@@ -26,14 +26,14 @@ namespace MikuMikuWorld
 			else if (result == 2)
 			{
 				std::string name;
-				if (FileDialog::openFile(name, FileType::ImageFile))
+				if (IO::FileDialog::openFile(name, IO::FileType::ImageFile))
 					context.workingData.jacket.load(name);
 			}
 			context.workingData.jacket.draw();
 			UI::endPropertyColumns();
 		}
 
-		if (ImGui::CollapsingHeader(concat(ICON_FA_VOLUME_UP, getString("audio"), " ").c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+		if (ImGui::CollapsingHeader(IO::concat(ICON_FA_VOLUME_UP, getString("audio"), " ").c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			UI::beginPropertyColumns();
 
@@ -43,7 +43,7 @@ namespace MikuMikuWorld
 			{
 				context.audio.changeBGM(filename);
 			}
-			else if (filePickResult == 2 && FileDialog::openFile(filename, FileType::AudioFile) && filename != context.workingData.musicFilename)
+			else if (filePickResult == 2 && IO::FileDialog::openFile(filename, IO::FileType::AudioFile) && filename != context.workingData.musicFilename)
 			{
 				context.audio.changeBGM(filename);
 			}
@@ -76,7 +76,7 @@ namespace MikuMikuWorld
 				context.audio.setSEVolume(se);
 		}
 
-		if (ImGui::CollapsingHeader(concat(ICON_FA_CHART_BAR, getString("statistics"), " ").c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+		if (ImGui::CollapsingHeader(IO::concat(ICON_FA_CHART_BAR, getString("statistics"), " ").c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			UI::beginPropertyColumns();
 			UI::addReadOnlyProperty(getString("taps"), context.scoreStats.getTaps());
@@ -128,7 +128,7 @@ namespace MikuMikuWorld
 			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
 			float filterWidth = ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2;
 
-			presetFilter.Draw("##preset_filter", concat(ICON_FA_SEARCH, getString("search"), " ").c_str(), filterWidth);
+			presetFilter.Draw("##preset_filter", IO::concat(ICON_FA_SEARCH, getString("search"), " ").c_str(), filterWidth);
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_FA_TIMES, UI::btnSmall))
 				presetFilter.Clear();

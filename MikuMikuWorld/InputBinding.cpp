@@ -1,8 +1,8 @@
 #include "InputBinding.h"
 #include "ImGui/imgui.h"
-#include "StringOperations.h"
+#include "IO.h"
 
-using MikuMikuWorld::trim, MikuMikuWorld::split;
+using IO::trim, IO::split;
 
 struct ImGuiKeyInfo
 {

@@ -2,7 +2,7 @@
 #include "Constants.h"
 #include "ImGui/imgui.h"
 #include "Localization.h"
-#include "StringOperations.h"
+#include "IO.h"
 #include <Windows.h>
 #include <ctime>
 
@@ -28,7 +28,7 @@ namespace MikuMikuWorld
 		wL = wL.substr(0, wL.find_first_of(L"-"));
 
 		delete[] lpLocalName;
-		return wideStringToMb(wL);
+		return IO::wideStringToMb(wL);
 	}
 
 	std::string Utilities::getDivisionString(int div)

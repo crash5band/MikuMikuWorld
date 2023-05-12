@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-namespace MikuMikuWorld
+namespace IO
 {
 	class File
 	{

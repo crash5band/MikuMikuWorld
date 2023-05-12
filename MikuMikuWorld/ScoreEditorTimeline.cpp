@@ -578,7 +578,7 @@ namespace MikuMikuWorld
 		int hiSpeed = findHighSpeedChange(context.currentTick, context.score.hiSpeedChanges);
 		float speed = (hiSpeed == -1 ? 1.0f : context.score.hiSpeedChanges[hiSpeed].speed);
 
-		ImGui::Text(formatString(
+		ImGui::Text(IO::formatString(
 			"  %02d:%02d:%02d  |  %d/%d  |  %g BPM  |  %gx",
 			(int)time / 60, (int)time % 60, (int)((time - (int)time) * 100),
 			ts.numerator, ts.denominator,
@@ -1463,13 +1463,13 @@ namespace MikuMikuWorld
 	bool ScoreEditorTimeline::bpmControl(float bpm, int tick, bool enabled)
 	{
 		Vector2 pos{ getTimelineEndX() + 5, position.y - tickToPosition(tick) + visualOffset };
-		return eventControl(getTimelineEndX(), pos, tempoColor, formatString("%g BPM", bpm).c_str(), enabled);
+		return eventControl(getTimelineEndX(), pos, tempoColor, IO::formatString("%g BPM", bpm).c_str(), enabled);
 	}
 
 	bool ScoreEditorTimeline::timeSignatureControl(int numerator, int denominator, int tick, bool enabled)
 	{
 		Vector2 pos{ getTimelineEndX() + 70, position.y - tickToPosition(tick) + visualOffset };
-		return eventControl(getTimelineEndX(), pos, timeColor, formatString("%d/%d", numerator, denominator).c_str(), enabled);
+		return eventControl(getTimelineEndX(), pos, timeColor, IO::formatString("%d/%d", numerator, denominator).c_str(), enabled);
 	}
 
 	bool ScoreEditorTimeline::skillControl(const SkillTrigger& skill)
@@ -1507,7 +1507,7 @@ namespace MikuMikuWorld
 
 	bool ScoreEditorTimeline::hiSpeedControl(int tick, float speed)
 	{
-		std::string txt = formatString("%.2fx", speed);
+		std::string txt = IO::formatString("%.2fx", speed);
 		Vector2 pos{ getTimelineEndX() + 110, position.y - tickToPosition(tick) + visualOffset };
 		return eventControl(getTimelineEndX(), pos, speedColor, txt.c_str(), true);
 	}

@@ -1,6 +1,8 @@
 #include "SusParser.h"
-#include "StringOperations.h"
+#include "IO.h"
 #include "File.h"
+
+using namespace IO;
 
 namespace MikuMikuWorld
 {

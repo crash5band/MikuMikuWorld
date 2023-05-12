@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace MikuMikuWorld
+namespace IO
 {
 	enum class FileType
 	{

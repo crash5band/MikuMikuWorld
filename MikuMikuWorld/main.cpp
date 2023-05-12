@@ -1,9 +1,8 @@
 #include "Application.h"
-#include "StringOperations.h"
+#include "IO.h"
 #include "UI.h"
 #include <iostream>
 #include <Windows.h>
-#include <tinyfiledialogs.h>
 
 namespace mmw = MikuMikuWorld;
 
@@ -14,11 +13,11 @@ int main()
 	args = CommandLineToArgvW(GetCommandLineW(), &argc);
 	if (!args)
 	{
-		tinyfd_messageBox(APP_NAME, "Could not parse command line arguments", "ok", "error", 1);
+		IO::messageBox(APP_NAME, "CommandLineToArgvW failed...", IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 		return 1;
 	}
 
-	std::string dir = mmw::File::getFilepath(mmw::wideStringToMb(args[0]));
+	std::string dir = IO::File::getFilepath(IO::wideStringToMb(args[0]));
 	mmw::Application app(dir);
 
 	try
@@ -26,12 +25,12 @@ int main()
 		mmw::Result result = app.initialize();
 		if (!result.isOk())
 		{
-			tinyfd_messageBox(APP_NAME, result.getMessage().c_str(), "ok", "error", 1);
+			IO::messageBox(APP_NAME, result.getMessage(), IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 			return 1;
 		}
 
 		for (int i = 1; i < argc; ++i)
-			app.appendOpenFile(mmw::wideStringToMb(args[i]));
+			app.appendOpenFile(IO::wideStringToMb(args[i]));
 		
 		app.handlePendingOpenFiles();
 		app.run();
@@ -40,7 +39,7 @@ int main()
 	{
 		std::string msg = "An unhandled exception has occured and the application will now close.\n";
 		msg.append(ex.what());
-		tinyfd_messageBox(APP_NAME, msg.c_str(), "ok", "error", 1);
+		IO::messageBox(APP_NAME, msg, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 	}
 
 	app.dispose();

@@ -1,14 +1,43 @@
 #pragma once
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <stdexcept>
 #include <memory>
 
-namespace MikuMikuWorld
+namespace IO
 {
-    constexpr const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	enum class MessageBoxButtons : uint8_t
+	{
+		Ok,
+		OkCancel,
+		YesNo,
+		YesNoCancel
+	};
 
-    char* reverse(char* str);
+	enum class MessageBoxIcon : uint8_t
+	{
+		None,
+		Information,
+		Warning,
+		Error,
+		Question
+	};
+
+	enum class MessageBoxResult : uint8_t
+	{
+		None,
+		Abort,
+		Cancel,
+		Ignore,
+		No,
+		Yes,
+		Ok
+	};
+
+	constexpr const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+	char* reverse(char* str);
 	char* tostringBaseN(char* buff, long long num, int base);
 	bool isComment(const std::string& line, const std::string& delim);
 	bool startsWith(const std::string& line, const std::string& key);
@@ -34,4 +63,6 @@ namespace MikuMikuWorld
 
 		return std::string(buf.get());
 	}
+
+	MessageBoxResult messageBox(std::string title, std::string message, MessageBoxButtons buttons, MessageBoxIcon icon, void* parentWindow = NULL);
 }

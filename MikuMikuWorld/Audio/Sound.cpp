@@ -1,5 +1,5 @@
 #include "Sound.h"
-#include "../StringOperations.h"
+#include "../IO.h"
 
 namespace MikuMikuWorld
 {
@@ -27,7 +27,7 @@ namespace MikuMikuWorld
 
 	void Sound::init(const std::string& path, ma_engine* engine, ma_sound_group* group, bool loop)
 	{
-		std::wstring wPath = mbToWideStr(path);
+		std::wstring wPath = IO::mbToWideStr(path);
 		for (int i = 0; i < sources.size(); ++i)
 		{
 			sources[i] = SoundSource();

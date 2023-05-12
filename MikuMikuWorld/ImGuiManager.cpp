@@ -59,11 +59,11 @@ namespace MikuMikuWorld
 		style->WindowRounding		= 4;
 		style->WindowBorderSize		= 1;
 		style->FrameBorderSize		= 0;
-		style->FrameRounding		= 0.5f;
+		style->FrameRounding		= 1;
 		style->ScrollbarRounding	= 8;
-		style->ChildRounding		= 1;
+		style->ChildRounding		= 2;
 		style->PopupRounding		= 2;
-		style->GrabRounding			= 0.5f;
+		style->GrabRounding			= 1;
 		style->TabRounding			= 1;
 		style->ScrollbarSize		= 14;
 
@@ -177,13 +177,13 @@ namespace MikuMikuWorld
 
 	void ImGuiManager::loadFont(const std::string& filename, float size)
 	{
-		if (File::exists(filename))
+		if (IO::File::exists(filename))
 			ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), size, NULL, ImGui::GetIO().Fonts->GetGlyphRangesChineseFull());
 	}
 
 	void ImGuiManager::loadIconFont(const std::string& filename, int start, int end, float size)
 	{
-		if (!File::exists(filename))
+		if (!IO::File::exists(filename))
 			return;
 
 		ImFontConfig fontConfig;

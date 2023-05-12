@@ -4,13 +4,13 @@
 #include "ImGui/imgui_internal.h"
 #include "IconsFontAwesome5.h"
 #include "Localization.h"
-#include "StringOperations.h"
+#include "IO.h"
 #include <vector>
 
 #define APP_NAME "MikuMikuWorld"
 
-#define IMGUI_TITLE(icon, title) concat(icon, getString(title), " ").c_str()
-#define MODAL_TITLE(title) concat(APP_NAME, getString(title), " - ").c_str()
+#define IMGUI_TITLE(icon, title) IO::concat(icon, getString(title), " ").c_str()
+#define MODAL_TITLE(title) IO::concat(APP_NAME, getString(title), " - ").c_str()
 
 namespace MikuMikuWorld
 {

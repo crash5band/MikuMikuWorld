@@ -1,9 +1,8 @@
 #include "PresetManager.h"
-#include "StringOperations.h"
+#include "IO.h"
 #include "Application.h"
 #include "File.h"
 #include "Utilities.h"
-#include <tinyfiledialogs.h>
 #include <fstream>
 #include <filesystem>
 #include <execution>
@@ -18,7 +17,7 @@ namespace MikuMikuWorld
 {
 	void PresetManager::loadPresets(const std::string& path)
 	{
-		std::wstring wPath = mbToWideStr(path);
+		std::wstring wPath = IO::mbToWideStr(path);
 		if (!std::filesystem::exists(wPath))
 			return;
 
@@ -28,7 +27,7 @@ namespace MikuMikuWorld
 			// look only for json files and ignore any dot files present
 			std::wstring wFilename = file.path().filename().wstring();
 			if (file.path().extension().wstring() == L".json" && wFilename[0] != L'.')
-				filenames.push_back(wideStringToMb(file.path().wstring()));
+				filenames.push_back(IO::wideStringToMb(file.path().wstring()));
 		}
 
 		std::mutex m2;
@@ -60,7 +59,7 @@ namespace MikuMikuWorld
 			for (auto& error : errors)
 				message += "- " + error.getMessage() + "\n";
 
-			tinyfd_messageBox(APP_NAME, message.c_str(), "ok", "error", 1);
+			IO::messageBox(APP_NAME, message, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 		}
 
 		if (warnings.size())
@@ -69,19 +68,19 @@ namespace MikuMikuWorld
 			for (auto& warning : warnings)
 				message += "- " + warning.getMessage() + "\n";
 
-			tinyfd_messageBox(APP_NAME, message.c_str(), "ok", "warning", 1);
+			IO::messageBox(APP_NAME, message, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Warning);
 		}
 	}
 
 	void PresetManager::savePresets(const std::string& path)
 	{
-		std::wstring wPath = mbToWideStr(path);
+		std::wstring wPath = IO::mbToWideStr(path);
 		if (!std::filesystem::exists(wPath))
 			std::filesystem::create_directory(wPath);
 
 		for (const std::string& filename : deletePresets)
 		{
-			std::wstring wFullPath = mbToWideStr(path + filename) + L".json";
+			std::wstring wFullPath = IO::mbToWideStr(path + filename) + L".json";
 			if (std::filesystem::exists(wFullPath))
 				std::filesystem::remove(wFullPath);
 		}

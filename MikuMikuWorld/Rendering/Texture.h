@@ -21,7 +21,7 @@ namespace MikuMikuWorld
 		int height;
 		unsigned int glID;
 
-		Sprite parseSprite(const File &f, const std::string& line);
+		Sprite parseSprite(const IO::File &f, const std::string& line);
 
 	public:
 		std::vector<Sprite> sprites;

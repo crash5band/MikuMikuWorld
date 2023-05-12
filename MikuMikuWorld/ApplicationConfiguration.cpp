@@ -1,5 +1,5 @@
 #include "ApplicationConfiguration.h"
-#include "StringOperations.h"
+#include "IO.h"
 #include "JsonIO.h"
 #include <filesystem>
 #include <fstream>
@@ -18,7 +18,7 @@ namespace MikuMikuWorld
 
 	void ApplicationConfiguration::read(const std::string& filename)
 	{
-		std::wstring wFilename = mbToWideStr(filename);
+		std::wstring wFilename = IO::mbToWideStr(filename);
 		if (!std::filesystem::exists(wFilename))
 			return;
 
@@ -177,7 +177,7 @@ namespace MikuMikuWorld
 			{"bindings", keyBindings}
 		};
 
-		std::wstring wFilename = mbToWideStr(filename);
+		std::wstring wFilename = IO::mbToWideStr(filename);
 		std::ofstream configFile(wFilename);
 		configFile << std::setw(4) << config;
 		configFile.flush();

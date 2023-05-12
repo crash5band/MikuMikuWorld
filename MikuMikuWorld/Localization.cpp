@@ -1,6 +1,6 @@
 #include "Localization.h"
 #include "DefaultLanguage.h"
-#include "StringOperations.h"
+#include "IO.h"
 #include "File.h"
 #include <filesystem>
 
@@ -13,7 +13,7 @@ namespace MikuMikuWorld
 
 	void Localization::load(const char* code, const std::string& filename)
 	{
-		if (!File::exists(filename))
+		if (!IO::File::exists(filename))
 			return;
 
         languages[code] = std::make_unique<Language>(code, filename);

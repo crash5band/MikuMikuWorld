@@ -2,9 +2,11 @@
 #include "File.h"
 #include "BinaryReader.h"
 #include "BinaryWriter.h"
-#include "StringOperations.h"
+#include "IO.h"
 #include "Constants.h"
 #include <unordered_set>
+
+using namespace IO;
 
 namespace MikuMikuWorld
 {

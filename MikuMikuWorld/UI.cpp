@@ -259,7 +259,7 @@ namespace MikuMikuWorld
 		bool act = false;
 		ImGui::SetNextItemWidth(100);
 		if (ImGui::InputScalar("##custom_input", ImGuiDataType_S32, (void*)(&value),
-			0, 0, concat("%d", getString("division_suffix")).c_str()))
+			0, 0, IO::concat("%d", getString("division_suffix")).c_str()))
 		{
 			value = std::clamp(value, 4, 1920);
 			act = true;

@@ -1,8 +1,10 @@
-#include "../StringOperations.h"
+#include "../IO.h"
 #include "Shader.h"
 #include <sstream>
 #include <fstream>
 #include <iostream>
+
+using namespace IO;
 
 namespace MikuMikuWorld
 {

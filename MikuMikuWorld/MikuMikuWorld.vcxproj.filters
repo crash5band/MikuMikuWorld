@@ -50,9 +50,6 @@
     <ClCompile Include="Stopwatch.cpp">
       <Filter>Misc</Filter>
     </ClCompile>
-    <ClCompile Include="StringOperations.cpp">
-      <Filter>IO</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Camera.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
@@ -123,9 +120,6 @@
     <ClCompile Include="Background.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\Depends\tinyfiledialogs\tinyfiledialogs.c">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="..\Depends\stb_vorbis\stb_vorbis.c">
       <Filter>Audio\Lib</Filter>
     </ClCompile>
@@ -158,6 +152,9 @@
     </ClCompile>
     <ClCompile Include="Math.cpp">
       <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="IO.cpp">
+      <Filter>IO</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -216,9 +213,6 @@
     </ClInclude>
     <ClInclude Include="Stopwatch.h">
       <Filter>Misc</Filter>
-    </ClInclude>
-    <ClInclude Include="StringOperations.h">
-      <Filter>IO</Filter>
     </ClInclude>
     <ClInclude Include="ChannelProvider.h">
       <Filter>Score\SUS</Filter>
@@ -355,6 +349,9 @@
     </ClInclude>
     <ClInclude Include="TimelineMode.h">
       <Filter>ScoreEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="IO.h">
+      <Filter>IO</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,7 +1,7 @@
 #include "BinaryReader.h"
-#include "StringOperations.h"
+#include "IO.h"
 
-namespace MikuMikuWorld
+namespace IO
 {
 	BinaryReader::BinaryReader(const std::string& filename)
 	{

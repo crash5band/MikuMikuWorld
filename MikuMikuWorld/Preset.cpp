@@ -1,6 +1,6 @@
 #include "Preset.h"
 #include "File.h"
-#include "StringOperations.h"
+#include "IO.h"
 #include <fstream>
 #include <filesystem>
 
@@ -21,7 +21,7 @@ namespace MikuMikuWorld
 
 	Result NotesPreset::read(const std::string& filepath)
 	{
-		std::wstring wFilename = mbToWideStr(filepath);
+		std::wstring wFilename = IO::mbToWideStr(filepath);
 		if (!std::filesystem::exists(wFilename))
 			return Result(ResultStatus::Error, "The preset file " + filepath + " does not exist.");
 
@@ -30,7 +30,7 @@ namespace MikuMikuWorld
 		file >> data;
 		file.close();
 
-		filename = File::getFilenameWithoutExtension(filepath);
+		filename = IO::File::getFilenameWithoutExtension(filepath);
 		if (data.find("name") != data.end())
 			name = data["name"];
 
@@ -45,7 +45,7 @@ namespace MikuMikuWorld
 
 	void NotesPreset::write(std::string filepath, bool overwrite)
 	{
-		std::wstring wFilename = mbToWideStr(filename);
+		std::wstring wFilename = IO::mbToWideStr(filename);
 		if (!overwrite)
 		{
 			int count = 1;

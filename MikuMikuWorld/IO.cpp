@@ -1,8 +1,43 @@
-#include "StringOperations.h"
+#include "IO.h"
+#include "IO.h"
 #include <Windows.h>
 
-namespace MikuMikuWorld
+namespace IO
 {
+	MessageBoxResult messageBox(std::string title, std::string message, MessageBoxButtons buttons, MessageBoxIcon icon, void* parentWindow)
+	{
+		UINT flags = 0;
+		switch (icon)
+		{
+		case MessageBoxIcon::Information: flags |= MB_ICONINFORMATION; break;
+		case MessageBoxIcon::Warning: flags |= MB_ICONWARNING; break;
+		case MessageBoxIcon::Error: flags |= MB_ICONERROR; break;
+		case MessageBoxIcon::Question: flags |= MB_ICONQUESTION; break;
+		default: break;
+		}
+
+		switch (buttons)
+		{
+		case MessageBoxButtons::Ok: flags |= MB_OK; break;
+		case MessageBoxButtons::OkCancel: flags |= MB_OKCANCEL; break;
+		case MessageBoxButtons::YesNo: flags |= MB_YESNO; break;
+		case MessageBoxButtons::YesNoCancel: flags |= MB_YESNOCANCEL; break;
+		default: break;
+		}
+
+		const int result = MessageBoxExW(reinterpret_cast<HWND>(parentWindow), mbToWideStr(message).c_str(), mbToWideStr(title).c_str(), flags, 0);
+		switch (result)
+		{
+		case IDABORT: return MessageBoxResult::Abort;
+		case IDCANCEL: return MessageBoxResult::Cancel;
+		case IDIGNORE: return MessageBoxResult::Ignore;
+		case IDNO: return MessageBoxResult::No;
+		case IDYES: return MessageBoxResult::Yes;
+		case IDOK: return MessageBoxResult::Ok;
+		default: return MessageBoxResult::None;
+		}
+	}
+
 	char* reverse(char* str)
 	{
 		char* end = str;

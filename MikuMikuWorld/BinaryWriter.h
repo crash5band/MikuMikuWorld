@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string>
 
-namespace MikuMikuWorld
+namespace IO
 {
 	class BinaryWriter
 	{

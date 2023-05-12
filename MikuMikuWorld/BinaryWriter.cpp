@@ -1,7 +1,7 @@
 #include "BinaryWriter.h"
-#include "StringOperations.h"
+#include "IO.h"
 
-namespace MikuMikuWorld
+namespace IO
 {
 	BinaryWriter::BinaryWriter(const std::string& filename)
 	{

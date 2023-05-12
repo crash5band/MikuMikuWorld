@@ -1,7 +1,7 @@
 #include "ScoreContext.h"
 #include "Constants.h"
 #include "jsonIO.h"
-#include "StringOperations.h"
+#include "IO.h"
 #include "Utilities.h"
 #include "UI.h"
 
@@ -9,6 +9,7 @@
 #undef max
 
 using json = nlohmann::json;
+using namespace IO;
 
 namespace MikuMikuWorld
 {

@@ -2,12 +2,11 @@
 #define STBI_WINDOWS_UTF8
 
 #include "Application.h"
-#include "StringOperations.h"
+#include "IO.h"
 #include "UI.h"
 #include "Result.h"
 #include "stb_image.h"
 #include <string>
-#include <tinyfiledialogs.h>
 
 namespace MikuMikuWorld
 {
@@ -57,7 +56,7 @@ namespace MikuMikuWorld
 
 	void loadIcon(std::string filepath, GLFWwindow* window)
 	{
-		if (!File::exists(filepath))
+		if (!IO::File::exists(filepath))
 			return;
 
 		GLFWimage images[1];

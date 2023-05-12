@@ -1,10 +1,10 @@
 #include "File.h"
-#include "StringOperations.h"
+#include "IO.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <filesystem>
 
-namespace MikuMikuWorld
+namespace IO
 {
 	File::File(const std::wstring& filename, const wchar_t* mode)
 	{

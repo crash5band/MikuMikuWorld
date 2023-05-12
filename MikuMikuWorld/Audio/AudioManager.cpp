@@ -1,7 +1,6 @@
 #include "../Application.h"
-#include "../StringOperations.h"
+#include "../IO.h"
 #include "../UI.h"
-#include <tinyfiledialogs.h>
 
 #define STB_VORBIS_HEADER_ONLY
 #include <stb_vorbis.c>
@@ -50,7 +49,7 @@ namespace MikuMikuWorld
 		catch (ma_result)
 		{
 			err.append(ma_result_description(result));
-			tinyfd_messageBox(APP_NAME, err.c_str(), "ok", "error", 1);
+			IO::messageBox(APP_NAME, err, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 
 			exit(result);
 		}
@@ -93,7 +92,7 @@ namespace MikuMikuWorld
 	{
 		disposeBGM();
 
-		std::wstring wFilename = mbToWideStr(filename);
+		std::wstring wFilename = IO::mbToWideStr(filename);
 		if (!std::filesystem::exists(wFilename))
 			return false;
 

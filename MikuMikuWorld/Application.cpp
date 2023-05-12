@@ -1,11 +1,10 @@
 #include "Application.h"
 #include "ResourceManager.h"
-#include "StringOperations.h"
+#include "IO.h"
 #include "Colors.h"
 #include "UI.h"
 #include "Utilities.h"
 #include "Localization.h"
-#include "tinyfiledialogs.h"
 #include "Constants.h"
 #include <filesystem>
 #include <Windows.h>
@@ -59,7 +58,7 @@ namespace MikuMikuWorld
 	std::string Application::getVersion()
 	{
 		wchar_t filename[1024];
-		lstrcpyW(filename, mbToWideStr(std::string(appDir + "MikuMikuWorld.exe")).c_str());
+		lstrcpyW(filename, IO::mbToWideStr(std::string(appDir + "MikuMikuWorld.exe")).c_str());
 
 		DWORD  verHandle = 0;
 		UINT   size = 0;
@@ -90,7 +89,7 @@ namespace MikuMikuWorld
 			delete[] verData;
 		}
 
-		return formatString("%d.%d.%d", major, minor, rev);
+		return IO::formatString("%d.%d.%d", major, minor, rev);
 	}
 
 	const std::string& Application::getAppVersion()
@@ -150,7 +149,7 @@ namespace MikuMikuWorld
 
 		for (auto it = pendingOpenFiles.rbegin(); it != pendingOpenFiles.rend(); ++it)
 		{
-			std::string extension = File::getFileExtension(*it);
+			std::string extension = IO::File::getFileExtension(*it);
 			std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
 
 			if (extension == SUS_EXTENSION || extension == MMWS_EXTENSION)

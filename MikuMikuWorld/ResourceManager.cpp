@@ -1,5 +1,5 @@
 #include "ResourceManager.h"
-#include "StringOperations.h"
+#include "IO.h"
 #include <filesystem>
 
 namespace MikuMikuWorld
@@ -9,7 +9,7 @@ namespace MikuMikuWorld
 
 	void ResourceManager::loadTexture(const std::string filename)
 	{
-		if (!File::exists(filename))
+		if (!IO::File::exists(filename))
 		{
 			printf("ERROR: ResourceManager::loadTexture() Could not find texture file %s\n", filename.c_str());
 			return;
@@ -45,7 +45,7 @@ namespace MikuMikuWorld
 
 	void ResourceManager::loadShader(const std::string& filename)
 	{
-		Shader* s = new Shader(File::getFilenameWithoutExtension(filename), filename);
+		Shader* s = new Shader(IO::File::getFilenameWithoutExtension(filename), filename);
 		shaders.push_back(s);
 	}
 
@@ -70,5 +70,4 @@ namespace MikuMikuWorld
 			}
 		}
 	}
-
 }

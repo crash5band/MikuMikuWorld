@@ -1,10 +1,12 @@
 #include "SUS.h"
 #include "SusExporter.h"
-#include "StringOperations.h"
+#include "IO.h"
 #include "File.h"
 #include "ChannelProvider.h"
 #include <algorithm>
 #include <numeric>
+
+using namespace IO;
 
 namespace MikuMikuWorld
 {
