@@ -920,8 +920,6 @@ namespace MikuMikuWorld
 					if (hold.steps.size())
 					{
 						// ensure hold steps are between the start and end
-						// TODO: ensure no step is out of the hold's bounds
-						// sort hold steps one more time after swapping start/end with mis-aligned tick
 						Note& firstMid = context.score.notes.at(hold.steps[0].ID);
 						if (start.tick > firstMid.tick)
 						{
