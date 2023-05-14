@@ -305,6 +305,9 @@ namespace MikuMikuWorld
 				hold.start = { start.ID, HoldStepType::Normal, (EaseType)findArrayItem(startEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes)) };
 				hold.end = end.ID;
 
+				if (startEase == "none")
+					hold.start.ease = EaseType::Linear;
+
 				if (jsonIO::keyExists(entry, "steps"))
 				{
 					hold.steps.reserve(entry["steps"].size());
@@ -319,12 +322,24 @@ namespace MikuMikuWorld
 
 						std::string midType = step["type"];
 						std::string midEase = step["ease"];
-						hold.steps.push_back(
+
+						int stepTypeIndex = findArrayItem(midType.c_str(), stepTypes, TXT_ARR_SZ(stepTypes));
+						int easeTypeIndex = findArrayItem(midEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes));
+
+						// maintain compatibility with old step type names
+						if (stepTypeIndex == -1)
 						{
-							mid.ID,
-							(HoldStepType)findArrayItem(midType.c_str(), stepTypes, TXT_ARR_SZ(stepTypes)),
-							(EaseType)findArrayItem(midEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes))
-						});
+							stepTypeIndex = 0;
+							if (midType == "visible") stepTypeIndex = 0;
+							if (midType == "invisible") stepTypeIndex = 1;
+							if (midType == "ignored") stepTypeIndex = 2;
+						}
+
+						// maintain compatibility with old ease type names
+						if (easeTypeIndex == -1)
+							easeTypeIndex = 0;
+
+						hold.steps.push_back({ mid.ID, (HoldStepType)stepTypeIndex, (EaseType)easeTypeIndex });
 					}
 				}
 
