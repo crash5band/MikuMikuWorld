@@ -130,7 +130,7 @@ static constexpr ImGuiKeyInfo imguiKeysTable[] =
 static constexpr ImGuiKeyInfo GetImGuiKeyInfo(ImGuiKey key)
 {
 	if (key == ImGuiKey_None)
-		return { key, "None", "None" };
+		return { key, "None", "" };
 	else if (key >= ImGuiKey_ModCtrl && key <= ImGuiKey_ModSuper)
 		return imguiKeysTable[105 + key - ImGuiKey_ModCtrl]; // not very elegant but will do for now
 	else if (key < ImGuiKey_NamedKey_BEGIN || key > ImGuiKey_ModSuper || (key > ImGuiKey_KeypadEqual && key < ImGuiKey_ModCtrl))
@@ -196,10 +196,16 @@ std::string ToSerializedString(const InputBinding& binding)
 
 std::string ToFullShortcutsString(const MultiInputBinding& binding)
 {
+	if (!binding.count)
+		return "None";
+
 	std::string shortcuts{};
 	for (int i = 0; i < binding.count; ++i)
 	{
-		shortcuts.append(ToShortcutString(binding.bindings[i]));
+		const ImGuiKeyInfo keyInfo = GetImGuiKeyInfo(binding.bindings.at(i).keyCode);
+		if (strcmp(keyInfo.name, "None"))
+			shortcuts.append(ToShortcutString(binding.bindings[i]));
+
 		if (i < binding.count - 1)
 			shortcuts.append(", ");
 	}
