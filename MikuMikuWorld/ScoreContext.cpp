@@ -384,12 +384,11 @@ namespace MikuMikuWorld
 
 		std::vector<int> sortedSelection(selectedNotes.begin(), selectedNotes.end());
 		std::sort(sortedSelection.begin(), sortedSelection.end(), [this](int a, int b) 
-			{
-				const Note& n1 = score.notes.at(a);
-				const Note& n2 = score.notes.at(b);
-				return n1.tick == n2.tick ? n1.lane < n2.lane : n1.tick < n2.tick;
-			}
-		);
+		{
+			const Note& n1 = score.notes.at(a);
+			const Note& n2 = score.notes.at(b);
+			return n1.tick == n2.tick ? n1.lane < n2.lane : n1.tick < n2.tick;
+		});
 
 		int factor = 1; // tick increment/decrement amount
 		if (direction == Direction::Up)

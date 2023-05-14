@@ -917,7 +917,6 @@ namespace MikuMikuWorld
 						std::swap(start.lane, end.lane);
 					}
 
-					sortHoldSteps(context.score, hold);
 					if (hold.steps.size())
 					{
 						// ensure hold steps are between the start and end
@@ -938,6 +937,7 @@ namespace MikuMikuWorld
 						}
 					}
 
+					sortHoldSteps(context.score, hold);
 					skipUpdateAfterSortingSteps = true;
 				}
 
