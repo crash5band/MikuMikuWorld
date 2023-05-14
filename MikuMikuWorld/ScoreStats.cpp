@@ -68,7 +68,7 @@ namespace MikuMikuWorld
 				const HoldNote& hold = score.holdNotes.at(note.parentID);
 				int pos = findHoldStep(hold, note.ID);
 				if (pos != -1)
-					if (hold.steps[pos].type == HoldStepType::Invisible)
+					if (hold.steps[pos].type == HoldStepType::Hidden)
 						continue;
 			}
 

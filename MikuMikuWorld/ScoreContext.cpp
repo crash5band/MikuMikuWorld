@@ -302,7 +302,7 @@ namespace MikuMikuWorld
 
 				std::string startEase = entry["start"]["ease"];
 				HoldNote hold;
-				hold.start = { start.ID, HoldStepType::Visible, (EaseType)findArrayItem(startEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes)) };
+				hold.start = { start.ID, HoldStepType::Normal, (EaseType)findArrayItem(startEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes)) };
 				hold.end = end.ID;
 
 				if (jsonIO::keyExists(entry, "steps"))

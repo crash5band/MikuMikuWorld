@@ -68,7 +68,7 @@ namespace MikuMikuWorld
 		style->ScrollbarSize		= 14;
 
 		style->AntiAliasedLines = true;
-		style->AntiAliasedFill = true;
+		style->AntiAliasedFill	= true;
 
 		ImVec4* colors = style->Colors;
 

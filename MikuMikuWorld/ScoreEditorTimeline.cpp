@@ -769,7 +769,7 @@ namespace MikuMikuWorld
 		case TimelineMode::InsertLong:
 			if (insertingHold)
 			{
-				drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, EaseType::None, renderer, noteTint);
+				drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, EaseType::Linear, renderer, noteTint);
 				drawNote(inputNotes.holdStart, renderer, noteTint);
 				drawNote(inputNotes.holdEnd, renderer, noteTint);
 			}
@@ -1098,7 +1098,7 @@ namespace MikuMikuWorld
 				switch (currentMode)
 				{
 				case TimelineMode::InsertFlick:
-					context.setFlick(FlickType::Up);
+					context.setFlick(FlickType::Default);
 					break;
 
 				case TimelineMode::MakeCritical:
@@ -1108,9 +1108,9 @@ namespace MikuMikuWorld
 				case TimelineMode::InsertLong:
 				case TimelineMode::InsertLongMid:
 					if (io.KeyAlt)
-						context.setStep(HoldStepType::Visible);
+						context.setStep(HoldStepType::Normal);
 					else
-						context.setEase(EaseType::None);
+						context.setEase(EaseType::Linear);
 					break;
 
 				default:
@@ -1183,8 +1183,8 @@ namespace MikuMikuWorld
 		{
 			const float percent1 = y / steps;
 			const float percent2 = (y + 1) / steps;
-			float i1 = ease == EaseType::None ? percent1 : ease == EaseType::EaseIn ? easeIn(percent1) : easeOut(percent1);
-			float i2 = ease == EaseType::None ? percent2 : ease == EaseType::EaseIn ? easeIn(percent2) : easeOut(percent2);
+			float i1 = ease == EaseType::Linear ? percent1 : ease == EaseType::EaseIn ? easeIn(percent1) : easeOut(percent1);
+			float i2 = ease == EaseType::Linear ? percent2 : ease == EaseType::EaseIn ? easeIn(percent2) : easeOut(percent2);
 
 			float xl1 = lerp(startX1, endX1, i1) - NOTES_SLICE_WIDTH;
 			float xr1 = lerp(startX2, endX2, i1) + NOTES_SLICE_WIDTH;
@@ -1227,7 +1227,7 @@ namespace MikuMikuWorld
 	{
 		if (insertingHold)
 		{
-			drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, EaseType::None, renderer, noteTint);
+			drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, EaseType::Linear, renderer, noteTint);
 			drawNote(inputNotes.holdStart, renderer, noteTint);
 			drawNote(inputNotes.holdEnd, renderer, noteTint);
 		}
@@ -1250,7 +1250,7 @@ namespace MikuMikuWorld
 			for (int i = 0; i < note.steps.size(); ++i)
 			{
 				HoldStepType type = note.steps[i].type;
-				if (type == HoldStepType::Ignored) continue;
+				if (type == HoldStepType::Skip) continue;
 
 				s2 = i;
 				const Note& n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
@@ -1282,7 +1282,7 @@ namespace MikuMikuWorld
 				// find first non-ignored step
 				while (s2 < note.steps.size())
 				{
-					if (note.steps[s2].type != HoldStepType::Ignored) break;
+					if (note.steps[s2].type != HoldStepType::Skip) break;
 					++s2;
 				}
 
@@ -1291,7 +1291,7 @@ namespace MikuMikuWorld
 					if (drawHoldStepOutlines)
 						drawSteps.emplace_back(StepDrawData{ n3.tick + offsetTicks, n3.lane + offsetLane, n3.width, note.steps[i].type });
 
-					if (note.steps[i].type != HoldStepType::Invisible)
+					if (note.steps[i].type != HoldStepType::Hidden)
 					{
 						int sprIndex = getNoteSpriteIndex(n3);
 						if (sprIndex > -1 && sprIndex < tex.sprites.size())
@@ -1299,14 +1299,14 @@ namespace MikuMikuWorld
 							const Sprite& s = tex.sprites[sprIndex];
 							Vector2 pos{ laneToPosition(n3.lane + offsetLane + (n3.width / 2.0f)), getNoteYPosFromTick(n3.tick + offsetTicks) };
 
-							if (note.steps[i].type == HoldStepType::Ignored)
+							if (note.steps[i].type == HoldStepType::Skip)
 							{
 								const Note& n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
 								const Note& n2 = s2 >= note.steps.size() ? end : notes.at(note.steps[s2].ID);
 
 								float ratio = (float)(n3.tick - n1.tick) / (float)(n2.tick - n1.tick);
 								const EaseType rEase = s1 == -1 ? note.start.ease : note.steps[s1].ease;
-								float i1 = rEase == EaseType::None ? ratio : rEase == EaseType::EaseIn ? easeIn(ratio) : easeOut(ratio);
+								float i1 = rEase == EaseType::Linear ? ratio : rEase == EaseType::EaseIn ? easeIn(ratio) : easeOut(ratio);
 
 								float x1 = lerp(laneToPosition(n1.lane + offsetLane), laneToPosition(n2.lane + offsetLane), i1);
 								float x2 = lerp(laneToPosition(n1.lane + offsetLane + n1.width), laneToPosition(n2.lane + offsetLane + n2.width), i1);
@@ -1319,7 +1319,7 @@ namespace MikuMikuWorld
 					}
 				}
 
-				if (note.steps[i].type != HoldStepType::Ignored)
+				if (note.steps[i].type != HoldStepType::Skip)
 					s1 = i;
 			}
 		}
@@ -1337,7 +1337,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::drawHoldMid(Note& note, HoldStepType type, Renderer* renderer, const Color& tint)
 	{
-		if (type == HoldStepType::Invisible)
+		if (type == HoldStepType::Hidden)
 			return;
 
 		const int texIndex = ResourceManager::getTexture(NOTES_TEX);
@@ -1367,8 +1367,8 @@ namespace MikuMikuWorld
 		ImVec2 p1{ x + laneToPosition(data.lane), y - (notesHeight * 0.15f) };
 		ImVec2 p2{ x + laneToPosition(data.lane + data.width), y + (notesHeight * 0.15f) };
 
-		ImU32 fill = data.type == HoldStepType::Ignored ? 0x55ffffaa : 0x55aaffaa;
-		ImU32 outline = data.type == HoldStepType::Ignored ? 0xffffffaa : 0xffccffaa;
+		ImU32 fill = data.type == HoldStepType::Skip ? 0x55ffffaa : 0x55aaffaa;
+		ImU32 outline = data.type == HoldStepType::Skip ? 0xffffffaa : 0xffccffaa;
 		ImGui::GetWindowDrawList()->AddRectFilled(p1, p2, fill, 2.0f, ImDrawFlags_RoundCornersAll);
 		ImGui::GetWindowDrawList()->AddRect(p1, p2, outline, 2.0f, ImDrawFlags_RoundCornersAll, 2.0f);
 	}
@@ -1626,7 +1626,7 @@ namespace MikuMikuWorld
 			return false;
 
 		float percent = (y - y1) / (y2 - y1);
-		float iPercent = ease == EaseType::None ? percent : ease == EaseType::EaseIn ? easeIn(percent) : easeOut(percent);
+		float iPercent = ease == EaseType::Linear ? percent : ease == EaseType::EaseIn ? easeIn(percent) : easeOut(percent);
 		float xl = lerp(xStart1, xEnd1, iPercent);
 		float xr = lerp(xStart2, xEnd2, iPercent);
 
@@ -1687,7 +1687,7 @@ namespace MikuMikuWorld
 
 		context.score.notes[holdStart.ID] = holdStart;
 		context.score.notes[holdEnd.ID] = holdEnd;
-		context.score.holdNotes[holdStart.ID] = { {holdStart.ID, HoldStepType::Visible, edit.easeType}, {}, holdEnd.ID };
+		context.score.holdNotes[holdStart.ID] = { {holdStart.ID, HoldStepType::Normal, edit.easeType}, {}, holdEnd.ID };
 		context.pushHistory("Insert hold", prev, context.score);
 	}
 

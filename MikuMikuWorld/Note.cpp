@@ -67,7 +67,7 @@ namespace MikuMikuWorld
 	int getFlickArrowSpriteIndex(const Note& note)
 	{
 		int startIndex = note.critical ? 16 : 4;
-		return startIndex + ((std::min(note.width, 6) - 1) * 2) + (note.flick != FlickType::Up ? 1 : 0);
+		return startIndex + ((std::min(note.width, 6) - 1) * 2) + (note.flick != FlickType::Default ? 1 : 0);
 	}
 
 	int getNoteSpriteIndex(const Note& note)
@@ -122,7 +122,7 @@ namespace MikuMikuWorld
 		{
 			const HoldNote& hold = score.holdNotes.at(note.parentID);
 			int pos = findHoldStep(hold, note.ID);
-			if (pos != -1 && hold.steps[pos].type == HoldStepType::Invisible)
+			if (pos != -1 && hold.steps[pos].type == HoldStepType::Hidden)
 				return "";
 
 			se = note.critical ? SE_CRITICAL_TICK : SE_TICK;

@@ -12,9 +12,9 @@ namespace MikuMikuWorld
 	struct EditArgs
 	{
 		int noteWidth = 3;
-		FlickType flickType = FlickType::Up;
-		HoldStepType stepType = HoldStepType::Visible;
-		EaseType easeType = EaseType::None;
+		FlickType flickType = FlickType::Default;
+		HoldStepType stepType = HoldStepType::Normal;
+		EaseType easeType = EaseType::Linear;
 
 		float bpm = 160.0f;
 		int timeSignatureNumerator = 4;

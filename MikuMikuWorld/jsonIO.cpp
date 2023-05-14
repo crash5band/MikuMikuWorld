@@ -28,7 +28,7 @@ namespace jsonIO
 			std::transform(flickString.begin(), flickString.end(), flickString.begin(), ::tolower);
 
 			if (flickString == "up")
-				note.flick = mmw::FlickType::Up;
+				note.flick = mmw::FlickType::Default;
 			else if (flickString == "left")
 				note.flick = mmw::FlickType::Left;
 			else if (flickString == "right")

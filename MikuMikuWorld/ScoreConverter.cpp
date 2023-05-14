@@ -67,7 +67,7 @@ namespace MikuMikuWorld
 			switch (dir.type)
 			{
 			case 1:
-				flicks.insert_or_assign(key, FlickType::Up);
+				flicks.insert_or_assign(key, FlickType::Default);
 				break;
 			case 3:
 				flicks.insert_or_assign(key, FlickType::Left);
@@ -171,7 +171,7 @@ namespace MikuMikuWorld
 			{
 				const std::string key = noteKey(note);
 
-				EaseType ease = EaseType::None;
+				EaseType ease = EaseType::Linear;
 				if (easeIns.find(key) != easeIns.end())
 					ease = EaseType::EaseIn;
 				else if (easeOuts.find(key) != easeOuts.end())
@@ -190,7 +190,7 @@ namespace MikuMikuWorld
 					n.ID = startID;
 
 					notes[n.ID] = n;
-					hold.start = HoldStep{ n.ID, HoldStepType::Visible, ease };
+					hold.start = HoldStep{ n.ID, HoldStepType::Normal, ease };
 				}
 				break;
 				// end
@@ -222,9 +222,9 @@ namespace MikuMikuWorld
 					n.ID = nextID++;
 					n.parentID = startID;
 
-					HoldStepType type = note.type == 3 ? HoldStepType::Visible : HoldStepType::Invisible;
+					HoldStepType type = note.type == 3 ? HoldStepType::Normal : HoldStepType::Hidden;
 					if (stepIgnore.find(key) != stepIgnore.end())
-						type = HoldStepType::Ignored;
+						type = HoldStepType::Skip;
 
 					notes[n.ID] = n;
 					hold.steps.push_back(HoldStep{ n.ID, type, ease });
@@ -281,7 +281,7 @@ namespace MikuMikuWorld
 	SUS ScoreConverter::scoreToSus(const Score& score)
 	{
 		std::unordered_map<FlickType, int> flickToType;
-		flickToType[FlickType::Up] = 1;
+		flickToType[FlickType::Default] = 1;
 		flickToType[FlickType::Left] = 3;
 		flickToType[FlickType::Right] = 4;
 
@@ -310,7 +310,7 @@ namespace MikuMikuWorld
 
 			slide.push_back(SUSNote{ start.tick, start.lane + 2, start.width, 1 });
 			EaseType ease = hold.start.ease;
-			if (ease != EaseType::None)
+			if (ease != EaseType::Linear)
 			{
 				taps.push_back(SUSNote{ start.tick, start.lane + 2, start.width, 1 });
 				directionals.push_back(SUSNote{ start.tick, start.lane + 2, start.width, ease == EaseType::EaseIn ? 2 : 6 });
@@ -323,10 +323,10 @@ namespace MikuMikuWorld
 			{
 				const Note& midNote = score.notes.at(step.ID);
 
-				slide.push_back(SUSNote{ midNote.tick, midNote.lane + 2, midNote.width, step.type == HoldStepType::Invisible ? 5 : 3 });
-				if (step.type == HoldStepType::Ignored)
+				slide.push_back(SUSNote{ midNote.tick, midNote.lane + 2, midNote.width, step.type == HoldStepType::Hidden ? 5 : 3 });
+				if (step.type == HoldStepType::Skip)
 					taps.push_back(SUSNote{ midNote.tick, midNote.lane + 2, midNote.width, 3 });
-				else if (step.ease != EaseType::None)
+				else if (step.ease != EaseType::Linear)
 				{
 					taps.push_back(SUSNote{ midNote.tick, midNote.lane + 2, midNote.width, 1 });
 					directionals.push_back(SUSNote{ midNote.tick, midNote.lane + 2, midNote.width, step.ease == EaseType::EaseIn ? 2 : 6 });
