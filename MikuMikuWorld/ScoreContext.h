@@ -3,6 +3,7 @@
 #include "ScoreStats.h"
 #include "HistoryManager.h"
 #include "Audio/AudioManager.h"
+#include "JsonIO.h"
 #include "Jacket.h"
 #include "TimelineMode.h"
 #include <unordered_set>
@@ -84,6 +85,7 @@ namespace MikuMikuWorld
 		void cutSelection();
 		void copySelection();
 		void paste(bool flip);
+		void pasteData(const nlohmann::json& data, bool flip);
 		void shrinkSelection(Direction direction);
 
 		void undo();

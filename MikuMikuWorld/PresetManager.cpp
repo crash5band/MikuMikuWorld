@@ -163,79 +163,12 @@ namespace MikuMikuWorld
 		if (presets.find(presetId) == presets.end())
 			return;
 
-		// copy the preset notes, and assign new IDs
-		NotesPreset& preset = presets.at(presetId);
-		std::unordered_map<int, Note> notes;
-		std::unordered_map<int, HoldNote> holdNotes;
-		Score prev = context.score;
-
-		if (jsonIO::keyExists(preset.data, "notes") && !preset.data["notes"].is_null())
+		const json data = presets.at(presetId).data;
+		if (jsonIO::arrayHasData(data, "notes") || jsonIO::arrayHasData(data, "holds"))
 		{
-			for (const auto& entry : preset.data["notes"])
-			{
-				Note note = jsonIO::jsonToNote(entry, NoteType::Tap);
-				note.tick += context.currentTick;
-				note.ID = nextID++;
-
-				notes[note.ID] = note;
-			}
+			Score prev = context.score;
+			context.pasteData(data, false);
+			context.pushHistory("Insert preset notes", prev, context.score);
 		}
-
-		if (jsonIO::keyExists(preset.data, "holds") && !preset.data["holds"].is_null())
-		{
-			for (const auto& entry : preset.data["holds"])
-			{
-				Note start = jsonIO::jsonToNote(entry["start"], NoteType::Hold);
-				start.tick += context.currentTick;
-				start.ID = nextID++;
-				notes[start.ID] = start;
-
-				Note end = jsonIO::jsonToNote(entry["end"], NoteType::HoldEnd);
-				end.tick += context.currentTick;
-				end.ID = nextID++;
-				end.parentID = start.ID;
-				notes[end.ID] = end;
-
-				std::string startEase = entry["start"]["ease"];
-				HoldNote hold;
-				hold.start = { start.ID, HoldStepType::Normal, (EaseType)findArrayItem(startEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes)) };
-				hold.end = end.ID;
-
-				if (jsonIO::keyExists(entry, "steps"))
-				{
-					hold.steps.reserve(entry["steps"].size());
-					for (const auto& step : entry["steps"])
-					{
-						Note mid = jsonIO::jsonToNote(step, NoteType::HoldMid);
-						mid.tick += context.currentTick;
-						mid.critical = start.critical;
-						mid.ID = nextID++;
-						mid.parentID = start.ID;
-						notes[mid.ID] = mid;
-
-						std::string midType = step["type"];
-						std::string midEase = step["ease"];
-						hold.steps.push_back(
-						{
-							mid.ID,
-							(HoldStepType)findArrayItem(midType.c_str(), stepTypes, TXT_ARR_SZ(stepTypes)),
-							(EaseType)findArrayItem(midEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes))
-						});
-					}
-				}
-
-				holdNotes[hold.start.ID] = hold;
-			}
-		}
-
-		context.selectedNotes.clear();
-		std::transform(notes.begin(), notes.end(),
-			std::inserter(context.selectedNotes, context.selectedNotes.end()),
-			[this](const auto& it) { return it.second.ID; });
-
-		context.score.notes.insert(notes.begin(), notes.end());
-		context.score.holdNotes.insert(holdNotes.begin(), holdNotes.end());
-
-		context.pushHistory("Insert preset notes", prev, context.score);
 	}
 }

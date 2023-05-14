@@ -1,6 +1,5 @@
 #include "ScoreContext.h"
 #include "Constants.h"
-#include "jsonIO.h"
 #include "IO.h"
 #include "Utilities.h"
 #include "UI.h"
@@ -256,24 +255,13 @@ namespace MikuMikuWorld
 		ImGui::SetClipboardText(clipboard.c_str());
 	}
 
-	void ScoreContext::paste(bool flip)
+	void ScoreContext::pasteData(const json& data, bool flip)
 	{
-		std::string clipboardData = ImGui::GetClipboardText();
-		if (!startsWith(clipboardData, "MikuMikuWorld clipboard\n"))
-			return;
-
-		clipboardData = clipboardData.substr(24);
-		json data = json::parse(clipboardData);
-
-		Score prev = score;
-		bool pasted = false;
-
 		std::unordered_map<int, Note> notes;
 		std::unordered_map<int, HoldNote> holdNotes;
 
 		if (jsonIO::keyExists(data, "notes") && !data["notes"].is_null())
 		{
-			pasted = true;
 			for (const auto& entry : data["notes"])
 			{
 				Note note = jsonIO::jsonToNote(entry, NoteType::Tap);
@@ -286,7 +274,6 @@ namespace MikuMikuWorld
 
 		if (jsonIO::keyExists(data, "holds") && !data["holds"].is_null())
 		{
-			pasted = true;
 			for (const auto& entry : data["holds"])
 			{
 				Note start = jsonIO::jsonToNote(entry["start"], NoteType::Hold);
@@ -330,14 +317,17 @@ namespace MikuMikuWorld
 						if (stepTypeIndex == -1)
 						{
 							stepTypeIndex = 0;
-							if (midType == "visible") stepTypeIndex = 0;
 							if (midType == "invisible") stepTypeIndex = 1;
 							if (midType == "ignored") stepTypeIndex = 2;
 						}
 
 						// maintain compatibility with old ease type names
 						if (easeTypeIndex == -1)
+						{
 							easeTypeIndex = 0;
+							if (midEase == "in") easeTypeIndex = 1;
+							if (midEase == "out") easeTypeIndex = 2;
+						}
 
 						hold.steps.push_back({ mid.ID, (HoldStepType)stepTypeIndex, (EaseType)easeTypeIndex });
 					}
@@ -367,9 +357,22 @@ namespace MikuMikuWorld
 
 		score.notes.insert(notes.begin(), notes.end());
 		score.holdNotes.insert(holdNotes.begin(), holdNotes.end());
+	}
 
-		if (pasted)
+	void ScoreContext::paste(bool flip)
+	{
+		std::string clipboardData = ImGui::GetClipboardText();
+		if (!startsWith(clipboardData, "MikuMikuWorld clipboard\n"))
+			return;
+
+		clipboardData = clipboardData.substr(24);
+		json data = json::parse(clipboardData);
+		if (jsonIO::arrayHasData(data, "notes") || jsonIO::arrayHasData(data, "holds"))
+		{
+			Score prev = score;
+			pasteData(data, flip);
 			pushHistory("Paste notes", prev, score);
+		}
 	}
 
 	void ScoreContext::shrinkSelection(Direction direction)

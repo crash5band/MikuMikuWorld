@@ -1654,13 +1654,8 @@ namespace MikuMikuWorld
 	{
 		Score prev = context.score;
 
-		Note newNote(NoteType::Tap);
-		newNote.tick = inputNotes.tap.tick;
-		newNote.lane = inputNotes.tap.lane;
-		newNote.width = edit.noteWidth;
+		Note newNote = inputNotes.tap;
 		newNote.ID = nextID++;
-		newNote.flick = currentMode == TimelineMode::InsertFlick ? edit.flickType : FlickType::None;
-		newNote.critical = critical;
 
 		context.score.notes[newNote.ID] = newNote;
 		context.pushHistory("Insert note", prev, context.score);
@@ -1670,19 +1665,11 @@ namespace MikuMikuWorld
 	{
 		Score prev = context.score;
 
-		Note holdStart(NoteType::Hold);
-		holdStart.tick = inputNotes.holdStart.tick;
-		holdStart.lane = inputNotes.holdStart.lane;
-		holdStart.width = edit.noteWidth;
+		Note holdStart = inputNotes.holdStart;
 		holdStart.ID = nextID++;
-		holdStart.critical = false;
 
-		Note holdEnd(NoteType::HoldEnd);
-		holdEnd.tick = inputNotes.holdEnd.tick;
-		holdEnd.lane = inputNotes.holdEnd.lane;
-		holdEnd.width = edit.noteWidth;
+		Note holdEnd = inputNotes.holdEnd;
 		holdEnd.ID = nextID++;
-		holdEnd.critical = false;
 		holdEnd.parentID = holdStart.ID;
 
 		context.score.notes[holdStart.ID] = holdStart;
@@ -1706,10 +1693,7 @@ namespace MikuMikuWorld
 		HoldNote& hold = context.score.holdNotes[holdId];
 		Note holdStart = context.score.notes[holdId];
 
-		Note holdStep(NoteType::HoldMid);
-		holdStep.tick = inputNotes.holdStep.tick;
-		holdStep.lane = inputNotes.holdStep.lane;
-		holdStep.width = edit.noteWidth;
+		Note holdStep = inputNotes.holdStep;
 		holdStep.ID = nextID++;
 		holdStep.critical = holdStart.critical;
 		holdStep.parentID = holdStart.ID;

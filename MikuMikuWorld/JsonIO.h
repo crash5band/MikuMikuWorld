@@ -13,6 +13,11 @@ namespace jsonIO
 		return (js.find(key) != js.end());
 	}
 
+	static bool arrayHasData(const nlohmann::json& js, const char* key)
+	{
+		return jsonIO::keyExists(js, key) && js[key].is_array() && js[key].size();
+	}
+
 	template<typename T>
 	T tryGetValue(const nlohmann::json& js, const char* key, T def = {})
 	{
