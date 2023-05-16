@@ -39,9 +39,6 @@ namespace MikuMikuWorld
 		bool skipUpdateAfterSortingSteps;
 		bool dragging;
 		bool insertingHold;
-		bool pasting;
-		bool flipPasting;
-		bool insertingPreset;
 		bool hasEdit;
 
 		float time;
@@ -109,6 +106,7 @@ namespace MikuMikuWorld
 
 		void drawInputNote(Renderer* renderer);
 		void previewInput(EditArgs& edit, Renderer* renderer);
+		void previewPaste(ScoreContext& context, Renderer* renderer);
 		void executeInput(ScoreContext& context, EditArgs& edit);
 		void eventEditor(ScoreContext& context);
 
@@ -178,8 +176,6 @@ namespace MikuMikuWorld
 		void nextTick(ScoreContext& context);
 		int roundTickDown(int tick, int division);
 		void focusCursor(ScoreContext& context, Direction direction);
-	
-		constexpr inline bool isPasting() const { return pasting || flipPasting; }
 
 		ScoreEditorTimeline();
 	};

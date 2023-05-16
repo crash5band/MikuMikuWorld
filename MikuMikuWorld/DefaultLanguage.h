@@ -143,12 +143,13 @@ namespace MikuMikuWorld
 		{"search", "Search..."},
 		{"confirm", "Confirm"},
 
-		// commands
+		// shortcuts
 		{"action", "Action"},
 		{"keys", "Keys"},
 		{"add", "Add"},
 		{"cmd_key_listen", "Waiting for input..."},
 		{"new_chart", "New Chart"},
+		{"cancel_paste", "Cancel Paste"},
 		{"toggle_playback", "Play / Pause"},
 		{"stop", "Stop"},
 		{"previous_tick", "Previous Tick"},

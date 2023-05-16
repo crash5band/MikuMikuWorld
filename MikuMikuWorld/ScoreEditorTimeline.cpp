@@ -299,6 +299,7 @@ namespace MikuMikuWorld
 		if (ImGui::IsMouseClicked(0))
 			clickedOnTimeline = mouseInTimeline;
 
+		const bool pasting = context.pasteData.pasting;
 		const ImGuiIO& io = ImGui::GetIO();
 		
 		// get mouse position relative to timeline
@@ -317,7 +318,7 @@ namespace MikuMikuWorld
 				offset += mouseWheelDelta * (io.KeyShift ? 300.0f : 100.0f);
 			}
 
-			if (!isHoveringNote && !isHoldingNote && !insertingHold && currentMode == TimelineMode::Select)
+			if (!isHoveringNote && !isHoldingNote && !insertingHold && !pasting && currentMode == TimelineMode::Select)
 			{
 				// clicked inside timeline, the current mouse position is the first drag point
 				if (ImGui::IsMouseClicked(0))
@@ -338,7 +339,7 @@ namespace MikuMikuWorld
 
 		// selection rectangle
 		// draw selection rectangle after notes are rendered
-		if (dragging && ImGui::IsMouseReleased(0))
+		if (dragging && ImGui::IsMouseReleased(0) && !pasting)
 		{
 			// calculate drag selection
 			float left = std::min(dragStart.x, mousePos.x);
@@ -490,7 +491,7 @@ namespace MikuMikuWorld
 
 		// update cursor tick after determining whether a note is hovered
 		// the cursor tick should not change if a note is hovered
-		if (ImGui::IsMouseClicked(0) && !isHoveringNote && mouseInTimeline && !playing &&
+		if (ImGui::IsMouseClicked(0) && !isHoveringNote && mouseInTimeline && !playing && !pasting &&
 			!UI::isAnyPopupOpen() && currentMode == TimelineMode::Select && ImGui::IsWindowFocused())
 		{
 			context.currentTick = hoverTick;
@@ -514,7 +515,7 @@ namespace MikuMikuWorld
 			drawList->AddRect(p1, p2, 0xcccccccc, 2.0f, ImDrawFlags_RoundCornersAll, 2.0f);
 		}
 
-		if (dragging)
+		if (dragging && !pasting)
 		{
 			float startX = std::min(position.x + dragStart.x, position.x + mousePos.x);
 			float endX = std::max(position.x + dragStart.x, position.x + mousePos.x);
@@ -659,11 +660,20 @@ namespace MikuMikuWorld
 		renderer->endBatch();
 		renderer->beginBatch();
 
-		//if (isPasting() || insertingPreset && isMouseInTimeline)
-			//previewPaste(renderer);
+		const bool pasting = context.pasteData.pasting;
+		if (pasting && mouseInTimeline)
+		{
+			context.pasteData.offsetTicks = hoverTick;
+			context.pasteData.offsetLane = hoverLane;
+			previewPaste(context, renderer);
+			if (ImGui::IsMouseClicked(0))
+				context.confirmPaste();
+			else if (ImGui::IsMouseClicked(1))
+				context.cancelPaste();
+		}
 
 		if (mouseInTimeline && !isHoldingNote && currentMode != TimelineMode::Select &&
-			!isPasting() && !insertingPreset && !UI::isAnyPopupOpen())
+			!pasting && !UI::isAnyPopupOpen())
 		{
 			previewInput(edit, renderer);
 			if (ImGui::IsMouseClicked(0) && hoverTick >= 0 && !isHoveringNote)
@@ -693,6 +703,21 @@ namespace MikuMikuWorld
 			drawOutline(data);
 
 		drawSteps.clear();
+	}
+
+	void ScoreEditorTimeline::previewPaste(ScoreContext& context, Renderer* renderer)
+	{
+		context.pasteData.offsetLane = std::clamp(hoverLane - context.pasteData.midLane,
+			context.pasteData.minLaneOffset,
+			context.pasteData.maxLaneOffset);
+
+		const Color previewTint{ 1.0f, 1.0f, 1.0f, 0.6f };
+		for (const auto& [_, note] : context.pasteData.notes)
+			if (note.getType() == NoteType::Tap && isNoteVisible(note, hoverTick))
+				drawNote(note, renderer, previewTint, hoverTick, context.pasteData.offsetLane);
+
+		for (const auto& [_, hold] : context.pasteData.holds)
+			drawHoldNote(context.pasteData.notes, hold, renderer, previewTint, hoverTick, context.pasteData.offsetLane);
 	}
 
 	void ScoreEditorTimeline::updateInputNotes(EditArgs& edit)

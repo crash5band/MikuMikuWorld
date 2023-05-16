@@ -22,6 +22,7 @@ namespace MikuMikuWorld
 		MultiInputBinding paste = { "paste", {ImGuiKey_V, ImGuiKeyModFlags_Ctrl} };
 		MultiInputBinding flipPaste = { "flip_paste", {ImGuiKey_V, ImGuiKeyModFlags_Ctrl | ImGuiKeyModFlags_Shift} };
 		MultiInputBinding flip = { "flip", {ImGuiKey_F, ImGuiKeyModFlags_Ctrl} };
+		MultiInputBinding cancelPaste = { "cancel_paste", {ImGuiKey_Escape} };
 		MultiInputBinding previousTick = { "previous_tick", {ImGuiKey_DownArrow} };
 		MultiInputBinding nextTick = { "next_tick", {ImGuiKey_UpArrow} };
 		MultiInputBinding create = { "new_chart", {ImGuiKey_N, ImGuiKeyModFlags_Ctrl} };
@@ -100,6 +101,7 @@ namespace MikuMikuWorld
 		&config.input.copySelection,
 		&config.input.paste,
 		&config.input.flipPaste,
+		&config.input.cancelPaste,
 		&config.input.deleteSelection,
 		&config.input.previousTick,
 		&config.input.nextTick,

@@ -250,42 +250,45 @@ namespace MikuMikuWorld
 		json data = jsonIO::noteSelectionToJson(score, selectedNotes, minTick);
 
 		std::string clipboard = "MikuMikuWorld clipboard\n";
-		clipboard += data.dump();
+		clipboard.append(data.dump());
 
 		ImGui::SetClipboardText(clipboard.c_str());
 	}
 
-	void ScoreContext::pasteData(const json& data, bool flip)
+	void ScoreContext::cancelPaste()
 	{
-		std::unordered_map<int, Note> notes;
-		std::unordered_map<int, HoldNote> holdNotes;
+		pasteData.pasting = false;
+	}
 
-		if (jsonIO::keyExists(data, "notes") && !data["notes"].is_null())
+	void ScoreContext::doPasteData(const json& data, bool flip)
+	{
+		int baseId = 0;
+		pasteData.notes.clear();
+		pasteData.holds.clear();
+
+		if (jsonIO::arrayHasData(data, "notes"))
 		{
 			for (const auto& entry : data["notes"])
 			{
 				Note note = jsonIO::jsonToNote(entry, NoteType::Tap);
-				note.tick += currentTick;
-				note.ID = nextID++;
+				note.ID = baseId++;
 
-				notes[note.ID] = note;
+				pasteData.notes[note.ID] = note;
 			}
 		}
 
-		if (jsonIO::keyExists(data, "holds") && !data["holds"].is_null())
+		if (jsonIO::arrayHasData(data, "holds"))
 		{
 			for (const auto& entry : data["holds"])
 			{
 				Note start = jsonIO::jsonToNote(entry["start"], NoteType::Hold);
-				start.tick += currentTick;
-				start.ID = nextID++;
-				notes[start.ID] = start;
+				start.ID = baseId++;
+				pasteData.notes[start.ID] = start;
 
 				Note end = jsonIO::jsonToNote(entry["end"], NoteType::HoldEnd);
-				end.tick += currentTick;
-				end.ID = nextID++;
+				end.ID = baseId++;
 				end.parentID = start.ID;
-				notes[end.ID] = end;
+				pasteData.notes[end.ID] = end;
 
 				std::string startEase = entry["start"]["ease"];
 				HoldNote hold;
@@ -301,11 +304,10 @@ namespace MikuMikuWorld
 					for (const auto& step : entry["steps"])
 					{
 						Note mid = jsonIO::jsonToNote(step, NoteType::HoldMid);
-						mid.tick += currentTick;
 						mid.critical = start.critical;
-						mid.ID = nextID++;
+						mid.ID = baseId++;
 						mid.parentID = start.ID;
-						notes[mid.ID] = mid;
+						pasteData.notes[mid.ID] = mid;
 
 						std::string midType = step["type"];
 						std::string midEase = step["ease"];
@@ -333,13 +335,13 @@ namespace MikuMikuWorld
 					}
 				}
 
-				holdNotes[hold.start.ID] = hold;
+				pasteData.holds[hold.start.ID] = hold;
 			}
 		}
 
 		if (flip)
 		{
-			for (auto& [_, note] : notes)
+			for (auto& [_, note] : pasteData.notes)
 			{
 				note.lane = MAX_LANE - note.lane - note.width + 1;
 
@@ -350,13 +352,60 @@ namespace MikuMikuWorld
 			}
 		}
 
+		// find the lane in which the cursor is in the middle of pasted notes
+		int left = MAX_LANE;
+		int right = MIN_LANE;
+		int leftmostLane = MAX_LANE;
+		int rightmostLane = MIN_LANE;
+		for (const auto& [_, note] : pasteData.notes)
+		{
+			leftmostLane = std::min(leftmostLane, note.lane);
+			rightmostLane = std::max(rightmostLane, note.lane + note.width - 1);
+			left = std::min(left, note.lane + note.width);
+			right = std::max(right, note.lane);
+		}
+
+		pasteData.minLaneOffset = MIN_LANE - leftmostLane;
+		pasteData.maxLaneOffset = MAX_LANE - rightmostLane;
+		pasteData.midLane = (left + right) / 2;
+		pasteData.pasting = pasteData.notes.size() > 0;
+	}
+
+	void ScoreContext::confirmPaste()
+	{
+		Score prev = score;
+
+		// update IDs and copy notes
+		for (auto& [_, note] : pasteData.notes)
+		{
+			note.ID += nextID;
+			if (note.parentID != -1)
+				note.parentID += nextID;
+
+			note.lane += pasteData.offsetLane;
+			note.tick += pasteData.offsetTicks;
+			score.notes[note.ID] = note;
+		}
+
+		for (auto& [_, hold] : pasteData.holds)
+		{
+			hold.start.ID += nextID;
+			hold.end += nextID;
+			for (auto& step : hold.steps)
+				step.ID += nextID;
+
+			score.holdNotes[hold.start.ID] = hold;
+		}
+		
+		// select newly pasted notes
 		selectedNotes.clear();
-		std::transform(notes.begin(), notes.end(),
+		std::transform(pasteData.notes.begin(), pasteData.notes.end(),
 			std::inserter(selectedNotes, selectedNotes.end()),
 			[this](const auto& it) { return it.second.ID; });
 
-		score.notes.insert(notes.begin(), notes.end());
-		score.holdNotes.insert(holdNotes.begin(), holdNotes.end());
+		nextID += pasteData.notes.size();
+		pasteData.pasting = false;
+		pushHistory("Paste notes", prev, score);
 	}
 
 	void ScoreContext::paste(bool flip)
@@ -368,11 +417,7 @@ namespace MikuMikuWorld
 		clipboardData = clipboardData.substr(24);
 		json data = json::parse(clipboardData);
 		if (jsonIO::arrayHasData(data, "notes") || jsonIO::arrayHasData(data, "holds"))
-		{
-			Score prev = score;
-			pasteData(data, flip);
-			pushHistory("Paste notes", prev, score);
-		}
+			doPasteData(data, flip);
 	}
 
 	void ScoreContext::shrinkSelection(Direction direction)

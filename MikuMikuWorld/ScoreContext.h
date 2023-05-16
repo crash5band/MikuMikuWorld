@@ -40,6 +40,18 @@ namespace MikuMikuWorld
 		}
 	};
 
+	struct PasteData
+	{
+		std::unordered_map<int, Note> notes;
+		std::unordered_map<int, HoldNote> holds;
+		bool pasting;
+		int offsetTicks{};
+		int offsetLane{};
+		int midLane{};
+		int minLaneOffset{};
+		int maxLaneOffset{};
+	};
+
 	class ScoreContext
 	{
 	public:
@@ -48,6 +60,7 @@ namespace MikuMikuWorld
 		ScoreStats scoreStats;
 		HistoryManager history;
 		AudioManager audio;
+		PasteData pasteData{};
 		std::unordered_set<int> selectedNotes;
 
 		int currentTick = 0;
@@ -85,7 +98,9 @@ namespace MikuMikuWorld
 		void cutSelection();
 		void copySelection();
 		void paste(bool flip);
-		void pasteData(const nlohmann::json& data, bool flip);
+		void doPasteData(const nlohmann::json& data, bool flip);
+		void cancelPaste();
+		void confirmPaste();
 		void shrinkSelection(Direction direction);
 
 		void undo();

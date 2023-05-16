@@ -64,6 +64,7 @@ namespace MikuMikuWorld
 			if (ImGui::IsAnyPressed(config.input.copySelection)) context.copySelection();
 			if (ImGui::IsAnyPressed(config.input.paste)) context.paste(false);
 			if (ImGui::IsAnyPressed(config.input.flipPaste)) context.paste(true);
+			if (ImGui::IsAnyPressed(config.input.cancelPaste)) context.cancelPaste();
 			if (ImGui::IsAnyPressed(config.input.flip)) context.flipSelection();
 			if (ImGui::IsAnyPressed(config.input.undo)) context.undo();
 			if (ImGui::IsAnyPressed(config.input.redo)) context.redo();

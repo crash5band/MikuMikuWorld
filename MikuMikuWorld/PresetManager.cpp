@@ -165,10 +165,6 @@ namespace MikuMikuWorld
 
 		const json data = presets.at(presetId).data;
 		if (jsonIO::arrayHasData(data, "notes") || jsonIO::arrayHasData(data, "holds"))
-		{
-			Score prev = context.score;
-			context.pasteData(data, false);
-			context.pushHistory("Insert preset notes", prev, context.score);
-		}
+			context.doPasteData(data, false);
 	}
 }
