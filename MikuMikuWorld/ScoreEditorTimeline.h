@@ -12,6 +12,7 @@ namespace MikuMikuWorld
 	class ScoreEditorTimeline
 	{
 	private:
+		TimelineMode currentMode;
 		float laneOffset;
 		float zoom = 1.0f;
 		float maxOffset = 10000;
@@ -123,7 +124,6 @@ namespace MikuMikuWorld
 		float laneWidth = 26;
 		float notesHeight = 28;
 		bool drawHoldStepOutlines = true;
-		TimelineMode currentMode;
 		Background background;
 
 		struct EventEditParams
@@ -176,6 +176,9 @@ namespace MikuMikuWorld
 		void nextTick(ScoreContext& context);
 		int roundTickDown(int tick, int division);
 		void focusCursor(ScoreContext& context, Direction direction);
+
+		constexpr TimelineMode getMode() const { return currentMode; }
+		void changeMode(TimelineMode mode, EditArgs& edit);
 
 		ScoreEditorTimeline();
 	};

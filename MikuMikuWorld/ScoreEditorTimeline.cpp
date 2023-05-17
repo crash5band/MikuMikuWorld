@@ -860,6 +860,25 @@ namespace MikuMikuWorld
 		}
 	}
 
+	void ScoreEditorTimeline::changeMode(TimelineMode mode, EditArgs& edit)
+	{
+		if (currentMode == mode)
+		{
+			if (mode == TimelineMode::InsertLongMid)
+			{
+				edit.stepType = (HoldStepType)(((int)edit.stepType + 1) % (int)HoldStepType::HoldStepTypeCount);
+			}
+			else if (mode == TimelineMode::InsertFlick)
+			{
+				edit.flickType = (FlickType)(((int)edit.flickType + 1) % (int)FlickType::FlickTypeCount);
+				if (!(int)edit.flickType)
+					edit.flickType = FlickType::Default;
+			}
+		}
+
+		currentMode = mode;
+	}
+
 	int ScoreEditorTimeline::findClosestHold(ScoreContext& context, int lane, int tick)
 	{
 		float xt = laneToPosition(lane);

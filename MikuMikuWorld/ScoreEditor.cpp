@@ -76,7 +76,7 @@ namespace MikuMikuWorld
 			if (ImGui::IsAnyPressed(config.input.shrinkUp)) context.shrinkSelection(Direction::Up);
 
 			for (int i = 0; i < (int)TimelineMode::TimelineModeMax; ++i)
-				if (ImGui::IsAnyPressed(*timelineModeBindings[i])) timeline.currentMode = (TimelineMode)i;
+				if (ImGui::IsAnyPressed(*timelineModeBindings[i])) timeline.changeMode((TimelineMode)i, edit);
 		}
 
 		if (config.timelineWidth != timeline.laneWidth)
@@ -117,7 +117,7 @@ namespace MikuMikuWorld
 
 		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_WRENCH, "settings"), NULL, ImGuiWindowFlags_Static))
 		{
-			optionsWindow.update(context, edit, timeline.currentMode);
+			optionsWindow.update(context, edit, timeline.getMode());
 		}
 		ImGui::End();
 
@@ -415,8 +415,21 @@ namespace MikuMikuWorld
 
 		for (int i = 0; i < TXT_ARR_SZ(timelineModes); ++i)
 		{
-			if (UI::toolbarImageButton((std::string{"timeline_"} + timelineModes[i]).c_str(), getString(timelineModes[i]), ToShortcutString(*timelineModeBindings[i]), true, (int)timeline.currentMode == i))
-				timeline.currentMode = (TimelineMode)i;
+			std::string img{ "timeline_" };
+			img.append(timelineModes[i]);
+			if (i == (int)TimelineMode::InsertFlick)
+			{
+				if (edit.flickType == FlickType::Left) img.append("_left");
+				if (edit.flickType == FlickType::Right) img.append("_right");
+			}
+			else if (i == (int)TimelineMode::InsertLongMid)
+			{
+				if (edit.stepType == HoldStepType::Hidden) img.append("_hidden");
+				if (edit.stepType == HoldStepType::Skip) img.append("_skip");
+			}
+
+			if (UI::toolbarImageButton(img.c_str(), getString(timelineModes[i]), ToShortcutString(*timelineModeBindings[i]), true, (int)timeline.getMode() == i))
+				timeline.changeMode((TimelineMode)i, edit);
 		}
 
 		ImGui::PopStyleColor(3);
