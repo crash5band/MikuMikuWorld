@@ -564,6 +564,25 @@ namespace MikuMikuWorld
 		ImGui::SameLine();
 		UI::divisionSelect(getString("division"), division, divisions, sizeof(divisions) / sizeof(int));
 
+		static int gotoMeasure = 0;
+		bool activated = false;
+
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50);
+		ImGui::InputInt("##goto_measure", &gotoMeasure, 0, 0, ImGuiInputTextFlags_AutoSelectAll);
+		activated |= ImGui::IsItemFocused() && ImGui::IsKeyPressed(ImGuiKey_Enter, false);
+		UI::tooltip(getString("goto_measure"));
+
+		ImGui::SameLine();
+		activated |= UI::transparentButton(ICON_FA_ARROW_RIGHT, UI::btnSmall);
+
+		if (activated)
+		{
+			gotoMeasure = std::clamp(gotoMeasure, 0, 999);
+			context.currentTick = measureToTicks(gotoMeasure, TICKS_PER_BEAT, context.score.timeSignatures);
+			offset = std::max(minOffset, tickToPosition(context.currentTick) + (size.y * (1.0f - config.cursorPositionThreshold)));
+		}
+
 		ImGui::SameLine();
 		float _zoom = zoom;
 		if (UI::zoomControl("zoom", _zoom, MIN_ZOOM, 10.0f))
