@@ -271,10 +271,10 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(appDir + "res/textures/timeline_select.png");
 		ResourceManager::loadTexture(appDir + "res/textures/timeline_tap.png");
 		ResourceManager::loadTexture(appDir + "res/textures/timeline_hold.png");
-		ResourceManager::loadTexture(appDir + "res/textures/timeline_hold_step.png");
+		ResourceManager::loadTexture(appDir + "res/textures/timeline_hold_step_normal.png");
 		ResourceManager::loadTexture(appDir + "res/textures/timeline_hold_step_hidden.png");
 		ResourceManager::loadTexture(appDir + "res/textures/timeline_hold_step_skip.png");
-		ResourceManager::loadTexture(appDir + "res/textures/timeline_flick.png");
+		ResourceManager::loadTexture(appDir + "res/textures/timeline_flick_default.png");
 		ResourceManager::loadTexture(appDir + "res/textures/timeline_flick_left.png");
 		ResourceManager::loadTexture(appDir + "res/textures/timeline_flick_right.png");
 		ResourceManager::loadTexture(appDir + "res/textures/timeline_critical.png");

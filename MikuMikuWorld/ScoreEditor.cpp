@@ -27,6 +27,16 @@ namespace MikuMikuWorld
 		&config.input.timelineHiSpeed,
 	};
 
+	constexpr const char* toolbarFlickNames[] =
+	{
+		"none", "default", "left", "right"
+	};
+
+	constexpr const char* toolbarStepNames[] =
+	{
+		"normal", "hidden", "skip"
+	};
+
 	ScoreEditor::ScoreEditor()
 	{
 		renderer = std::make_unique<Renderer>();
@@ -415,18 +425,11 @@ namespace MikuMikuWorld
 
 		for (int i = 0; i < TXT_ARR_SZ(timelineModes); ++i)
 		{
-			std::string img{ "timeline_" };
-			img.append(timelineModes[i]);
+			std::string img{ IO::concat("timeline", timelineModes[i], "_") };
 			if (i == (int)TimelineMode::InsertFlick)
-			{
-				if (edit.flickType == FlickType::Left) img.append("_left");
-				if (edit.flickType == FlickType::Right) img.append("_right");
-			}
+				img.append(IO::concat("", toolbarFlickNames[(int)edit.flickType], "_"));
 			else if (i == (int)TimelineMode::InsertLongMid)
-			{
-				if (edit.stepType == HoldStepType::Hidden) img.append("_hidden");
-				if (edit.stepType == HoldStepType::Skip) img.append("_skip");
-			}
+				img.append(IO::concat("", toolbarStepNames[(int)edit.stepType], "_"));
 
 			if (UI::toolbarImageButton(img.c_str(), getString(timelineModes[i]), ToShortcutString(*timelineModeBindings[i]), true, (int)timeline.getMode() == i))
 				timeline.changeMode((TimelineMode)i, edit);
