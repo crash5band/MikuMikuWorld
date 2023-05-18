@@ -168,10 +168,12 @@ namespace MikuMikuWorld
 		return tempos[0];
 	}
 
-	int snapTick(int tick, int div)
+	int snapTick(int tick, int div, const std::map<int, TimeSignature>& ts)
 	{
-		int half = (TICKS_PER_BEAT / (div / 4)) / 2;
-		int remaining = tick % (TICKS_PER_BEAT / (div / 4));
+		float beats = beatsPerMeasure(ts.at(findTimeSignature(accumulateMeasures(tick, TICKS_PER_BEAT, ts), ts)));
+
+		int half = (TICKS_PER_BEAT / (div / beats)) / 2;
+		int remaining = fmodf(tick, (TICKS_PER_BEAT / (div / beats)));
 
 		// round to closest division
 		tick -= remaining;

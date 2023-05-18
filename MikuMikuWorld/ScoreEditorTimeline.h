@@ -141,7 +141,7 @@ namespace MikuMikuWorld
 			float editHiSpeed = 1.0f;
 		} eventEdit {};
 
-		int snapTickFromPos(float posY);
+		int snapTickFromPos(float posY, const std::map<int, TimeSignature>& ts);
 		int positionToTick(float pos) const;
 		float tickToPosition(int tick) const;
 		float getNoteYPosFromTick(int tick) const;
