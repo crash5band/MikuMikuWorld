@@ -1092,7 +1092,7 @@ namespace MikuMikuWorld
 		if (noteControl(context, pos, sz, "M", ImGuiMouseCursor_ResizeAll))
 		{
 			int curLane = positionToLane(mousePos.x);
-			int grabLane = positionToLane(ctrlMousePos.x);
+			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
 			int grabTick = snapTickFromPos(-ctrlMousePos.y, context.score.timeSignatures);
 
 			int diff = curLane - grabLane;

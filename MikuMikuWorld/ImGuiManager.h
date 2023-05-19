@@ -1,6 +1,4 @@
 #include "UI.h"
-#include "ImGui/imgui.h"
-#include "ImGui/imgui_internal.h"
 #include <string>
 
 struct GLFWwindow;

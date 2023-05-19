@@ -291,7 +291,7 @@ namespace MikuMikuWorld
 				exportSus();
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(getString("exit"), ToShortcutString(ImGuiKey_F4, ImGuiKeyModFlags_Alt)))
+			if (ImGui::MenuItem(getString("exit"), ToShortcutString(ImGuiKey_F4, ImGuiModFlags_Alt)))
 				Application::windowState.closing = true;
 
 			ImGui::EndMenu();

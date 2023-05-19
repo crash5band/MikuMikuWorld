@@ -420,7 +420,7 @@ namespace MikuMikuWorld
 			}
 			else
 			{
-				for (ImGuiKey key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_MouseLeft; ++key)
+				for (int key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_MouseLeft; ++key)
 				{
 					bool isCtrl = key == ImGuiKey_LeftCtrl || key == ImGuiKey_RightCtrl || key == ImGuiKey_ModCtrl;
 					bool isShift = key == ImGuiKey_LeftShift || key == ImGuiKey_RightShift || key == ImGuiKey_ModShift;
@@ -428,9 +428,9 @@ namespace MikuMikuWorld
 					bool isSuper = key == ImGuiKey_LeftSuper || key == ImGuiKey_RightSuper || key == ImGuiKey_ModSuper;
 
 					// execute if a non-modifier key is tapped
-					if (ImGui::IsKeyPressed(key) && !isCtrl && !isShift && !isAlt && !isSuper)
+					if (ImGui::IsKeyPressed((ImGuiKey)key) && !isCtrl && !isShift && !isAlt && !isSuper)
 					{
-						bindings[selectedBindingIndex]->bindings[editBindingIndex] = InputBinding{ (uint16_t)key, (uint8_t)ImGui::GetIO().KeyMods };
+						bindings[selectedBindingIndex]->bindings[editBindingIndex] = InputBinding((ImGuiKey)key, (ImGuiModFlags_)ImGui::GetIO().KeyMods);
 						listeningForInput = false;
 						editBindingIndex = -1;
 					}

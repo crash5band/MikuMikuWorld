@@ -8,7 +8,7 @@ namespace MikuMikuWorld
 {
 	struct InputConfiguration
 	{
-		MultiInputBinding togglePlayback = { "toggle_playback", {ImGuiKey_Space, ImGuiKeyModFlags_None} };
+		MultiInputBinding togglePlayback = { "toggle_playback", {ImGuiKey_Space, ImGuiModFlags_None} };
 		MultiInputBinding stop = { "stop", {} };
 		MultiInputBinding decreaseNoteSize = { "decrease_note_size", {} };
 		MultiInputBinding increaseNoteSize = { "decrease_note_size", {} };
@@ -17,22 +17,22 @@ namespace MikuMikuWorld
 		MultiInputBinding openHelp = { "help", {} };
 		MultiInputBinding openSettings = { "settings", {} };
 		MultiInputBinding deleteSelection = { "delete", {ImGuiKey_Delete} };
-		MultiInputBinding copySelection = { "copy", {ImGuiKey_C, ImGuiKeyModFlags_Ctrl} };
-		MultiInputBinding cutSelection = { "cut", {ImGuiKey_X, ImGuiKeyModFlags_Ctrl} };
-		MultiInputBinding paste = { "paste", {ImGuiKey_V, ImGuiKeyModFlags_Ctrl} };
-		MultiInputBinding flipPaste = { "flip_paste", {ImGuiKey_V, ImGuiKeyModFlags_Ctrl | ImGuiKeyModFlags_Shift} };
-		MultiInputBinding flip = { "flip", {ImGuiKey_F, ImGuiKeyModFlags_Ctrl} };
+		MultiInputBinding copySelection = { "copy", {ImGuiKey_C, ImGuiModFlags_Ctrl} };
+		MultiInputBinding cutSelection = { "cut", {ImGuiKey_X, ImGuiModFlags_Ctrl} };
+		MultiInputBinding paste = { "paste", {ImGuiKey_V, ImGuiModFlags_Ctrl} };
+		MultiInputBinding flipPaste = { "flip_paste", {ImGuiKey_V, ImGuiModFlags_Ctrl | ImGuiModFlags_Shift} };
+		MultiInputBinding flip = { "flip", {ImGuiKey_F, ImGuiModFlags_Ctrl} };
 		MultiInputBinding cancelPaste = { "cancel_paste", {ImGuiKey_Escape} };
 		MultiInputBinding previousTick = { "previous_tick", {ImGuiKey_DownArrow} };
 		MultiInputBinding nextTick = { "next_tick", {ImGuiKey_UpArrow} };
-		MultiInputBinding create = { "new_chart", {ImGuiKey_N, ImGuiKeyModFlags_Ctrl} };
-		MultiInputBinding open = { "open", {ImGuiKey_O, ImGuiKeyModFlags_Ctrl} };
-		MultiInputBinding save = { "save", {ImGuiKey_S, ImGuiKeyModFlags_Ctrl} };
-		MultiInputBinding saveAs = { "save_as", {ImGuiKey_S, ImGuiKeyModFlags_Ctrl | ImGuiKeyModFlags_Shift} };
-		MultiInputBinding exportSus = { "export", {ImGuiKey_E, ImGuiKeyModFlags_Ctrl} };
-		MultiInputBinding selectAll = { "select_all", {ImGuiKey_A, ImGuiKeyModFlags_Ctrl} };
-		MultiInputBinding undo = { "undo", {ImGuiKey_Z, ImGuiKeyModFlags_Ctrl} };
-		MultiInputBinding redo = { "redo", {ImGuiKey_Y, ImGuiKeyModFlags_Ctrl} };
+		MultiInputBinding create = { "new_chart", {ImGuiKey_N, ImGuiModFlags_Ctrl} };
+		MultiInputBinding open = { "open", {ImGuiKey_O, ImGuiModFlags_Ctrl} };
+		MultiInputBinding save = { "save", {ImGuiKey_S, ImGuiModFlags_Ctrl} };
+		MultiInputBinding saveAs = { "save_as", {ImGuiKey_S, ImGuiModFlags_Ctrl | ImGuiModFlags_Shift} };
+		MultiInputBinding exportSus = { "export", {ImGuiKey_E, ImGuiModFlags_Ctrl} };
+		MultiInputBinding selectAll = { "select_all", {ImGuiKey_A, ImGuiModFlags_Ctrl} };
+		MultiInputBinding undo = { "undo", {ImGuiKey_Z, ImGuiModFlags_Ctrl} };
+		MultiInputBinding redo = { "redo", {ImGuiKey_Y, ImGuiModFlags_Ctrl} };
 		MultiInputBinding zoomOut = { "zoom_out", {} };
 		MultiInputBinding zoomIn = { "zoom_in", {} };
 		

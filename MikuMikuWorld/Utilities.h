@@ -1,9 +1,21 @@
+#pragma once
 #include <string>
 #include <vector>
 #include <algorithm>
 #include "ImGui/imgui_internal.h"
+#include <type_traits>
 
 #define TXT_ARR_SZ(arr) (sizeof(arr) / sizeof(const char*)) 
+
+// macro to allow usage of flags operators with types enums
+#define DECLARE_ENUM_FLAG_OPERATORS(EnumType) \
+    inline EnumType operator|(EnumType lhs, EnumType rhs) { return static_cast<EnumType>(static_cast<std::underlying_type_t<EnumType>>(lhs) | static_cast<std::underlying_type_t<EnumType>>(rhs)); } \
+    inline EnumType operator&(EnumType lhs, EnumType rhs) { return static_cast<EnumType>(static_cast<std::underlying_type_t<EnumType>>(lhs) & static_cast<std::underlying_type_t<EnumType>>(rhs)); } \
+    inline EnumType operator^(EnumType lhs, EnumType rhs) { return static_cast<EnumType>(static_cast<std::underlying_type_t<EnumType>>(lhs) ^ static_cast<std::underlying_type_t<EnumType>>(rhs)); } \
+    inline EnumType operator~(EnumType value) { return static_cast<EnumType>(~static_cast<std::underlying_type_t<EnumType>>(value)); } \
+    inline EnumType& operator|=(EnumType& lhs, EnumType rhs) { lhs = lhs | rhs; return lhs; } \
+    inline EnumType& operator&=(EnumType& lhs, EnumType rhs) { lhs = lhs & rhs; return lhs; } \
+    inline EnumType& operator^=(EnumType& lhs, EnumType rhs) { lhs = lhs ^ rhs; return lhs; }
 
 namespace MikuMikuWorld
 {

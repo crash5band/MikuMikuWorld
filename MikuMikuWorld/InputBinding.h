@@ -3,11 +3,18 @@
 #include <array>
 #include <string>
 #include "ImGui/imgui.h"
+#include "Utilities.h"
 
 struct InputBinding
 {
-	uint16_t keyCode{};
-	uint8_t keyModifiers{};
+	int keyCode{};
+	int keyModifiers{};
+
+	InputBinding(ImGuiKey key = ImGuiKey_None, ImGuiModFlags_ mods = ImGuiModFlags_None)
+		: keyCode{ key }, keyModifiers{ mods }
+	{
+
+	}
 
 	constexpr bool operator==(const InputBinding& other) const
 	{
@@ -19,6 +26,9 @@ struct InputBinding
 		return !(*this == other);
 	}
 };
+
+DECLARE_ENUM_FLAG_OPERATORS(ImGuiKey);
+DECLARE_ENUM_FLAG_OPERATORS(ImGuiModFlags_);
 
 struct MultiInputBinding
 {
@@ -57,7 +67,7 @@ struct MultiInputBinding
 
 const char* ToShortcutString(const MultiInputBinding& binding);
 const char* ToShortcutString(const InputBinding& binding);
-const char* ToShortcutString(ImGuiKey key, ImGuiKeyModFlags mods);
+const char* ToShortcutString(ImGuiKey key, ImGuiModFlags_ mods);
 const char* ToShortcutString(ImGuiKey key);
 
 std::string ToFullShortcutsString(const MultiInputBinding& binding);
@@ -66,7 +76,7 @@ InputBinding FromSerializedString(std::string string);
 
 namespace ImGui
 {
-	bool TestModifiers(ImGuiModFlags mods);
+	bool TestModifiers(ImGuiModFlags_ mods);
 
 	bool IsDown(const InputBinding& binding);
 	bool IsPressed(const InputBinding& binding, bool repeat = false);

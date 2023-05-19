@@ -1,4 +1,7 @@
 #pragma once
+
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 #include "../Depends/glad/include/glad/glad.h"
 #include "../Depends/GLFW/include/GLFW/glfw3.h"
 #include "ScoreEditor.h"

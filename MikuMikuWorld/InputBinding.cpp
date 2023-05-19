@@ -121,22 +121,28 @@ static constexpr ImGuiKeyInfo imguiKeysTable[] =
 	{ ImGuiKey_KeypadEnter,		"KeypadEnter", "Keypad Enter" },
 	{ ImGuiKey_KeypadEqual,		"KeypadEqual", "Keypad Equal" },
 
-	{ ImGuiKey_ModCtrl,			"Ctrl", "Ctrl" },
-	{ ImGuiKey_ModShift,		"Shift", "Shift" },
-	{ ImGuiKey_ModAlt, 			"Alt", "Alt" },
-	{ ImGuiKey_ModSuper,		"Super", "Super" }
+	{ ImGuiMod_Ctrl,			"Ctrl", "Ctrl" },
+	{ ImGuiMod_Shift,		"Shift", "Shift" },
+	{ ImGuiMod_Alt, 			"Alt", "Alt" },
+	{ ImGuiMod_Super,		"Super", "Super" }
 };
 
 static constexpr ImGuiKeyInfo GetImGuiKeyInfo(ImGuiKey key)
 {
 	if (key == ImGuiKey_None)
 		return { key, "None", "" };
-	else if (key >= ImGuiKey_ModCtrl && key <= ImGuiKey_ModSuper)
-		return imguiKeysTable[105 + key - ImGuiKey_ModCtrl]; // not very elegant but will do for now
-	else if (key < ImGuiKey_NamedKey_BEGIN || key > ImGuiKey_ModSuper || (key > ImGuiKey_KeypadEqual && key < ImGuiKey_ModCtrl))
+	else if (key == ImGuiMod_Ctrl) // not very elegant but will do for now
+		return imguiKeysTable[105];
+	else if (key == ImGuiMod_Shift)
+		return imguiKeysTable[106];
+	else if (key == ImGuiMod_Alt)
+		return imguiKeysTable[107];
+	else if (key == ImGuiMod_Super)
+		return imguiKeysTable[108];
+	else if (key < ImGuiKey_NamedKey_BEGIN || key > ImGuiMod_Super || (key > ImGuiKey_KeypadEqual && key < ImGuiMod_Ctrl))
 		return { key, "Unknown", "Unknown" };
-	else
-		return imguiKeysTable[key - ImGuiKey_NamedKey_BEGIN];
+
+	return imguiKeysTable[key - ImGuiKey_NamedKey_BEGIN];
 }
 
 const char* ToShortcutString(const MultiInputBinding& binding)
@@ -153,25 +159,25 @@ const char* ToShortcutString(const MultiInputBinding& binding)
 
 const char* ToShortcutString(const InputBinding& binding)
 {
-	return ToShortcutString(binding.keyCode, binding.keyModifiers);
+	return ToShortcutString((ImGuiKey)binding.keyCode, (ImGuiModFlags_)binding.keyModifiers);
 }
 
-const char* ToShortcutString(ImGuiKey key, ImGuiKeyModFlags mods)
+const char* ToShortcutString(ImGuiKey key, ImGuiModFlags_ mods)
 {
 	strcpy(keyInfoNameBuffer, "\0"); // start from the beginning of the buffer
-	if (mods & ImGuiKeyModFlags_Ctrl)
+	if (mods & ImGuiModFlags_Ctrl)
 	{
-		strcat(keyInfoNameBuffer, GetImGuiKeyInfo(ImGuiKey_ModCtrl).displayName);
+		strcat(keyInfoNameBuffer, GetImGuiKeyInfo(ImGuiMod_Ctrl).displayName);
 		strcat(keyInfoNameBuffer, " + ");
 	}
-	if (mods & ImGuiKeyModFlags_Shift)
+	if (mods & ImGuiModFlags_Shift)
 	{
-		strcat(keyInfoNameBuffer, GetImGuiKeyInfo(ImGuiKey_ModShift).displayName);
+		strcat(keyInfoNameBuffer, GetImGuiKeyInfo(ImGuiMod_Shift).displayName);
 		strcat(keyInfoNameBuffer, " + ");
 	}
-	if (mods & ImGuiKeyModFlags_Alt)
+	if (mods & ImGuiModFlags_Alt)
 	{
-		strcat(keyInfoNameBuffer, GetImGuiKeyInfo(ImGuiKey_ModAlt).displayName);
+		strcat(keyInfoNameBuffer, GetImGuiKeyInfo(ImGuiMod_Alt).displayName);
 		strcat(keyInfoNameBuffer, " + ");
 	};
 
@@ -187,11 +193,11 @@ const char* ToShortcutString(ImGuiKey key)
 std::string ToSerializedString(const InputBinding& binding)
 {
 	std::string string{};
-	if (binding.keyModifiers & ImGuiKeyModFlags_Ctrl) string.append(GetImGuiKeyInfo(ImGuiKey_ModCtrl).name).append(" + ");
-	if (binding.keyModifiers & ImGuiKeyModFlags_Shift) string.append(GetImGuiKeyInfo(ImGuiKey_ModShift).name).append(" + ");
-	if (binding.keyModifiers & ImGuiKeyModFlags_Alt) string.append(GetImGuiKeyInfo(ImGuiKey_ModAlt).name).append(" + ");
+	if (binding.keyModifiers & ImGuiModFlags_Ctrl) string.append(GetImGuiKeyInfo(ImGuiMod_Ctrl).name).append(" + ");
+	if (binding.keyModifiers & ImGuiModFlags_Shift) string.append(GetImGuiKeyInfo(ImGuiMod_Shift).name).append(" + ");
+	if (binding.keyModifiers & ImGuiModFlags_Alt) string.append(GetImGuiKeyInfo(ImGuiMod_Alt).name).append(" + ");
 
-	return string.append(GetImGuiKeyInfo(binding.keyCode).name);
+	return string.append(GetImGuiKeyInfo((ImGuiKey)binding.keyCode).name);
 }
 
 std::string ToFullShortcutsString(const MultiInputBinding& binding)
@@ -202,7 +208,7 @@ std::string ToFullShortcutsString(const MultiInputBinding& binding)
 	std::string shortcuts{};
 	for (int i = 0; i < binding.count; ++i)
 	{
-		const ImGuiKeyInfo keyInfo = GetImGuiKeyInfo(binding.bindings.at(i).keyCode);
+		const ImGuiKeyInfo keyInfo = GetImGuiKeyInfo((ImGuiKey)binding.bindings.at(i).keyCode);
 		if (strcmp(keyInfo.name, "None"))
 			shortcuts.append(ToShortcutString(binding.bindings[i]));
 
@@ -218,7 +224,9 @@ InputBinding FromSerializedString(std::string string)
 	string = trim(string);
 	std::vector<std::string> keys = split(string, "+");
 
-	InputBinding binding{ ImGuiKey_None, ImGuiKeyModFlags_None };
+	InputBinding binding{ ImGuiKey_None, ImGuiModFlags_None };
+
+	const std::array<int, 4> modIndices = { 105, 106, 107, 108 };
 
 	// case insensitive comparison
 	auto stringCompare = [](char a, char b) { return std::tolower(a) == std::tolower(b); };
@@ -227,25 +235,38 @@ InputBinding FromSerializedString(std::string string)
 		// get rid of possible space before/after key name
 		key = trim(key);
 
-		// look for a matching key name
-		ImGuiKey imKey = ImGuiKey_NamedKey_BEGIN;
+		// look for a matching key modifier
+		int modifiers = 0;
+		for (const int index : modIndices)
+		{
+			const ImGuiKeyInfo& infoKey = imguiKeysTable[index];
+			std::string keyName{ infoKey.name };
+			if (std::equal(key.begin(), key.end(), keyName.begin(), keyName.end(), stringCompare))
+			{
+				// The key code is identical to the modifer key code
+				modifiers |= infoKey.key;
+				break;
+			}
+		}
+
+		// determined that this key is a modifier; no need to look at normal keys
+		binding.keyModifiers |= modifiers;
+		if (modifiers != 0)
+			continue;
+
+		int imKey = ImGuiKey_NamedKey_BEGIN;
 		for (imKey = ImGuiKey_NamedKey_BEGIN; imKey <= ImGuiKey_NamedKey_END; ++imKey)
 		{
-			ImGuiKeyInfo infoKey = GetImGuiKeyInfo(imKey);
+			ImGuiKeyInfo infoKey = GetImGuiKeyInfo((ImGuiKey)imKey);
 			if (infoKey.name == nullptr)
 				continue;
 
 			std::string infoKeyName{ infoKey.name };
 			if (std::equal(key.begin(), key.end(), infoKeyName.begin(), infoKeyName.end(), stringCompare))
+			{	
+				binding.keyCode = infoKey.key;
 				break;
-		}
-
-		switch (imKey)
-		{
-		case ImGuiKey_ModCtrl: binding.keyModifiers |= ImGuiKeyModFlags_Ctrl; break;
-		case ImGuiKey_ModShift: binding.keyModifiers |= ImGuiKeyModFlags_Shift; break;
-		case ImGuiKey_ModAlt: binding.keyModifiers |= ImGuiKeyModFlags_Alt; break;
-		default: binding.keyCode = imKey; break;
+			}
 		}
 	}
 
@@ -254,19 +275,19 @@ InputBinding FromSerializedString(std::string string)
 
 namespace ImGui
 {
-	bool TestModifiers(ImGuiModFlags mods)
+	bool TestModifiers(ImGuiModFlags_ mods)
 	{
 		return ImGui::GetIO().KeyMods == mods;
 	}
 
 	bool IsDown(const InputBinding& binding)
 	{
-		return ImGui::TestModifiers(binding.keyModifiers) && ImGui::IsKeyDown(binding.keyCode);
+		return ImGui::TestModifiers((ImGuiModFlags_)binding.keyModifiers) && ImGui::IsKeyDown((ImGuiKey)binding.keyCode);
 	}
 
 	bool IsPressed(const InputBinding& binding, bool repeat)
 	{
-		return ImGui::TestModifiers(binding.keyModifiers) && ImGui::IsKeyPressed(binding.keyCode, repeat);
+		return ImGui::TestModifiers((ImGuiModFlags_)binding.keyModifiers) && ImGui::IsKeyPressed((ImGuiKey)binding.keyCode, repeat);
 	}
 
 	bool IsAnyDown(const MultiInputBinding& bindings)
