@@ -1079,7 +1079,7 @@ namespace MikuMikuWorld
 					{
 						Note& n = context.score.notes.at(id);
 						n.lane = std::clamp(n.lane + diff, MIN_LANE, MAX_LANE - n.width + 1);
-						n.width = std::clamp(n.width - diff, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH - n.lane);
+						n.width = std::clamp(n.width - diff, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
 					}
 				}
 			}
@@ -1091,12 +1091,12 @@ namespace MikuMikuWorld
 		// move
 		if (noteControl(context, pos, sz, "M", ImGuiMouseCursor_ResizeAll))
 		{
-			int curLane = std::clamp(positionToLane(mousePos.x), MIN_LANE, MAX_LANE);
-			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
+			int curLane = positionToLane(mousePos.x);
+			int grabLane = positionToLane(ctrlMousePos.x);
 			int grabTick = snapTickFromPos(-ctrlMousePos.y, context.score.timeSignatures);
 
 			int diff = curLane - grabLane;
-			if (abs(diff) > 0 && curLane >= MIN_LANE && curLane <= MAX_LANE)
+			if (abs(diff) > 0)
 			{
 				isMovingNote = true;
 				ctrlMousePos.x = mousePos.x;
@@ -1188,7 +1188,7 @@ namespace MikuMikuWorld
 		}
 
 		pos.x += sz.x;
-		sz.x = noteControlWidth + 2.0f;
+		sz.x = noteControlWidth;
 
 		// right resize
 		if (noteControl(context, pos, sz, "R", ImGuiMouseCursor_ResizeEW))
