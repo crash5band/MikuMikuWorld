@@ -554,11 +554,7 @@ namespace MikuMikuWorld
 						ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
 						ImGuiColorEditFlags flags = 1 << (20 + (int)displayMode);
 						if (ImGui::ColorEdit3("##custom_accent_color", col, flags))
-						{
-							customColor.x = col[0];
-							customColor.y = col[1];
-							customColor.z = col[2];
-						}
+							customColor.x = col[0]; customColor.y = col[1]; customColor.z = col[2];
 
 						UI::endPropertyColumns();
 						ImGui::PopStyleVar();
@@ -566,8 +562,13 @@ namespace MikuMikuWorld
 
 					if (ImGui::CollapsingHeader(getString("video"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
-						if (ImGui::Checkbox(getString("vsync_enable"), &Application::windowState.vsync))
-							glfwSwapInterval((int)Application::windowState.vsync);
+						bool vsync = Application::windowState.vsync;
+						UI::beginPropertyColumns();
+						UI::addCheckboxProperty(getString("vsync"), Application::windowState.vsync);
+						UI::endPropertyColumns();
+
+						if (vsync != Application::windowState.vsync)
+							glfwSwapInterval(Application::windowState.vsync ? 1 : 0);
 					}
 
 					ImGui::EndTabItem();
@@ -585,9 +586,9 @@ namespace MikuMikuWorld
 						UI::addSliderProperty(getString("smooth_scroll_time"), config.smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
 						ImGui::Separator();
 
-						UI::addCheckboxProperty("Return To Last Tick On Pause", config.returnToLastSelectedTickOnPause);
-						UI::addCheckboxProperty("Cursor Auto Scroll While Playing", config.followCursorInPlayback);
-						UI::addPercentSliderProperty("Cursor Auto Scroll Percentage From Timeline", config.cursorPositionThreshold);
+						UI::addCheckboxProperty(getString("return_to_last_tick"), config.returnToLastSelectedTickOnPause);
+						UI::addCheckboxProperty(getString("cursor_auto_scroll"), config.followCursorInPlayback);
+						UI::addPercentSliderProperty(getString("cursor_auto_scroll_amount"), config.cursorPositionThreshold);
 						UI::endPropertyColumns();
 					}
 
