@@ -547,23 +547,25 @@ namespace MikuMikuWorld
 		drawList->PopClipRect();
 
 		// status bar: playback controls, division, zoom, current time and rhythm
-		ImGui::SetCursorPos(ImVec2{ 5, UI::toolbarBtnSize.y + size.y + 8 });
+		ImGui::SetCursorPos(ImVec2{ ImGui::GetStyle().WindowPadding.x, UI::toolbarBtnSize.y + size.y + 8});
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
 
-		if (UI::transparentButton(ICON_FA_BACKWARD, UI::btnNormal, true, !playing))
+		if (UI::toolbarButton(ICON_FA_BACKWARD, getString("previous_tick"), ToShortcutString(config.input.previousTick), context.currentTick > 0 && !playing))
 			previousTick(context);
 
 		ImGui::SameLine();
-		if (UI::transparentButton(ICON_FA_STOP))
+		if (UI::toolbarButton(ICON_FA_STOP, getString("stop"), ToShortcutString(config.input.stop)))
 			stop(context);
 
 		ImGui::SameLine();
-		if (UI::transparentButton(playing ? ICON_FA_PAUSE : ICON_FA_PLAY))
+		if (UI::toolbarButton(playing ? ICON_FA_PAUSE : ICON_FA_PLAY, getString("toggle_playback"), ToShortcutString(config.input.togglePlayback)))
 			togglePlaying(context);
 
 		ImGui::SameLine();
-		if (UI::transparentButton(ICON_FA_FORWARD, UI::btnNormal, true, !playing))
+		if (UI::toolbarButton(ICON_FA_FORWARD, getString("next_tick"), ToShortcutString(config.input.nextTick), !playing))
 			nextTick(context);
 
+		ImGui::PopStyleColor();
 		ImGui::SameLine();
 		ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
 		ImGui::SameLine();

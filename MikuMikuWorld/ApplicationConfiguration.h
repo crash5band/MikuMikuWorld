@@ -14,7 +14,7 @@ namespace MikuMikuWorld
 		MultiInputBinding increaseNoteSize = { "decrease_note_size", {} };
 		MultiInputBinding shrinkDown = { "shrink_down", {} };
 		MultiInputBinding shrinkUp = { "shrink_up", {} };
-		MultiInputBinding openHelp = { "help", {} };
+		MultiInputBinding openHelp = { "help", {ImGuiKey_F1} };
 		MultiInputBinding openSettings = { "settings", {} };
 		MultiInputBinding deleteSelection = { "delete", {ImGuiKey_Delete} };
 		MultiInputBinding copySelection = { "copy", {ImGuiKey_C, ImGuiModFlags_Ctrl} };

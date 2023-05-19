@@ -310,7 +310,7 @@ namespace MikuMikuWorld
 		}
 
 		ImGui::SameLine();
-		ImGui::SetNextItemWidth(150);
+		ImGui::SetNextItemWidth(120);
 
 		act |= ImGui::SliderFloat(labelID(label), &value, min, max, "%.2fx");
 		ImGui::SameLine();
