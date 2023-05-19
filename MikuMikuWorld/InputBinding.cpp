@@ -147,14 +147,11 @@ static constexpr ImGuiKeyInfo GetImGuiKeyInfo(ImGuiKey key)
 
 const char* ToShortcutString(const MultiInputBinding& binding)
 {
-	if (binding.count < 1)
-	{
-		return GetImGuiKeyInfo(ImGuiKey_None).displayName;
-	}
-	else
-	{
-		return ToShortcutString(binding.bindings[0]);
-	}
+	for (int i = 0; i < binding.count; ++i)
+		if (binding.bindings[i].keyCode != ImGuiKey_None)
+			return ToShortcutString(binding.bindings[i]);
+	
+	return GetImGuiKeyInfo(ImGuiKey_None).displayName;
 }
 
 const char* ToShortcutString(const InputBinding& binding)

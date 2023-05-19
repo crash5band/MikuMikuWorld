@@ -44,6 +44,22 @@ struct MultiInputBinding
 		bindings[count++] = binding;
 	}
 
+	void moveUp(int index)
+	{
+		if (index < 1)
+			return;
+
+		std::swap(bindings[index - 1], bindings[index]);
+	}
+
+	void moveDown(int index)
+	{
+		if (index > 2 || count <= index + 1)
+			return;
+
+		std::swap(bindings[index + 1], bindings[index]);
+	}
+
 	void addBinding(InputBinding binding)
 	{
 		if (count == bindings.size())

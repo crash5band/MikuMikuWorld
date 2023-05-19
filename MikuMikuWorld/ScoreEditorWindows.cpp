@@ -359,6 +359,8 @@ namespace MikuMikuWorld
 		if (selectedBindingIndex > -1 && selectedBindingIndex < count)
 		{
 			int deleteBinding = -1;
+			int moveIndex = -1;
+			int moveDirection = 0;
 			const bool canAdd = bindings[selectedBindingIndex]->count < 4;
 
 			UI::beginPropertyColumns();
@@ -381,18 +383,42 @@ namespace MikuMikuWorld
 			ImGui::BeginChild("##binding_keys_edit_window", ImVec2(-1, -1), true);
 			for (int b = 0; b < bindings[selectedBindingIndex]->count; ++b)
 			{
+				const bool canMoveDown = !(bindings[selectedBindingIndex]->count <= b + 1);
+				const bool canMoveUp = !(b < 1);
 				ImGui::PushID(b);
 
-				std::string buttonText;
-				std::string cmdText = ToShortcutString(bindings[selectedBindingIndex]->bindings[b]);
+				std::string buttonText = ToShortcutString(bindings[selectedBindingIndex]->bindings[b]);;
+				if (!buttonText.size())
+					buttonText = getString("none");
 
-				buttonText = listeningForInput && editBindingIndex == b ? getString("cmd_key_listen") : cmdText;
-				if (ImGui::Button(buttonText.c_str(), ImVec2(ImGui::GetContentRegionAvail().x - 105, UI::btnSmall.y)))
+				if (listeningForInput && editBindingIndex == b)
+					buttonText = getString("cmd_key_listen");
+
+				float width = (UI::btnSmall.x * 2) + 100 + (ImGui::GetStyle().ItemSpacing.x * 3);
+				if (ImGui::Button(buttonText.c_str(), ImVec2(ImGui::GetContentRegionAvail().x - width, UI::btnSmall.y)))
 				{
 					listeningForInput = true;
 					inputTimer.reset();
 					editBindingIndex = b;
 				}
+
+				ImGui::SameLine();
+				if (!canMoveUp) UI::beginNextItemDisabled();
+				if (ImGui::Button(ICON_FA_CARET_UP, UI::btnSmall))
+				{
+					moveIndex = b;
+					moveDirection = -1;
+				}
+				if (!canMoveUp) UI::endNextItemDisabled();
+
+				ImGui::SameLine();
+				if (!canMoveDown) UI::beginNextItemDisabled();
+				if (ImGui::Button(ICON_FA_CARET_DOWN, UI::btnSmall))
+				{
+					moveIndex = b;
+					moveDirection = 1;
+				}
+				if (!canMoveDown) UI::endNextItemDisabled();
 
 				ImGui::SameLine();
 				if (ImGui::Button(getString("remove"), ImVec2(100, UI::btnSmall.y)))
@@ -403,6 +429,13 @@ namespace MikuMikuWorld
 			ImGui::EndChild();
 			ImGui::PopStyleVar();
 			ImGui::PopStyleColor();
+
+			if (moveIndex > -1)
+			{
+				listeningForInput = false;
+				if (moveDirection == -1) bindings[selectedBindingIndex]->moveUp(moveIndex);
+				if (moveDirection == 1) bindings[selectedBindingIndex]->moveDown(moveIndex);
+			}
 
 			if (deleteBinding > -1)
 			{
