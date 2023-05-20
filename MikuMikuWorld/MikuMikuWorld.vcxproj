@@ -224,7 +224,6 @@
     <ClInclude Include="Background.h" />
     <ClInclude Include="BinaryReader.h" />
     <ClInclude Include="BinaryWriter.h" />
-    <ClInclude Include="ChannelProvider.h" />
     <ClInclude Include="Colors.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DefaultLanguage.h" />

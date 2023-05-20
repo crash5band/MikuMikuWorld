@@ -2,10 +2,26 @@
 #include <string>
 #include <map>
 #include <vector>
-#include "ChannelProvider.h"
+#include <unordered_map>
 
 namespace MikuMikuWorld
 {
+	class ChannelProvider
+	{
+	private:
+		struct TickRange { int start; int end; };
+		std::unordered_map<int, TickRange> channels;
+
+	public:
+		ChannelProvider()
+		{
+			clear();
+		}
+
+		int generateChannel(int startTick, int endTick);
+		void clear();
+	};
+
 	struct SUS;
 
 	struct NoteMap

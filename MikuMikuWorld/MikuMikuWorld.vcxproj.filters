@@ -214,9 +214,6 @@
     <ClInclude Include="Stopwatch.h">
       <Filter>Misc</Filter>
     </ClInclude>
-    <ClInclude Include="ChannelProvider.h">
-      <Filter>Score\SUS</Filter>
-    </ClInclude>
     <ClInclude Include="SUS.h">
       <Filter>Score\SUS</Filter>
     </ClInclude>
