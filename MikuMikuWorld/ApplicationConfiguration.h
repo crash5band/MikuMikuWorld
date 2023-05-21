@@ -59,6 +59,7 @@ namespace MikuMikuWorld
 		int accentColor;
 		Color userColor;
 		BaseTheme baseTheme;
+		std::string language;
 		int division;
 		float zoom;
 

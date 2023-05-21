@@ -11,12 +11,12 @@ namespace MikuMikuWorld
 	std::unordered_map<std::string, std::unique_ptr<Language>> Localization::languages;
 	Language* Localization::currentLanguage = nullptr;
 
-	void Localization::load(const char* code, const std::string& filename)
+	void Localization::load(const char* code, std::string name, const std::string& filename)
 	{
 		if (!IO::File::exists(filename))
 			return;
 
-        languages[code] = std::make_unique<Language>(code, filename);
+        languages[code] = std::make_unique<Language>(code, name, filename);
 	}
 
 	bool Localization::setLanguage(const std::string& code)
@@ -31,7 +31,7 @@ namespace MikuMikuWorld
 
 	void Localization::loadDefault()
 	{
-		languages["en"] = std::make_unique<Language>("en", en);
+		languages["en"] = std::make_unique<Language>("en", "English", en);
 	}
 
 	const char* getString(const std::string& key)

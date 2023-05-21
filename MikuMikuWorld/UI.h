@@ -9,8 +9,8 @@
 
 #define APP_NAME "MikuMikuWorld"
 
-#define IMGUI_TITLE(icon, title) IO::concat(icon, getString(title), " ").c_str()
-#define MODAL_TITLE(title) IO::concat(APP_NAME, getString(title), " - ").c_str()
+#define IMGUI_TITLE(icon, title) IO::formatString("%s %s###%s", icon, getString(title), title).c_str()
+#define MODAL_TITLE(title) IO::formatString("%s - %s###%s", APP_NAME, getString(title), title).c_str()
 
 namespace MikuMikuWorld
 {

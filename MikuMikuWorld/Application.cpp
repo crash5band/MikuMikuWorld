@@ -1,4 +1,4 @@
-#include "Application.h"
+﻿#include "Application.h"
 #include "ResourceManager.h"
 #include "IO.h"
 #include "Colors.h"
@@ -19,6 +19,7 @@ namespace MikuMikuWorld
 	{
 		appDir = root;
 		version = getVersion();
+		language = "";
 	}
 
 	Result Application::initialize()
@@ -176,6 +177,22 @@ namespace MikuMikuWorld
 
 	void Application::update()
 	{
+		if (config.language != language)
+		{
+			if (config.language == "auto")
+			{
+				// get system language
+				std::string locale = Utilities::getSystemLocale();
+				Localization::setLanguage(locale);
+			}
+			else
+			{
+				Localization::setLanguage(config.language);
+			}
+
+			language = config.language;
+		}
+
 		frameTime();
 		imgui->begin();
 
@@ -284,14 +301,7 @@ namespace MikuMikuWorld
 
 		// load more languages here
 		Localization::loadDefault();
-		Localization::load("ja", appDir + "res/i18n/ja.csv");
-
-		std::string locale = Utilities::getSystemLocale();
-		if (!Localization::setLanguage(locale))
-		{
-			// fallback to default language if language resource file is not found.
-			Localization::setLanguage("en");
-		}
+		Localization::load("ja", u8"日本語", appDir + "res/i18n/ja.csv");
 	}
 
 	void Application::run()

@@ -488,8 +488,41 @@ namespace MikuMikuWorld
 
 			if (ImGui::BeginTabBar("##settings_tabs"))
 			{
-				if (ImGui::BeginTabItem(getString("general")))
+				if (ImGui::BeginTabItem(IMGUI_TITLE("", "general")))
 				{
+					if (ImGui::CollapsingHeader("Language", ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						UI::beginPropertyColumns();
+						UI::propertyLabel("Language");
+
+						std::string id("##");
+						id.append("Language");
+
+						std::string curr = getString("auto");
+						auto langIt = Localization::languages.find(config.language);
+						if (langIt != Localization::languages.end())
+							curr = langIt->second->getDisplayName();
+
+						if (ImGui::BeginCombo(id.c_str(), curr.c_str()))
+						{
+							if (ImGui::Selectable(getString("auto"), config.language == "auto"))
+								config.language = "auto";
+
+							for (const auto& [code, language] : Localization::languages)
+							{
+								const bool selected = curr == code;
+								std::string str = language->getDisplayName();
+
+								if (ImGui::Selectable(str.c_str(), selected))
+									config.language = code;
+							}
+
+							ImGui::EndCombo();
+						}
+
+						UI::endPropertyColumns();
+					}
+
 					if (ImGui::CollapsingHeader(getString("auto_save"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
@@ -574,7 +607,7 @@ namespace MikuMikuWorld
 					ImGui::EndTabItem();
 				}
 
-				if (ImGui::BeginTabItem(getString("timeline")))
+				if (ImGui::BeginTabItem(IMGUI_TITLE("", "timeline")))
 				{
 					if (ImGui::CollapsingHeader(getString("timeline"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
@@ -603,7 +636,7 @@ namespace MikuMikuWorld
 					ImGui::EndTabItem();
 				}
 
-				if (ImGui::BeginTabItem(getString("key_config")))
+				if (ImGui::BeginTabItem(IMGUI_TITLE("", "key_config")))
 				{
 					updateKeyConfig(bindings, sizeof(bindings) / sizeof(MultiInputBinding*));
 					ImGui::EndTabItem();

@@ -28,6 +28,7 @@ namespace MikuMikuWorld
 		configFile.close();
 
 		version = jsonIO::tryGetValue<std::string>(config, "version", "1.0");
+		language = jsonIO::tryGetValue<std::string>(config, "language", "auto");
 
 		if (jsonIO::keyExists(config, "window"))
 		{
@@ -109,6 +110,7 @@ namespace MikuMikuWorld
 
 		// update to latest version
 		config["version"] = CONFIG_VERSION;
+		config["language"] = language;
 		config["window"]["position"] = {
 			{"x", windowPos.x},
 			{"y", windowPos.y}
@@ -192,6 +194,7 @@ namespace MikuMikuWorld
 		vsync = true;
 		accentColor = 1;
 		userColor = Color(0.2f, 0.2f, 0.2f, 1.0f);
+		language = "auto";
 
 		timelineWidth = 30;
 		notesHeight = 35;

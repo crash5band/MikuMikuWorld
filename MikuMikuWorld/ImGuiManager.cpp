@@ -213,8 +213,7 @@ namespace MikuMikuWorld
 		ImGui::Begin("InvisibleWindow", nullptr, windowFlags); // This is basically the background window that contains all the dockable windows
 		ImGui::PopStyleVar(3);
 
-		std::string dockStrId{ "InvisibleWindowDockSpace-" };
-		dockStrId.append(Localization::currentLanguage->getCode());
+		std::string dockStrId{ "InvisibleWindowDockSpace" };
 
 		ImGuiID dockSpaceId = ImGui::GetID(dockStrId.c_str());
 		if (!ImGui::DockBuilderGetNode(dockSpaceId))
@@ -227,10 +226,10 @@ namespace MikuMikuWorld
 			ImGuiID topRightId = ImGui::DockBuilderSplitNode(midRightId, ImGuiDir_Up, 0.15f, nullptr, &midRightId);
 			ImGuiID bottomRightId = ImGui::DockBuilderSplitNode(midRightId, ImGuiDir_Down, 0.3f, nullptr, &midRightId);
 
-			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"), dockMainId);
-			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_ALIGN_LEFT, "chart_properties"), midRightId);
-			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_WRENCH, "settings"), topRightId);
-			ImGui::DockBuilderDockWindow(IMGUI_TITLE(ICON_FA_DRAFTING_COMPASS, "presets"), bottomRightId);
+			ImGui::DockBuilderDockWindow("###notes_timeline", dockMainId);
+			ImGui::DockBuilderDockWindow("###chart_properties", midRightId);
+			ImGui::DockBuilderDockWindow("###settings", topRightId);
+			ImGui::DockBuilderDockWindow("###presets", bottomRightId);
 
 			ImGui::DockBuilderFinish(dockMainId);
 		}

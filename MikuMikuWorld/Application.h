@@ -39,6 +39,7 @@ namespace MikuMikuWorld
 		float frameDelta;
 		bool initialized;
 		bool shouldPickScore;
+		std::string language;
 
 		std::vector<std::string> pendingOpenFiles;
 		std::string pendingDropScoreFile;

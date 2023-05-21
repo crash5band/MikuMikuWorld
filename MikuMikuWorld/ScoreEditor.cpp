@@ -125,7 +125,7 @@ namespace MikuMikuWorld
 		}
 		ImGui::End();
 
-		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_WRENCH, "settings"), NULL, ImGuiWindowFlags_Static))
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_WRENCH, "options"), NULL, ImGuiWindowFlags_Static))
 		{
 			optionsWindow.update(context, edit, timeline.getMode());
 		}
