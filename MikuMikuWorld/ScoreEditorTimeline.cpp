@@ -1246,7 +1246,7 @@ namespace MikuMikuWorld
 
 		const Texture& pathTex = ResourceManager::textures[texIndex];
 
-		float steps = std::max(15.0f, std::ceilf(abs((endY - startY)) / 10));
+		float steps = ease == EaseType::Linear ? 1 : std::max(5.0f, std::ceilf(abs((endY - startY)) / 10));
 		for (int y = 0; y < steps; ++y)
 		{
 			const float percent1 = y / steps;
