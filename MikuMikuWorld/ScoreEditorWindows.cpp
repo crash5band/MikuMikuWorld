@@ -490,20 +490,17 @@ namespace MikuMikuWorld
 			{
 				if (ImGui::BeginTabItem(IMGUI_TITLE("", "general")))
 				{
-					if (ImGui::CollapsingHeader("Language", ImGuiTreeNodeFlags_DefaultOpen))
+					if (ImGui::CollapsingHeader(getString("language"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
-						UI::propertyLabel("Language");
-
-						std::string id("##");
-						id.append("Language");
+						UI::propertyLabel(getString("language"));
 
 						std::string curr = getString("auto");
 						auto langIt = Localization::languages.find(config.language);
 						if (langIt != Localization::languages.end())
 							curr = langIt->second->getDisplayName();
 
-						if (ImGui::BeginCombo(id.c_str(), curr.c_str()))
+						if (ImGui::BeginCombo("##language", curr.c_str()))
 						{
 							if (ImGui::Selectable(getString("auto"), config.language == "auto"))
 								config.language = "auto";

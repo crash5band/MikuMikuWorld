@@ -13,6 +13,7 @@ edit, 編集
 undo, 元に戻す
 redo, やり直す
 select_all, 全て選択
+view, 表示
 settings, 設定
 window, ウィンドウ
 vsync, VSync（垂直同期）
@@ -31,6 +32,8 @@ discard_changes, 保存しない
 cancel, キャンセル
 general, 一般
 key_config, キーコンフィグ
+language, 言語
+auto, 自動
 auto_save, オートセーブ
 auto_save_enable, オートセーブ
 auto_save_interval, オートセーブの間隔（分）
@@ -48,6 +51,9 @@ lane_width, レーンの幅
 notes_height, ノーツの高さ
 use_smooth_scroll, スムーズスクロール
 smooth_scroll_time, スムーズスクロールの時間
+return_to_last_tick, 元の位置戻る,
+cursor_auto_scroll, 自動スクロール,
+cursor_auto_scroll_amount, 自動スクロール量
 background, 背景
 background_brightnes, 背景の明るさ
 lanes_opacity, レーンの不透明度
@@ -55,8 +61,7 @@ video, 画面
 vsync_enable, VSync（垂直同期）
 
 # score editor
-toolbox, ツールボックス
-controls, 操作
+options, オプション
 chart_properties, 譜面プロパティ
 notes_timeline, タイムライン
 select, 選択
@@ -68,14 +73,12 @@ critical, クリティカル
 bpm, BPM
 time_signature, 拍子
 none, 無し
-page, ページ
-follow_cursor, 追従
-up, 通常
+default, 通常
 left, 左
 right, 右
-visible, 可視
-invisible, 不可視
-ignored, 無視
+normal, ふつ
+hidden, 不可視
+skip, 無視
 linear, 直線
 ease_in, 加速
 ease_out, 減速
@@ -114,7 +117,6 @@ division, 小節の分割
 division_suffix, 分音符
 custom, カスタム：
 custom_division, カスタム分割
-scroll_mode, スクロール方式
 zoom, ズーム
 show_step_outlines, 中継点に枠線を表示
 edit_bpm, 編集
@@ -143,12 +145,11 @@ action, コマンド
 keys, キー
 add, 追加
 cmd_key_listen, 入力待ち中
-reset, 新規
-toggle_playback_play_pause, 再生/一時停止
-toggle_playback_play_stop, 再生/停止
+new_chart, 新規
+toggle_playback, 再生/一時停止
 cancel_paste, ペーストをキャンセル
 stop, 停止
-prev_tick, 元の拍子
+previous_tick, 元の拍子
 next_tick, 次の拍子
 timeline_select, タイムライン「選択」
 timeline_tap, タイムライン「タップ」
@@ -159,3 +160,5 @@ timeline_critical, タイムライン「クリティカル」
 timeline_bpm, タイムライン「BPM」
 timeline_time_signature, タイムライン「拍子」
 timeline_hi_speed, タイムライン「ハイスピード」
+zoom_in, ズームイン
+zoom_out, ズームアウト
