@@ -215,15 +215,18 @@ namespace MikuMikuWorld
 			for (const auto& bpm : bpms)
 				gcd = std::gcd(bpm.tick, gcd);
 
-			std::map<int, std::string> data;
+			int dataCount = ticksPerMeasure / gcd;
+			std::string data(dataCount * 2, '0');
+
 			for (const auto& bpm : bpms)
-				data[bpm.tick - measureTicks] = bpmIdentifiers[bpm.bpm];
+			{
+				int index = (bpm.tick - measureTicks) / gcd * 2;
+				std::string identifier = bpmIdentifiers[bpm.bpm];
+				data[index + 0] = identifier[0];
+				data[index + 1] = identifier[1];
+			}
 
-			std::string values;
-			for (int i = 0; i < ticksPerMeasure; i += gcd)
-				values += (data.find(i) == data.end() ? "00" : data[i]);
-
-			lines.push_back(formatString("#%03d08: %s", offset, values.c_str()));
+			lines.push_back(formatString("#%03d08: %s", offset, data.c_str()));
 		}
 
 		lines.push_back("");
@@ -269,6 +272,7 @@ namespace MikuMikuWorld
 		// write note data
 		for (const auto& [measure, map] : measuresMap)
 		{
+			int measureTicks = getTicksFromMeasure(measure);
 			int base = (measure / 1000) * 1000;
 			int offset = measure % 1000;
 			if (base != baseMeasure)
@@ -283,19 +287,16 @@ namespace MikuMikuWorld
 				for (const auto& raw : notes.data)
 					gcd = std::gcd(raw.tick, gcd);
 
-				std::map<int, std::string> data;
+				int dataCount = notes.ticksPerMeasure / gcd;
+				std::string data(dataCount * 2, '0');
 				for (const auto& raw : notes.data)
-					data[raw.tick % notes.ticksPerMeasure] = raw.data;
+				{
+					int index = (raw.tick - measureTicks) / gcd * 2;
+					data[index + 0] = raw.data[0];
+					data[index + 1] = raw.data[1];
+				}
 
-				std::vector<std::string> values;
-				for (int i = 0; i < notes.ticksPerMeasure; i += gcd)
-					values.push_back((data.find(i) == data.end() ? "00" : data[i]));
-
-				std::string line = formatString("#%03d%s:", measure - baseMeasure, info.c_str());
-				for (const auto& value : values)
-					line.append(value);
-
-				lines.push_back(line);
+				lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) + data);
 			}
 		}
 
