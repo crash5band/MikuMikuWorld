@@ -77,9 +77,9 @@ namespace MikuMikuWorld
 		visualOffset = offset = std::max(offset + x1 - x2, minOffset); // prevent jittery movement when zooming
 	}
 
-	int ScoreEditorTimeline::snapTickFromPos(float posY, const std::map<int, TimeSignature>& ts)
+	int ScoreEditorTimeline::snapTickFromPos(float posY)
 	{
-		return snapTick(positionToTick(posY), division, ts);
+		return snapTick(positionToTick(posY), division);
 	}
 
 	int ScoreEditorTimeline::laneFromCenterPosition(int lane, int width)
@@ -392,7 +392,9 @@ namespace MikuMikuWorld
 			if (context.score.timeSignatures.find(measure) != context.score.timeSignatures.end())
 				tsIndex = measure;
 
-			if (division < 192)
+			if (!(tick % TICKS_PER_BEAT))
+				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), divColor1, primaryLineThickness);
+			else if (division < 192)
 				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), divColor2, secondaryLineThickness);
 		}
 
@@ -400,7 +402,7 @@ namespace MikuMikuWorld
 		int ticksPerMeasure = beatsPerMeasure(context.score.timeSignatures[tsIndex]) * TICKS_PER_BEAT;
 
 		// overdraw one measure to make sure the measure string is always visible
-		for (int tick = firstTick; tick < lastTick + ticksPerMeasure; tick += TICKS_PER_BEAT)
+		for (int tick = firstTick; tick < lastTick + ticksPerMeasure; tick += ticksPerMeasure)
 		{
 			if (context.score.timeSignatures.find(measure) != context.score.timeSignatures.end())
 			{
@@ -412,17 +414,10 @@ namespace MikuMikuWorld
 			const float txtPos = x1 - MEASURE_WIDTH - (ImGui::CalcTextSize(measureStr.c_str()).x * 0.5f);
 			const float y = position.y - tickToPosition(tick) + visualOffset;
 
-			if (!(tick % ticksPerMeasure))
-			{
-				drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH, y), ImVec2(x2 + MEASURE_WIDTH, y), measureColor, primaryLineThickness);
-				drawShadedText(drawList, ImVec2{ txtPos, y }, 26, measureTxtColor, measureStr.c_str());
+			drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH, y), ImVec2(x2 + MEASURE_WIDTH, y), measureColor, primaryLineThickness);
+			drawShadedText(drawList, ImVec2{ txtPos, y }, 26, measureTxtColor, measureStr.c_str());
 
-				++measure;
-			}
-			else
-			{
-				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), divColor1, primaryLineThickness);
-			}
+			++measure;
 		}
 
 		// draw lanes
@@ -433,7 +428,7 @@ namespace MikuMikuWorld
 			drawList->AddLine(ImVec2(x, position.y), ImVec2(x, position.y + size.y), boldLane ? divColor1 : divColor2, boldLane ? primaryLineThickness : secondaryLineThickness);
 		}
 
-		hoverTick = snapTickFromPos(-mousePos.y, context.score.timeSignatures);
+		hoverTick = snapTickFromPos(-mousePos.y);
 		hoverLane = positionToLane(mousePos.x);
 		isHoveringNote = false;
 
@@ -1095,7 +1090,7 @@ namespace MikuMikuWorld
 		{
 			int curLane = positionToLane(mousePos.x);
 			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
-			int grabTick = snapTickFromPos(-ctrlMousePos.y, context.score.timeSignatures);
+			int grabTick = snapTickFromPos(-ctrlMousePos.y);
 
 			int diff = curLane - grabLane;
 			if (abs(diff) > 0)
