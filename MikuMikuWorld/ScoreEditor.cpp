@@ -188,7 +188,7 @@ namespace MikuMikuWorld
 			timeline.calculateMaxOffsetFromScore(context.score);
 
 			UI::setWindowTitle((context.workingData.filename.size() ? IO::File::getFilename(context.workingData.filename) : windowUntitled) + "*");
-			context.upToDate = context.workingData.filename.size();
+			context.upToDate = true;
 		}
 		catch (std::runtime_error& err)
 		{
