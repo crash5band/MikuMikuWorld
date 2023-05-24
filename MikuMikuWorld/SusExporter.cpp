@@ -291,7 +291,7 @@ namespace MikuMikuWorld
 				std::string data(dataCount * 2, '0');
 				for (const auto& raw : notes.data)
 				{
-					int index = (raw.tick - measureTicks) / gcd * 2;
+					int index = (raw.tick % notes.ticksPerMeasure) / gcd * 2;
 					data[index + 0] = raw.data[0];
 					data[index + 1] = raw.data[1];
 				}
