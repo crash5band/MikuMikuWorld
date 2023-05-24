@@ -42,10 +42,12 @@ namespace MikuMikuWorld
 			if (filePickResult == 1 && filename != context.workingData.musicFilename)
 			{
 				context.audio.changeBGM(filename);
+				context.workingData.musicFilename = filename;
 			}
 			else if (filePickResult == 2 && IO::FileDialog::openFile(filename, IO::FileType::AudioFile) && filename != context.workingData.musicFilename)
 			{
 				context.audio.changeBGM(filename);
+				context.workingData.musicFilename = filename;
 			}
 
 			float offset = context.workingData.musicOffset;
