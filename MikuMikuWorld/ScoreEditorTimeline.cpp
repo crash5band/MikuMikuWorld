@@ -77,9 +77,9 @@ namespace MikuMikuWorld
 		visualOffset = offset = std::max(offset + x1 - x2, minOffset); // prevent jittery movement when zooming
 	}
 
-	int ScoreEditorTimeline::snapTickFromPos(float posY)
+	int ScoreEditorTimeline::snapTickFromPos(float posY, const ScoreContext& context)
 	{
-		return snapTick(positionToTick(posY), division);
+		return snapTick(positionToTick(posY), division, context.score.timeSignatures);
 	}
 
 	int ScoreEditorTimeline::laneFromCenterPosition(int lane, int width)
@@ -381,25 +381,41 @@ namespace MikuMikuWorld
 		firstTick = measureToTicks(measure, TICKS_PER_BEAT, context.score.timeSignatures);
 
 		int tsIndex = findTimeSignature(measure, context.score.timeSignatures);
-		int subDiv = TICKS_PER_BEAT / (division < 192 ? (division / 4) : 1);
+		int numerator = context.score.timeSignatures[tsIndex].numerator;
+		int interval = (division / 4) * numerator; // the number of times a measure is divided
+
+		int ticksPerMeasure = beatsPerMeasure(context.score.timeSignatures[tsIndex]) * TICKS_PER_BEAT;
+		int beatTicks = ticksPerMeasure / numerator; // the amount of ticks between each measure beat
+		int subDiv = ticksPerMeasure / interval; // the amount of ticks between each measure division
 
 		for (int tick = firstTick; tick <= lastTick; tick += subDiv)
 		{
 			const float y = position.y - tickToPosition(tick) + visualOffset;
-			int measure = accumulateMeasures(tick, TICKS_PER_BEAT, context.score.timeSignatures);
+			int currentMeasure = accumulateMeasures(tick, TICKS_PER_BEAT, context.score.timeSignatures);
 
 			// time signature changes on current measure
-			if (context.score.timeSignatures.find(measure) != context.score.timeSignatures.end())
-				tsIndex = measure;
+			if (context.score.timeSignatures.find(currentMeasure) != context.score.timeSignatures.end())
+			{
+				tsIndex = currentMeasure;
+				numerator = context.score.timeSignatures[tsIndex].numerator;
+				interval = (division / 4) * context.score.timeSignatures[tsIndex].numerator;
 
-			if (!(tick % TICKS_PER_BEAT))
+				ticksPerMeasure = beatsPerMeasure(context.score.timeSignatures[tsIndex]) * TICKS_PER_BEAT;
+				beatTicks = ticksPerMeasure / numerator;
+				subDiv = ticksPerMeasure / interval;
+			}
+
+			// determine whether the tick is a beat relative to its measure's tick
+			int measureTicks = measureToTicks(currentMeasure, TICKS_PER_BEAT, context.score.timeSignatures);
+
+			if (!((tick - measureTicks) % beatTicks))
 				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), divColor1, primaryLineThickness);
 			else if (division < 192)
 				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), divColor2, secondaryLineThickness);
 		}
 
 		tsIndex = findTimeSignature(measure, context.score.timeSignatures);
-		int ticksPerMeasure = beatsPerMeasure(context.score.timeSignatures[tsIndex]) * TICKS_PER_BEAT;
+		ticksPerMeasure = beatsPerMeasure(context.score.timeSignatures[tsIndex]) * TICKS_PER_BEAT;
 
 		// overdraw one measure to make sure the measure string is always visible
 		for (int tick = firstTick; tick < lastTick + ticksPerMeasure; tick += ticksPerMeasure)
@@ -428,7 +444,7 @@ namespace MikuMikuWorld
 			drawList->AddLine(ImVec2(x, position.y), ImVec2(x, position.y + size.y), boldLane ? divColor1 : divColor2, boldLane ? primaryLineThickness : secondaryLineThickness);
 		}
 
-		hoverTick = snapTickFromPos(-mousePos.y);
+		hoverTick = snapTickFromPos(-mousePos.y, context);
 		hoverLane = positionToLane(mousePos.x);
 		isHoveringNote = false;
 
@@ -1090,7 +1106,7 @@ namespace MikuMikuWorld
 		{
 			int curLane = positionToLane(mousePos.x);
 			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
-			int grabTick = snapTickFromPos(-ctrlMousePos.y);
+			int grabTick = snapTickFromPos(-ctrlMousePos.y, context);
 
 			int diff = curLane - grabLane;
 			if (abs(diff) > 0)

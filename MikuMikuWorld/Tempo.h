@@ -22,7 +22,7 @@ namespace MikuMikuWorld
 		Tempo(int tick, float bpm);
 	};
 
-	int snapTick(int tick, int div);
+	int snapTick(int tick, int div, const std::map<int, TimeSignature>& ts);
 	float beatsPerMeasure(const TimeSignature& t);
 
 	float ticksToSec(int ticks, int beatTicks, float bpm);
