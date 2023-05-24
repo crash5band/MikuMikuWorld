@@ -337,10 +337,11 @@ namespace MikuMikuWorld
 
 			slide.push_back(SUSNote{ end.tick, end.lane + 2, end.width, 2 });
 			if (end.isFlick())
+			{
 				directionals.push_back(SUSNote{ end.tick, end.lane + 2, end.width, flickToType[end.flick] });
-
-			if (end.critical)
-				taps.push_back(SUSNote{ end.tick, end.lane + 2, end.width, 2 });
+				if (end.critical)
+					taps.push_back(SUSNote{ end.tick, end.lane + 2, end.width, 2 });
+			}
 
 			slides.push_back(slide);
 		}
@@ -360,23 +361,8 @@ namespace MikuMikuWorld
 		if (!bpms.size())
 			bpms.push_back(BPM{ 0, 120 });
 
-		std::stable_sort(taps.begin(), taps.end(),
-			[](const SUSNote& a, const SUSNote& b) { return a.tick < b.tick; });
-
-		std::stable_sort(slides.begin(), slides.end(),
-			[](const auto& a, const auto& b) { return a[0].tick < b[0].tick; });
-
-		std::stable_sort(directionals.begin(), directionals.end(),
-			[](const SUSNote& a, const SUSNote& b) {return a.tick < b.tick; });
-
-		std::stable_sort(bpms.begin(), bpms.end(),
-			[](const BPM& a, const BPM& b) { return a.tick < b.tick; });
-
 		for (const auto& [measure, ts] : score.timeSignatures)
 			barlengths.push_back(BarLength{ ts.measure, ((float)ts.numerator / (float)ts.denominator) * 4 });
-
-		std::stable_sort(barlengths.begin(), barlengths.end(),
-			[](const BarLength& a, const BarLength& b) { return a.bar < b.bar; });
 
 		hiSpeeds.reserve(score.hiSpeedChanges.size());
 		for (const auto& hiSpeed : score.hiSpeedChanges)

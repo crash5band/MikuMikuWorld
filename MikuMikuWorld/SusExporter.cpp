@@ -104,13 +104,12 @@ namespace MikuMikuWorld
 			std::string key = attrKey;
 			std::transform(key.begin(), key.end(), key.begin(), ::toupper);
 
-			std::string line = "#" + key + " \"" + attrValue + "\"";
-			lines.push_back(line);
+			lines.push_back("#" + key + " \"" + attrValue + "\"");
 		}
 
-		lines.push_back(std::string("#WAVEOFFSET " + std::to_string(sus.metadata.waveOffset)));
+		lines.push_back(IO::formatString("#WAVEOFFSET %g", sus.metadata.waveOffset));
 		lines.push_back("");
-		lines.push_back("#REQUEST \"ticks_per_beat " + std::to_string(ticksPerBeat) + "\"");
+		lines.push_back(IO::formatString("#REQUEST \"ticks_per_beat %d\"", ticksPerBeat));
 		lines.push_back("");
 
 		auto barLengths = sus.barlengths;
