@@ -1751,6 +1751,23 @@ namespace MikuMikuWorld
 		holdEnd.ID = nextID++;
 		holdEnd.parentID = holdStart.ID;
 
+		if (holdStart.tick == holdEnd.tick)
+		{
+			const TimeSignature& t = context.score.timeSignatures.at(
+				findTimeSignature(
+					accumulateMeasures(
+						holdStart.tick, TICKS_PER_BEAT, context.score.timeSignatures
+					), context.score.timeSignatures
+				)
+			);
+
+			holdEnd.tick += (beatsPerMeasure(t) * TICKS_PER_BEAT) / (((float)division / 4) * t.numerator);
+		}
+		else if (holdStart.tick > holdEnd.tick)
+		{
+			std::swap(holdStart.tick, holdEnd.tick);
+		}
+
 		context.score.notes[holdStart.ID] = holdStart;
 		context.score.notes[holdEnd.ID] = holdEnd;
 		context.score.holdNotes[holdStart.ID] = { {holdStart.ID, HoldStepType::Normal, edit.easeType}, {}, holdEnd.ID };
