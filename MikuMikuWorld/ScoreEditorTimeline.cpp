@@ -748,13 +748,12 @@ namespace MikuMikuWorld
 			context.pasteData.minLaneOffset,
 			context.pasteData.maxLaneOffset);
 
-		const Color previewTint{ 1.0f, 1.0f, 1.0f, 0.6f };
 		for (const auto& [_, note] : context.pasteData.notes)
 			if (note.getType() == NoteType::Tap && isNoteVisible(note, hoverTick))
-				drawNote(note, renderer, previewTint, hoverTick, context.pasteData.offsetLane);
+				drawNote(note, renderer, hoverTint, hoverTick, context.pasteData.offsetLane);
 
 		for (const auto& [_, hold] : context.pasteData.holds)
-			drawHoldNote(context.pasteData.notes, hold, renderer, previewTint, hoverTick, context.pasteData.offsetLane);
+			drawHoldNote(context.pasteData.notes, hold, renderer, hoverTint, hoverTick, context.pasteData.offsetLane);
 	}
 
 	void ScoreEditorTimeline::updateInputNotes(EditArgs& edit)
@@ -1091,8 +1090,8 @@ namespace MikuMikuWorld
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
-						n.lane = std::clamp(n.lane + diff, MIN_LANE, MAX_LANE - n.width + 1);
 						n.width = std::clamp(n.width - diff, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
+						n.lane = std::clamp(n.lane + diff, MIN_LANE, MAX_LANE - n.width + 1);
 					}
 				}
 			}
