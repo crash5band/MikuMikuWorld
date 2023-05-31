@@ -561,8 +561,10 @@ namespace MikuMikuWorld
 		ImGui::SetCursorPos(ImVec2{ ImGui::GetStyle().WindowPadding.x, UI::toolbarBtnSize.y + size.y + 8});
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
 
+		ImGui::PushButtonRepeat(true);
 		if (UI::toolbarButton(ICON_FA_BACKWARD, getString("previous_tick"), ToShortcutString(config.input.previousTick), context.currentTick > 0 && !playing))
 			previousTick(context);
+		ImGui::PopButtonRepeat();
 
 		ImGui::SameLine();
 		if (UI::toolbarButton(ICON_FA_STOP, getString("stop"), ToShortcutString(config.input.stop)))
@@ -573,8 +575,10 @@ namespace MikuMikuWorld
 			togglePlaying(context);
 
 		ImGui::SameLine();
+		ImGui::PushButtonRepeat(true);
 		if (UI::toolbarButton(ICON_FA_FORWARD, getString("next_tick"), ToShortcutString(config.input.nextTick), !playing))
 			nextTick(context);
+		ImGui::PopButtonRepeat();
 
 		ImGui::PopStyleColor();
 		ImGui::SameLine();
