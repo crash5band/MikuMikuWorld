@@ -60,8 +60,7 @@ namespace MikuMikuWorld
 			}
 
 			if (ImGui::IsAnyPressed(config.input.openSettings)) settingsWindow.open = true;
-			if (ImGui::IsAnyPressed(config.input.openHelp)) ShellExecuteW(0, 0, L"https://github.com/crash5band/MikuMikuWorld/wiki", 0, 0, SW_SHOW);
-
+			if (ImGui::IsAnyPressed(config.input.openHelp)) help();
 			if (ImGui::IsAnyPressed(config.input.save)) trySave(context.workingData.filename);
 			if (ImGui::IsAnyPressed(config.input.saveAs)) saveAs();
 			if (ImGui::IsAnyPressed(config.input.exportSus)) exportSus();
@@ -187,7 +186,7 @@ namespace MikuMikuWorld
 			context.scoreStats.calculateStats(context.score);
 			timeline.calculateMaxOffsetFromScore(context.score);
 
-			UI::setWindowTitle((context.workingData.filename.size() ? IO::File::getFilename(context.workingData.filename) : windowUntitled) + "*");
+			UI::setWindowTitle((context.workingData.filename.size() ? IO::File::getFilename(context.workingData.filename) : windowUntitled));
 			context.upToDate = true;
 		}
 		catch (std::runtime_error& err)
@@ -351,7 +350,7 @@ namespace MikuMikuWorld
 		if (ImGui::BeginMenu(getString("help")))
 		{
 			if (ImGui::MenuItem(getString("help"), ToShortcutString(config.input.openHelp)))
-				ShellExecuteW(0, 0, L"https://github.com/crash5band/MikuMikuWorld/wiki", 0, 0, SW_SHOW);
+				help();
 
 			if (ImGui::MenuItem(getString("about")))
 				aboutDialog.open = true;
@@ -438,5 +437,10 @@ namespace MikuMikuWorld
 		ImGui::PopStyleColor(3);
 		ImGui::PopStyleVar(2);
 		ImGui::End();
+	}
+
+	void ScoreEditor::help()
+	{
+		ShellExecuteW(0, 0, L"https://github.com/crash5band/MikuMikuWorld/wiki", 0, 0, SW_SHOW);
 	}
 }

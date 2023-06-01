@@ -12,39 +12,33 @@ namespace MikuMikuWorld
 {
 	struct EditArgs
 	{
-		int noteWidth = 3;
-		FlickType flickType = FlickType::Default;
-		HoldStepType stepType = HoldStepType::Normal;
-		EaseType easeType = EaseType::Linear;
+		int noteWidth{ 3 };
+		FlickType flickType{ FlickType::Default };
+		HoldStepType stepType{ HoldStepType::Normal };
+		EaseType easeType{ EaseType::Linear };
 
-		float bpm = 160.0f;
-		int timeSignatureNumerator = 4;
-		int timeSignatureDenominator = 4;
-		float hiSpeed = 1.0f;
+		float bpm{ 160.0f };
+		int timeSignatureNumerator{ 4 };
+		int timeSignatureDenominator{ 4 };
+		float hiSpeed{ 1.0f };
 	};
 
 	struct EditorScoreData
 	{
-		std::string title;
-		std::string designer;
-		std::string artist;
-		std::string filename;
-		std::string musicFilename;
-		float musicOffset;
-		Jacket jacket;
-
-		EditorScoreData() :
-			filename{ "" }, title{ "" }, designer{ "" }, artist{ "" }, musicFilename{ "" }, musicOffset{ 0.0f }
-		{
-			jacket.clear();
-		}
+		std::string title{};
+		std::string designer{};
+		std::string artist{};
+		std::string filename{};
+		std::string musicFilename{};
+		float musicOffset{};
+		Jacket jacket{};
 	};
 
 	struct PasteData
 	{
 		std::unordered_map<int, Note> notes;
 		std::unordered_map<int, HoldNote> holds;
-		bool pasting;
+		bool pasting{ false };
 		int offsetTicks{};
 		int offsetLane{};
 		int midLane{};
@@ -63,8 +57,8 @@ namespace MikuMikuWorld
 		PasteData pasteData{};
 		std::unordered_set<int> selectedNotes;
 
-		int currentTick = 0;
-		bool upToDate = true;
+		int currentTick{};
+		bool upToDate{ true };
 
 		std::unordered_set<int> getHoldsFromSelection()
 		{

@@ -6,6 +6,7 @@
 #include "Utilities.h"
 #include "Localization.h"
 #include "Constants.h"
+#include "NoteGraphics.h"
 #include <filesystem>
 #include <Windows.h>
 
@@ -14,6 +15,8 @@ namespace MikuMikuWorld
 	std::string Application::version;
 	std::string Application::appDir;
 	WindowState Application::windowState;
+
+	NoteTextures noteTextures{ -1, -1, -1 };
 
 	Application::Application(const std::string& root) : initialized{ false }
 	{
@@ -298,6 +301,11 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(appDir + "res/textures/timeline_bpm.png");
 		ResourceManager::loadTexture(appDir + "res/textures/timeline_time_signature.png");
 		ResourceManager::loadTexture(appDir + "res/textures/timeline_hi_speed.png");
+
+		// cache note textures indices
+		noteTextures.notes = ResourceManager::getTexture(NOTES_TEX);
+		noteTextures.holdPath = ResourceManager::getTexture(HOLD_PATH_TEX);
+		noteTextures.criticalHoldPath = ResourceManager::getTexture(HOLD_PATH_CRTCL_TEX);
 
 		// load more languages here
 		Localization::loadDefault();

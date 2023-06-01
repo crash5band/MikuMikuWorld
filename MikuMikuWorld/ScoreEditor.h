@@ -36,6 +36,7 @@ namespace MikuMikuWorld
 
 		void drawMenubar();
 		void drawToolbar();
+		void help();
 
 		inline void loadPresets(std::string path) { presetManager.loadPresets(path); }
 		inline void savePresets(std::string path) { presetManager.savePresets(path); }

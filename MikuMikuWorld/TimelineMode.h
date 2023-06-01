@@ -50,6 +50,15 @@ namespace MikuMikuWorld
 		EventTypeMax
 	};
 
+	constexpr const char* eventTypes[]
+	{
+		"bpm",
+		"time_signature",
+		"hi_speed",
+		"skill",
+		"fever"
+	};
+
 	enum class Direction
 	{
 		Down,

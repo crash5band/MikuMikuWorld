@@ -1246,6 +1246,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
 	{
+		int texIndex = n1.critical ? noteTextures.holdPath : noteTextures.criticalHoldPath;
+		if (texIndex == -1)
+			return;
+
+		const Texture& pathTex = ResourceManager::textures[texIndex];
+
 		float startX1 = laneToPosition(n1.lane + offsetLane);
 		float startX2 = laneToPosition(n1.lane + n1.width + offsetLane);
 		float startY = getNoteYPosFromTick(n1.tick + offsetTick);
@@ -1253,12 +1259,6 @@ namespace MikuMikuWorld
 		float endX1 = laneToPosition(n2.lane + offsetLane);
 		float endX2 = laneToPosition(n2.lane + n2.width + offsetLane);
 		float endY = getNoteYPosFromTick(n2.tick + offsetTick);
-
-		const int texIndex = ResourceManager::getTexture(n1.critical ? HOLD_PATH_CRTCL_TEX : HOLD_PATH_TEX);
-		if (texIndex == -1)
-			return;
-
-		const Texture& pathTex = ResourceManager::textures[texIndex];
 
 		float steps = ease == EaseType::Linear ? 1 : std::max(5.0f, std::ceilf(abs((endY - startY)) / 10));
 		for (int y = 0; y < steps; ++y)
@@ -1350,11 +1350,10 @@ namespace MikuMikuWorld
 			s1 = -1;
 			s2 = 1;
 
-			int texIndex = ResourceManager::getTexture(NOTES_TEX);
-			if (texIndex == -1)
+			if (noteTextures.notes == -1)
 				return;
 
-			const Texture& tex = ResourceManager::textures[texIndex];
+			const Texture& tex = ResourceManager::textures[noteTextures.notes];
 			const Vector2 nodeSz{ notesHeight - 5, notesHeight - 5 };
 			for (int i = 0; i < note.steps.size(); ++i)
 			{
@@ -1419,14 +1418,10 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::drawHoldMid(Note& note, HoldStepType type, Renderer* renderer, const Color& tint)
 	{
-		if (type == HoldStepType::Hidden)
+		if (type == HoldStepType::Hidden || noteTextures.notes == -1)
 			return;
 
-		const int texIndex = ResourceManager::getTexture(NOTES_TEX);
-		if (texIndex == -1)
-			return;
-
-		const Texture& tex = ResourceManager::textures[texIndex];
+		const Texture& tex = ResourceManager::textures[noteTextures.notes];
 		int sprIndex = getNoteSpriteIndex(note);
 		if (sprIndex < 0 || sprIndex >= tex.sprites.size())
 			return;
@@ -1457,11 +1452,10 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
 	{
-		const int texIndex = ResourceManager::getTexture(NOTES_TEX);
-		if (texIndex == -1)
+		if (noteTextures.notes == -1)
 			return;
 
-		const Texture& tex = ResourceManager::textures[texIndex];
+		const Texture& tex = ResourceManager::textures[noteTextures.notes];
 		const int sprIndex = getFlickArrowSpriteIndex(note);
 		if (sprIndex < 0 || sprIndex >= tex.sprites.size())
 			return;
@@ -1493,20 +1487,19 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
 	{
-		Vector2 pos{ laneToPosition(note.lane + offsetLane), getNoteYPosFromTick(note.tick + offsetTick) };
-		const Vector2 sliceSz(12, notesHeight);
-		const AnchorType anchor = AnchorType::MiddleLeft;
-
-		const int texIndex = ResourceManager::getTexture(NOTES_TEX);
-		if (texIndex == -1)
+		if (noteTextures.notes == -1)
 			return;
 
-		const Texture& tex = ResourceManager::textures[texIndex];
+		const Texture& tex = ResourceManager::textures[noteTextures.notes];
 		const int sprIndex = getNoteSpriteIndex(note);
 		if (sprIndex < 0 || sprIndex >= tex.sprites.size())
 			return;
 
 		const Sprite& s = tex.sprites[sprIndex];
+
+		Vector2 pos{ laneToPosition(note.lane + offsetLane), getNoteYPosFromTick(note.tick + offsetTick) };
+		const Vector2 sliceSz(12, notesHeight);
+		const AnchorType anchor = AnchorType::MiddleLeft;
 
 		const float midLen = (laneWidth * note.width) - (sliceSz.x * 2) + NOTES_X_ADJUST + 5;
 		const Vector2 midSz(midLen, notesHeight);
@@ -1599,17 +1592,8 @@ namespace MikuMikuWorld
 		ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
 		if (ImGui::BeginPopup("edit_event"))
 		{
-			static std::string editLabel = "";
-			switch (eventEdit.type)
-			{
-			case EventType::Bpm: editLabel = "edit_bpm"; break;
-			case EventType::TimeSignature: editLabel = "edit_time_signature"; break;
-			case EventType::HiSpeed: editLabel = "edit_hi_speed"; break;
-			case EventType::Skill: editLabel = "edit_skill"; break;
-			case EventType::Fever: editLabel = "edit_fever"; break;
-			default: break;
-			}
-
+			std::string editLabel{"edit_"};
+			editLabel.append(eventTypes[(int)eventEdit.type]);
 			ImGui::Text(getString(editLabel));
 			ImGui::Separator();
 
