@@ -58,6 +58,9 @@ namespace MikuMikuWorld
 			if (ticks >= barTicks)
 				return barLength.bar + ((float)(ticks - barTicks) / (float)ticksPerBeat / barLength.length);
 		}
+
+		// no time signatures
+		return 0;
 	}
 
 	void SusExporter::appendData(int tick, std::string info, std::string data)
