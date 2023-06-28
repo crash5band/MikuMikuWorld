@@ -1246,7 +1246,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
 	{
-		int texIndex = n1.critical ? noteTextures.holdPath : noteTextures.criticalHoldPath;
+		int texIndex = n1.critical ? noteTextures.criticalHoldPath : noteTextures.holdPath;
 		if (texIndex == -1)
 			return;
 
