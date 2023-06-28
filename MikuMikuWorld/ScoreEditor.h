@@ -17,6 +17,8 @@ namespace MikuMikuWorld
 		SettingsWindow settingsWindow{};
 		AboutDialog aboutDialog{};
 
+		Stopwatch autoSaveTimer;
+		std::string autoSavePath;
 		std::string exportComment;
 		bool showImGuiDemoWindow;
 
@@ -33,6 +35,8 @@ namespace MikuMikuWorld
 		void exportSus();
 		bool saveAs();
 		bool trySave(std::string filename = "");
+		void autoSave();
+		int deleteOldAutoSave(int count);
 
 		void drawMenubar();
 		void drawToolbar();
