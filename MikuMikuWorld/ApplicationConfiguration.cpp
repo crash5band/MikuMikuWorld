@@ -35,6 +35,7 @@ namespace MikuMikuWorld
 			const json& window = config["window"];
 			maximized = jsonIO::tryGetValue<bool>(window, "maximized", false);
 			vsync = jsonIO::tryGetValue<bool>(window, "vsync", true);
+			showFPS = jsonIO::tryGetValue<bool>(window, "show_fps", false);
 
 			windowPos = jsonIO::tryGetValue(window, "position", Vector2{});
 			if (windowPos.x <= 0) windowPos.x = 150;
@@ -123,6 +124,7 @@ namespace MikuMikuWorld
 
 		config["window"]["maximized"] = maximized;
 		config["window"]["vsync"] = vsync;
+		config["window"]["show_fps"] = showFPS;
 
 		config["timeline"] = {
 			{"lane_width", timelineWidth},

@@ -368,6 +368,8 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(getString("vsync"), NULL, &config.vsync))
 				glfwSwapInterval(config.vsync);
 
+			ImGui::MenuItem(getString("show_fps"), NULL, &config.showFPS);
+
 			ImGui::EndMenu();
 		}
 
@@ -382,9 +384,12 @@ namespace MikuMikuWorld
 			ImGui::EndMenu();
 		}
 
-		std::string fps = IO::formatString("%.3fms (%.1fFPS)", ImGui::GetIO().DeltaTime * 1000, ImGui::GetIO().Framerate);
-		ImGui::SetCursorPosX(ImGui::GetWindowSize().x - ImGui::CalcTextSize(fps.c_str()).x - ImGui::GetStyle().WindowPadding.x);
-		ImGui::Text(fps.c_str());
+		if (config.showFPS)
+		{
+			std::string fps = IO::formatString("%.3fms (%.1fFPS)", ImGui::GetIO().DeltaTime * 1000, ImGui::GetIO().Framerate);
+			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - ImGui::CalcTextSize(fps.c_str()).x - ImGui::GetStyle().WindowPadding.x);
+			ImGui::Text(fps.c_str());
+		}
 
 		ImGui::PopStyleVar();
 		ImGui::EndMainMenuBar();

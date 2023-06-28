@@ -17,7 +17,7 @@ view, 表示
 settings, 設定
 window, ウィンドウ
 vsync, VSync（垂直同期）
-show_performance, パフォーマンス情報を表示
+show_fps, FPS情報を表示
 debug, デバッグ
 create_auto_save, オートセーブを実行
 help, ヘルプ

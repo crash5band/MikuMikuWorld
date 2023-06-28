@@ -21,7 +21,7 @@ namespace MikuMikuWorld
 		{"settings", "Settings"},
 		{"window", "Window"},
 		{"vsync", "VSync"},
-		{"show_performance", "Show Performance Metrics"},
+		{"show_fps", "Show FPS"},
 		{"debug", "Debug"},
 		{"create_auto_save", "Create Auto Save"},
 		{"help", "Help"},

@@ -56,6 +56,7 @@ namespace MikuMikuWorld
 		Vector2 windowSize;
 		bool maximized;
 		bool vsync;
+		bool showFPS;
 		int accentColor;
 		Color userColor;
 		BaseTheme baseTheme;
