@@ -29,6 +29,7 @@ namespace MikuMikuWorld
 
 		version = jsonIO::tryGetValue<std::string>(config, "version", "1.0");
 		language = jsonIO::tryGetValue<std::string>(config, "language", "auto");
+		debugEnabled = jsonIO::tryGetValue<bool>(config, "debug", false);
 
 		if (jsonIO::keyExists(config, "window"))
 		{
@@ -112,6 +113,7 @@ namespace MikuMikuWorld
 		// update to latest version
 		config["version"] = CONFIG_VERSION;
 		config["language"] = language;
+		config["debug"] = debugEnabled;
 		config["window"]["position"] = {
 			{"x", windowPos.x},
 			{"y", windowPos.y}
@@ -217,5 +219,7 @@ namespace MikuMikuWorld
 		masterVolume = 0.8f;
 		bgmVolume = 1.0f;
 		seVolume = 1.0f;
+
+		debugEnabled = false;
 	}
 }

@@ -80,6 +80,7 @@ namespace MikuMikuWorld
 		float masterVolume;
 		float bgmVolume;
 		float seVolume;
+		bool debugEnabled;
 
 		InputConfiguration input;
 

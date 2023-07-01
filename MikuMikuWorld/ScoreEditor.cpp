@@ -122,11 +122,14 @@ namespace MikuMikuWorld
 		timeline.update(context, edit, renderer.get());
 		ImGui::End();
 
-		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_BUG, "debug"), NULL))
+		if (config.debugEnabled)
 		{
-			timeline.debug();
+			if (ImGui::Begin(IMGUI_TITLE(ICON_FA_BUG, "debug"), NULL))
+			{
+				timeline.debug();
+			}
+			ImGui::End();
 		}
-		ImGui::End();
 
 		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_ALIGN_LEFT, "chart_properties"), NULL, ImGuiWindowFlags_Static))
 		{
@@ -146,8 +149,10 @@ namespace MikuMikuWorld
 		}
 		ImGui::End();
 
+#ifdef DEBUG
 		if (showImGuiDemoWindow)
 			ImGui::ShowDemoWindow(&showImGuiDemoWindow);
+#endif
 	}
 
 	void ScoreEditor::create()
@@ -348,19 +353,25 @@ namespace MikuMikuWorld
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu(getString("debug")))
+		if (config.debugEnabled)
 		{
-			ImGui::MenuItem("ImGui Demo Window", NULL, &showImGuiDemoWindow);
-			if (ImGui::MenuItem("Auto Save"))
-				autoSave();
+			if (ImGui::BeginMenu(getString("debug")))
+			{
+	#ifdef DEBUG
+				ImGui::MenuItem("ImGui Demo Window", NULL, &showImGuiDemoWindow);
+	#endif
 
-			if (ImGui::MenuItem("Delete Old Auto Save (1)"))
-				deleteOldAutoSave(1);
+				if (ImGui::MenuItem("Auto Save"))
+					autoSave();
 
-			if (ImGui::MenuItem("Delete Old Auto Save (Max)"))
-				deleteOldAutoSave(config.autoSaveMaxCount);
+				if (ImGui::MenuItem("Delete Old Auto Save (1)"))
+					deleteOldAutoSave(1);
 
-			ImGui::EndMenu();
+				if (ImGui::MenuItem("Delete Old Auto Save (Max)"))
+					deleteOldAutoSave(config.autoSaveMaxCount);
+
+				ImGui::EndMenu();
+			}
 		}
 
 		if (ImGui::BeginMenu(getString("window")))
@@ -487,7 +498,7 @@ namespace MikuMikuWorld
 		context.score.metadata.musicFile = context.workingData.musicFilename;
 		context.score.metadata.musicOffset = context.workingData.musicOffset;
 		context.score.metadata.jacketFile = context.workingData.jacket.getFilename();
-		serializeScore(context.score, autoSavePath + "mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION);
+		serializeScore(context.score, autoSavePath + "/mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION);
 
 		// get mmws files
 		int mmwsCount = 0;
