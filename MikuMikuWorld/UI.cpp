@@ -39,9 +39,7 @@ namespace MikuMikuWorld
 		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * !enabled));
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 
-		ImGui::PushButtonRepeat(repeat);
-		bool pressed = ImGui::Button(txt, size);
-		ImGui::PopButtonRepeat();
+		bool pressed = ImGui::ButtonEx(txt, size, (repeat ? ImGuiButtonFlags_Repeat : 0));
 
 		ImGui::PopStyleColor();
 		ImGui::PopStyleVar();

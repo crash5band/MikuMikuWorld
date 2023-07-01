@@ -959,10 +959,14 @@ namespace MikuMikuWorld
 
 	bool ScoreEditorTimeline::noteControl(ScoreContext& context, const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor)
 	{
+		// do not process notes if the cursor is outside of the timeline
+		// this fixes ui buttons conflicting with note "buttons"
+		if (!mouseInTimeline && !isHoldingNote)
+			return false;
+
 		ImGui::SetCursorScreenPos(pos);
 		ImGui::InvisibleButton(id, sz);
-		ImGui::SetItemAllowOverlap();
-		if (ImGui::IsItemHovered())
+		if (mouseInTimeline && ImGui::IsItemHovered())
 			ImGui::SetMouseCursor(cursor);
 
 		// note clicked
