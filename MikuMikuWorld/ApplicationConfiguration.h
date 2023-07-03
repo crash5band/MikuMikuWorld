@@ -9,13 +9,13 @@ namespace MikuMikuWorld
 	struct InputConfiguration
 	{
 		MultiInputBinding togglePlayback = { "toggle_playback", {ImGuiKey_Space, ImGuiModFlags_None} };
-		MultiInputBinding stop = { "stop", {} };
+		MultiInputBinding stop = { "stop", {ImGuiKey_Backspace} };
 		MultiInputBinding decreaseNoteSize = { "decrease_note_size", {} };
 		MultiInputBinding increaseNoteSize = { "increase_note_size", {} };
 		MultiInputBinding shrinkDown = { "shrink_down", {} };
 		MultiInputBinding shrinkUp = { "shrink_up", {} };
 		MultiInputBinding openHelp = { "help", {ImGuiKey_F1} };
-		MultiInputBinding openSettings = { "settings", {} };
+		MultiInputBinding openSettings = { "settings", {ImGuiKey_Comma, ImGuiModFlags_Ctrl} };
 		MultiInputBinding deleteSelection = { "delete", {ImGuiKey_Delete} };
 		MultiInputBinding copySelection = { "copy", {ImGuiKey_C, ImGuiModFlags_Ctrl} };
 		MultiInputBinding cutSelection = { "cut", {ImGuiKey_X, ImGuiModFlags_Ctrl} };
@@ -36,15 +36,15 @@ namespace MikuMikuWorld
 		MultiInputBinding zoomOut = { "zoom_out", {} };
 		MultiInputBinding zoomIn = { "zoom_in", {} };
 		
-		MultiInputBinding timelineSelect = { "timeline_select", {ImGuiKey_1} };
-		MultiInputBinding timelineTap = { "timeline_tap", {ImGuiKey_2} };
-		MultiInputBinding timelineHold = { "timeline_hold", {ImGuiKey_3} };
-		MultiInputBinding timelineHoldMid = { "timeline_hold_step", {ImGuiKey_4} };
-		MultiInputBinding timelineFlick = { "timeline_flick", {ImGuiKey_5} };
-		MultiInputBinding timelineCritical = { "timeline_critical", {ImGuiKey_6} };
-		MultiInputBinding timelineBpm = { "timeline_bpm", {ImGuiKey_7} };
-		MultiInputBinding timelineTimeSignature = { "timeline_time_signature", {ImGuiKey_8} };
-		MultiInputBinding timelineHiSpeed = { "timeline_hi_speed", {ImGuiKey_9} };
+		MultiInputBinding timelineSelect = { "timeline_select", {ImGuiKey_1}, {ImGuiKey_Keypad1} };
+		MultiInputBinding timelineTap = { "timeline_tap", {ImGuiKey_2}, {ImGuiKey_Keypad2} };
+		MultiInputBinding timelineHold = { "timeline_hold", {ImGuiKey_3}, {ImGuiKey_Keypad3} };
+		MultiInputBinding timelineHoldMid = { "timeline_hold_step", {ImGuiKey_4}, {ImGuiKey_Keypad4} };
+		MultiInputBinding timelineFlick = { "timeline_flick", {ImGuiKey_5}, {ImGuiKey_Keypad5} };
+		MultiInputBinding timelineCritical = { "timeline_critical", {ImGuiKey_6}, {ImGuiKey_Keypad6} };
+		MultiInputBinding timelineBpm = { "timeline_bpm", {ImGuiKey_7}, {ImGuiKey_Keypad7} };
+		MultiInputBinding timelineTimeSignature = { "timeline_time_signature", {ImGuiKey_8}, {ImGuiKey_Keypad8} };
+		MultiInputBinding timelineHiSpeed = { "timeline_hi_speed", {ImGuiKey_9}, {ImGuiKey_Keypad9} };
 	};
 
 	struct ApplicationConfiguration

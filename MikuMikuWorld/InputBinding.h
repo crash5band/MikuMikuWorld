@@ -45,6 +45,16 @@ struct MultiInputBinding
 			bindings[count++] = binding;
 	}
 
+	MultiInputBinding(const char* name, InputBinding b1, InputBinding b2)
+	{
+		this->name = name;
+		if (b1.keyCode != 0)
+			bindings[count++] = b1;
+
+		if (b2.keyCode != 0)
+			bindings[count++] = b2;
+	}
+
 	void moveUp(int index)
 	{
 		if (index < 1)
