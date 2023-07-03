@@ -11,7 +11,7 @@ namespace MikuMikuWorld
 		MultiInputBinding togglePlayback = { "toggle_playback", {ImGuiKey_Space, ImGuiModFlags_None} };
 		MultiInputBinding stop = { "stop", {} };
 		MultiInputBinding decreaseNoteSize = { "decrease_note_size", {} };
-		MultiInputBinding increaseNoteSize = { "decrease_note_size", {} };
+		MultiInputBinding increaseNoteSize = { "increase_note_size", {} };
 		MultiInputBinding shrinkDown = { "shrink_down", {} };
 		MultiInputBinding shrinkUp = { "shrink_up", {} };
 		MultiInputBinding openHelp = { "help", {ImGuiKey_F1} };

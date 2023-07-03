@@ -125,8 +125,8 @@ remove, 削除
 edit_time_signature, 拍子を編集
 measure, 小節
 skill, スキル
-increase_note_width, ノーツの幅を広げる
-decrease_note_width, ノーツの幅を狭める
+increase_note_size, ノーツの幅を広げる
+decrease_note_size, ノーツの幅を狭める
 hi_speed, ハイスピード
 edit_hi_speed, ハイスピードを編集
 hi_speed_speed, ハイスピード速度
