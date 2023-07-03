@@ -223,12 +223,11 @@ namespace MikuMikuWorld
 
 			ImGuiID dockMainId = dockSpaceId;
 			ImGuiID midRightId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Right, 0.25f, nullptr, &dockMainId);
-			ImGuiID topRightId = ImGui::DockBuilderSplitNode(midRightId, ImGuiDir_Up, 0.15f, nullptr, &midRightId);
 			ImGuiID bottomRightId = ImGui::DockBuilderSplitNode(midRightId, ImGuiDir_Down, 0.3f, nullptr, &midRightId);
 
 			ImGui::DockBuilderDockWindow("###notes_timeline", dockMainId);
 			ImGui::DockBuilderDockWindow("###chart_properties", midRightId);
-			ImGui::DockBuilderDockWindow("###settings", topRightId);
+			ImGui::DockBuilderDockWindow("###options", bottomRightId);
 			ImGui::DockBuilderDockWindow("###presets", bottomRightId);
 
 			ImGui::DockBuilderFinish(dockMainId);

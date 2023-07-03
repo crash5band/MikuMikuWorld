@@ -9,7 +9,7 @@ using namespace nlohmann;
 namespace MikuMikuWorld
 {
 	ApplicationConfiguration config{};
-	constexpr const char* CONFIG_VERSION{ "1.4.0" };
+	constexpr const char* CONFIG_VERSION{ "1.5.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -45,7 +45,7 @@ namespace MikuMikuWorld
 			windowSize = jsonIO::tryGetValue(window, "size", Vector2{});
 			if (windowSize.x <= 0 || windowSize.y <= 0)
 			{
-				windowSize.x = 1200;
+				windowSize.x = 1000;
 				windowSize.y = 800;
 			}
 		}
@@ -63,7 +63,7 @@ namespace MikuMikuWorld
 			smoothScrollingTime = jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 67.0f);
 
 			returnToLastSelectedTickOnPause = jsonIO::tryGetValue<bool>(config["timeline"], "return_to_last_tick_on_pause", false);
-			cursorPositionThreshold = jsonIO::tryGetValue<float>(config["timeline"], "cursor_position_threshold", 0.7f);
+			cursorPositionThreshold = jsonIO::tryGetValue<float>(config["timeline"], "cursor_position_threshold", 0.5f);
 		}
 
 		if (jsonIO::keyExists(config, "theme"))
@@ -193,14 +193,14 @@ namespace MikuMikuWorld
 	void ApplicationConfiguration::restoreDefault()
 	{
 		windowPos = Vector2(150, 100);
-		windowSize = Vector2(1200, 800);
+		windowSize = Vector2(1000, 800);
 		maximized = false;
 		vsync = true;
 		accentColor = 1;
 		userColor = Color(0.2f, 0.2f, 0.2f, 1.0f);
 		language = "auto";
 
-		timelineWidth = 30;
+		timelineWidth = 26;
 		notesHeight = 35;
 		division = 8;
 		zoom = 2.0f;
@@ -208,7 +208,7 @@ namespace MikuMikuWorld
 		backgroundBrightness = 0.5f;
 		useSmoothScrolling = true;
 		smoothScrollingTime = 67.0f;
-		cursorPositionThreshold = 0.7;
+		cursorPositionThreshold = 0.5;
 		followCursorInPlayback = true;
 		returnToLastSelectedTickOnPause = false;
 
@@ -216,7 +216,7 @@ namespace MikuMikuWorld
 		autoSaveInterval = 5;
 		autoSaveMaxCount = 100;
 
-		masterVolume = 0.8f;
+		masterVolume = 1.0f;
 		bgmVolume = 1.0f;
 		seVolume = 1.0f;
 
