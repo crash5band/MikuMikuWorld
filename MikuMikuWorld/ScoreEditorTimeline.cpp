@@ -1225,7 +1225,7 @@ namespace MikuMikuWorld
 					Note& n = context.score.notes.at(id);
 					int newWidth = n.width + diff;
 
-					if (newWidth < MIN_NOTE_WIDTH || newWidth > MAX_NOTE_WIDTH)
+					if (newWidth < MIN_NOTE_WIDTH || n.lane + newWidth - 1 > MAX_LANE)
 					{
 						canResize = false;
 						break;
