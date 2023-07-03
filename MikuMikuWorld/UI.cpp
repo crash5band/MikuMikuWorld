@@ -68,14 +68,11 @@ namespace MikuMikuWorld
 		ImVec4 col4 = ImGui::ColorConvertU32ToFloat4(col);
 		ImVec4 colh = generateHighlightColor(col4);
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !enabled);
-		//ImGui::PushStyleColor(ImGuiCol_Button, col4);
-		//ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colh);
-		//ImGui::PushStyleColor(ImGuiCol_ButtonActive, colh);
-		//ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.15f, 0.15f, 0.15f, 1.0));
-		//ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 2.0f);
-		//ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
-		float prevSize = ImGui::GetFont()->FontSize;
-		ImGui::GetFont()->FontSize = 18.0f;
+		ImGui::PushStyleColor(ImGuiCol_Button, col4);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colh);
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, colh);
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.15f, 0.15f, 0.15f, 1.0));
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 2.0f);
 
 		ImGui::SetCursorScreenPos(pos);
 		ImVec2 sz = size;
@@ -88,10 +85,10 @@ namespace MikuMikuWorld
 		sz += ImGui::GetStyle().FramePadding;
 
 		bool pressed = ImGui::Button(txt, sz);
-		//ImGui::PopStyleColor(4);
-		//ImGui::PopStyleVar(1);
+
+		ImGui::PopStyleColor(4);
+		ImGui::PopStyleVar(1);
 		ImGui::PopItemFlag();
-		ImGui::GetFont()->FontSize = prevSize;
 		return pressed;
 	}
 

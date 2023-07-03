@@ -56,7 +56,7 @@ namespace MikuMikuWorld
 	{
 		if (!drawList) return;
 
-		drawList->AddText(ImGui::GetFont(), fontSize, textPos + ImVec2{ 1.5f, 1.5f }, 0xff111111, text);
+		drawList->AddText(ImGui::GetFont(), fontSize, textPos + ImVec2{ 0.75f, 1.0f }, 0xff111111, text);
 		drawList->AddText(ImGui::GetFont(), fontSize, textPos, fontColor, text);
 	}
 }
