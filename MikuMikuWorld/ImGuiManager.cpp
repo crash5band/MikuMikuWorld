@@ -145,6 +145,7 @@ namespace MikuMikuWorld
 		}
 
 		this->theme = theme;
+		applyAccentColor(config.accentColor);
 	}
 
 	void ImGuiManager::shutdown()

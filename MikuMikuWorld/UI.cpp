@@ -18,12 +18,12 @@ namespace MikuMikuWorld
 	std::vector<ImVec4> UI::accentColors
 	{
 		ImVec4{ 0.10f, 0.10f, 0.10f, 1.00f }, // User
+		ImVec4{ 0.16f, 0.44f, 0.75f, 1.00f }, // Default
 		ImVec4{ 0.30f, 0.31f, 0.86f, 1.00f }, // Light Music
 		ImVec4{ 0.40f, 0.69f, 0.15f, 1.00f }, // Idol
 		ImVec4{ 0.76f, 0.05f, 0.32f, 1.00f }, // Street
 		ImVec4{ 0.81f, 0.45f, 0.06f, 1.00f }, // Theme Park
 		ImVec4{ 0.50f, 0.25f, 0.55f, 1.00f }, // School Refusal
-		ImVec4{ 0.40f, 0.40f, 0.40f, 1.00f }  // Plain
 	};
 
 	const char* UI::labelID(const char* label)
