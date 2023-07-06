@@ -12,7 +12,7 @@
 
 ## 機能一覧：
 - Sliding Universal Score（\*.sus）ファイルの入出力。
-- BPM・拍子の調整。
+- BPM・拍子・ハイスピーの調整。
 - 最大1920分音符までのカスタム分割。
 - ノーツプリセットの作成・使用。
 
@@ -20,4 +20,4 @@
 最新版は[ここ](https://github.com/crash5band/MikuMikuWorld/releases/latest/download/MikuMikuWorld.zip)からダウンロードできます。
 
 ## スクリーンショット：
-![](https://user-images.githubusercontent.com/59691627/192070808-1b4eb4b0-9379-4594-b3c5-37df63599a2c.png)
+![](https://user-images.githubusercontent.com/44091782/251471969-46194462-9853-49ad-89e5-5a1e08cff0d1.png)

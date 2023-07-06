@@ -5,7 +5,7 @@ A chart editor and viewer for the mobile rhythm game Project Sekai Colorful Stag
 
 ## Features:
 - Import and export Sliding Universal Score (\*.sus) files.
-- Tempo and time signature adjustment.
+- Tempo, time signature, and hi-speed adjustment.
 - Custom timeline divisions up to 1920.
 - Create and use custom note presets.
 
@@ -20,4 +20,4 @@ A chart editor and viewer for the mobile rhythm game Project Sekai Colorful Stag
 The latest version can be downloaded [here](https://github.com/crash5band/MikuMikuWorld/releases/latest/download/MikuMikuWorld.zip).
 
 ## Screenshot:
-<img src="https://user-images.githubusercontent.com/44091782/223715244-505cfa58-06a4-4237-b7ef-65609aafd205.png" height="500" width="auto">
+![](https://user-images.githubusercontent.com/44091782/251471475-153c2cea-14a7-4ca0-a087-e536ea80bf68.png)
