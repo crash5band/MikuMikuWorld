@@ -20,4 +20,4 @@
 最新版は[ここ](https://github.com/crash5band/MikuMikuWorld/releases/latest/download/MikuMikuWorld.zip)からダウンロードできます。
 
 ## スクリーンショット：
-![](https://user-images.githubusercontent.com/44091782/251471969-46194462-9853-49ad-89e5-5a1e08cff0d1.png)
+<img src="https://user-images.githubusercontent.com/44091782/251471969-46194462-9853-49ad-89e5-5a1e08cff0d1.png" align="left" height="500px">
