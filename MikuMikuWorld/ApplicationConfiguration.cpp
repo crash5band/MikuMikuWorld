@@ -56,7 +56,7 @@ namespace MikuMikuWorld
 			notesHeight = jsonIO::tryGetValue<int>(config["timeline"], "notes_height", 35);
 			division = jsonIO::tryGetValue<int>(config["timeline"], "division", 8);
 			zoom = jsonIO::tryGetValue<float>(config["timeline"], "zoom", 2.0f);
-			laneOpacity = jsonIO::tryGetValue<float>(config["timeline"], "lane_opacity", 0.6f);
+			laneOpacity = jsonIO::tryGetValue<float>(config["timeline"], "lane_opacity", 0.0f);
 			backgroundBrightness = jsonIO::tryGetValue<float>(config["timeline"], "background_brightness", 0.5f);
 
 			useSmoothScrolling = jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
@@ -204,7 +204,7 @@ namespace MikuMikuWorld
 		notesHeight = 35;
 		division = 8;
 		zoom = 2.0f;
-		laneOpacity = 0.6f;
+		laneOpacity = 0.0f;
 		backgroundBrightness = 0.5f;
 		useSmoothScrolling = true;
 		smoothScrollingTime = 67.0f;

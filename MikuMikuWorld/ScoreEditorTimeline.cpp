@@ -373,7 +373,11 @@ namespace MikuMikuWorld
 		const float x1 = getTimelineStartX();
 		const float x2 = getTimelineEndX();
 
-		//drawList->AddRectFilled(ImVec2{ x1 - (MEASURE_WIDTH * 2), position.y}, ImVec2{x2 + MEASURE_WIDTH, position.y + size.y}, 0xff202020);
+		drawList->AddRectFilled(
+			{ x1, position.y },
+			{ x2, position.y + size.y },
+			Color::abgrToInt(std::clamp((int)(config.laneOpacity * 255), 0, 255), 0x1c, 0x1a, 0x1f)
+		);
 
 		int firstTick = std::max(0, positionToTick(visualOffset - size.y));
 		int lastTick = positionToTick(visualOffset);
