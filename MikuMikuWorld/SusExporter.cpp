@@ -271,6 +271,9 @@ namespace MikuMikuWorld
 				appendNoteData(note, "3", chStr);
 		}
 
+		std::vector<NoteMap::RawData> conflicts; // notes on the same tick and lane
+		std::vector<NoteMap::RawData> temp; // holds possible note conflicts while processing other conflicts
+
 		// write note data
 		for (const auto& [measure, map] : measuresMap)
 		{
@@ -285,6 +288,8 @@ namespace MikuMikuWorld
 
 			for (const auto& [info, notes] : map.notesMap)
 			{
+				conflicts.clear();
+
 				int gcd = notes.ticksPerMeasure;
 				for (const auto& raw : notes.data)
 					gcd = std::gcd(raw.tick, gcd);
@@ -294,11 +299,40 @@ namespace MikuMikuWorld
 				for (const auto& raw : notes.data)
 				{
 					int index = (raw.tick % notes.ticksPerMeasure) / gcd * 2;
-					data[index + 0] = raw.data[0];
-					data[index + 1] = raw.data[1];
+					if (data.substr(index, 2) != "00")
+					{
+						conflicts.push_back(raw);
+					}
+					else
+					{
+						data[index + 0] = raw.data[0];
+						data[index + 1] = raw.data[1];
+					}
 				}
 
 				lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) + data);
+
+				while (conflicts.size())
+				{
+					temp.clear();
+					std::string data2(dataCount * 2, '0');
+					for (const auto& item : conflicts)
+					{
+						int index = (item.tick % notes.ticksPerMeasure) / gcd * 2;
+						if (data2.substr(index, 2) != "00")
+						{
+							temp.push_back(item);
+						}
+						else
+						{
+							data2[index + 0] = item.data[0];
+							data2[index + 1] = item.data[1];
+						}
+					}
+
+					lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) + data2);
+					conflicts = temp;
+				}
 			}
 		}
 
