@@ -1,6 +1,7 @@
 #include "ScoreConverter.h"
 #include "SUS.h"
 #include "Score.h"
+#include "IO.h"
 #include <stdexcept>
 #include "Constants.h"
 #include <unordered_set>
@@ -10,7 +11,7 @@ namespace MikuMikuWorld
 {
 	std::string ScoreConverter::noteKey(const SUSNote& note)
 	{
-		return std::to_string(note.tick) + "-" + std::to_string(note.lane);
+		return IO::formatString("%d-%d-%d", note.tick, note.lane, note.width);
 	}
 
 	std::pair<int, int> ScoreConverter::barLengthToFraction(float length, float fractionDenom)
@@ -117,7 +118,7 @@ namespace MikuMikuWorld
 
 		for (const auto& note : sus.taps)
 		{
-			if (note.lane == 0 && note.width == 1 && note.type == 4)
+			if (note.type == 4)
 			{
 				skills.push_back(SkillTrigger{ nextSkillID++, note.tick });
 			}
@@ -129,15 +130,10 @@ namespace MikuMikuWorld
 					fever.endTick = note.tick;
 			}
 
-			if (note.lane - 2 < MIN_LANE || note.lane - 2 > MAX_LANE)
-				continue;
+			//if (note.lane - 2 < MIN_LANE || note.lane - 2 > MAX_LANE)
+			//	continue;
 
 			const std::string key = noteKey(note);
-			if (slideKeys.find(key) != slideKeys.end() || (note.type != 1 && note.type != 2))
-				continue;
-
-			if (tapKeys.find(key) != tapKeys.end())
-				continue;
 
 			tapKeys.insert(key);
 			Note n(NoteType::Tap);
