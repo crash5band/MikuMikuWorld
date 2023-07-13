@@ -611,7 +611,14 @@ namespace MikuMikuWorld
 					if (ImGui::CollapsingHeader(getString("timeline"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
+						UI::addCheckboxProperty(getString("match_notes_size_to_timeline"), config.matchNotesSizeToTimeline);
 						UI::addSliderProperty(getString("lane_width"), config.timelineWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
+						
+						if (config.matchNotesSizeToTimeline)
+							UI::beginNextItemDisabled();
+						UI::addSliderProperty(getString("notes_height"), config.notesHeight, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT, "%d");
+						if (config.matchNotesSizeToTimeline)
+							UI::endNextItemDisabled();
 						ImGui::Separator();
 
 						UI::addCheckboxProperty(getString("use_smooth_scroll"), config.useSmoothScrolling);

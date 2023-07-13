@@ -92,8 +92,8 @@ namespace MikuMikuWorld
 				if (ImGui::IsAnyPressed(*timelineModeBindings[i])) timeline.changeMode((TimelineMode)i, edit);
 		}
 
-		if (config.timelineWidth != timeline.laneWidth)
-			timeline.laneWidth = config.timelineWidth;
+		timeline.laneWidth = config.timelineWidth;
+		timeline.notesHeight = config.matchNotesSizeToTimeline ? config.timelineWidth : config.notesHeight;
 
 		if (config.backgroundBrightness != timeline.background.getBrightness())
 			timeline.background.setBrightness(config.backgroundBrightness);

@@ -67,6 +67,7 @@ namespace MikuMikuWorld
 		// settings
 		int timelineWidth;
 		int notesHeight;
+		bool matchNotesSizeToTimeline;
 		float laneOpacity;
 		float backgroundBrightness;
 		bool useSmoothScrolling;

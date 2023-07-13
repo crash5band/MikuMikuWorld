@@ -53,6 +53,7 @@ namespace MikuMikuWorld
 		{"custom_color", "Custom Color"},
 		{"language", "Language"},
 		{"timeline", "Timeline"},
+		{"match_notes_size_to_timeline", "Match notes size to timeline width"},
 		{"lane_width", "Lane Width"},
 		{"notes_height", "Notes Height"},
 		{"use_smooth_scroll", "Use Smooth Scrolling"},

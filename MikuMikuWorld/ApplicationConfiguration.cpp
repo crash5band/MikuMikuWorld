@@ -9,7 +9,7 @@ using namespace nlohmann;
 namespace MikuMikuWorld
 {
 	ApplicationConfiguration config{};
-	constexpr const char* CONFIG_VERSION{ "1.5.0" };
+	constexpr const char* CONFIG_VERSION{ "1.5.1" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -54,6 +54,8 @@ namespace MikuMikuWorld
 		{
 			timelineWidth = jsonIO::tryGetValue<int>(config["timeline"], "lane_width", 26);
 			notesHeight = jsonIO::tryGetValue<int>(config["timeline"], "notes_height", 35);
+			matchNotesSizeToTimeline = jsonIO::tryGetValue<bool>(config["timeline"], "match_notes_size_to_timeline", true);
+
 			division = jsonIO::tryGetValue<int>(config["timeline"], "division", 8);
 			zoom = jsonIO::tryGetValue<float>(config["timeline"], "zoom", 2.0f);
 			laneOpacity = jsonIO::tryGetValue<float>(config["timeline"], "lane_opacity", 0.0f);
@@ -131,6 +133,7 @@ namespace MikuMikuWorld
 		config["timeline"] = {
 			{"lane_width", timelineWidth},
 			{"notes_height", notesHeight},
+			{"match_notes_size_to_timeline", matchNotesSizeToTimeline},
 			{"division", division},
 			{"zoom", zoom},
 			{"lane_opacity", laneOpacity},
@@ -202,6 +205,7 @@ namespace MikuMikuWorld
 
 		timelineWidth = 26;
 		notesHeight = 35;
+		matchNotesSizeToTimeline = true;
 		division = 8;
 		zoom = 2.0f;
 		laneOpacity = 0.0f;

@@ -23,8 +23,8 @@ namespace MikuMikuWorld
 	constexpr float MEASURE_WIDTH	= 30.0f;
 	constexpr int MIN_LANE_WIDTH	= 24;
 	constexpr int MAX_LANE_WIDTH	= 36;
-	constexpr int MIN_NOTES_HEIGHT	= 30;
-	constexpr int MAX_NOTES_HEIGHT	= 60;
+	constexpr int MIN_NOTES_HEIGHT	= 24;
+	constexpr int MAX_NOTES_HEIGHT	= 36;
 	constexpr float MIN_BPM			= 10;
 	constexpr float MAX_BPM			= 10000;
 	constexpr int MIN_TIME_SIGN		= 1;
