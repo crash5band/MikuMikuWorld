@@ -11,7 +11,7 @@ namespace MikuMikuWorld
 {
 	std::string ScoreConverter::noteKey(const SUSNote& note)
 	{
-		return IO::formatString("%d-%d-%d", note.tick, note.lane, note.width);
+		return IO::formatString("%d-%d", note.tick, note.lane);
 	}
 
 	std::pair<int, int> ScoreConverter::barLengthToFraction(float length, float fractionDenom)
@@ -130,10 +130,14 @@ namespace MikuMikuWorld
 					fever.endTick = note.tick;
 			}
 
-			//if (note.lane - 2 < MIN_LANE || note.lane - 2 > MAX_LANE)
-			//	continue;
+			if (note.lane - 2 < MIN_LANE || note.lane - 2 > MAX_LANE)
+				continue;
 
 			const std::string key = noteKey(note);
+
+			// conflict with skip slide steps
+			if (slideKeys.find(key) != slideKeys.end())
+				continue;
 
 			tapKeys.insert(key);
 			Note n(NoteType::Tap);
