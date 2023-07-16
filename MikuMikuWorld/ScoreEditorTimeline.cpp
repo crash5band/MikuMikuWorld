@@ -1188,7 +1188,7 @@ namespace MikuMikuWorld
 				switch (currentMode)
 				{
 				case TimelineMode::InsertFlick:
-					context.setFlick(FlickType::Default);
+					context.setFlick(FlickType::FlickTypeCount);
 					break;
 
 				case TimelineMode::MakeCritical:
@@ -1196,11 +1196,11 @@ namespace MikuMikuWorld
 					break;
 
 				case TimelineMode::InsertLong:
+					context.setEase(EaseType::EaseTypeCount);
+					break;
+
 				case TimelineMode::InsertLongMid:
-					if (io.KeyAlt)
-						context.setStep(HoldStepType::Normal);
-					else
-						context.setEase(EaseType::Linear);
+					context.setStep(HoldStepType::HoldStepTypeCount);
 					break;
 
 				default:
