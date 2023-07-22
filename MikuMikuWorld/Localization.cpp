@@ -36,8 +36,8 @@ namespace MikuMikuWorld
 
 	const char* getString(const std::string& key)
 	{
-        if (!Localization::currentLanguage)
-            return empty.c_str();
+		if (!Localization::currentLanguage)
+			return key.c_str();
 
         return Localization::currentLanguage->getString(key);
 	}

@@ -59,6 +59,6 @@ namespace MikuMikuWorld
         const auto& it = strings.find(key);
 
 		// imgui dies if the window/header title is empty
-		return it != strings.end() ? it->second.c_str() : " ";
+		return it != strings.end() ? it->second.c_str() : key.c_str();
     }
 }
