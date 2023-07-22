@@ -182,16 +182,11 @@ namespace MikuMikuWorld
 	{
 		if (config.language != language)
 		{
-			if (config.language == "auto")
-			{
-				// get system language
-				std::string locale = Utilities::getSystemLocale();
-				Localization::setLanguage(locale);
-			}
-			else
-			{
-				Localization::setLanguage(config.language);
-			}
+			std::string locale = config.language == "auto" ? Utilities::getSystemLocale() : config.language;
+			
+			// try to set the selected language and fallback to default (en) on failure
+			if (!Localization::setLanguage(locale))
+				Localization::setLanguage("en");
 
 			language = config.language;
 		}
