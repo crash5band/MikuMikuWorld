@@ -39,17 +39,17 @@ namespace MikuMikuWorld
 		if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldMid)
 			return;
 
-		note.flick = (FlickType)(((int)note.flick + 1) % 4);
+		note.flick = (FlickType)(((int)note.flick + 1) % (int)FlickType::FlickTypeCount);
 	}
 
 	void cycleStepEase(HoldStep& note)
 	{
-		note.ease = (EaseType)(((int)note.ease + 1) % 3);
+		note.ease = (EaseType)(((int)note.ease + 1) % (int)EaseType::EaseTypeCount);
 	}
 
 	void cycleStepType(HoldStep& note)
 	{
-		note.type = (HoldStepType)(((int)note.type + 1) % 2);
+		note.type = (HoldStepType)(((int)note.type + 1) % (int)HoldStepType::HoldStepTypeCount);
 	}
 
 	void sortHoldSteps(const Score& score, HoldNote& note)
