@@ -10,6 +10,11 @@ namespace IO
 		stream = _wfopen(wFilename.c_str(), L"wb");
 	}
 
+	BinaryWriter::~BinaryWriter()
+	{
+		close();
+	}
+
 	bool BinaryWriter::isStreamValid()
 	{
 		return stream;

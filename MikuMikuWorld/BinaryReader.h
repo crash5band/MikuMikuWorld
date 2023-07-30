@@ -11,6 +11,7 @@ namespace IO
 
 	public:
 		BinaryReader(const std::string& filename);
+		~BinaryReader();
 
 		bool isStreamValid();
 		void close();

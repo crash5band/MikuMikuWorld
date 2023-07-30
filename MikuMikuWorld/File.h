@@ -13,6 +13,7 @@ namespace IO
 		File(const std::wstring& filename, const wchar_t* mode);
 		File(const std::string& filename, const char* mode);
 		File();
+		~File();
 
 		static std::string getFilename(const std::string& filename);
 		static std::string getFileExtension(const std::string& filename);

@@ -10,6 +10,11 @@ namespace IO
 		stream = _wfopen(wFilename.c_str(), L"rb");
 	}
 
+	BinaryReader::~BinaryReader()
+	{
+		close();
+	}
+
 	bool BinaryReader::isStreamValid()
 	{
 		return stream;
@@ -19,6 +24,8 @@ namespace IO
 	{
 		if (stream)
 			fclose(stream);
+
+		stream = NULL;
 	}
 
 	size_t BinaryReader::getFileSize()

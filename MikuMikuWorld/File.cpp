@@ -23,6 +23,11 @@ namespace IO
 		stream = NULL;
 	}
 
+	File::~File()
+	{
+		close();
+	}
+
 	void File::open(const std::wstring& filename, const wchar_t* mode)
 	{
 		if (stream)
@@ -41,8 +46,11 @@ namespace IO
 
 	void File::close()
 	{
-		fclose(stream);
-		stream = NULL;
+		if (stream)
+		{
+			fclose(stream);
+			stream = NULL;
+		}
 	}
 
 	void File::flush()

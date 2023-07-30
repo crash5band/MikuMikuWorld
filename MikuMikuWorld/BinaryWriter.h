@@ -11,6 +11,7 @@ namespace IO
 
 	public:
 		BinaryWriter(const std::string& filename);
+		~BinaryWriter();
 
 		bool isStreamValid();
 		void close();
