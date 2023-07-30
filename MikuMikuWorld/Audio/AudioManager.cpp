@@ -23,6 +23,8 @@ namespace MikuMikuWorld
 	{
 		std::string err = "";
 		ma_result result = MA_SUCCESS;
+		ma_uint32 groupFlags = MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION;
+
 		try
 		{
 			result = ma_engine_init(NULL, &engine);
@@ -32,14 +34,14 @@ namespace MikuMikuWorld
 				throw(result);
 			}
 
-			result = ma_sound_group_init(&engine, 0, NULL, &bgmGroup);
+			result = ma_sound_group_init(&engine, groupFlags, NULL, &bgmGroup);
 			if (result != MA_SUCCESS)
 			{
 				err = "Failed to initialize BGM audio group.\n";
 				throw(result);
 			}
 
-			result = ma_sound_group_init(&engine, 0, NULL, &seGroup);
+			result = ma_sound_group_init(&engine, groupFlags, NULL, &seGroup);
 			if (result != MA_SUCCESS)
 			{
 				err = "Failed to initialize SE audio group.\n";
@@ -57,7 +59,7 @@ namespace MikuMikuWorld
 		musicInitialized = false;
 		loadSE();
 
-		setMasterVolume(0.8f);
+		setMasterVolume(1.0f);
 		setBGMVolume(1.0f);
 		setSEVolume(1.0f);
 	}
