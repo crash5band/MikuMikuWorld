@@ -8,7 +8,6 @@
 
 namespace MikuMikuWorld
 {
-
 	class AudioManager
 	{
 	private:
@@ -26,7 +25,7 @@ namespace MikuMikuWorld
 		float seVolume;
 
 		float bgmVolumeFactor = 1.0f;
-		float seVolumeFactor = 0.63f;
+		float seVolumeFactor = 0.74f;
 
 	public:
 		void initAudio();
