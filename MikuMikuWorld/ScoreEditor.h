@@ -32,6 +32,7 @@ namespace MikuMikuWorld
 		void create();
 		void open();
 		void loadScore(std::string filename);
+		void loadMusic(std::string filename);
 		void exportSus();
 		bool saveAs();
 		bool trySave(std::string filename = "");
@@ -44,7 +45,6 @@ namespace MikuMikuWorld
 
 		inline void loadPresets(std::string path) { presetManager.loadPresets(path); }
 		inline void savePresets(std::string path) { presetManager.savePresets(path); }
-		inline void loadMusic(std::string path) { context.audio.changeBGM(path); }
 
 		inline void uninitialize() { context.audio.uninitAudio(); }
 		inline const char* getWorkingFilename() const { return context.workingData.filename.c_str(); }

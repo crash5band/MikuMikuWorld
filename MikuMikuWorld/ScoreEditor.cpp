@@ -209,7 +209,32 @@ namespace MikuMikuWorld
 		{
 			nextID = nextIdBackup;
 
-			std::string errMsg = "An error occured while reading the score file.\n" + std::string(err.what());
+			std::string errMsg = std::string(getString("error_load_score_file"))
+				.append("\n")
+				.append(getString("score_file"))
+				.append(": ")
+				.append(getString("error"))
+				.append(": ")
+				.append(err.what());
+
+			IO::messageBox(APP_NAME, errMsg, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
+		}
+	}
+
+	void ScoreEditor::loadMusic(std::string filename)
+	{
+		if (context.audio.changeBGM(filename))
+		{
+			context.workingData.musicFilename = filename;
+		}
+		else
+		{
+			std::string errMsg = std::string(getString("error_load_music_file"))
+				.append("\n")
+				.append(getString("music_file"))
+				.append(": ")
+				.append(filename);
+
 			IO::messageBox(APP_NAME, errMsg, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 		}
 	}
