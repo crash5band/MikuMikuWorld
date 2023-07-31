@@ -53,7 +53,7 @@ namespace MikuMikuWorld
 		if (jsonIO::keyExists(config, "timeline"))
 		{
 			timelineWidth = jsonIO::tryGetValue<int>(config["timeline"], "lane_width", 26);
-			notesHeight = jsonIO::tryGetValue<int>(config["timeline"], "notes_height", 35);
+			notesHeight = jsonIO::tryGetValue<int>(config["timeline"], "notes_height", 26);
 			matchNotesSizeToTimeline = jsonIO::tryGetValue<bool>(config["timeline"], "match_notes_size_to_timeline", true);
 
 			division = jsonIO::tryGetValue<int>(config["timeline"], "division", 8);
@@ -204,7 +204,7 @@ namespace MikuMikuWorld
 		language = "auto";
 
 		timelineWidth = 26;
-		notesHeight = 35;
+		notesHeight = 26;
 		matchNotesSizeToTimeline = true;
 		division = 8;
 		zoom = 2.0f;
