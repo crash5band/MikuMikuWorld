@@ -101,17 +101,29 @@ namespace MikuMikuWorld
 		&config.input.save,
 		&config.input.saveAs,
 		&config.input.exportSus,
+		&config.input.undo,
+		&config.input.redo,
+
 		&config.input.cutSelection,
 		&config.input.copySelection,
 		&config.input.paste,
 		&config.input.flipPaste,
+		&config.input.flip,
 		&config.input.cancelPaste,
 		&config.input.deleteSelection,
+		&config.input.shrinkDown,
+		&config.input.shrinkUp,
+		&config.input.selectAll,
+
+		&config.input.togglePlayback,
+		&config.input.stop,
 		&config.input.previousTick,
 		&config.input.nextTick,
-		&config.input.selectAll,
-		&config.input.undo,
-		&config.input.redo,
+		&config.input.decreaseNoteSize,
+		&config.input.increaseNoteSize,
+		&config.input.zoomOut,
+		&config.input.zoomIn,
+
 		&config.input.timelineSelect,
 		&config.input.timelineTap,
 		&config.input.timelineHold,
@@ -121,13 +133,11 @@ namespace MikuMikuWorld
 		&config.input.timelineBpm,
 		&config.input.timelineTimeSignature,
 		&config.input.timelineHiSpeed,
-		&config.input.zoomOut,
-		&config.input.zoomIn,
+
 		&config.input.openHelp,
 		&config.input.openSettings,
-		&config.input.decreaseNoteSize,
-		&config.input.increaseNoteSize,
-		&config.input.shrinkDown,
-		&config.input.shrinkUp,
 	};
+
+	static_assert(sizeof(InputConfiguration) / sizeof(MultiInputBinding) == (sizeof(bindings) / sizeof(MultiInputBinding*)),
+		"Too many or too few items in MikuMikuWorld::bindings");
 }
