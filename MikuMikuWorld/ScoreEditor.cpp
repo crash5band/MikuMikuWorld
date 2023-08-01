@@ -69,6 +69,7 @@ namespace MikuMikuWorld
 			if (ImGui::IsAnyPressed(config.input.saveAs)) saveAs();
 			if (ImGui::IsAnyPressed(config.input.exportSus)) exportSus();
 			if (ImGui::IsAnyPressed(config.input.togglePlayback)) timeline.togglePlaying(context);
+			if (ImGui::IsAnyPressed(config.input.stop)) timeline.stop(context);
 			if (ImGui::IsAnyPressed(config.input.previousTick, true)) timeline.previousTick(context);
 			if (ImGui::IsAnyPressed(config.input.nextTick, true)) timeline.nextTick(context);
 			if (ImGui::IsAnyPressed(config.input.selectAll)) context.selectAll();
