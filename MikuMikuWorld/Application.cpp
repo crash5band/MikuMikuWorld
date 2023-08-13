@@ -267,20 +267,22 @@ namespace MikuMikuWorld
 			// already saved or clicked save changes or discard changes
 			if (editor->isUpToDate() || (unsavedChangesResult != DialogResult::Cancel && unsavedChangesResult != DialogResult::None))
 			{
-				editor->create();
-				windowState.resetting = false;
-
-				if (pendingDropScoreFile.size())
-				{
-					editor->loadScore(pendingDropScoreFile);
-					pendingDropScoreFile.clear();
-				}
-
 				if (windowState.shouldPickScore)
 				{
 					editor->open();
 					windowState.shouldPickScore = false;
 				}
+				else if (pendingDropScoreFile.size())
+				{
+					editor->loadScore(pendingDropScoreFile);
+					pendingDropScoreFile.clear();
+				}
+				else
+				{
+					editor->create();
+				}
+
+				windowState.resetting = false;
 			}
 		}
 
