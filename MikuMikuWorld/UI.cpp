@@ -10,9 +10,15 @@
 
 namespace MikuMikuWorld
 {
-	const ImVec2 UI::btnNormal{ 30, 30 };
-	const ImVec2 UI::btnSmall{ 22, 22 };
-	const ImVec2 UI::toolbarBtnSize{ 28, 28 };
+	const ImVec2 UI::_btnNormal{ 24, 24 };
+	const ImVec2 UI::_btnSmall{ 18, 18 };
+	const ImVec2 UI::_toolbarBtnSize{ 22, 22 };
+	const ImVec2 UI::_toolbarBtnImgSize{ 19, 19 };
+
+	ImVec2 UI::btnNormal{ UI::_btnNormal };
+	ImVec2 UI::btnSmall{ UI::_btnSmall };
+	ImVec2 UI::toolbarBtnSize{ UI::_toolbarBtnSize };
+	ImVec2 UI::toolbarBtnImgSize{ UI::_toolbarBtnImgSize };
 	char UI::idStr[256];
 
 	std::vector<ImVec4> UI::accentColors
@@ -173,13 +179,13 @@ namespace MikuMikuWorld
 
 		int result = 0;
 
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - btnSmall.x - ImGui::GetStyle().ItemSpacing.x);
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - ImGui::GetStyle().ItemSpacing.x);
 		if (ImGui::InputTextWithHint(labelID(label), "n/a", &val, ImGuiInputTextFlags_EnterReturnsTrue))
 			result = 1;
 		ImGui::SameLine();
 
 		ImGui::PushID(label);
-		if (ImGui::Button("...", btnSmall))
+		if (ImGui::Button("...", UI::btnSmall))
 			result = 2;
 
 		ImGui::PopID();
@@ -373,6 +379,14 @@ namespace MikuMikuWorld
 		glfwSetWindowTitle(window, std::string{ windowTitle }.append(title).c_str());
 	}
 
+	void UI::updateBtnSizesDpiScaling(float scale)
+	{
+		btnNormal = _btnNormal * scale;
+		btnSmall = _btnSmall * scale;
+		toolbarBtnSize = _toolbarBtnSize * scale;
+		toolbarBtnImgSize = _toolbarBtnImgSize * scale;
+	}
+
 	bool UI::toolbarButton(const char* icon, const char* label, const char* shortcut, bool enabled, bool selected)
 	{
 		if (!enabled)
@@ -435,7 +449,7 @@ namespace MikuMikuWorld
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_TabActive]);
 		}
 
-		bool activated = ImGui::ImageButton(lblId.c_str(), (void*)ResourceManager::textures[texIndex].getID(), ImVec2{ UI::toolbarBtnSize.x - 4, UI::toolbarBtnSize.y - 4 });
+		bool activated = ImGui::ImageButton(lblId.c_str(), (void*)ResourceManager::textures[texIndex].getID(), UI::toolbarBtnImgSize);
 		
 		std::string tooltipLabel = label;
 		if (shortcut && strlen(shortcut))

@@ -14,6 +14,7 @@ namespace MikuMikuWorld
 		
 		BaseTheme theme{};
 		int accentColor{ 1 };
+		float styleScale{ 1.0f };
 
 	public:
 		ImGuiManager();
@@ -24,6 +25,7 @@ namespace MikuMikuWorld
 		void begin();
 		void loadFont(const std::string& filename, float size);
 		void loadIconFont(const std::string& filename, int start, int end, float size);
+		void buildFonts(float dpiScale = 1.0f);
 		void draw(GLFWwindow* window);
 
 		void setBaseTheme(BaseTheme theme);

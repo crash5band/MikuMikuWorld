@@ -270,7 +270,7 @@ namespace MikuMikuWorld
 		prevPos = position;
 
 		// make space for the scrollbar and the status bar
-		size = ImGui::GetContentRegionAvail() - ImVec2{ ImGui::GetStyle().ScrollbarSize, ImGui::GetFrameHeightWithSpacing() + 5 };
+		size = ImGui::GetContentRegionAvail() - ImVec2{ ImGui::GetStyle().ScrollbarSize, UI::toolbarBtnSize.y };
 		position = ImGui::GetCursorScreenPos();
 
 		boundaries = ImRect(position, position + size);
@@ -562,7 +562,7 @@ namespace MikuMikuWorld
 		drawList->PopClipRect();
 
 		// status bar: playback controls, division, zoom, current time and rhythm
-		ImGui::SetCursorPos(ImVec2{ ImGui::GetStyle().WindowPadding.x, UI::toolbarBtnSize.y + size.y + 8});
+		ImGui::SetCursorPos(ImVec2{ ImGui::GetStyle().WindowPadding.x, size.y + UI::toolbarBtnSize.y + ImGui::GetStyle().WindowPadding.y });
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
 
 		ImGui::PushButtonRepeat(true);
@@ -1551,7 +1551,8 @@ namespace MikuMikuWorld
 
 	bool ScoreEditorTimeline::timeSignatureControl(int numerator, int denominator, int tick, bool enabled)
 	{
-		Vector2 pos{ getTimelineEndX() + 75, position.y - tickToPosition(tick) + visualOffset };
+		float dpiScale = ImGui::GetMainViewport()->DpiScale;
+		Vector2 pos{ getTimelineEndX() + (68 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
 		return eventControl(getTimelineEndX(), pos, timeColor, IO::formatString("%d/%d", numerator, denominator).c_str(), enabled);
 	}
 
@@ -1562,7 +1563,8 @@ namespace MikuMikuWorld
 
 	bool ScoreEditorTimeline::skillControl(int tick, bool enabled)
 	{
-		Vector2 pos{ getTimelineStartX() - 45, position.y - tickToPosition(tick) + visualOffset};
+		float dpiScale = ImGui::GetMainViewport()->DpiScale;
+		Vector2 pos{ getTimelineStartX() - (50 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
 		return eventControl(getTimelineStartX(), pos, skillColor, getString("skill"), enabled);
 	}
 
@@ -1579,7 +1581,8 @@ namespace MikuMikuWorld
 		std::string txt = "FEVER";
 		txt.append(start ? ICON_FA_CARET_UP : ICON_FA_CARET_DOWN);
 
-		Vector2 pos{ getTimelineStartX() - 115, position.y - tickToPosition(tick) + visualOffset };
+		float dpiScale = ImGui::GetMainViewport()->DpiScale;
+		Vector2 pos{ getTimelineStartX() - (105 * dpiScale), position.y - tickToPosition(tick) + visualOffset };
 		return eventControl(getTimelineStartX(), pos, feverColor, txt.c_str(), enabled);
 	}
 
@@ -1591,7 +1594,8 @@ namespace MikuMikuWorld
 	bool ScoreEditorTimeline::hiSpeedControl(int tick, float speed)
 	{
 		std::string txt = IO::formatString("%.2fx", speed);
-		Vector2 pos{ getTimelineEndX() + 125, position.y - tickToPosition(tick) + visualOffset };
+		float dpiScale = ImGui::GetMainViewport()->DpiScale;
+		Vector2 pos{ getTimelineEndX() + (108 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
 		return eventControl(getTimelineEndX(), pos, speedColor, txt.c_str(), true);
 	}
 

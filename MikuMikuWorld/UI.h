@@ -58,11 +58,16 @@ namespace MikuMikuWorld
 	{
 	private:
 		static char idStr[256];
+		static const ImVec2 _btnNormal;
+		static const ImVec2 _btnSmall;
+		static const ImVec2 _toolbarBtnSize;
+		static const ImVec2 _toolbarBtnImgSize;
 
 	public:
-		static const ImVec2 btnNormal;
-		static const ImVec2 btnSmall;
-		static const ImVec2 toolbarBtnSize;
+		static ImVec2 btnNormal;
+		static ImVec2 btnSmall;
+		static ImVec2 toolbarBtnSize;
+		static ImVec2 toolbarBtnImgSize;
 		static std::vector<ImVec4> accentColors;
 
 		static bool transparentButton(const char* txt, ImVec2 size = btnNormal, bool repeat = false, bool enabled = true);
@@ -94,6 +99,7 @@ namespace MikuMikuWorld
 		static void endNextItemDisabled();
 
 		static void setWindowTitle(std::string title);
+		static void updateBtnSizesDpiScaling(float scale);
 
 		template <typename T>
 		static void addReadOnlyProperty(const char* label, T val)

@@ -191,8 +191,26 @@ namespace MikuMikuWorld
 			language = config.language;
 		}
 
+		float dpiX = 1.0f, dpiY = 1.0f;
+		GLFWmonitor* mainMonitor = glfwGetPrimaryMonitor();
+		if (mainMonitor)
+		{
+			glfwGetMonitorContentScale(mainMonitor, &dpiX, &dpiY);
+		}
+
+		float dpiScale = (dpiX + dpiY) * 0.5f;
+		if (dpiScale != windowState.lastDpiScale)
+		{
+			imgui->buildFonts(dpiScale);
+			windowState.lastDpiScale = dpiScale;
+		}
+
 		frameTime();
 		imgui->begin();
+
+		// inform ImGui of dpi changes
+		ImGui::GetMainViewport()->DpiScale = dpiX;
+		UI::updateBtnSizesDpiScaling(dpiScale);
 
 		if (!windowState.dragDropHandled)
 			handlePendingOpenFiles();

@@ -22,6 +22,7 @@ namespace MikuMikuWorld
 		bool closing = false;
 		bool shouldPickScore = false;
 		bool dragDropHandled = true;
+		float lastDpiScale = 0.0f;
 		Vector2 position;
 		Vector2 size;
 	};

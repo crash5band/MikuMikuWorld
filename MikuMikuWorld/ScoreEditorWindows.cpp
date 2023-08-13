@@ -139,7 +139,8 @@ namespace MikuMikuWorld
 			ImGui::PopStyleColor();
 
 			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
-			float windowHeight = ImGui::GetContentRegionAvail().y - ((ImGui::GetFrameHeight()) + 10.0f);
+			float presetButtonHeight = ImGui::GetFrameHeight();
+			float windowHeight = ImGui::GetContentRegionAvail().y - presetButtonHeight - ImGui::GetStyle().WindowPadding.y;
 			if (ImGui::BeginChild("presets_child_window", ImVec2(-1, windowHeight), true))
 			{
 				if (!presetManager.presets.size())
@@ -157,14 +158,14 @@ namespace MikuMikuWorld
 
 						ImGui::PushID(id);
 
-						if (ImGui::Button(preset.getName().c_str(), ImVec2(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2.0f, UI::btnSmall.y + 2.0f)))
+						if (ImGui::Button(preset.getName().c_str(), ImVec2(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2.0f, presetButtonHeight)))
 							presetManager.applyPreset(id, context);
 
 						if (preset.description.size())
 							UI::tooltip(preset.description.c_str());
 
 						ImGui::SameLine();
-						if (UI::transparentButton(ICON_FA_TRASH, ImVec2(UI::btnSmall.x, UI::btnSmall.y + 2.0f)))
+						if (UI::transparentButton(ICON_FA_TRASH, ImVec2(UI::btnSmall.x, presetButtonHeight)))
 							removePattern = id;
 
 						ImGui::PopID();
@@ -176,7 +177,7 @@ namespace MikuMikuWorld
 
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !context.selectedNotes.size());
 			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * !context.selectedNotes.size()));
-			if (ImGui::Button(getString("create_preset"), ImVec2(-1, UI::btnSmall.y + 2.0f)))
+			if (ImGui::Button(getString("create_preset"), ImVec2(-1, presetButtonHeight)))
 				dialogOpen = true;
 
 			ImGui::PopStyleColor();
@@ -226,7 +227,7 @@ namespace MikuMikuWorld
 			ImGui::InputTextMultiline("##preset_desc", &presetDesc,
 				{ -1, ImGui::GetContentRegionAvail().y - UI::btnSmall.y - 10.0f - padding.y });
 
-			ImVec2 btnSz{ (ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) / 2.0f, UI::btnSmall.y + 2.0f };
+			ImVec2 btnSz{ (ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) / 2.0f, ImGui::GetFrameHeight() };
 			ImGui::SetCursorPos(ImVec2(xPos, yPos));
 			if (ImGui::Button(getString("cancel"), btnSz))
 			{
@@ -264,11 +265,13 @@ namespace MikuMikuWorld
 
 			ImVec2 padding = ImGui::GetStyle().WindowPadding;
 			ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
+			
+			float btnsHeight = ImGui::GetFrameHeight();
 			float xPos = padding.x;
-			float yPos = ImGui::GetWindowSize().y - UI::btnSmall.y - 2.0f - padding.y;
+			float yPos = ImGui::GetWindowSize().y - btnsHeight - padding.y;
 			ImGui::SetCursorPos(ImVec2(xPos, yPos));
 
-			ImVec2 btnSz = ImVec2((ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) / 3.0f, UI::btnSmall.y + 2.0f);
+			ImVec2 btnSz{ (ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) / 3.0f, btnsHeight };
 
 			if (ImGui::Button(getString("save_changes"), btnSz))
 			{
@@ -306,13 +309,15 @@ namespace MikuMikuWorld
 			ImGui::Text("MikuMikuWorld\nCopyright (C) 2022 Crash5b\n\n");
 			ImGui::Separator();
 
+			float okButtonHeight = ImGui::GetFrameHeight();
+
 			ImGui::Text("Version %s", Application::getAppVersion().c_str());
 			ImGui::SetCursorPos({
 				ImGui::GetStyle().WindowPadding.x,
-				ImGui::GetWindowSize().y - UI::btnSmall.y - ImGui::GetStyle().WindowPadding.y
+				ImGui::GetWindowSize().y - okButtonHeight - ImGui::GetStyle().WindowPadding.y
 			});
 
-			if (ImGui::Button("OK", { ImGui::GetContentRegionAvail().x, UI::btnSmall.y }))
+			if (ImGui::Button("OK", { ImGui::GetContentRegionAvail().x, okButtonHeight }))
 			{
 				ImGui::CloseCurrentPopup();
 				ImGui::EndPopup();
@@ -365,6 +370,8 @@ namespace MikuMikuWorld
 			int moveDirection = 0;
 			const bool canAdd = bindings[selectedBindingIndex]->count < 4;
 
+			const float btnHeight = ImGui::GetFrameHeight();
+
 			UI::beginPropertyColumns();
 			ImGui::Text(getString(bindings[selectedBindingIndex]->name));
 			ImGui::NextColumn();
@@ -372,7 +379,7 @@ namespace MikuMikuWorld
 			if (!canAdd)
 				UI::beginNextItemDisabled();
 
-			if (ImGui::Button(getString("add"), ImVec2(-1, UI::btnSmall.y)))
+			if (ImGui::Button(getString("add"), {-1, btnHeight}))
 				bindings[selectedBindingIndex]->addBinding(InputBinding{});
 
 			if (!canAdd)
@@ -383,6 +390,8 @@ namespace MikuMikuWorld
 			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5, 5));
 			ImGui::BeginChild("##binding_keys_edit_window", ImVec2(-1, -1), true);
+
+			float btnWidth = (UI::btnSmall.x * 2) + 100 + (ImGui::GetStyle().ItemSpacing.x * 3);
 			for (int b = 0; b < bindings[selectedBindingIndex]->count; ++b)
 			{
 				const bool canMoveDown = !(bindings[selectedBindingIndex]->count <= b + 1);
@@ -396,8 +405,7 @@ namespace MikuMikuWorld
 				if (listeningForInput && editBindingIndex == b)
 					buttonText = getString("cmd_key_listen");
 
-				float width = (UI::btnSmall.x * 2) + 100 + (ImGui::GetStyle().ItemSpacing.x * 3);
-				if (ImGui::Button(buttonText.c_str(), ImVec2(ImGui::GetContentRegionAvail().x - width, UI::btnSmall.y)))
+				if (ImGui::Button(buttonText.c_str(), ImVec2(ImGui::GetContentRegionAvail().x - btnWidth, btnHeight)))
 				{
 					listeningForInput = true;
 					inputTimer.reset();
@@ -406,7 +414,7 @@ namespace MikuMikuWorld
 
 				ImGui::SameLine();
 				if (!canMoveUp) UI::beginNextItemDisabled();
-				if (ImGui::Button(ICON_FA_CARET_UP, UI::btnSmall))
+				if (ImGui::Button(ICON_FA_CARET_UP, { btnHeight, btnHeight }))
 				{
 					moveIndex = b;
 					moveDirection = -1;
@@ -415,7 +423,7 @@ namespace MikuMikuWorld
 
 				ImGui::SameLine();
 				if (!canMoveDown) UI::beginNextItemDisabled();
-				if (ImGui::Button(ICON_FA_CARET_DOWN, UI::btnSmall))
+				if (ImGui::Button(ICON_FA_CARET_DOWN, { btnHeight, btnHeight }))
 				{
 					moveIndex = b;
 					moveDirection = 1;
@@ -423,7 +431,7 @@ namespace MikuMikuWorld
 				if (!canMoveDown) UI::endNextItemDisabled();
 
 				ImGui::SameLine();
-				if (ImGui::Button(getString("remove"), ImVec2(100, UI::btnSmall.y)))
+				if (ImGui::Button(getString("remove"), { -1, btnHeight }))
 					deleteBinding = b;
 
 				ImGui::PopID();
