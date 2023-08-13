@@ -150,7 +150,7 @@ namespace MikuMikuWorld
 		}
 		ImGui::End();
 
-#ifdef DEBUG
+#ifdef _DEBUG
 		if (showImGuiDemoWindow)
 			ImGui::ShowDemoWindow(&showImGuiDemoWindow);
 #endif
@@ -383,9 +383,9 @@ namespace MikuMikuWorld
 		{
 			if (ImGui::BeginMenu(getString("debug")))
 			{
-	#ifdef DEBUG
+#ifdef _DEBUG
 				ImGui::MenuItem("ImGui Demo Window", NULL, &showImGuiDemoWindow);
-	#endif
+#endif
 
 				if (ImGui::MenuItem("Auto Save"))
 					autoSave();
