@@ -566,21 +566,21 @@ namespace MikuMikuWorld
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
 
 		ImGui::PushButtonRepeat(true);
-		if (UI::toolbarButton(ICON_FA_BACKWARD, getString("previous_tick"), ToShortcutString(config.input.previousTick), context.currentTick > 0 && !playing))
+		if (UI::toolbarButton(ICON_FA_BACKWARD, "", NULL))
 			previousTick(context);
 		ImGui::PopButtonRepeat();
 
 		ImGui::SameLine();
-		if (UI::toolbarButton(ICON_FA_STOP, getString("stop"), ToShortcutString(config.input.stop)))
+		if (UI::toolbarButton(ICON_FA_STOP, "", NULL))
 			stop(context);
 
 		ImGui::SameLine();
-		if (UI::toolbarButton(playing ? ICON_FA_PAUSE : ICON_FA_PLAY, getString("toggle_playback"), ToShortcutString(config.input.togglePlayback)))
+		if (UI::toolbarButton(playing ? ICON_FA_PAUSE : ICON_FA_PLAY, "", NULL))
 			togglePlaying(context);
 
 		ImGui::SameLine();
 		ImGui::PushButtonRepeat(true);
-		if (UI::toolbarButton(ICON_FA_FORWARD, getString("next_tick"), ToShortcutString(config.input.nextTick), !playing))
+		if (UI::toolbarButton(ICON_FA_FORWARD, "", NULL, !playing))
 			nextTick(context);
 		ImGui::PopButtonRepeat();
 
