@@ -187,9 +187,7 @@ namespace MikuMikuWorld
 		if (!IO::File::exists(filename))
 			return;
 		
-		ImFontConfig fontConfig;
-		fontConfig.OversampleH = 2;
-		ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), size, &fontConfig, ImGui::GetIO().Fonts->GetGlyphRangesChineseFull());
+		ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), size, NULL, ImGui::GetIO().Fonts->GetGlyphRangesChineseFull());
 	}
 
 	void ImGuiManager::loadIconFont(const std::string& filename, int start, int end, float size)
@@ -199,7 +197,6 @@ namespace MikuMikuWorld
 
 		ImFontConfig fontConfig;
 		fontConfig.MergeMode = true;
-		fontConfig.OversampleH = 2;
 		fontConfig.GlyphMinAdvanceX = 13.0f;
 		static const ImWchar iconRanges[] = { start, end, 0 };
 		ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), size, &fontConfig, iconRanges);
