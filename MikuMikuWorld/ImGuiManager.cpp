@@ -53,17 +53,18 @@ namespace MikuMikuWorld
 		style->FramePadding.y		= 2;
 		style->ItemSpacing.x		= 3;
 		style->ItemSpacing.y		= 4;
-		style->WindowPadding.x		= 8;
+		style->WindowPadding.x		= 6;
 		style->WindowRounding		= 4;
 		style->WindowBorderSize		= 1;
 		style->FrameBorderSize		= 0;
 		style->FrameRounding		= 1;
-		style->ScrollbarRounding	= 8;
+		style->ScrollbarRounding	= 6;
 		style->ChildRounding		= 2;
 		style->PopupRounding		= 2;
 		style->GrabRounding			= 1;
 		style->TabRounding			= 1;
-		style->ScrollbarSize		= 14;
+		style->ScrollbarSize		= 12;
+		style->GrabMinSize			= 8;
 
 		style->AntiAliasedLines = true;
 		style->AntiAliasedFill	= true;
