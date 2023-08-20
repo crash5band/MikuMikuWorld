@@ -1031,7 +1031,7 @@ namespace MikuMikuWorld
 					skipUpdateAfterSortingSteps = true;
 				}
 
-				context.history.pushHistory("Update notes", prevUpdateScore, context.score);
+				context.pushHistory("Update notes", prevUpdateScore, context.score);
 				hasEdit = false;
 			}
 		}
