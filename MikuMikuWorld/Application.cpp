@@ -51,7 +51,7 @@ namespace MikuMikuWorld
 		editor->loadPresets(appDir + "library");
 
 		initialized = true;
-		return Result::Ok();;
+		return Result::Ok();
 	}
 
 	const std::string& Application::getAppDir()

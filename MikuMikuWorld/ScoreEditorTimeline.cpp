@@ -566,7 +566,7 @@ namespace MikuMikuWorld
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
 
 		ImGui::PushButtonRepeat(true);
-		if (UI::toolbarButton(ICON_FA_BACKWARD, "", NULL))
+		if (UI::toolbarButton(ICON_FA_BACKWARD, "", NULL, !playing && context.currentTick > 0))
 			previousTick(context);
 		ImGui::PopButtonRepeat();
 
@@ -1713,12 +1713,18 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::previousTick(ScoreContext& context)
 	{
+		if (playing || context.currentTick == 0)
+			return;
+
 		context.currentTick = std::max(roundTickDown(context.currentTick, division) - (TICKS_PER_BEAT / (division / 4)), 0);
 		focusCursor(context, Direction::Down);
 	}
 
 	void ScoreEditorTimeline::nextTick(ScoreContext& context)
 	{
+		if (playing)
+			return;
+
 		context.currentTick = roundTickDown(context.currentTick, division) + (TICKS_PER_BEAT / (division / 4));
 		focusCursor(context, Direction::Up);
 	}
