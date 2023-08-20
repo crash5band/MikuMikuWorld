@@ -185,8 +185,9 @@ namespace MikuMikuWorld
 					// find hold step and remove it from the steps data container
 					if (score.holdNotes.find(note.parentID) != score.holdNotes.end())
 					{
-						for (auto it = score.holdNotes.at(note.parentID).steps.begin(); it != score.holdNotes.at(note.parentID).steps.end(); ++it)
-							if (it->ID == id) { score.holdNotes.at(note.parentID).steps.erase(it); break; }
+						std::vector<HoldStep>& steps = score.holdNotes.at(note.parentID).steps;
+						steps.erase(std::find_if(steps.cbegin(), steps.cend(), [id](const HoldStep& s)
+							{ return s.ID == id; }));
 					}
 				}
 				score.notes.erase(id);
@@ -237,15 +238,10 @@ namespace MikuMikuWorld
 		if (!selectedNotes.size())
 			return;
 
-		int minTick = INT_MAX;
-		for (int id : selectedNotes)
+		int minTick = score.notes.at(*std::min_element(selectedNotes.begin(), selectedNotes.end(), [this](int id1, int id2)
 		{
-			const auto& it = score.notes.find(id);
-			if (it == score.notes.end())
-				continue;
-
-			minTick = std::min(minTick, it->second.tick);
-		}
+			return score.notes.at(id1).tick < score.notes.at(id2).tick;
+		})).tick;
 
 		json data = jsonIO::noteSelectionToJson(score, selectedNotes, minTick);
 
@@ -494,19 +490,19 @@ namespace MikuMikuWorld
 
 	bool ScoreContext::selectionHasEase() const
 	{
-		return std::find_if(selectedNotes.begin(), selectedNotes.end(), 
-			[this](const int id) { return score.notes.at(id).hasEase(); }) != selectedNotes.end();
+		return std::any_of(selectedNotes.begin(), selectedNotes.end(), 
+			[this](const int id) { return score.notes.at(id).hasEase(); });
 	}
 
 	bool ScoreContext::selectionHasStep() const
 	{
-		return std::find_if(selectedNotes.begin(), selectedNotes.end(),
-			[this](const int id) { return score.notes.at(id).getType() == NoteType::HoldMid; }) != selectedNotes.end();
+		return std::any_of(selectedNotes.begin(), selectedNotes.end(),
+			[this](const int id) { return score.notes.at(id).getType() == NoteType::HoldMid; });
 	}
 
 	bool ScoreContext::selectionHasFlickable() const
 	{
-		return std::find_if(selectedNotes.begin(), selectedNotes.end(),
-			[this](const int id) { return !score.notes.at(id).hasEase(); }) != selectedNotes.end();
+		return std::any_of(selectedNotes.begin(), selectedNotes.end(),
+			[this](const int id) { return !score.notes.at(id).hasEase(); });
 	}
 }
