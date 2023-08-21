@@ -1334,13 +1334,14 @@ namespace MikuMikuWorld
 		const Note& end = notes.at(note.end);
 		if (note.steps.size())
 		{
+			static constexpr auto isSkipStep = [](const HoldStep& step) { return step.type == HoldStepType::Skip; };
 			int s1 = -1;
 			int s2 = -1;
 
 			for (int i = 0; i < note.steps.size(); ++i)
 			{
-				HoldStepType type = note.steps[i].type;
-				if (type == HoldStepType::Skip) continue;
+				if (isSkipStep(note.steps[i]))
+					continue;
 
 				s2 = i;
 				const Note& n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
@@ -1366,14 +1367,10 @@ namespace MikuMikuWorld
 			for (int i = 0; i < note.steps.size(); ++i)
 			{
 				const Note& n3 = notes.at(note.steps[i].ID);
-				if (s2 < i) s2 = i;
 
-				// find first non-ignored step
-				while (s2 < note.steps.size())
-				{
-					if (note.steps[s2].type != HoldStepType::Skip) break;
-					++s2;
-				}
+				// find first non-skip step
+				s2 = std::distance(note.steps.cbegin(), std::find_if(note.steps.cbegin() + std::max(s2, i), note.steps.cend(),
+					std::not_fn(isSkipStep)));
 
 				if (isNoteVisible(n3, offsetTicks))
 				{
@@ -1388,17 +1385,27 @@ namespace MikuMikuWorld
 							const Sprite& s = tex.sprites[sprIndex];
 							Vector2 pos{ laneToPosition(n3.lane + offsetLane + (n3.width / 2.0f)), getNoteYPosFromTick(n3.tick + offsetTicks) };
 
-							if (note.steps[i].type == HoldStepType::Skip)
+							if (isSkipStep(note.steps[i]))
 							{
+								// find the note before and after the skip step
 								const Note& n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
 								const Note& n2 = s2 >= note.steps.size() ? end : notes.at(note.steps[s2].ID);
 
+								// calculate the interpolation ratio based on the distance between n1 and n2
 								float ratio = (float)(n3.tick - n1.tick) / (float)(n2.tick - n1.tick);
 								const EaseType rEase = s1 == -1 ? note.start.ease : note.steps[s1].ease;
-								float i1 = rEase == EaseType::Linear ? ratio : rEase == EaseType::EaseIn ? easeIn(ratio) : easeOut(ratio);
+								if (rEase == EaseType::EaseIn)
+								{
+									ratio = easeIn(ratio);
+								}
+								else if (rEase == EaseType::EaseOut)
+								{
+									ratio = easeOut(ratio);
+								}
 
-								float x1 = lerp(laneToPosition(n1.lane + offsetLane), laneToPosition(n2.lane + offsetLane), i1);
-								float x2 = lerp(laneToPosition(n1.lane + offsetLane + n1.width), laneToPosition(n2.lane + offsetLane + n2.width), i1);
+								// interpolate the step's position
+								float x1 = lerp(laneToPosition(n1.lane + offsetLane), laneToPosition(n2.lane + offsetLane), ratio);
+								float x2 = lerp(laneToPosition(n1.lane + offsetLane + n1.width), laneToPosition(n2.lane + offsetLane + n2.width), ratio);
 								pos.x = (x1 + x2) / 2.0f;
 							}
 
@@ -1408,7 +1415,8 @@ namespace MikuMikuWorld
 					}
 				}
 
-				if (note.steps[i].type != HoldStepType::Skip)
+				// update first interpolation point
+				if (!isSkipStep(note.steps[i]))
 					s1 = i;
 			}
 		}
@@ -1506,11 +1514,11 @@ namespace MikuMikuWorld
 		const Sprite& s = tex.sprites[sprIndex];
 
 		Vector2 pos{ laneToPosition(note.lane + offsetLane), getNoteYPosFromTick(note.tick + offsetTick) };
-		const Vector2 sliceSz(12, notesHeight);
+		const Vector2 sliceSz{ 12, notesHeight };
 		const AnchorType anchor = AnchorType::MiddleLeft;
 
 		const float midLen = (laneWidth * note.width) - (sliceSz.x * 2) + NOTES_X_ADJUST + 5;
-		const Vector2 midSz(midLen, notesHeight);
+		const Vector2 midSz{ midLen, notesHeight };
 
 		pos.x -= NOTES_X_ADJUST;
 
@@ -1700,15 +1708,15 @@ namespace MikuMikuWorld
 		float y1 = getNoteYPosFromTick(n1.tick);
 		float y2 = getNoteYPosFromTick(n2.tick);
 
-		if (y > y2 || y < y1)
+		if (!isWithinRange(y, y1, y2))
 			return false;
 
 		float percent = (y - y1) / (y2 - y1);
 		float iPercent = ease == EaseType::Linear ? percent : ease == EaseType::EaseIn ? easeIn(percent) : easeOut(percent);
-		float xl = lerp(xStart1, xEnd1, iPercent);
-		float xr = lerp(xStart2, xEnd2, iPercent);
+		float x1 = lerp(xStart1, xEnd1, iPercent);
+		float x2 = lerp(xStart2, xEnd2, iPercent);
 
-		return isWithinRange(x, xl < xr ? xl : xr, xr > xl ? xr : xl);
+		return isWithinRange(x, std::min(x1, x2), std::max(x1, x2));
 	}
 
 	void ScoreEditorTimeline::previousTick(ScoreContext& context)
