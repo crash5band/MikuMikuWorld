@@ -32,7 +32,6 @@ namespace MikuMikuWorld
 		io.ConfigWindowsMoveFromTitleBarOnly = true;
 		io.ConfigViewportsNoDefaultParent = false;
 		io.ConfigViewportsNoAutoMerge = true;
-		io.ConfigViewportsNoDecoration = false;
 		io.IniFilename = configFilename.c_str();
 
 		if (!ImGui_ImplGlfw_InitForOpenGL(window, true))

@@ -8,6 +8,9 @@
 #include "Stopwatch.h"
 #include "ApplicationConfiguration.h"
 #include "ImGuiManager.h"
+#include <Windows.h>
+
+LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 namespace MikuMikuWorld
 {
@@ -22,15 +25,18 @@ namespace MikuMikuWorld
 		bool closing = false;
 		bool shouldPickScore = false;
 		bool dragDropHandled = true;
+		bool windowDragging = false;
 		float lastDpiScale = 0.0f;
 		Vector2 position;
 		Vector2 size;
+		UINT_PTR windowTimerId{};
 	};
 
 	class Application
 	{
 	private:
 		GLFWwindow* window;
+		HWND hwnd;
 		std::unique_ptr<ScoreEditor> editor;
 		std::unique_ptr<ImGuiManager> imgui;
 
@@ -57,6 +63,7 @@ namespace MikuMikuWorld
 		static WindowState windowState;
 
 		Application(const std::string &rootPath);
+		Application();
 
 		Result initialize();
 		void run();
@@ -68,6 +75,9 @@ namespace MikuMikuWorld
 		void writeSettings();
 		void loadResources();
 		void dispose();
+
+		GLFWwindow* getGlfwWindow() { return window; }
+		HWND& getWindowHandle() { return hwnd; }
 
 		static const std::string& getAppDir();
 		static const std::string& getAppVersion();

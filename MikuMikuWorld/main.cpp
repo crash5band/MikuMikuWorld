@@ -5,6 +5,7 @@
 #include <Windows.h>
 
 namespace mmw = MikuMikuWorld;
+mmw::Application app;
 
 int main()
 {
@@ -18,7 +19,7 @@ int main()
 	}
 
 	std::string dir = IO::File::getFilepath(IO::wideStringToMb(args[0]));
-	mmw::Application app(dir);
+	app = mmw::Application(dir);
 
 	try
 	{
@@ -31,7 +32,7 @@ int main()
 
 		for (int i = 1; i < argc; ++i)
 			app.appendOpenFile(IO::wideStringToMb(args[i]));
-		
+
 		app.handlePendingOpenFiles();
 		app.run();
 	}
@@ -43,5 +44,41 @@ int main()
 	}
 
 	app.dispose();
+	return 0;
+}
+
+LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch (uMsg)
+	{
+	case WM_TIMER:
+		if (mmw::Application::windowState.windowDragging && wParam == mmw::Application::windowState.windowTimerId)
+		{
+			// grabbing the glfw window blocks the message queue causing the application to stop rendering
+			// so we handle the message ourselves and update the UI explicitly
+			if (app.getGlfwWindow())
+				app.update();
+		}
+		break;
+
+	case WM_ENTERSIZEMOVE:
+		mmw::Application::windowState.windowDragging = true;
+		break;
+
+	case WM_EXITSIZEMOVE:
+		mmw::Application::windowState.windowDragging = false;
+		break;
+
+	default:
+		// we don't handle this message ourselves so delegate it to the original glfw window's proc
+		return CallWindowProc(
+			(WNDPROC)glfwGetWindowUserPointer(app.getGlfwWindow()),
+			app.getWindowHandle(),
+			uMsg,
+			wParam,
+			lParam
+		);
+	}
+
 	return 0;
 }

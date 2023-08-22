@@ -10,6 +10,9 @@
 #include <filesystem>
 #include <Windows.h>
 
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
 namespace MikuMikuWorld
 {
 	std::string Application::version;
@@ -17,6 +20,11 @@ namespace MikuMikuWorld
 	WindowState Application::windowState;
 
 	NoteTextures noteTextures{ -1, -1, -1 };
+
+	Application::Application()
+	{
+
+	}
 
 	Application::Application(const std::string& root) : initialized{ false }
 	{
@@ -329,6 +337,20 @@ namespace MikuMikuWorld
 
 	void Application::run()
 	{
+		hwnd = glfwGetWin32Window(window);
+
+		/*
+			override the current GLFW/Imgui window procedure and store it in the GLFW window user pointer
+		
+			NOTE: for this to be safe, it should be only called AFTER ImGui is initialized
+			so that the WndProc ImGui is expecting matches with our own WndProc
+		*/
+		glfwSetWindowUserPointer(window, (void*)GetWindowLongPtr(hwnd, GWLP_WNDPROC));
+		SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)wndProc);
+
+		// store the window timer ID
+		windowState.windowTimerId = ::SetTimer(hwnd, reinterpret_cast<UINT_PTR>(&windowState.windowTimerId), USER_TIMER_MINIMUM, nullptr);
+
 		while (!glfwWindowShouldClose(window))
 		{
 			glfwPollEvents();

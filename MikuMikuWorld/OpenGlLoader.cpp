@@ -7,6 +7,7 @@
 #include "Result.h"
 #include "stb_image.h"
 #include <string>
+#include <GLFW/glfw3native.h>
 
 namespace MikuMikuWorld
 {
@@ -35,12 +36,12 @@ namespace MikuMikuWorld
 
 	void dropCallback(GLFWwindow* window, int count, const char** paths)
 	{
-		Application* app = (Application*)glfwGetWindowUserPointer(window);
-		if (!app)
-			return;
+		//Application* app = (Application*)glfwGetWindowUserPointer(window);
+		//if (!app)
+		//	return;
 
-		for (int i = 0; i < count; ++i)
-			app->appendOpenFile(paths[i]);
+		//for (int i = 0; i < count; ++i)
+		//	app->appendOpenFile(paths[i]);
 	}
 
 	void windowCloseCallback(GLFWwindow* window)
@@ -113,7 +114,7 @@ namespace MikuMikuWorld
 			return Result(ResultStatus::Error, "Failed to fetch OpenGL proc address.");
 		}
 
-		glfwSetWindowUserPointer(window, this);
+		//glfwSetWindowUserPointer(window, this);
 		glfwSwapInterval(config.vsync);
 		installCallbacks();
 		loadIcon(appDir + "res/mmw_icon.png", window);
