@@ -34,16 +34,6 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void dropCallback(GLFWwindow* window, int count, const char** paths)
-	{
-		//Application* app = (Application*)glfwGetWindowUserPointer(window);
-		//if (!app)
-		//	return;
-
-		//for (int i = 0; i < count; ++i)
-		//	app->appendOpenFile(paths[i]);
-	}
-
 	void windowCloseCallback(GLFWwindow* window)
 	{
 		glfwSetWindowShouldClose(window, 0);
@@ -71,7 +61,6 @@ namespace MikuMikuWorld
 		glfwSetWindowPosCallback(window, windowPositionCallback);
 		glfwSetWindowSizeCallback(window, windowSizeCallback);
 		glfwSetFramebufferSizeCallback(window, frameBufferResizeCallback);
-		glfwSetDropCallback(window, dropCallback);
 		glfwSetWindowCloseCallback(window, windowCloseCallback);
 		glfwSetWindowMaximizeCallback(window, windowMaximizeCallback);
 	}

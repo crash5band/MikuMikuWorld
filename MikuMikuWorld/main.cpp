@@ -69,6 +69,25 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		mmw::Application::windowState.windowDragging = false;
 		break;
 
+	case WM_DROPFILES:
+		if (HDROP dropHandle = reinterpret_cast<HDROP>(wParam); dropHandle != NULL)
+		{
+			const UINT filesCount = ::DragQueryFileW(dropHandle, 0xFFFFFFFF, NULL, 0u);
+			for (UINT i = 0; i < filesCount; ++i)
+			{
+				const UINT bufferSize = ::DragQueryFileW(dropHandle, i, NULL, 0u);
+				if (bufferSize > 0)
+				{
+					std::wstring wFilename(bufferSize + 1, 0);
+					if (::DragQueryFileW(dropHandle, i, wFilename.data(), static_cast<UINT>(wFilename.size())) != 0)
+						app.appendOpenFile(IO::wideStringToMb(wFilename.data()));
+				}
+			}
+
+			::DragFinish(dropHandle);
+		}
+		break;
+
 	default:
 		// we don't handle this message ourselves so delegate it to the original glfw window's proc
 		return CallWindowProc(

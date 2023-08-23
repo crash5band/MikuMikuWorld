@@ -351,6 +351,8 @@ namespace MikuMikuWorld
 		// store the window timer ID
 		windowState.windowTimerId = ::SetTimer(hwnd, reinterpret_cast<UINT_PTR>(&windowState.windowTimerId), USER_TIMER_MINIMUM, nullptr);
 
+		::DragAcceptFiles(hwnd, TRUE);
+
 		while (!glfwWindowShouldClose(window))
 		{
 			glfwPollEvents();
