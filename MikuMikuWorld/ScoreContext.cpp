@@ -4,9 +4,6 @@
 #include "Utilities.h"
 #include "UI.h"
 
-#undef min
-#undef max
-
 using json = nlohmann::json;
 using namespace IO;
 

@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "ApplicationConfiguration.h"
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.h"
 #include "../Depends/glad/include/glad/glad.h"

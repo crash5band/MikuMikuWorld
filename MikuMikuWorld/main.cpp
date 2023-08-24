@@ -1,8 +1,6 @@
 #include "Application.h"
 #include "IO.h"
-#include "UI.h"
 #include <iostream>
-#include <Windows.h>
 
 namespace mmw = MikuMikuWorld;
 mmw::Application app;
@@ -18,12 +16,10 @@ int main()
 		return 1;
 	}
 
-	std::string dir = IO::File::getFilepath(IO::wideStringToMb(args[0]));
-	app = mmw::Application(dir);
-
 	try
 	{
-		mmw::Result result = app.initialize();
+		std::string dir = IO::File::getFilepath(IO::wideStringToMb(args[0]));
+		mmw::Result result = app.initialize(dir);
 		if (!result.isOk())
 		{
 			IO::messageBox(APP_NAME, result.getMessage(), IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);

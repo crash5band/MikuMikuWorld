@@ -7,8 +7,8 @@
 #include "Localization.h"
 #include "Constants.h"
 #include "NoteGraphics.h"
+#include "ApplicationConfiguration.h"
 #include <filesystem>
-#include <Windows.h>
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
@@ -21,22 +21,22 @@ namespace MikuMikuWorld
 
 	NoteTextures noteTextures{ -1, -1, -1 };
 
-	Application::Application()
+	Application::Application() : 
+		initialized{ false }
 	{
-
-	}
-
-	Application::Application(const std::string& root) : initialized{ false }
-	{
-		appDir = root;
-		version = getVersion();
+		appDir = "";
+		version = "";
 		language = "";
 	}
 
-	Result Application::initialize()
+	Result Application::initialize(const std::string& root)
 	{
 		if (initialized)
 			return Result(ResultStatus::Success, "App is already initialized");
+
+		appDir = root;
+		version = getVersion();
+		language = "";
 
 		config.read(appDir + APP_CONFIG_FILENAME);
 		readSettings();
@@ -248,10 +248,21 @@ namespace MikuMikuWorld
 			{
 				switch (unsavedChangesResult)
 				{
-				case DialogResult::Yes: editor->trySave(editor->getWorkingFilename()); glfwSetWindowShouldClose(window, 1); break;
-				case DialogResult::No: glfwSetWindowShouldClose(window, 1); break;
-				case DialogResult::Cancel: windowState.closing = false; break;
-				default: break;
+				case DialogResult::Yes:
+					editor->trySave(editor->getWorkingFilename());
+					glfwSetWindowShouldClose(window, 1);
+					break;
+
+				case DialogResult::No:
+					glfwSetWindowShouldClose(window, 1);
+					break;
+
+				case DialogResult::Cancel:
+					windowState.closing = false;
+					break;
+
+				default:
+					break;
 				}
 			}
 			else
@@ -266,9 +277,17 @@ namespace MikuMikuWorld
 			{
 				switch (unsavedChangesResult)
 				{
-				case DialogResult::Yes: editor->trySave(editor->getWorkingFilename()); break;
-				case DialogResult::Cancel: windowState.resetting = shouldPickScore = false; pendingDropScoreFile.clear(); break;
-				default: break;
+				case DialogResult::Yes:
+					editor->trySave(editor->getWorkingFilename());
+					break;
+
+				case DialogResult::Cancel:
+					windowState.resetting = shouldPickScore = false;
+					pendingDropScoreFile.clear();
+					break;
+
+				default:
+					break;
 				}
 			}
 
@@ -348,8 +367,8 @@ namespace MikuMikuWorld
 		glfwSetWindowUserPointer(window, (void*)GetWindowLongPtr(hwnd, GWLP_WNDPROC));
 		SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)wndProc);
 
-		// store the window timer ID
-		windowState.windowTimerId = ::SetTimer(hwnd, reinterpret_cast<UINT_PTR>(&windowState.windowTimerId), USER_TIMER_MINIMUM, nullptr);
+		windowState.windowTimerId = ::SetTimer(hwnd,
+			reinterpret_cast<UINT_PTR>(&windowState.windowTimerId), USER_TIMER_MINIMUM, nullptr);
 
 		::DragAcceptFiles(hwnd, TRUE);
 

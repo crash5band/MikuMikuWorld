@@ -8,9 +8,6 @@
 #include <execution>
 #include "JsonIO.h"
 
-#undef min;
-#undef max;
-
 using nlohmann::json;
 
 namespace MikuMikuWorld

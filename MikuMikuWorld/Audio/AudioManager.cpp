@@ -12,9 +12,6 @@
 #include "AudioManager.h"
 #include "../Constants.h"
 
-#undef min
-#undef max
-
 #undef STB_VORBIS_HEADER_ONLY
 
 namespace MikuMikuWorld

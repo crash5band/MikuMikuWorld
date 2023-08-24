@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "ApplicationConfiguration.h"
 #include "FileDialog.h"
 #include "SUS.h"
 #include "SusExporter.h"
@@ -9,9 +10,6 @@
 #include "Utilities.h"
 #include <filesystem>
 #include <Windows.h>
-
-#undef min
-#undef max
 
 namespace MikuMikuWorld
 {

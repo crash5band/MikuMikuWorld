@@ -1,9 +1,6 @@
 #pragma once
 #include "Math.h"
 
-#undef min
-#undef max
-
 namespace MikuMikuWorld
 {
 	const ImU32 measureColor	= ImGui::ColorConvertFloat4ToU32(ImVec4(0.80f, 0.80f, 0.80f, 0.75f));

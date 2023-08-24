@@ -9,9 +9,6 @@
 #include "ApplicationConfiguration.h"
 #include <algorithm>
 
-#undef min
-#undef max
-
 namespace MikuMikuWorld
 {
 	bool eventControl(float xPos, Vector2 pos, ImU32 color, const char* txt, bool enabled)

@@ -1,12 +1,11 @@
 #pragma once
 
 #define IMGUI_DEFINE_MATH_OPERATORS
+#define NOMINMAX
 
 #include "../Depends/glad/include/glad/glad.h"
 #include "../Depends/GLFW/include/GLFW/glfw3.h"
 #include "ScoreEditor.h"
-#include "Stopwatch.h"
-#include "ApplicationConfiguration.h"
 #include "ImGuiManager.h"
 #include <Windows.h>
 
@@ -62,10 +61,9 @@ namespace MikuMikuWorld
 	public:
 		static WindowState windowState;
 
-		Application(const std::string &rootPath);
 		Application();
 
-		Result initialize();
+		Result initialize(const std::string& root);
 		void run();
 		void update();
 		void frameTime();

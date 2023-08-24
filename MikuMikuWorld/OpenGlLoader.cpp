@@ -2,6 +2,7 @@
 #define STBI_WINDOWS_UTF8
 
 #include "Application.h"
+#include "ApplicationConfiguration.h"
 #include "IO.h"
 #include "UI.h"
 #include "Result.h"
@@ -103,7 +104,6 @@ namespace MikuMikuWorld
 			return Result(ResultStatus::Error, "Failed to fetch OpenGL proc address.");
 		}
 
-		//glfwSetWindowUserPointer(window, this);
 		glfwSwapInterval(config.vsync);
 		installCallbacks();
 		loadIcon(appDir + "res/mmw_icon.png", window);
