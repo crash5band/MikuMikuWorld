@@ -1,4 +1,7 @@
-﻿#include "Application.h"
+﻿#define GLFW_NATIVE_INCLUDE_NONE
+#define GLFW_EXPOSE_NATIVE_WIN32
+
+#include "Application.h"
 #include "ResourceManager.h"
 #include "IO.h"
 #include "Colors.h"
@@ -9,8 +12,6 @@
 #include "NoteGraphics.h"
 #include "ApplicationConfiguration.h"
 #include <filesystem>
-
-#define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
 namespace MikuMikuWorld

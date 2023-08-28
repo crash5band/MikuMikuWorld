@@ -8,7 +8,6 @@
 #include "Result.h"
 #include "stb_image.h"
 #include <string>
-#include <GLFW/glfw3native.h>
 
 namespace MikuMikuWorld
 {

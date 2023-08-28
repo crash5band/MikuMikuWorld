@@ -3,8 +3,8 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #define NOMINMAX
 
-#include "../Depends/glad/include/glad/glad.h"
-#include "../Depends/GLFW/include/GLFW/glfw3.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include "ScoreEditor.h"
 #include "ImGuiManager.h"
 #include <Windows.h>
