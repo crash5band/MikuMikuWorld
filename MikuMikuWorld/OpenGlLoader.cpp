@@ -7,7 +7,6 @@
 #include "UI.h"
 #include "Result.h"
 #include "stb_image.h"
-#include <string>
 
 namespace MikuMikuWorld
 {
@@ -45,26 +44,6 @@ namespace MikuMikuWorld
 		Application::windowState.maximized = _maximized;
 	}
 
-	void loadIcon(std::string filepath, GLFWwindow* window)
-	{
-		if (!IO::File::exists(filepath))
-			return;
-
-		GLFWimage images[1];
-		images[0].pixels = stbi_load(filepath.c_str(), &images[0].width, &images[0].height, 0, 4); //rgba channels 
-		glfwSetWindowIcon(window, 1, images);
-		stbi_image_free(images[0].pixels);
-	}
-
-	void Application::installCallbacks()
-	{
-		glfwSetWindowPosCallback(window, windowPositionCallback);
-		glfwSetWindowSizeCallback(window, windowSizeCallback);
-		glfwSetFramebufferSizeCallback(window, frameBufferResizeCallback);
-		glfwSetWindowCloseCallback(window, windowCloseCallback);
-		glfwSetWindowMaximizeCallback(window, windowMaximizeCallback);
-	}
-
 	Result Application::initOpenGL()
 	{
 		// GLFW initializion
@@ -95,6 +74,20 @@ namespace MikuMikuWorld
 		glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
 		glfwMakeContextCurrent(window);
 		glfwSetWindowTitle(window, APP_NAME " - Untitled");
+		glfwSetWindowPosCallback(window, windowPositionCallback);
+		glfwSetWindowSizeCallback(window, windowSizeCallback);
+		glfwSetFramebufferSizeCallback(window, frameBufferResizeCallback);
+		glfwSetWindowCloseCallback(window, windowCloseCallback);
+		glfwSetWindowMaximizeCallback(window, windowMaximizeCallback);
+
+		std::string iconFilename = appDir + "res/mmw_icon.png";
+		if (IO::File::exists(iconFilename))
+		{
+			GLFWimage images[1]{};
+			images[0].pixels = stbi_load(iconFilename.c_str(), &images[0].width, &images[0].height, 0, 4); //rgba channels 
+			glfwSetWindowIcon(window, 1, images);
+			stbi_image_free(images[0].pixels);
+		}
 
 		// GLAD initializtion
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -104,9 +97,6 @@ namespace MikuMikuWorld
 		}
 
 		glfwSwapInterval(config.vsync);
-		installCallbacks();
-		loadIcon(appDir + "res/mmw_icon.png", window);
-
 		if (config.maximized)
 			glfwMaximizeWindow(window);
 
