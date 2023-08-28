@@ -86,13 +86,7 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	default:
 		// we don't handle this message ourselves so delegate it to the original glfw window's proc
-		return CallWindowProc(
-			(WNDPROC)glfwGetWindowUserPointer(app.getGlfwWindow()),
-			app.getWindowHandle(),
-			uMsg,
-			wParam,
-			lParam
-		);
+		return CallWindowProc((WNDPROC)glfwGetWindowUserPointer(app.getGlfwWindow()), hwnd, uMsg, wParam, lParam);
 	}
 
 	return 0;

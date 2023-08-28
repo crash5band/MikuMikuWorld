@@ -26,8 +26,8 @@ namespace MikuMikuWorld
 		bool dragDropHandled = true;
 		bool windowDragging = false;
 		float lastDpiScale = 0.0f;
-		Vector2 position;
-		Vector2 size;
+		Vector2 position{};
+		Vector2 size{};
 		UINT_PTR windowTimerId{};
 	};
 
@@ -35,7 +35,6 @@ namespace MikuMikuWorld
 	{
 	private:
 		GLFWwindow* window;
-		HWND hwnd;
 		std::unique_ptr<ScoreEditor> editor;
 		std::unique_ptr<ImGuiManager> imgui;
 
@@ -75,7 +74,6 @@ namespace MikuMikuWorld
 		void dispose();
 
 		GLFWwindow* getGlfwWindow() { return window; }
-		HWND& getWindowHandle() { return hwnd; }
 
 		static const std::string& getAppDir();
 		static const std::string& getAppVersion();

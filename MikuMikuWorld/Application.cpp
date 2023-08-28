@@ -357,7 +357,7 @@ namespace MikuMikuWorld
 
 	void Application::run()
 	{
-		hwnd = glfwGetWin32Window(window);
+		HWND hwnd = glfwGetWin32Window(window);
 
 		/*
 			override the current GLFW/Imgui window procedure and store it in the GLFW window user pointer
