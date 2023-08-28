@@ -14,7 +14,6 @@
 
 namespace MikuMikuWorld
 {
-	constexpr const char* windowTitle = APP_NAME " - ";
 	constexpr const char* windowUntitled = "Untitled";
 
 	constexpr float primaryLineThickness = 0.750f;
