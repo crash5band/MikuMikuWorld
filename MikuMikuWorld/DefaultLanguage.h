@@ -103,6 +103,8 @@ namespace MikuMikuWorld
 		{"note_width", "Note Width"},
 		{"shrink_down", "Shrink Down"},
 		{"shrink_up", "Shrink Up"},
+		{"merge_slides", "Merge Slides"},
+		{"rip_slides", "Rip Slides"},
 		{"step_type", "Step Type"},
 		{"ease_type", "Ease Type"},
 		{"flick_type", "Flick Type"},

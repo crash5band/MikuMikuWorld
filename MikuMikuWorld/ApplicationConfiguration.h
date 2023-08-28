@@ -14,6 +14,8 @@ namespace MikuMikuWorld
 		MultiInputBinding increaseNoteSize = { "increase_note_size", {} };
 		MultiInputBinding shrinkDown = { "shrink_down", {} };
 		MultiInputBinding shrinkUp = { "shrink_up", {} };
+		MultiInputBinding mergeSlides = { "merge_slides", {} };
+		MultiInputBinding ripSlides = { "rip_slides", {} };
 		MultiInputBinding openHelp = { "help", {ImGuiKey_F1} };
 		MultiInputBinding openSettings = { "settings", {ImGuiKey_Comma, ImGuiModFlags_Ctrl} };
 		MultiInputBinding deleteSelection = { "delete", {ImGuiKey_Delete} };
@@ -35,7 +37,7 @@ namespace MikuMikuWorld
 		MultiInputBinding redo = { "redo", {ImGuiKey_Y, ImGuiModFlags_Ctrl} };
 		MultiInputBinding zoomOut = { "zoom_out", {} };
 		MultiInputBinding zoomIn = { "zoom_in", {} };
-		
+
 		MultiInputBinding timelineSelect = { "timeline_select", {ImGuiKey_1}, {ImGuiKey_Keypad1} };
 		MultiInputBinding timelineTap = { "timeline_tap", {ImGuiKey_2}, {ImGuiKey_Keypad2} };
 		MultiInputBinding timelineHold = { "timeline_hold", {ImGuiKey_3}, {ImGuiKey_Keypad3} };

@@ -392,7 +392,7 @@ namespace MikuMikuWorld
 
 			score.holdNotes[hold.start.ID] = hold;
 		}
-		
+
 		// select newly pasted notes
 		selectedNotes.clear();
 		std::transform(pasteData.notes.begin(), pasteData.notes.end(),
@@ -424,7 +424,7 @@ namespace MikuMikuWorld
 		Score prev = score;
 
 		std::vector<int> sortedSelection(selectedNotes.begin(), selectedNotes.end());
-		std::sort(sortedSelection.begin(), sortedSelection.end(), [this](int a, int b) 
+		std::sort(sortedSelection.begin(), sortedSelection.end(), [this](int a, int b)
 		{
 			const Note& n1 = score.notes.at(a);
 			const Note& n2 = score.notes.at(b);
@@ -490,7 +490,7 @@ namespace MikuMikuWorld
 
 	bool ScoreContext::selectionHasEase() const
 	{
-		return std::any_of(selectedNotes.begin(), selectedNotes.end(), 
+		return std::any_of(selectedNotes.begin(), selectedNotes.end(),
 			[this](const int id) { return score.notes.at(id).hasEase(); });
 	}
 

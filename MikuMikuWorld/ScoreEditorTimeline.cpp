@@ -210,7 +210,7 @@ namespace MikuMikuWorld
 		{
 			if (ImGui::MenuItem(getString("delete"), ToShortcutString(config.input.deleteSelection), false, context.selectedNotes.size()))
 				context.deleteSelection();
-			
+
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("cut"), ToShortcutString(config.input.cutSelection), false, context.selectedNotes.size()))
 				context.cutSelection();
@@ -258,6 +258,13 @@ namespace MikuMikuWorld
 				context.shrinkSelection(Direction::Up);
 
 			if (ImGui::MenuItem(getString("shrink_down"), NULL, false, context.selectedNotes.size() > 1))
+				context.shrinkSelection(Direction::Down);
+
+			ImGui::Separator();
+			if (ImGui::MenuItem(getString("merge_slides"), NULL, false, context.selectedNotes.size() > 1))
+				context.shrinkSelection(Direction::Up);
+
+			if (ImGui::MenuItem(getString("rip_slides"), NULL, false, hasStep))
 				context.shrinkSelection(Direction::Down);
 
 			ImGui::EndPopup();
