@@ -3,6 +3,8 @@
 #include "IO.h"
 #include "Utilities.h"
 #include "UI.h"
+#include <stdio.h>
+#include <vector>
 
 #undef min
 #undef max
@@ -504,5 +506,28 @@ namespace MikuMikuWorld
 	{
 		return std::any_of(selectedNotes.begin(), selectedNotes.end(),
 			[this](const int id) { return !score.notes.at(id).hasEase(); });
+	}
+
+	bool ScoreContext::selectionCanConnect() const
+	{
+		if (selectedNotes.size() != 2)
+			return false;
+		auto note1 = score.notes.at(*selectedNotes.begin());
+		auto note2 = score.notes.at(*std::next(selectedNotes.begin()));
+		if (note1.tick == note2.tick)
+			return (note1.getType() == NoteType::Hold && note2.getType() == NoteType::HoldEnd) ||
+						 (note1.getType() == NoteType::HoldEnd && note2.getType() == NoteType::Hold);
+
+		Note earlierNote;
+		Note laterNote;
+		if (note1.tick < note2.tick) {
+			earlierNote = note1;
+			laterNote = note2;
+		} else {
+			earlierNote = note2;
+			laterNote = note1;
+		}
+
+		return (earlierNote.getType() == NoteType::HoldEnd && laterNote.getType() == NoteType::Hold);
 	}
 }

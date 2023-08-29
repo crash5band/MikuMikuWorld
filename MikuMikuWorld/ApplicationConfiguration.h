@@ -93,7 +93,7 @@ namespace MikuMikuWorld
 		void write(const std::string& filename);
 		void restoreDefault();
 	};
-	
+
 	extern ApplicationConfiguration config;
 
 	static MultiInputBinding* bindings[] =
@@ -115,6 +115,8 @@ namespace MikuMikuWorld
 		&config.input.deleteSelection,
 		&config.input.shrinkDown,
 		&config.input.shrinkUp,
+		&config.input.mergeSlides,
+		&config.input.ripSlides,
 		&config.input.selectAll,
 
 		&config.input.togglePlayback,

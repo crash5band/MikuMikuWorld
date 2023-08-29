@@ -230,6 +230,7 @@ namespace MikuMikuWorld
 			const bool hasEase = context.selectionHasEase();
 			const bool hasStep = context.selectionHasStep();
 			const bool hasFlick = context.selectionHasFlickable();
+      const bool canConnect = context.selectionCanConnect();
 
 			ImGui::Separator();
 			if (ImGui::BeginMenu(getString("ease_type"), hasEase))
@@ -261,11 +262,13 @@ namespace MikuMikuWorld
 				context.shrinkSelection(Direction::Down);
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(getString("merge_slides"), NULL, false, context.selectedNotes.size() > 1))
-				context.shrinkSelection(Direction::Up);
+			if (ImGui::MenuItem(getString("merge_slides"), NULL, false, canConnect))
+        // TODO
+        0;
 
-			if (ImGui::MenuItem(getString("rip_slides"), NULL, false, hasStep))
-				context.shrinkSelection(Direction::Down);
+			if (ImGui::MenuItem(getString("rip_slides"), NULL, false, hasStep && context.selectedNotes.size() == 1))
+        // TODO
+        0;
 
 			ImGui::EndPopup();
 		}
