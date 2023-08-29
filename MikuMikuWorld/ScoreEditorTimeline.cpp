@@ -1004,10 +1004,13 @@ namespace MikuMikuWorld
 					{
 						std::swap(start.tick, end.tick);
 						std::swap(start.lane, end.lane);
+						std::swap(start.width, end.width);
 					}
 
 					if (hold.steps.size())
 					{
+						sortHoldSteps(context.score, hold);
+
 						// ensure hold steps are between the start and end
 						Note& firstMid = context.score.notes.at(hold.steps[0].ID);
 						if (start.tick > firstMid.tick)
