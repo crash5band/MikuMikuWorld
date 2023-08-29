@@ -967,7 +967,7 @@ namespace MikuMikuWorld
 
 		ImGui::SetCursorScreenPos(pos);
 		ImGui::InvisibleButton(id, sz);
-		if (mouseInTimeline && ImGui::IsItemHovered())
+		if (mouseInTimeline && ImGui::IsItemHovered() && !dragging)
 			ImGui::SetMouseCursor(cursor);
 
 		// note clicked
