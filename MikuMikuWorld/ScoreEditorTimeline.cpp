@@ -1770,9 +1770,9 @@ namespace MikuMikuWorld
 		}
 		else if (holdStart.tick > holdEnd.tick)
 		{
-      std::swap(holdStart.tick, holdEnd.tick);
+			std::swap(holdStart.tick, holdEnd.tick);
 			std::swap(holdStart.width, holdEnd.width);
-      std::swap(holdStart.lane, holdEnd.lane);
+			std::swap(holdStart.lane, holdEnd.lane);
 		}
 
 		context.score.notes[holdStart.ID] = holdStart;
