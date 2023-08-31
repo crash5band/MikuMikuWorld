@@ -45,14 +45,14 @@ namespace MikuMikuWorld
 
 	void NotesPreset::write(std::string filepath, bool overwrite)
 	{
-		std::wstring wFilename = IO::mbToWideStr(filename);
+		std::wstring wFilename = IO::mbToWideStr(filepath);
 		if (!overwrite)
 		{
 			int count = 1;
-			std::wstring suffix = L"";
+			std::wstring suffix = L".json";
 
 			while (std::filesystem::exists(wFilename + suffix))
-				suffix = L"(" + std::to_wstring(count++) + L")";
+				suffix = L"(" + std::to_wstring(count++) + L").json";
 
 			wFilename += suffix;
 		}
@@ -63,7 +63,6 @@ namespace MikuMikuWorld
 		std::ofstream file(wFilename);
 
 		file << std::setw(2) << data;
-		file.flush();
 		file.close();
 	}
 }
