@@ -84,7 +84,7 @@ namespace MikuMikuWorld
 
 		if (jsonIO::keyExists(config, "audio"))
 		{
-			masterVolume	= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "master_volume", 0.8f), 0.0f, 1.0f);
+			masterVolume	= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "master_volume", 1.0f), 0.0f, 1.0f);
 			bgmVolume		= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "bgm_volume", 1.0f), 0.0f, 1.0f);
 			seVolume		= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "se_volume", 1.0f), 0.0f, 1.0f);
 		}
