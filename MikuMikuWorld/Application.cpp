@@ -146,6 +146,7 @@ namespace MikuMikuWorld
 		config.windowSize = windowState.size;
 		config.userColor = Color::fromImVec4(UI::accentColors[0]);
 
+		editor->writeSettings();
 		config.write(appDir + APP_CONFIG_FILENAME);
 	}
 

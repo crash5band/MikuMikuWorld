@@ -156,6 +156,9 @@ namespace MikuMikuWorld
 		constexpr inline float getZoom() const { return zoom; }
 		void setZoom(float zoom);
 
+		constexpr inline int getDivision() const { return division; }
+		void setDivision(int div) { division = std::clamp(div, 4, 1920); }
+
 		constexpr inline bool isMouseInTimeline() const { return mouseInTimeline; }
 		bool isNoteVisible(const Note& note, int offsetTicks = 0) const;
 

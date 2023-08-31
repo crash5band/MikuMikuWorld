@@ -1847,7 +1847,6 @@ namespace MikuMikuWorld
 			background.load(ResourceManager::textures[bgTexIndex]);
 		}
 		background.setBrightness(0.67);
-		setZoom(config.zoom);
 	}
 
 	void ScoreEditorTimeline::togglePlaying(ScoreContext& context)
