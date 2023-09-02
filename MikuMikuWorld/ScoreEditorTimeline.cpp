@@ -302,17 +302,16 @@ namespace MikuMikuWorld
 		// get mouse position relative to timeline
 		mousePos = io.MousePos - position;
 		mousePos.y -= offset;
-		float mouseWheelDelta = io.MouseWheel;
-
 		if (mouseInTimeline && !UI::isAnyPopupOpen())
 		{
 			if (io.KeyCtrl)
 			{
-				setZoom(zoom + (mouseWheelDelta * 0.1f));
+				setZoom(zoom + (io.MouseWheel * 0.1f));
 			}
 			else
 			{
-				offset += mouseWheelDelta * (io.KeyShift ? 300.0f : 100.0f);
+				float scrollAmount = io.MouseWheel * scrollUnit;
+				offset += scrollAmount * (io.KeyShift ? config.scrollSpeedFast : config.scrollSpeedNormal);
 			}
 
 			if (!isHoveringNote && !isHoldingNote && !insertingHold && !pasting && currentMode == TimelineMode::Select)

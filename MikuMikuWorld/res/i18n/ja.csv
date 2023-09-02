@@ -55,6 +55,9 @@ timeline, タイムライン
 match_notes_size_to_timeline, ノーツの高さをレーンの幅に合わせる
 lane_width, レーンの幅
 notes_height, ノーツの高さ
+scrolling, スクロール
+scroll_speed_normal, スクロール速度
+scroll_speed_fast, スクロール速度　「速い」
 use_smooth_scroll, スムーズスクロール
 smooth_scroll_time, スムーズスクロールの時間
 return_to_last_tick, 元の位置戻る,
