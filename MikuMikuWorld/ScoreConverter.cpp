@@ -2,7 +2,6 @@
 #include "SUS.h"
 #include "Score.h"
 #include "IO.h"
-#include <stdexcept>
 #include "Constants.h"
 #include <unordered_set>
 #include <algorithm>
@@ -323,9 +322,11 @@ namespace MikuMikuWorld
 			{
 				const Note& midNote = score.notes.at(step.ID);
 
-				slide.push_back(SUSNote{ midNote.tick, midNote.lane + 2, midNote.width, step.type == HoldStepType::Hidden ? 5 : 3 });
+				slide.push_back(SUSNote{ midNote.tick, midNote.lane + 2, midNote.width, step.type == HoldStepType::Normal ? 3 : 5 });
 				if (step.type == HoldStepType::Skip)
+				{
 					taps.push_back(SUSNote{ midNote.tick, midNote.lane + 2, midNote.width, 3 });
+				}
 				else if (step.ease != EaseType::Linear)
 				{
 					taps.push_back(SUSNote{ midNote.tick, midNote.lane + 2, midNote.width, 1 });
@@ -339,7 +340,7 @@ namespace MikuMikuWorld
 			if (end.isFlick())
 			{
 				directionals.push_back(SUSNote{ end.tick, end.lane + 2, end.width, flickToType[end.flick] });
-				if (end.critical)
+				if (end.critical && !start.critical)
 					taps.push_back(SUSNote{ end.tick, end.lane + 2, end.width, 2 });
 			}
 
