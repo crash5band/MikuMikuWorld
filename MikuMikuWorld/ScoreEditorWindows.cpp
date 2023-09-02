@@ -301,6 +301,12 @@ namespace MikuMikuWorld
 
 	DialogResult AboutDialog::update()
 	{
+		if (open)
+		{
+			ImGui::OpenPopup(MODAL_TITLE("about"));
+			open = false;
+		}
+
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(ImVec2(450, 250), ImGuiCond_Always);
 		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
@@ -484,6 +490,12 @@ namespace MikuMikuWorld
 
 	DialogResult SettingsWindow::update()
 	{
+		if (open)
+		{
+			ImGui::OpenPopup(MODAL_TITLE("settings"));
+			open = false;
+		}
+
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(ImVec2(750, 600), ImGuiCond_Always);
 		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);

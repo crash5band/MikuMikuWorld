@@ -120,18 +120,7 @@ namespace MikuMikuWorld
 			autoSaveTimer.reset();
 		}
 
-		if (settingsWindow.open)
-		{
-			ImGui::OpenPopup(MODAL_TITLE("settings"));
-			settingsWindow.open = false;
-		}
 		settingsWindow.update();
-
-		if (aboutDialog.open)
-		{
-			ImGui::OpenPopup(MODAL_TITLE("about"));
-			aboutDialog.open = false;
-		}
 		aboutDialog.update();
 
 		ImGui::Begin(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"), NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
