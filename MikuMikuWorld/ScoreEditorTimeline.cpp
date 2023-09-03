@@ -262,8 +262,8 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(getString("connect_holds"), NULL, false, canConnect))
 				context.connectHoldsInSelection();
 
-			if (ImGui::MenuItem(getString("rip_hold"), NULL, false, hasStep && context.selectedNotes.size() == 1))
-				context.ripHoldInSelection();
+			if (ImGui::MenuItem(getString("split_hold"), NULL, false, hasStep && context.selectedNotes.size() == 1))
+				context.splitHoldInSelection();
 
 			ImGui::EndPopup();
 		}

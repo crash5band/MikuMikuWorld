@@ -99,7 +99,7 @@ namespace MikuMikuWorld
 		void shrinkSelection(Direction direction);
 
 		void connectHoldsInSelection();
-		void ripHoldInSelection();
+		void splitHoldInSelection();
 
 		void undo();
 		void redo();

@@ -107,7 +107,7 @@ namespace MikuMikuWorld
 		{"shrink_down", "Shrink Down"},
 		{"shrink_up", "Shrink Up"},
 		{"connect_holds", "Connect Holds"},
-		{"rip_hold", "Rip Hold"},
+		{"split_hold", "Split Hold"},
 		{"step_type", "Step Type"},
 		{"ease_type", "Ease Type"},
 		{"flick_type", "Flick Type"},

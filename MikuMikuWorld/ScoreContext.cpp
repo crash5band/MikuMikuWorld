@@ -507,7 +507,7 @@ namespace MikuMikuWorld
 		pushHistory("Connect holds", prev, score);
 	}
 
-	void ScoreContext::ripHoldInSelection()
+	void ScoreContext::splitHoldInSelection()
 	{
 		if (selectedNotes.size() != 1)
 			return;
