@@ -514,61 +514,61 @@ namespace MikuMikuWorld
 
 		Score prev = score;
 
-    Note& note = score.notes[*selectedNotes.begin()];
-    if (note.getType() != NoteType::HoldMid)
-      return;
+		Note& note = score.notes[*selectedNotes.begin()];
+		if (note.getType() != NoteType::HoldMid)
+			return;
 
-    HoldNote& hold = score.holdNotes[note.parentID];
+		HoldNote& hold = score.holdNotes[note.parentID];
 
-    int pos = findHoldStep(hold, note.ID);
-    if (pos == -1)
-      return;
+		int pos = findHoldStep(hold, note.ID);
+		if (pos == -1)
+			return;
 
-    Note holdStart = score.notes.at(hold.start.ID);
+		Note holdStart = score.notes.at(hold.start.ID);
 
-    Note newSlideEnd = Note(NoteType::HoldEnd);
-    newSlideEnd.tick = note.tick;
-    newSlideEnd.lane = note.lane;
-    newSlideEnd.width = note.width;
-    newSlideEnd.ID = nextID++;
-    newSlideEnd.parentID = hold.start.ID;
-    newSlideEnd.critical = note.critical;
+		Note newSlideEnd = Note(NoteType::HoldEnd);
+		newSlideEnd.tick = note.tick;
+		newSlideEnd.lane = note.lane;
+		newSlideEnd.width = note.width;
+		newSlideEnd.ID = nextID++;
+		newSlideEnd.parentID = hold.start.ID;
+		newSlideEnd.critical = note.critical;
 
-    Note newSlideStart = Note(NoteType::Hold);
-    newSlideStart.tick = note.tick;
-    newSlideStart.lane = note.lane;
-    newSlideStart.width = note.width;
-    newSlideStart.ID = nextID++;
-    newSlideStart.critical = holdStart.critical;
+		Note newSlideStart = Note(NoteType::Hold);
+		newSlideStart.tick = note.tick;
+		newSlideStart.lane = note.lane;
+		newSlideStart.width = note.width;
+		newSlideStart.ID = nextID++;
+		newSlideStart.critical = holdStart.critical;
 
-    HoldNote newHold;
-    newHold.end = hold.end;
-    hold.end = newSlideEnd.ID;
+		HoldNote newHold;
+		newHold.end = hold.end;
+		hold.end = newSlideEnd.ID;
 
-    newHold.start = { newSlideStart.ID, hold.steps[pos].type, hold.steps[pos].ease };
-    for (int i = pos + 1; i < hold.steps.size(); ++i)
-    {
-      HoldStep step = hold.steps[i];
-      Note& stepNote = score.notes.at(step.ID);
-      stepNote.parentID = newSlideStart.ID;
-      newHold.steps.push_back(step);
-      hold.steps.erase(hold.steps.begin() + i);
-    }
+		newHold.start = { newSlideStart.ID, hold.steps[pos].type, hold.steps[pos].ease };
+		for (int i = pos + 1; i < hold.steps.size(); ++i)
+		{
+			HoldStep step = hold.steps[i];
+			Note& stepNote = score.notes.at(step.ID);
+			stepNote.parentID = newSlideStart.ID;
+			newHold.steps.push_back(step);
+			hold.steps.erase(hold.steps.begin() + i);
+		}
 
-    hold.steps.erase(hold.steps.begin() + pos);
-    score.notes.erase(note.ID);
-    score.notes[newSlideEnd.ID] = newSlideEnd;
-    score.notes[newSlideStart.ID] = newSlideStart;
-    score.holdNotes[newSlideStart.ID] = newHold;
+		hold.steps.erase(hold.steps.begin() + pos);
+		score.notes.erase(note.ID);
+		score.notes[newSlideEnd.ID] = newSlideEnd;
+		score.notes[newSlideStart.ID] = newSlideStart;
+		score.holdNotes[newSlideStart.ID] = newHold;
 
-    sortHoldSteps(score, hold);
-    sortHoldSteps(score, newHold);
-    selectedNotes.clear();
-    selectedNotes.insert(newSlideStart.ID);
-    selectedNotes.insert(newSlideEnd.ID);
+		sortHoldSteps(score, hold);
+		sortHoldSteps(score, newHold);
+		selectedNotes.clear();
+		selectedNotes.insert(newSlideStart.ID);
+		selectedNotes.insert(newSlideEnd.ID);
 
-    pushHistory("Rip hold", prev, score);
-  }
+		pushHistory("Rip hold", prev, score);
+	}
 
 	void ScoreContext::undo()
 	{
