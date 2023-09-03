@@ -6,9 +6,6 @@
 #include <stdio.h>
 #include <vector>
 
-#undef min
-#undef max
-
 using json = nlohmann::json;
 using namespace IO;
 

@@ -1,4 +1,10 @@
 #pragma once
+
+/*
+	miniaudio includes windows.h without defining NOMINMAX and even though it is defined
+	elsewhere and compiles properly, visual studio is confused with std::min/std::max calls
+*/
+#define NOMINMAX
 #include <miniaudio.h>
 #include <string>
 

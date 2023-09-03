@@ -21,8 +21,6 @@ namespace MikuMikuWorld
 		std::unordered_set<int> createPresets;
 		std::unordered_set<std::string> deletePresets;
 
-		int getBaseTick(const Score& score, const std::unordered_set<int>& selection);
-
 	public:
 		std::unordered_map<int, NotesPreset> presets;
 

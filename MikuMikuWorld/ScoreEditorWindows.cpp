@@ -629,13 +629,21 @@ namespace MikuMikuWorld
 							UI::endNextItemDisabled();
 						ImGui::Separator();
 
-						UI::addCheckboxProperty(getString("use_smooth_scroll"), config.useSmoothScrolling);
-						UI::addSliderProperty(getString("smooth_scroll_time"), config.smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
-						ImGui::Separator();
-
 						UI::addCheckboxProperty(getString("return_to_last_tick"), config.returnToLastSelectedTickOnPause);
 						UI::addCheckboxProperty(getString("cursor_auto_scroll"), config.followCursorInPlayback);
 						UI::addPercentSliderProperty(getString("cursor_auto_scroll_amount"), config.cursorPositionThreshold);
+						UI::endPropertyColumns();
+					}
+
+					if (ImGui::CollapsingHeader(getString("scrolling"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						UI::beginPropertyColumns();
+						UI::addSliderProperty(getString("scroll_speed_normal"), config.scrollSpeedNormal, 1.0f, 10.0f, "%.1fx");
+						UI::addSliderProperty(getString("scroll_speed_fast"), config.scrollSpeedFast, 1.0f, 10.0f, "%.1fx");
+						ImGui::Separator();
+
+						UI::addCheckboxProperty(getString("use_smooth_scroll"), config.useSmoothScrolling);
+						UI::addSliderProperty(getString("smooth_scroll_time"), config.smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
 						UI::endPropertyColumns();
 					}
 

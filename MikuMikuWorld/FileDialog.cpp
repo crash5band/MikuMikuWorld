@@ -1,14 +1,15 @@
 #include "FileDialog.h"
 #include "IO.h"
 
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#define GLFW_NATIVE_INCLUDE_NONE
 #define GLFW_EXPOSE_NATIVE_WIN32
 #define GLFW_EXPOSE_NATIVE_WGL
-#define GLFW_NATIVE_INCLUDE_NONE
-#include "GLFW/glfw3native.h"
 
 #include <Windows.h>
+#include <GLFW/glfw3native.h>
 
 namespace IO
 {

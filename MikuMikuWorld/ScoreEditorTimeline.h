@@ -19,7 +19,8 @@ namespace MikuMikuWorld
 		float minOffset;
 		float offset;
 		float visualOffset;
-		float unitHeight = 0.15f;
+		const float unitHeight = 0.25f;
+		const float scrollUnit = 50;
 
 		float scrollStartY;
 		bool mouseInTimeline;
@@ -155,6 +156,9 @@ namespace MikuMikuWorld
 
 		constexpr inline float getZoom() const { return zoom; }
 		void setZoom(float zoom);
+
+		constexpr inline int getDivision() const { return division; }
+		void setDivision(int div) { division = std::clamp(div, 4, 1920); }
 
 		constexpr inline bool isMouseInTimeline() const { return mouseInTimeline; }
 		bool isNoteVisible(const Note& note, int offsetTicks = 0) const;

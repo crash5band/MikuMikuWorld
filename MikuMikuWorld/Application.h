@@ -1,13 +1,15 @@
 #pragma once
 
 #define IMGUI_DEFINE_MATH_OPERATORS
+#define NOMINMAX
 
-#include "../Depends/glad/include/glad/glad.h"
-#include "../Depends/GLFW/include/GLFW/glfw3.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include "ScoreEditor.h"
-#include "Stopwatch.h"
-#include "ApplicationConfiguration.h"
 #include "ImGuiManager.h"
+#include <Windows.h>
+
+LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 namespace MikuMikuWorld
 {
@@ -22,9 +24,11 @@ namespace MikuMikuWorld
 		bool closing = false;
 		bool shouldPickScore = false;
 		bool dragDropHandled = true;
+		bool windowDragging = false;
 		float lastDpiScale = 0.0f;
-		Vector2 position;
-		Vector2 size;
+		Vector2 position{};
+		Vector2 size{};
+		UINT_PTR windowTimerId{};
 	};
 
 	class Application
@@ -56,9 +60,9 @@ namespace MikuMikuWorld
 	public:
 		static WindowState windowState;
 
-		Application(const std::string &rootPath);
+		Application();
 
-		Result initialize();
+		Result initialize(const std::string& root);
 		void run();
 		void update();
 		void frameTime();
@@ -68,6 +72,8 @@ namespace MikuMikuWorld
 		void writeSettings();
 		void loadResources();
 		void dispose();
+
+		GLFWwindow* getGlfwWindow() { return window; }
 
 		static const std::string& getAppDir();
 		static const std::string& getAppVersion();

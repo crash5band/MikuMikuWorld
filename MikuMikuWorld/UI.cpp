@@ -376,7 +376,7 @@ namespace MikuMikuWorld
 		if (!window)
 			return;
 
-		glfwSetWindowTitle(window, std::string{ windowTitle }.append(title).c_str());
+		glfwSetWindowTitle(window, IO::formatString("%s - %s", APP_NAME, title.c_str()).c_str());
 	}
 
 	void UI::updateBtnSizesDpiScaling(float scale)

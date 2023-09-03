@@ -8,9 +8,6 @@
 #include <execution>
 #include "JsonIO.h"
 
-#undef min;
-#undef max;
-
 using nlohmann::json;
 
 namespace MikuMikuWorld
@@ -43,10 +40,10 @@ namespace MikuMikuWorld
 			Result result = preset.read(filename);
 			{
 				std::lock_guard<std::mutex> lock{ m2 };
+
 				if (result.getStatus() == ResultStatus::Success)
 					presets.emplace(id, std::move(preset));
-
-				if (result.getStatus() == ResultStatus::Warning)
+				else if (result.getStatus() == ResultStatus::Warning)
 					warnings.push_back(result);
 				else if (result.getStatus() == ResultStatus::Error)
 					errors.push_back(result);
@@ -74,22 +71,28 @@ namespace MikuMikuWorld
 
 	void PresetManager::savePresets(const std::string& path)
 	{
+		namespace fs = std::filesystem;
+		fs::path libPath{ path };
+
 		std::wstring wPath = IO::mbToWideStr(path);
 		if (!std::filesystem::exists(wPath))
 			std::filesystem::create_directory(wPath);
 
 		for (const std::string& filename : deletePresets)
 		{
-			std::wstring wFullPath = IO::mbToWideStr(path + filename) + L".json";
+			std::wstring wFullPath = IO::mbToWideStr((libPath / filename).string()) + L".json";
 			if (std::filesystem::exists(wFullPath))
 				std::filesystem::remove(wFullPath);
 		}
 
-		std::for_each(std::execution::par, createPresets.begin(), createPresets.end(), [this, &path](int id) {
+		std::for_each(std::execution::par, createPresets.begin(), createPresets.end(), [this, &libPath](int id) {
 			if (presets.find(id) != presets.end())
 			{
 				NotesPreset& preset = presets.at(id);
-				std::string filename = path + fixFilename(preset.getName()) + ".json";
+
+				// filename without extension
+				// we will add the extension later after determining what the final filename should be
+				std::string filename = (libPath / fixFilename(preset.getName())).string();
 				preset.write(filename, false);
 			}
 		});
@@ -105,7 +108,8 @@ namespace MikuMikuWorld
 		preset.name = name;
 		preset.description = desc;
 
-		int baseTick = getBaseTick(score, selectedNotes);
+		int baseTick = score.notes.at(*std::min_element(selectedNotes.begin(), selectedNotes.end(),
+			[&score](int id1, int id2) { return score.notes.at(id1).tick < score.notes.at(id2).tick; })).tick;
 		preset.data = jsonIO::noteSelectionToJson(score, selectedNotes, baseTick);
 
 		presets[preset.getID()] = preset;
@@ -141,21 +145,6 @@ namespace MikuMikuWorld
 		}
 
 		return result;
-	}
-
-	int PresetManager::getBaseTick(const Score& score, const std::unordered_set<int>& selection)
-	{
-		int minTick = INT_MAX;
-		for (const int id : selection)
-		{
-			auto it = score.notes.find(id);
-			if (it == score.notes.end())
-				continue;
-
-			minTick = std::min(minTick, it->second.tick);
-		}
-
-		return minTick;
 	}
 
 	void PresetManager::applyPreset(int presetId, ScoreContext& context)

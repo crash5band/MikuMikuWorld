@@ -2,11 +2,11 @@
 #define STBI_WINDOWS_UTF8
 
 #include "Application.h"
+#include "ApplicationConfiguration.h"
 #include "IO.h"
 #include "UI.h"
 #include "Result.h"
 #include "stb_image.h"
-#include <string>
 
 namespace MikuMikuWorld
 {
@@ -33,16 +33,6 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void dropCallback(GLFWwindow* window, int count, const char** paths)
-	{
-		Application* app = (Application*)glfwGetWindowUserPointer(window);
-		if (!app)
-			return;
-
-		for (int i = 0; i < count; ++i)
-			app->appendOpenFile(paths[i]);
-	}
-
 	void windowCloseCallback(GLFWwindow* window)
 	{
 		glfwSetWindowShouldClose(window, 0);
@@ -52,27 +42,6 @@ namespace MikuMikuWorld
 	void windowMaximizeCallback(GLFWwindow* window, int _maximized)
 	{
 		Application::windowState.maximized = _maximized;
-	}
-
-	void loadIcon(std::string filepath, GLFWwindow* window)
-	{
-		if (!IO::File::exists(filepath))
-			return;
-
-		GLFWimage images[1];
-		images[0].pixels = stbi_load(filepath.c_str(), &images[0].width, &images[0].height, 0, 4); //rgba channels 
-		glfwSetWindowIcon(window, 1, images);
-		stbi_image_free(images[0].pixels);
-	}
-
-	void Application::installCallbacks()
-	{
-		glfwSetWindowPosCallback(window, windowPositionCallback);
-		glfwSetWindowSizeCallback(window, windowSizeCallback);
-		glfwSetFramebufferSizeCallback(window, frameBufferResizeCallback);
-		glfwSetDropCallback(window, dropCallback);
-		glfwSetWindowCloseCallback(window, windowCloseCallback);
-		glfwSetWindowMaximizeCallback(window, windowMaximizeCallback);
 	}
 
 	Result Application::initOpenGL()
@@ -105,6 +74,20 @@ namespace MikuMikuWorld
 		glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
 		glfwMakeContextCurrent(window);
 		glfwSetWindowTitle(window, APP_NAME " - Untitled");
+		glfwSetWindowPosCallback(window, windowPositionCallback);
+		glfwSetWindowSizeCallback(window, windowSizeCallback);
+		glfwSetFramebufferSizeCallback(window, frameBufferResizeCallback);
+		glfwSetWindowCloseCallback(window, windowCloseCallback);
+		glfwSetWindowMaximizeCallback(window, windowMaximizeCallback);
+
+		std::string iconFilename = appDir + "res/mmw_icon.png";
+		if (IO::File::exists(iconFilename))
+		{
+			GLFWimage images[1]{};
+			images[0].pixels = stbi_load(iconFilename.c_str(), &images[0].width, &images[0].height, 0, 4); //rgba channels 
+			glfwSetWindowIcon(window, 1, images);
+			stbi_image_free(images[0].pixels);
+		}
 
 		// GLAD initializtion
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -113,11 +96,7 @@ namespace MikuMikuWorld
 			return Result(ResultStatus::Error, "Failed to fetch OpenGL proc address.");
 		}
 
-		glfwSetWindowUserPointer(window, this);
 		glfwSwapInterval(config.vsync);
-		installCallbacks();
-		loadIcon(appDir + "res/mmw_icon.png", window);
-
 		if (config.maximized)
 			glfwMaximizeWindow(window);
 

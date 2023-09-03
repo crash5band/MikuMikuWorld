@@ -9,7 +9,7 @@ using namespace nlohmann;
 namespace MikuMikuWorld
 {
 	ApplicationConfiguration config{};
-	constexpr const char* CONFIG_VERSION{ "1.5.1" };
+	constexpr const char* CONFIG_VERSION{ "1.6.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -63,6 +63,8 @@ namespace MikuMikuWorld
 
 			useSmoothScrolling = jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
 			smoothScrollingTime = jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 67.0f);
+			scrollSpeedNormal = jsonIO::tryGetValue<float>(config["timeline"], "scroll_speed_normal", 2.0f);
+			scrollSpeedFast = jsonIO::tryGetValue<float>(config["timleine"], "scroll_speed_fast", 5.0f);
 
 			returnToLastSelectedTickOnPause = jsonIO::tryGetValue<bool>(config["timeline"], "return_to_last_tick_on_pause", false);
 			cursorPositionThreshold = jsonIO::tryGetValue<float>(config["timeline"], "cursor_position_threshold", 0.5f);
@@ -84,7 +86,7 @@ namespace MikuMikuWorld
 
 		if (jsonIO::keyExists(config, "audio"))
 		{
-			masterVolume	= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "master_volume", 0.8f), 0.0f, 1.0f);
+			masterVolume	= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "master_volume", 1.0f), 0.0f, 1.0f);
 			bgmVolume		= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "bgm_volume", 1.0f), 0.0f, 1.0f);
 			seVolume		= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "se_volume", 1.0f), 0.0f, 1.0f);
 		}
@@ -140,6 +142,8 @@ namespace MikuMikuWorld
 			{"background_brightness", backgroundBrightness},
 			{"smooth_scrolling_enable", useSmoothScrolling},
 			{"smooth_scrolling_time", smoothScrollingTime},
+			{"scroll_speed_normal", scrollSpeedNormal},
+			{"scroll_speed_fast", scrollSpeedFast},
 			{"return_to_last_tick_on_pause", returnToLastSelectedTickOnPause},
 			{"cursor_position_threshold", cursorPositionThreshold}
 		};
@@ -212,6 +216,8 @@ namespace MikuMikuWorld
 		backgroundBrightness = 0.5f;
 		useSmoothScrolling = true;
 		smoothScrollingTime = 67.0f;
+		scrollSpeedNormal = 2.0f;
+		scrollSpeedFast = 5.0f;
 		cursorPositionThreshold = 0.5;
 		followCursorInPlayback = true;
 		returnToLastSelectedTickOnPause = false;

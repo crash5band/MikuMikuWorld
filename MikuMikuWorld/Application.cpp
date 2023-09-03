@@ -1,4 +1,7 @@
-﻿#include "Application.h"
+﻿#define GLFW_NATIVE_INCLUDE_NONE
+#define GLFW_EXPOSE_NATIVE_WIN32
+
+#include "Application.h"
 #include "ResourceManager.h"
 #include "IO.h"
 #include "Colors.h"
@@ -7,8 +10,9 @@
 #include "Localization.h"
 #include "Constants.h"
 #include "NoteGraphics.h"
+#include "ApplicationConfiguration.h"
 #include <filesystem>
-#include <Windows.h>
+#include <GLFW/glfw3native.h>
 
 namespace MikuMikuWorld
 {
@@ -18,17 +22,22 @@ namespace MikuMikuWorld
 
 	NoteTextures noteTextures{ -1, -1, -1 };
 
-	Application::Application(const std::string& root) : initialized{ false }
+	Application::Application() : 
+		initialized{ false }
 	{
-		appDir = root;
-		version = getVersion();
+		appDir = "";
+		version = "";
 		language = "";
 	}
 
-	Result Application::initialize()
+	Result Application::initialize(const std::string& root)
 	{
 		if (initialized)
 			return Result(ResultStatus::Success, "App is already initialized");
+
+		appDir = root;
+		version = getVersion();
+		language = "";
 
 		config.read(appDir + APP_CONFIG_FILENAME);
 		readSettings();
@@ -137,6 +146,7 @@ namespace MikuMikuWorld
 		config.windowSize = windowState.size;
 		config.userColor = Color::fromImVec4(UI::accentColors[0]);
 
+		editor->writeSettings();
 		config.write(appDir + APP_CONFIG_FILENAME);
 	}
 
@@ -240,10 +250,21 @@ namespace MikuMikuWorld
 			{
 				switch (unsavedChangesResult)
 				{
-				case DialogResult::Yes: editor->trySave(editor->getWorkingFilename()); glfwSetWindowShouldClose(window, 1); break;
-				case DialogResult::No: glfwSetWindowShouldClose(window, 1); break;
-				case DialogResult::Cancel: windowState.closing = false; break;
-				default: break;
+				case DialogResult::Yes:
+					editor->trySave(editor->getWorkingFilename());
+					glfwSetWindowShouldClose(window, 1);
+					break;
+
+				case DialogResult::No:
+					glfwSetWindowShouldClose(window, 1);
+					break;
+
+				case DialogResult::Cancel:
+					windowState.closing = false;
+					break;
+
+				default:
+					break;
 				}
 			}
 			else
@@ -258,9 +279,17 @@ namespace MikuMikuWorld
 			{
 				switch (unsavedChangesResult)
 				{
-				case DialogResult::Yes: editor->trySave(editor->getWorkingFilename()); break;
-				case DialogResult::Cancel: windowState.resetting = shouldPickScore = false; pendingDropScoreFile.clear(); break;
-				default: break;
+				case DialogResult::Yes:
+					editor->trySave(editor->getWorkingFilename());
+					break;
+
+				case DialogResult::Cancel:
+					windowState.resetting = shouldPickScore = false;
+					pendingDropScoreFile.clear();
+					break;
+
+				default:
+					break;
 				}
 			}
 
@@ -329,6 +358,22 @@ namespace MikuMikuWorld
 
 	void Application::run()
 	{
+		HWND hwnd = glfwGetWin32Window(window);
+
+		/*
+			override the current GLFW/Imgui window procedure and store it in the GLFW window user pointer
+		
+			NOTE: for this to be safe, it should be only called AFTER ImGui is initialized
+			so that the WndProc ImGui is expecting matches with our own WndProc
+		*/
+		glfwSetWindowUserPointer(window, (void*)GetWindowLongPtr(hwnd, GWLP_WNDPROC));
+		SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)wndProc);
+
+		windowState.windowTimerId = ::SetTimer(hwnd,
+			reinterpret_cast<UINT_PTR>(&windowState.windowTimerId), USER_TIMER_MINIMUM, nullptr);
+
+		::DragAcceptFiles(hwnd, TRUE);
+
 		while (!glfwWindowShouldClose(window))
 		{
 			glfwPollEvents();

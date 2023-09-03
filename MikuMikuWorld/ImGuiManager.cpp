@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "ApplicationConfiguration.h"
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.h"
 #include "../Depends/glad/include/glad/glad.h"
@@ -32,7 +33,6 @@ namespace MikuMikuWorld
 		io.ConfigWindowsMoveFromTitleBarOnly = true;
 		io.ConfigViewportsNoDefaultParent = false;
 		io.ConfigViewportsNoAutoMerge = true;
-		io.ConfigViewportsNoDecoration = false;
 		io.IniFilename = configFilename.c_str();
 
 		if (!ImGui_ImplGlfw_InitForOpenGL(window, true))
