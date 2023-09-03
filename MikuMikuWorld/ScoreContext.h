@@ -98,8 +98,8 @@ namespace MikuMikuWorld
 		void confirmPaste();
 		void shrinkSelection(Direction direction);
 
-		void connectSlides();
-		void ripSlides();
+		void connectHoldsInSelection();
+		void ripHoldInSelection();
 
 		void undo();
 		void redo();

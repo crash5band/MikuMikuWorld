@@ -14,8 +14,8 @@ namespace MikuMikuWorld
 		MultiInputBinding increaseNoteSize = { "increase_note_size", {} };
 		MultiInputBinding shrinkDown = { "shrink_down", {} };
 		MultiInputBinding shrinkUp = { "shrink_up", {} };
-		MultiInputBinding connectSlides = { "connect_slides", {} };
-		MultiInputBinding ripSlides = { "rip_slides", {} };
+		MultiInputBinding connectHolds = { "connect_holds", {} };
+		MultiInputBinding ripHold = { "rip_hold", {} };
 		MultiInputBinding openHelp = { "help", {ImGuiKey_F1} };
 		MultiInputBinding openSettings = { "settings", {ImGuiKey_Comma, ImGuiModFlags_Ctrl} };
 		MultiInputBinding deleteSelection = { "delete", {ImGuiKey_Delete} };
@@ -117,8 +117,8 @@ namespace MikuMikuWorld
 		&config.input.deleteSelection,
 		&config.input.shrinkDown,
 		&config.input.shrinkUp,
-		&config.input.connectSlides,
-		&config.input.ripSlides,
+		&config.input.connectHolds,
+		&config.input.ripHold,
 		&config.input.selectAll,
 
 		&config.input.togglePlayback,

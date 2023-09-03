@@ -259,12 +259,11 @@ namespace MikuMikuWorld
 				context.shrinkSelection(Direction::Down);
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(getString("connect_slides"), NULL, false, canConnect))
-				context.connectSlides();
+			if (ImGui::MenuItem(getString("connect_holds"), NULL, false, canConnect))
+				context.connectHoldsInSelection();
 
-			if (ImGui::MenuItem(getString("rip_slides"), NULL, false, hasStep && context.selectedNotes.size() == 1))
-				// TODO
-				0;
+			if (ImGui::MenuItem(getString("rip_hold"), NULL, false, hasStep && context.selectedNotes.size() == 1))
+				context.ripHoldInSelection();
 
 			ImGui::EndPopup();
 		}
