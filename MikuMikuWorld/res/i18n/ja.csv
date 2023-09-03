@@ -97,7 +97,7 @@ flip, 反転
 note_width, ノーツ幅
 shrink_down, 縮める（最初に合わせる）
 shrink_up, 縮める（最後に合わせる）
-merge_slides, 結合
+connect_slides, 連結
 rip_slides, 切断
 step_type, 中継点の種類
 ease_type, 曲線の種類

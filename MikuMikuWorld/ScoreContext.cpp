@@ -452,6 +452,64 @@ namespace MikuMikuWorld
 		pushHistory("Shrink notes", prev, score);
 	}
 
+	void ScoreContext::connectSlides()
+	{
+		if (!selectionCanConnect())
+			return;
+
+		Score prev = score;
+		Note& note1 = score.notes[*selectedNotes.begin()];
+		Note& note2 = score.notes[*std::next(selectedNotes.begin())];
+
+		Note& earlierNote = note1.getType() == NoteType::HoldEnd ? note1 : note2;
+		Note& laterNote = note1.getType() == NoteType::HoldEnd ? note2 : note1;
+
+		HoldNote& earlierHold = score.holdNotes[earlierNote.parentID];
+		HoldNote& laterHold = score.holdNotes[laterNote.ID];
+
+		earlierHold.end = laterHold.end;
+
+		laterNote.parentID = earlierHold.start.ID;
+
+		for (auto& step : laterHold.steps) {
+			earlierHold.steps.push_back(step);
+
+			Note& note = score.notes.at(step.ID);
+			note.parentID = earlierHold.start.ID;
+		}
+
+		Note earlierNoteAsMid = Note(NoteType::HoldMid);
+		earlierNoteAsMid.tick = earlierNote.tick;
+		earlierNoteAsMid.lane = earlierNote.lane;
+		earlierNoteAsMid.width = earlierNote.width;
+		earlierNoteAsMid.ID = nextID++;
+		earlierNoteAsMid.parentID = earlierHold.start.ID;
+
+		Note laterNoteAsMid = Note(NoteType::HoldMid);
+		laterNoteAsMid.tick = laterNote.tick;
+		laterNoteAsMid.lane = laterNote.lane;
+		laterNoteAsMid.width = laterNote.width;
+		laterNoteAsMid.ID = nextID++;
+		laterNoteAsMid.parentID = earlierHold.start.ID;
+
+		score.notes[earlierNoteAsMid.ID] = earlierNoteAsMid;
+		score.notes[laterNoteAsMid.ID] = laterNoteAsMid;
+		earlierHold.steps.push_back({ earlierNoteAsMid.ID, HoldStepType::Normal, EaseType::Linear });
+		earlierHold.steps.push_back({ laterNoteAsMid.ID, laterHold.start.type, laterHold.start.ease });
+
+		score.notes.erase(earlierNote.ID);
+		score.notes.erase(laterNote.ID);
+		score.holdNotes.erase(laterHold.start.ID);
+
+		sortHoldSteps(score, earlierHold);
+
+		selectedNotes.clear();
+		selectedNotes.insert(earlierNoteAsMid.ID);
+		selectedNotes.insert(laterNoteAsMid.ID);
+
+		pushHistory("Connect slides", prev, score);
+	}
+
 	void ScoreContext::undo()
 	{
 		if (history.hasUndo())

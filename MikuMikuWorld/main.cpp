@@ -31,7 +31,7 @@ int main()
 
 		for (int i = 1; i < argc; ++i)
 			app.appendOpenFile(IO::wideStringToMb(args[i]));
-		
+
 		app.handlePendingOpenFiles();
 		app.run();
 	}

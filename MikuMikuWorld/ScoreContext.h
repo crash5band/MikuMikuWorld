@@ -78,7 +78,7 @@ namespace MikuMikuWorld
 		bool selectionHasEase() const;
 		bool selectionHasStep() const;
 		bool selectionHasFlickable() const;
-    bool selectionCanConnect() const;
+		bool selectionCanConnect() const;
 		inline bool isNoteSelected(const Note& note) { return selectedNotes.find(note.ID) != selectedNotes.end(); }
 		inline void selectAll() { selectedNotes.clear(); for (auto& it : score.notes) selectedNotes.insert(it.first); }
 		inline void clearSelection() { selectedNotes.clear(); }
@@ -97,6 +97,9 @@ namespace MikuMikuWorld
 		void cancelPaste();
 		void confirmPaste();
 		void shrinkSelection(Direction direction);
+
+		void connectSlides();
+		void ripSlides();
 
 		void undo();
 		void redo();
