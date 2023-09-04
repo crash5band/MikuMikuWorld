@@ -3,6 +3,8 @@
 #include "IO.h"
 #include "Utilities.h"
 #include "UI.h"
+#include <stdio.h>
+#include <vector>
 
 using json = nlohmann::json;
 using namespace IO;
@@ -389,7 +391,7 @@ namespace MikuMikuWorld
 
 			score.holdNotes[hold.start.ID] = hold;
 		}
-		
+
 		// select newly pasted notes
 		selectedNotes.clear();
 		std::transform(pasteData.notes.begin(), pasteData.notes.end(),
@@ -421,7 +423,7 @@ namespace MikuMikuWorld
 		Score prev = score;
 
 		std::vector<int> sortedSelection(selectedNotes.begin(), selectedNotes.end());
-		std::sort(sortedSelection.begin(), sortedSelection.end(), [this](int a, int b) 
+		std::sort(sortedSelection.begin(), sortedSelection.end(), [this](int a, int b)
 		{
 			const Note& n1 = score.notes.at(a);
 			const Note& n2 = score.notes.at(b);
@@ -445,6 +447,127 @@ namespace MikuMikuWorld
 			sortHoldSteps(score, score.holdNotes.at(hold));
 
 		pushHistory("Shrink notes", prev, score);
+	}
+
+	void ScoreContext::connectHoldsInSelection()
+	{
+		if (!selectionCanConnect())
+			return;
+
+		Score prev = score;
+		Note& note1 = score.notes[*selectedNotes.begin()];
+		Note& note2 = score.notes[*std::next(selectedNotes.begin())];
+
+		Note& earlierNote = note1.getType() == NoteType::HoldEnd ? note1 : note2;
+		Note& laterNote = note1.getType() == NoteType::HoldEnd ? note2 : note1;
+
+		HoldNote& earlierHold = score.holdNotes[earlierNote.parentID];
+		HoldNote& laterHold = score.holdNotes[laterNote.ID];
+
+		earlierHold.end = laterHold.end;
+
+		laterNote.parentID = earlierHold.start.ID;
+
+		for (auto& step : laterHold.steps) {
+			earlierHold.steps.push_back(step);
+
+			Note& note = score.notes.at(step.ID);
+			note.parentID = earlierHold.start.ID;
+		}
+
+		Note earlierNoteAsMid = Note(NoteType::HoldMid);
+		earlierNoteAsMid.tick = earlierNote.tick;
+		earlierNoteAsMid.lane = earlierNote.lane;
+		earlierNoteAsMid.width = earlierNote.width;
+		earlierNoteAsMid.ID = nextID++;
+		earlierNoteAsMid.parentID = earlierHold.start.ID;
+
+		Note laterNoteAsMid = Note(NoteType::HoldMid);
+		laterNoteAsMid.tick = laterNote.tick;
+		laterNoteAsMid.lane = laterNote.lane;
+		laterNoteAsMid.width = laterNote.width;
+		laterNoteAsMid.ID = nextID++;
+		laterNoteAsMid.parentID = earlierHold.start.ID;
+
+		score.notes[earlierNoteAsMid.ID] = earlierNoteAsMid;
+		score.notes[laterNoteAsMid.ID] = laterNoteAsMid;
+		earlierHold.steps.push_back({ earlierNoteAsMid.ID, HoldStepType::Normal, EaseType::Linear });
+		earlierHold.steps.push_back({ laterNoteAsMid.ID, laterHold.start.type, laterHold.start.ease });
+
+		score.notes.erase(earlierNote.ID);
+		score.notes.erase(laterNote.ID);
+		score.holdNotes.erase(laterHold.start.ID);
+
+		sortHoldSteps(score, earlierHold);
+
+		selectedNotes.clear();
+		selectedNotes.insert(earlierNoteAsMid.ID);
+		selectedNotes.insert(laterNoteAsMid.ID);
+
+		pushHistory("Connect holds", prev, score);
+	}
+
+	void ScoreContext::splitHoldInSelection()
+	{
+		if (selectedNotes.size() != 1)
+			return;
+
+		Score prev = score;
+
+		Note& note = score.notes[*selectedNotes.begin()];
+		if (note.getType() != NoteType::HoldMid)
+			return;
+
+		HoldNote& hold = score.holdNotes[note.parentID];
+
+		int pos = findHoldStep(hold, note.ID);
+		if (pos == -1)
+			return;
+
+		Note holdStart = score.notes.at(hold.start.ID);
+
+		Note newSlideEnd = Note(NoteType::HoldEnd);
+		newSlideEnd.tick = note.tick;
+		newSlideEnd.lane = note.lane;
+		newSlideEnd.width = note.width;
+		newSlideEnd.ID = nextID++;
+		newSlideEnd.parentID = hold.start.ID;
+		newSlideEnd.critical = note.critical;
+
+		Note newSlideStart = Note(NoteType::Hold);
+		newSlideStart.tick = note.tick;
+		newSlideStart.lane = note.lane;
+		newSlideStart.width = note.width;
+		newSlideStart.ID = nextID++;
+		newSlideStart.critical = holdStart.critical;
+
+		HoldNote newHold;
+		newHold.end = hold.end;
+		hold.end = newSlideEnd.ID;
+
+		newHold.start = { newSlideStart.ID, hold.steps[pos].type, hold.steps[pos].ease };
+		for (int i = pos + 1; i < hold.steps.size(); ++i)
+		{
+			HoldStep step = hold.steps[i];
+			Note& stepNote = score.notes.at(step.ID);
+			stepNote.parentID = newSlideStart.ID;
+			newHold.steps.push_back(step);
+			hold.steps.erase(hold.steps.begin() + i);
+		}
+
+		hold.steps.erase(hold.steps.begin() + pos);
+		score.notes.erase(note.ID);
+		score.notes[newSlideEnd.ID] = newSlideEnd;
+		score.notes[newSlideStart.ID] = newSlideStart;
+		score.holdNotes[newSlideStart.ID] = newHold;
+
+		sortHoldSteps(score, hold);
+		sortHoldSteps(score, newHold);
+		selectedNotes.clear();
+		selectedNotes.insert(newSlideStart.ID);
+		selectedNotes.insert(newSlideEnd.ID);
+
+		pushHistory("Rip hold", prev, score);
 	}
 
 	void ScoreContext::undo()
@@ -487,7 +610,7 @@ namespace MikuMikuWorld
 
 	bool ScoreContext::selectionHasEase() const
 	{
-		return std::any_of(selectedNotes.begin(), selectedNotes.end(), 
+		return std::any_of(selectedNotes.begin(), selectedNotes.end(),
 			[this](const int id) { return score.notes.at(id).hasEase(); });
 	}
 
@@ -501,5 +624,28 @@ namespace MikuMikuWorld
 	{
 		return std::any_of(selectedNotes.begin(), selectedNotes.end(),
 			[this](const int id) { return !score.notes.at(id).hasEase(); });
+	}
+
+	bool ScoreContext::selectionCanConnect() const
+	{
+		if (selectedNotes.size() != 2)
+			return false;
+		auto note1 = score.notes.at(*selectedNotes.begin());
+		auto note2 = score.notes.at(*std::next(selectedNotes.begin()));
+		if (note1.tick == note2.tick)
+			return (note1.getType() == NoteType::Hold && note2.getType() == NoteType::HoldEnd) ||
+						 (note1.getType() == NoteType::HoldEnd && note2.getType() == NoteType::Hold);
+
+		Note earlierNote;
+		Note laterNote;
+		if (note1.tick < note2.tick) {
+			earlierNote = note1;
+			laterNote = note2;
+		} else {
+			earlierNote = note2;
+			laterNote = note1;
+		}
+
+		return (earlierNote.getType() == NoteType::HoldEnd && laterNote.getType() == NoteType::Hold);
 	}
 }

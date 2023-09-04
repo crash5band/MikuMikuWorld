@@ -106,6 +106,8 @@ namespace MikuMikuWorld
 		{"note_width", "Note Width"},
 		{"shrink_down", "Shrink Down"},
 		{"shrink_up", "Shrink Up"},
+		{"connect_holds", "Connect Holds"},
+		{"split_hold", "Split Hold"},
 		{"step_type", "Step Type"},
 		{"ease_type", "Ease Type"},
 		{"flick_type", "Flick Type"},
