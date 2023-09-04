@@ -207,7 +207,7 @@ namespace MikuMikuWorld
 		{
 			if (ImGui::MenuItem(getString("delete"), ToShortcutString(config.input.deleteSelection), false, context.selectedNotes.size()))
 				context.deleteSelection();
-			
+
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("cut"), ToShortcutString(config.input.cutSelection), false, context.selectedNotes.size()))
 				context.cutSelection();
@@ -227,6 +227,7 @@ namespace MikuMikuWorld
 			const bool hasEase = context.selectionHasEase();
 			const bool hasStep = context.selectionHasStep();
 			const bool hasFlick = context.selectionHasFlickable();
+			const bool canConnect = context.selectionCanConnect();
 
 			ImGui::Separator();
 			if (ImGui::BeginMenu(getString("ease_type"), hasEase))
@@ -256,6 +257,13 @@ namespace MikuMikuWorld
 
 			if (ImGui::MenuItem(getString("shrink_down"), NULL, false, context.selectedNotes.size() > 1))
 				context.shrinkSelection(Direction::Down);
+
+			ImGui::Separator();
+			if (ImGui::MenuItem(getString("connect_holds"), NULL, false, canConnect))
+				context.connectHoldsInSelection();
+
+			if (ImGui::MenuItem(getString("split_hold"), NULL, false, hasStep && context.selectedNotes.size() == 1))
+				context.splitHoldInSelection();
 
 			ImGui::EndPopup();
 		}

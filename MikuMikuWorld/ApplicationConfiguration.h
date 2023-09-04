@@ -14,6 +14,8 @@ namespace MikuMikuWorld
 		MultiInputBinding increaseNoteSize = { "increase_note_size", {} };
 		MultiInputBinding shrinkDown = { "shrink_down", {} };
 		MultiInputBinding shrinkUp = { "shrink_up", {} };
+		MultiInputBinding connectHolds = { "connect_holds", {} };
+		MultiInputBinding splitHold = { "split_hold", {} };
 		MultiInputBinding openHelp = { "help", {ImGuiKey_F1} };
 		MultiInputBinding openSettings = { "settings", {ImGuiKey_Comma, ImGuiModFlags_Ctrl} };
 		MultiInputBinding deleteSelection = { "delete", {ImGuiKey_Delete} };
@@ -35,7 +37,7 @@ namespace MikuMikuWorld
 		MultiInputBinding redo = { "redo", {ImGuiKey_Y, ImGuiModFlags_Ctrl} };
 		MultiInputBinding zoomOut = { "zoom_out", {} };
 		MultiInputBinding zoomIn = { "zoom_in", {} };
-		
+
 		MultiInputBinding timelineSelect = { "timeline_select", {ImGuiKey_1}, {ImGuiKey_Keypad1} };
 		MultiInputBinding timelineTap = { "timeline_tap", {ImGuiKey_2}, {ImGuiKey_Keypad2} };
 		MultiInputBinding timelineHold = { "timeline_hold", {ImGuiKey_3}, {ImGuiKey_Keypad3} };
@@ -93,7 +95,7 @@ namespace MikuMikuWorld
 		void write(const std::string& filename);
 		void restoreDefault();
 	};
-	
+
 	extern ApplicationConfiguration config;
 
 	static MultiInputBinding* bindings[] =
@@ -115,6 +117,8 @@ namespace MikuMikuWorld
 		&config.input.deleteSelection,
 		&config.input.shrinkDown,
 		&config.input.shrinkUp,
+		&config.input.connectHolds,
+		&config.input.splitHold,
 		&config.input.selectAll,
 
 		&config.input.togglePlayback,
