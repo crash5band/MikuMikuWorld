@@ -103,6 +103,8 @@ namespace MikuMikuWorld
 			if (ImGui::IsAnyPressed(config.input.increaseNoteSize, true)) edit.noteWidth = std::clamp(edit.noteWidth + 1, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
 			if (ImGui::IsAnyPressed(config.input.shrinkDown)) context.shrinkSelection(Direction::Down);
 			if (ImGui::IsAnyPressed(config.input.shrinkUp)) context.shrinkSelection(Direction::Up);
+			if (ImGui::IsAnyPressed(config.input.connectHolds)) context.connectHoldsInSelection();
+			if (ImGui::IsAnyPressed(config.input.splitHold)) context.splitHoldInSelection();
 
 			for (int i = 0; i < (int)TimelineMode::TimelineModeMax; ++i)
 				if (ImGui::IsAnyPressed(*timelineModeBindings[i])) timeline.changeMode((TimelineMode)i, edit);
