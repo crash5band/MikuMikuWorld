@@ -19,7 +19,7 @@ namespace MikuMikuWorld
 		float minOffset;
 		float offset;
 		float visualOffset;
-		const float unitHeight = 0.25f;
+		const float unitHeight = 0.15f;
 		const float scrollUnit = 50;
 
 		float scrollStartY;

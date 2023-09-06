@@ -386,16 +386,16 @@ namespace MikuMikuWorld
 		int firstTick = std::max(0, positionToTick(visualOffset - size.y));
 		int lastTick = positionToTick(visualOffset);
 		int measure = accumulateMeasures(firstTick, TICKS_PER_BEAT, context.score.timeSignatures);
+
+		// reduce to start of measure
 		firstTick = measureToTicks(measure, TICKS_PER_BEAT, context.score.timeSignatures);
 
 		int tsIndex = findTimeSignature(measure, context.score.timeSignatures);
 		int numerator = context.score.timeSignatures[tsIndex].numerator;
-		int interval = (division / 4) * numerator; // the number of times a measure is divided
 
 		int ticksPerMeasure = beatsPerMeasure(context.score.timeSignatures[tsIndex]) * TICKS_PER_BEAT;
 		int beatTicks = ticksPerMeasure / numerator; // the amount of ticks between each measure beat
-		int subDiv = ticksPerMeasure / interval; // the amount of ticks between each measure division
-
+		int subDiv = TICKS_PER_BEAT / (division / 4);
 		for (int tick = firstTick; tick <= lastTick; tick += subDiv)
 		{
 			const float y = position.y - tickToPosition(tick) + visualOffset;
@@ -405,12 +405,8 @@ namespace MikuMikuWorld
 			if (context.score.timeSignatures.find(currentMeasure) != context.score.timeSignatures.end())
 			{
 				tsIndex = currentMeasure;
-				numerator = context.score.timeSignatures[tsIndex].numerator;
-				interval = (division / 4) * context.score.timeSignatures[tsIndex].numerator;
-
 				ticksPerMeasure = beatsPerMeasure(context.score.timeSignatures[tsIndex]) * TICKS_PER_BEAT;
-				beatTicks = ticksPerMeasure / numerator;
-				subDiv = ticksPerMeasure / interval;
+				beatTicks = ticksPerMeasure / numerator; // the amount of ticks between each measure beat
 			}
 
 			// determine whether the tick is a beat relative to its measure's tick

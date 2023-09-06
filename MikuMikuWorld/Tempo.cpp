@@ -170,16 +170,12 @@ namespace MikuMikuWorld
 
 	int snapTick(int tick, int div, const std::map<int, TimeSignature>& ts)
 	{
-		const TimeSignature& t = ts.at(findTimeSignature(accumulateMeasures(tick, TICKS_PER_BEAT, ts), ts));
-		
-		int subDiv = (beatsPerMeasure(t) * TICKS_PER_BEAT) / (((float)div / 4.0f) * t.numerator);
-		int half = subDiv / 2;
-		int remaining = tick % subDiv;
+		const int subDivision = TICKS_PER_BEAT / (div / 4);
+		const int remainingTicks = tick % subDivision;
 
-		// round to closest division
-		tick -= remaining;
-		if (remaining >= half)
-			tick += half * 2;
+		tick -= remainingTicks;
+		if (remainingTicks >= subDivision / 2)
+			tick += subDivision;
 
 		return std::max(tick, 0);
 	}
