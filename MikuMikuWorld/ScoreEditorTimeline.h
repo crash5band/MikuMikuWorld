@@ -130,15 +130,11 @@ namespace MikuMikuWorld
 		struct EventEditParams
 		{
 			EventType type = EventType::None;
+			int editIndex = -1;
 
-			int editBpmIndex = -1;
 			float editBpm = 120.0f;
-
-			int editTimeSignatureIndex = -1;
 			int editTimeSignatureNumerator = 4;
 			int editTimeSignatureDenominator = 4;
-
-			int editHiSpeedIndex = -1;
 			float editHiSpeed = 1.0f;
 		} eventEdit {};
 

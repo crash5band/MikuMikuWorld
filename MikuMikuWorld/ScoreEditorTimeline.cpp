@@ -467,7 +467,7 @@ namespace MikuMikuWorld
 			HiSpeedChange& hiSpeed = context.score.hiSpeedChanges[index];
 			if (hiSpeedControl(hiSpeed))
 			{
-				eventEdit.editHiSpeedIndex = index;
+				eventEdit.editIndex = index;
 				eventEdit.editHiSpeed = hiSpeed.speed;
 				eventEdit.type = EventType::HiSpeed;
 				ImGui::OpenPopup("edit_event");
@@ -479,7 +479,7 @@ namespace MikuMikuWorld
 		{
 			if (timeSignatureControl(ts.numerator, ts.denominator, measureToTicks(ts.measure, TICKS_PER_BEAT, context.score.timeSignatures), !playing))
 			{
-				eventEdit.editTimeSignatureIndex = measure;
+				eventEdit.editIndex = measure;
 				eventEdit.editTimeSignatureNumerator = ts.numerator;
 				eventEdit.editTimeSignatureDenominator = ts.denominator;
 				eventEdit.type = EventType::TimeSignature;
@@ -493,7 +493,7 @@ namespace MikuMikuWorld
 			Tempo& tempo = context.score.tempoChanges[index];
 			if (bpmControl(tempo))
 			{
-				eventEdit.editBpmIndex = index;
+				eventEdit.editIndex = index;
 				eventEdit.editBpm = tempo.bpm;
 				eventEdit.type = EventType::Bpm;
 				ImGui::OpenPopup("edit_event");
@@ -1624,7 +1624,7 @@ namespace MikuMikuWorld
 			{
 				UI::beginPropertyColumns();
 
-				Tempo& tempo = context.score.tempoChanges[eventEdit.editBpmIndex];
+				Tempo& tempo = context.score.tempoChanges[eventEdit.editIndex];
 				UI::addFloatProperty(getString("bpm"), eventEdit.editBpm, "%g");
 				if (ImGui::IsItemDeactivatedAfterEdit())
 				{
@@ -1643,7 +1643,7 @@ namespace MikuMikuWorld
 					{
 						ImGui::CloseCurrentPopup();
 						Score prev = context.score;
-						context.score.tempoChanges.erase(context.score.tempoChanges.begin() + eventEdit.editBpmIndex);
+						context.score.tempoChanges.erase(context.score.tempoChanges.begin() + eventEdit.editIndex);
 						context.pushHistory("Remove tempo change", prev, context.score);
 					}
 				}
@@ -1654,7 +1654,7 @@ namespace MikuMikuWorld
 				if (UI::timeSignatureSelect(eventEdit.editTimeSignatureNumerator, eventEdit.editTimeSignatureDenominator))
 				{
 					Score prev = context.score;
-					TimeSignature& ts = context.score.timeSignatures[eventEdit.editTimeSignatureIndex];
+					TimeSignature& ts = context.score.timeSignatures[eventEdit.editIndex];
 					ts.numerator = std::clamp(abs(eventEdit.editTimeSignatureNumerator), MIN_TIME_SIGN, MAX_TIME_SIGN);
 					ts.denominator = std::clamp(abs(eventEdit.editTimeSignatureDenominator), MIN_TIME_SIGN, MAX_TIME_SIGN);
 
@@ -1663,14 +1663,14 @@ namespace MikuMikuWorld
 				UI::endPropertyColumns();
 
 				// cannot remove the first time signature
-				if (eventEdit.editTimeSignatureIndex != 0)
+				if (eventEdit.editIndex != 0)
 				{
 					ImGui::Separator();
 					if (ImGui::Button(getString("remove"), ImVec2(-1, UI::btnSmall.y + 2)))
 					{
 						ImGui::CloseCurrentPopup();
 						Score prev = context.score;
-						context.score.timeSignatures.erase(eventEdit.editTimeSignatureIndex);
+						context.score.timeSignatures.erase(eventEdit.editIndex);
 						context.pushHistory("Remove time signature", prev, context.score);
 					}
 				}
@@ -1679,7 +1679,7 @@ namespace MikuMikuWorld
 			{
 				UI::beginPropertyColumns();
 				UI::addFloatProperty(getString("hi_speed_speed"), eventEdit.editHiSpeed, "%g");
-				HiSpeedChange& hiSpeed = context.score.hiSpeedChanges[eventEdit.editHiSpeedIndex];
+				HiSpeedChange& hiSpeed = context.score.hiSpeedChanges[eventEdit.editIndex];
 				if (ImGui::IsItemDeactivatedAfterEdit())
 				{
 					Score prev = context.score;
@@ -1694,7 +1694,7 @@ namespace MikuMikuWorld
 				{
 					ImGui::CloseCurrentPopup();
 					Score prev = context.score;
-					context.score.hiSpeedChanges.erase(context.score.hiSpeedChanges.begin() + eventEdit.editHiSpeedIndex);
+					context.score.hiSpeedChanges.erase(context.score.hiSpeedChanges.begin() + eventEdit.editIndex);
 					context.pushHistory("Remove hi-speed change", prev, context.score);
 				}
 			}
