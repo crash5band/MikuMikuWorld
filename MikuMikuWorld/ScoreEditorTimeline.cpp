@@ -386,34 +386,36 @@ namespace MikuMikuWorld
 		int firstTick = std::max(0, positionToTick(visualOffset - size.y));
 		int lastTick = positionToTick(visualOffset);
 		int measure = accumulateMeasures(firstTick, TICKS_PER_BEAT, context.score.timeSignatures);
-
-		// reduce to start of measure
 		firstTick = measureToTicks(measure, TICKS_PER_BEAT, context.score.timeSignatures);
 
 		int tsIndex = findTimeSignature(measure, context.score.timeSignatures);
-		int numerator = context.score.timeSignatures[tsIndex].numerator;
-
 		int ticksPerMeasure = beatsPerMeasure(context.score.timeSignatures[tsIndex]) * TICKS_PER_BEAT;
-		int beatTicks = ticksPerMeasure / numerator; // the amount of ticks between each measure beat
-		int subDiv = TICKS_PER_BEAT / (division / 4);
-		for (int tick = firstTick; tick <= lastTick; tick += subDiv)
+		int beatTicks = ticksPerMeasure / context.score.timeSignatures[tsIndex].numerator; 
+		int subdivision = TICKS_PER_BEAT / (division / 4);
+
+		// snap to the sub-division before the current measure to prevent the lines from jumping around
+		for (int tick = firstTick - (firstTick % subdivision); tick <= lastTick; tick += subdivision)
 		{
 			const float y = position.y - tickToPosition(tick) + visualOffset;
 			int currentMeasure = accumulateMeasures(tick, TICKS_PER_BEAT, context.score.timeSignatures);
 
 			// time signature changes on current measure
-			if (context.score.timeSignatures.find(currentMeasure) != context.score.timeSignatures.end())
+			if (context.score.timeSignatures.find(currentMeasure) != context.score.timeSignatures.end() && currentMeasure != tsIndex)
 			{
 				tsIndex = currentMeasure;
 				ticksPerMeasure = beatsPerMeasure(context.score.timeSignatures[tsIndex]) * TICKS_PER_BEAT;
-				beatTicks = ticksPerMeasure / numerator; // the amount of ticks between each measure beat
+				beatTicks = ticksPerMeasure / context.score.timeSignatures[tsIndex].numerator;
+
+				// snap to sub-division again on time signature change
+				tick = measureToTicks(currentMeasure, TICKS_PER_BEAT, context.score.timeSignatures);
+				tick -= tick % subdivision;
 			}
 
 			// determine whether the tick is a beat relative to its measure's tick
 			int measureTicks = measureToTicks(currentMeasure, TICKS_PER_BEAT, context.score.timeSignatures);
 
 			if (!((tick - measureTicks) % beatTicks))
-				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), divColor1, primaryLineThickness);
+				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), measureColor, primaryLineThickness);
 			else if (division < 192)
 				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), divColor2, secondaryLineThickness);
 		}
