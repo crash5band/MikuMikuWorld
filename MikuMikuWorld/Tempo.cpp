@@ -79,20 +79,15 @@ namespace MikuMikuWorld
 
 	int accumulateMeasures(int tick, int beatTicks, const std::map<int, TimeSignature>& ts)
 	{
-		std::vector<TimeSignature> signatures;
-		signatures.reserve(ts.size());
-		for (const auto& it : ts)
-			signatures.push_back(it.second);
-
 		int accTicks = 0;
 		int total = 0;
-		int lastSign = 0;
+		auto lastSignature = ts.begin();
 
-		for (int t = 0; t < signatures.size() - 1; ++t)
+		for (auto t = ts.begin(); t != std::prev(ts.end()); t = std::next(t))
 		{
-			lastSign = t;
-			int ticksPerMeasure = beatsPerMeasure(signatures[t]) * beatTicks;
-			int measures = signatures[t + 1].measure - signatures[t].measure;
+			lastSignature = t;
+			int ticksPerMeasure = beatsPerMeasure(t->second) * beatTicks;
+			int measures = std::next(t)->first - t->first;
 			int ticks = measures * ticksPerMeasure;
 
 			if (accTicks + ticks >= tick)
@@ -100,29 +95,24 @@ namespace MikuMikuWorld
 
 			total += measures;
 			accTicks += ticks;
-			lastSign = t + 1;
+			lastSignature = std::next(t);
 		}
 
-		total += (tick - accTicks) / (beatsPerMeasure(signatures[lastSign]) * beatTicks);
+		total += (tick - accTicks) / (beatsPerMeasure(lastSignature->second) * beatTicks);
 		return total;
 	}
 
 	int measureToTicks(int measure, int beatTicks, const std::map<int, TimeSignature>& ts)
 	{
-		std::vector<TimeSignature> signatures;
-		signatures.reserve(ts.size());
-		for (const auto& it : ts)
-			signatures.push_back(it.second);
-
 		int accMeasures = 0;
 		int total = 0;
-		int lastSign = 0;
+		auto lastSignature = ts.begin();
 
-		for (int t = 0; t < signatures.size() - 1; ++t)
+		for (auto t = ts.begin(); t != std::prev(ts.end()); t = std::next(t))
 		{
-			lastSign = t;
-			int ticksPerMeasure = beatsPerMeasure(signatures[t]) * beatTicks;
-			int measures = signatures[t + 1].measure - signatures[t].measure;
+			lastSignature = t;
+			int ticksPerMeasure = beatsPerMeasure(t->second) * beatTicks;
+			int measures = std::next(t)->first - t->first;
 			int ticks = measures * ticksPerMeasure;
 
 			if (accMeasures + measures >= measure)
@@ -130,10 +120,10 @@ namespace MikuMikuWorld
 
 			total += ticks;
 			accMeasures += measures;
-			lastSign = t + 1;
+			lastSignature = std::next(t);
 		}
 
-		total += (measure - signatures[lastSign].measure) * (beatsPerMeasure(signatures[lastSign]) * beatTicks);
+		total += (measure - lastSignature->first) * (beatsPerMeasure(lastSignature->second) * beatTicks);
 		return total;
  	}
 
