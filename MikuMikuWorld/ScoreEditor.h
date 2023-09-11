@@ -19,7 +19,6 @@ namespace MikuMikuWorld
 
 		Stopwatch autoSaveTimer;
 		std::string autoSavePath;
-		std::string exportComment;
 		bool showImGuiDemoWindow;
 
 		bool save(std::string filename);
