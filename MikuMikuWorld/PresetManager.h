@@ -6,8 +6,6 @@
 
 namespace MikuMikuWorld
 {
-	constexpr const char* invalidFilenameChars = "\\/\"|<>?*:";
-
 	enum class UpdateMode
 	{
 		Create,

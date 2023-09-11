@@ -131,17 +131,10 @@ namespace MikuMikuWorld
 	std::string PresetManager::fixFilename(const std::string& name)
 	{
 		std::string result = name;
-		int length = strlen(invalidFilenameChars);
-		for (auto& c : result)
+		constexpr std::array<char, 9> invalidFilenameChars{ '\\', '/', '\"', '|', '<', '>', '?', '*', ':' };
+		for (char c : invalidFilenameChars)
 		{
-			for (int i = 0; i < length; ++i)
-			{
-				if (c == invalidFilenameChars[i])
-				{
-					c = '_';
-					break;
-				}
-			}
+			std::replace(result.begin(), result.end(), c, '_');
 		}
 
 		return result;
