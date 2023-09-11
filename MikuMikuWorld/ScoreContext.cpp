@@ -276,6 +276,9 @@ namespace MikuMikuWorld
 		{
 			for (const auto& entry : data["holds"])
 			{
+				if (!jsonIO::keyExists(entry, "start") || !jsonIO::keyExists(entry, "end"))
+					continue;
+
 				Note start = jsonIO::jsonToNote(entry["start"], NoteType::Hold);
 				start.ID = baseId++;
 				pasteData.notes[start.ID] = start;
@@ -285,12 +288,15 @@ namespace MikuMikuWorld
 				end.parentID = start.ID;
 				pasteData.notes[end.ID] = end;
 
-				std::string startEase = entry["start"]["ease"];
+				std::string startEase = "none";
+				if (jsonIO::keyExists(entry["start"], "ease"))
+					startEase = entry["start"]["ease"];
+
 				HoldNote hold;
 				hold.start = { start.ID, HoldStepType::Normal, (EaseType)findArrayItem(startEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes)) };
 				hold.end = end.ID;
 
-				if (startEase == "none")
+				if (startEase == "linear")
 					hold.start.ease = EaseType::Linear;
 
 				if (jsonIO::keyExists(entry, "steps"))
@@ -304,8 +310,13 @@ namespace MikuMikuWorld
 						mid.parentID = start.ID;
 						pasteData.notes[mid.ID] = mid;
 
-						std::string midType = step["type"];
-						std::string midEase = step["ease"];
+						std::string midType = "normal";
+						if (jsonIO::keyExists(step, "type"))
+							midType = step["type"];
+
+						std::string midEase = "linear";
+						if (jsonIO::keyExists(step, "ease"))
+							midEase = step["ease"];
 
 						int stepTypeIndex = findArrayItem(midType.c_str(), stepTypes, TXT_ARR_SZ(stepTypes));
 						int easeTypeIndex = findArrayItem(midEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes));
@@ -347,23 +358,26 @@ namespace MikuMikuWorld
 			}
 		}
 
-		// find the lane in which the cursor is in the middle of pasted notes
-		int left = MAX_LANE;
-		int right = MIN_LANE;
-		int leftmostLane = MAX_LANE;
-		int rightmostLane = MIN_LANE;
-		for (const auto& [_, note] : pasteData.notes)
-		{
-			leftmostLane = std::min(leftmostLane, note.lane);
-			rightmostLane = std::max(rightmostLane, note.lane + note.width - 1);
-			left = std::min(left, note.lane + note.width);
-			right = std::max(right, note.lane);
-		}
-
-		pasteData.minLaneOffset = MIN_LANE - leftmostLane;
-		pasteData.maxLaneOffset = MAX_LANE - rightmostLane;
-		pasteData.midLane = (left + right) / 2;
 		pasteData.pasting = pasteData.notes.size() > 0;
+		if (pasteData.pasting)
+		{
+			// find the lane in which the cursor is in the middle of pasted notes
+			int left = MAX_LANE;
+			int right = MIN_LANE;
+			int leftmostLane = MAX_LANE;
+			int rightmostLane = MIN_LANE;
+			for (const auto& [_, note] : pasteData.notes)
+			{
+				leftmostLane = std::min(leftmostLane, note.lane);
+				rightmostLane = std::max(rightmostLane, note.lane + note.width - 1);
+				left = std::min(left, note.lane + note.width);
+				right = std::max(right, note.lane);
+			}
+
+			pasteData.minLaneOffset = MIN_LANE - leftmostLane;
+			pasteData.maxLaneOffset = MAX_LANE - rightmostLane;
+			pasteData.midLane = (left + right) / 2;
+		}
 	}
 
 	void ScoreContext::confirmPaste()
@@ -405,14 +419,12 @@ namespace MikuMikuWorld
 
 	void ScoreContext::paste(bool flip)
 	{
+		const std::string clipboardSignature{ "MikuMikuWorld clipboard\n" };
 		std::string clipboardData = ImGui::GetClipboardText();
-		if (!startsWith(clipboardData, "MikuMikuWorld clipboard\n"))
+		if (!startsWith(clipboardData, clipboardData))
 			return;
 
-		clipboardData = clipboardData.substr(24);
-		json data = json::parse(clipboardData);
-		if (jsonIO::arrayHasData(data, "notes") || jsonIO::arrayHasData(data, "holds"))
-			doPasteData(data, flip);
+		doPasteData(json::parse(clipboardData.substr(clipboardSignature.length())), flip);
 	}
 
 	void ScoreContext::shrinkSelection(Direction direction)
