@@ -94,7 +94,6 @@ namespace MikuMikuWorld
 	void ScoreOptionsWindow::update(ScoreContext& context, EditArgs& edit, TimelineMode currentMode)
 	{
 		UI::beginPropertyColumns();
-		//UI::addCheckboxProperty(getString("show_step_outlines"), drawHoldStepOutline);
 		switch (currentMode)
 		{
 		case TimelineMode::InsertBPM:
@@ -114,7 +113,7 @@ namespace MikuMikuWorld
 			UI::addIntProperty(getString("note_width"), edit.noteWidth, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
 			UI::addSelectProperty(getString("step_type"), edit.stepType, stepTypes, TXT_ARR_SZ(stepTypes));
 			UI::addSelectProperty(getString("ease_type"), edit.easeType, easeTypes, TXT_ARR_SZ(easeTypes));
-			UI::addSelectProperty(getString("flick"), edit.flickType, flickTypes, TXT_ARR_SZ(flickTypes));
+			UI::addSelectProperty<FlickType>(getString("flick"), edit.flickType, flickTypes, TXT_ARR_SZ(flickTypes));
 			break;
 		}
 		UI::endPropertyColumns();

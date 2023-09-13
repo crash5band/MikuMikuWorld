@@ -4,6 +4,7 @@
 #include "ImGui/imgui_internal.h"
 #include "IconsFontAwesome5.h"
 #include "Localization.h"
+#include "NoteTypes.h"
 #include "IO.h"
 #include <vector>
 
@@ -133,6 +134,37 @@ namespace MikuMikuWorld
 
 					if (ImGui::Selectable(str.c_str(), selected))
 						value = (T)i;
+				}
+
+				ImGui::EndCombo();
+			}
+
+			ImGui::NextColumn();
+		}
+
+		// we don't want FlickType::None to appear in the selection
+		template <>
+		static void addSelectProperty<FlickType>(const char* label, FlickType& value, const char* const* items, int count)
+		{
+			propertyLabel(label);
+
+			std::string id("##");
+			id.append(label);
+
+			std::string curr = getString(items[(int)value]);
+			if (!curr.size())
+				curr = items[(int)value];
+			if (ImGui::BeginCombo(id.c_str(), curr.c_str()))
+			{
+				for (int i = (int)FlickType::Default; i < count; ++i)
+				{
+					const bool selected = (int)value == i;
+					std::string str = getString(items[i]);
+					if (!str.size())
+						str = items[i];
+
+					if (ImGui::Selectable(str.c_str(), selected))
+						value = (FlickType)i;
 				}
 
 				ImGui::EndCombo();
