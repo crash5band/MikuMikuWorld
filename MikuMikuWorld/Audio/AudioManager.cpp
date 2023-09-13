@@ -11,6 +11,7 @@
 #include <execution>
 #include "AudioManager.h"
 #include "../Constants.h"
+#include "../Result.h"
 
 #undef STB_VORBIS_HEADER_ONLY
 
@@ -87,13 +88,13 @@ namespace MikuMikuWorld
 		ma_engine_uninit(&engine);
 	}
 
-	bool AudioManager::changeBGM(const std::string& filename)
+	Result AudioManager::changeBGM(const std::string& filename)
 	{
 		disposeBGM();
 
 		std::wstring wFilename = IO::mbToWideStr(filename);
 		if (!std::filesystem::exists(wFilename))
-			return false;
+			return Result(ResultStatus::Error, "File not found");
 
 		ma_uint32 flags = MA_SOUND_FLAG_NO_PITCH
 			| MA_SOUND_FLAG_NO_SPATIALIZATION
@@ -105,13 +106,14 @@ namespace MikuMikuWorld
 		{
 			musicInitialized = false;
 			printf("Failed to initialize audio from file %ws", wFilename.c_str());
+
+			return Result(ResultStatus::Error, ma_result_description(bgmResult));
 		}
 		else
 		{
 			musicInitialized = true;
+			return Result::Ok();
 		}
-
-		return musicInitialized;
 	}
 
 	void AudioManager::playBGM(float currTime)

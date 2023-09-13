@@ -210,17 +210,16 @@ namespace MikuMikuWorld
 			UI::setWindowTitle((context.workingData.filename.size() ? IO::File::getFilename(context.workingData.filename) : windowUntitled));
 			context.upToDate = true;
 		}
-		catch (std::runtime_error& err)
+		catch (std::exception& err)
 		{
 			nextID = nextIdBackup;
-
-			std::string errMsg = std::string(getString("error_load_score_file"))
-				.append("\n")
-				.append(getString("score_file"))
-				.append(": ")
-				.append(getString("error"))
-				.append(": ")
-				.append(err.what());
+			std::string errMsg = IO::formatString("%s\n%s: %s\n%s: %s",
+				getString("error_load_score_file"),
+				getString("score_file"),
+				filename.c_str(),
+				getString("error"),
+				err.what()
+			);
 
 			IO::messageBox(APP_NAME, errMsg, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 		}
@@ -228,17 +227,19 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::loadMusic(std::string filename)
 	{
-		if (context.audio.changeBGM(filename))
+		Result result = context.audio.changeBGM(filename);
+		if (result.isOk())
 		{
 			context.workingData.musicFilename = filename;
 		}
 		else
 		{
-			std::string errMsg = std::string(getString("error_load_music_file"))
-				.append("\n")
-				.append(getString("music_file"))
-				.append(": ")
-				.append(filename);
+			std::string errMsg = IO::formatString("%s\n%s: %s\n%s: %s",
+				getString("error_load_music_file"),
+				getString("music_file"),
+				filename.c_str(),
+				result.getMessage().c_str()
+			);
 
 			IO::messageBox(APP_NAME, errMsg, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 		}

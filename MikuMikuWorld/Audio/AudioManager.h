@@ -8,6 +8,8 @@
 
 namespace MikuMikuWorld
 {
+	class Result;
+
 	class AudioManager
 	{
 	private:
@@ -30,7 +32,7 @@ namespace MikuMikuWorld
 	public:
 		void initAudio();
 		void loadSE();
-		bool changeBGM(const std::string& filename);
+		Result changeBGM(const std::string& filename);
 		void setMasterVolume(float volume);
 		void setBGMVolume(float volume);
 		void setSEVolume(float volume);
