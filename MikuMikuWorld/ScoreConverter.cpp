@@ -322,7 +322,7 @@ namespace MikuMikuWorld
 			{
 				const Note& midNote = score.notes.at(step.ID);
 
-				slide.push_back(SUSNote{ midNote.tick, midNote.lane + 2, midNote.width, step.type == HoldStepType::Normal ? 3 : 5 });
+				slide.push_back(SUSNote{ midNote.tick, midNote.lane + 2, midNote.width, step.type == HoldStepType::Hidden ? 5 : 3 });
 				if (step.type == HoldStepType::Skip)
 				{
 					taps.push_back(SUSNote{ midNote.tick, midNote.lane + 2, midNote.width, 3 });
