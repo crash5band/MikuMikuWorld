@@ -17,18 +17,12 @@ namespace MikuMikuWorld
 		if (!drawList)
 			return false;
 
-		float yOffset = -27.0f;
-		float txtSize = std::max(ImGui::CalcTextSize(txt).x + 8.0f, 50.0f);
-
 		ImGui::PushID(pos.y);
-		bool pressed = UI::coloredButton(txt, ImVec2{ pos.x, pos.y + yOffset }, ImVec2{ -1, -1 }, color, enabled);
-		ImVec2 btnSize = ImGui::GetItemRectSize();
+		bool activated = UI::coloredButton(txt, { pos.x, pos.y - ImGui::GetFrameHeightWithSpacing() }, { -1, -1 }, color, enabled);
 		ImGui::PopID();
+		drawList->AddLine({ xPos, pos.y }, { pos.x + ImGui::GetItemRectSize().x, pos.y }, color, primaryLineThickness);
 
-		drawList->AddLine(ImVec2(xPos, pos.y), ImVec2(pos.x + btnSize.x, pos.y), color, primaryLineThickness);
-		drawList->AddLine(ImVec2(pos.x, pos.y), ImVec2(pos.x + btnSize.x, pos.y), color, 2.0f);
-
-		return pressed;
+		return activated;
 	}
 
 	float ScoreEditorTimeline::getNoteYPosFromTick(int tick) const
