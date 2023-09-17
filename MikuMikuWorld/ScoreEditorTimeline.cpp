@@ -1724,6 +1724,7 @@ namespace MikuMikuWorld
 			return;
 
 		context.currentTick = std::max(roundTickDown(context.currentTick, division) - (TICKS_PER_BEAT / (division / 4)), 0);
+		lastSelectedTick = context.currentTick;
 		focusCursor(context, Direction::Down);
 	}
 
@@ -1733,6 +1734,7 @@ namespace MikuMikuWorld
 			return;
 
 		context.currentTick = roundTickDown(context.currentTick, division) + (TICKS_PER_BEAT / (division / 4));
+		lastSelectedTick = context.currentTick;
 		focusCursor(context, Direction::Up);
 	}
 
@@ -1874,7 +1876,7 @@ namespace MikuMikuWorld
 	void ScoreEditorTimeline::stop(ScoreContext& context)
 	{
 		playing = false;
-		time = context.currentTick = 0;
+		time = lastSelectedTick = context.currentTick = 0;
 
 		context.audio.stopSounds(false);
 		context.audio.stopBGM();
