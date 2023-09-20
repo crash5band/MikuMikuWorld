@@ -250,11 +250,7 @@ namespace MikuMikuWorld
 		IO::FileDialog fileDialog{};
 		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 		fileDialog.title = "Open Score File";
-		fileDialog.filters = { 
-			{ "MikuMikuWorld Score", "*.mmws" },
-			{ "Sliding Universal Score", "*.sus" },
-			{ "Score Files", "*.mmws;*.sus"}
-		};
+		fileDialog.filters = { { "Score Files", "*.mmws;*.sus"} };
 		fileDialog.filterIndex = fileDialog.filters.size() - 1;
 		
 		if (fileDialog.openFile() == IO::FileDialogResult::OK)
