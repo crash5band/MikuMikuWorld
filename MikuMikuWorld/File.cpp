@@ -196,7 +196,7 @@ namespace IO
 		ofn.nFilterIndex = filterIndex + 1;
 		ofn.nFileOffset = 0;
 		ofn.nMaxFile = MAX_PATH;
-		ofn.Flags = OFN_LONGNAMES | OFN_EXPLORER | OFN_ENABLESIZING | OFN_OVERWRITEPROMPT;
+		ofn.Flags = OFN_LONGNAMES | OFN_EXPLORER | OFN_ENABLESIZING | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST;
 
 		std::wstring wDefaultExtension = mbToWideStr(defaultExtension);
 		ofn.lpstrDefExt = wDefaultExtension.c_str();
@@ -229,7 +229,7 @@ namespace IO
 
 		// suppress return value not used warning
 #pragma warning(suppress: 6031)
-		lstrcpynW(ofnFilename, wInputFilename.c_str(), wInputFilename.length());
+		lstrcpynW(ofnFilename, wInputFilename.c_str(), 1024);
 		ofn.lpstrFile = ofnFilename;
 
 		if (type == DialogType::Save)

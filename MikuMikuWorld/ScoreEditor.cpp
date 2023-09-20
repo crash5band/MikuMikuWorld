@@ -251,7 +251,6 @@ namespace MikuMikuWorld
 		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 		fileDialog.title = "Open Score File";
 		fileDialog.filters = { { "Score Files", "*.mmws;*.sus"} };
-		fileDialog.filterIndex = fileDialog.filters.size() - 1;
 		
 		if (fileDialog.openFile() == IO::FileDialogResult::OK)
 			loadScore(fileDialog.outputFilename);
@@ -301,25 +300,27 @@ namespace MikuMikuWorld
 	{
 		IO::FileDialog fileDialog{};
 		fileDialog.title = "Save Chart";
-		fileDialog.defaultExtension = MMWS_EXTENSION;
 		fileDialog.filters = { { "MikuMikuWorld Score", "*.mmws"} };
-		fileDialog.parentWindowHandle = glfwGetWin32Window(glfwGetCurrentContext());
-		fileDialog.inputFilename = context.workingData.filename;
+		fileDialog.defaultExtension = "mmws";
+		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
+		fileDialog.inputFilename = IO::File::getFilenameWithoutExtension(context.workingData.filename);
 
 		if (fileDialog.saveFile() == IO::FileDialogResult::OK)
 		{
 			context.workingData.filename = fileDialog.outputFilename;
 			return save(context.workingData.filename);
 		}
+
+		return false;
 	}
 
 	void ScoreEditor::exportSus()
 	{
 		IO::FileDialog fileDialog{};
 		fileDialog.title = "Export Chart";
-		fileDialog.defaultExtension = SUS_EXTENSION;
-		fileDialog.filters = { { "Sliding Universal Score", "*.sus" }};
-		fileDialog.parentWindowHandle = glfwGetWin32Window(glfwGetCurrentContext());
+		fileDialog.filters = { { "Sliding Universal Score", "*.sus" } };
+		fileDialog.defaultExtension = "sus";
+		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 
 		if (fileDialog.saveFile() == IO::FileDialogResult::OK)
 		{
