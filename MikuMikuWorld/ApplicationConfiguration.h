@@ -76,7 +76,7 @@ namespace MikuMikuWorld
 		float smoothScrollingTime;
 		float cursorPositionThreshold;
 		float scrollSpeedNormal;
-		float scrollSpeedFast;
+		float scrollSpeedShift;
 		bool returnToLastSelectedTickOnPause;
 		bool followCursorInPlayback;
 		bool autoSaveEnabled;

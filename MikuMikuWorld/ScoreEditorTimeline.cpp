@@ -313,7 +313,7 @@ namespace MikuMikuWorld
 			else
 			{
 				float scrollAmount = io.MouseWheel * scrollUnit;
-				offset += scrollAmount * (io.KeyShift ? config.scrollSpeedFast : config.scrollSpeedNormal);
+				offset += scrollAmount * (io.KeyShift ? config.scrollSpeedShift : config.scrollSpeedNormal);
 			}
 
 			if (!isHoveringNote && !isHoldingNote && !insertingHold && !pasting && currentMode == TimelineMode::Select)

@@ -662,7 +662,7 @@ namespace MikuMikuWorld
 					{
 						UI::beginPropertyColumns();
 						UI::addSliderProperty(getString("scroll_speed_normal"), config.scrollSpeedNormal, 1.0f, 10.0f, "%.1fx");
-						UI::addSliderProperty(getString("scroll_speed_fast"), config.scrollSpeedFast, 1.0f, 10.0f, "%.1fx");
+						UI::addSliderProperty(getString("scroll_speed_fast"), config.scrollSpeedShift, 1.0f, 10.0f, "%.1fx");
 						ImGui::Separator();
 
 						UI::addCheckboxProperty(getString("use_smooth_scroll"), config.useSmoothScrolling);
