@@ -555,6 +555,10 @@ namespace MikuMikuWorld
 
 		HoldNote newHold;
 		newHold.end = hold.end;
+
+		Note& slideEnd = score.notes.at(hold.end);
+		slideEnd.parentID = newSlideStart.ID;
+
 		hold.end = newSlideEnd.ID;
 
 		newHold.start = { newSlideStart.ID, hold.steps[pos].type, hold.steps[pos].ease };
@@ -579,7 +583,7 @@ namespace MikuMikuWorld
 		selectedNotes.insert(newSlideStart.ID);
 		selectedNotes.insert(newSlideEnd.ID);
 
-		pushHistory("Rip hold", prev, score);
+		pushHistory("Split hold", prev, score);
 	}
 
 	void ScoreContext::undo()
