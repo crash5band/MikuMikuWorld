@@ -4,6 +4,9 @@
 
 namespace IO
 {
+	constexpr const char* allFilesName{ "All Files" };
+	constexpr const char* allFilesFilter{ "*.*" };
+
 	class File
 	{
 	private:
@@ -34,5 +37,48 @@ namespace IO
 		void writeLine(const std::string line);
 		void writeAllLines(const std::vector<std::string>& lines);
 		bool isEndofFile() const;
+	};
+
+	enum class FileDialogResult : uint8_t
+	{
+		Error,
+		Cancel,
+		OK
+	};
+
+	enum class DialogType : uint8_t
+	{
+		Open,
+		Save
+	};
+
+	enum class DialogSelectType : uint8_t
+	{
+		File,
+		Folder
+	};
+
+	struct FileDialogFilter
+	{
+		std::string filterName;
+		std::string filterType;
+	};
+
+	class FileDialog
+	{
+	private:
+		FileDialogResult showFileDialog(DialogType type, DialogSelectType selectType);
+
+	public:
+		std::string title;
+		std::vector<FileDialogFilter> filters;
+		std::string inputFilename;
+		std::string outputFilename;
+		std::string defaultExtension;
+		uint32_t filterIndex = 0;
+		void* parentWindowHandle = nullptr;
+
+		FileDialogResult openFile();
+		FileDialogResult saveFile();
 	};
 }

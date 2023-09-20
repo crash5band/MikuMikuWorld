@@ -102,9 +102,6 @@
     <ClCompile Include="File.cpp">
       <Filter>IO\File</Filter>
     </ClCompile>
-    <ClCompile Include="FileDialog.cpp">
-      <Filter>IO\File</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Texture.cpp">
       <Filter>Rendering\Texture</Filter>
     </ClCompile>
@@ -282,9 +279,6 @@
       <Filter>IO\File</Filter>
     </ClInclude>
     <ClInclude Include="File.h">
-      <Filter>IO\File</Filter>
-    </ClInclude>
-    <ClInclude Include="FileDialog.h">
       <Filter>IO\File</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Texture.h">

@@ -1,6 +1,6 @@
 #include "ScoreEditorWindows.h"
 #include "UI.h"
-#include "FileDialog.h"
+#include "File.h"
 #include "Constants.h"
 #include "Utilities.h"
 #include "Application.h"
@@ -25,9 +25,13 @@ namespace MikuMikuWorld
 			}
 			else if (result == 2)
 			{
-				std::string name;
-				if (IO::FileDialog::openFile(name, IO::FileType::ImageFile))
-					context.workingData.jacket.load(name);
+				IO::FileDialog fileDialog{};
+				fileDialog.title = "Open Image File";
+				fileDialog.filters = { {"Image Files", "*.jpg;*.jpeg;*.png" }, { IO::allFilesName, IO::allFilesFilter } };
+				fileDialog.parentWindowHandle = Application::windowState.windowHandle;
+
+				if (fileDialog.openFile() != IO::FileDialogResult::OK)
+					context.workingData.jacket.load(fileDialog.outputFilename);
 			}
 			context.workingData.jacket.draw();
 			UI::endPropertyColumns();
@@ -44,10 +48,18 @@ namespace MikuMikuWorld
 				context.audio.changeBGM(filename);
 				context.workingData.musicFilename = filename;
 			}
-			else if (filePickResult == 2 && IO::FileDialog::openFile(filename, IO::FileType::AudioFile) && filename != context.workingData.musicFilename)
+			else if (filePickResult == 2)
 			{
-				context.audio.changeBGM(filename);
-				context.workingData.musicFilename = filename;
+				IO::FileDialog fileDialog{};
+				fileDialog.title = "Open Audio File";
+				fileDialog.filters = { { "Audio Files", "*.mp3;*.wav;*.flac;*.ogg" }, { IO::allFilesName, IO::allFilesFilter } };
+				fileDialog.parentWindowHandle = Application::windowState.windowHandle;
+
+				if (fileDialog.openFile() == IO::FileDialogResult::OK)
+				{
+					context.audio.changeBGM(fileDialog.outputFilename);
+					context.workingData.musicFilename = fileDialog.outputFilename;
+				}
 			}
 
 			float offset = context.workingData.musicOffset;

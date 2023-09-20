@@ -5,11 +5,15 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
 #include "ScoreEditor.h"
 #include "ImGuiManager.h"
 #include <Windows.h>
 
-LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+LRESULT WINAPI wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 namespace MikuMikuWorld
 {
@@ -26,6 +30,7 @@ namespace MikuMikuWorld
 		bool dragDropHandled = true;
 		bool windowDragging = false;
 		float lastDpiScale = 0.0f;
+		void* windowHandle;
 		Vector2 position{};
 		Vector2 size{};
 		UINT_PTR windowTimerId{};

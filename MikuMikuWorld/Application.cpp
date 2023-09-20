@@ -1,7 +1,4 @@
-﻿#define GLFW_NATIVE_INCLUDE_NONE
-#define GLFW_EXPOSE_NATIVE_WIN32
-
-#include "Application.h"
+﻿#include "Application.h"
 #include "ResourceManager.h"
 #include "IO.h"
 #include "Colors.h"
@@ -12,7 +9,6 @@
 #include "NoteGraphics.h"
 #include "ApplicationConfiguration.h"
 #include <filesystem>
-#include <GLFW/glfw3native.h>
 
 namespace MikuMikuWorld
 {
@@ -369,6 +365,7 @@ namespace MikuMikuWorld
 		glfwSetWindowUserPointer(window, (void*)GetWindowLongPtr(hwnd, GWLP_WNDPROC));
 		SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)wndProc);
 
+		windowState.windowHandle = hwnd;
 		windowState.windowTimerId = ::SetTimer(hwnd,
 			reinterpret_cast<UINT_PTR>(&windowState.windowTimerId), USER_TIMER_MINIMUM, nullptr);
 

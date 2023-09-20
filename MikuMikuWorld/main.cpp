@@ -43,7 +43,7 @@ int main()
 	return 0;
 }
 
-LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT WINAPI wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{
@@ -54,6 +54,8 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			// so we handle the message ourselves and update the UI explicitly
 			if (app.getGlfwWindow())
 				app.update();
+
+			return 0;
 		}
 		break;
 
@@ -89,5 +91,5 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return CallWindowProc((WNDPROC)glfwGetWindowUserPointer(app.getGlfwWindow()), hwnd, uMsg, wParam, lParam);
 	}
 
-	return 0;
+	return ::DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }

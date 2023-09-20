@@ -171,7 +171,6 @@
     <ClCompile Include="BinaryReader.cpp" />
     <ClCompile Include="BinaryWriter.cpp" />
     <ClCompile Include="File.cpp" />
-    <ClCompile Include="FileDialog.cpp" />
     <ClCompile Include="HistoryManager.cpp" />
     <ClCompile Include="ImGuiManager.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
@@ -229,7 +228,6 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DefaultLanguage.h" />
     <ClInclude Include="File.h" />
-    <ClInclude Include="FileDialog.h" />
     <ClInclude Include="HistoryManager.h" />
     <ClInclude Include="IconsFontAwesome5.h" />
     <ClInclude Include="ImGuiManager.h" />
