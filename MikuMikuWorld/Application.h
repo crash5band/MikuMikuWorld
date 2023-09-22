@@ -13,7 +13,7 @@
 #include "ImGuiManager.h"
 #include <Windows.h>
 
-LRESULT WINAPI wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 namespace MikuMikuWorld
 {

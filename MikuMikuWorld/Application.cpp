@@ -362,8 +362,8 @@ namespace MikuMikuWorld
 			NOTE: for this to be safe, it should be only called AFTER ImGui is initialized
 			so that the WndProc ImGui is expecting matches with our own WndProc
 		*/
-		glfwSetWindowUserPointer(window, (void*)GetWindowLongPtr(hwnd, GWLP_WNDPROC));
-		SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)wndProc);
+		glfwSetWindowUserPointer(window, (void*)::GetWindowLongPtrW(hwnd, GWLP_WNDPROC));
+		::SetWindowLongPtrW(hwnd, GWLP_WNDPROC, (LONG_PTR)wndProc);
 
 		windowState.windowHandle = hwnd;
 		windowState.windowTimerId = ::SetTimer(hwnd,
