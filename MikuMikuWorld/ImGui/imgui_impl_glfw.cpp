@@ -707,7 +707,7 @@ void ImGui_ImplGlfw_Shutdown()
     // Windows: register a WndProc hook so we can intercept some messages.
 #ifdef _WIN32
     ImGuiViewport* main_viewport = ImGui::GetMainViewport();
-    ::SetWindowLongPtr((HWND)main_viewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)bd->GlfwWndProc);
+    ::SetWindowLongPtrW((HWND)main_viewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)bd->GlfwWndProc);
     bd->GlfwWndProc = nullptr;
 #endif
 
@@ -1084,15 +1084,15 @@ static void ImGui_ImplGlfw_ShowWindow(ImGuiViewport* viewport)
         LONG ex_style = ::GetWindowLong(hwnd, GWL_EXSTYLE);
         ex_style &= ~WS_EX_APPWINDOW;
         ex_style |= WS_EX_TOOLWINDOW;
-        ::SetWindowLong(hwnd, GWL_EXSTYLE, ex_style);
+        ::SetWindowLongW(hwnd, GWL_EXSTYLE, ex_style);
     }
 
     // GLFW hack: install hook for WM_NCHITTEST message handler
 #if !GLFW_HAS_MOUSE_PASSTHROUGH && GLFW_HAS_WINDOW_HOVERED && defined(_WIN32)
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     ::SetPropA(hwnd, "IMGUI_VIEWPORT", viewport);
-    IM_ASSERT(bd->GlfwWndProc == (WNDPROC)::GetWindowLongPtr(hwnd, GWLP_WNDPROC));
-    ::SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)ImGui_ImplGlfw_WndProc);
+    IM_ASSERT(bd->GlfwWndProc == (WNDPROC)::GetWindowLongPtrW(hwnd, GWLP_WNDPROC));
+    ::SetWindowLongPtrW(hwnd, GWLP_WNDPROC, (LONG_PTR)ImGui_ImplGlfw_WndProc);
 #endif
 
 #if !GLFW_HAS_FOCUS_ON_SHOW
