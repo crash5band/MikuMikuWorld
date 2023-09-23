@@ -9,7 +9,7 @@ using namespace nlohmann;
 namespace MikuMikuWorld
 {
 	ApplicationConfiguration config{};
-	constexpr const char* CONFIG_VERSION{ "1.6.0" };
+	constexpr const char* CONFIG_VERSION{ "1.7.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -60,6 +60,8 @@ namespace MikuMikuWorld
 			zoom = jsonIO::tryGetValue<float>(config["timeline"], "zoom", 2.0f);
 			laneOpacity = jsonIO::tryGetValue<float>(config["timeline"], "lane_opacity", 0.0f);
 			backgroundBrightness = jsonIO::tryGetValue<float>(config["timeline"], "background_brightness", 0.5f);
+			drawBackground = jsonIO::tryGetValue<bool>(config["timeline"], "draw_background", true);
+			backgroundImage = jsonIO::tryGetValue<std::string>(config["timeline"], "background_image", "");
 
 			useSmoothScrolling = jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
 			smoothScrollingTime = jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 67.0f);
@@ -140,6 +142,8 @@ namespace MikuMikuWorld
 			{"zoom", zoom},
 			{"lane_opacity", laneOpacity},
 			{"background_brightness", backgroundBrightness},
+			{"draw_background", drawBackground},
+			{"background_image", backgroundImage},
 			{"smooth_scrolling_enable", useSmoothScrolling},
 			{"smooth_scrolling_time", smoothScrollingTime},
 			{"scroll_speed_normal", scrollSpeedNormal},
@@ -214,6 +218,8 @@ namespace MikuMikuWorld
 		zoom = 2.0f;
 		laneOpacity = 0.0f;
 		backgroundBrightness = 0.5f;
+		drawBackground = true;
+		backgroundImage = "";
 		useSmoothScrolling = true;
 		smoothScrollingTime = 67.0f;
 		scrollSpeedNormal = 2.0f;

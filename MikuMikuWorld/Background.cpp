@@ -12,10 +12,16 @@ namespace MikuMikuWorld
 		framebuffer = std::make_unique<Framebuffer>(1, 1);
 	}
 
-	void Background::load(const Texture& tex)
+	void Background::load(const std::string& filename)
 	{
-		texture = tex;
-		framebuffer->resize(texture.getWidth(), texture.getHeight());
+		if (!IO::File::exists(filename))
+			return;
+
+		if (texture)
+			texture->dispose();
+
+		texture = std::make_unique<Texture>(filename);
+		framebuffer->resize(texture->getWidth(), texture->getHeight());
 
 		dirty = true;
 	}
@@ -38,8 +44,8 @@ namespace MikuMikuWorld
 
 	void Background::resize(Vector2 target)
 	{
-		float w = texture.getWidth();
-		float h = texture.getHeight();
+		float w = texture->getWidth();
+		float h = texture->getHeight();
 		float tgtAspect = target.x / target.y;
 
 		if (tgtAspect > 1.0f)
@@ -65,8 +71,8 @@ namespace MikuMikuWorld
 		if (s == -1)
 			return;
 
-		int w = texture.getWidth();
-		int h = texture.getHeight();
+		int w = texture->getWidth();
+		int h = texture->getHeight();
 
 		if (w < 1 || h < 1)
 			return;
@@ -84,12 +90,17 @@ namespace MikuMikuWorld
 		Vector2 size(w, h);
 		Color tint(brightness, brightness, brightness, 1.0f);
 
-		renderer->drawSprite(posR, 0.0f, size, AnchorType::MiddleCenter, texture, 0, tint);
+		renderer->drawSprite(posR, 0.0f, size, AnchorType::MiddleCenter, *texture, 0, tint);
 		renderer->endBatch();
 		glDisable(GL_DEPTH_TEST);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		dirty = false;
+	}
+
+	std::string Background::getFilename() const
+	{
+		return filename;
 	}
 
 	int Background::getWidth() const
@@ -132,5 +143,14 @@ namespace MikuMikuWorld
 	bool Background::isDirty() const
 	{
 		return dirty;
+	}
+
+	void Background::dispose()
+	{
+		if (framebuffer)
+			framebuffer->dispose();
+
+		if (texture)
+			texture->dispose();
 	}
 }

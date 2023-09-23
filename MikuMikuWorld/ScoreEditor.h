@@ -46,7 +46,7 @@ namespace MikuMikuWorld
 		inline void savePresets(std::string path) { presetManager.savePresets(path); }
 
 		void writeSettings();
-		inline void uninitialize() { context.audio.uninitAudio(); }
+		void uninitialize();
 		inline const char* getWorkingFilename() const { return context.workingData.filename.c_str(); }
 		constexpr inline bool isUpToDate() const { return context.upToDate; }
 	};

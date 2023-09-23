@@ -72,6 +72,8 @@ namespace MikuMikuWorld
 		bool matchNotesSizeToTimeline;
 		float laneOpacity;
 		float backgroundBrightness;
+		bool drawBackground;
+		std::string backgroundImage;
 		bool useSmoothScrolling;
 		float smoothScrollingTime;
 		float cursorPositionThreshold;

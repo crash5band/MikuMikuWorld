@@ -7,6 +7,7 @@
 #include "Utilities.h"
 #include "NoteGraphics.h"
 #include "ApplicationConfiguration.h"
+#include "Application.h"
 #include <algorithm>
 
 namespace MikuMikuWorld
@@ -282,16 +283,23 @@ namespace MikuMikuWorld
 		drawList->PushClipRect(boundaries.Min, boundaries.Max, true);
 		drawList->AddRectFilled(boundaries.Min, boundaries.Max, 0xff202020);
 
-		if (prevSize.x != size.x || prevSize.y != size.y)
-			background.resize({ size.x, size.y });
-
 		if (background.isDirty())
+		{
+			background.resize({ size.x, size.y });
 			background.process(renderer);
+		}
+		else if (prevSize.x != size.x || prevSize.y != size.y)
+		{
+			background.resize({ size.x, size.y });
+		}
 
-		ImVec2 bgPos{ position };
-		bgPos.x -= abs((float)background.getWidth() - size.x) / 2.0f;
-		bgPos.y -= abs((float)background.getHeight() - size.y) / 2.0f;
-		drawList->AddImage((ImTextureID)background.getTextureID(), bgPos, bgPos + ImVec2{ (float)background.getWidth(), (float)background.getHeight() });
+		if (config.drawBackground)
+		{
+			ImVec2 bgPos{ position };
+			bgPos.x -= abs((float)background.getWidth() - size.x) / 2.0f;
+			bgPos.y -= abs((float)background.getHeight() - size.y) / 2.0f;
+			drawList->AddImage((ImTextureID)background.getTextureID(), bgPos, bgPos + ImVec2{ (float)background.getWidth(), (float)background.getHeight() });
+		}
 
 		// remember whether the last mouse click was in the timeline or not
 		static bool clickedOnTimeline = false;
@@ -1842,11 +1850,7 @@ namespace MikuMikuWorld
 	{
 		framebuffer = std::make_unique<Framebuffer>(1920, 1080);
 
-		int bgTexIndex = ResourceManager::getTexture("default");
-		if (bgTexIndex != -1)
-		{
-			background.load(ResourceManager::textures[bgTexIndex]);
-		}
+		background.load(config.backgroundImage.empty() ? (Application::getAppDir() + "res/textures/default.png") : config.backgroundImage);
 		background.setBrightness(0.67);
 	}
 

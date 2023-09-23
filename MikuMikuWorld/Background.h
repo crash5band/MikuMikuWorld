@@ -13,7 +13,8 @@ namespace MikuMikuWorld
 	class Background
 	{
 	private:
-		Texture texture;
+		std::string filename;
+		std::unique_ptr<Texture> texture;
 		std::unique_ptr<Framebuffer> framebuffer;
 
 		float blur;
@@ -30,10 +31,13 @@ namespace MikuMikuWorld
 	public:
 		Background();
 
-		void load(const Texture& tex);
+		void load(const std::string& filename);
 		void resize(Vector2 target);
 		void process(Renderer* renderer);
+		void dispose();
 		
+		std::string getFilename() const;
+
 		int getWidth() const;
 		int getHeight() const;
 		int getTextureID() const;

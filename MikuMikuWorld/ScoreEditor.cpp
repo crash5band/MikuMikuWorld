@@ -62,6 +62,12 @@ namespace MikuMikuWorld
 		config.zoom = timeline.getZoom();
 	}
 
+	void ScoreEditor::uninitialize()
+	{
+		context.audio.uninitAudio();
+		timeline.background.dispose();
+	}
+
 	void ScoreEditor::update()
 	{
 		drawMenubar();
@@ -113,6 +119,13 @@ namespace MikuMikuWorld
 
 		if (config.backgroundBrightness != timeline.background.getBrightness())
 			timeline.background.setBrightness(config.backgroundBrightness);
+
+		if (settingsWindow.isBackgroundChangePending)
+		{
+			static const std::string defaultBackgroundPath = Application::getAppDir() + "res/textures/default.png";
+			timeline.background.load(config.backgroundImage.empty() ? defaultBackgroundPath : config.backgroundImage);
+			settingsWindow.isBackgroundChangePending = false;
+		}
 
 		if (config.autoSaveEnabled && autoSaveTimer.elapsedMinutes() >= config.autoSaveInterval)
 		{

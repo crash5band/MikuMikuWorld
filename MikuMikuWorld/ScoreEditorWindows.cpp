@@ -30,7 +30,7 @@ namespace MikuMikuWorld
 				fileDialog.filters = { {"Image Files", "*.jpg;*.jpeg;*.png" }, { IO::allFilesName, IO::allFilesFilter } };
 				fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 
-				if (fileDialog.openFile() != IO::FileDialogResult::OK)
+				if (fileDialog.openFile() == IO::FileDialogResult::OK)
 					context.workingData.jacket.load(fileDialog.outputFilename);
 			}
 			context.workingData.jacket.draw();
@@ -673,8 +673,31 @@ namespace MikuMikuWorld
 					if (ImGui::CollapsingHeader(getString("background"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
+						std::string backgroundFile = config.backgroundImage;
+						int result = UI::addFileProperty(getString("background_image"), backgroundFile);
+						if (result == 1)
+						{
+							config.backgroundImage = backgroundFile;
+							isBackgroundChangePending = true;
+						}
+						else if (result == 2)
+						{
+							IO::FileDialog fileDialog{};
+							fileDialog.title = "Open Image File";
+							fileDialog.filters = { {"Image Files", "*.jpg;*.jpeg;*.png" }, { IO::allFilesName, IO::allFilesFilter } };
+							fileDialog.parentWindowHandle = Application::windowState.windowHandle;
+
+							if (fileDialog.openFile() == IO::FileDialogResult::OK)
+							{
+								config.backgroundImage = fileDialog.outputFilename;
+								isBackgroundChangePending = true;
+							}
+						}
+
+						UI::addCheckboxProperty(getString("draw_background"), config.drawBackground);
 						UI::addPercentSliderProperty(getString("background_brightnes"), config.backgroundBrightness);
 						UI::addPercentSliderProperty(getString("lanes_opacity"), config.laneOpacity);
+						
 						UI::endPropertyColumns();
 					}
 

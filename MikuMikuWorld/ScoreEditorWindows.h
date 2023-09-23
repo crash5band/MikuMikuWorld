@@ -55,6 +55,7 @@ namespace MikuMikuWorld
 
 	public:
 		bool open = false;
+		bool isBackgroundChangePending = false;
 		DialogResult update();
 	};
 
