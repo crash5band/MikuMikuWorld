@@ -673,6 +673,8 @@ namespace MikuMikuWorld
 					if (ImGui::CollapsingHeader(getString("background"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
+						UI::addCheckboxProperty(getString("draw_background"), config.drawBackground);
+
 						std::string backgroundFile = config.backgroundImage;
 						int result = UI::addFileProperty(getString("background_image"), backgroundFile);
 						if (result == 1)
@@ -694,10 +696,10 @@ namespace MikuMikuWorld
 							}
 						}
 
-						UI::addCheckboxProperty(getString("draw_background"), config.drawBackground);
 						UI::addPercentSliderProperty(getString("background_brightnes"), config.backgroundBrightness);
+						ImGui::Separator();
+
 						UI::addPercentSliderProperty(getString("lanes_opacity"), config.laneOpacity);
-						
 						UI::endPropertyColumns();
 					}
 

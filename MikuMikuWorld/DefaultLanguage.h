@@ -69,6 +69,8 @@ namespace MikuMikuWorld
 		{"cursor_auto_scroll", "Cursor Auto Scroll"},
 		{"cursor_auto_scroll_amount", "Cursor Auto Scroll Percentage From Timeline"},
 		{"background", "Background"},
+		{"background_image", "Background Image"},
+		{"draw_background", "Draw Background Image"},
 		{"background_brightnes", "Background Brightness"},
 		{"lanes_opacity", "Lanes Opacity"},
 		{"video", "Video"},

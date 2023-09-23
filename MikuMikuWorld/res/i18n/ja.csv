@@ -64,6 +64,8 @@ return_to_last_tick, 元の位置戻る,
 cursor_auto_scroll, 自動スクロール,
 cursor_auto_scroll_amount, 自動スクロール量
 background, 背景
+background_image, 背景画像
+draw_background, 背景画像を描く
 background_brightnes, 背景の明るさ
 lanes_opacity, レーンの不透明度
 video, 画面
