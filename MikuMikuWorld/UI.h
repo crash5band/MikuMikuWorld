@@ -17,8 +17,8 @@ namespace MikuMikuWorld
 {
 	constexpr const char* windowUntitled = "Untitled";
 
-	constexpr float primaryLineThickness = 0.750f;
-	constexpr float secondaryLineThickness = 0.450f;
+	constexpr float primaryLineThickness = 0.400f;
+	constexpr float secondaryLineThickness = 0.200f;
 	constexpr float toolTipDelay = 0.5f;
 
 	constexpr ImGuiWindowFlags ImGuiWindowFlags_Static = ImGuiWindowFlags_NoCollapse;
@@ -78,6 +78,7 @@ namespace MikuMikuWorld
 		static void endPropertyColumns();
 		static void propertyLabel(const char* label);
 		static void addIntProperty(const char* label, int& val, int lowerBound = 0, int higherBound = 0);
+		static void addIntProperty(const char* label, int& val, const char* format, int lowerBound = 0, int higherBound = 0);
 		static void addFloatProperty(const char* label, float& val, const char* format);
 		static void addStringProperty(const char* label, std::string& val);
 		static void addSliderProperty(const char* label, int& val, int min, int max, const char* format);

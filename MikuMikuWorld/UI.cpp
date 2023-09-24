@@ -130,9 +130,15 @@ namespace MikuMikuWorld
 
 	void UI::addIntProperty(const char* label, int& val, int lowerBound, int higherBound)
 	{
+		addIntProperty(label, val, "%d", lowerBound, higherBound);
+	}
+
+	void UI::addIntProperty(const char* label, int& val, const char* format, int lowerBound, int higherBound)
+	{
 		propertyLabel(label);
 
-		ImGui::InputInt(labelID(label), &val, 1, 5);
+		int step = 1;
+		ImGui::InputScalar(labelID(label), ImGuiDataType_S32, &val, &step, &step, format);
 		if (lowerBound != higherBound)
 			val = std::clamp(val, lowerBound, higherBound);
 		ImGui::NextColumn();

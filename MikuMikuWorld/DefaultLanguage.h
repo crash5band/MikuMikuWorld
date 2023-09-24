@@ -62,7 +62,7 @@ namespace MikuMikuWorld
 		{"notes_height", "Notes Height"},
 		{"scrolling", "Scrolling"},
 		{"scroll_speed_normal", "Scroll Speed"},
-		{"scroll_speed_fast", "Scroll Speed (Shift)"},
+		{"scroll_speed_shift", "Scroll Speed (Shift)"},
 		{"use_smooth_scroll", "Use Smooth Scrolling"},
 		{"smooth_scroll_time", "Smooth Scrolling Time"},
 		{"return_to_last_tick", "Return To Last Tick On Pause" },

@@ -643,11 +643,11 @@ namespace MikuMikuWorld
 					{
 						UI::beginPropertyColumns();
 						UI::addCheckboxProperty(getString("match_notes_size_to_timeline"), config.matchNotesSizeToTimeline);
-						UI::addSliderProperty(getString("lane_width"), config.timelineWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH, "%d");
+						UI::addIntProperty(getString("lane_width"), config.timelineWidth, "%dpx", MIN_LANE_WIDTH, MAX_LANE_WIDTH);
 						
 						if (config.matchNotesSizeToTimeline)
 							UI::beginNextItemDisabled();
-						UI::addSliderProperty(getString("notes_height"), config.notesHeight, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT, "%d");
+						UI::addIntProperty(getString("notes_height"), config.notesHeight, "%dpx", MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT);
 						if (config.matchNotesSizeToTimeline)
 							UI::endNextItemDisabled();
 						ImGui::Separator();
@@ -661,8 +661,10 @@ namespace MikuMikuWorld
 					if (ImGui::CollapsingHeader(getString("scrolling"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
-						UI::addSliderProperty(getString("scroll_speed_normal"), config.scrollSpeedNormal, 1.0f, 10.0f, "%.1fx");
-						UI::addSliderProperty(getString("scroll_speed_fast"), config.scrollSpeedShift, 1.0f, 10.0f, "%.1fx");
+						UI::addFloatProperty(getString("scroll_speed_normal"), config.scrollSpeedNormal, "%.1fx");
+						UI::addFloatProperty(getString("scroll_speed_shift"), config.scrollSpeedShift, "%.1fx");
+						config.scrollSpeedNormal = std::max(0.1f, config.scrollSpeedNormal);
+						config.scrollSpeedShift = std::max(0.1f, config.scrollSpeedShift);
 						ImGui::Separator();
 
 						UI::addCheckboxProperty(getString("use_smooth_scroll"), config.useSmoothScrolling);
