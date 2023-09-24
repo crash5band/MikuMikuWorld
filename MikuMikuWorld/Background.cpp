@@ -14,11 +14,15 @@ namespace MikuMikuWorld
 
 	void Background::load(const std::string& filename)
 	{
-		if (!IO::File::exists(filename))
-			return;
-
+		this->filename = filename;
 		if (texture)
+		{
 			texture->dispose();
+			texture = nullptr;
+		}
+
+		if (filename.empty() || !IO::File::exists(filename))
+			return;
 
 		texture = std::make_unique<Texture>(filename);
 		framebuffer->resize(texture->getWidth(), texture->getHeight());
@@ -44,6 +48,9 @@ namespace MikuMikuWorld
 
 	void Background::resize(Vector2 target)
 	{
+		if (framebuffer == nullptr || texture == nullptr)
+			return;
+
 		float w = texture->getWidth();
 		float h = texture->getHeight();
 		float tgtAspect = target.x / target.y;
@@ -67,6 +74,9 @@ namespace MikuMikuWorld
 
 	void Background::process(Renderer* renderer)
 	{
+		if (framebuffer == nullptr || texture == nullptr)
+			return;
+
 		int s = ResourceManager::getShader("basic2d");
 		if (s == -1)
 			return;
@@ -148,9 +158,15 @@ namespace MikuMikuWorld
 	void Background::dispose()
 	{
 		if (framebuffer)
+		{
 			framebuffer->dispose();
+			framebuffer = nullptr;
+		}
 
 		if (texture)
+		{
 			texture->dispose();
+			texture = nullptr;
+		}
 	}
 }

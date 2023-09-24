@@ -7,54 +7,44 @@
 
 namespace MikuMikuWorld
 {
-	Jacket::Jacket() : 
-		imageOffset{ ImVec2{5, 5} }, imageSize{ ImVec2{250, 250} },
-		previewSize{ ImVec2{imageSize + (imageOffset * 2)} }
+	constexpr ImVec2 imageOffset{ 5, 5 };
+	constexpr ImVec2 imageSize{ 250, 250 };
+	const ImVec2 previewSize{ imageSize + (imageOffset * 2) };
+
+	Jacket::Jacket()
 	{
 		clear();
 	}
 
 	void Jacket::load(const std::string& filename)
 	{
-		if (!filename.size())
-		{
-			ResourceManager::disposeTexture(texID);
-			clear();
-
-			return;
-		}
-
-		ResourceManager::loadTexture(filename);
-		int texIndex = ResourceManager::getTextureByFilename(filename);
-		if (texIndex != -1)
-		{
-			int newTexID = ResourceManager::textures[texIndex].getID();
-			if (texID != newTexID)
-			{
-				// Dispose old texture
-				ResourceManager::disposeTexture(texID);
-			}
-
-			texID = newTexID;
-		}
-		else
-		{
-			ResourceManager::disposeTexture(texID);
-			texID = 0;
-		}
-
 		this->filename = filename;
+		if (texture)
+		{
+			texture->dispose();
+			texture = nullptr;
+		}
+
+		if (filename.empty() || !IO::File::exists(filename))
+			return;
+
+		texture = std::make_unique<Texture>(filename);
 	}
 
 	void Jacket::clear()
 	{
+		if (texture)
+		{
+			texture->dispose();
+			texture = nullptr;
+		}
+
 		filename = "";
-		texID = 0;
 	}
 
 	void Jacket::draw()
 	{
-		if (!texID)
+		if (texture == nullptr)
 			return;
 
 		if (ImGui::IsItemHovered() && GImGui->HoveredIdTimer > 0.3f)
@@ -68,7 +58,7 @@ namespace MikuMikuWorld
 
 			ImGui::BeginTooltip();
 			ImGui::GetWindowDrawList()->AddImage(
-				(void*)texID,
+				(void*)texture->getID(),
 				ImGui::GetWindowPos() + imageOffset,
 				ImGui::GetWindowPos() + imageOffset + imageSize,
 				ImVec2{ 0.0, 0.0f },
@@ -86,6 +76,9 @@ namespace MikuMikuWorld
 
 	int Jacket::getTexID() const
 	{
-		return texID;
+		if (texture)
+			return texture->getID();
+
+		return 0;
 	}
 }

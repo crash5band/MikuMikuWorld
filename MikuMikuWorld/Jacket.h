@@ -1,18 +1,16 @@
 #pragma once
-#include <string>
 #include "Rendering/Texture.h"
 #include "ImGui/imgui.h"
+#include <memory>
+#include <string>
 
 namespace MikuMikuWorld
 {
 	class Jacket
 	{
 	private:
-		ImVec2 imageOffset;
-		ImVec2 imageSize;
-		ImVec2 previewSize;
 		std::string filename;
-		int texID;
+		std::unique_ptr<Texture> texture;
 
 	public:
 		Jacket();
