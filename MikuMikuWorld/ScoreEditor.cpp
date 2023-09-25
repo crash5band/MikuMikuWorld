@@ -182,6 +182,8 @@ namespace MikuMikuWorld
 		context.audio.disposeBGM();
 		context.clearSelection();
 		context.upToDate = true; // new score; nothing to save
+
+		UI::setWindowTitle(windowUntitled);
 	}
 
 	void ScoreEditor::loadScore(std::string filename)
