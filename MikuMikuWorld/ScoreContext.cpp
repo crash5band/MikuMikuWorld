@@ -420,7 +420,11 @@ namespace MikuMikuWorld
 	void ScoreContext::paste(bool flip)
 	{
 		const std::string clipboardSignature{ "MikuMikuWorld clipboard\n" };
-		std::string clipboardData = ImGui::GetClipboardText();
+		const char* clipboardDataPtr = ImGui::GetClipboardText();
+		if (clipboardDataPtr == nullptr)
+			return;
+
+		std::string clipboardData(clipboardDataPtr);
 		if (!startsWith(clipboardData, clipboardData))
 			return;
 
