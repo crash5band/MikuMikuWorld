@@ -11,6 +11,8 @@ using namespace IO;
 
 namespace MikuMikuWorld
 {
+	constexpr const char* clipboardSignature = "MikuMikuWorld clipboard\n";
+
 	void ScoreContext::setStep(HoldStepType type)
 	{
 		if (!selectedNotes.size())
@@ -244,7 +246,7 @@ namespace MikuMikuWorld
 
 		json data = jsonIO::noteSelectionToJson(score, selectedNotes, minTick);
 
-		std::string clipboard = "MikuMikuWorld clipboard\n";
+		std::string clipboard{ clipboardSignature };
 		clipboard.append(data.dump());
 
 		ImGui::SetClipboardText(clipboard.c_str());
@@ -419,16 +421,15 @@ namespace MikuMikuWorld
 
 	void ScoreContext::paste(bool flip)
 	{
-		const std::string clipboardSignature{ "MikuMikuWorld clipboard\n" };
 		const char* clipboardDataPtr = ImGui::GetClipboardText();
 		if (clipboardDataPtr == nullptr)
 			return;
 
 		std::string clipboardData(clipboardDataPtr);
-		if (!startsWith(clipboardData, clipboardData))
+		if (!startsWith(clipboardData, clipboardSignature))
 			return;
 
-		doPasteData(json::parse(clipboardData.substr(clipboardSignature.length())), flip);
+		doPasteData(json::parse(clipboardData.substr(strlen(clipboardSignature))), flip);
 	}
 
 	void ScoreContext::shrinkSelection(Direction direction)
