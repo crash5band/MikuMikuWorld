@@ -18,6 +18,9 @@ namespace MikuMikuWorld
 		if (!drawList)
 			return false;
 
+		pos.x = floorf(pos.x);
+		pos.y = floorf(pos.y);
+
 		ImGui::PushID(pos.y);
 		bool activated = UI::coloredButton(txt, { pos.x, pos.y - ImGui::GetFrameHeightWithSpacing() }, { -1, -1 }, color, enabled);
 		ImGui::PopID();
@@ -398,7 +401,7 @@ namespace MikuMikuWorld
 		// snap to the sub-division before the current measure to prevent the lines from jumping around
 		for (int tick = firstTick - (firstTick % subdivision); tick <= lastTick; tick += subdivision)
 		{
-			const float y = position.y - tickToPosition(tick) + visualOffset;
+			const int y = position.y - tickToPosition(tick) + visualOffset;
 			int currentMeasure = accumulateMeasures(tick, TICKS_PER_BEAT, context.score.timeSignatures);
 
 			// time signature changes on current measure
@@ -436,10 +439,10 @@ namespace MikuMikuWorld
 
 			std::string measureStr = std::to_string(measure);
 			const float txtPos = x1 - MEASURE_WIDTH - (ImGui::CalcTextSize(measureStr.c_str()).x * 0.5f);
-			const float y = position.y - tickToPosition(tick) + visualOffset;
+			const int y = position.y - tickToPosition(tick) + visualOffset;
 
 			drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH, y), ImVec2(x2 + MEASURE_WIDTH, y), measureColor, primaryLineThickness);
-			drawShadedText(drawList, ImVec2{ txtPos, y }, 26, measureTxtColor, measureStr.c_str());
+			drawShadedText(drawList, ImVec2( txtPos, y), 26, measureTxtColor, measureStr.c_str());
 
 			++measure;
 		}
@@ -447,7 +450,7 @@ namespace MikuMikuWorld
 		// draw lanes
 		for (int l = 0; l <= NUM_LANES; ++l)
 		{
-			const float x = position.x + laneToPosition(l);
+			const int x = position.x + laneToPosition(l);
 			const bool boldLane = !(l & 1);
 			drawList->AddLine(ImVec2(x, position.y), ImVec2(x, position.y + size.y), boldLane ? divColor1 : divColor2, boldLane ? primaryLineThickness : secondaryLineThickness);
 		}
@@ -457,9 +460,9 @@ namespace MikuMikuWorld
 		isHoveringNote = false;
 
 		// draw cursor behind notes
-		const float y = position.y - tickToPosition(context.currentTick) + visualOffset;
-		const float triPtOffset = 5.0f;
-		const float triXPos = x1 - (triPtOffset * 2);
+		const int y = position.y - tickToPosition(context.currentTick) + visualOffset;
+		const int triPtOffset = 6;
+		const int triXPos = x1 - (triPtOffset * 2);
 		drawList->AddTriangleFilled(ImVec2(triXPos, y - triPtOffset), ImVec2(triXPos, y + triPtOffset), ImVec2(triXPos + (triPtOffset * 2), y), cursorColor);
 		drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), cursorColor, primaryLineThickness + 1.0f);
 
