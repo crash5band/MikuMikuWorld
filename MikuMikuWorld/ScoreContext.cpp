@@ -15,7 +15,7 @@ namespace MikuMikuWorld
 
 	void ScoreContext::setStep(HoldStepType type)
 	{
-		if (!selectedNotes.size())
+		if (selectedNotes.empty())
 			return;
 
 		bool edit = false;
@@ -50,7 +50,7 @@ namespace MikuMikuWorld
 
 	void ScoreContext::setFlick(FlickType flick)
 	{
-		if (!selectedNotes.size())
+		if (selectedNotes.empty())
 			return;
 
 		bool edit = false;
@@ -79,7 +79,7 @@ namespace MikuMikuWorld
 
 	void ScoreContext::setEase(EaseType ease)
 	{
-		if (!selectedNotes.size())
+		if (selectedNotes.empty())
 			return;
 
 		bool edit = false;
@@ -127,7 +127,7 @@ namespace MikuMikuWorld
 
 	void ScoreContext::toggleCriticals()
 	{
-		if (!selectedNotes.size())
+		if (selectedNotes.empty())
 			return;
 
 		Score prev = score;
@@ -168,7 +168,7 @@ namespace MikuMikuWorld
 
 	void ScoreContext::deleteSelection()
 	{
-		if (!selectedNotes.size())
+		if (selectedNotes.empty())
 			return;
 
 		Score prev = score;
@@ -236,7 +236,7 @@ namespace MikuMikuWorld
 
 	void ScoreContext::copySelection()
 	{
-		if (!selectedNotes.size())
+		if (selectedNotes.empty())
 			return;
 
 		int minTick = score.notes.at(*std::min_element(selectedNotes.begin(), selectedNotes.end(), [this](int id1, int id2)
@@ -360,7 +360,7 @@ namespace MikuMikuWorld
 			}
 		}
 
-		pasteData.pasting = pasteData.notes.size() > 0;
+		pasteData.pasting = !pasteData.notes.empty();
 		if (pasteData.pasting)
 		{
 			// find the lane in which the cursor is in the middle of pasted notes
@@ -651,18 +651,21 @@ namespace MikuMikuWorld
 	{
 		if (selectedNotes.size() != 2)
 			return false;
-		auto note1 = score.notes.at(*selectedNotes.begin());
-		auto note2 = score.notes.at(*std::next(selectedNotes.begin()));
+		const auto& note1 = score.notes.at(*selectedNotes.begin());
+		const auto& note2 = score.notes.at(*std::next(selectedNotes.begin()));
 		if (note1.tick == note2.tick)
 			return (note1.getType() == NoteType::Hold && note2.getType() == NoteType::HoldEnd) ||
 						 (note1.getType() == NoteType::HoldEnd && note2.getType() == NoteType::Hold);
 
 		Note earlierNote;
 		Note laterNote;
-		if (note1.tick < note2.tick) {
+		if (note1.tick < note2.tick)
+		{
 			earlierNote = note1;
 			laterNote = note2;
-		} else {
+		}
+		else
+		{
 			earlierNote = note2;
 			laterNote = note1;
 		}
