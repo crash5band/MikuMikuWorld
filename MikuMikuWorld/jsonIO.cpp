@@ -8,23 +8,19 @@ namespace jsonIO
 	{
 		mmw::Note note(type);
 
-		if (data.find("tick") != data.end())
-			note.tick = data["tick"];
-
-		if (data.find("lane") != data.end())
-			note.lane = data["lane"];
-
-		if (data.find("width") != data.end())
-			note.width = data["width"];
-		else
-			note.width = 3;
-
-		if (note.getType() != mmw::NoteType::HoldMid && data.find("critical") != data.end())
-			note.critical = data["critical"];
+		note.tick = tryGetValue<int>(data, "tick", 0);
+		note.lane = tryGetValue<int>(data, "lane", 0);
+		note.width = tryGetValue<int>(data, "width", 3);
+		
+		if (note.getType() != mmw::NoteType::HoldMid)
+		{
+			note.critical = tryGetValue<bool>(data, "critical", false);
+			note.friction = tryGetValue<bool>(data, "friction", true);
+		}
 
 		if (!note.hasEase())
 		{
-			std::string flickString = data["flick"];
+			std::string flickString = tryGetValue<std::string>(data, "flick", "none");
 			std::transform(flickString.begin(), flickString.end(), flickString.begin(), ::tolower);
 
 			if (flickString == "up" || flickString == "default")
@@ -33,8 +29,6 @@ namespace jsonIO
 				note.flick = mmw::FlickType::Left;
 			else if (flickString == "right")
 				note.flick = mmw::FlickType::Right;
-
-			// default -> FlickType::None
 		}
 
 		return note;
@@ -48,10 +42,15 @@ namespace jsonIO
 		data["width"] = note.width;
 
 		if (note.getType() != mmw::NoteType::HoldMid)
+		{
 			data["critical"] = note.critical;
+			data["friction"] = note.friction;
+		}
 
 		if (!note.hasEase())
+		{
 			data["flick"] = mmw::flickTypes[(int)note.flick];
+		}
 
 		return data;
 	}
