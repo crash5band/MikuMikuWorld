@@ -33,7 +33,9 @@ namespace MikuMikuWorld
 		if (!note.hasEase())
 			note.flick = (FlickType)reader->readInt32();
 
-		note.critical = (bool)reader->readInt32();
+		int flags = reader->readInt32();
+		note.critical = (bool)(flags & 1);
+		note.friction = (bool)(flags & 2);
 		return note;
 	}
 
@@ -45,7 +47,11 @@ namespace MikuMikuWorld
 
 		if (!note.hasEase())
 			writer->writeInt32((int)note.flick);
-		writer->writeInt32(note.critical);
+		
+		int flags = 0;
+		flags |= (int)note.critical << 0;
+		flags |= (int)note.friction << 1;
+		writer->writeInt32(flags);
 	}
 
 	ScoreMetadata readMetadata(BinaryReader* reader, int version)
