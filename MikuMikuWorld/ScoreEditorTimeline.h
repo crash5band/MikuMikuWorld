@@ -13,10 +13,13 @@ namespace MikuMikuWorld
 	{
 	private:
 		// debug params
-		int noteCutoffX = 20;
+		int noteCutoffX = 30;
 		int noteSliceWidth = 100;
 		int noteOffsetX = 5;
-		int notesSliceSize = 15;
+		int notesSliceSize = 20;
+		int holdCutoffX = 33;
+		int holdSliceWidth = 10;
+		int holdSliceSize = 5;
 
 		TimelineMode currentMode;
 		float laneOffset;

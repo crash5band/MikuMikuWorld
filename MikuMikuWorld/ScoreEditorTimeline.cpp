@@ -1270,11 +1270,15 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
 	{
-		int texIndex = n1.critical ? noteTextures.criticalHoldPath : noteTextures.holdPath;
-		if (texIndex == -1)
+		if (noteTextures.holdPath == -1)
 			return;
 
-		const Texture& pathTex = ResourceManager::textures[texIndex];
+		const Texture& pathTex = ResourceManager::textures[noteTextures.holdPath];
+		const int sprIndex = n1.critical ? 3 : 1;
+		if (sprIndex > pathTex.sprites.size())
+			return;
+
+		const Sprite& spr = pathTex.sprites[sprIndex];
 
 		float startX1 = laneToPosition(n1.lane + offsetLane);
 		float startX2 = laneToPosition(n1.lane + n1.width + offsetLane);
@@ -1284,6 +1288,9 @@ namespace MikuMikuWorld
 		float endX2 = laneToPosition(n2.lane + n2.width + offsetLane);
 		float endY = getNoteYPosFromTick(n2.tick + offsetTick);
 
+		int left = spr.getX() + holdCutoffX;
+		int right = spr.getX() + spr.getWidth() - holdCutoffX;
+
 		float steps = ease == EaseType::Linear ? 1 : std::max(5.0f, std::ceilf(abs((endY - startY)) / 10));
 		for (int y = 0; y < steps; ++y)
 		{
@@ -1292,12 +1299,12 @@ namespace MikuMikuWorld
 			float i1 = ease == EaseType::Linear ? percent1 : ease == EaseType::EaseIn ? easeIn(percent1) : easeOut(percent1);
 			float i2 = ease == EaseType::Linear ? percent2 : ease == EaseType::EaseIn ? easeIn(percent2) : easeOut(percent2);
 
-			float xl1 = lerp(startX1, endX1, i1) - NOTES_SLICE_WIDTH;
-			float xr1 = lerp(startX2, endX2, i1) + NOTES_SLICE_WIDTH;
+			float xl1 = lerp(startX1, endX1, i1) - 2;
+			float xr1 = lerp(startX2, endX2, i1) + 2;
 			float y1 = lerp(startY, endY, percent1);
 			float y2 = lerp(startY, endY, percent2);
-			float xl2 = lerp(startX1, endX1, i2) - NOTES_SLICE_WIDTH;
-			float xr2 = lerp(startX2, endX2, i2) + NOTES_SLICE_WIDTH;
+			float xl2 = lerp(startX1, endX1, i2) - 2;
+			float xr2 = lerp(startX2, endX2, i2) + 2;
 
 			if (y2 <= 0)
 				continue;
@@ -1307,25 +1314,25 @@ namespace MikuMikuWorld
 				break;
 
 			Vector2 p1{ xl1, y1 };
-			Vector2 p2{ xl1 + NOTES_SLICE_WIDTH, y1 };
+			Vector2 p2{ xl1 + holdSliceSize, y1 };
 			Vector2 p3{ xl2, y2 };
-			Vector2 p4{ xl2 + NOTES_SLICE_WIDTH, y2 };
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, 0, HOLD_X_SLICE,
-				0, pathTex.getHeight(), tint);
+			Vector2 p4{ xl2 + holdSliceSize, y2 };
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, left, left + holdSliceWidth,
+				spr.getY(), spr.getY() + spr.getHeight(), tint);
 
-			p1.x = xl1 + NOTES_SLICE_WIDTH;
-			p2.x = xr1 - NOTES_SLICE_WIDTH;
-			p3.x = xl2 + NOTES_SLICE_WIDTH;
-			p4.x = xr2 - NOTES_SLICE_WIDTH;
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, HOLD_X_SLICE,
-				pathTex.getWidth() - HOLD_X_SLICE, 0, pathTex.getHeight(), tint);
+			p1.x = xl1 + holdSliceSize;
+			p2.x = xr1 - holdSliceSize;
+			p3.x = xl2 + holdSliceSize;
+			p4.x = xr2 - holdSliceSize;
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, left + holdSliceWidth, right - holdSliceWidth,
+				spr.getY(), spr.getY() + spr.getHeight(), tint);
 
-			p1.x = xr1 - NOTES_SLICE_WIDTH;
+			p1.x = xr1 - holdSliceSize;
 			p2.x = xr1;
-			p3.x = xr2 - NOTES_SLICE_WIDTH;
+			p3.x = xr2 - holdSliceSize;
 			p4.x = xr2;
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, pathTex.getWidth() - HOLD_X_SLICE,
-				pathTex.getWidth(), 0, pathTex.getHeight(), tint);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, right - holdSliceWidth, right,
+				spr.getY(), spr.getY() + spr.getHeight(), tint);
 		}
 	}
 
@@ -1537,24 +1544,26 @@ namespace MikuMikuWorld
 		const Vector2 midSz{ midLen, notesHeight };
 
 		pos.x -= noteOffsetX;
+		const int left = s.getX() + noteCutoffX;
+		const int right = s.getX() + s.getWidth() - noteCutoffX;
 
 		// left slice
 		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
-			s.getX() + noteCutoffX, s.getX() + noteSliceWidth,
+			left, left + noteSliceWidth,
 			s.getY(), s.getY() + s.getHeight(), tint, 1
 		);
 		pos.x += sliceSz.x;
 
 		// middle
 		renderer->drawSprite(pos, 0.0f, midSz, anchor, tex,
-			s.getX() + noteSliceWidth, s.getX() + noteSliceWidth + 5,
+			left + noteSliceWidth, right - noteSliceWidth,
 			s.getY(), s.getY() + s.getHeight(), tint, 1
 		);
 		pos.x += midLen;
 
 		// right slice
 		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
-			s.getX() + s.getWidth() - noteSliceWidth, s.getX() + s.getWidth() - noteCutoffX,
+			right - noteSliceWidth, right,
 			s.getY(), s.getY() + s.getHeight(), tint, 1
 		);
 

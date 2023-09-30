@@ -324,8 +324,7 @@ namespace MikuMikuWorld
 	{
 		ResourceManager::loadShader(appDir + "res/shaders/basic2d");
 		ResourceManager::loadTexture(appDir + "res/textures/tex_notes.png");
-		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path.png");
-		ResourceManager::loadTexture(appDir + "res/textures/tex_hold_path_crtcl.png");
+		ResourceManager::loadTexture(appDir + "res/textures/longNoteLine.png");
 
 		ResourceManager::loadTexture(appDir + "res/textures/timeline_select.png");
 		ResourceManager::loadTexture(appDir + "res/textures/timeline_tap.png");
@@ -345,7 +344,6 @@ namespace MikuMikuWorld
 		// cache note textures indices
 		noteTextures.notes = ResourceManager::getTexture(NOTES_TEX);
 		noteTextures.holdPath = ResourceManager::getTexture(HOLD_PATH_TEX);
-		noteTextures.criticalHoldPath = ResourceManager::getTexture(HOLD_PATH_CRTCL_TEX);
 
 		// load more languages here
 		Localization::loadDefault();
