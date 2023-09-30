@@ -12,6 +12,12 @@ namespace MikuMikuWorld
 	class ScoreEditorTimeline
 	{
 	private:
+		// debug params
+		int noteCutoffX = 20;
+		int noteSliceWidth = 100;
+		int noteOffsetX = 5;
+		int notesSliceSize = 15;
+
 		TimelineMode currentMode;
 		float laneOffset;
 		float zoom = 1.0f;

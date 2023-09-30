@@ -10,6 +10,7 @@ namespace MikuMikuWorld
 		InsertLongMid,
 		InsertFlick,
 		MakeCritical,
+		MakeFriction,
 		InsertBPM,
 		InsertTimeSign,
 		InsertHiSpeed,
@@ -24,6 +25,7 @@ namespace MikuMikuWorld
 		"hold_step",
 		"flick",
 		"critical",
+		"friction",
 		"bpm",
 		"time_signature",
 		"hi_speed"

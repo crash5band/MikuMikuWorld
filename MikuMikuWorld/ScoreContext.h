@@ -87,6 +87,7 @@ namespace MikuMikuWorld
 		void setFlick(FlickType flick);
 		void setEase(EaseType ease);
 		void toggleCriticals();
+		void toggleFriction();
 
 		void deleteSelection();
 		void flipSelection();

@@ -21,6 +21,7 @@ namespace MikuMikuWorld
 		int lane;
 		int width;
 		bool critical;
+		bool friction;
 		FlickType flick;
 
 		Note(NoteType _type);
@@ -60,5 +61,6 @@ namespace MikuMikuWorld
 
 	int getFlickArrowSpriteIndex(const Note& note);
 	int getNoteSpriteIndex(const Note& note);
+	int getFrictionSpriteIndex(const Note& note);
 	std::string getNoteSE(const Note& note, const Score& score);
 }

@@ -166,6 +166,21 @@ namespace MikuMikuWorld
 		history.pushHistory("Change note", prev, score);
 	}
 
+	void ScoreContext::toggleFriction()
+	{
+		if (selectedNotes.empty())
+			return;
+
+		Score prev;
+		for (int id : selectedNotes)
+		{
+			Note& note = score.notes.at(id);
+			note.friction = !note.friction;
+		}
+
+		pushHistory("Change note", prev, score);
+	}
+
 	void ScoreContext::deleteSelection()
 	{
 		if (selectedNotes.empty())

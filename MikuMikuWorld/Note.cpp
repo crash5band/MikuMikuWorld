@@ -9,12 +9,12 @@ namespace MikuMikuWorld
 	int nextSkillID = 1;
 
 	Note::Note(NoteType _type) :
-		type{ _type }, parentID{ -1 }, flick{ FlickType::None }, critical{ false }
+		type{ _type }, parentID{ -1 }, flick{ FlickType::None }, critical{ false }, friction{ false }
 	{
 
 	}
 
-	Note::Note() : type{ NoteType::Tap }, parentID{ -1 }, flick{ FlickType::None }, critical{ false }
+	Note::Note() : type{ NoteType::Tap }, parentID{ -1 }, flick{ FlickType::None }, critical{ false }, friction{ false }
 	{
 
 	}
@@ -66,7 +66,7 @@ namespace MikuMikuWorld
 
 	int getFlickArrowSpriteIndex(const Note& note)
 	{
-		int startIndex = note.critical ? 16 : 4;
+		int startIndex = note.critical ? 24 : 12;
 		return startIndex + ((std::min(note.width, 6) - 1) * 2) + (note.flick != FlickType::Default ? 1 : 0);
 	}
 
@@ -75,7 +75,11 @@ namespace MikuMikuWorld
 		// default tap
 		int index = 3;
 
-		if (note.critical && note.getType() != NoteType::HoldMid)
+		if (note.friction)
+		{
+			index = note.critical ? 5 : note.flick != FlickType::None ? 6 : 4;
+		}
+		else if (note.critical && note.getType() != NoteType::HoldMid)
 		{
 			index = 0;
 		}
@@ -93,7 +97,7 @@ namespace MikuMikuWorld
 				break;
 
 			case NoteType::HoldMid:
-				index = note.critical ? 29 : 28;
+				index = note.critical ? 8 : 7;
 				break;
 
 			default:
@@ -102,6 +106,11 @@ namespace MikuMikuWorld
 		}
 
 		return index;
+	}
+
+	int getFrictionSpriteIndex(const Note& note)
+	{
+		return note.critical ? 10 : note.flick != FlickType::None ? 11 : 9;
 	}
 
 	int findHoldStep(const HoldNote& note, int stepID)

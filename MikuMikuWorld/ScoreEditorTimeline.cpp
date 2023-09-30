@@ -1213,6 +1213,10 @@ namespace MikuMikuWorld
 					context.setStep(HoldStepType::HoldStepTypeCount);
 					break;
 
+				case TimelineMode::MakeFriction:
+					context.toggleFriction();
+					break;
+
 				default:
 					break;
 				}
@@ -1420,7 +1424,7 @@ namespace MikuMikuWorld
 							}
 
 							renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, s.getX(), s.getX() + s.getWidth(),
-								s.getY(), s.getHeight(), tint, 1);
+								s.getY(), s.getY() + s.getHeight(), tint, 1);
 						}
 					}
 				}
@@ -1459,7 +1463,7 @@ namespace MikuMikuWorld
 		Vector2 nodeSz{ notesHeight - 5, notesHeight - 5 };
 
 		renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter,
-			tex, s.getX(), s.getX() + s.getWidth(), s.getY(), s.getHeight(), tint, 1);
+			tex, s.getX(), s.getX() + s.getWidth(), s.getY(), s.getY() + s.getHeight(), tint, 1);
 	}
 
 	void ScoreEditorTimeline::drawOutline(const StepDrawData& data)
@@ -1524,33 +1528,46 @@ namespace MikuMikuWorld
 		const Sprite& s = tex.sprites[sprIndex];
 
 		Vector2 pos{ laneToPosition(note.lane + offsetLane), getNoteYPosFromTick(note.tick + offsetTick) };
-		const Vector2 sliceSz{ 12, notesHeight };
+		const Vector2 sliceSz(notesSliceSize, notesHeight);
 		const AnchorType anchor = AnchorType::MiddleLeft;
 
-		const float midLen = (laneWidth * note.width) - (sliceSz.x * 2) + NOTES_X_ADJUST + 5;
+		const float midLen = (laneWidth * note.width) - (sliceSz.x * 2) + noteOffsetX + 5;
 		const Vector2 midSz{ midLen, notesHeight };
 
-		pos.x -= NOTES_X_ADJUST;
+		pos.x -= noteOffsetX;
 
 		// left slice
 		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
-			s.getX() + NOTES_SIDE_WIDTH, s.getX() + NOTES_X_SLICE,
+			s.getX() + noteCutoffX, s.getX() + noteSliceWidth,
 			s.getY(), s.getY() + s.getHeight(), tint, 1
 		);
 		pos.x += sliceSz.x;
 
 		// middle
 		renderer->drawSprite(pos, 0.0f, midSz, anchor, tex,
-			s.getX() + NOTES_X_SLICE + 10, s.getX() + NOTES_X_SLICE + 20,
+			s.getX() + noteSliceWidth, s.getX() + noteSliceWidth + 5,
 			s.getY(), s.getY() + s.getHeight(), tint, 1
 		);
 		pos.x += midLen;
 
 		// right slice
 		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
-			s.getX() + s.getWidth() - NOTES_X_SLICE, s.getX() + s.getWidth() - NOTES_SIDE_WIDTH,
+			s.getX() + s.getWidth() - noteSliceWidth, s.getX() + s.getWidth() - noteCutoffX,
 			s.getY(), s.getY() + s.getHeight(), tint, 1
 		);
+
+		if (note.friction)
+		{
+			int frictionSprIndex = getFrictionSpriteIndex(note);
+			if (frictionSprIndex >= 0 && frictionSprIndex < tex.sprites.size())
+			{
+				const Sprite& frictionSpr = tex.sprites[frictionSprIndex];
+				const Vector2 nodeSz{ notesHeight, notesHeight };
+				pos.x = (laneToPosition(note.lane + offsetLane) + laneToPosition(note.lane + offsetLane + note.width)) / 2.0f;
+				renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, frictionSpr.getX(), frictionSpr.getX() + frictionSpr.getWidth(),
+					frictionSpr.getY(), frictionSpr.getY() + frictionSpr.getHeight(), tint, 1);
+			}
+		}
 
 		if (note.isFlick())
 			drawFlickArrow(note, renderer, tint, offsetTick, offsetLane);
@@ -1847,6 +1864,11 @@ namespace MikuMikuWorld
 		ImGui::Text("Hover tick: %d", hoverTick);
 
 		ImGui::Text("Last selected tick: %d", lastSelectedTick);
+
+		ImGui::InputInt("Note Cutoff X", &noteCutoffX);
+		ImGui::InputInt("Note Slice Width", &noteSliceWidth);
+		ImGui::InputInt("Note Offset X", &noteOffsetX);
+		ImGui::InputInt("Note Slice Size", &notesSliceSize);
 	}
 
 	ScoreEditorTimeline::ScoreEditorTimeline()

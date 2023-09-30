@@ -45,6 +45,7 @@ namespace MikuMikuWorld
 		std::unordered_set<std::string> easeIns;
 		std::unordered_set<std::string> easeOuts;
 		std::unordered_set<std::string> slideKeys;
+		std::unordered_set<std::string> frictions;
 
 		for (const auto& slide : sus.slides)
 		{
@@ -98,6 +99,13 @@ namespace MikuMikuWorld
 			case 3:
 				stepIgnore.insert(key);
 				break;
+			case 5:
+				frictions.insert(key);
+				break;
+			case 6:
+				criticals.insert(key);
+				frictions.insert(key);
+				break;
 			default:
 				break;
 			}
@@ -143,7 +151,8 @@ namespace MikuMikuWorld
 			n.tick = note.tick;
 			n.lane = note.lane - 2;
 			n.width = note.width;
-			n.critical = note.type == 2;
+			n.critical = criticals.find(key) != criticals.end();
+			n.friction = frictions.find(key) != frictions.end();
 			n.flick = flicks.find(key) != flicks.end() ? flicks[key] : FlickType::None;
 			n.ID = nextID++;
 
@@ -186,6 +195,7 @@ namespace MikuMikuWorld
 					n.lane = note.lane - 2;
 					n.width = note.width;
 					n.critical = critical;
+					n.friction = frictions.find(noteKey(note)) != frictions.end();
 					n.ID = startID;
 
 					notes[n.ID] = n;
@@ -200,6 +210,7 @@ namespace MikuMikuWorld
 					n.lane = note.lane - 2;
 					n.width = note.width;
 					n.critical = (critical ? true : (criticals.find(key) != criticals.end()));
+					n.friction = frictions.find(noteKey(note)) != frictions.end();
 					n.ID = nextID++;
 					n.parentID = startID;
 					n.flick = flicks.find(key) != flicks.end() ? flicks[key] : FlickType::None;
@@ -212,14 +223,17 @@ namespace MikuMikuWorld
 				case 3:
 				case 5:
 				{
-
 					Note n(NoteType::HoldMid);
 					n.tick = note.tick;
 					n.lane = note.lane - 2;
 					n.width = note.width;
 					n.critical = critical;
+					n.friction = frictions.find(noteKey(note)) != frictions.end();
 					n.ID = nextID++;
 					n.parentID = startID;
+
+					if (n.friction)
+						printf("Note at %d-%d is friction", n.tick, n.lane);
 
 					HoldStepType type = note.type == 3 ? HoldStepType::Normal : HoldStepType::Hidden;
 					if (stepIgnore.find(key) != stepIgnore.end())
@@ -294,7 +308,15 @@ namespace MikuMikuWorld
 		{
 			if (note.getType() == NoteType::Tap)
 			{
-				taps.push_back(SUSNote{ note.tick, note.lane + 2, note.width, note.critical ? 2 : 1 });
+				if (note.friction)
+				{
+					taps.push_back(SUSNote{ note.tick, note.lane + 2, note.width, note.critical ? 6 : 5 });
+				}
+				else
+				{
+					taps.push_back(SUSNote{ note.tick, note.lane + 2, note.width, note.critical ? 2 : 1 });
+				}
+
 				if (note.isFlick())
 					directionals.push_back(SUSNote{ note.tick, note.lane + 2, note.width, flickToType[note.flick] });
 			}
@@ -315,8 +337,14 @@ namespace MikuMikuWorld
 				directionals.push_back(SUSNote{ start.tick, start.lane + 2, start.width, ease == EaseType::EaseIn ? 2 : 6 });
 			}
 
-			if (start.critical)
+			if (start.friction)
+			{
+				taps.push_back(SUSNote{ start.tick, start.lane + 2, start.width, start.critical ? 6 : 5 });
+			}
+			else if (start.critical)
+			{
 				taps.push_back(SUSNote{ start.tick, start.lane + 2, start.width, 2 });
+			}
 
 			for (const auto& step : hold.steps)
 			{
@@ -343,6 +371,9 @@ namespace MikuMikuWorld
 				if (end.critical && !start.critical)
 					taps.push_back(SUSNote{ end.tick, end.lane + 2, end.width, 2 });
 			}
+
+			if (end.friction)
+				taps.push_back(SUSNote{ end.tick, end.lane + 2, end.width, end.critical ? 6 : 5 });
 
 			slides.push_back(slide);
 		}
