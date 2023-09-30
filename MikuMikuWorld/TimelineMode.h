@@ -25,7 +25,7 @@ namespace MikuMikuWorld
 		"hold_step",
 		"flick",
 		"critical",
-		"friction",
+		"trace",
 		"bpm",
 		"time_signature",
 		"hi_speed"

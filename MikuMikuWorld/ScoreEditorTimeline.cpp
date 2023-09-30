@@ -782,6 +782,7 @@ namespace MikuMikuWorld
 		inputNotes.tap.tick = tick;
 		inputNotes.tap.flick = currentMode == TimelineMode::InsertFlick ? edit.flickType : FlickType::None;
 		inputNotes.tap.critical = currentMode == TimelineMode::MakeCritical;
+		inputNotes.tap.friction = currentMode == TimelineMode::MakeFriction;
 
 		inputNotes.holdStep.lane = lane;
 		inputNotes.holdStep.width = width;
@@ -884,6 +885,7 @@ namespace MikuMikuWorld
 		{
 		case TimelineMode::InsertTap:
 		case TimelineMode::MakeCritical:
+		case TimelineMode::MakeFriction:
 		case TimelineMode::InsertFlick:
 			insertNote(context, edit, currentMode == TimelineMode::MakeCritical);
 			break;

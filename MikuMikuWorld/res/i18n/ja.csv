@@ -81,6 +81,7 @@ hold, スライド
 hold_step, スライド中継点
 flick, フリック
 critical, クリティカル
+trace, トレース
 bpm, BPM
 time_signature, 拍子
 none, 無し
@@ -123,6 +124,7 @@ taps, タップ
 flicks, フリック
 holds, スライド
 steps, スライド中継点
+traces, トレース
 total, 合計
 combo, コンボ
 goto_measure, 小節に移動
@@ -170,6 +172,7 @@ timeline_hold, タイムライン「スライド」
 timeline_hold_step, タイムライン「スライド中継点」
 timeline_flick, タイムライン「フリック」
 timeline_critical, タイムライン「クリティカル」
+timeline_trace, タイムライン「トレース」
 timeline_bpm, タイムライン「BPM」
 timeline_time_signature, タイムライン「拍子」
 timeline_hi_speed, タイムライン「ハイスピード」

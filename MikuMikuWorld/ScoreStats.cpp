@@ -30,6 +30,9 @@ namespace MikuMikuWorld
 		resetCounts();
 		for (const auto& [id, note] : score.notes)
 		{
+			if (note.friction)
+				traces++;
+
 			switch (note.getType())
 			{
 			case NoteType::Tap:
@@ -54,7 +57,7 @@ namespace MikuMikuWorld
 			}
 		}
 
-		total = taps + flicks + holds + steps;
+		total = score.notes.size();
 		calculateCombo(score);
 	}
 
