@@ -58,10 +58,10 @@ namespace IO
 		if (length <= 0)
 			throw std::runtime_error("An error occured while attempting to format a string.");
 
-		std::string buf(length, '0');
-		std::snprintf(buf.data(), length, format, args ...);
+		std::unique_ptr<char[]> buf(new char[length]);
+		std::snprintf(buf.get(), length, format, args ...);
 
-		return buf;
+		return std::string(buf.get());
 	}
 
 	MessageBoxResult messageBox(std::string title, std::string message, MessageBoxButtons buttons, MessageBoxIcon icon, void* parentWindow = NULL);
