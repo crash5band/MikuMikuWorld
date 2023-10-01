@@ -12,11 +12,10 @@ namespace MikuMikuWorld
 	class ScoreEditorTimeline
 	{
 	private:
-		// debug params
 		int noteCutoffX = 30;
-		int noteSliceWidth = 100;
+		int noteSliceWidth = 85;
 		int noteOffsetX = 5;
-		int notesSliceSize = 20;
+		int notesSliceSize = 17;
 		int holdCutoffX = 33;
 		int holdSliceWidth = 10;
 		int holdSliceSize = 5;

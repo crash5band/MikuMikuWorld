@@ -4,14 +4,6 @@ namespace MikuMikuWorld
 {
 	constexpr int TICKS_PER_BEAT = 480;
 
-	constexpr int NOTES_X_SLICE			= 83;
-	constexpr int NOTES_SIDE_WIDTH		= 30;
-	constexpr float NOTES_SLICE_WIDTH	= 15;
-	constexpr float NOTES_X_ADJUST		= 4;
-	constexpr float HOLD_X_SLICE		= 32;
-	constexpr float HIGHLIGHT_SLICE		= 30;
-	constexpr float HIGHLIGHT_HEIGHT	= 25;
-
 	constexpr int MIN_NOTE_WIDTH	= 1;
 	constexpr int MAX_NOTE_WIDTH	= 12;
 	constexpr int MIN_LANE			= 0;
