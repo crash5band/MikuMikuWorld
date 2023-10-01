@@ -43,7 +43,7 @@ namespace MikuMikuWorld
 		}
 
 		if (edit)
-			history.pushHistory("Change step type", prev, score);
+			pushHistory("Change step type", prev, score);
 	}
 
 	void ScoreContext::setFlick(FlickType flick)
@@ -72,7 +72,7 @@ namespace MikuMikuWorld
 		}
 
 		if (edit)
-			history.pushHistory("Change flick", prev, score);
+			pushHistory("Change flick", prev, score);
 	}
 
 	void ScoreContext::setEase(EaseType ease)
@@ -120,7 +120,7 @@ namespace MikuMikuWorld
 		}
 
 		if (edit)
-			history.pushHistory("Change ease", prev, score);
+			pushHistory("Change ease", prev, score);
 	}
 
 	void ScoreContext::toggleCriticals()
@@ -161,7 +161,7 @@ namespace MikuMikuWorld
 				score.notes.at(step.ID).critical = critical;
 		}
 
-		history.pushHistory("Change note", prev, score);
+		pushHistory("Change note", prev, score);
 	}
 
 	void ScoreContext::deleteSelection()
