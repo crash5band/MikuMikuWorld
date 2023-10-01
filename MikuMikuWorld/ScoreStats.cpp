@@ -17,7 +17,7 @@ namespace MikuMikuWorld
 
 	void ScoreStats::resetCounts()
 	{
-		taps = flicks = holds = steps = total = 0;
+		taps = flicks = holds = steps = traces = total = 0;
 	}
 
 	void ScoreStats::resetCombo()
