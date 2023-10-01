@@ -139,7 +139,7 @@ namespace MikuMikuWorld
 			{
 				note.critical ^= true;
 			}
-			else if (note.getType() == NoteType::HoldEnd && note.isFlick())
+			else if (note.getType() == NoteType::HoldEnd && (note.isFlick() || note.friction))
 			{
 				// if the start is critical the entire hold must be critical
 				note.critical = score.notes.at(note.parentID).critical ? true : !note.critical;
@@ -172,13 +172,19 @@ namespace MikuMikuWorld
 			return;
 
 		Score prev;
+		bool edit = false;
 		for (int id : selectedNotes)
 		{
 			Note& note = score.notes.at(id);
-			note.friction = !note.friction;
+			if (note.getType() != NoteType::HoldMid)
+			{
+				note.friction = !note.friction;
+				edit = true;
+			}
 		}
 
-		pushHistory("Change note", prev, score);
+		if (edit)
+			pushHistory("Change note friction", prev, score);
 	}
 
 	void ScoreContext::deleteSelection()
