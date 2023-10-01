@@ -1572,8 +1572,11 @@ namespace MikuMikuWorld
 			int frictionSprIndex = getFrictionSpriteIndex(note);
 			if (frictionSprIndex >= 0 && frictionSprIndex < tex.sprites.size())
 			{
+				// friction diamond is slightly smaller
 				const Sprite& frictionSpr = tex.sprites[frictionSprIndex];
-				const Vector2 nodeSz{ notesHeight, notesHeight };
+				const Vector2 nodeSz{ notesHeight * 0.8f, notesHeight * 0.8f };
+
+				// diamond is always centered
 				pos.x = (laneToPosition(note.lane + offsetLane) + laneToPosition(note.lane + offsetLane + note.width)) / 2.0f;
 				renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, frictionSpr.getX(), frictionSpr.getX() + frictionSpr.getWidth(),
 					frictionSpr.getY(), frictionSpr.getY() + frictionSpr.getHeight(), tint, 1);
