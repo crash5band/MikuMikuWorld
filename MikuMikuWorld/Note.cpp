@@ -126,7 +126,7 @@ namespace MikuMikuWorld
 
 	std::string getNoteSE(const Note& note, const Score& score)
 	{
-		std::string se = "";
+		std::string se = SE_PERFECT;
 		if (note.getType() == NoteType::HoldMid)
 		{
 			const HoldNote& hold = score.holdNotes.at(note.parentID);
@@ -138,8 +138,18 @@ namespace MikuMikuWorld
 		}
 		else
 		{
-			se = note.isFlick() ? note.critical ? SE_CRITICAL_FLICK : SE_FLICK :
-				note.critical ? note.getType() == NoteType::Tap ? SE_CRITICAL_TAP : SE_PERFECT : SE_PERFECT;
+			if (note.isFlick())
+			{
+				se = note.critical ? SE_CRITICAL_FLICK : SE_FLICK;
+			}
+			else if (note.friction)
+			{
+				se = note.critical ? SE_CRITICAL_FRICTION : SE_FRICTION;
+			}
+			else if (note.critical && note.getType() == NoteType::Tap)
+			{
+				se = SE_CRITICAL_TAP;
+			}
 		}
 
 		return se;
