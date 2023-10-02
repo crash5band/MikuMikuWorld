@@ -82,9 +82,6 @@ namespace MikuMikuWorld
 
 		bool isFlick() const;
 		bool hasEase() const;
-
-		void setLane(int l);
-		void setWidth(int w);
 	};
 
 	struct HoldStep
@@ -100,6 +97,9 @@ namespace MikuMikuWorld
 		HoldStep start;
 		std::vector<HoldStep> steps;
 		int end;
+
+		HoldNoteType startType{};
+		HoldNoteType endType{};
 	};
 
 	void resetNextID();

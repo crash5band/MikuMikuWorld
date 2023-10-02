@@ -33,7 +33,7 @@ namespace MikuMikuWorld
 		if (!note.hasEase())
 			note.flick = (FlickType)reader->readInt32();
 
-		int flags = reader->readInt32();
+		unsigned int flags = reader->readInt32();
 		note.critical = (bool)(flags & 1);
 		note.friction = (bool)(flags & 2);
 		return note;
@@ -48,7 +48,7 @@ namespace MikuMikuWorld
 		if (!note.hasEase())
 			writer->writeInt32((int)note.flick);
 		
-		int flags = 0;
+		unsigned int flags = 0;
 		flags |= (int)note.critical << 0;
 		flags |= (int)note.friction << 1;
 		writer->writeInt32(flags);
@@ -223,6 +223,15 @@ namespace MikuMikuWorld
 		{
 			HoldNote hold;
 
+			unsigned int flags = 0;
+			if (version >= 3)
+			{
+				flags = reader.readInt32();
+			}
+
+			hold.startType = flags & 1 ? HoldNoteType::Hidden : HoldNoteType::Normal;
+			hold.endType = flags & 2 ? HoldNoteType::Hidden : HoldNoteType::Normal;
+
 			Note start = readNote(NoteType::Hold, &reader);
 			start.ID = nextID++;
 			hold.start.ease = (EaseType)reader.readInt32();
@@ -303,6 +312,12 @@ namespace MikuMikuWorld
 		writer.writeInt32(score.holdNotes.size());
 		for (const auto&[id, hold] : score.holdNotes)
 		{	
+			unsigned int flags = 0;
+			flags |= (int)(hold.startType == HoldNoteType::Hidden) << 0;
+			flags |= (int)(hold.endType == HoldNoteType::Hidden) << 1;
+
+			writer.writeInt32(flags);
+
 			// note data
 			const Note& start = score.notes.at(hold.start.ID);
 			writeNote(start, &writer);

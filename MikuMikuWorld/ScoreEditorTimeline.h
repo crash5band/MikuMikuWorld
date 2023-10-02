@@ -90,7 +90,7 @@ namespace MikuMikuWorld
 
 		Camera camera;
 		std::unique_ptr<Framebuffer> framebuffer;
-		std::unordered_map<std::string, int> tickSEMap;
+		std::unordered_set<std::string> playingNoteSounds;
 		const float audioOffsetCorrection = 0.02f;
 		const float audioLookAhead = 0.05f;
 

@@ -57,4 +57,16 @@ namespace MikuMikuWorld
 		"ease_in",
 		"ease_out"
 	};
+
+	enum class HoldNoteType : uint8_t
+	{
+		Normal,
+		Hidden
+	};
+
+	constexpr const char* holdTypes[]
+	{
+		"normal",
+		"hidden"
+	};
 }

@@ -46,6 +46,7 @@ namespace MikuMikuWorld
 		std::unordered_set<std::string> easeOuts;
 		std::unordered_set<std::string> slideKeys;
 		std::unordered_set<std::string> frictions;
+		std::unordered_set<std::string> hiddenHolds;
 
 		for (const auto& slide : sus.slides)
 		{
@@ -106,6 +107,13 @@ namespace MikuMikuWorld
 				criticals.insert(key);
 				frictions.insert(key);
 				break;
+			case 7:
+				hiddenHolds.insert(key);
+				break;
+			case 8:
+				hiddenHolds.insert(key);
+				criticals.insert(key);
+				break;
 			default:
 				break;
 			}
@@ -146,6 +154,10 @@ namespace MikuMikuWorld
 			if (slideKeys.find(key) != slideKeys.end())
 				continue;
 
+			// these are not taps!
+			if (hiddenHolds.find(key) != hiddenHolds.end())
+				continue;
+
 			tapKeys.insert(key);
 			Note n(NoteType::Tap);
 			n.tick = note.tick;
@@ -181,9 +193,13 @@ namespace MikuMikuWorld
 
 				EaseType ease = EaseType::Linear;
 				if (easeIns.find(key) != easeIns.end())
+				{
 					ease = EaseType::EaseIn;
+				}
 				else if (easeOuts.find(key) != easeOuts.end())
+				{
 					ease = EaseType::EaseOut;
+				}
 
 				switch (note.type)
 				{
@@ -200,6 +216,7 @@ namespace MikuMikuWorld
 
 					notes[n.ID] = n;
 					hold.start = HoldStep{ n.ID, HoldStepType::Normal, ease };
+					hold.startType = hiddenHolds.find(noteKey(note)) != hiddenHolds.end() ? HoldNoteType::Hidden : HoldNoteType::Normal;
 				}
 				break;
 				// end
@@ -217,6 +234,7 @@ namespace MikuMikuWorld
 
 					notes[n.ID] = n;
 					hold.end = n.ID;
+					hold.endType = hiddenHolds.find(noteKey(note)) != hiddenHolds.end() ? HoldNoteType::Hidden : HoldNoteType::Normal;
 				}
 				break;
 				// mid
@@ -252,12 +270,6 @@ namespace MikuMikuWorld
 				throw std::runtime_error("Invalid hold note.");
 
 			holds[startID] = hold;
-			if (notes.at(hold.end).critical && !notes.at(hold.end).isFlick())
-			{
-				notes.at(hold.start.ID).critical = true;
-				for (const auto& step : hold.steps)
-					notes.at(step.ID).critical = true;
-			}
 		}
 
 		std::vector<Tempo> tempos;
@@ -341,6 +353,11 @@ namespace MikuMikuWorld
 			{
 				taps.push_back(SUSNote{ start.tick, start.lane + 2, start.width, start.critical ? 6 : 5 });
 			}
+			 
+			if (hold.startType == HoldNoteType::Hidden)
+			{
+				taps.push_back(SUSNote{ start.tick, start.lane + 2, start.width, start.critical ? 8 : 7 });
+			}
 			else if (start.critical)
 			{
 				taps.push_back(SUSNote{ start.tick, start.lane + 2, start.width, 2 });
@@ -373,7 +390,14 @@ namespace MikuMikuWorld
 			}
 
 			if (end.friction)
-				taps.push_back(SUSNote{ end.tick, end.lane + 2, end.width, end.critical ? 6 : 5 });
+			{
+				taps.push_back(SUSNote{ end.tick, end.lane + 2, end.width, (end.critical && !start.critical) ? 6 : 5 });
+			}
+
+			if (hold.endType == HoldNoteType::Hidden)
+			{
+				taps.push_back(SUSNote{ end.tick, end.lane + 2, end.width, 7 });
+			}
 
 			slides.push_back(slide);
 		}

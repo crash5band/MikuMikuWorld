@@ -100,6 +100,7 @@ namespace jsonIO
 			json holdStart = noteToJson(start);
 			holdStart["tick"] = start.tick - baseTick;
 			holdStart["ease"] = mmw::easeTypes[(int)hold.start.ease];
+			holdStart["type"] = mmw::holdTypes[(int)hold.startType];
 
 			for (auto& step : hold.steps)
 			{
@@ -114,6 +115,7 @@ namespace jsonIO
 
 			json holdEnd = noteToJson(end);
 			holdEnd["tick"] = end.tick - baseTick;
+			holdEnd["type"] = mmw::holdTypes[(int)hold.endType];
 
 			holdData["start"] = holdStart;
 			holdData["steps"] = stepsArray;

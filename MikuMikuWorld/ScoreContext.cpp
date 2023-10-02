@@ -58,7 +58,14 @@ namespace MikuMikuWorld
 		for (int id : selectedNotes)
 		{
 			Note& note = score.notes.at(id);
-			if (!note.hasEase())
+			bool canFlick = !note.hasEase();
+
+			if (note.getType() == NoteType::HoldEnd)
+			{
+				canFlick = score.holdNotes.at(note.parentID).endType == HoldNoteType::Normal;
+			}
+
+			if (canFlick)
 			{
 				if (flick == FlickType::FlickTypeCount)
 				{
@@ -125,6 +132,43 @@ namespace MikuMikuWorld
 			pushHistory("Change ease", prev, score);
 	}
 
+	void ScoreContext::setHolds(HoldNoteType hold)
+	{
+		if (selectedNotes.empty())
+			return;
+
+		Score prev = score;
+		bool edit = false;
+		for (int id : selectedNotes)
+		{
+			/*
+				* Invisible hold points cannot be trace notes!
+				* We will set the trace flag to false always
+			*/
+			Note& note = score.notes.at(id);
+			if (note.getType() == NoteType::Hold)
+			{
+				HoldNote& holdNote = score.holdNotes.at(note.ID);
+				holdNote.startType = hold;
+				note.friction = false;
+				edit = true;
+			}
+			else if (note.getType() == NoteType::HoldEnd)
+			{
+				HoldNote& holdNote = score.holdNotes.at(note.parentID);
+				holdNote.endType = hold;
+
+				// reset flick to none if the end is not normal
+				note.flick = hold == HoldNoteType::Normal ? note.flick : FlickType::None;
+				note.friction = false;
+				edit = true;
+			}
+		}
+
+		if (edit)
+			pushHistory("Change hold", prev, score);
+	}
+
 	void ScoreContext::toggleCriticals()
 	{
 		if (selectedNotes.empty())
@@ -175,12 +219,23 @@ namespace MikuMikuWorld
 		bool edit = false;
 		for (int id : selectedNotes)
 		{
+			// Hold steps and invisible hold points cannot be trace notes
 			Note& note = score.notes.at(id);
-			if (note.getType() != NoteType::HoldMid)
+			if (note.getType() == NoteType::HoldMid)
 			{
-				note.friction = !note.friction;
-				edit = true;
+				continue;
 			}
+			else if (note.getType() == NoteType::Hold)
+			{
+				score.holdNotes.at(note.ID).startType = HoldNoteType::Normal;
+			}
+			else if (note.getType() == NoteType::HoldEnd)
+			{
+				score.holdNotes.at(note.parentID).endType = HoldNoteType::Normal;
+			}
+
+			note.friction = !note.friction;
+			edit = true;
 		}
 
 		if (edit)
@@ -362,6 +417,21 @@ namespace MikuMikuWorld
 
 						hold.steps.push_back({ mid.ID, (HoldStepType)stepTypeIndex, (EaseType)easeTypeIndex });
 					}
+				}
+
+				std::string startType = jsonIO::tryGetValue<std::string>(entry["start"], "type", "normal");
+				std::string endType = jsonIO::tryGetValue<std::string>(entry["end"], "type", "normal");
+
+				if (startType == "hidden")
+				{
+					hold.startType = HoldNoteType::Hidden;
+					start.friction = false;
+				}
+
+				if (endType == "hidden")
+				{
+					hold.endType = HoldNoteType::Hidden;
+					end.friction = false;
 				}
 
 				pasteData.holds[hold.start.ID] = hold;

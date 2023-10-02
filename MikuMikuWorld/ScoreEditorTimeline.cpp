@@ -248,6 +248,13 @@ namespace MikuMikuWorld
 				ImGui::EndMenu();
 			}
 
+			if (ImGui::BeginMenu(getString("hold_type")))
+			{
+				for (int i = 0; i < TXT_ARR_SZ(holdTypes); i++)
+					if (ImGui::MenuItem(getString(holdTypes[i]))) context.setHolds((HoldNoteType)i);
+				ImGui::EndMenu();
+			}
+
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("shrink_up"), NULL, false, context.selectedNotes.size() > 1))
 				context.shrinkSelection(Direction::Up);
@@ -1447,10 +1454,10 @@ namespace MikuMikuWorld
 			drawHoldCurve(start, end, note.start.ease, renderer, tint, offsetTicks, offsetLane);
 		}
 
-		if (isNoteVisible(start, offsetTicks))
+		if (note.startType == HoldNoteType::Normal && isNoteVisible(start, offsetTicks))
 			drawNote(start, renderer, tint, offsetTicks, offsetLane);
 
-		if (isNoteVisible(end, offsetTicks))
+		if (note.endType == HoldNoteType::Normal && isNoteVisible(end, offsetTicks))
 			drawNote(end, renderer, tint, offsetTicks, offsetLane);
 	}
 
@@ -1931,27 +1938,40 @@ namespace MikuMikuWorld
 		if (!playing)
 			return;
 
-		tickSEMap.clear();
-		for (const auto& it : context.score.notes)
+		playingNoteSounds.clear();
+		for (const auto& [id, note] : context.score.notes)
 		{
-			const Note& note = it.second;
 			float noteTime = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
 			float notePlayTime = noteTime - playStartTime;
 			float offsetNoteTime = noteTime - audioLookAhead;
 
-			if (offsetNoteTime >= timeLastFrame && offsetNoteTime < time)
+			static auto singleNoteSEFunc = [&context, this](const Note& note, float notePlayTime)
 			{
-				std::string se = getNoteSE(note, context.score);
-				std::string key = std::to_string(note.tick) + "-" + se;
-				if (se.size());
+				bool playSE = true;
+				if (note.getType() == NoteType::Hold)
 				{
-					if (tickSEMap.find(key) == tickSEMap.end())
-					{
-						context.audio.playSound(se.c_str(), notePlayTime - audioOffsetCorrection, -1);
-						tickSEMap[key] = note.tick;
-					}
+					playSE = context.score.holdNotes.at(note.ID).startType == HoldNoteType::Normal;
+				}
+				else if (note.getType() == NoteType::HoldEnd)
+				{
+					playSE = context.score.holdNotes.at(note.parentID).endType == HoldNoteType::Normal;
 				}
 
+				if (playSE)
+				{
+					std::string se = getNoteSE(note, context.score);
+					std::string key = std::to_string(note.tick) + "-" + se;
+					if (!se.empty() && (playingNoteSounds.find(key) == playingNoteSounds.end()))
+					{
+						context.audio.playSound(se.c_str(), notePlayTime, -1);
+						playingNoteSounds.insert(key);
+					}
+				}
+			};
+
+			if (offsetNoteTime >= timeLastFrame && offsetNoteTime < time)
+			{
+				singleNoteSEFunc(note, notePlayTime - audioOffsetCorrection);
 				if (note.getType() == NoteType::Hold)
 				{
 					float endTime = accumulateDuration(context.score.notes.at(context.score.holdNotes.at(note.ID).end).tick, TICKS_PER_BEAT, context.score.tempoChanges);
@@ -1963,16 +1983,7 @@ namespace MikuMikuWorld
 				// playback just started
 				if (noteTime >= time && offsetNoteTime < time)
 				{
-					std::string se = getNoteSE(note, context.score);
-					std::string key = std::to_string(note.tick) + "-" + se;
-					if (se.size())
-					{
-						if (tickSEMap.find(key) == tickSEMap.end())
-						{
-							context.audio.playSound(se.c_str(), notePlayTime, -1);
-							tickSEMap[key] = note.tick;
-						}
-					}
+					singleNoteSEFunc(note, notePlayTime);
 				}
 
 				// playback started mid-hold

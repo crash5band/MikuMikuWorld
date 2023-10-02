@@ -81,6 +81,13 @@ namespace MikuMikuWorld
 		int halfBeat = TICKS_PER_BEAT / 2;
 		for (const auto& hold : score.holdNotes)
 		{
+			// hidden hold starts and ends do not count towards combo
+			if (hold.second.startType != HoldNoteType::Normal)
+				combo--;
+			
+			if (hold.second.endType != HoldNoteType::Normal)
+				combo--;
+
 			int startTick = score.notes.at(hold.first).tick;
 			int endTick = score.notes.at(hold.second.end).tick;
 			int eigthTick = startTick;

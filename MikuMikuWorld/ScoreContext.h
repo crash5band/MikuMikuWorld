@@ -86,6 +86,7 @@ namespace MikuMikuWorld
 		void setStep(HoldStepType step);
 		void setFlick(FlickType flick);
 		void setEase(EaseType ease);
+		void setHolds(HoldNoteType hold);
 		void toggleCriticals();
 		void toggleFriction();
 
