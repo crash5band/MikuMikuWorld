@@ -323,9 +323,6 @@
     <ClInclude Include="ScoreEditorTimeline.h">
       <Filter>ScoreEditor</Filter>
     </ClInclude>
-    <ClInclude Include="NoteGraphics.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="HistoryManager.h">
       <Filter>ScoreEditor</Filter>
     </ClInclude>

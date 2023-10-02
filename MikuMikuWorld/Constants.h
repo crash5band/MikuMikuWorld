@@ -27,31 +27,6 @@ namespace MikuMikuWorld
 	constexpr const char* APP_CONFIG_FILENAME	= "app_config.json";
 	constexpr const char* IMGUI_CONFIG_FILENAME = "imgui_config.ini";
 
-	constexpr const char* SE_PERFECT			= "perfect";
-	constexpr const char* SE_GREAT				= "great";
-	constexpr const char* SE_GOOD				= "good";
-	constexpr const char* SE_FLICK				= "flick";
-	constexpr const char* SE_CONNECT			= "connect";
-	constexpr const char* SE_TICK				= "tick";
-	constexpr const char* SE_CRITICAL_TAP		= "critical_tap";
-	constexpr const char* SE_CRITICAL_FLICK		= "critical_flick";
-	constexpr const char* SE_CRITICAL_CONNECT	= "critical_connect";
-	constexpr const char* SE_CRITICAL_TICK		= "critical_tick";
-
-	constexpr const char* SE_NAMES[] = 
-	{
-		SE_PERFECT,
-		SE_GREAT,
-		SE_GOOD,
-		SE_FLICK,
-		SE_CONNECT,
-		SE_TICK,
-		SE_CRITICAL_TAP,
-		SE_CRITICAL_FLICK,
-		SE_CRITICAL_CONNECT,
-		SE_CRITICAL_TICK
-	};
-
 	constexpr const char* SUS_EXTENSION			= ".sus";
 	constexpr const char* MMWS_EXTENSION		= ".mmws";
 }

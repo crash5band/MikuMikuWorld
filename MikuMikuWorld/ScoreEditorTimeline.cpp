@@ -5,7 +5,6 @@
 #include "ResourceManager.h"
 #include "Tempo.h"
 #include "Utilities.h"
-#include "NoteGraphics.h"
 #include "ApplicationConfiguration.h"
 #include "Application.h"
 #include <algorithm>

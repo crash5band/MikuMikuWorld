@@ -6,7 +6,6 @@
 #include "Utilities.h"
 #include "Localization.h"
 #include "Constants.h"
-#include "NoteGraphics.h"
 #include "ApplicationConfiguration.h"
 #include <filesystem>
 
