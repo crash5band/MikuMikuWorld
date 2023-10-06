@@ -51,7 +51,7 @@ namespace MikuMikuWorld
 	{
 		int notes;
 		int holdPath;
-		int criticalHoldPath;
+		int touchLine;
 	};
 
 	extern NoteTextures noteTextures;
@@ -100,6 +100,11 @@ namespace MikuMikuWorld
 
 		HoldNoteType startType{};
 		HoldNoteType endType{};
+
+		constexpr bool isGuide() const
+		{ 
+			return startType == HoldNoteType::Guide || endType == HoldNoteType::Guide;
+		}
 	};
 
 	void resetNextID();
@@ -113,5 +118,5 @@ namespace MikuMikuWorld
 	int getFlickArrowSpriteIndex(const Note& note);
 	int getNoteSpriteIndex(const Note& note);
 	int getFrictionSpriteIndex(const Note& note);
-	std::string getNoteSE(const Note& note, const Score& score);
+	std::string_view getNoteSE(const Note& note, const Score& score);
 }

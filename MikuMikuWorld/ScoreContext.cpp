@@ -27,6 +27,9 @@ namespace MikuMikuWorld
 				continue;
 
 			HoldNote& hold = score.holdNotes.at(note.parentID);
+			if (hold.isGuide())
+				continue;
+
 			int pos = findHoldStep(hold, id);
 			if (pos != -1)
 			{
@@ -132,7 +135,7 @@ namespace MikuMikuWorld
 			pushHistory("Change ease", prev, score);
 	}
 
-	void ScoreContext::setHolds(HoldNoteType hold)
+	void ScoreContext::setHoldType(HoldNoteType hold)
 	{
 		if (selectedNotes.empty())
 			return;
@@ -141,26 +144,32 @@ namespace MikuMikuWorld
 		bool edit = false;
 		for (int id : selectedNotes)
 		{
-			/*
-				* Invisible hold points cannot be trace notes!
-				* We will set the trace flag to false always
-			*/
+			// Invisible hold points cannot be trace notes!
 			Note& note = score.notes.at(id);
+			HoldNote& holdNote = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
+			
+			// For now do not allow changing guides to normal holds or vice versa
+			if (holdNote.isGuide())
+				continue;
+
 			if (note.getType() == NoteType::Hold)
 			{
-				HoldNote& holdNote = score.holdNotes.at(note.ID);
+				if ((hold != HoldNoteType::Normal))
+					note.friction = false;
+				
 				holdNote.startType = hold;
-				note.friction = false;
 				edit = true;
 			}
 			else if (note.getType() == NoteType::HoldEnd)
 			{
-				HoldNote& holdNote = score.holdNotes.at(note.parentID);
-				holdNote.endType = hold;
-
 				// reset flick to none if the end is not normal
-				note.flick = hold == HoldNoteType::Normal ? note.flick : FlickType::None;
-				note.friction = false;
+				if (hold != HoldNoteType::Normal)
+				{
+					note.flick = FlickType::None;
+					note.friction = false;
+				}
+
+				holdNote.endType = hold;
 				edit = true;
 			}
 		}
@@ -207,7 +216,7 @@ namespace MikuMikuWorld
 				score.notes.at(step.ID).critical = critical;
 		}
 
-		pushHistory("Change note", prev, score);
+		pushHistory("Change critical note", prev, score);
 	}
 
 	void ScoreContext::toggleFriction()
@@ -215,7 +224,7 @@ namespace MikuMikuWorld
 		if (selectedNotes.empty())
 			return;
 
-		Score prev;
+		Score prev = score;
 		bool edit = false;
 		for (int id : selectedNotes)
 		{
@@ -225,13 +234,20 @@ namespace MikuMikuWorld
 			{
 				continue;
 			}
-			else if (note.getType() == NoteType::Hold)
+			else if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd)
 			{
-				score.holdNotes.at(note.ID).startType = HoldNoteType::Normal;
-			}
-			else if (note.getType() == NoteType::HoldEnd)
-			{
-				score.holdNotes.at(note.parentID).endType = HoldNoteType::Normal;
+				HoldNote& holdNote = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
+				if (holdNote.isGuide())
+					continue;
+				
+				if (note.getType() == NoteType::Hold)
+				{
+					holdNote.startType = HoldNoteType::Normal;
+				}
+				else
+				{
+					holdNote.endType = HoldNoteType::Normal;
+				}
 			}
 
 			note.friction = !note.friction;
@@ -239,7 +255,7 @@ namespace MikuMikuWorld
 		}
 
 		if (edit)
-			pushHistory("Change note friction", prev, score);
+			pushHistory("Change trace notes", prev, score);
 	}
 
 	void ScoreContext::deleteSelection()
@@ -366,16 +382,11 @@ namespace MikuMikuWorld
 				end.parentID = start.ID;
 				pasteData.notes[end.ID] = end;
 
-				std::string startEase = "none";
-				if (jsonIO::keyExists(entry["start"], "ease"))
-					startEase = entry["start"]["ease"];
+				std::string startEase = jsonIO::tryGetValue<std::string>(entry["start"], "ease", "linear");
 
 				HoldNote hold;
 				hold.start = { start.ID, HoldStepType::Normal, (EaseType)findArrayItem(startEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes)) };
 				hold.end = end.ID;
-
-				if (startEase == "linear")
-					hold.start.ease = EaseType::Linear;
 
 				if (jsonIO::keyExists(entry, "steps"))
 				{
@@ -388,14 +399,8 @@ namespace MikuMikuWorld
 						mid.parentID = start.ID;
 						pasteData.notes[mid.ID] = mid;
 
-						std::string midType = "normal";
-						if (jsonIO::keyExists(step, "type"))
-							midType = step["type"];
-
-						std::string midEase = "linear";
-						if (jsonIO::keyExists(step, "ease"))
-							midEase = step["ease"];
-
+						std::string midType = jsonIO::tryGetValue<std::string>(step, "type", "normal");
+						std::string midEase = jsonIO::tryGetValue<std::string>(step, "ease", "linear");
 						int stepTypeIndex = findArrayItem(midType.c_str(), stepTypes, TXT_ARR_SZ(stepTypes));
 						int easeTypeIndex = findArrayItem(midEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes));
 
@@ -422,16 +427,24 @@ namespace MikuMikuWorld
 				std::string startType = jsonIO::tryGetValue<std::string>(entry["start"], "type", "normal");
 				std::string endType = jsonIO::tryGetValue<std::string>(entry["end"], "type", "normal");
 
-				if (startType == "hidden")
+				if (startType == "guide" || endType == "guide")
 				{
-					hold.startType = HoldNoteType::Hidden;
-					start.friction = false;
+					hold.startType = hold.endType = HoldNoteType::Guide;
+					start.friction = end.friction = false;
 				}
-
-				if (endType == "hidden")
+				else
 				{
-					hold.endType = HoldNoteType::Hidden;
-					end.friction = false;
+					if (startType == "hidden")
+					{
+						hold.startType = HoldNoteType::Hidden;
+						start.friction = false;
+					}
+
+					if (endType == "hidden")
+					{
+						hold.endType = HoldNoteType::Hidden;
+						end.friction = false;
+					}
 				}
 
 				pasteData.holds[hold.start.ID] = hold;
@@ -752,25 +765,29 @@ namespace MikuMikuWorld
 	{
 		if (selectedNotes.size() != 2)
 			return false;
+
 		const auto& note1 = score.notes.at(*selectedNotes.begin());
 		const auto& note2 = score.notes.at(*std::next(selectedNotes.begin()));
 		if (note1.tick == note2.tick)
 			return (note1.getType() == NoteType::Hold && note2.getType() == NoteType::HoldEnd) ||
 						 (note1.getType() == NoteType::HoldEnd && note2.getType() == NoteType::Hold);
 
-		Note earlierNote;
-		Note laterNote;
-		if (note1.tick < note2.tick)
-		{
-			earlierNote = note1;
-			laterNote = note2;
-		}
-		else
-		{
-			earlierNote = note2;
-			laterNote = note1;
-		}
+		auto noteTickCompareFunc = [](const Note& n1, const Note& n2) { return n1.tick < n2.tick; };
+		Note earlierNote = std::min(note1, note2, noteTickCompareFunc);
+		Note laterNote = std::max(note1, note2, noteTickCompareFunc);
 
 		return (earlierNote.getType() == NoteType::HoldEnd && laterNote.getType() == NoteType::Hold);
+	}
+
+	bool ScoreContext::selectionCanChangeHoldType() const
+	{
+		return std::any_of(selectedNotes.begin(), selectedNotes.end(), [this](const int id)
+		{
+			const Note& note = score.notes.at(id);
+			if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd)
+				return !score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID).isGuide();
+
+			return false;
+		});
 	}
 }

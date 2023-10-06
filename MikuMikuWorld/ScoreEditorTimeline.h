@@ -9,16 +9,60 @@
 
 namespace MikuMikuWorld
 {
+	enum class StepDrawType
+	{
+		NormalStep,
+		SkipStep,
+		InvisibleHold,
+		InvisibleHoldCritical,
+		StepDrawTypeMax
+	};
+
+	const std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawOutlineColors[] =
+	{
+		0xFFAAFFAA, 0xFFFFFFAA, 0xFFCCCCCC, 0xFFCCCCCC
+	};
+
+	const std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawFillColors[] =
+	{
+		0x00FFFFFF, 0x00FFFFFF, 0xFF66B622, 0xFF15A0C9
+	};
+
+	class StepDrawData
+	{
+	public:
+		int tick{};
+		int lane{};
+		int width{};
+		StepDrawType type{};
+
+		StepDrawData() {}
+		StepDrawData(int _tick, int _lane, int _width, StepDrawType _type) :
+			tick{ _tick }, lane{ _lane }, width{ _width }, type{ _type }
+		{
+
+		}
+
+		StepDrawData(const Note& n, StepDrawType _type) :
+			tick{ n.tick }, lane{ n.lane }, width{ n.width }, type{ _type }
+		{
+
+		}
+
+		inline constexpr ImU32 getFillColor() const { return stepDrawFillColors->at((int)type); }
+		inline constexpr ImU32 getOutlineColor() const { return stepDrawOutlineColors->at((int)type); }
+	};
+
 	class ScoreEditorTimeline
 	{
 	private:
-		int noteCutoffX = 30;
-		int noteSliceWidth = 85;
-		int noteOffsetX = 5;
-		int notesSliceSize = 17;
-		int holdCutoffX = 33;
-		int holdSliceWidth = 10;
-		int holdSliceSize = 5;
+		int noteCutoffX		= 30;
+		int noteSliceWidth	= 85;
+		int noteOffsetX		= 5;
+		int notesSliceSize	= 17;
+		int holdCutoffX		= 33;
+		int holdSliceWidth	= 10;
+		int holdSliceSize	= 5;
 
 		TimelineMode currentMode;
 		float laneOffset;
@@ -65,14 +109,6 @@ namespace MikuMikuWorld
 			Note holdEnd;
 			Note holdStep;
 		} inputNotes{ Note(NoteType::Tap), Note(NoteType::Hold), Note(NoteType::HoldEnd), Note(NoteType::HoldMid) };
-
-		struct StepDrawData
-		{
-			int tick;
-			int lane;
-			int width;
-			HoldStepType type;
-		};
 		
 		std::vector<StepDrawData> drawSteps;
 
@@ -97,7 +133,7 @@ namespace MikuMikuWorld
 		void updateScrollbar();
 		void updateScrollingPosition();
 
-		void drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
+		void drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, bool isGuide, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
 		void drawHoldNote(const std::unordered_map<int, Note>& notes, const HoldNote& note, Renderer* renderer, const Color& tint, const int offsetTicks = 0, const int offsetLane = 0);
 		void drawHoldMid(Note& note, HoldStepType type, Renderer* renderer, const Color& tint);
 		void drawOutline(const StepDrawData& data);
@@ -120,7 +156,7 @@ namespace MikuMikuWorld
 		void executeInput(ScoreContext& context, EditArgs& edit);
 		void eventEditor(ScoreContext& context);
 
-		void insertNote(ScoreContext& context, EditArgs& edit, bool crticial);
+		void insertNote(ScoreContext& context, EditArgs& edit);
 		void insertHold(ScoreContext& context, EditArgs& edit);
 		void insertHoldStep(ScoreContext& context, EditArgs& edit, int holdId);
 		void insertEvent(ScoreContext& context, EditArgs& edit);

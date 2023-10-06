@@ -55,10 +55,10 @@ namespace MikuMikuWorld
 		std::map<int, MeasureMap> measuresMap;
 		std::vector<BarLengthTicks> barLengthTicks;
 
-		ChannelProvider channelProvider;
-
 		int getMeasureFromTicks(int ticks);
 		int getTicksFromMeasure(int measure);
+		void appendSlideData(SUSNoteStream& slides, const std::string& infoPrefix);
+		std::vector<std::string> getNoteLines(int baseMeasure);
 
 	public:
 		SusExporter();

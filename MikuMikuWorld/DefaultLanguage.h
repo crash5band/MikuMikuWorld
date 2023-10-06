@@ -4,7 +4,8 @@
 
 namespace MikuMikuWorld
 {
-	extern std::unordered_map<std::string, std::string> en{
+	extern std::unordered_map<std::string, std::string> en
+	{
 		// menu bar
 		{"file", "File"},
 		{"new", "New"},
@@ -86,6 +87,7 @@ namespace MikuMikuWorld
 		{"flick", "Flick"},
 		{"critical", "Critical"},
 		{"trace", "Trace"},
+		{"guide", "Guide"},
 		{"bpm", "BPM"},
 		{"time_signature", "Time Signature"},
 		{"none", "None"},
@@ -114,6 +116,7 @@ namespace MikuMikuWorld
 		{"step_type", "Step Type"},
 		{"ease_type", "Ease Type"},
 		{"flick_type", "Flick Type"},
+		{"hold_type", "Hold Type"},
 		{"metadata", "Metadata"},
 		{"title", "Title"},
 		{"designer", "Designer"},
@@ -179,6 +182,7 @@ namespace MikuMikuWorld
 		{"timeline_flick", "Timeline - Insert Flick"},
 		{"timeline_critical", "Timeline - Insert Critical"},
 		{"timeline_trace", "Timeline - Insert Trace"},
+		{"timeline_guide", "Timeline - Insert Guide"},
 		{"timeline_bpm", "Timeline - Insert BPM"},
 		{"timeline_time_signature", "Timeline - Insert Time Signature"},
 		{"timeline_hi_speed", "Timeline - Insert Hi-Speed Change"},

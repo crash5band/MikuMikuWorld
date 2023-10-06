@@ -221,37 +221,36 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(getString("flip"), ToShortcutString(config.input.flip), false, context.selectedNotes.size()))
 				context.flipSelection();
 
-			const bool hasEase = context.selectionHasEase();
-			const bool hasStep = context.selectionHasStep();
-			const bool hasFlick = context.selectionHasFlickable();
-			const bool canConnect = context.selectionCanConnect();
-
 			ImGui::Separator();
-			if (ImGui::BeginMenu(getString("ease_type"), hasEase))
+			if (ImGui::BeginMenu(getString("ease_type"), context.selectionHasEase()))
 			{
 				for (int i = 0; i < TXT_ARR_SZ(easeTypes); ++i)
 					if (ImGui::MenuItem(getString(easeTypes[i]))) context.setEase((EaseType)i);
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::BeginMenu(getString("step_type"), hasStep))
+			if (ImGui::BeginMenu(getString("step_type"), context.selectionHasStep()))
 			{
 				for (int i = 0; i < TXT_ARR_SZ(stepTypes); ++i)
 					if (ImGui::MenuItem(getString(stepTypes[i]))) context.setStep((HoldStepType)i);
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::BeginMenu(getString("flick_type"), hasFlick))
+			if (ImGui::BeginMenu(getString("flick_type"), context.selectionHasFlickable()))
 			{
 				for (int i = 0; i < TXT_ARR_SZ(flickTypes); ++i)
 					if (ImGui::MenuItem(getString(flickTypes[i]))) context.setFlick((FlickType)i);
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::BeginMenu(getString("hold_type")))
+			if (ImGui::BeginMenu(getString("hold_type"), context.selectionCanChangeHoldType()))
 			{
-				for (int i = 0; i < TXT_ARR_SZ(holdTypes); i++)
-					if (ImGui::MenuItem(getString(holdTypes[i]))) context.setHolds((HoldNoteType)i);
+				/*
+					* We we won't show the option to change holds to guides and vice versa
+					* at least for now since it will complicate changing hold types
+				*/
+				for (int i = 0; i < TXT_ARR_SZ(holdTypes) - 1; i++)
+					if (ImGui::MenuItem(getString(holdTypes[i]))) context.setHoldType((HoldNoteType)i);
 				ImGui::EndMenu();
 			}
 
@@ -263,10 +262,10 @@ namespace MikuMikuWorld
 				context.shrinkSelection(Direction::Down);
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(getString("connect_holds"), NULL, false, canConnect))
+			if (ImGui::MenuItem(getString("connect_holds"), NULL, false, context.selectionCanConnect()))
 				context.connectHoldsInSelection();
 
-			if (ImGui::MenuItem(getString("split_hold"), NULL, false, hasStep && context.selectedNotes.size() == 1))
+			if (ImGui::MenuItem(getString("split_hold"), NULL, false, context.selectionHasStep() && context.selectedNotes.size() == 1))
 				context.splitHoldInSelection();
 
 			ImGui::EndPopup();
@@ -852,7 +851,7 @@ namespace MikuMikuWorld
 		case TimelineMode::InsertLong:
 			if (insertingHold)
 			{
-				drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, EaseType::Linear, renderer, noteTint);
+				drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, EaseType::Linear, false, renderer, noteTint);
 				drawNote(inputNotes.holdStart, renderer, noteTint);
 				drawNote(inputNotes.holdEnd, renderer, noteTint);
 			}
@@ -864,7 +863,20 @@ namespace MikuMikuWorld
 
 		case TimelineMode::InsertLongMid:
 			drawHoldMid(inputNotes.holdStep, edit.stepType, renderer, hoverTint);
-			drawOutline(StepDrawData{ inputNotes.holdStep.tick, inputNotes.holdStep.lane, inputNotes.holdStep.width, edit.stepType });
+			drawOutline(StepDrawData(inputNotes.holdStep, edit.stepType == HoldStepType::Skip ? StepDrawType::SkipStep : StepDrawType::NormalStep));
+			break;
+
+		case TimelineMode::InsertGuide:
+			if (insertingHold)
+			{
+				drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, EaseType::Linear, true, renderer, noteTint);
+				drawOutline(StepDrawData(inputNotes.holdStart, StepDrawType::InvisibleHold));
+				drawOutline(StepDrawData(inputNotes.holdEnd, StepDrawType::InvisibleHold));
+			}
+			else
+			{
+				drawOutline(StepDrawData(inputNotes.holdStart, StepDrawType::InvisibleHold));
+			}
 			break;
 
 		case TimelineMode::InsertBPM:
@@ -893,10 +905,11 @@ namespace MikuMikuWorld
 		case TimelineMode::MakeCritical:
 		case TimelineMode::MakeFriction:
 		case TimelineMode::InsertFlick:
-			insertNote(context, edit, currentMode == TimelineMode::MakeCritical);
+			insertNote(context, edit);
 			break;
 
 		case TimelineMode::InsertLong:
+		case TimelineMode::InsertGuide:
 			insertingHold = true;
 			break;
 
@@ -1099,19 +1112,13 @@ namespace MikuMikuWorld
 
 			if (abs(diff) > 0)
 			{
-				bool canResize = true;
-				for (int id : context.selectedNotes)
+				bool canResize = !std::any_of(context.selectedNotes.begin(), context.selectedNotes.end(), [&context, diff](int id)
 				{
 					Note& n = context.score.notes.at(id);
 					int newLane = n.lane + diff;
 					int newWidth = n.width - diff;
-
-					if (newLane < MIN_LANE || newLane + newWidth - 1 > MAX_LANE || newWidth < MIN_NOTE_WIDTH || newWidth > MAX_NOTE_WIDTH)
-					{
-						canResize = false;
-						break;
-					}
-				}
+					return (newLane < MIN_LANE || newLane + newWidth - 1 > MAX_LANE || !isWithinRange(newWidth, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH));
+				});
 
 				if (canResize)
 				{
@@ -1142,19 +1149,12 @@ namespace MikuMikuWorld
 			{
 				isMovingNote = true;
 				ctrlMousePos.x = mousePos.x;
-
-				bool canMove = true;
-				for (int id : context.selectedNotes)
+				bool canMove = !std::any_of(context.selectedNotes.begin(), context.selectedNotes.end(), [&context, diff](int id)
 				{
 					Note& n = context.score.notes.at(id);
 					int newLane = n.lane + diff;
-
-					if (newLane < MIN_LANE || newLane + n.width - 1 > MAX_LANE)
-					{
-						canMove = false;
-						break;
-					}
-				}
+					return (newLane < MIN_LANE || newLane + n.width - 1 > MAX_LANE);
+				});
 
 				if (canMove)
 				{
@@ -1173,18 +1173,8 @@ namespace MikuMikuWorld
 				isMovingNote = true;
 				ctrlMousePos.y = mousePos.y;
 
-				bool canMove = true;
-				for (int id : context.selectedNotes)
-				{
-					Note& n = context.score.notes.at(id);
-					int newTick = n.tick + diff;
-
-					if (newTick < 0)
-					{
-						canMove = false;
-						break;
-					}
-				}
+				bool canMove = !std::any_of(context.selectedNotes.begin(), context.selectedNotes.end(),
+					[&context, diff](int id) { return context.score.notes.at(id).tick + diff < 0; });
 
 				if (canMove)
 				{
@@ -1245,18 +1235,12 @@ namespace MikuMikuWorld
 			int diff = curLane - grabLane;
 			if (abs(diff) > 0)
 			{
-				bool canResize = true;
-				for (int id : context.selectedNotes)
+				bool canResize = !std::any_of(context.selectedNotes.begin(), context.selectedNotes.end(), [&context, diff](int id)
 				{
 					Note& n = context.score.notes.at(id);
 					int newWidth = n.width + diff;
-
-					if (newWidth < MIN_NOTE_WIDTH || n.lane + newWidth - 1 > MAX_LANE)
-					{
-						canResize = false;
-						break;
-					}
-				}
+					return (newWidth < MIN_NOTE_WIDTH || n.lane + newWidth - 1 > MAX_LANE);
+				});
 
 				if (canResize)
 				{
@@ -1274,12 +1258,13 @@ namespace MikuMikuWorld
 		ImGui::PopID();
 	}
 
-	void ScoreEditorTimeline::drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
+	void ScoreEditorTimeline::drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, bool isGuide, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
 	{
-		if (noteTextures.holdPath == -1)
+		int texIndex = isGuide ? noteTextures.touchLine : noteTextures.holdPath;
+		if (texIndex == -1)
 			return;
 
-		const Texture& pathTex = ResourceManager::textures[noteTextures.holdPath];
+		const Texture& pathTex = ResourceManager::textures[texIndex];
 		const int sprIndex = n1.critical ? 3 : 1;
 		if (sprIndex > pathTex.sprites.size())
 			return;
@@ -1346,7 +1331,7 @@ namespace MikuMikuWorld
 	{
 		if (insertingHold)
 		{
-			drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, EaseType::Linear, renderer, noteTint);
+			drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, EaseType::Linear, false, renderer, noteTint);
 			drawNote(inputNotes.holdStart, renderer, noteTint);
 			drawNote(inputNotes.holdEnd, renderer, noteTint);
 		}
@@ -1376,14 +1361,14 @@ namespace MikuMikuWorld
 				const Note& n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
 				const Note& n2 = s2 == -1 ? end : notes.at(note.steps[s2].ID);
 				const EaseType ease = s1 == -1 ? note.start.ease : note.steps[s1].ease;
-				drawHoldCurve(n1, n2, ease, renderer, tint, offsetTicks, offsetLane);
+				drawHoldCurve(n1, n2, ease, note.isGuide(), renderer, tint, offsetTicks, offsetLane);
 
 				s1 = s2;
 			}
 
 			const Note& n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
 			const EaseType ease = s1 == -1 ? note.start.ease : note.steps[s1].ease;
-			drawHoldCurve(n1, end, ease, renderer, tint, offsetTicks, offsetLane);
+			drawHoldCurve(n1, end, ease, note.isGuide(), renderer, tint, offsetTicks, offsetLane);
 
 			s1 = -1;
 			s2 = 1;
@@ -1404,7 +1389,13 @@ namespace MikuMikuWorld
 				if (isNoteVisible(n3, offsetTicks))
 				{
 					if (drawHoldStepOutlines)
-						drawSteps.emplace_back(StepDrawData{ n3.tick + offsetTicks, n3.lane + offsetLane, n3.width, note.steps[i].type });
+						drawSteps.emplace_back(StepDrawData
+							{
+								n3.tick + offsetTicks,
+								n3.lane + offsetLane,
+								n3.width,
+								note.steps[i].type == HoldStepType::Skip ? StepDrawType::SkipStep : StepDrawType::NormalStep
+							});
 
 					if (note.steps[i].type != HoldStepType::Hidden)
 					{
@@ -1451,14 +1442,42 @@ namespace MikuMikuWorld
 		}
 		else
 		{
-			drawHoldCurve(start, end, note.start.ease, renderer, tint, offsetTicks, offsetLane);
+			drawHoldCurve(start, end, note.start.ease, note.isGuide(), renderer, tint, offsetTicks, offsetLane);
 		}
 
-		if (note.startType == HoldNoteType::Normal && isNoteVisible(start, offsetTicks))
-			drawNote(start, renderer, tint, offsetTicks, offsetLane);
+		if (isNoteVisible(start, offsetTicks))
+		{
+			if (note.startType == HoldNoteType::Normal)
+			{
+				drawNote(start, renderer, tint, offsetTicks, offsetLane);
+			}
+			else if (drawHoldStepOutlines)
+			{
+				drawSteps.push_back({
+					start.tick + offsetTicks,
+					start.lane + offsetLane,
+					start.width,
+					start.critical ? StepDrawType::InvisibleHoldCritical : StepDrawType::InvisibleHold
+				});
+			}
+		}
 
-		if (note.endType == HoldNoteType::Normal && isNoteVisible(end, offsetTicks))
-			drawNote(end, renderer, tint, offsetTicks, offsetLane);
+		if (isNoteVisible(end, offsetTicks))
+		{
+			if (note.endType == HoldNoteType::Normal)
+			{
+				drawNote(end, renderer, tint, offsetTicks, offsetLane);
+			}
+			else if (drawHoldStepOutlines)
+			{
+				drawSteps.push_back({
+					end.tick + offsetTicks,
+					end.lane + offsetLane,
+					end.width,
+					start.critical ? StepDrawType::InvisibleHoldCritical : StepDrawType::InvisibleHold
+				});
+			}
+		}
 	}
 
 	void ScoreEditorTimeline::drawHoldMid(Note& note, HoldStepType type, Renderer* renderer, const Color& tint)
@@ -1488,11 +1507,8 @@ namespace MikuMikuWorld
 
 		ImVec2 p1{ x + laneToPosition(data.lane), y - (notesHeight * 0.15f) };
 		ImVec2 p2{ x + laneToPosition(data.lane + data.width), y + (notesHeight * 0.15f) };
-
-		ImU32 fill = data.type == HoldStepType::Skip ? 0x55ffffaa : 0x55aaffaa;
-		ImU32 outline = data.type == HoldStepType::Skip ? 0xffffffaa : 0xffccffaa;
-		ImGui::GetWindowDrawList()->AddRectFilled(p1, p2, fill, 2.0f, ImDrawFlags_RoundCornersAll);
-		ImGui::GetWindowDrawList()->AddRect(p1, p2, outline, 2.0f, ImDrawFlags_RoundCornersAll, 2.0f);
+		ImGui::GetWindowDrawList()->AddRectFilled(p1, p2, data.getFillColor(), 1.0f, ImDrawFlags_RoundCornersAll);
+		ImGui::GetWindowDrawList()->AddRect(p1, p2, data.getOutlineColor(), 1, ImDrawFlags_RoundCornersAll, 2);
 	}
 
 	void ScoreEditorTimeline::drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
@@ -1791,7 +1807,7 @@ namespace MikuMikuWorld
 		return std::max(tick - (tick % (TICKS_PER_BEAT / (division / 4))), 0);
 	}
 
-	void ScoreEditorTimeline::insertNote(ScoreContext& context, EditArgs& edit, bool critical)
+	void ScoreEditorTimeline::insertNote(ScoreContext& context, EditArgs& edit)
 	{
 		Score prev = context.score;
 
@@ -1832,9 +1848,10 @@ namespace MikuMikuWorld
 			std::swap(holdStart.lane, holdEnd.lane);
 		}
 
+		HoldNoteType holdType = currentMode == TimelineMode::InsertGuide ? HoldNoteType::Guide : HoldNoteType::Normal;
 		context.score.notes[holdStart.ID] = holdStart;
 		context.score.notes[holdEnd.ID] = holdEnd;
-		context.score.holdNotes[holdStart.ID] = { {holdStart.ID, HoldStepType::Normal, edit.easeType}, {}, holdEnd.ID };
+		context.score.holdNotes[holdStart.ID] = { {holdStart.ID, HoldStepType::Normal, edit.easeType}, {}, holdEnd.ID, holdType, holdType };
 		context.pushHistory("Insert hold", prev, context.score);
 	}
 
@@ -1860,7 +1877,7 @@ namespace MikuMikuWorld
 
 		context.score.notes[holdStep.ID] = holdStep;
 
-		hold.steps.push_back({ holdStep.ID, edit.stepType, edit.easeType });
+		hold.steps.push_back({ holdStep.ID, hold.isGuide() ? HoldStepType::Hidden : edit.stepType, edit.easeType});
 
 		// sort steps in-case the step is inserted before/after existing steps
 		sortHoldSteps(context.score, hold);
@@ -1884,11 +1901,6 @@ namespace MikuMikuWorld
 		ImGui::Text("Hover tick: %d", hoverTick);
 
 		ImGui::Text("Last selected tick: %d", lastSelectedTick);
-
-		ImGui::InputInt("Note Cutoff X", &noteCutoffX);
-		ImGui::InputInt("Note Slice Width", &noteSliceWidth);
-		ImGui::InputInt("Note Offset X", &noteOffsetX);
-		ImGui::InputInt("Note Slice Size", &notesSliceSize);
 	}
 
 	ScoreEditorTimeline::ScoreEditorTimeline()
@@ -1901,7 +1913,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::togglePlaying(ScoreContext& context)
 	{
-		playing ^= true;
+		playing = !playing;
 		if (playing)
 		{
 			playStartTime = time;
@@ -1926,11 +1938,10 @@ namespace MikuMikuWorld
 	{
 		playing = false;
 		time = lastSelectedTick = context.currentTick = 0;
+		offset = std::max(minOffset, tickToPosition(context.currentTick) + (size.y * (1.0f - config.cursorPositionThreshold)));
 
 		context.audio.stopSounds(false);
 		context.audio.stopBGM();
-		
-		offset = std::max(minOffset, tickToPosition(context.currentTick) + (size.y * (1.0f - config.cursorPositionThreshold)));
 	}
 
 	void ScoreEditorTimeline::updateNoteSE(ScoreContext& context)
@@ -1959,42 +1970,43 @@ namespace MikuMikuWorld
 
 				if (playSE)
 				{
-					std::string se = getNoteSE(note, context.score);
-					std::string key = std::to_string(note.tick) + "-" + se;
+					std::string_view se = getNoteSE(note, context.score);
+					std::string key = std::to_string(note.tick) + "-" + se.data();
 					if (!se.empty() && (playingNoteSounds.find(key) == playingNoteSounds.end()))
 					{
-						context.audio.playSound(se.c_str(), notePlayTime, -1);
+						context.audio.playSound(se.data(), notePlayTime, -1);
 						playingNoteSounds.insert(key);
 					}
 				}
 			};
 
+			static auto holdNoteSEFunc = [&context, this, noteTime](const Note& note, float startTime)
+			{
+				int endTick = context.score.notes.at(context.score.holdNotes.at(note.ID).end).tick;
+				float endTime = accumulateDuration(endTick, TICKS_PER_BEAT, context.score.tempoChanges);
+				
+				bool playbackJustStarted = time == playStartTime;
+				bool cursorMidHold = (noteTime - time) <= audioLookAhead && endTime > time;
+
+				if (!playbackJustStarted || (playbackJustStarted && cursorMidHold))
+					context.audio.playSound(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, startTime, endTime - playStartTime);
+			};
+
 			if (offsetNoteTime >= timeLastFrame && offsetNoteTime < time)
 			{
 				singleNoteSEFunc(note, notePlayTime - audioOffsetCorrection);
-				if (note.getType() == NoteType::Hold)
-				{
-					float endTime = accumulateDuration(context.score.notes.at(context.score.holdNotes.at(note.ID).end).tick, TICKS_PER_BEAT, context.score.tempoChanges);
-					context.audio.playSound(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, notePlayTime - audioOffsetCorrection, endTime - playStartTime);
-				}
+				if (note.getType() == NoteType::Hold && !context.score.holdNotes.at(note.ID).isGuide())
+					holdNoteSEFunc(note, notePlayTime - audioOffsetCorrection);
 			}
 			else if (time == playStartTime)
 			{
-				// playback just started
+				// Playback just started
 				if (noteTime >= time && offsetNoteTime < time)
-				{
 					singleNoteSEFunc(note, notePlayTime);
-				}
 
-				// playback started mid-hold
-				if (note.getType() == NoteType::Hold)
-				{
-					int endTick = context.score.notes.at(context.score.holdNotes.at(note.ID).end).tick;
-					float endTime = accumulateDuration(endTick, TICKS_PER_BEAT, context.score.tempoChanges);
-
-					if ((noteTime - time) <= audioLookAhead && endTime > time)
-						context.audio.playSound(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, std::max(0.0f, notePlayTime), endTime - playStartTime);
-				}
+				// Playback started mid-hold
+				if (note.getType() == NoteType::Hold && !context.score.holdNotes.at(note.ID).isGuide())
+					holdNoteSEFunc(note, std::max(0.0f, notePlayTime));
 			}
 		}
 	}

@@ -11,6 +11,7 @@ namespace MikuMikuWorld
 		InsertFlick,
 		MakeCritical,
 		MakeFriction,
+		InsertGuide,
 		InsertBPM,
 		InsertTimeSign,
 		InsertHiSpeed,
@@ -26,6 +27,7 @@ namespace MikuMikuWorld
 		"flick",
 		"critical",
 		"trace",
+		"guide",
 		"bpm",
 		"time_signature",
 		"hi_speed"

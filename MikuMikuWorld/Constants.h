@@ -22,8 +22,9 @@ namespace MikuMikuWorld
 	constexpr int MIN_TIME_SIGN		= 1;
 	constexpr int MAX_TIME_SIGN		= 64;
 
-	constexpr const char* NOTES_TEX				= "tex_notes";
+	constexpr const char* NOTES_TEX				= "notes1";
 	constexpr const char* HOLD_PATH_TEX			= "longNoteLine";
+	constexpr const char* TOUCH_LINE_TEX		= "touchLine_eff";
 	constexpr const char* APP_CONFIG_FILENAME	= "app_config.json";
 	constexpr const char* IMGUI_CONFIG_FILENAME = "imgui_config.ini";
 

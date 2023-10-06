@@ -82,6 +82,7 @@ hold_step, スライド中継点
 flick, フリック
 critical, クリティカル
 trace, トレース
+guide, ガイド
 bpm, BPM
 time_signature, 拍子
 none, 無し
@@ -108,6 +109,7 @@ split_hold, 切断
 step_type, 中継点の種類
 ease_type, 曲線の種類
 flick_type, フリックの方向
+hold_type, スライドの種類
 metadata, 情報
 title, タイトル
 designer, 譜面作者
@@ -173,6 +175,7 @@ timeline_hold_step, タイムライン「スライド中継点」
 timeline_flick, タイムライン「フリック」
 timeline_critical, タイムライン「クリティカル」
 timeline_trace, タイムライン「トレース」
+timeline_guide, タイムライン「ガイド」
 timeline_bpm, タイムライン「BPM」
 timeline_time_signature, タイムライン「拍子」
 timeline_hi_speed, タイムライン「ハイスピード」

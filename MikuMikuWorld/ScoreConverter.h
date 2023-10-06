@@ -3,6 +3,7 @@
 
 namespace MikuMikuWorld
 {
+	class Note;
 	struct Score;
 	struct SUS;
 	struct SUSNote;
@@ -12,6 +13,7 @@ namespace MikuMikuWorld
 	private:
 		static std::pair<int, int> barLengthToFraction(float length, float fractionDenom);
 		static std::string noteKey(const SUSNote& note);
+		static std::string noteKey(const Note& note);
 
 	public:
 		static Score susToScore(const SUS& sus);

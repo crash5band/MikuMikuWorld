@@ -10,6 +10,19 @@ using namespace IO;
 
 namespace MikuMikuWorld
 {
+	enum NoteFlags
+	{
+		NOTE_CRITICAL = 1 << 0,
+		NOTE_FRICTION = 1 << 1
+	};
+
+	enum HoldFlags
+	{
+		HOLD_START_HIDDEN	= 1 << 0,
+		HOLD_END_HIDDEN		= 1 << 1,
+		HOLD_GUIDE			= 1 << 2
+	};
+
 	Score::Score()
 	{
 		metadata.title = "";
@@ -34,8 +47,8 @@ namespace MikuMikuWorld
 			note.flick = (FlickType)reader->readInt32();
 
 		unsigned int flags = reader->readInt32();
-		note.critical = (bool)(flags & 1);
-		note.friction = (bool)(flags & 2);
+		note.critical = (bool)(flags & NOTE_CRITICAL);
+		note.friction = (bool)(flags & NOTE_FRICTION);
 		return note;
 	}
 
@@ -48,9 +61,9 @@ namespace MikuMikuWorld
 		if (!note.hasEase())
 			writer->writeInt32((int)note.flick);
 		
-		unsigned int flags = 0;
-		flags |= (int)note.critical << 0;
-		flags |= (int)note.friction << 1;
+		unsigned int flags{};
+		if (note.critical) flags |= NOTE_CRITICAL;
+		if (note.friction) flags |= NOTE_FRICTION;
 		writer->writeInt32(flags);
 	}
 
@@ -181,10 +194,10 @@ namespace MikuMikuWorld
 
 		int version = reader.readInt32();
 
-		uint32_t metadataAddress = 0;
-		uint32_t eventsAddress = 0;
-		uint32_t tapsAddress = 0;
-		uint32_t holdsAddress = 0;
+		uint32_t metadataAddress{};
+		uint32_t eventsAddress{};
+		uint32_t tapsAddress{};
+		uint32_t holdsAddress{};
 		if (version > 2)
 		{
 			metadataAddress = reader.readInt32();
@@ -223,14 +236,18 @@ namespace MikuMikuWorld
 		{
 			HoldNote hold;
 
-			unsigned int flags = 0;
+			unsigned int flags{};
 			if (version >= 3)
-			{
 				flags = reader.readInt32();
-			}
 
-			hold.startType = flags & 1 ? HoldNoteType::Hidden : HoldNoteType::Normal;
-			hold.endType = flags & 2 ? HoldNoteType::Hidden : HoldNoteType::Normal;
+			if (flags & HOLD_START_HIDDEN)
+				hold.startType = HoldNoteType::Hidden;
+
+			if (flags & HOLD_END_HIDDEN)
+				hold.endType = HoldNoteType::Hidden;
+
+			if (flags & HOLD_GUIDE)
+				hold.startType = hold.endType = HoldNoteType::Guide;
 
 			Note start = readNote(NoteType::Hold, &reader);
 			start.ID = nextID++;
@@ -247,7 +264,7 @@ namespace MikuMikuWorld
 				mid.parentID = start.ID;
 				score.notes[mid.ID] = mid;
 
-				HoldStep step;
+				HoldStep step{};
 				step.type = (HoldStepType)reader.readInt32();
 				step.ease = (EaseType)reader.readInt32();
 				step.ID = mid.ID;
@@ -312,10 +329,10 @@ namespace MikuMikuWorld
 		writer.writeInt32(score.holdNotes.size());
 		for (const auto&[id, hold] : score.holdNotes)
 		{	
-			unsigned int flags = 0;
-			flags |= (int)(hold.startType == HoldNoteType::Hidden) << 0;
-			flags |= (int)(hold.endType == HoldNoteType::Hidden) << 1;
-
+			unsigned int flags{};
+			if (hold.startType == HoldNoteType::Guide) flags	|=	HOLD_GUIDE;
+			if (hold.startType == HoldNoteType::Hidden) flags	|=	HOLD_START_HIDDEN;
+			if (hold.endType == HoldNoteType::Hidden) flags		|=	HOLD_END_HIDDEN;
 			writer.writeInt32(flags);
 
 			// note data

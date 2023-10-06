@@ -52,14 +52,14 @@ namespace MikuMikuWorld
 			+ ((i * bars[bIndex].ticksPerMeasure) / total);
 	}
 
-	std::vector<std::vector<SUSNote>> SusParser::toSlides(const std::vector<SUSNote>& stream)
+	SUSNoteStream SusParser::toSlides(const std::vector<SUSNote>& stream)
 	{
 		std::vector<SUSNote> sortedStream = stream;
 		std::stable_sort(sortedStream.begin(), sortedStream.end(),
 			[](const SUSNote& n1, const SUSNote& n2) { return n1.tick < n2.tick; });
 
 		bool newSlide = true;
-		std::vector<std::vector<SUSNote>> slides;
+		SUSNoteStream slides;
 		std::vector<SUSNote> currentSlides;
 		for (const auto& note : sortedStream)
 		{
@@ -280,7 +280,8 @@ namespace MikuMikuWorld
 		// process notes
 		std::vector<SUSNote> taps;
 		std::vector<SUSNote> directionals;
-		std::unordered_map<int, std::vector<SUSNote>> streams;
+		std::unordered_map<int, std::vector<SUSNote>> slideStreams;
+		std::unordered_map<int, std::vector<SUSNote>> guideStreams;
 		for (auto& line : noteLines)
 		{
 			auto l = split(line.line, ":");
@@ -300,20 +301,34 @@ namespace MikuMikuWorld
 				int channel = std::stoul(header.substr(5, 1), nullptr, 36);
 
 				std::vector<SUSNote> appendNotes = toNotes(header, data, line.measureOffset);
-				streams[channel].insert(streams[channel].end(), appendNotes.begin(), appendNotes.end());
+				slideStreams[channel].insert(slideStreams[channel].end(), appendNotes.begin(), appendNotes.end());
 			}
 			else if (header.size() == 5 && header[3] == '5')
 			{
 				std::vector<SUSNote> appendNotes = toNotes(header, data, line.measureOffset);
 				directionals.insert(directionals.end(), appendNotes.begin(), appendNotes.end());
 			}
+			else if (header.size() == 6 && header[3] == '9')
+			{
+				int channel = std::stoul(header.substr(5, 1), nullptr, 36);
+
+				std::vector<SUSNote> appendNotes = toNotes(header, data, line.measureOffset);
+				guideStreams[channel].insert(guideStreams[channel].end(), appendNotes.begin(), appendNotes.end());
+			}
 		}
 
-		std::vector<std::vector<SUSNote>> slides;
-		for (auto& stream : streams)
+		SUSNoteStream slides;
+		for (auto& stream : slideStreams)
 		{
 			auto appendSlides = toSlides(stream.second);
 			slides.insert(slides.end(), appendSlides.begin(), appendSlides.end());
+		}
+
+		SUSNoteStream guides;
+		for (auto& stream : guideStreams)
+		{
+			auto appendGuides = toSlides(stream.second);
+			guides.insert(guides.end(), appendGuides.begin(), appendGuides.end());
 		}
 
 		SUSMetadata metadata;
@@ -322,6 +337,6 @@ namespace MikuMikuWorld
 		metadata.data["designer"] = designer;
 		metadata.waveOffset = waveOffset;
 
-		return SUS{ metadata, taps, directionals, slides, bpms, barLengths, hiSpeeds };
+		return SUS{ metadata, taps, directionals, slides, guides, bpms, barLengths, hiSpeeds };
 	}
 }

@@ -32,7 +32,7 @@ namespace MikuMikuWorld
 
 		bool isCommand(const std::string& line);
 		int toTicks(int measure, int i, int total);
-		std::vector<std::vector<SUSNote>> toSlides(const std::vector<SUSNote>& stream);
+		SUSNoteStream toSlides(const std::vector<SUSNote>& stream);
 		std::vector<SUSNote> toNotes(const std::string& header, const std::string& data, int measureBase);
 
 	public:

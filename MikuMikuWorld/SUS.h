@@ -50,12 +50,15 @@ namespace MikuMikuWorld
 			waveOffset{ 0 }, movieOffset{ 0 }, baseBPM{ 0 } {}
 	};
 
+	typedef std::vector<std::vector<SUSNote>> SUSNoteStream;
+
 	struct SUS
 	{
 		SUSMetadata metadata;
 		std::vector<SUSNote> taps;
 		std::vector<SUSNote> directionals;
-		std::vector<std::vector<SUSNote>> slides;
+		SUSNoteStream slides;
+		SUSNoteStream guides;
 		std::vector<BPM> bpms;
 		std::vector<BarLength> barlengths;
 		std::vector<HiSpeed> hiSpeeds;

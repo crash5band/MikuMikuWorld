@@ -61,12 +61,14 @@ namespace MikuMikuWorld
 	enum class HoldNoteType : uint8_t
 	{
 		Normal,
-		Hidden
+		Hidden,
+		Guide
 	};
 
 	constexpr const char* holdTypes[]
 	{
 		"normal",
-		"hidden"
+		"hidden",
+		"guide"
 	};
 }

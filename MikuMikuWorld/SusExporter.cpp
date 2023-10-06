@@ -63,6 +63,22 @@ namespace MikuMikuWorld
 		return 0;
 	}
 
+	void SusExporter::appendSlideData(SUSNoteStream& slides, const std::string& infoPrefix)
+	{
+		ChannelProvider channelProvider;
+		for (const auto& slide : slides)
+		{
+			int startTick = slide.begin()->tick;
+			int endTick = slide.rbegin()->tick;
+			int channel = channelProvider.generateChannel(startTick, endTick);
+
+			char buf[10]{};
+			std::string chStr(tostringBaseN(buf, channel, 36));
+			for (const auto& note : slide)
+				appendNoteData(note, infoPrefix, chStr);
+		}
+	};
+
 	void SusExporter::appendData(int tick, std::string info, std::string data)
 	{
 		for (const auto& [barLength, barTicks] : barLengthTicks)
@@ -92,16 +108,92 @@ namespace MikuMikuWorld
 		appendData(note.tick, info, std::to_string(note.type) + tostringBaseN(buff2, note.width, 36));
 	}
 
+	std::vector<std::string> SusExporter::getNoteLines(int baseMeasure)
+	{
+		std::vector<std::string> lines;
+
+		// Notes on the same tick and lane
+		std::vector<NoteMap::RawData> conflicts;
+
+		// Holds possible note conflicts while processing other conflicts
+		std::vector<NoteMap::RawData> temp;
+
+		// Write note data
+		for (const auto& [measure, map] : measuresMap)
+		{
+			int measureTicks = getTicksFromMeasure(measure);
+			int base = (measure / 1000) * 1000;
+			int offset = measure % 1000;
+			if (base != baseMeasure)
+			{
+				lines.push_back("#MEASUREBS " + std::to_string(base));
+				baseMeasure = base;
+			}
+
+			for (const auto& [info, notes] : map.notesMap)
+			{
+				conflicts.clear();
+
+				int gcd = notes.ticksPerMeasure;
+				for (const auto& raw : notes.data)
+					gcd = std::gcd(raw.tick, gcd);
+
+				// Number of notes including empty ones in a line
+				int dataCount = notes.ticksPerMeasure / gcd;
+				std::string data(dataCount * 2, '0');
+				for (const auto& raw : notes.data)
+				{
+					int index = (raw.tick % notes.ticksPerMeasure) / gcd * 2;
+					if (data.substr(index, 2) != "00")
+					{
+						conflicts.push_back(raw);
+					}
+					else
+					{
+						data[index + 0] = raw.data[0];
+						data[index + 1] = raw.data[1];
+					}
+				}
+
+				lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) + data);
+
+				while (conflicts.size())
+				{
+					temp.clear();
+					std::string data2(dataCount * 2, '0');
+					for (const auto& item : conflicts)
+					{
+						int index = (item.tick % notes.ticksPerMeasure) / gcd * 2;
+						if (data2.substr(index, 2) != "00")
+						{
+							temp.push_back(item);
+						}
+						else
+						{
+							data2[index + 0] = item.data[0];
+							data2[index + 1] = item.data[1];
+						}
+					}
+
+					lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) + data2);
+					conflicts = temp;
+				}
+			}
+		}
+
+		return lines;
+	}
+
 	void SusExporter::dump(const SUS& sus, const std::string& filename, std::string comment)
 	{
 		std::vector<std::string> lines;
-		if (comment.size())
+		if (!comment.empty())
 		{
-			// make sure the comment is ignored by parsers. 
+			// Make sure the comment is ignored by parsers. 
 			lines.push_back(comment.substr(comment.find_first_not_of("#")));
 		}
 
-		// write metadata
+		// Write metadata
 		for (const auto&[attrKey, attrValue] : sus.metadata.data)
 		{
 			std::string key = attrKey;
@@ -115,6 +207,7 @@ namespace MikuMikuWorld
 		lines.push_back(IO::formatString("#REQUEST \"ticks_per_beat %d\"", ticksPerBeat));
 		lines.push_back("");
 
+		// Do we really need a copy of each here?
 		auto barLengths = sus.barlengths;
 		std::stable_sort(barLengths.begin(), barLengths.end(),
 			[](const BarLength& a, const BarLength& b) { return a.bar < b.bar; });
@@ -135,9 +228,12 @@ namespace MikuMikuWorld
 		std::stable_sort(slides.begin(), slides.end(),
 			[](const auto& a, const auto& b) { return a[0].tick < b[0].tick; });
 
+		auto guides = sus.guides;
+		std::stable_sort(guides.begin(), guides.end(),
+			[](const auto& a, const auto& b) { return a[0].tick < b[0].tick; });
+
 		measuresMap.clear();
 		barLengthTicks.clear();
-		channelProvider.clear();
 		int baseMeasure = 0;
 
 		// write time signatures
@@ -171,7 +267,7 @@ namespace MikuMikuWorld
 		std::reverse(barLengthTicks.begin(), barLengthTicks.end());
 
 		// write tempo changes
-		if (bpms.size() >= (36 * 36) - 1)
+		if (bpms.size() >= (36ll * 36ll) - 1)
 		{
 			printf("Too much tempo changes bpms.size() >= 36^2 - 1: %d", (int)bpms.size());
 			throw bpms.size();
@@ -223,7 +319,7 @@ namespace MikuMikuWorld
 			for (const auto& bpm : bpms)
 			{
 				int index = (bpm.tick - measureTicks) / gcd * 2;
-				std::string identifier = bpmIdentifiers[bpm.bpm];
+				std::string_view identifier = bpmIdentifiers[bpm.bpm];
 				data[index + 0] = identifier[0];
 				data[index + 1] = identifier[1];
 			}
@@ -252,89 +348,35 @@ namespace MikuMikuWorld
 		lines.push_back("#MEASUREHS 00");
 		lines.push_back("");
 
-		// prepare note data
+		// Write short notes
+		measuresMap.clear();
 		for (const auto& tap : taps)
 			appendNoteData(tap, "1", "-1");
 
+		std::vector<std::string> tapLines = getNoteLines(baseMeasure);
+		lines.insert(lines.end(), tapLines.begin(), tapLines.end());
+
+		// Write directional notes
+		measuresMap.clear();
 		for (const auto& directional : directionals)
 			appendNoteData(directional, "5", "-1");
 
-		for (const auto& steps : slides)
-		{
-			int startTick = steps[0].tick;
-			int endTick = steps[steps.size() - 1].tick;
-			int channel = channelProvider.generateChannel(startTick, endTick);
+		std::vector<std::string> directionalLines = getNoteLines(baseMeasure);
+		lines.insert(lines.end(), directionalLines.begin(), directionalLines.end());
 
-			char buf[10]{};
-			std::string chStr(tostringBaseN(buf, channel, 36));
-			for (const auto& note : steps)
-				appendNoteData(note, "3", chStr);
-		}
+		// Write slide notes
+		measuresMap.clear();
+		appendSlideData(slides, "3");
 
-		std::vector<NoteMap::RawData> conflicts; // notes on the same tick and lane
-		std::vector<NoteMap::RawData> temp; // holds possible note conflicts while processing other conflicts
+		std::vector<std::string> slideLines = getNoteLines(baseMeasure);
+		lines.insert(lines.end(), slideLines.begin(), slideLines.end());
 
-		// write note data
-		for (const auto& [measure, map] : measuresMap)
-		{
-			int measureTicks = getTicksFromMeasure(measure);
-			int base = (measure / 1000) * 1000;
-			int offset = measure % 1000;
-			if (base != baseMeasure)
-			{
-				lines.push_back("#MEASUREBS " + std::to_string(base));
-				baseMeasure = base;
-			}
+		// Write guide notes
+		measuresMap.clear();
+		appendSlideData(guides, "9");
 
-			for (const auto& [info, notes] : map.notesMap)
-			{
-				conflicts.clear();
-
-				int gcd = notes.ticksPerMeasure;
-				for (const auto& raw : notes.data)
-					gcd = std::gcd(raw.tick, gcd);
-
-				int dataCount = notes.ticksPerMeasure / gcd;
-				std::string data(dataCount * 2, '0');
-				for (const auto& raw : notes.data)
-				{
-					int index = (raw.tick % notes.ticksPerMeasure) / gcd * 2;
-					if (data.substr(index, 2) != "00")
-					{
-						conflicts.push_back(raw);
-					}
-					else
-					{
-						data[index + 0] = raw.data[0];
-						data[index + 1] = raw.data[1];
-					}
-				}
-
-				lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) + data);
-
-				while (conflicts.size())
-				{
-					temp.clear();
-					std::string data2(dataCount * 2, '0');
-					for (const auto& item : conflicts)
-					{
-						int index = (item.tick % notes.ticksPerMeasure) / gcd * 2;
-						if (data2.substr(index, 2) != "00")
-						{
-							temp.push_back(item);
-						}
-						else
-						{
-							data2[index + 0] = item.data[0];
-							data2[index + 1] = item.data[1];
-						}
-					}
-
-					lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) + data2);
-					conflicts = temp;
-				}
-			}
-		}
+		std::vector<std::string> guideLines = getNoteLines(baseMeasure);
+		lines.insert(lines.end(), guideLines.begin(), guideLines.end());
 
 		std::wstring wFilename = mbToWideStr(filename);
 		File susfile(wFilename, L"w");

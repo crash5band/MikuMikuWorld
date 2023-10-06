@@ -124,9 +124,9 @@ namespace MikuMikuWorld
 		return -1;
 	}
 
-	std::string getNoteSE(const Note& note, const Score& score)
+	std::string_view getNoteSE(const Note& note, const Score& score)
 	{
-		std::string se = SE_PERFECT;
+		std::string_view se = SE_PERFECT;
 		if (note.getType() == NoteType::HoldMid)
 		{
 			const HoldNote& hold = score.holdNotes.at(note.parentID);

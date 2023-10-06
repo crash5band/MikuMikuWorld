@@ -79,6 +79,7 @@ namespace MikuMikuWorld
 		bool selectionHasStep() const;
 		bool selectionHasFlickable() const;
 		bool selectionCanConnect() const;
+		bool selectionCanChangeHoldType() const;
 		inline bool isNoteSelected(const Note& note) { return selectedNotes.find(note.ID) != selectedNotes.end(); }
 		inline void selectAll() { selectedNotes.clear(); for (auto& it : score.notes) selectedNotes.insert(it.first); }
 		inline void clearSelection() { selectedNotes.clear(); }
@@ -86,7 +87,7 @@ namespace MikuMikuWorld
 		void setStep(HoldStepType step);
 		void setFlick(FlickType flick);
 		void setEase(EaseType ease);
-		void setHolds(HoldNoteType hold);
+		void setHoldType(HoldNoteType hold);
 		void toggleCriticals();
 		void toggleFriction();
 
