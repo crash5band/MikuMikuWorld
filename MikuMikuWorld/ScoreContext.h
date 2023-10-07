@@ -23,8 +23,9 @@ namespace MikuMikuWorld
 		float hiSpeed{ 1.0f };
 	};
 
-	struct EditorScoreData
+	class EditorScoreData
 	{
+	public:
 		std::string title{};
 		std::string designer{};
 		std::string artist{};
@@ -32,6 +33,20 @@ namespace MikuMikuWorld
 		std::string musicFilename{};
 		float musicOffset{};
 		Jacket jacket{};
+
+		EditorScoreData() {}
+		EditorScoreData(const ScoreMetadata& metadata, const std::string& filename) :
+			title{ metadata.title }, designer{ metadata.author }, artist{ metadata.artist },
+			musicFilename{ metadata.musicFile }, musicOffset{ metadata.musicOffset }
+		{
+			this->filename = filename;
+			jacket.load(metadata.jacketFile);
+		}
+
+		ScoreMetadata toScoreMetadata() const
+		{
+			return { title, artist, designer, musicFilename, jacket.getFilename(), musicOffset };
+		}
 	};
 
 	struct PasteData

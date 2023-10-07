@@ -193,52 +193,51 @@ namespace MikuMikuWorld
 		std::string extension = IO::File::getFileExtension(filename);
 		std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 
-		// backup next note ID in case of an import failure
+		// Backup next note ID in case of an import failure
 		int nextIdBackup = nextID;
 		try
 		{
 			resetNextID();
+			std::string workingFilename;
+			Score newScore;
+
 			if (extension == SUS_EXTENSION)
 			{
 				SusParser susParser;
-				context.score = ScoreConverter::susToScore(susParser.parse(filename));
-				context.workingData.filename = "";
+				newScore = ScoreConverter::susToScore(susParser.parse(filename));
+				workingFilename = filename;
 			}
 			else if (extension == MMWS_EXTENSION)
 			{
-				context.score = deserializeScore(filename);
-				context.workingData.filename = filename;
+				newScore = deserializeScore(filename);
 			}
 
-			context.workingData.title = context.score.metadata.title;
-			context.workingData.designer = context.score.metadata.author;
-			context.workingData.artist = context.score.metadata.artist;
-			context.workingData.musicOffset = context.score.metadata.musicOffset;
-			context.workingData.musicFilename = context.score.metadata.musicFile;
-			context.workingData.jacket.load(context.score.metadata.jacketFile);
+			context.clearSelection();
+			context.history.clear();
+			context.score = std::move(newScore);
+			context.workingData = EditorScoreData(context.score.metadata, workingFilename);
 
 			context.audio.changeBGM(context.workingData.musicFilename);
 			context.audio.setBGMOffset(0, context.workingData.musicOffset);
 
-			context.history.clear();
 			context.scoreStats.calculateStats(context.score);
 			timeline.calculateMaxOffsetFromScore(context.score);
 
 			UI::setWindowTitle((context.workingData.filename.size() ? IO::File::getFilename(context.workingData.filename) : windowUntitled));
 			context.upToDate = true;
 		}
-		catch (std::exception& err)
+		catch (std::exception& error)
 		{
 			nextID = nextIdBackup;
-			std::string errMsg = IO::formatString("%s\n%s: %s\n%s: %s",
+			std::string errorMessage = IO::formatString("%s\n%s: %s\n%s: %s",
 				getString("error_load_score_file"),
 				getString("score_file"),
 				filename.c_str(),
 				getString("error"),
-				err.what()
+				error.what()
 			);
 
-			IO::messageBox(APP_NAME, errMsg, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
+			IO::messageBox(APP_NAME, errorMessage, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 		}
 	}
 
@@ -251,14 +250,14 @@ namespace MikuMikuWorld
 		}
 		else
 		{
-			std::string errMsg = IO::formatString("%s\n%s: %s\n%s: %s",
+			std::string errorMessage = IO::formatString("%s\n%s: %s\n%s: %s",
 				getString("error_load_music_file"),
 				getString("music_file"),
 				filename.c_str(),
 				result.getMessage().c_str()
 			);
 
-			IO::messageBox(APP_NAME, errMsg, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
+			IO::messageBox(APP_NAME, errorMessage, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 		}
 	}
 
@@ -275,7 +274,7 @@ namespace MikuMikuWorld
 
 	bool ScoreEditor::trySave(std::string filename)
 	{
-		if (!filename.size())
+		if (filename.empty())
 			return saveAs();
 		else
 			return save(filename);
@@ -287,12 +286,7 @@ namespace MikuMikuWorld
 	{
 		try
 		{
-			context.score.metadata.title = context.workingData.title;
-			context.score.metadata.author = context.workingData.designer;
-			context.score.metadata.artist = context.workingData.artist;
-			context.score.metadata.musicFile = context.workingData.musicFilename;
-			context.score.metadata.musicOffset = context.workingData.musicOffset;
-			context.score.metadata.jacketFile = context.workingData.jacket.getFilename();
+			context.score.metadata = context.workingData.toScoreMetadata();
 			serializeScore(context.score, filename);
 
 			UI::setWindowTitle(IO::File::getFilename(filename));
@@ -574,12 +568,7 @@ namespace MikuMikuWorld
 		if (!std::filesystem::exists(wAutoSaveDir))
 			std::filesystem::create_directory(wAutoSaveDir);
 
-		context.score.metadata.title = context.workingData.title;
-		context.score.metadata.author = context.workingData.designer;
-		context.score.metadata.artist = context.workingData.artist;
-		context.score.metadata.musicFile = context.workingData.musicFilename;
-		context.score.metadata.musicOffset = context.workingData.musicOffset;
-		context.score.metadata.jacketFile = context.workingData.jacket.getFilename();
+		context.score.metadata = context.workingData.toScoreMetadata();
 		serializeScore(context.score, autoSavePath + "/mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION);
 
 		// get mmws files
