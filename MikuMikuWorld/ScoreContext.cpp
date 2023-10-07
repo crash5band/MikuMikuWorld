@@ -686,22 +686,20 @@ namespace MikuMikuWorld
 		slideEnd.parentID = newSlideStart.ID;
 
 		hold.end = newSlideEnd.ID;
-
-		newHold.start = { newSlideStart.ID, hold.steps[pos].type, hold.steps[pos].ease };
-		for (int i = pos + 1; i < hold.steps.size(); ++i)
+		newHold.start = { newSlideStart.ID, HoldStepType::Normal, hold.steps[pos].ease };
+		
+		// Backwards loop to avoid incorrect indices after removal
+		for (int i = hold.steps.size() - 1; i > pos; i--)
 		{
-			HoldStep step = hold.steps[i];
+			HoldStep& step = hold.steps[i];
 			Note& stepNote = score.notes.at(step.ID);
 			stepNote.parentID = newSlideStart.ID;
 			newHold.steps.push_back(step);
 			hold.steps.erase(hold.steps.begin() + i);
 		}
 
-		hold.steps.erase(hold.steps.begin() + pos);
+		hold.steps.pop_back();
 		score.notes.erase(note.ID);
-		score.notes[newSlideEnd.ID] = newSlideEnd;
-		score.notes[newSlideStart.ID] = newSlideStart;
-		score.holdNotes[newSlideStart.ID] = newHold;
 
 		sortHoldSteps(score, hold);
 		sortHoldSteps(score, newHold);
@@ -709,6 +707,9 @@ namespace MikuMikuWorld
 		selectedNotes.insert(newSlideStart.ID);
 		selectedNotes.insert(newSlideEnd.ID);
 
+		score.notes[newSlideEnd.ID] = newSlideEnd;
+		score.notes[newSlideStart.ID] = newSlideStart;
+		score.holdNotes[newSlideStart.ID] = newHold;
 		pushHistory("Split hold", prev, score);
 	}
 
