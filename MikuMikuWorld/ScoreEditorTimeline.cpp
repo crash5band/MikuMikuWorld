@@ -1048,6 +1048,8 @@ namespace MikuMikuWorld
 						{
 							std::swap(start.tick, firstMid.tick);
 							std::swap(start.lane, firstMid.lane);
+							start.lane = std::clamp(start.lane, MIN_LANE, MAX_LANE - start.width + 1);
+							firstMid.lane = std::clamp(firstMid.lane, MIN_LANE, MAX_LANE - firstMid.width + 1);
 						}
 
 						Note& lastMid = context.score.notes.at(hold.steps[hold.steps.size() - 1].ID);
@@ -1055,6 +1057,8 @@ namespace MikuMikuWorld
 						{
 							std::swap(end.tick, lastMid.tick);
 							std::swap(end.lane, lastMid.lane);
+							lastMid.lane = std::clamp(lastMid.lane, MIN_LANE, MAX_LANE - lastMid.width + 1);
+							end.lane = std::clamp(end.lane, MIN_LANE, MAX_LANE - end.width + 1);
 						}
 					}
 
