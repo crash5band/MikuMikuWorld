@@ -1,5 +1,7 @@
 #pragma once
 #include "ImGui/imgui.h"
+#include <functional>
+#include "NoteTypes.h"
 
 namespace MikuMikuWorld
 {
@@ -56,9 +58,11 @@ namespace MikuMikuWorld
 		static inline Color fromImVec4(const ImVec4& col) { return Color{ col.x, col.y, col.z, col.w }; }
 	};
 
-	float lerp(float start, float end, float percentage);
-	float easeIn(float x);
-	float easeOut(float x);
-
+	float lerp(float start, float end, float ratio);
+	float easeIn(float start, float end, float ratio);
+	float easeOut(float start, float end, float ratio);
+	float midpoint(float x1, float x2);
 	bool isWithinRange(float x, float left, float right);
+
+	std::function<float(float, float, float)> getEaseFunction(EaseType ease);
 }

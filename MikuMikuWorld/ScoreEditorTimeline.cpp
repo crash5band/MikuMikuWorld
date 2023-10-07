@@ -1286,20 +1286,19 @@ namespace MikuMikuWorld
 		int left = spr.getX() + holdCutoffX;
 		int right = spr.getX() + spr.getWidth() - holdCutoffX;
 
+		auto easeFunc = getEaseFunction(ease);
 		float steps = ease == EaseType::Linear ? 1 : std::max(5.0f, std::ceilf(abs((endY - startY)) / 10));
 		for (int y = 0; y < steps; ++y)
 		{
 			const float percent1 = y / steps;
 			const float percent2 = (y + 1) / steps;
-			float i1 = ease == EaseType::Linear ? percent1 : ease == EaseType::EaseIn ? easeIn(percent1) : easeOut(percent1);
-			float i2 = ease == EaseType::Linear ? percent2 : ease == EaseType::EaseIn ? easeIn(percent2) : easeOut(percent2);
 
-			float xl1 = lerp(startX1, endX1, i1) - 2;
-			float xr1 = lerp(startX2, endX2, i1) + 2;
+			float xl1 = easeFunc(startX1, endX1, percent1) - 2;
+			float xr1 = easeFunc(startX2, endX2, percent1) + 2;
 			float y1 = lerp(startY, endY, percent1);
 			float y2 = lerp(startY, endY, percent2);
-			float xl2 = lerp(startX1, endX1, i2) - 2;
-			float xr2 = lerp(startX2, endX2, i2) + 2;
+			float xl2 = easeFunc(startX1, endX1, percent2) - 2;
+			float xr2 = easeFunc(startX2, endX2, percent2) + 2;
 
 			if (y2 <= 0)
 				continue;
@@ -1418,19 +1417,13 @@ namespace MikuMikuWorld
 								// calculate the interpolation ratio based on the distance between n1 and n2
 								float ratio = (float)(n3.tick - n1.tick) / (float)(n2.tick - n1.tick);
 								const EaseType rEase = s1 == -1 ? note.start.ease : note.steps[s1].ease;
-								if (rEase == EaseType::EaseIn)
-								{
-									ratio = easeIn(ratio);
-								}
-								else if (rEase == EaseType::EaseOut)
-								{
-									ratio = easeOut(ratio);
-								}
+
+								auto easeFunc = getEaseFunction(rEase);
 
 								// interpolate the step's position
-								float x1 = lerp(laneToPosition(n1.lane + offsetLane), laneToPosition(n2.lane + offsetLane), ratio);
-								float x2 = lerp(laneToPosition(n1.lane + offsetLane + n1.width), laneToPosition(n2.lane + offsetLane + n2.width), ratio);
-								pos.x = (x1 + x2) / 2.0f;
+								float x1 = easeFunc(laneToPosition(n1.lane + offsetLane), laneToPosition(n2.lane + offsetLane), ratio);
+								float x2 = easeFunc(laneToPosition(n1.lane + offsetLane + n1.width), laneToPosition(n2.lane + offsetLane + n2.width), ratio);
+								pos.x = midpoint(x1, x2);
 							}
 
 							renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, s.getX(), s.getX() + s.getWidth(),
@@ -1496,7 +1489,7 @@ namespace MikuMikuWorld
 
 		const Sprite& s = tex.sprites[sprIndex];
 
-		// center diamond if width is even
+		// Center diamond if width is even
 		Vector2 pos{ laneToPosition(note.lane + (note.width / 2.0f)), getNoteYPosFromTick(note.tick) };
 		Vector2 nodeSz{ notesHeight - 5, notesHeight - 5 };
 
@@ -1530,10 +1523,10 @@ namespace MikuMikuWorld
 		Vector2 pos{ 0, getNoteYPosFromTick(note.tick + offsetTick) };
 		const float x1 = laneToPosition(note.lane + offsetLane);
 		const float x2 = pos.x + laneToPosition(note.lane + note.width + offsetLane);
-		pos.x = (x1 + x2) * 0.5f; // get note middle point
+		pos.x = midpoint(x1, x2);
 		pos.y += notesHeight * 0.7f; // move the arrow up a bit
 
-		// notes wider than 6 lanes also use flick arrow size 6
+		// Notes wider than 6 lanes also use flick arrow size 6
 		int sizeIndex = std::min(note.width - 1, 5);
 		Vector2 size{ laneWidth * flickArrowWidths[sizeIndex], notesHeight * flickArrowHeights[sizeIndex] };
 
@@ -1541,7 +1534,7 @@ namespace MikuMikuWorld
 		float sx2 = arrowS.getX() + arrowS.getWidth();
 		if (note.flick == FlickType::Right)
 		{
-			// flip arrow to point to the right
+			// Flip arrow to point to the right
 			sx1 = arrowS.getX() + arrowS.getWidth();
 			sx2 = arrowS.getX();
 		}
@@ -1603,7 +1596,7 @@ namespace MikuMikuWorld
 				const Vector2 nodeSz{ notesHeight * 0.8f, notesHeight * 0.8f };
 
 				// diamond is always centered
-				pos.x = (laneToPosition(note.lane + offsetLane) + laneToPosition(note.lane + offsetLane + note.width)) / 2.0f;
+				pos.x = midpoint(laneToPosition(note.lane + offsetLane), laneToPosition(note.lane + offsetLane + note.width));
 				renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, frictionSpr.getX(), frictionSpr.getX() + frictionSpr.getWidth(),
 					frictionSpr.getY(), frictionSpr.getY() + frictionSpr.getHeight(), tint, 1);
 			}
@@ -1778,10 +1771,10 @@ namespace MikuMikuWorld
 		if (!isWithinRange(y, y1, y2))
 			return false;
 
+		auto easeFunc = getEaseFunction(ease);
 		float percent = (y - y1) / (y2 - y1);
-		float iPercent = ease == EaseType::Linear ? percent : ease == EaseType::EaseIn ? easeIn(percent) : easeOut(percent);
-		float x1 = lerp(xStart1, xEnd1, iPercent);
-		float x2 = lerp(xStart2, xEnd2, iPercent);
+		float x1 = easeFunc(xStart1, xEnd1, percent);
+		float x2 = easeFunc(xStart2, xEnd2, percent);
 
 		return isWithinRange(x, std::min(x1, x2), std::max(x1, x2));
 	}
