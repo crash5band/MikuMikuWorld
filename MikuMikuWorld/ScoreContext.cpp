@@ -579,36 +579,42 @@ namespace MikuMikuWorld
 		Note& note1 = score.notes[*selectedNotes.begin()];
 		Note& note2 = score.notes[*std::next(selectedNotes.begin())];
 
-		// determine correct order of notes
+		// Determine correct order of notes
 		Note& earlierNote = note1.getType() == NoteType::HoldEnd ? note1 : note2;
 		Note& laterNote = note1.getType() == NoteType::HoldEnd ? note2 : note1;
 
 		HoldNote& earlierHold = score.holdNotes[earlierNote.parentID];
 		HoldNote& laterHold = score.holdNotes[laterNote.ID];
 
-		// connect both ends
+		// Connect both ends
 		earlierHold.end = laterHold.end;
 		laterNote.parentID = earlierHold.start.ID;
 
-		// update later note's end parent ID
+		// We need to determine whether the new end will be critical
+		Note& earlierHoldStart = score.notes.at(earlierHold.start.ID);
 		Note& laterHoldEnd = score.notes.at(score.holdNotes.at(laterNote.ID).end);
+		laterHoldEnd.critical = earlierHoldStart.critical ? true : laterHoldEnd.isFlick() && laterHoldEnd.critical;
+		
+		// Update later note's end parent ID
 		laterHoldEnd.parentID = earlierHold.start.ID;
 
-		// copy over later note's steps
+		// Copy over later note's steps
 		for (auto& step : laterHold.steps)
 		{
 			earlierHold.steps.push_back(step);
 
 			Note& note = score.notes.at(step.ID);
+			note.critical = earlierHoldStart.critical;
 			note.parentID = earlierHold.start.ID;
 		}
 
-		// create new steps to connect both ends
+		// Create new steps to connect both ends
 		Note earlierNoteAsMid = Note(NoteType::HoldMid);
 		earlierNoteAsMid.tick = earlierNote.tick;
 		earlierNoteAsMid.lane = earlierNote.lane;
 		earlierNoteAsMid.width = earlierNote.width;
 		earlierNoteAsMid.ID = nextID++;
+		earlierNoteAsMid.critical = earlierHoldStart.critical;
 		earlierNoteAsMid.parentID = earlierHold.start.ID;
 
 		Note laterNoteAsMid = Note(NoteType::HoldMid);
@@ -616,15 +622,16 @@ namespace MikuMikuWorld
 		laterNoteAsMid.lane = laterNote.lane;
 		laterNoteAsMid.width = laterNote.width;
 		laterNoteAsMid.ID = nextID++;
+		laterNoteAsMid.critical = earlierHoldStart.critical;
 		laterNoteAsMid.parentID = earlierHold.start.ID;
 
-		// insert new steps to their appropriate containers
+		// Insert new steps to their appropriate containers
 		score.notes[earlierNoteAsMid.ID] = earlierNoteAsMid;
 		score.notes[laterNoteAsMid.ID] = laterNoteAsMid;
 		earlierHold.steps.push_back({ earlierNoteAsMid.ID, HoldStepType::Normal, EaseType::Linear });
 		earlierHold.steps.push_back({ laterNoteAsMid.ID, laterHold.start.type, laterHold.start.ease });
 
-		// remove old notes
+		// Remove old notes
 		score.notes.erase(earlierNote.ID);
 		score.notes.erase(laterNote.ID);
 		score.holdNotes.erase(laterHold.start.ID);
