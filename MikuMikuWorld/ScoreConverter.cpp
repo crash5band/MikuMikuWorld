@@ -52,7 +52,6 @@ namespace MikuMikuWorld
 		std::unordered_set<std::string> slideKeys;
 		std::unordered_set<std::string> frictions;
 		std::unordered_set<std::string> hiddenHolds;
-		std::unordered_set<std::string> guideKeys;
 
 		for (const auto& slide : sus.slides)
 		{
@@ -125,9 +124,6 @@ namespace MikuMikuWorld
 			}
 		}
 
-		std::unordered_set<std::string> tapKeys;
-		tapKeys.reserve(sus.taps.size());
-
 		std::unordered_map<int, Note> notes;
 		notes.reserve(sus.taps.size());
 
@@ -165,11 +161,7 @@ namespace MikuMikuWorld
 			if (slideKeys.find(key) != slideKeys.end())
 				continue;
 
-			tapKeys.insert(key);
-			Note n(NoteType::Tap);
-			n.tick = note.tick;
-			n.lane = note.lane - 2;
-			n.width = note.width;
+			Note n(NoteType::Tap, note.tick, note.lane - 2, note.width);
 			n.critical = criticals.find(key) != criticals.end();
 			n.friction = frictions.find(key) != frictions.end();
 			n.flick = flicks.find(key) != flicks.end() ? flicks[key] : FlickType::None;
@@ -216,10 +208,7 @@ namespace MikuMikuWorld
 					// start
 					case 1:
 					{
-						Note n(NoteType::Hold);
-						n.tick = note.tick;
-						n.lane = note.lane - 2;
-						n.width = note.width;
+						Note n(NoteType::Hold, note.tick, note.lane - 2, note.width);
 						n.critical = critical;
 						n.ID = startID;
 						
@@ -240,10 +229,7 @@ namespace MikuMikuWorld
 					// end
 					case 2:
 					{
-						Note n(NoteType::HoldEnd);
-						n.tick = note.tick;
-						n.lane = note.lane - 2;
-						n.width = note.width;
+						Note n(NoteType::HoldEnd, note.tick, note.lane - 2, note.width);
 						n.critical = (critical ? true : (criticals.find(key) != criticals.end()));
 						n.ID = nextID++;
 						n.parentID = startID;
@@ -267,10 +253,7 @@ namespace MikuMikuWorld
 					case 3:
 					case 5:
 					{
-						Note n(NoteType::HoldMid);
-						n.tick = note.tick;
-						n.lane = note.lane - 2;
-						n.width = note.width;
+						Note n(NoteType::HoldMid, note.tick, note.lane - 2, note.width);
 						n.critical = critical;
 						n.friction = false;
 						n.ID = nextID++;

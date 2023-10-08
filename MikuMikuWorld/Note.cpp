@@ -9,12 +9,19 @@ namespace MikuMikuWorld
 	int nextSkillID = 1;
 
 	Note::Note(NoteType _type) :
-		type{ _type }, parentID{ -1 }, flick{ FlickType::None }, critical{ false }, friction{ false }
+		type{ _type }, parentID{ -1 }, tick{ 0 }, lane{ 0 }, width{ 3 }, critical { false }, friction{ false }
 	{
 
 	}
 
-	Note::Note() : type{ NoteType::Tap }, parentID{ -1 }, flick{ FlickType::None }, critical{ false }, friction{ false }
+	Note::Note(NoteType _type, int _tick, int _lane, int _width) :
+		type{ _type }, parentID{ -1 }, tick{ _tick }, lane{ _lane }, width{ _width }, critical{ false }, friction{ false }
+	{
+
+	}
+
+	Note::Note() :
+		type{ NoteType::Tap }, parentID{ -1 }, tick{ 0 }, lane{ 0 }, width{ 3 }, critical{ false }, friction{ false }
 	{
 
 	}

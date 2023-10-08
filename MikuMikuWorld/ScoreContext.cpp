@@ -609,18 +609,12 @@ namespace MikuMikuWorld
 		}
 
 		// Create new steps to connect both ends
-		Note earlierNoteAsMid = Note(NoteType::HoldMid);
-		earlierNoteAsMid.tick = earlierNote.tick;
-		earlierNoteAsMid.lane = earlierNote.lane;
-		earlierNoteAsMid.width = earlierNote.width;
+		Note earlierNoteAsMid = Note(NoteType::HoldMid, earlierNote.tick, earlierNote.lane, earlierNote.width);
 		earlierNoteAsMid.ID = nextID++;
 		earlierNoteAsMid.critical = earlierHoldStart.critical;
 		earlierNoteAsMid.parentID = earlierHold.start.ID;
 
-		Note laterNoteAsMid = Note(NoteType::HoldMid);
-		laterNoteAsMid.tick = laterNote.tick;
-		laterNoteAsMid.lane = laterNote.lane;
-		laterNoteAsMid.width = laterNote.width;
+		Note laterNoteAsMid = Note(NoteType::HoldMid, laterNote.tick, laterNote.lane, laterNote.width);
 		laterNoteAsMid.ID = nextID++;
 		laterNoteAsMid.critical = earlierHoldStart.critical;
 		laterNoteAsMid.parentID = earlierHold.start.ID;
@@ -664,18 +658,12 @@ namespace MikuMikuWorld
 
 		Note holdStart = score.notes.at(hold.start.ID);
 
-		Note newSlideEnd = Note(NoteType::HoldEnd);
-		newSlideEnd.tick = note.tick;
-		newSlideEnd.lane = note.lane;
-		newSlideEnd.width = note.width;
+		Note newSlideEnd = Note(NoteType::HoldEnd, note.tick, note.lane, note.width);
 		newSlideEnd.ID = nextID++;
 		newSlideEnd.parentID = hold.start.ID;
 		newSlideEnd.critical = note.critical;
 
-		Note newSlideStart = Note(NoteType::Hold);
-		newSlideStart.tick = note.tick;
-		newSlideStart.lane = note.lane;
-		newSlideStart.width = note.width;
+		Note newSlideStart = Note(NoteType::Hold, note.tick, note.lane, note.width);
 		newSlideStart.ID = nextID++;
 		newSlideStart.critical = holdStart.critical;
 

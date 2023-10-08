@@ -16,7 +16,7 @@ namespace MikuMikuWorld
 		if (isDigit(line.substr(1, 1)))
 			return false;
 
-		// test for text value commands
+		// Test for text value commands
 		if (line.find_first_of('"') != std::string::npos)
 		{
 			std::vector<std::string> lineSplit = split(line, " ");
@@ -70,6 +70,8 @@ namespace MikuMikuWorld
 			}
 
 			currentSlides.push_back(note);
+
+			// Found slide end
 			if (note.type == 2)
 			{
 				slides.push_back(currentSlides);
@@ -111,7 +113,7 @@ namespace MikuMikuWorld
 
 		std::transform(key.begin(), key.end(), key.begin(), ::toupper);
 
-		// exclude double quotes around the value
+		// Exclude double quotes around the value
 		if (startsWith(value, "\"") && endsWith(value, "\""))
 			value = value.substr(1, value.size() - 2);
 
@@ -190,7 +192,7 @@ namespace MikuMikuWorld
 			}
 		}
 
-		// process time signatures
+		// There must be a time signature
 		if (!barLengths.size())
 			barLengths.push_back({ 0, 4.0f });
 
@@ -208,7 +210,7 @@ namespace MikuMikuWorld
 		std::sort(bars.begin(), bars.end(),
 			[](const Bar& b1, const Bar& b2) { return b1.measure < b2.measure; });
 
-		// process bpm changes
+		// Process BPM changes
 		std::vector<BPM> bpms;
 		for (auto& line : bpmLines)
 		{
@@ -277,7 +279,7 @@ namespace MikuMikuWorld
 		std::stable_sort(hiSpeeds.begin(), hiSpeeds.end(),
 			[](const HiSpeed& a, const HiSpeed& b) {return a.tick < b.tick; });
 
-		// process notes
+		// Process notes
 		std::vector<SUSNote> taps;
 		std::vector<SUSNote> directionals;
 		std::unordered_map<int, std::vector<SUSNote>> slideStreams;

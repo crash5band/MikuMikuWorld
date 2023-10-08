@@ -60,7 +60,7 @@ namespace MikuMikuWorld
 
 	extern int nextID;
 
-	class Note final
+	class Note
 	{
 	private:
 		NoteType type;
@@ -71,14 +71,15 @@ namespace MikuMikuWorld
 		int tick;
 		int lane;
 		int width;
-		bool critical;
-		bool friction;
-		FlickType flick;
+		bool critical{ false };
+		bool friction{ false };
+		FlickType flick{ FlickType::None };
 
-		Note(NoteType _type);
+		explicit Note(NoteType _type);
+		explicit Note(NoteType _type, int tick, int lane, int width);
 		Note();
 
-		inline constexpr NoteType getType() const { return type; }
+		constexpr NoteType getType() const { return type; }
 
 		bool isFlick() const;
 		bool hasEase() const;
@@ -91,7 +92,7 @@ namespace MikuMikuWorld
 		EaseType ease;
 	};
 
-	class HoldNote final
+	class HoldNote
 	{
 	public:
 		HoldStep start;
