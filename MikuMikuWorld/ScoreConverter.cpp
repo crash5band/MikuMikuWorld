@@ -352,7 +352,6 @@ namespace MikuMikuWorld
 			Generally guides can be placed on the same tick and lane (key) as other notes.
 			If one of those notes or the guide is critical however, it will cause all the notes with the same key to be critical.
 		*/
-
 		std::vector<HoldNote> exportHolds;
 		exportHolds.reserve(score.holdNotes.size());
 		

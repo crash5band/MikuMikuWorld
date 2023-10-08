@@ -214,6 +214,11 @@ namespace MikuMikuWorld
 				else
 				{
 					holdNote.endType = HoldNoteType::Normal;
+					if (!note.isFlick() && note.friction && !score.notes.at(note.parentID).critical)
+					{
+						// Prevent critical hold end if the hold start is not
+						note.critical = false;
+					}
 				}
 			}
 
