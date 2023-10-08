@@ -305,6 +305,9 @@ namespace MikuMikuWorld
 
 	void ScoreContext::flipSelection()
 	{
+		if (selectedNotes.empty())
+			return;
+
 		Score prev = score;
 		for (int id : selectedNotes)
 		{
