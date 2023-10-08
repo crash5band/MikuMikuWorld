@@ -1986,7 +1986,7 @@ namespace MikuMikuWorld
 				bool cursorMidHold = (noteTime - time) <= audioLookAhead && endTime > time;
 
 				if (!playbackJustStarted || (playbackJustStarted && cursorMidHold))
-					context.audio.playSound(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, startTime, endTime - playStartTime);
+					context.audio.playSound(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, startTime, endTime - playStartTime + audioOffsetCorrection);
 			};
 
 			if (offsetNoteTime >= timeLastFrame && offsetNoteTime < time)
