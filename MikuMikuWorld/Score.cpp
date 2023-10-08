@@ -87,9 +87,9 @@ namespace MikuMikuWorld
 		writer->writeString(metadata.title);
 		writer->writeString(metadata.author);
 		writer->writeString(metadata.artist);
-		writer->writeString(File::fixPath(metadata.musicFile));
+		writer->writeString(metadata.musicFile);
 		writer->writeSingle(metadata.musicOffset);
-		writer->writeString(File::fixPath(metadata.jacketFile));
+		writer->writeString(metadata.jacketFile);
 	}
 
 	void readScoreEvents(Score& score, int version, BinaryReader* reader)
@@ -237,7 +237,7 @@ namespace MikuMikuWorld
 			HoldNote hold;
 
 			unsigned int flags{};
-			if (version >= 3)
+			if (version > 3)
 				flags = reader.readInt32();
 
 			if (flags & HOLD_START_HIDDEN)
@@ -294,7 +294,7 @@ namespace MikuMikuWorld
 		writer.writeString("MMWS");
 
 		// verison
-		writer.writeInt32(3);
+		writer.writeInt32(4);
 
 		// offsets address in order: metadata -> events -> taps -> holds
 		uint32_t offsetsAddress = writer.getStreamPosition();
