@@ -8,6 +8,7 @@ A chart editor and viewer for the mobile rhythm game Project Sekai Colorful Stag
 - Tempo, time signature, and hi-speed adjustment.
 - Custom timeline divisions up to 1920.
 - Create and use custom note presets.
+- Customizable keyboard shortcuts.
 
 ## Requirements:
 - 64-bit Windows 10 or higher*.
@@ -20,4 +21,4 @@ A chart editor and viewer for the mobile rhythm game Project Sekai Colorful Stag
 The latest version can be downloaded [here](https://github.com/crash5band/MikuMikuWorld/releases/latest/download/MikuMikuWorld.zip).
 
 ## Screenshot:
-![MikuMikuWorld](https://github.com/crash5band/MikuMikuWorld/assets/44091782/12c0dc76-b845-4704-a2d9-7a0ff5ea2be1)
+![MikuMikuWorld](https://github.com/crash5band/MikuMikuWorld/assets/44091782/21802566-1e1c-424c-abbd-c69548a6a540)

@@ -15,9 +15,10 @@
 - BPM・拍子・ハイスピーの調整。
 - 最大1920分音符までのカスタム分割。
 - ノーツプリセットの作成・使用。
+- カスタマイズ可能なキーボードショートカット。
 
 ## ダウンロード：
 最新版は[ここ](https://github.com/crash5band/MikuMikuWorld/releases/latest/download/MikuMikuWorld.zip)からダウンロードできます。
 
 ## スクリーンショット：
-![ミクワ](https://github.com/crash5band/MikuMikuWorld/assets/44091782/433c5fc3-28ca-4874-994e-4a813b400e1e)
+![ミクワ](https://github.com/crash5band/MikuMikuWorld/assets/44091782/a95a5fe5-da02-4d1a-94e6-bb7f7fd6167e)
