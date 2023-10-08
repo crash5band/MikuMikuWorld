@@ -380,6 +380,7 @@ namespace MikuMikuWorld
 				Note end = jsonIO::jsonToNote(entry["end"], NoteType::HoldEnd);
 				end.ID = baseId++;
 				end.parentID = start.ID;
+				end.critical = start.critical || ((end.isFlick() || end.friction) && end.critical);
 				pasteData.notes[end.ID] = end;
 
 				std::string startEase = jsonIO::tryGetValue<std::string>(entry["start"], "ease", "linear");
@@ -431,6 +432,7 @@ namespace MikuMikuWorld
 				{
 					hold.startType = hold.endType = HoldNoteType::Guide;
 					start.friction = end.friction = false;
+					end.flick = FlickType::None;
 				}
 				else
 				{
@@ -444,6 +446,7 @@ namespace MikuMikuWorld
 					{
 						hold.endType = HoldNoteType::Hidden;
 						end.friction = false;
+						end.flick = FlickType::None;
 					}
 				}
 
