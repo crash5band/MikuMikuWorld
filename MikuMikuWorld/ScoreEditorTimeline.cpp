@@ -1577,7 +1577,7 @@ namespace MikuMikuWorld
 		const Vector2 sliceSz(notesSliceSize, notesHeight);
 		const AnchorType anchor = AnchorType::MiddleLeft;
 
-		const float midLen = (laneWidth * note.width) - (sliceSz.x * 2) + noteOffsetX + 5;
+		const float midLen = std::max(0.0f, (laneWidth * note.width) - (sliceSz.x * 2) + noteOffsetX + 5);
 		const Vector2 midSz{ midLen, notesHeight };
 
 		pos.x -= noteOffsetX;
@@ -1638,7 +1638,7 @@ namespace MikuMikuWorld
 	bool ScoreEditorTimeline::timeSignatureControl(int numerator, int denominator, int tick, bool enabled)
 	{
 		float dpiScale = ImGui::GetMainViewport()->DpiScale;
-		Vector2 pos{ getTimelineEndX() + (80 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
+		Vector2 pos{ getTimelineEndX() + (78 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
 		return eventControl(getTimelineEndX(), pos, timeColor, IO::formatString("%d/%d", numerator, denominator).c_str(), enabled);
 	}
 
@@ -1668,7 +1668,7 @@ namespace MikuMikuWorld
 		txt.append(start ? ICON_FA_CARET_UP : ICON_FA_CARET_DOWN);
 
 		float dpiScale = ImGui::GetMainViewport()->DpiScale;
-		Vector2 pos{ getTimelineStartX() - (105 * dpiScale), position.y - tickToPosition(tick) + visualOffset };
+		Vector2 pos{ getTimelineStartX() - (108 * dpiScale), position.y - tickToPosition(tick) + visualOffset };
 		return eventControl(getTimelineStartX(), pos, feverColor, txt.c_str(), enabled);
 	}
 

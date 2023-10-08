@@ -57,9 +57,9 @@ namespace MikuMikuWorld
 	{
 	private:
 		int noteCutoffX		= 30;
-		int noteSliceWidth	= 85;
+		int noteSliceWidth	= 90;
 		int noteOffsetX		= 5;
-		int notesSliceSize	= 17;
+		int notesSliceSize	= 18;
 		int holdCutoffX		= 33;
 		int holdSliceWidth	= 10;
 		int holdSliceSize	= 5;
