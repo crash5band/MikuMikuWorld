@@ -63,7 +63,7 @@ namespace MikuMikuWorld
 			}
 
 			float offset = context.workingData.musicOffset;
-			UI::addFloatProperty(getString("music_offset"), offset, "%.03fms");
+			UI::addFloatProperty(getString("music_offset"), offset, "%gms");
 			if (offset != context.workingData.musicOffset)
 			{
 				context.workingData.musicOffset = offset;

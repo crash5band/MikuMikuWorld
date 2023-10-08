@@ -512,6 +512,20 @@ namespace MikuMikuWorld
 			}
 		}
 
+		// Update song boundaries
+		if (context.audio.isMusicInitialized())
+		{
+			int startTick = accumulateTicks(context.workingData.musicOffset, TICKS_PER_BEAT, context.score.tempoChanges);
+			int endTick = accumulateTicks(context.audio.getSongEndTime(), TICKS_PER_BEAT, context.score.tempoChanges);
+
+			float x = getTimelineEndX();
+			float y1 = position.y - tickToPosition(startTick) + visualOffset;
+			float y2 = position.y - tickToPosition(endTick) + visualOffset;
+
+			drawList->AddTriangleFilled({x, y1}, {x + 10, y1}, {x + 10, y1 - 10}, 0xFFCCCCCC);
+			drawList->AddTriangleFilled({x, y2}, {x + 10, y2}, {x + 10, y2 + 10}, 0xFFCCCCCC);
+		}
+
 		feverControl(context.score.fever);
 
 		// update skill triggers
@@ -718,7 +732,7 @@ namespace MikuMikuWorld
 		renderer->beginBatch();
 
 		const bool pasting = context.pasteData.pasting;
-		if (pasting && mouseInTimeline)
+		if (pasting && mouseInTimeline && !playing)
 		{
 			context.pasteData.offsetTicks = hoverTick;
 			context.pasteData.offsetLane = hoverLane;
@@ -730,7 +744,7 @@ namespace MikuMikuWorld
 		}
 
 		if (mouseInTimeline && !isHoldingNote && currentMode != TimelineMode::Select &&
-			!pasting && !UI::isAnyPopupOpen())
+			!pasting && !playing && !UI::isAnyPopupOpen())
 		{
 			previewInput(edit, renderer);
 			if (ImGui::IsMouseClicked(0) && hoverTick >= 0 && !isHoveringNote)
@@ -991,9 +1005,13 @@ namespace MikuMikuWorld
 
 	bool ScoreEditorTimeline::noteControl(ScoreContext& context, const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor)
 	{
-		// do not process notes if the cursor is outside of the timeline
-		// this fixes ui buttons conflicting with note "buttons"
+		// Do not process notes if the cursor is outside of the timeline
+		// This fixes ui buttons conflicting with note "buttons"
 		if (!mouseInTimeline && !isHoldingNote)
+			return false;
+
+		// Do not allow editing notes during playback
+		if (playing)
 			return false;
 
 		ImGui::SetCursorScreenPos(pos);
@@ -1613,14 +1631,14 @@ namespace MikuMikuWorld
 
 	bool ScoreEditorTimeline::bpmControl(float bpm, int tick, bool enabled)
 	{
-		Vector2 pos{ getTimelineEndX() + 10, position.y - tickToPosition(tick) + visualOffset };
+		Vector2 pos{ getTimelineEndX() + 15, position.y - tickToPosition(tick) + visualOffset };
 		return eventControl(getTimelineEndX(), pos, tempoColor, IO::formatString("%g BPM", bpm).c_str(), enabled);
 	}
 
 	bool ScoreEditorTimeline::timeSignatureControl(int numerator, int denominator, int tick, bool enabled)
 	{
 		float dpiScale = ImGui::GetMainViewport()->DpiScale;
-		Vector2 pos{ getTimelineEndX() + (68 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
+		Vector2 pos{ getTimelineEndX() + (80 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
 		return eventControl(getTimelineEndX(), pos, timeColor, IO::formatString("%d/%d", numerator, denominator).c_str(), enabled);
 	}
 
@@ -1663,7 +1681,7 @@ namespace MikuMikuWorld
 	{
 		std::string txt = IO::formatString("%.2fx", speed);
 		float dpiScale = ImGui::GetMainViewport()->DpiScale;
-		Vector2 pos{ getTimelineEndX() + (108 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
+		Vector2 pos{ getTimelineEndX() + (115 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
 		return eventControl(getTimelineEndX(), pos, speedColor, txt.c_str(), true);
 	}
 
