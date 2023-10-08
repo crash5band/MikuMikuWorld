@@ -33,17 +33,9 @@ namespace MikuMikuWorld
 			int pos = findHoldStep(hold, id);
 			if (pos != -1)
 			{
-				if (type == HoldStepType::HoldStepTypeCount)
-				{
-					cycleStepType(hold.steps[pos]);
-					edit = true;
-				}
-				else
-				{
-					// don't record history if the type did not change
-					edit |= hold.steps[pos].type != type;
-					hold.steps[pos].type = type;
-				}
+				// don't record history if the type did not change
+				edit |= hold.steps[pos].type != type;
+				hold.steps[pos].type = type;
 			}
 		}
 
@@ -70,16 +62,8 @@ namespace MikuMikuWorld
 
 			if (canFlick)
 			{
-				if (flick == FlickType::FlickTypeCount)
-				{
-					cycleFlick(note);
-					edit = true;
-				}
-				else
-				{
-					edit |= note.flick != flick;
-					note.flick = flick;
-				}
+				edit |= note.flick != flick;
+				note.flick = flick;
 			}
 		}
 
@@ -99,16 +83,8 @@ namespace MikuMikuWorld
 			Note& note = score.notes.at(id);
 			if (note.getType() == NoteType::Hold)
 			{
-				if (ease == EaseType::EaseTypeCount)
-				{
-					cycleStepEase(score.holdNotes.at(note.ID).start);
-					edit = true;
-				}
-				else
-				{
-					edit |= score.holdNotes.at(note.ID).start.ease != ease;
-					score.holdNotes.at(note.ID).start.ease = ease;
-				}
+				edit |= score.holdNotes.at(note.ID).start.ease != ease;
+				score.holdNotes.at(note.ID).start.ease = ease;
 			}
 			else if (note.getType() == NoteType::HoldMid)
 			{
@@ -116,17 +92,8 @@ namespace MikuMikuWorld
 				int pos = findHoldStep(hold, id);
 				if (pos != -1)
 				{
-					if (ease == EaseType::EaseTypeCount)
-					{
-						cycleStepEase(hold.steps[pos]);
-						edit = true;
-					}
-					else
-					{
-						// don't record history if the type did not change
-						edit |= hold.steps[pos].ease != ease;
-						hold.steps[pos].ease = ease;
-					}
+					edit |= hold.steps[pos].ease != ease;
+					hold.steps[pos].ease = ease;
 				}
 			}
 		}

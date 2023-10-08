@@ -690,7 +690,7 @@ namespace MikuMikuWorld
 		{
 			if (isNoteVisible(note) && note.getType() == NoteType::Tap)
 			{
-				updateNote(context, note);
+				updateNote(context, edit, note);
 				drawNote(note, renderer, noteTint);
 			}
 		}
@@ -700,13 +700,13 @@ namespace MikuMikuWorld
 			Note& start = context.score.notes.at(hold.start.ID);
 			Note& end = context.score.notes.at(hold.end);
 
-			if (isNoteVisible(start)) updateNote(context, start);
-			if (isNoteVisible(end)) updateNote(context, end);
+			if (isNoteVisible(start)) updateNote(context, edit, start);
+			if (isNoteVisible(end)) updateNote(context, edit, end);
 
 			for (const auto& step : hold.steps)
 			{
 				Note& mid = context.score.notes.at(step.ID);
-				if (isNoteVisible(mid)) updateNote(context, mid);
+				if (isNoteVisible(mid)) updateNote(context, edit, mid);
 				if (skipUpdateAfterSortingSteps) break;
 			}
 
@@ -1074,7 +1074,7 @@ namespace MikuMikuWorld
 		return false;
 	}
 
-	void ScoreEditorTimeline::updateNote(ScoreContext& context, Note& note)
+	void ScoreEditorTimeline::updateNote(ScoreContext& context, EditArgs& edit, Note& note)
 	{
 		const float btnPosY = position.y - tickToPosition(note.tick) + visualOffset - (notesHeight * 0.5f);
 		float btnPosX = laneToPosition(note.lane) + position.x - 2.0f;
@@ -1195,12 +1195,12 @@ namespace MikuMikuWorld
 		// per note options here
 		if (ImGui::IsItemDeactivated())
 		{
-			if (!isMovingNote && context.selectedNotes.size())
+			if (!isMovingNote && !context.selectedNotes.empty())
 			{
 				switch (currentMode)
 				{
 				case TimelineMode::InsertFlick:
-					context.setFlick(FlickType::FlickTypeCount);
+					context.setFlick(edit.flickType);
 					break;
 
 				case TimelineMode::MakeCritical:
@@ -1208,11 +1208,11 @@ namespace MikuMikuWorld
 					break;
 
 				case TimelineMode::InsertLong:
-					context.setEase(EaseType::EaseTypeCount);
+					context.setEase(edit.easeType);
 					break;
 
 				case TimelineMode::InsertLongMid:
-					context.setStep(HoldStepType::HoldStepTypeCount);
+					context.setStep(edit.stepType);
 					break;
 
 				case TimelineMode::MakeFriction:
@@ -1489,7 +1489,7 @@ namespace MikuMikuWorld
 
 		const Sprite& s = tex.sprites[sprIndex];
 
-		// Center diamond if width is even
+		// Center diamond
 		Vector2 pos{ laneToPosition(note.lane + (note.width / 2.0f)), getNoteYPosFromTick(note.tick) };
 		Vector2 nodeSz{ notesHeight - 5, notesHeight - 5 };
 
