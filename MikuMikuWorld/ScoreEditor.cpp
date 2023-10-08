@@ -205,11 +205,11 @@ namespace MikuMikuWorld
 			{
 				SusParser susParser;
 				newScore = ScoreConverter::susToScore(susParser.parse(filename));
-				workingFilename = filename;
 			}
 			else if (extension == MMWS_EXTENSION)
 			{
 				newScore = deserializeScore(filename);
+				workingFilename = filename;
 			}
 
 			context.clearSelection();
