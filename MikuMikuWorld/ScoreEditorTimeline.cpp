@@ -1904,7 +1904,7 @@ namespace MikuMikuWorld
 	{
 		framebuffer = std::make_unique<Framebuffer>(1920, 1080);
 
-		background.load(config.backgroundImage.empty() ? (Application::getAppDir() + "res/textures/default.png") : config.backgroundImage);
+		background.load(config.backgroundImage.empty() ? (Application::getAppDir() + "res\\textures\\default.png") : config.backgroundImage);
 		background.setBrightness(0.67);
 	}
 

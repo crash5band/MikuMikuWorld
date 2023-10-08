@@ -64,7 +64,7 @@ namespace MikuMikuWorld
 
 	void AudioManager::loadSE()
 	{
-		std::string path{ Application::getAppDir() + "res/sound/" };
+		std::string path{ Application::getAppDir() + "res\\sound\\" };
 		for (int i = 0; i < sizeof(SE_NAMES) / sizeof(const char*); ++i)
 			sounds.emplace(std::move(std::pair<std::string, std::unique_ptr<Sound>>(SE_NAMES[i], std::make_unique<Sound>())));
 
