@@ -15,7 +15,7 @@ namespace jsonIO
 		if (note.getType() != mmw::NoteType::HoldMid)
 		{
 			note.critical = tryGetValue<bool>(data, "critical", false);
-			note.friction = tryGetValue<bool>(data, "friction", true);
+			note.friction = tryGetValue<bool>(data, "friction", false);
 		}
 
 		if (!note.hasEase())
