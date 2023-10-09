@@ -216,7 +216,7 @@ namespace MikuMikuWorld
 		matchNotesSizeToTimeline = true;
 		division = 8;
 		zoom = 2.0f;
-		laneOpacity = 0.0f;
+		laneOpacity = 0.6f;
 		backgroundBrightness = 0.5f;
 		drawBackground = true;
 		backgroundImage = "";

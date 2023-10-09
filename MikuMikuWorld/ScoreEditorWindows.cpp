@@ -326,7 +326,7 @@ namespace MikuMikuWorld
 		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
 		if (ImGui::BeginPopupModal(MODAL_TITLE("about"), NULL, ImGuiWindowFlags_NoResize))
 		{
-			ImGui::Text("MikuMikuWorld\nCopyright (C) 2022 Crash5b\n\n");
+			ImGui::Text("MikuMikuWorld for Chart Cyanvas\nCopyright (c) 2023 Nanashi. (@sevenc-nanashi)\n\nThis application is based on MikuMikuWorld.\nCopyright (C) 2022 Crash5b\n\n");
 			ImGui::Separator();
 
 			float okButtonHeight = ImGui::GetFrameHeight();

@@ -79,9 +79,9 @@ BEGIN
         BEGIN
             VALUE "FileDescription", "MikuMikuWorld for Chart Cyanvas"
             VALUE "FileVersion", "3.0.0.1"
-            VALUE "InternalName", "MikuMikuWorld_for_Chart_Cyanvas.exe"
+            VALUE "InternalName", "MikuMikuWorld.exe"
             VALUE "LegalCopyright", "Copyright (C) 2022"
-            VALUE "OriginalFilename", "MikuMikuWorld_for_Chart_Cyanvas.exe"
+            VALUE "OriginalFilename", "MikuMikuWorld.exe"
             VALUE "ProductName", "MikuMikuWorld for Chart Cyanvas"
             VALUE "ProductVersion", "3.0.0.1"
         END

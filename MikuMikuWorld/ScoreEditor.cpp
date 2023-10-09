@@ -287,7 +287,9 @@ namespace MikuMikuWorld
 	{
 		try
 		{
-			context.score.metadata = context.workingData.toScoreMetadata();
+      int laneExtension = context.score.metadata.laneExtension;
+      context.score.metadata = context.workingData.toScoreMetadata();
+      context.score.metadata.laneExtension = laneExtension;
 			serializeScore(context.score, filename);
 
 			UI::setWindowTitle(IO::File::getFilename(filename));
@@ -569,7 +571,9 @@ namespace MikuMikuWorld
 		if (!std::filesystem::exists(wAutoSaveDir))
 			std::filesystem::create_directory(wAutoSaveDir);
 
+    int laneExtension = context.score.metadata.laneExtension;
 		context.score.metadata = context.workingData.toScoreMetadata();
+    context.score.metadata.laneExtension = laneExtension;
 		serializeScore(context.score, autoSavePath + "\\mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION);
 
 		// get mmws files

@@ -349,7 +349,6 @@ namespace MikuMikuWorld
 		writer.seek(tapsAddress);
 		writer.writeInt32(noteCount);
 
-
 		writer.seek(holdsAddress);
 
 		writer.writeInt32(score.holdNotes.size());

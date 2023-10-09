@@ -90,6 +90,7 @@ namespace MikuMikuWorld
 							major = (verInfo->dwFileVersionMS >> 16) & 0xffff;
 							minor = (verInfo->dwFileVersionMS >> 0) & 0xffff;
 							rev = (verInfo->dwFileVersionLS >> 16) & 0xffff;
+              build = (verInfo->dwFileVersionLS >> 0) & 0xffff;
 						}
 					}
 				}
@@ -97,7 +98,7 @@ namespace MikuMikuWorld
 			delete[] verData;
 		}
 
-		return IO::formatString("%d.%d.%d", major, minor, rev);
+		return IO::formatString("%d.%d.%d.%d", major, minor, rev, build);
 	}
 
 	const std::string& Application::getAppVersion()
