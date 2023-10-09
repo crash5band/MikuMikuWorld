@@ -146,7 +146,7 @@ namespace MikuMikuWorld
 			return;
 
 		const json data = presets.at(presetId).data;
-		if (jsonIO::arrayHasData(data, "notes") || jsonIO::arrayHasData(data, "holds"))
+		if (jsonIO::arrayHasData(data, "notes") || jsonIO::arrayHasData(data, "holds") || jsonIO::arrayHasData(data, "damages"))
 			context.doPasteData(data, false);
 	}
 }

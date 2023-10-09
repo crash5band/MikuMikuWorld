@@ -37,7 +37,7 @@ namespace MikuMikuWorld
 		if (data.find("description") != data.end())
 			description = data["description"];
 
-		if (data.find("notes") == data.end() && data.find("holds") == data.end())
+		if (data.find("notes") == data.end() && data.find("holds") == data.end() && data.find("damages") == data.end())
 			return Result(ResultStatus::Warning, "The preset " + name + " does not contain any notes data. Skipping...");
 
 		return Result::Ok();
