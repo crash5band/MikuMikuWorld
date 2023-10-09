@@ -105,6 +105,9 @@ namespace MikuMikuWorld
 			case 3:
 				stepIgnore.insert(key);
 				break;
+      case 4:
+        hiddenHolds.insert(key);
+        break;
 			case 5:
 				frictions.insert(key);
 				break;
@@ -172,7 +175,7 @@ namespace MikuMikuWorld
       } else {
         n = Note(NoteType::Tap, note.tick, note.lane - 2, note.width);
         n.critical = criticals.find(key) != criticals.end();
-        n.friction = frictions.find(key) != frictions.end();
+        n.friction = frictions.find(key) != frictions.end() || stepIgnore.find(key) != stepIgnore.end();
         n.flick = flicks.find(key) != flicks.end() ? flicks[key] : FlickType::None;
       }
 			n.ID = nextID++;
@@ -181,10 +184,11 @@ namespace MikuMikuWorld
 		}
 
 		// Not the best way to handle this but it will do the job
-		static auto slideFillFunc = [&](const std::vector<std::vector<SUSNote>>& slides, bool isGuide)
+		static auto slideFillFunc = [&](const std::vector<std::vector<SUSNote>>& slides, bool isGuideSlides)
 		{
 			for (const auto& slide : slides)
 			{
+        bool isGuide = isGuideSlides;
 				const std::string key = noteKey(slide[0]);
 
 				auto start = std::find_if(slide.begin(), slide.end(),
@@ -222,13 +226,14 @@ namespace MikuMikuWorld
 						n.critical = critical;
 						n.ID = startID;
 
-						if (isGuide)
+						if (isGuide || (hiddenHolds.find(noteKey(note)) != hiddenHolds.end() && stepIgnore.find(key) != stepIgnore.end()))
 						{
+              isGuide = true;
 							hold.startType = HoldNoteType::Guide;
 						}
 						else
 						{
-							n.friction = frictions.find(noteKey(note)) != frictions.end();
+							n.friction = frictions.find(noteKey(note)) != frictions.end() || stepIgnore.find(key) != stepIgnore.end();
 							hold.startType = hiddenHolds.find(noteKey(note)) != hiddenHolds.end() ? HoldNoteType::Hidden : HoldNoteType::Normal;
 						}
 
@@ -251,7 +256,7 @@ namespace MikuMikuWorld
 						else
 						{
 							n.flick = flicks.find(key) != flicks.end() ? flicks[key] : FlickType::None;
-							n.friction = frictions.find(noteKey(note)) != frictions.end();
+							n.friction = frictions.find(noteKey(note)) != frictions.end() || stepIgnore.find(key) != stepIgnore.end();
 							hold.endType = hiddenHolds.find(noteKey(note)) != hiddenHolds.end() ? HoldNoteType::Hidden : HoldNoteType::Normal;
 						}
 
@@ -273,8 +278,9 @@ namespace MikuMikuWorld
 							printf("Note at %d-%d is friction", n.tick, n.lane);
 
 						HoldStepType type = note.type == 3 ? HoldStepType::Normal : HoldStepType::Hidden;
-						if (stepIgnore.find(key) != stepIgnore.end())
+						if (stepIgnore.find(key) != stepIgnore.end()) {
 							type = HoldStepType::Skip;
+            }
 
 						notes[n.ID] = n;
 						hold.steps.push_back(HoldStep{ n.ID, type, ease });
