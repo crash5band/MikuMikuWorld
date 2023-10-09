@@ -1,7 +1,7 @@
 [English](./README.md) / **日本語**
 
-# MikuMikuWorld
-プロセカ用の譜面エディタ・譜面ビューアー。
+# MikuMikuWorld for Chart Cyanvas
+[MikuMikuWorld](https://github.com/crash5band/MikuMikuWorld)の[Chart Cyanvas](https://github.com/sevenc-nanashi/chart_cyanvas)用フォーク。
 
 ## 必要な環境：
 - 64bitのWindows 10以上¹
@@ -11,14 +11,12 @@
 1：古いバージョンでも動くかもしれませんが、動作確認はされていません。
 
 ## 機能一覧：
-- Sliding Universal Score（\*.sus）ファイルの入出力。
-- BPM・拍子・ハイスピーの調整。
-- 最大1920分音符までのカスタム分割。
-- ノーツプリセットの作成・使用。
-- カスタマイズ可能なキーボードショートカット。
+MikuMikuWorldの機能に加え、以下の機能が追加されています：
+- ダメージノーツ
+- 拡張レーン
 
 ## ダウンロード：
-最新版は[ここ](https://github.com/crash5band/MikuMikuWorld/releases/latest/download/MikuMikuWorld.zip)からダウンロードできます。
+最新版は[ここ](https://github.com/sevenc-nanashi/MikuMikuWorld/releases/latest/download/MikuMikuWorld.zip)からダウンロードできます。
 
 ## スクリーンショット：
-![ミクワ](https://github.com/crash5band/MikuMikuWorld/assets/44091782/a95a5fe5-da02-4d1a-94e6-bb7f7fd6167e)
+TODO
