@@ -57,9 +57,10 @@ namespace jsonIO
 
 	json noteSelectionToJson(const mmw::Score& score, const std::unordered_set<int>& selection, int baseTick)
 	{
-		json data, notes, holds;
+		json data, notes, holds, damages;
 		std::unordered_set<int> selectedNotes;
 		std::unordered_set<int> selectedHolds;
+		std::unordered_set<int> selectedDamages;
 
 		for (int id : selection)
 		{
@@ -76,6 +77,7 @@ namespace jsonIO
 				selectedHolds.insert(note.parentID);
 				break;
 
+			case mmw::NoteType::Damage: selectedDamages.insert(note.ID); break;
 			default: break;
 			}
 		}
@@ -85,8 +87,16 @@ namespace jsonIO
 			const mmw::Note& note = score.notes.at(id);
 			json data = noteToJson(note);
 			data["tick"] = note.tick - baseTick;
-			
+
 			notes.push_back(data);
+		}
+		for (int id : selectedDamages)
+		{
+			const mmw::Note& note = score.notes.at(id);
+			json data = noteToJson(note);
+			data["tick"] = note.tick - baseTick;
+
+			damages.push_back(data);
 		}
 
 		for (int id : selectedHolds)
@@ -125,6 +135,7 @@ namespace jsonIO
 
 		data["notes"] = notes;
 		data["holds"] = holds;
+    data["damages"] = damages;
 		return data;
 	}
 }

@@ -36,6 +36,8 @@ namespace MikuMikuWorld
 		std::string musicFile;
 		std::string jacketFile;
 		float musicOffset;
+
+    int laneExtension = 0;
 	};
 
 	struct Score

@@ -34,6 +34,8 @@ namespace MikuMikuWorld
 					context.workingData.jacket.load(fileDialog.outputFilename);
 			}
 			context.workingData.jacket.draw();
+
+			UI::addIntProperty(getString("lane_extension"), context.score.metadata.laneExtension, 0, 12);
 			UI::endPropertyColumns();
 		}
 

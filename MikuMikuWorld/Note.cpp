@@ -115,6 +115,23 @@ namespace MikuMikuWorld
 		return index;
 	}
 
+	int getCcNoteSpriteIndex(const Note& note)
+	{
+    int index;
+
+    switch (note.getType())
+    {
+    case NoteType::Damage:
+      index = 0;
+      break;
+
+    default:
+      break;
+		}
+
+		return index;
+	}
+
 	int getFrictionSpriteIndex(const Note& note)
 	{
 		return note.critical ? 10 : note.flick != FlickType::None ? 11 : 9;

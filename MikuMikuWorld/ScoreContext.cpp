@@ -328,6 +328,7 @@ namespace MikuMikuWorld
 	{
 		int baseId = 0;
 		pasteData.notes.clear();
+		pasteData.damages.clear();
 		pasteData.holds.clear();
 
 		if (jsonIO::arrayHasData(data, "notes"))
@@ -335,6 +336,17 @@ namespace MikuMikuWorld
 			for (const auto& entry : data["notes"])
 			{
 				Note note = jsonIO::jsonToNote(entry, NoteType::Tap);
+				note.ID = baseId++;
+
+				pasteData.notes[note.ID] = note;
+			}
+		}
+
+		if (jsonIO::arrayHasData(data, "damages"))
+		{
+			for (const auto& entry : data["damages"])
+			{
+				Note note = jsonIO::jsonToNote(entry, NoteType::Damage);
 				note.ID = baseId++;
 
 				pasteData.notes[note.ID] = note;
@@ -446,10 +458,10 @@ namespace MikuMikuWorld
 		if (pasteData.pasting)
 		{
 			// find the lane in which the cursor is in the middle of pasted notes
-			int left = MAX_LANE;
-			int right = MIN_LANE;
-			int leftmostLane = MAX_LANE;
-			int rightmostLane = MIN_LANE;
+			int left = MAX_LANE + score.metadata.laneExtension;
+			int right = MIN_LANE - score.metadata.laneExtension;
+			int leftmostLane = MAX_LANE + score.metadata.laneExtension;
+			int rightmostLane = MIN_LANE - score.metadata.laneExtension;
 			for (const auto& [_, note] : pasteData.notes)
 			{
 				leftmostLane = std::min(leftmostLane, note.lane);
@@ -458,8 +470,8 @@ namespace MikuMikuWorld
 				right = std::max(right, note.lane);
 			}
 
-			pasteData.minLaneOffset = MIN_LANE - leftmostLane;
-			pasteData.maxLaneOffset = MAX_LANE - rightmostLane;
+			pasteData.minLaneOffset = MIN_LANE - score.metadata.laneExtension - leftmostLane;
+			pasteData.maxLaneOffset = MAX_LANE + score.metadata.laneExtension - rightmostLane;
 			pasteData.midLane = (left + right) / 2;
 		}
 	}

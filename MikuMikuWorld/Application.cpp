@@ -15,7 +15,7 @@ namespace MikuMikuWorld
 	std::string Application::appDir;
 	WindowState Application::windowState;
 
-	NoteTextures noteTextures{ -1, -1, -1 };
+	NoteTextures noteTextures{ -1, -1, -1, -1 };
 
 	Application::Application() : 
 		initialized{ false }
@@ -323,6 +323,7 @@ namespace MikuMikuWorld
 	{
 		ResourceManager::loadShader(appDir + "res\\shaders\\basic2d");
 		ResourceManager::loadTexture(appDir + "res\\textures\\notes1.png");
+		ResourceManager::loadTexture(appDir + "res\\textures\\notes2.png");
 		ResourceManager::loadTexture(appDir + "res\\textures\\longNoteLine.png");
 		ResourceManager::loadTexture(appDir + "res\\textures\\touchLine_eff.png");
 
@@ -338,6 +339,7 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_critical.png");
 		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_trace.png");
 		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_guide.png");
+		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_damage.png");
 		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_bpm.png");
 		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_time_signature.png");
 		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_hi_speed.png");
@@ -346,6 +348,7 @@ namespace MikuMikuWorld
 		noteTextures.notes = ResourceManager::getTexture(NOTES_TEX);
 		noteTextures.holdPath = ResourceManager::getTexture(HOLD_PATH_TEX);
 		noteTextures.touchLine = ResourceManager::getTexture(TOUCH_LINE_TEX);
+		noteTextures.ccNotes = ResourceManager::getTexture(CC_NOTES_TEX);
 
 		// load more languages here
 		Localization::loadDefault();

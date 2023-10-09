@@ -23,6 +23,7 @@ namespace MikuMikuWorld
 	private:
 		int ticksPerBeat;
 		int measureOffset;
+    int laneOffset;
 		float waveOffset;
 		std::string title;
 		std::string artist;

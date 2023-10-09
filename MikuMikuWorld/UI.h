@@ -8,7 +8,7 @@
 #include "IO.h"
 #include <vector>
 
-#define APP_NAME "MikuMikuWorld"
+#define APP_NAME "MikuMikuWorld for Chart Cyanvas"
 
 #define IMGUI_TITLE(icon, title) IO::formatString("%s %s###%s", icon, getString(title), title).c_str()
 #define MODAL_TITLE(title) IO::formatString("%s - %s###%s", APP_NAME, getString(title), title).c_str()
@@ -19,6 +19,7 @@ namespace MikuMikuWorld
 
 	constexpr float primaryLineThickness = 0.400f;
 	constexpr float secondaryLineThickness = 0.200f;
+  constexpr float tertiaryLineThickness = 0.100f;
 	constexpr float toolTipDelay = 0.5f;
 
 	constexpr ImGuiWindowFlags ImGuiWindowFlags_Static = ImGuiWindowFlags_NoCollapse;

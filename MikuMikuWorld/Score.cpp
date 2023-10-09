@@ -60,14 +60,14 @@ namespace MikuMikuWorld
 
 		if (!note.hasEase())
 			writer->writeInt32((int)note.flick);
-		
+
 		unsigned int flags{};
 		if (note.critical) flags |= NOTE_CRITICAL;
 		if (note.friction) flags |= NOTE_FRICTION;
 		writer->writeInt32(flags);
 	}
 
-	ScoreMetadata readMetadata(BinaryReader* reader, int version)
+	ScoreMetadata readMetadata(BinaryReader* reader, int version, bool isCyanvas)
 	{
 		ScoreMetadata metadata;
 		metadata.title = reader->readString();
@@ -78,6 +78,9 @@ namespace MikuMikuWorld
 
 		if (version > 1)
 			metadata.jacketFile = reader->readString();
+
+    if (isCyanvas)
+      metadata.laneExtension = reader->readInt32();
 
 		return metadata;
 	}
@@ -90,6 +93,7 @@ namespace MikuMikuWorld
 		writer->writeString(metadata.musicFile);
 		writer->writeSingle(metadata.musicOffset);
 		writer->writeString(metadata.jacketFile);
+		writer->writeInt32(metadata.laneExtension);
 	}
 
 	void readScoreEvents(Score& score, int version, BinaryReader* reader)
@@ -189,8 +193,10 @@ namespace MikuMikuWorld
 			return score;
 
 		std::string signature = reader.readString();
-		if (signature != "MMWS")
+		if (signature != "MMWS" && signature != "CCMMWS")
 			throw std::runtime_error("Not a MMWS file.");
+
+    bool isCyanvas = signature == "CCMMWS";
 
 		int version = reader.readInt32();
 
@@ -198,17 +204,20 @@ namespace MikuMikuWorld
 		uint32_t eventsAddress{};
 		uint32_t tapsAddress{};
 		uint32_t holdsAddress{};
+    uint32_t damagesAddress{};
 		if (version > 2)
 		{
 			metadataAddress = reader.readInt32();
 			eventsAddress = reader.readInt32();
 			tapsAddress = reader.readInt32();
 			holdsAddress = reader.readInt32();
+      if (isCyanvas)
+        damagesAddress = reader.readInt32();
 
 			reader.seek(metadataAddress);
 		}
 
-		score.metadata = readMetadata(&reader, version);
+		score.metadata = readMetadata(&reader, version, isCyanvas);
 
 		if (version > 2)
 			reader.seek(eventsAddress);
@@ -275,10 +284,24 @@ namespace MikuMikuWorld
 			end.ID = nextID++;
 			end.parentID = start.ID;
 			score.notes[end.ID] = end;
-			
+
 			hold.end = end.ID;
 			score.holdNotes[start.ID] = hold;
 		}
+
+    if (isCyanvas)
+    {
+      reader.seek(damagesAddress);
+
+      int damageCount = reader.readInt32();
+      score.notes.reserve(damageCount);
+      for (int i = 0; i < damageCount; ++i)
+      {
+        Note note = readNote(NoteType::Damage, &reader);
+        note.ID = nextID++;
+        score.notes[note.ID] = note;
+      }
+    }
 
 		reader.close();
 		return score;
@@ -291,14 +314,15 @@ namespace MikuMikuWorld
 			return;
 
 		// signature
-		writer.writeString("MMWS");
+		writer.writeString("CCMMWS");
 
 		// verison
 		writer.writeInt32(4);
 
 		// offsets address in order: metadata -> events -> taps -> holds
+    // Cyanvas extension: -> damages
 		uint32_t offsetsAddress = writer.getStreamPosition();
-		writer.writeNull(sizeof(uint32_t) * 4);
+		writer.writeNull(sizeof(uint32_t) * 5);
 
 		uint32_t metadataAddress = writer.getStreamPosition();
 		writeMetadata(score.metadata, &writer);
@@ -318,17 +342,19 @@ namespace MikuMikuWorld
 			writeNote(note, &writer);
 			++noteCount;
 		}
-		
+
 		uint32_t holdsAddress = writer.getStreamPosition();
-		
+
 		// write taps count
 		writer.seek(tapsAddress);
 		writer.writeInt32(noteCount);
+
+
 		writer.seek(holdsAddress);
-		
+
 		writer.writeInt32(score.holdNotes.size());
 		for (const auto&[id, hold] : score.holdNotes)
-		{	
+		{
 			unsigned int flags{};
 			if (hold.startType == HoldNoteType::Guide) flags	|=	HOLD_GUIDE;
 			if (hold.startType == HoldNoteType::Hidden) flags	|=	HOLD_START_HIDDEN;
@@ -356,12 +382,31 @@ namespace MikuMikuWorld
 			writeNote(end, &writer);
 		}
 
+		uint32_t damagesAddress = writer.getStreamPosition();
+		writer.writeNull(sizeof(uint32_t));
+
+    // Cyanvas extension: write damages
+		int damageNoteCount = 0;
+		for (const auto&[id, note] : score.notes)
+		{
+			if (note.getType() != NoteType::Damage)
+				continue;
+
+			writeNote(note, &writer);
+			++damageNoteCount;
+		}
+
+    // write damages count
+    writer.seek(damagesAddress);
+    writer.writeInt32(damageNoteCount);
+
 		// write offset addresses
 		writer.seek(offsetsAddress);
 		writer.writeInt32(metadataAddress);
 		writer.writeInt32(eventsAddress);
 		writer.writeInt32(tapsAddress);
 		writer.writeInt32(holdsAddress);
+    writer.writeInt32(damagesAddress);
 
 		writer.flush();
 		writer.close();

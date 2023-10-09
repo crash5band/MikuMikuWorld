@@ -108,8 +108,9 @@ namespace MikuMikuWorld
 			Note holdStart;
 			Note holdEnd;
 			Note holdStep;
-		} inputNotes{ Note(NoteType::Tap), Note(NoteType::Hold), Note(NoteType::HoldEnd), Note(NoteType::HoldMid) };
-		
+      Note damage;
+		} inputNotes{ Note(NoteType::Tap), Note(NoteType::Hold), Note(NoteType::HoldEnd), Note(NoteType::HoldMid), Note(NoteType::Damage) };
+
 		std::vector<StepDrawData> drawSteps;
 
 		ImVec2 size;
@@ -139,19 +140,20 @@ namespace MikuMikuWorld
 		void drawOutline(const StepDrawData& data);
 		void drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
 		void drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
+		void drawCcNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
 		bool noteControl(ScoreContext& context, const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor);
-		bool bpmControl(const Tempo& tempo);
-		bool bpmControl(float bpm, int tick, bool enabled);
-		bool timeSignatureControl(int numerator, int denominator, int tick, bool enabled);
-		bool skillControl(const SkillTrigger& skill);
-		bool skillControl(int tick, bool enabled);
-		bool feverControl(const Fever& fever);
-		bool feverControl(int tick, bool start, bool enabled);
-		bool hiSpeedControl(const HiSpeedChange& hiSpeed);
-		bool hiSpeedControl(int tick, float speed);
+		bool bpmControl(const Score& score, const Tempo& tempo);
+		bool bpmControl(const Score& score, float bpm, int tick, bool enabled);
+		bool timeSignatureControl(const Score& score, int numerator, int denominator, int tick, bool enabled);
+		bool skillControl(const Score& score, const SkillTrigger& skill);
+		bool skillControl(const Score& score, int tick, bool enabled);
+		bool feverControl(const Score& score, const Fever& fever);
+		bool feverControl(const Score& score, int tick, bool start, bool enabled);
+		bool hiSpeedControl(const Score& score, const HiSpeedChange& hiSpeed);
+		bool hiSpeedControl(const Score& score, int tick, float speed);
 
 		void drawInputNote(Renderer* renderer);
-		void previewInput(EditArgs& edit, Renderer* renderer);
+		void previewInput(const Score& score, EditArgs& edit, Renderer* renderer);
 		void previewPaste(ScoreContext& context, Renderer* renderer);
 		void executeInput(ScoreContext& context, EditArgs& edit);
 		void eventEditor(ScoreContext& context);
@@ -160,6 +162,7 @@ namespace MikuMikuWorld
 		void insertHold(ScoreContext& context, EditArgs& edit);
 		void insertHoldStep(ScoreContext& context, EditArgs& edit, int holdId);
 		void insertEvent(ScoreContext& context, EditArgs& edit);
+		void insertDamage(ScoreContext& context, EditArgs& edit);
 
 		void updateNoteSE(ScoreContext& context);
 
@@ -187,12 +190,14 @@ namespace MikuMikuWorld
 		float tickToPosition(int tick) const;
 		float getNoteYPosFromTick(int tick) const;
 
-		int laneFromCenterPosition(int lane, int width);
+		int laneFromCenterPosition(const Score& score, int lane, int width);
 		int positionToLane(float pos) const;
 		float laneToPosition(float lane) const;
 
-		constexpr inline float getTimelineStartX() const { return position.x + laneOffset; }
-		constexpr inline float getTimelineEndX() const { return getTimelineStartX() + (laneWidth * 12); }
+		const inline float getTimelineStartX() const { return position.x + laneOffset; }
+		const inline float getTimelineEndX() const { return getTimelineStartX() + (laneWidth * 12); }
+		const inline float getTimelineStartX(const Score& score) const { return getTimelineStartX() - (laneWidth * score.metadata.laneExtension); }
+		const inline float getTimelineEndX(const Score& score) const { return getTimelineEndX() + (laneWidth * score.metadata.laneExtension); }
 
 		constexpr inline float getZoom() const { return zoom; }
 		void setZoom(float zoom);
@@ -213,7 +218,7 @@ namespace MikuMikuWorld
 		void update(ScoreContext& context, EditArgs& edit, Renderer* renderer);
 		void updateNotes(ScoreContext& context, EditArgs& edit, Renderer* renderer);
 		void updateNote(ScoreContext& context, EditArgs& edit, Note& note);
-		void updateInputNotes(EditArgs& edit);
+		void updateInputNotes(const Score& score, EditArgs& edit);
 		void debug();
 
 		void previousTick(ScoreContext& context);

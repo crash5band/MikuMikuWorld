@@ -93,7 +93,7 @@ namespace MikuMikuWorld
 				continue;
 
 			notes.push_back(SUSNote{ toTicks(measure, i, data.size()),
-				(int)std::stoul(header.substr(4, 1), nullptr, 36),
+				(int)std::stoul(header.substr(4, 1), nullptr, 36) + laneOffset,
 				(int)std::stoul(data.substr(i + 1, 1), nullptr, 36),
 				(int)std::stoul(data.substr(i, 1), nullptr, 36)
 			});
@@ -130,8 +130,11 @@ namespace MikuMikuWorld
 		else if (key == "REQUEST")
 		{
 			std::vector<std::string> requestArgs = split(value, " ");
-			if (requestArgs.size() == 2 && requestArgs[0] == "ticks_per_beat")
+			if (requestArgs.size() == 2 && requestArgs[0] == "ticks_per_beat") {
 				ticksPerBeat = atoi(requestArgs[1].c_str());
+      } else if (requestArgs.size() == 2 && requestArgs[0] == "lane_offset") {
+				laneOffset = atoi(requestArgs[1].c_str());
+      }
 		}
 	}
 
@@ -246,7 +249,7 @@ namespace MikuMikuWorld
 			std::string lineData = line.line;
 			int firstQuote = lineData.find_first_of('"') + 1;
 			int lastQuote = lineData.find_last_of('"');
-			
+
 			lineData = lineData.substr(firstQuote, lastQuote - firstQuote);
 			if (!lineData.size())
 				continue;
@@ -339,6 +342,6 @@ namespace MikuMikuWorld
 		metadata.data["designer"] = designer;
 		metadata.waveOffset = waveOffset;
 
-		return SUS{ metadata, taps, directionals, slides, guides, bpms, barLengths, hiSpeeds };
+		return SUS{ metadata, taps, directionals, slides, guides, bpms, barLengths, hiSpeeds, laneOffset };
 	}
 }

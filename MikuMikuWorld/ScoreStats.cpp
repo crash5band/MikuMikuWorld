@@ -68,7 +68,7 @@ namespace MikuMikuWorld
 			// Hidden hold starts and ends do not count towards combo
 			if (hold.startType != HoldNoteType::Normal)
 				combo--;
-			
+
 			if (hold.endType != HoldNoteType::Normal)
 				combo--;
 

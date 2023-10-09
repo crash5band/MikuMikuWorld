@@ -76,9 +76,9 @@ namespace MikuMikuWorld
 		return snapTick(positionToTick(posY), division, context.score.timeSignatures);
 	}
 
-	int ScoreEditorTimeline::laneFromCenterPosition(int lane, int width)
+	int ScoreEditorTimeline::laneFromCenterPosition(const Score& score, int lane, int width)
 	{
-		return std::clamp(lane - (width / 2), MIN_LANE, MAX_LANE - width + 1);
+		return std::clamp(lane - (width / 2), MIN_LANE - score.metadata.laneExtension, MAX_LANE - width + 1 + score.metadata.laneExtension);
 	}
 
 	void ScoreEditorTimeline::focusCursor(ScoreContext& context, Direction direction)
@@ -316,7 +316,7 @@ namespace MikuMikuWorld
 
 		const bool pasting = context.pasteData.pasting;
 		const ImGuiIO& io = ImGui::GetIO();
-		
+
 		// get mouse position relative to timeline
 		mousePos = io.MousePos - position;
 		mousePos.y -= offset;
@@ -365,20 +365,20 @@ namespace MikuMikuWorld
 				context.selectedNotes.clear();
 
 			float yThreshold = (notesHeight * 0.5f) + 2.0f;
-			for (const auto& [id, note] : context.score.notes)
-			{
-				float x1 = laneToPosition(note.lane);
-				float x2 = laneToPosition(note.lane + note.width);
-				float y = -tickToPosition(note.tick);
+      for (const auto& [id, note] : context.score.notes)
+      {
+        float x1 = laneToPosition(note.lane);
+        float x2 = laneToPosition(note.lane + note.width);
+        float y = -tickToPosition(note.tick);
 
-				if (right > x1 && left < x2 && isWithinRange(y, top - yThreshold, bottom + yThreshold))
-				{
-					if (io.KeyAlt)
-						context.selectedNotes.erase(id);
-					else
-						context.selectedNotes.insert(id);
-				}
-			}
+        if (right > x1 && left < x2 && isWithinRange(y, top - yThreshold, bottom + yThreshold))
+        {
+          if (io.KeyAlt)
+            context.selectedNotes.erase(id);
+          else
+            context.selectedNotes.insert(id);
+        }
+      }
 
 			dragging = false;
 		}
@@ -386,11 +386,23 @@ namespace MikuMikuWorld
 		// draw measures
 		const float x1 = getTimelineStartX();
 		const float x2 = getTimelineEndX();
+		const float exX1 = getTimelineStartX(context.score);
+		const float exX2 = getTimelineEndX(context.score);
 
+		drawList->AddRectFilled(
+			{ exX1, position.y },
+			{ x1, position.y + size.y },
+			Color::abgrToInt(std::clamp((int)(config.laneOpacity * 255), 0, 255), 0x1c, 0x1a, 0x0f)
+		);
 		drawList->AddRectFilled(
 			{ x1, position.y },
 			{ x2, position.y + size.y },
 			Color::abgrToInt(std::clamp((int)(config.laneOpacity * 255), 0, 255), 0x1c, 0x1a, 0x1f)
+		);
+		drawList->AddRectFilled(
+			{ x2, position.y },
+			{ exX2, position.y + size.y },
+			Color::abgrToInt(std::clamp((int)(config.laneOpacity * 255), 0, 255), 0x1c, 0x1a, 0x0f)
 		);
 
 		int firstTick = std::max(0, positionToTick(visualOffset - size.y));
@@ -400,7 +412,7 @@ namespace MikuMikuWorld
 
 		int tsIndex = findTimeSignature(measure, context.score.timeSignatures);
 		int ticksPerMeasure = beatsPerMeasure(context.score.timeSignatures[tsIndex]) * TICKS_PER_BEAT;
-		int beatTicks = ticksPerMeasure / context.score.timeSignatures[tsIndex].numerator; 
+		int beatTicks = ticksPerMeasure / context.score.timeSignatures[tsIndex].numerator;
 		int subdivision = TICKS_PER_BEAT / (division / 4);
 
 		// snap to the sub-division before the current measure to prevent the lines from jumping around
@@ -424,10 +436,25 @@ namespace MikuMikuWorld
 			// determine whether the tick is a beat relative to its measure's tick
 			int measureTicks = measureToTicks(currentMeasure, TICKS_PER_BEAT, context.score.timeSignatures);
 
+      ImU32 color;
+      ImU32 exColor;
+      float thickness;
 			if (!((tick - measureTicks) % beatTicks))
-				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), measureColor, primaryLineThickness);
+      {
+        color = measureColor;
+        exColor = exMeasureColor;
+        thickness = primaryLineThickness;
+      }
 			else if (division < 192)
-				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), divColor2, secondaryLineThickness);
+      {
+        color = divColor2;
+        exColor = exDivColor2;
+        thickness = secondaryLineThickness;
+      }
+
+      drawList->AddLine(ImVec2(exX1, y), ImVec2(x1, y), exColor, thickness);
+      drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), color, thickness);
+      drawList->AddLine(ImVec2(x2, y), ImVec2(exX2, y), exColor, thickness);
 		}
 
 		tsIndex = findTimeSignature(measure, context.score.timeSignatures);
@@ -443,21 +470,29 @@ namespace MikuMikuWorld
 			}
 
 			std::string measureStr = std::to_string(measure);
-			const float txtPos = x1 - MEASURE_WIDTH - (ImGui::CalcTextSize(measureStr.c_str()).x * 0.5f);
+			const float txtPos = exX1 - MEASURE_WIDTH - (ImGui::CalcTextSize(measureStr.c_str()).x * 0.5f);
 			const int y = position.y - tickToPosition(tick) + visualOffset;
 
-			drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH, y), ImVec2(x2 + MEASURE_WIDTH, y), measureColor, primaryLineThickness);
-			drawShadedText(drawList, ImVec2( txtPos, y), 26, measureTxtColor, measureStr.c_str());
+			drawList->AddLine(ImVec2(exX1 - MEASURE_WIDTH, y), ImVec2(exX2 + MEASURE_WIDTH, y), measureColor, primaryLineThickness);
+			drawShadedText(drawList, ImVec2(txtPos, y), 26, measureTxtColor, measureStr.c_str());
 
 			++measure;
 		}
 
 		// draw lanes
-		for (int l = 0; l <= NUM_LANES; ++l)
+		for (int l = -context.score.metadata.laneExtension; l <= NUM_LANES + context.score.metadata.laneExtension; ++l)
 		{
 			const int x = position.x + laneToPosition(l);
 			const bool boldLane = !(l & 1);
-			drawList->AddLine(ImVec2(x, position.y), ImVec2(x, position.y + size.y), boldLane ? divColor1 : divColor2, boldLane ? primaryLineThickness : secondaryLineThickness);
+      const bool outOfBounds = l < 0 || l > NUM_LANES;
+			drawList->AddLine(
+          ImVec2(x, position.y),
+          ImVec2(x, position.y + size.y),
+          outOfBounds ?
+              boldLane ? exDivColor1 : exDivColor2 :
+              boldLane ? divColor1 : divColor2,
+          boldLane ? primaryLineThickness : secondaryLineThickness
+      );
 		}
 
 		hoverTick = snapTickFromPos(-mousePos.y, context);
@@ -467,9 +502,9 @@ namespace MikuMikuWorld
 		// draw cursor behind notes
 		const int y = position.y - tickToPosition(context.currentTick) + visualOffset;
 		const int triPtOffset = 6;
-		const int triXPos = x1 - (triPtOffset * 2);
+		const int triXPos = exX1 - (triPtOffset * 2);
 		drawList->AddTriangleFilled(ImVec2(triXPos, y - triPtOffset), ImVec2(triXPos, y + triPtOffset), ImVec2(triXPos + (triPtOffset * 2), y), cursorColor);
-		drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), cursorColor, primaryLineThickness + 1.0f);
+		drawList->AddLine(ImVec2(exX1, y), ImVec2(exX2, y), cursorColor, primaryLineThickness + 1.0f);
 
 		contextMenu(context);
 
@@ -477,7 +512,7 @@ namespace MikuMikuWorld
 		for (int index = 0; index < context.score.hiSpeedChanges.size(); ++index)
 		{
 			HiSpeedChange& hiSpeed = context.score.hiSpeedChanges[index];
-			if (hiSpeedControl(hiSpeed))
+			if (hiSpeedControl(context.score, hiSpeed))
 			{
 				eventEdit.editIndex = index;
 				eventEdit.editHiSpeed = hiSpeed.speed;
@@ -489,7 +524,7 @@ namespace MikuMikuWorld
 		// update time signature changes
 		for (auto& [measure, ts] : context.score.timeSignatures)
 		{
-			if (timeSignatureControl(ts.numerator, ts.denominator, measureToTicks(ts.measure, TICKS_PER_BEAT, context.score.timeSignatures), !playing))
+			if (timeSignatureControl(context.score, ts.numerator, ts.denominator, measureToTicks(ts.measure, TICKS_PER_BEAT, context.score.timeSignatures), !playing))
 			{
 				eventEdit.editIndex = measure;
 				eventEdit.editTimeSignatureNumerator = ts.numerator;
@@ -503,7 +538,7 @@ namespace MikuMikuWorld
 		for (int index = 0; index < context.score.tempoChanges.size(); ++index)
 		{
 			Tempo& tempo = context.score.tempoChanges[index];
-			if (bpmControl(tempo))
+			if (bpmControl(context.score, tempo))
 			{
 				eventEdit.editIndex = index;
 				eventEdit.editBpm = tempo.bpm;
@@ -518,7 +553,7 @@ namespace MikuMikuWorld
 			int startTick = accumulateTicks(context.workingData.musicOffset, TICKS_PER_BEAT, context.score.tempoChanges);
 			int endTick = accumulateTicks(context.audio.getSongEndTime(), TICKS_PER_BEAT, context.score.tempoChanges);
 
-			float x = getTimelineEndX();
+			float x = getTimelineEndX(context.score);
 			float y1 = position.y - tickToPosition(startTick) + visualOffset;
 			float y2 = position.y - tickToPosition(endTick) + visualOffset;
 
@@ -526,11 +561,11 @@ namespace MikuMikuWorld
 			drawList->AddTriangleFilled({x, y2}, {x + 10, y2}, {x + 10, y2 + 10}, 0xFFCCCCCC);
 		}
 
-		feverControl(context.score.fever);
+		feverControl(context.score, context.score.fever);
 
 		// update skill triggers
 		for (const auto& skill : context.score.skills)
-			skillControl(skill);
+			skillControl(context.score, skill);
 
 		eventEditor(context);
 		updateNotes(context, edit, renderer);
@@ -702,10 +737,17 @@ namespace MikuMikuWorld
 		minNoteYDistance = INT_MAX;
 		for (auto& [id, note] : context.score.notes)
 		{
-			if (isNoteVisible(note) && note.getType() == NoteType::Tap)
-			{
+			if (!isNoteVisible(note))
+        continue;
+      if (note.getType() == NoteType::Tap)
+      {
 				updateNote(context, edit, note);
 				drawNote(note, renderer, noteTint);
+			}
+			if (note.getType() == NoteType::Damage)
+			{
+				updateNote(context, edit, note);
+				drawCcNote(note, renderer, noteTint);
 			}
 		}
 
@@ -746,7 +788,7 @@ namespace MikuMikuWorld
 		if (mouseInTimeline && !isHoldingNote && currentMode != TimelineMode::Select &&
 			!pasting && !playing && !UI::isAnyPopupOpen())
 		{
-			previewInput(edit, renderer);
+			previewInput(context.score, edit, renderer);
 			if (ImGui::IsMouseClicked(0) && hoverTick >= 0 && !isHoveringNote)
 				executeInput(context, edit);
 
@@ -782,17 +824,22 @@ namespace MikuMikuWorld
 			context.pasteData.minLaneOffset,
 			context.pasteData.maxLaneOffset);
 
-		for (const auto& [_, note] : context.pasteData.notes)
-			if (note.getType() == NoteType::Tap && isNoteVisible(note, hoverTick))
-				drawNote(note, renderer, hoverTint, hoverTick, context.pasteData.offsetLane);
+    for (const auto notes : { context.pasteData.notes, context.pasteData.damages })
+      for (const auto& [_, note] : notes)
+        if (isNoteVisible(note, hoverTick)) {
+          if (note.getType() == NoteType::Tap)
+            drawNote(note, renderer, hoverTint, hoverTick, context.pasteData.offsetLane);
+          else if (note.getType() == NoteType::Damage)
+            drawCcNote(note, renderer, hoverTint, hoverTick, context.pasteData.offsetLane);
+        }
 
 		for (const auto& [_, hold] : context.pasteData.holds)
 			drawHoldNote(context.pasteData.notes, hold, renderer, hoverTint, hoverTick, context.pasteData.offsetLane);
 	}
 
-	void ScoreEditorTimeline::updateInputNotes(EditArgs& edit)
+	void ScoreEditorTimeline::updateInputNotes(const Score& score, EditArgs& edit)
 	{
-		int lane = laneFromCenterPosition(hoverLane, edit.noteWidth);
+		int lane = laneFromCenterPosition(score, hoverLane, edit.noteWidth);
 		int width = edit.noteWidth;
 		int tick = hoverTick;
 
@@ -819,6 +866,10 @@ namespace MikuMikuWorld
 			inputNotes.holdStart.width = width;
 			inputNotes.holdStart.tick = tick;
 		}
+
+		inputNotes.damage.lane = lane;
+		inputNotes.damage.width = width;
+		inputNotes.damage.tick = tick;
 	}
 
 	void ScoreEditorTimeline::insertEvent(ScoreContext& context, EditArgs& edit)
@@ -857,9 +908,9 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void ScoreEditorTimeline::previewInput(EditArgs& edit, Renderer* renderer)
+	void ScoreEditorTimeline::previewInput(const Score& score, EditArgs& edit, Renderer* renderer)
 	{
-		updateInputNotes(edit);
+		updateInputNotes(score, edit);
 		switch (currentMode)
 		{
 		case TimelineMode::InsertLong:
@@ -894,15 +945,19 @@ namespace MikuMikuWorld
 			break;
 
 		case TimelineMode::InsertBPM:
-			bpmControl(edit.bpm, hoverTick, false);
+			bpmControl(score, edit.bpm, hoverTick, false);
 			break;
 
 		case TimelineMode::InsertTimeSign:
-			timeSignatureControl(edit.timeSignatureNumerator, edit.timeSignatureDenominator, hoverTick, false);
+			timeSignatureControl(score, edit.timeSignatureNumerator, edit.timeSignatureDenominator, hoverTick, false);
 			break;
 
 		case TimelineMode::InsertHiSpeed:
-			hiSpeedControl(hoverTick, edit.hiSpeed);
+			hiSpeedControl(score, hoverTick, edit.hiSpeed);
+			break;
+
+		case TimelineMode::InsertDamage:
+			drawCcNote(inputNotes.damage, renderer, hoverTint);
 			break;
 
 		default:
@@ -939,6 +994,10 @@ namespace MikuMikuWorld
 		case TimelineMode::InsertTimeSign:
 		case TimelineMode::InsertHiSpeed:
 			insertEvent(context, edit);
+			break;
+
+		case TimelineMode::InsertDamage:
+			insertDamage(context, edit);
 			break;
 
 		default:
@@ -1005,6 +1064,8 @@ namespace MikuMikuWorld
 
 	bool ScoreEditorTimeline::noteControl(ScoreContext& context, const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor)
 	{
+    int minLane = MIN_LANE - context.score.metadata.laneExtension;
+    int maxLane = MAX_LANE + context.score.metadata.laneExtension;
 		// Do not process notes if the cursor is outside of the timeline
 		// This fixes ui buttons conflicting with note "buttons"
 		if (!mouseInTimeline && !isHoldingNote)
@@ -1066,8 +1127,8 @@ namespace MikuMikuWorld
 						{
 							std::swap(start.tick, firstMid.tick);
 							std::swap(start.lane, firstMid.lane);
-							start.lane = std::clamp(start.lane, MIN_LANE, MAX_LANE - start.width + 1);
-							firstMid.lane = std::clamp(firstMid.lane, MIN_LANE, MAX_LANE - firstMid.width + 1);
+							start.lane = std::clamp(start.lane, minLane, maxLane - start.width + 1);
+							firstMid.lane = std::clamp(firstMid.lane, minLane, maxLane - firstMid.width + 1);
 						}
 
 						Note& lastMid = context.score.notes.at(hold.steps[hold.steps.size() - 1].ID);
@@ -1075,8 +1136,8 @@ namespace MikuMikuWorld
 						{
 							std::swap(end.tick, lastMid.tick);
 							std::swap(end.lane, lastMid.lane);
-							lastMid.lane = std::clamp(lastMid.lane, MIN_LANE, MAX_LANE - lastMid.width + 1);
-							end.lane = std::clamp(end.lane, MIN_LANE, MAX_LANE - end.width + 1);
+							lastMid.lane = std::clamp(lastMid.lane, minLane, maxLane - lastMid.width + 1);
+							end.lane = std::clamp(end.lane, minLane, maxLane - end.width + 1);
 						}
 					}
 
@@ -1094,6 +1155,10 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::updateNote(ScoreContext& context, EditArgs& edit, Note& note)
 	{
+    const int minLane = MIN_LANE - context.score.metadata.laneExtension;
+    const int maxLane = MAX_LANE + context.score.metadata.laneExtension;
+    const int maxNoteWidth = MAX_NOTE_WIDTH + context.score.metadata.laneExtension * 2;
+
 		const float btnPosY = position.y - tickToPosition(note.tick) + visualOffset - (notesHeight * 0.5f);
 		float btnPosX = laneToPosition(note.lane) + position.x - 2.0f;
 
@@ -1129,17 +1194,17 @@ namespace MikuMikuWorld
 		if (noteControl(context, pos, sz, "L", ImGuiMouseCursor_ResizeEW))
 		{
 			int curLane = positionToLane(mousePos.x);
-			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
+			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), minLane, maxLane);
 			int diff = curLane - grabLane;
 
 			if (abs(diff) > 0)
 			{
-				bool canResize = !std::any_of(context.selectedNotes.begin(), context.selectedNotes.end(), [&context, diff](int id)
+				bool canResize = !std::any_of(context.selectedNotes.begin(), context.selectedNotes.end(), [&context, diff, minLane, maxLane, maxNoteWidth](int id)
 				{
 					Note& n = context.score.notes.at(id);
 					int newLane = n.lane + diff;
 					int newWidth = n.width - diff;
-					return (newLane < MIN_LANE || newLane + newWidth - 1 > MAX_LANE || !isWithinRange(newWidth, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH));
+					return (newLane < minLane || newLane + newWidth - 1 > maxLane || !isWithinRange(newWidth, MIN_NOTE_WIDTH, maxNoteWidth));
 				});
 
 				if (canResize)
@@ -1149,8 +1214,8 @@ namespace MikuMikuWorld
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
-						n.width = std::clamp(n.width - diff, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
-						n.lane = std::clamp(n.lane + diff, MIN_LANE, MAX_LANE - n.width + 1);
+						n.width = std::clamp(n.width - diff, MIN_NOTE_WIDTH, maxNoteWidth);
+						n.lane = std::clamp(n.lane + diff, minLane, maxLane - n.width + 1);
 					}
 				}
 			}
@@ -1163,7 +1228,7 @@ namespace MikuMikuWorld
 		if (noteControl(context, pos, sz, "M", ImGuiMouseCursor_ResizeAll))
 		{
 			int curLane = positionToLane(mousePos.x);
-			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
+			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), minLane, maxLane);
 			int grabTick = snapTickFromPos(-ctrlMousePos.y, context);
 
 			int diff = curLane - grabLane;
@@ -1171,11 +1236,11 @@ namespace MikuMikuWorld
 			{
 				isMovingNote = true;
 				ctrlMousePos.x = mousePos.x;
-				bool canMove = !std::any_of(context.selectedNotes.begin(), context.selectedNotes.end(), [&context, diff](int id)
+				bool canMove = !std::any_of(context.selectedNotes.begin(), context.selectedNotes.end(), [&context, diff, minLane, maxLane](int id)
 				{
 					Note& n = context.score.notes.at(id);
 					int newLane = n.lane + diff;
-					return (newLane < MIN_LANE || newLane + n.width - 1 > MAX_LANE);
+					return (newLane < minLane || newLane + n.width - 1 > maxLane);
 				});
 
 				if (canMove)
@@ -1184,7 +1249,7 @@ namespace MikuMikuWorld
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
-						n.lane = std::clamp(n.lane + diff, MIN_LANE, MAX_LANE - n.width + 1);
+						n.lane = std::clamp(n.lane + diff, minLane, maxLane - n.width + 1);
 					}
 				}
 			}
@@ -1251,17 +1316,17 @@ namespace MikuMikuWorld
 		// right resize
 		if (noteControl(context, pos, sz, "R", ImGuiMouseCursor_ResizeEW))
 		{
-			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
+			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), minLane, maxLane);
 			int curLane = positionToLane(mousePos.x);
 
 			int diff = curLane - grabLane;
 			if (abs(diff) > 0)
 			{
-				bool canResize = !std::any_of(context.selectedNotes.begin(), context.selectedNotes.end(), [&context, diff](int id)
+				bool canResize = !std::any_of(context.selectedNotes.begin(), context.selectedNotes.end(), [&context, diff, maxLane](int id)
 				{
 					Note& n = context.score.notes.at(id);
 					int newWidth = n.width + diff;
-					return (newWidth < MIN_NOTE_WIDTH || n.lane + newWidth - 1 > MAX_LANE);
+					return (newWidth < MIN_NOTE_WIDTH || n.lane + newWidth - 1 > maxLane);
 				});
 
 				if (canResize)
@@ -1271,7 +1336,7 @@ namespace MikuMikuWorld
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
-						n.width = std::clamp(n.width + diff, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH - n.lane);
+						n.width = std::clamp(n.width + diff, MIN_NOTE_WIDTH, maxNoteWidth - n.lane);
 					}
 				}
 			}
@@ -1624,42 +1689,105 @@ namespace MikuMikuWorld
 			drawFlickArrow(note, renderer, tint, offsetTick, offsetLane);
 	}
 
-	bool ScoreEditorTimeline::bpmControl(const Tempo& tempo)
+	void ScoreEditorTimeline::drawCcNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
 	{
-		return bpmControl(tempo.bpm, tempo.tick, !playing);
+		if (noteTextures.notes == -1)
+			return;
+
+		const Texture& tex = ResourceManager::textures[noteTextures.ccNotes];
+		const int sprIndex = getCcNoteSpriteIndex(note);
+		if (sprIndex < 0 || sprIndex >= tex.sprites.size())
+			return;
+
+		const Sprite& s = tex.sprites[sprIndex];
+
+		Vector2 pos{ laneToPosition(note.lane + offsetLane), getNoteYPosFromTick(note.tick + offsetTick) };
+		const Vector2 sliceSz(notesSliceSize, notesHeight);
+		const AnchorType anchor = AnchorType::MiddleLeft;
+
+		const float midLen = std::max(0.0f, (laneWidth * note.width) - (sliceSz.x * 2) + noteOffsetX + 5);
+		const Vector2 midSz{ midLen, notesHeight };
+
+		pos.x -= noteOffsetX;
+		const int left = s.getX() + noteCutoffX;
+		const int right = s.getX() + s.getWidth() - noteCutoffX;
+
+		// left slice
+		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
+			left, left + noteSliceWidth,
+			s.getY(), s.getY() + s.getHeight(), tint, 1
+		);
+		pos.x += sliceSz.x;
+
+		// middle
+		renderer->drawSprite(pos, 0.0f, midSz, anchor, tex,
+			left + noteSliceWidth, right - noteSliceWidth,
+			s.getY(), s.getY() + s.getHeight(), tint, 1
+		);
+		pos.x += midLen;
+
+		// right slice
+		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
+			right - noteSliceWidth, right,
+			s.getY(), s.getY() + s.getHeight(), tint, 1
+		);
+
+		if (note.friction)
+		{
+			int frictionSprIndex = getFrictionSpriteIndex(note);
+			if (frictionSprIndex >= 0 && frictionSprIndex < tex.sprites.size())
+			{
+				// friction diamond is slightly smaller
+				const Sprite& frictionSpr = tex.sprites[frictionSprIndex];
+				const Vector2 nodeSz{ notesHeight * 0.8f, notesHeight * 0.8f };
+
+				// diamond is always centered
+				pos.x = midpoint(laneToPosition(note.lane + offsetLane), laneToPosition(note.lane + offsetLane + note.width));
+				renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, frictionSpr.getX(), frictionSpr.getX() + frictionSpr.getWidth(),
+					frictionSpr.getY(), frictionSpr.getY() + frictionSpr.getHeight(), tint, 1);
+			}
+		}
+
+		if (note.isFlick())
+			drawFlickArrow(note, renderer, tint, offsetTick, offsetLane);
 	}
 
-	bool ScoreEditorTimeline::bpmControl(float bpm, int tick, bool enabled)
+	bool ScoreEditorTimeline::bpmControl(const Score& score, const Tempo& tempo)
 	{
-		Vector2 pos{ getTimelineEndX() + 15, position.y - tickToPosition(tick) + visualOffset };
-		return eventControl(getTimelineEndX(), pos, tempoColor, IO::formatString("%g BPM", bpm).c_str(), enabled);
+		return bpmControl(score, tempo.bpm, tempo.tick, !playing);
 	}
 
-	bool ScoreEditorTimeline::timeSignatureControl(int numerator, int denominator, int tick, bool enabled)
+	bool ScoreEditorTimeline::bpmControl(const Score& score, float bpm, int tick, bool enabled)
+	{
+		Vector2 pos{ getTimelineEndX(score) + 15, position.y - tickToPosition(tick) + visualOffset };
+		return eventControl(getTimelineEndX(score), pos, tempoColor, IO::formatString("%g BPM", bpm).c_str(), enabled);
+	}
+
+	bool ScoreEditorTimeline::timeSignatureControl(const Score& score, int numerator, int denominator, int tick, bool enabled)
 	{
 		float dpiScale = ImGui::GetMainViewport()->DpiScale;
-		Vector2 pos{ getTimelineEndX() + (78 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
-		return eventControl(getTimelineEndX(), pos, timeColor, IO::formatString("%d/%d", numerator, denominator).c_str(), enabled);
+		Vector2 pos{ getTimelineEndX(score) + (78 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
+		return eventControl(getTimelineEndX(score), pos, timeColor, IO::formatString("%d/%d", numerator, denominator).c_str(), enabled);
 	}
 
-	bool ScoreEditorTimeline::skillControl(const SkillTrigger& skill)
+	bool ScoreEditorTimeline::skillControl(const Score& score, const SkillTrigger& skill)
 	{
-		return skillControl(skill.tick, !playing);
+		return skillControl(score, skill.tick, !playing);
 	}
 
-	bool ScoreEditorTimeline::skillControl(int tick, bool enabled)
+	bool ScoreEditorTimeline::skillControl(const Score& score, int tick, bool enabled)
 	{
 		float dpiScale = ImGui::GetMainViewport()->DpiScale;
-		Vector2 pos{ getTimelineStartX() - (50 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
-		return eventControl(getTimelineStartX(), pos, skillColor, getString("skill"), enabled);
+		Vector2 pos{ getTimelineStartX(score) - (50 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
+		return eventControl(getTimelineStartX(score), pos, skillColor, getString("skill"), enabled);
 	}
 
-	bool ScoreEditorTimeline::feverControl(const Fever& fever)
+	bool ScoreEditorTimeline::feverControl(const Score& score,const Fever& fever)
 	{
-		return feverControl(fever.startTick, true, !playing) || feverControl(fever.endTick, false, !playing);
+		return feverControl(score, fever.startTick, true, !playing) || feverControl(score, fever.endTick, false, !playing);
 	}
 
-	bool ScoreEditorTimeline::feverControl(int tick, bool start, bool enabled)
+	bool ScoreEditorTimeline::feverControl(const Score& score, int tick, bool start, bool enabled)
 	{
 		if (tick < 0)
 			return false;
@@ -1668,21 +1796,21 @@ namespace MikuMikuWorld
 		txt.append(start ? ICON_FA_CARET_UP : ICON_FA_CARET_DOWN);
 
 		float dpiScale = ImGui::GetMainViewport()->DpiScale;
-		Vector2 pos{ getTimelineStartX() - (108 * dpiScale), position.y - tickToPosition(tick) + visualOffset };
-		return eventControl(getTimelineStartX(), pos, feverColor, txt.c_str(), enabled);
+		Vector2 pos{ getTimelineStartX(score) - (108 * dpiScale), position.y - tickToPosition(tick) + visualOffset };
+		return eventControl(getTimelineStartX(score), pos, feverColor, txt.c_str(), enabled);
 	}
 
-	bool ScoreEditorTimeline::hiSpeedControl(const HiSpeedChange& hiSpeed)
+	bool ScoreEditorTimeline::hiSpeedControl(const Score& score, const HiSpeedChange& hiSpeed)
 	{
-		return hiSpeedControl(hiSpeed.tick, hiSpeed.speed);
+		return hiSpeedControl(score, hiSpeed.tick, hiSpeed.speed);
 	}
 
-	bool ScoreEditorTimeline::hiSpeedControl(int tick, float speed)
+	bool ScoreEditorTimeline::hiSpeedControl(const Score& score, int tick, float speed)
 	{
 		std::string txt = IO::formatString("%.2fx", speed);
 		float dpiScale = ImGui::GetMainViewport()->DpiScale;
-		Vector2 pos{ getTimelineEndX() + (115 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
-		return eventControl(getTimelineEndX(), pos, speedColor, txt.c_str(), true);
+		Vector2 pos{ getTimelineEndX(score) + (115 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
+		return eventControl(getTimelineEndX(score), pos, speedColor, txt.c_str(), true);
 	}
 
 	void ScoreEditorTimeline::eventEditor(ScoreContext& context)
@@ -1899,6 +2027,17 @@ namespace MikuMikuWorld
 		context.pushHistory("Insert hold step", prev, context.score);
 	}
 
+	void ScoreEditorTimeline::insertDamage(ScoreContext& context, EditArgs& edit)
+	{
+		Score prev = context.score;
+
+		Note newNote = inputNotes.damage;
+		newNote.ID = nextID++;
+
+		context.score.notes[newNote.ID] = newNote;
+		context.pushHistory("Insert damage", prev, context.score);
+	}
+
 	void ScoreEditorTimeline::debug()
 	{
 		ImGui::Text("Viewport position: (%f, %f)", position.x, position.y);
@@ -1967,6 +2106,8 @@ namespace MikuMikuWorld
 		playingNoteSounds.clear();
 		for (const auto& [id, note] : context.score.notes)
 		{
+      if (note.getType() == NoteType::Damage)
+        continue;
 			float noteTime = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
 			float notePlayTime = noteTime - playStartTime;
 			float offsetNoteTime = noteTime - audioLookAhead;

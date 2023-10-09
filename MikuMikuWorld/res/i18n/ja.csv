@@ -83,6 +83,7 @@ flick, フリック
 critical, クリティカル
 trace, トレース
 guide, ガイド
+damage, ダメージ
 bpm, BPM
 time_signature, 拍子
 none, 無し
@@ -115,6 +116,7 @@ title, タイトル
 designer, 譜面作者
 artist, アーティスト
 jacket, ジャケット
+lane_extension, 拡張レーン
 audio, 音源
 music_file, 音源ファイル
 music_offset, オフセット
@@ -176,6 +178,7 @@ timeline_flick, タイムライン「フリック」
 timeline_critical, タイムライン「クリティカル」
 timeline_trace, タイムライン「トレース」
 timeline_guide, タイムライン「ガイド」
+timeline_damage, タイムライン「ダメージ」
 timeline_bpm, タイムライン「BPM」
 timeline_time_signature, タイムライン「拍子」
 timeline_hi_speed, タイムライン「ハイスピード」

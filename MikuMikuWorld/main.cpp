@@ -20,7 +20,7 @@ int main()
 	{
 		std::string dir = IO::File::getFilepath(IO::wideStringToMb(args[0]));
 		mmw::Result result = app.initialize(dir);
-		
+
 		if (!result.isOk())
 			throw (std::exception(result.getMessage().c_str()));
 
@@ -32,12 +32,12 @@ int main()
 	}
 	catch (const std::exception& ex)
 	{
-		std::string msg = std::string("An unhandled exception has occured and the application will now close.\n\n")
-			.append(ex.what())
-			.append("\n\nApplication Version: ")
-			.append(mmw::Application::getAppVersion());
-			
-		IO::messageBox(APP_NAME, msg, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
+	  std::string msg = std::string("An unhandled exception has occured and the application will now close.\n\n")
+	  	.append(ex.what())
+	  	.append("\n\nApplication Version: ")
+	  	.append(mmw::Application::getAppVersion());
+
+	  IO::messageBox(APP_NAME, msg, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 	}
 
 	app.dispose();

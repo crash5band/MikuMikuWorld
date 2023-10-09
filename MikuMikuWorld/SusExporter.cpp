@@ -189,7 +189,7 @@ namespace MikuMikuWorld
 		std::vector<std::string> lines;
 		if (!comment.empty())
 		{
-			// Make sure the comment is ignored by parsers. 
+			// Make sure the comment is ignored by parsers.
 			lines.push_back(comment.substr(comment.find_first_not_of("#")));
 		}
 
@@ -204,7 +204,8 @@ namespace MikuMikuWorld
 
 		lines.push_back(IO::formatString("#WAVEOFFSET %g", sus.metadata.waveOffset));
 		lines.push_back("");
-		lines.push_back(IO::formatString("#REQUEST \"ticks_per_beat %d\"", ticksPerBeat));
+    for (const auto& request : sus.metadata.requests)
+      lines.push_back(IO::formatString("#REQUEST \"%s\"", request.c_str()));
 		lines.push_back("");
 
 		// Do we really need a copy of each here?
@@ -342,7 +343,7 @@ namespace MikuMikuWorld
 				speedLine.append(", ");
 		}
 		speedLine.append("\"");
-		
+
 		lines.push_back(formatString("#TIL00: %s", speedLine.c_str()));
 		lines.push_back("#HISPEED 00");
 		lines.push_back("#MEASUREHS 00");
