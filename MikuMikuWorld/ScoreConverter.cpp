@@ -157,8 +157,8 @@ namespace MikuMikuWorld
 			/* 	continue; */
 			/* } */
 
-			/* if (note.lane - 2 < MIN_LANE || note.lane - 2 > MAX_LANE) */
-			/* 	continue; */
+			if (!sus.sideLane && (note.lane - 2 < MIN_LANE || note.lane - 2 > MAX_LANE))
+				continue;
 
 			const std::string key = noteKey(note);
 
@@ -491,11 +491,18 @@ namespace MikuMikuWorld
 		metadata.data["artist"] = score.metadata.artist;
 		metadata.data["designer"] = score.metadata.author;
 		metadata.requests.push_back("ticks_per_beat 480");
-    metadata.requests.push_back("lane_offset " + std::to_string(-score.metadata.laneExtension));
+		metadata.requests.push_back("side_lane true");
+    int laneOffset;
+    if (score.metadata.laneExtension == 0) {
+      laneOffset = 0;
+    } else {
+      laneOffset = -score.metadata.laneExtension + 2;
+    }
+    metadata.requests.push_back("lane_offset " + std::to_string(laneOffset));
 
 		// milliseconds -> seconds
 		metadata.waveOffset = score.metadata.musicOffset / 1000.0f;
 
-		return SUS{ metadata, taps, directionals, slides, guides, bpms, barlengths, hiSpeeds, -score.metadata.laneExtension };
+		return SUS{ metadata, taps, directionals, slides, guides, bpms, barlengths, hiSpeeds, laneOffset };
 	}
 }

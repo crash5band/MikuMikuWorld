@@ -132,6 +132,8 @@ namespace MikuMikuWorld
 			std::vector<std::string> requestArgs = split(value, " ");
 			if (requestArgs.size() == 2 && requestArgs[0] == "ticks_per_beat") {
 				ticksPerBeat = atoi(requestArgs[1].c_str());
+      } else if (requestArgs.size() == 2 && requestArgs[0] == "side_lane") {
+				sideLane = requestArgs[1] == "true";
       } else if (requestArgs.size() == 2 && requestArgs[0] == "lane_offset") {
 				laneOffset = atoi(requestArgs[1].c_str());
       }
@@ -342,6 +344,6 @@ namespace MikuMikuWorld
 		metadata.data["designer"] = designer;
 		metadata.waveOffset = waveOffset;
 
-		return SUS{ metadata, taps, directionals, slides, guides, bpms, barLengths, hiSpeeds, laneOffset };
+		return SUS{ metadata, taps, directionals, slides, guides, bpms, barLengths, hiSpeeds, laneOffset, sideLane };
 	}
 }

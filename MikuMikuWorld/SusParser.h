@@ -24,6 +24,7 @@ namespace MikuMikuWorld
 		int ticksPerBeat;
 		int measureOffset;
     int laneOffset;
+    bool sideLane;
 		float waveOffset;
 		std::string title;
 		std::string artist;

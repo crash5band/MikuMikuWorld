@@ -63,5 +63,6 @@ namespace MikuMikuWorld
 		std::vector<BarLength> barlengths;
 		std::vector<HiSpeed> hiSpeeds;
     int laneOffset;
+    bool sideLane;
 	};
 }
