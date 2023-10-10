@@ -307,7 +307,7 @@ namespace MikuMikuWorld
 		return act;
 	}
 
-	bool UI::zoomControl(const char* label, float& value, float min, float max)
+	bool UI::zoomControl(const char* label, float& value, float min, float max, float width)
 	{
 		bool act = false;
 		if (UI::transparentButton(ICON_FA_SEARCH_MINUS, UI::btnSmall))
@@ -317,7 +317,7 @@ namespace MikuMikuWorld
 		}
 
 		ImGui::SameLine();
-		ImGui::SetNextItemWidth(120);
+		ImGui::SetNextItemWidth(width);
 
 		act |= ImGui::SliderFloat(labelID(label), &value, min, max, "%.2fx");
 		ImGui::SameLine();

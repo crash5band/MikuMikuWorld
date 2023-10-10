@@ -91,7 +91,7 @@ namespace MikuMikuWorld
 		static void tooltip(const char* label);
 		static const char* labelID(const char* label);
 		static bool divisionSelect(const char* label, int& value, const int* items, size_t count);
-		static bool zoomControl(const char* label, float& value, float min, float max);
+		static bool zoomControl(const char* label, float& value, float min, float max, float width);
 		static bool timeSignatureSelect(int& numerator, int& denominator);
 		static bool toolbarButton(const char* icon, const char* label, const char* shortcut, bool enabled = true, bool selected = false);
 		static bool toolbarImageButton(const char* img, const char* label, const char* shortcut, bool enabled = true, bool selected = false);
