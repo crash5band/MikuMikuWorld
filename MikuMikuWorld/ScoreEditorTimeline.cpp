@@ -439,14 +439,13 @@ namespace MikuMikuWorld
       ImU32 color;
       ImU32 exColor;
       float thickness;
-			if (!((tick - measureTicks) % beatTicks))
-      {
+			if (!((tick - measureTicks) % beatTicks)) {
         color = measureColor;
         exColor = exMeasureColor;
         thickness = primaryLineThickness;
-      }
-			else if (division < 192)
-      {
+      } else if (division >= 192) {
+        continue;
+      } else {
         color = divColor2;
         exColor = exDivColor2;
         thickness = secondaryLineThickness;

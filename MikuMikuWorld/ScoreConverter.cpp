@@ -328,7 +328,6 @@ namespace MikuMikuWorld
 		score.hiSpeedChanges = hiSpeedChanges;
 		score.skills = skills;
 		score.fever = fever;
-    score.metadata.laneExtension = abs(sus.laneOffset);
 
 		return score;
 	}
