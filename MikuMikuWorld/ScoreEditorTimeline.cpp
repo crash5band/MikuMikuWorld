@@ -178,7 +178,7 @@ namespace MikuMikuWorld
 			maxTick = std::max(maxTick, note.tick);
 
 		// Current offset maybe greater than calculated offset from score
-		maxOffset = std::max(offset / zoom, (maxTick * unitHeight) + 1000);
+		maxOffset = std::max(offset / zoom, std::max(10000.0f, (maxTick * unitHeight) + 1000));
 	}
 
 	void ScoreEditorTimeline::updateScrollingPosition()
