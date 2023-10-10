@@ -33,9 +33,17 @@ namespace MikuMikuWorld
 			int pos = findHoldStep(hold, id);
 			if (pos != -1)
 			{
-				// don't record history if the type did not change
-				edit |= hold.steps[pos].type != type;
-				hold.steps[pos].type = type;
+				if (type == HoldStepType::HoldStepTypeCount)
+				{
+					cycleStepType(hold.steps[pos]);
+					edit = true;
+				}
+				else
+				{
+					// don't record history if the type did not change
+					edit |= hold.steps[pos].type != type;
+					hold.steps[pos].type = type;
+				}
 			}
 		}
 
@@ -62,8 +70,16 @@ namespace MikuMikuWorld
 
 			if (canFlick)
 			{
-				edit |= note.flick != flick;
-				note.flick = flick;
+				if (flick == FlickType::FlickTypeCount)
+				{
+					cycleFlick(note);
+					edit = true;
+				}
+				else
+				{
+					edit |= note.flick != flick;
+					note.flick = flick;
+				}
 			}
 		}
 
@@ -83,8 +99,16 @@ namespace MikuMikuWorld
 			Note& note = score.notes.at(id);
 			if (note.getType() == NoteType::Hold)
 			{
-				edit |= score.holdNotes.at(note.ID).start.ease != ease;
-				score.holdNotes.at(note.ID).start.ease = ease;
+				if (ease == EaseType::EaseTypeCount)
+				{
+					cycleStepEase(score.holdNotes.at(note.ID).start);
+					edit = true;
+				}
+				else
+				{
+					edit |= score.holdNotes.at(note.ID).start.ease != ease;
+					score.holdNotes.at(note.ID).start.ease = ease;
+				}
 			}
 			else if (note.getType() == NoteType::HoldMid)
 			{
@@ -92,8 +116,17 @@ namespace MikuMikuWorld
 				int pos = findHoldStep(hold, id);
 				if (pos != -1)
 				{
-					edit |= hold.steps[pos].ease != ease;
-					hold.steps[pos].ease = ease;
+					if (ease == EaseType::EaseTypeCount)
+					{
+						cycleStepEase(hold.steps[pos]);
+						edit = true;
+					}
+					else
+					{
+						// don't record history if the type did not change
+						edit |= hold.steps[pos].ease != ease;
+						hold.steps[pos].ease = ease;
+					}
 				}
 			}
 		}
@@ -113,32 +146,17 @@ namespace MikuMikuWorld
 		{
 			// Invisible hold points cannot be trace notes!
 			Note& note = score.notes.at(id);
+			if (note.getType() == NoteType::Tap || note.getType() == NoteType::HoldMid)
+				continue;
+
 			HoldNote& holdNote = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
-			
+
 			// For now do not allow changing guides to normal holds or vice versa
 			if (holdNote.isGuide())
 				continue;
 
-			if (note.getType() == NoteType::Hold)
-			{
-				if ((hold != HoldNoteType::Normal))
-					note.friction = false;
-				
-				holdNote.startType = hold;
-				edit = true;
-			}
-			else if (note.getType() == NoteType::HoldEnd)
-			{
-				// reset flick to none if the end is not normal
-				if (hold != HoldNoteType::Normal)
-				{
-					note.flick = FlickType::None;
-					note.friction = false;
-				}
-
-				holdNote.endType = hold;
-				edit = true;
-			}
+			note.getType() == NoteType::Hold ? holdNote.startType = hold : holdNote.endType = hold;
+			edit = true;
 		}
 
 		if (edit)
@@ -198,10 +216,9 @@ namespace MikuMikuWorld
 			// Hold steps and invisible hold points cannot be trace notes
 			Note& note = score.notes.at(id);
 			if (note.getType() == NoteType::HoldMid)
-			{
 				continue;
-			}
-			else if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd)
+
+			if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd)
 			{
 				HoldNote& holdNote = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
 				if (holdNote.isGuide())
@@ -216,7 +233,7 @@ namespace MikuMikuWorld
 					holdNote.endType = HoldNoteType::Normal;
 					if (!note.isFlick() && note.friction && !score.notes.at(note.parentID).critical)
 					{
-						// Prevent critical hold end if the hold start is not
+						// Prevent critical hold end if the hold start is not critical
 						note.critical = false;
 					}
 				}
