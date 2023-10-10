@@ -1,0 +1,32 @@
+name: Build on push with tag
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1
+      - name: Build
+        run: msbuild /p:Configuration=Release /p:Platform=x64
+      - name: Pack
+        shell: bash
+        run: |
+          mkdir build
+          cd build
+          mkdir MikuMikuWorld
+          cp ../x64/Release/MikuMikuWorld.exe MikuMikuWorld
+          cp -r ../x64/Release/res MikuMikuWorld
+
+          7z a MikuMikuWorld.zip MikuMikuWorld
+
+      - name: Upload
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/MikuMikuWorld.zip
