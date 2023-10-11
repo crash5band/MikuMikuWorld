@@ -72,4 +72,18 @@ namespace MikuMikuWorld
 		"hidden",
 		"guide"
 	};
+
+	enum class FadeType : uint8_t
+	{
+    Out,
+    None,
+    In
+	};
+
+	constexpr const char* fadeTypes[]
+	{
+		"fade_out",
+		"fade_none",
+		"fade_in"
+	};
 }

@@ -134,7 +134,7 @@ namespace MikuMikuWorld
 		void updateScrollbar();
 		void updateScrollingPosition();
 
-		void drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, bool isGuide, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
+		void drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, bool isGuide, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0, const float startAlpha = 1, const float endAlpha = 1);
 		void drawHoldNote(const std::unordered_map<int, Note>& notes, const HoldNote& note, Renderer* renderer, const Color& tint, const int offsetTicks = 0, const int offsetLane = 0);
 		void drawHoldMid(Note& note, HoldStepType type, Renderer* renderer, const Color& tint);
 		void drawOutline(const StepDrawData& data);

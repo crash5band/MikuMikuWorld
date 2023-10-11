@@ -111,6 +111,7 @@ step_type, 中継点の種類
 ease_type, 曲線の種類
 flick_type, フリックの方向
 hold_type, スライドの種類
+fade_type, フェードの種類
 metadata, 情報
 title, タイトル
 designer, 譜面作者
@@ -149,6 +150,9 @@ decrease_note_size, ノーツの幅を狭める
 hi_speed, ハイスピード
 edit_hi_speed, ハイスピードを編集
 hi_speed_speed, ハイスピード速度
+fade_none, フェードなし
+fade_in, フェードイン
+fade_out, フェードアウト
 
 # preset manager
 presets, プリセット

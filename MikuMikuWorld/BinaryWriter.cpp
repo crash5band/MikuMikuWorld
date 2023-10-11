@@ -54,6 +54,12 @@ namespace IO
 			fseek(stream, pos, SEEK_SET);
 	}
 
+	void BinaryWriter::writeInt16(uint16_t data)
+	{
+		if (stream)
+			fwrite(&data, sizeof(uint16_t), 1, stream);
+	}
+
 	void BinaryWriter::writeInt32(uint32_t data)
 	{
 		if (stream)

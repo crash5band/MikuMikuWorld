@@ -118,6 +118,7 @@ namespace MikuMikuWorld
 		{"ease_type", "Ease Type"},
 		{"flick_type", "Flick Type"},
 		{"hold_type", "Hold Type"},
+    {"fade_type", "Fade Type"},
 		{"metadata", "Metadata"},
 		{"title", "Title"},
 		{"designer", "Designer"},
@@ -156,6 +157,9 @@ namespace MikuMikuWorld
 		{"hi_speed", "Hi-Speed"},
 		{"edit_hi_speed", "Edit Hi-Speed"},
 		{"hi_speed_speed", "Speed"},
+    {"fade_none", "No Fade"},
+    {"fade_in", "Fade In"},
+    {"fade_out", "Fade Out"},
 
 		// preset manager
 		{"presets", "Presets"},

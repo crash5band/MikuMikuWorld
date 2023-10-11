@@ -103,8 +103,10 @@ namespace MikuMikuWorld
 		HoldNoteType startType{};
 		HoldNoteType endType{};
 
+    FadeType fadeType{ FadeType::Out };
+
 		constexpr bool isGuide() const
-		{ 
+		{
 			return startType == HoldNoteType::Guide || endType == HoldNoteType::Guide;
 		}
 	};

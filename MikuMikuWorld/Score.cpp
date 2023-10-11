@@ -67,7 +67,7 @@ namespace MikuMikuWorld
 		writer->writeInt32(flags);
 	}
 
-	ScoreMetadata readMetadata(BinaryReader* reader, int version, bool isCyanvas)
+	ScoreMetadata readMetadata(BinaryReader* reader, int version, int cyanvasVersion)
 	{
 		ScoreMetadata metadata;
 		metadata.title = reader->readString();
@@ -79,7 +79,7 @@ namespace MikuMikuWorld
 		if (version > 1)
 			metadata.jacketFile = reader->readString();
 
-    if (isCyanvas)
+    if (cyanvasVersion >= 1)
       metadata.laneExtension = reader->readInt32();
 
 		return metadata;
@@ -198,7 +198,11 @@ namespace MikuMikuWorld
 
     bool isCyanvas = signature == "CCMMWS";
 
-		int version = reader.readInt32();
+		int cyanvasVersion = reader.readInt16();
+    if (isCyanvas && cyanvasVersion == 0) {
+      cyanvasVersion = 1;
+    }
+		int version = reader.readInt16();
 
 		uint32_t metadataAddress{};
 		uint32_t eventsAddress{};
@@ -217,7 +221,7 @@ namespace MikuMikuWorld
 			reader.seek(metadataAddress);
 		}
 
-		score.metadata = readMetadata(&reader, version, isCyanvas);
+		score.metadata = readMetadata(&reader, version, cyanvasVersion);
 
 		if (version > 2)
 			reader.seek(eventsAddress);
@@ -262,6 +266,10 @@ namespace MikuMikuWorld
 			start.ID = nextID++;
 			hold.start.ease = (EaseType)reader.readInt32();
 			hold.start.ID = start.ID;
+      if (cyanvasVersion >= 2)
+      {
+        hold.fadeType = (FadeType)reader.readInt32();
+      }
 			score.notes[start.ID] = start;
 
 			int stepCount = reader.readInt32();
@@ -289,7 +297,7 @@ namespace MikuMikuWorld
 			score.holdNotes[start.ID] = hold;
 		}
 
-    if (isCyanvas)
+    if (cyanvasVersion >= 1)
     {
       reader.seek(damagesAddress);
 
@@ -317,7 +325,8 @@ namespace MikuMikuWorld
 		writer.writeString("CCMMWS");
 
 		// verison
-		writer.writeInt32(4);
+		writer.writeInt16(2);
+		writer.writeInt16(4);
 
 		// offsets address in order: metadata -> events -> taps -> holds
     // Cyanvas extension: -> damages
@@ -364,6 +373,7 @@ namespace MikuMikuWorld
 			const Note& start = score.notes.at(hold.start.ID);
 			writeNote(start, &writer);
 			writer.writeInt32((int)hold.start.ease);
+      writer.writeInt32((int)hold.fadeType);
 
 			// steps
 			int stepCount = hold.steps.size();

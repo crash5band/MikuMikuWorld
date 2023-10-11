@@ -113,8 +113,10 @@ namespace MikuMikuWorld
 		{
 			// Invisible hold points cannot be trace notes!
 			Note& note = score.notes.at(id);
+      if (!(note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd))
+        continue;
 			HoldNote& holdNote = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
-			
+
 			// For now do not allow changing guides to normal holds or vice versa
 			if (holdNote.isGuide())
 				continue;
@@ -123,7 +125,7 @@ namespace MikuMikuWorld
 			{
 				if ((hold != HoldNoteType::Normal))
 					note.friction = false;
-				
+
 				holdNote.startType = hold;
 				edit = true;
 			}
@@ -143,6 +145,33 @@ namespace MikuMikuWorld
 
 		if (edit)
 			pushHistory("Change hold", prev, score);
+	}
+
+	void ScoreContext::setFadeType(FadeType fade)
+	{
+		if (selectedNotes.empty())
+			return;
+
+		Score prev = score;
+		bool edit = false;
+		for (int id : selectedNotes)
+		{
+			// Invisible hold points cannot be trace notes!
+			Note& note = score.notes.at(id);
+
+      if (!(note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd))
+        continue;
+			HoldNote& holdNote = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
+
+			if (!holdNote.isGuide())
+				continue;
+
+      holdNote.fadeType = fade;
+      edit = true;
+		}
+
+		if (edit)
+			pushHistory("Change fade", prev, score);
 	}
 
 	void ScoreContext::toggleCriticals()
@@ -206,7 +235,7 @@ namespace MikuMikuWorld
 				HoldNote& holdNote = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
 				if (holdNote.isGuide())
 					continue;
-				
+
 				if (note.getType() == NoteType::Hold)
 				{
 					holdNote.startType = HoldNoteType::Normal;
@@ -772,6 +801,18 @@ namespace MikuMikuWorld
 			const Note& note = score.notes.at(id);
 			if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd)
 				return !score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID).isGuide();
+
+			return false;
+		});
+	}
+
+	bool ScoreContext::selectionCanChangeFadeType() const
+	{
+		return std::any_of(selectedNotes.begin(), selectedNotes.end(), [this](const int id)
+		{
+			const Note& note = score.notes.at(id);
+			if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd)
+				return score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID).isGuide();
 
 			return false;
 		});
