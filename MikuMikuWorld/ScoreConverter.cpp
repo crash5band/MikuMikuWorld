@@ -436,7 +436,9 @@ namespace MikuMikuWorld
 			const Note& end = score.notes.at(hold.end);
 
 			slide.push_back(SUSNote{ end.tick, end.lane + offset, end.width, 2 });
-			if (end.isFlick())
+
+			// Hidden and guide slides do not have flicks
+			if (end.isFlick() && hold.endType == HoldNoteType::Normal)
 			{
 				directionals.push_back(SUSNote{ end.tick, end.lane + offset, end.width, flickToType[end.flick] });
 
