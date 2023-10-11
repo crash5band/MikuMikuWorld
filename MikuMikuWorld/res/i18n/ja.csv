@@ -7,7 +7,8 @@ new, 新規
 open, 開く
 save, 保存
 save_as, 別名で保存
-export, 出力
+export_sus, SUSとして出力
+export_usc, USCとして出力
 exit, 終了
 edit, 編集
 undo, 元に戻す

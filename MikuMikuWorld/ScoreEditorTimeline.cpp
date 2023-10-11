@@ -1314,7 +1314,7 @@ void ScoreEditorTimeline::updateNote(ScoreContext &context, EditArgs &edit,
     if (!isMovingNote && !context.selectedNotes.empty()) {
       switch (currentMode) {
       case TimelineMode::InsertFlick:
-        context.setFlick(edit.flickType);
+				context.setFlick(FlickType::FlickTypeCount);
         break;
 
       case TimelineMode::MakeCritical:
@@ -1322,11 +1322,11 @@ void ScoreEditorTimeline::updateNote(ScoreContext &context, EditArgs &edit,
         break;
 
       case TimelineMode::InsertLong:
-        context.setEase(edit.easeType);
+				context.setEase(EaseType::EaseTypeCount);
         break;
 
       case TimelineMode::InsertLongMid:
-        context.setStep(edit.stepType);
+				context.setStep(HoldStepType::HoldStepTypeCount);
         break;
 
       case TimelineMode::MakeFriction:
