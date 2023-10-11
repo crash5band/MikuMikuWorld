@@ -53,20 +53,21 @@ namespace MikuMikuWorld
 		std::unordered_set<std::string> frictions;
 		std::unordered_set<std::string> hiddenHolds;
 
-		for (const auto& slide : sus.slides)
-		{
-			for (const auto& note : slide)
-			{
-				switch (note.type)
-				{
-				case 1:
-				case 2:
-				case 3:
-				case 5:
-					slideKeys.insert(noteKey(note));
-				}
-			}
-		}
+		for (const auto& slides : {sus.slides, sus.guides})
+      for (const auto& slide : slides)
+      {
+        for (const auto& note : slide)
+        {
+          switch (note.type)
+          {
+          case 1:
+          case 2:
+          case 3:
+          case 5:
+            slideKeys.insert(noteKey(note));
+          }
+        }
+      }
 
 		for (const auto& dir : sus.directionals)
 		{
@@ -252,6 +253,7 @@ namespace MikuMikuWorld
 						if (isGuide)
 						{
 							hold.endType = HoldNoteType::Guide;
+              hold.fadeType = hiddenHolds.find(noteKey(note)) != hiddenHolds.end() ? FadeType::None : FadeType::Out;
 						}
 						else
 						{
@@ -437,13 +439,13 @@ namespace MikuMikuWorld
 			if (end.isFlick())
 			{
 				directionals.push_back(SUSNote{ end.tick, end.lane + offset, end.width, flickToType[end.flick] });
-				
+
 				// Critical friction notes use type 6 not 2
 				if (end.critical && !start.critical && !end.friction)
 					taps.push_back(SUSNote{ end.tick, end.lane + offset, end.width, 2 });
 			}
-			
-			int endType = hold.endType == HoldNoteType::Hidden ? 7 : end.friction ? 5 : 1;
+
+			int endType = hold.fadeType == FadeType::None ? 4 : hold.endType == HoldNoteType::Hidden ? 7 : end.friction ? 5 : 1;
 			if (end.critical)
 			{
 				endType++;
