@@ -209,11 +209,6 @@ namespace MikuMikuWorld
 				SusParser susParser;
 				newScore = ScoreConverter::susToScore(susParser.parse(filename));
 			}
-      else if (extension == USC_EXTENSION)
-			{
-        nlohmann::json usc = nlohmann::json::parse(IO::File::read(filename));
-				newScore = ScoreConverter::uscToScore(usc);
-			}
 			else if (extension == MMWS_EXTENSION || extension == CC_MMWS_EXTENSION)
 			{
 				newScore = deserializeScore(filename);

@@ -523,7 +523,7 @@ namespace MikuMikuWorld
     for (const auto& bpm : score.tempoChanges) {
       json obj;
       obj["type"] = "bpm";
-      obj["beat"] = bpm.tick / TICKS_PER_BEAT;
+      obj["beat"] = bpm.tick / (float)TICKS_PER_BEAT;
       obj["bpm"] = bpm.bpm;
       objects.push_back(obj);
     }
@@ -533,7 +533,7 @@ namespace MikuMikuWorld
     std::vector<json> timeScaleObjects;
     for (const auto& hs : score.hiSpeedChanges) {
       json obj;
-      obj["beat"] = hs.tick / TICKS_PER_BEAT;
+      obj["beat"] = hs.tick / (float)TICKS_PER_BEAT;
       obj["timeScale"] = hs.speed;
       timeScaleObjects.push_back(obj);
     }
@@ -544,9 +544,9 @@ namespace MikuMikuWorld
       if (note.getType() == NoteType::Tap) {
         json obj;
         obj["type"] = "single";
-        obj["beat"] = note.tick / TICKS_PER_BEAT;
-        obj["size"] = note.width;
-        obj["lane"] = note.lane - 6;
+        obj["beat"] = note.tick / (float)TICKS_PER_BEAT;
+        obj["size"] = note.width / 2.0;
+        obj["lane"] = note.lane - 6 + (note.width / 2.0);
         obj["critical"] = note.critical;
         obj["trace"] = note.friction;
         if (note.flick != FlickType::None) {
@@ -556,9 +556,9 @@ namespace MikuMikuWorld
       } else if (note.getType() == NoteType::Damage) {
         json obj;
         obj["type"] = "damage";
-        obj["beat"] = note.tick / TICKS_PER_BEAT;
-        obj["size"] = note.width;
-        obj["lane"] = note.lane - 6;
+        obj["beat"] = note.tick / (float)TICKS_PER_BEAT;
+        obj["size"] = note.width / 2.0;
+        obj["lane"] = note.lane - 6 + (note.width / 2.0);
         objects.push_back(obj);
       }
     }
@@ -573,27 +573,27 @@ namespace MikuMikuWorld
         steps.reserve(note.steps.size() + 1);
 
         json startStep;
-        startStep["beat"] = start.tick / TICKS_PER_BEAT;
-        startStep["size"] = start.width;
-        startStep["lane"] = start.lane - 6;
+        startStep["beat"] = start.tick / (float)TICKS_PER_BEAT;
+        startStep["size"] = start.width / 2.0;
+        startStep["lane"] = start.lane - 6 + (start.width / 2.0);
         startStep["ease"] = note.start.ease == EaseType::EaseIn ? "in" : note.start.ease == EaseType::EaseOut ? "out" : "linear";
         steps.push_back(startStep);
 
         for (const auto& step : note.steps) {
           json stepObj;
           auto& stepNote = score.notes.at(step.ID);
-          stepObj["beat"] = stepNote.tick / TICKS_PER_BEAT;
-          stepObj["size"] = stepNote.width;
-          stepObj["lane"] = stepNote.lane - 6;
+          stepObj["beat"] = stepNote.tick / (float)TICKS_PER_BEAT;
+          stepObj["size"] = stepNote.width / 2.0;
+          stepObj["lane"] = stepNote.lane - 6 + (stepNote.width / 2.0);
           stepObj["ease"] = note.start.ease == EaseType::EaseIn ? "in" : note.start.ease == EaseType::EaseOut ? "out" : "linear";
           steps.push_back(startStep);
         }
 
         json endStep;
         auto& end = score.notes.at(note.end);
-        endStep["beat"] = end.tick / TICKS_PER_BEAT;
-        endStep["size"] = end.width;
-        endStep["lane"] = end.lane - 6;
+        endStep["beat"] = end.tick / (float)TICKS_PER_BEAT;
+        endStep["size"] = end.width / 2.0;
+        endStep["lane"] = end.lane - 6 + (end.width / 2.0);
         endStep["ease"] = "linear";
         steps.push_back(endStep);
 
@@ -609,9 +609,9 @@ namespace MikuMikuWorld
       steps.reserve(note.steps.size() + 1);
       json startStep;
       startStep["type"] = "start";
-      startStep["beat"] = start.tick / TICKS_PER_BEAT;
-      startStep["size"] = start.width;
-      startStep["lane"] = start.lane - 6;
+      startStep["beat"] = start.tick / (float)TICKS_PER_BEAT;
+      startStep["size"] = start.width / 2.0;
+      startStep["lane"] = start.lane - 6 + (start.width / 2.0);
       startStep["critical"] = start.critical;
       startStep["ease"] = note.start.ease == EaseType::EaseIn ? "in" : note.start.ease == EaseType::EaseOut ? "out" : "linear";
       startStep["judgeType"] = note.startType == HoldNoteType::Hidden ? "none" : start.friction ? "trace" : "normal";
@@ -621,9 +621,9 @@ namespace MikuMikuWorld
         json stepObj;
         auto& stepNote = score.notes.at(step.ID);
         stepObj["type"] = step.type == HoldStepType::Skip ? "attach" : "tick";
-        stepObj["beat"] = stepNote.tick / TICKS_PER_BEAT;
-        stepObj["size"] = stepNote.width;
-        stepObj["lane"] = stepNote.lane - 6;
+        stepObj["beat"] = stepNote.tick / (float)TICKS_PER_BEAT;
+        stepObj["size"] = stepNote.width / 2.0;
+        stepObj["lane"] = stepNote.lane - 6 + (stepNote.width / 2.0);
         if (step.type != HoldStepType::Hidden) {
           stepObj["critical"] = stepNote.critical;
         }
@@ -634,15 +634,18 @@ namespace MikuMikuWorld
       json endStep;
       auto& end = score.notes.at(note.end);
       endStep["type"] = "end";
-      endStep["beat"] = end.tick / TICKS_PER_BEAT;
-      endStep["size"] = end.width;
-      endStep["lane"] = end.lane - 6;
+      endStep["beat"] = end.tick / (float)TICKS_PER_BEAT;
+      endStep["size"] = end.width / 2.0;
+      endStep["lane"] = end.lane - 6 + (end.width / 2.0);
       endStep["critical"] = end.critical;
       endStep["judgeType"] = note.endType == HoldNoteType::Hidden ? "none" : end.friction ? "trace" : "normal";
       if (end.flick != FlickType::None) {
         endStep["direction"] = end.flick == FlickType::Default ? "up" : end.flick == FlickType::Left ? "left" : "right";
       }
       steps.push_back(endStep);
+
+      obj["connections"] = steps;
+      objects.push_back(obj);
     }
 
     usc["objects"] = objects;
