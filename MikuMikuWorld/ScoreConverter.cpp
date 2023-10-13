@@ -568,6 +568,7 @@ namespace MikuMikuWorld
         obj["type"] = "guide";
         auto& start = score.notes.at(note.start.ID);
         obj["color"] = start.critical ? "yellow" : "green";
+        obj["fade"] = note.fadeType == FadeType::None ? "none" : note.fadeType == FadeType::In ? "in" : "out";
 
         std::vector<json> steps;
         steps.reserve(note.steps.size() + 1);
