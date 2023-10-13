@@ -83,6 +83,7 @@ namespace MikuMikuWorld
 		float scrollSpeedShift;
 		bool returnToLastSelectedTickOnPause;
 		bool followCursorInPlayback;
+		bool drawWaveform;
 		bool autoSaveEnabled;
 		int autoSaveInterval;
 		int autoSaveMaxCount;

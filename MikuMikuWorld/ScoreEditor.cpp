@@ -182,8 +182,12 @@ namespace MikuMikuWorld
 		context.history.clear();
 		context.scoreStats.reset();
 		context.audio.disposeBGM();
+		context.waveformL.clear();
+		context.waveformR.clear();
 		context.clearSelection();
-		context.upToDate = true; // new score; nothing to save
+
+		// New score; nothing to save
+		context.upToDate = true; 
 
 		UI::setWindowTitle(windowUntitled);
 	}
@@ -217,7 +221,7 @@ namespace MikuMikuWorld
 			context.score = std::move(newScore);
 			context.workingData = EditorScoreData(context.score.metadata, workingFilename);
 
-			context.audio.changeBGM(context.workingData.musicFilename);
+			loadMusic(context.workingData.musicFilename);
 			context.audio.setBGMOffset(0, context.workingData.musicOffset);
 
 			context.scoreStats.calculateStats(context.score);
@@ -244,7 +248,7 @@ namespace MikuMikuWorld
 	void ScoreEditor::loadMusic(std::string filename)
 	{
 		Result result = context.audio.changeBGM(filename);
-		if (result.isOk())
+		if (result.isOk() || filename.empty())
 		{
 			context.workingData.musicFilename = filename;
 		}
@@ -259,6 +263,9 @@ namespace MikuMikuWorld
 
 			IO::messageBox(APP_NAME, errorMessage, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 		}
+
+		context.waveformL.generateMipChainsFromSampleBuffer(context.audio.musicAudioData, 0);
+		context.waveformR.generateMipChainsFromSampleBuffer(context.audio.musicAudioData, 1);
 	}
 
 	void ScoreEditor::open()
@@ -425,6 +432,7 @@ namespace MikuMikuWorld
 			ImGui::MenuItem(getString("show_step_outlines"), NULL, &timeline.drawHoldStepOutlines);
 			ImGui::MenuItem(getString("cursor_auto_scroll"), NULL, &config.followCursorInPlayback);
 			ImGui::MenuItem(getString("return_to_last_tick"), NULL, &config.returnToLastSelectedTickOnPause);
+			ImGui::MenuItem(getString("draw_waveform"), NULL, &config.drawWaveform);
 
 			ImGui::EndMenu();
 		}

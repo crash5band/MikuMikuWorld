@@ -143,6 +143,7 @@ namespace MikuMikuWorld
 		{"custom_division", "Custom Division"},
 		{"zoom", "Zoom"},
 		{"show_step_outlines", "Show Step Outlines"},
+		{"draw_waveform", "Show Waveform"},
 		{"edit_bpm", "Edit Tempo"},
 		{"tick", "Tick"},
 		{"remove", "Remove"},

@@ -390,7 +390,7 @@ namespace MikuMikuWorld
 		drawList->AddRectFilled(
 			{ x1, position.y },
 			{ x2, position.y + size.y },
-			Color::abgrToInt(std::clamp((int)(config.laneOpacity * 255), 0, 255), 0x1c, 0x1a, 0x1f)
+			Color::abgrToInt(std::clamp((int)(config.laneOpacity * 255), 0, 255), 0x1E, 0x1E, 0x1E)
 		);
 
 		int firstTick = std::max(0, positionToTick(visualOffset - size.y));
@@ -460,6 +460,9 @@ namespace MikuMikuWorld
 			drawList->AddLine(ImVec2(x, position.y), ImVec2(x, position.y + size.y), boldLane ? divColor1 : divColor2, boldLane ? primaryLineThickness : secondaryLineThickness);
 		}
 
+		if (config.drawWaveform)
+			drawWaveform(context);
+
 		hoverTick = snapTickFromPos(-mousePos.y, context);
 		hoverLane = positionToLane(mousePos.x);
 		isHoveringNote = false;
@@ -515,7 +518,7 @@ namespace MikuMikuWorld
 		// Update song boundaries
 		if (context.audio.isMusicInitialized())
 		{
-			int startTick = accumulateTicks(context.workingData.musicOffset, TICKS_PER_BEAT, context.score.tempoChanges);
+			int startTick = accumulateTicks(context.workingData.musicOffset / 1000, TICKS_PER_BEAT, context.score.tempoChanges);
 			int endTick = accumulateTicks(context.audio.getSongEndTime(), TICKS_PER_BEAT, context.score.tempoChanges);
 
 			float x = getTimelineEndX();
@@ -698,6 +701,7 @@ namespace MikuMikuWorld
 		shader->use();
 		shader->setMatrix4("projection", camera.getOffCenterOrthographicProjection(0, size.x, position.y, position.y + size.y));
 
+		glEnable(GL_FRAMEBUFFER_SRGB);
 		framebuffer->bind();
 		framebuffer->clear();
 		renderer->beginBatch();
@@ -766,6 +770,7 @@ namespace MikuMikuWorld
 
 		renderer->endBatch();
 
+		glDisable(GL_FRAMEBUFFER_SRGB);
 		glDisable(GL_DEPTH_TEST);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -1919,6 +1924,8 @@ namespace MikuMikuWorld
 		ImGui::Text("Hover tick: %d", hoverTick);
 
 		ImGui::Text("Last selected tick: %d", lastSelectedTick);
+
+		ImGui::InputDouble("Waveform Seconds Per Pixel", &waveformSecondsPerPixel);
 	}
 
 	ScoreEditorTimeline::ScoreEditorTimeline()
@@ -2025,6 +2032,48 @@ namespace MikuMikuWorld
 				// Playback started mid-hold
 				if (note.getType() == NoteType::Hold && !context.score.holdNotes.at(note.ID).isGuide())
 					holdNoteSEFunc(note, std::max(0.0f, notePlayTime));
+			}
+		}
+	}
+
+	void ScoreEditorTimeline::drawWaveform(ScoreContext& context)
+	{
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		if (!drawList)
+			return;
+
+		constexpr ImU32 waveformColor		= 0xA09C9C9C;
+		constexpr ImU32 waveformFadeColor	= 0x808A8A8A;
+
+		// Ideally this should be calculated based on the current BPM
+		const double secondsPerPixel = waveformSecondsPerPixel / zoom;
+		const double durationSeconds = context.waveformL.durationInSeconds;
+		const double musicOffsetInSeconds = context.workingData.musicOffset / 1000;
+
+		for (size_t index = 0; index < 2; index++)
+		{
+			const WaveformMipChain& waveform = index == 0 ? context.waveformL : context.waveformR;
+			const bool rightChannel = index == 1;
+			if (waveform.isEmpty())
+				continue;
+
+			const WaveformMip& mip = waveform.findClosestMip(secondsPerPixel);
+			for (int y = visualOffset - size.y; y < visualOffset; y += 1)
+			{
+				int tick = positionToTick(y);
+
+				// Small accuracy loss by converting to ticks but shouldn't be too noticeable
+				const double secondsAtPixel = accumulateDuration(tick, TICKS_PER_BEAT, context.score.tempoChanges) - musicOffsetInSeconds;
+				const bool outOfBounds = secondsAtPixel < 0 || secondsAtPixel > waveform.durationInSeconds;
+
+				float amplitude = std::max(waveform.getAmplitudeAt(mip, secondsAtPixel, secondsPerPixel), 0.0f);
+				float barValue = outOfBounds ? 0.0f : (amplitude * std::min(laneWidth * 6, 180.0f));
+
+				float timelineMidPosition = midpoint(getTimelineStartX(), getTimelineEndX());
+				int rectYPosition = roundf(position.y + visualOffset - y);
+				ImVec2 rect1(timelineMidPosition, rectYPosition);
+				ImVec2 rect2(timelineMidPosition + (std::max(0.5f, barValue) * (rightChannel ? 1 : -1)), rectYPosition + 1.0f);
+				drawList->AddRectFilledMultiColor(rect1, rect2, waveformColor, waveformFadeColor, waveformFadeColor, waveformColor);
 			}
 		}
 	}

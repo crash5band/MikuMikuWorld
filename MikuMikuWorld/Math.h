@@ -58,6 +58,18 @@ namespace MikuMikuWorld
 		static inline Color fromImVec4(const ImVec4& col) { return Color{ col.x, col.y, col.z, col.w }; }
 	};
 
+	constexpr uint32_t roundUpToPowerOfTwo(uint32_t v)
+	{
+		v--;
+		v |= v >> 1;
+		v |= v >> 2;
+		v |= v >> 4;
+		v |= v >> 8;
+		v |= v >> 16;
+		v++;
+		return v;
+	}
+
 	float lerp(float start, float end, float ratio);
 	float easeIn(float start, float end, float ratio);
 	float easeOut(float start, float end, float ratio);

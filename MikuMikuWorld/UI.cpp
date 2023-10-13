@@ -152,6 +152,14 @@ namespace MikuMikuWorld
 		ImGui::NextColumn();
 	}
 
+	void UI::addDragFloatProperty(const char* label, float& val, const char* format)
+	{
+		propertyLabel(label);
+
+		ImGui::DragFloat(labelID(label), &val, 1.0f, 0.0f, 0.0f, format, ImGuiSliderFlags_NoRoundToFormat);
+		ImGui::NextColumn();
+	}
+
 	void UI::addSliderProperty(const char* label, int& val, int min, int max, const char* format)
 	{
 		propertyLabel(label);

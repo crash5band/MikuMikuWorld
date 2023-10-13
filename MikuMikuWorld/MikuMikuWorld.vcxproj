@@ -281,6 +281,7 @@
     <ClInclude Include="TimelineMode.h" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="Utilities.h" />
+    <ClInclude Include="Audio\Waveform.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="mmw_icon.ico" />

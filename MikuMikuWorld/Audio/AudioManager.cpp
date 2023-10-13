@@ -93,13 +93,9 @@ namespace MikuMikuWorld
 		disposeBGM();
 
 		std::wstring wFilename = IO::mbToWideStr(filename);
-		if (!std::filesystem::exists(wFilename))
-			return Result(ResultStatus::Error, "File not found");
-
 		ma_uint32 flags = MA_SOUND_FLAG_NO_PITCH
 			| MA_SOUND_FLAG_NO_SPATIALIZATION
-			| MA_SOUND_FLAG_DECODE
-			| MA_SOUND_FLAG_ASYNC;
+			| MA_SOUND_FLAG_DECODE;
 
 		ma_result bgmResult = ma_sound_init_from_file_w(&engine, wFilename.c_str(), flags, &bgmGroup, NULL, &bgm);
 		if (bgmResult != MA_SUCCESS)
@@ -111,6 +107,13 @@ namespace MikuMikuWorld
 		}
 		else
 		{
+			// We need some data to correctly generate the audio waveform
+			ma_sound_get_data_format(&bgm, &musicAudioData.sampleFormat, &musicAudioData.channelCount, &musicAudioData.sampleRate, nullptr, 0);
+			ma_sound_get_length_in_pcm_frames(&bgm, &musicAudioData.frameCount);
+			
+			// We are fully decoding the audio so the buffer is stored in the buffer connector
+			musicAudioData.sampleBuffer = (float*)bgm.pResourceManagerDataSource->backend.buffer.connector.buffer.ref.pData;
+
 			musicInitialized = true;
 			return Result::Ok();
 		}
@@ -177,6 +180,8 @@ namespace MikuMikuWorld
 			ma_sound_stop(&bgm);
 			ma_sound_uninit(&bgm);
 			musicInitialized = false;
+
+			musicAudioData.clear();
 		}
 	}
 

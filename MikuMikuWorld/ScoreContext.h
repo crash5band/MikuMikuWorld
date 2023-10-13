@@ -3,8 +3,10 @@
 #include "ScoreStats.h"
 #include "HistoryManager.h"
 #include "Audio/AudioManager.h"
+#include "Audio/Waveform.h"
 #include "JsonIO.h"
 #include "Jacket.h"
+#include "Constants.h"
 #include "TimelineMode.h"
 #include <unordered_set>
 
@@ -72,6 +74,8 @@ namespace MikuMikuWorld
 		PasteData pasteData{};
 		std::unordered_set<int> selectedNotes;
 
+		WaveformMipChain waveformL, waveformR;
+
 		int currentTick{};
 		bool upToDate{ true };
 
@@ -88,6 +92,11 @@ namespace MikuMikuWorld
 			}
 
 			return holds;
+		}
+
+		double getTimeAtCurrentTick() const
+		{
+			return accumulateDuration(currentTick, TICKS_PER_BEAT, score.tempoChanges);
 		}
 
 		bool selectionHasEase() const;

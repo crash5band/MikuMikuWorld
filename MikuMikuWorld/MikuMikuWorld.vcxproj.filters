@@ -341,6 +341,9 @@
     <ClInclude Include="IO.h">
       <Filter>IO</Filter>
     </ClInclude>
+    <ClInclude Include="Audio\Waveform.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">

@@ -41,11 +41,15 @@ namespace MikuMikuWorld
 		{
 			UI::beginPropertyColumns();
 
+			bool changeMusic = false;
 			std::string filename = context.workingData.musicFilename;
 			int filePickResult = UI::addFileProperty(getString("music_file"), filename);
 			if (filePickResult == 1 && filename != context.workingData.musicFilename)
 			{
-				context.audio.changeBGM(filename);
+				Result result = context.audio.changeBGM(filename);
+				if (result.isOk())
+					changeMusic = true;
+
 				context.workingData.musicFilename = filename;
 			}
 			else if (filePickResult == 2)
@@ -57,17 +61,26 @@ namespace MikuMikuWorld
 
 				if (fileDialog.openFile() == IO::FileDialogResult::OK)
 				{
-					context.audio.changeBGM(fileDialog.outputFilename);
+					Result result = context.audio.changeBGM(fileDialog.outputFilename);
+					if (result.isOk())
+						changeMusic = true;
+
 					context.workingData.musicFilename = fileDialog.outputFilename;
 				}
 			}
 
+			if (changeMusic)
+			{
+				context.waveformL.generateMipChainsFromSampleBuffer(context.audio.musicAudioData, 0);
+				context.waveformR.generateMipChainsFromSampleBuffer(context.audio.musicAudioData, 1);
+			}
+
 			float offset = context.workingData.musicOffset;
-			UI::addFloatProperty(getString("music_offset"), offset, "%gms");
+			UI::addDragFloatProperty(getString("music_offset"), offset, "%.3fms");
 			if (offset != context.workingData.musicOffset)
 			{
 				context.workingData.musicOffset = offset;
-				context.audio.setBGMOffset(0, offset);
+				context.audio.setBGMOffset(context.getTimeAtCurrentTick(), offset);
 			}
 
 			// volume controls
@@ -653,6 +666,7 @@ namespace MikuMikuWorld
 							UI::endNextItemDisabled();
 						ImGui::Separator();
 
+						UI::addCheckboxProperty(getString("draw_waveform"), config.drawWaveform);
 						UI::addCheckboxProperty(getString("return_to_last_tick"), config.returnToLastSelectedTickOnPause);
 						UI::addCheckboxProperty(getString("cursor_auto_scroll"), config.followCursorInPlayback);
 						UI::addPercentSliderProperty(getString("cursor_auto_scroll_amount"), config.cursorPositionThreshold);

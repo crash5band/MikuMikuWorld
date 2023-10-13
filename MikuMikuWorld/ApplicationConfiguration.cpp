@@ -9,7 +9,7 @@ using namespace nlohmann;
 namespace MikuMikuWorld
 {
 	ApplicationConfiguration config{};
-	constexpr const char* CONFIG_VERSION{ "1.7.0" };
+	constexpr const char* CONFIG_VERSION{ "1.8.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -68,6 +68,7 @@ namespace MikuMikuWorld
 			scrollSpeedNormal = jsonIO::tryGetValue<float>(config["timeline"], "scroll_speed_normal", 2.0f);
 			scrollSpeedShift = jsonIO::tryGetValue<float>(config["timleine"], "scroll_speed_fast", 5.0f);
 
+			drawWaveform = jsonIO::tryGetValue<bool>(config["timeline"], "draw_waveform", true);
 			returnToLastSelectedTickOnPause = jsonIO::tryGetValue<bool>(config["timeline"], "return_to_last_tick_on_pause", false);
 			cursorPositionThreshold = jsonIO::tryGetValue<float>(config["timeline"], "cursor_position_threshold", 0.5f);
 		}
@@ -148,6 +149,7 @@ namespace MikuMikuWorld
 			{"smooth_scrolling_time", smoothScrollingTime},
 			{"scroll_speed_normal", scrollSpeedNormal},
 			{"scroll_speed_fast", scrollSpeedShift},
+			{"draw_waveform", drawWaveform},
 			{"return_to_last_tick_on_pause", returnToLastSelectedTickOnPause},
 			{"cursor_position_threshold", cursorPositionThreshold}
 		};
@@ -225,6 +227,7 @@ namespace MikuMikuWorld
 		scrollSpeedNormal = 2.0f;
 		scrollSpeedShift = 5.0f;
 		cursorPositionThreshold = 0.5;
+		drawWaveform = true;
 		followCursorInPlayback = true;
 		returnToLastSelectedTickOnPause = false;
 
