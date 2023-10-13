@@ -33,6 +33,7 @@ namespace MikuMikuWorld
 		void loadScore(std::string filename);
 		void loadMusic(std::string filename);
 		void exportSus();
+		void exportUsc();
 		bool saveAs();
 		bool trySave(std::string filename = "");
 		void autoSave();

@@ -17,7 +17,7 @@ namespace MikuMikuWorld
 		void compile(const std::string& source);
 		GLint getUniformLoc(const std::string& name);
 
-	public:	
+	public:
 		Shader(const std::string& name, const std::string &source);
 		~Shader();
 

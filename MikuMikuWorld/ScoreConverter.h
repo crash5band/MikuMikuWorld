@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "JsonIO.h"
 
 namespace MikuMikuWorld
 {
@@ -18,5 +19,7 @@ namespace MikuMikuWorld
 	public:
 		static Score susToScore(const SUS& sus);
 		static SUS scoreToSus(const Score& score);
+    static nlohmann::json scoreToUsc(const Score& score);
+    static Score uscToScore(const nlohmann::json& usc);
 	};
 }

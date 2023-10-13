@@ -6,6 +6,8 @@
 #include <unordered_set>
 #include <algorithm>
 
+using json = nlohmann::json;
+
 namespace MikuMikuWorld
 {
 	std::string ScoreConverter::noteKey(const SUSNote& note)
@@ -508,4 +510,145 @@ namespace MikuMikuWorld
 
 		return SUS{ metadata, taps, directionals, slides, guides, bpms, barlengths, hiSpeeds, laneOffset };
 	}
+
+  json ScoreConverter::scoreToUsc(const Score& score)
+  {
+    json vusc;
+    json usc;
+
+    usc["offset"] = score.metadata.musicOffset * 1000;
+
+    std::vector<json> objects;
+
+    for (const auto& bpm : score.tempoChanges) {
+      json obj;
+      obj["type"] = "bpm";
+      obj["beat"] = bpm.tick / TICKS_PER_BEAT;
+      obj["bpm"] = bpm.bpm;
+      objects.push_back(obj);
+    }
+
+    json timeScaleGroup;
+    timeScaleGroup["type"] = "timeScaleGroup";
+    std::vector<json> timeScaleObjects;
+    for (const auto& hs : score.hiSpeedChanges) {
+      json obj;
+      obj["beat"] = hs.tick / TICKS_PER_BEAT;
+      obj["timeScale"] = hs.speed;
+      timeScaleObjects.push_back(obj);
+    }
+    timeScaleGroup["changes"] = timeScaleObjects;
+    objects.push_back(timeScaleGroup);
+
+    for (const auto& [_, note] : score.notes) {
+      if (note.getType() == NoteType::Tap) {
+        json obj;
+        obj["type"] = "single";
+        obj["beat"] = note.tick / TICKS_PER_BEAT;
+        obj["size"] = note.width;
+        obj["lane"] = note.lane - 6;
+        obj["critical"] = note.critical;
+        obj["trace"] = note.friction;
+        if (note.flick != FlickType::None) {
+          obj["flick"] = note.flick == FlickType::Default ? "up" : note.flick == FlickType::Left ? "left" : "right";
+        }
+        objects.push_back(obj);
+      } else if (note.getType() == NoteType::Damage) {
+        json obj;
+        obj["type"] = "damage";
+        obj["beat"] = note.tick / TICKS_PER_BEAT;
+        obj["size"] = note.width;
+        obj["lane"] = note.lane - 6;
+        objects.push_back(obj);
+      }
+    }
+    for (const auto& [_, note] : score.holdNotes) {
+      json obj;
+      if (note.isGuide()) {
+        obj["type"] = "guide";
+        auto& start = score.notes.at(note.start.ID);
+        obj["color"] = start.critical ? "yellow" : "green";
+
+        std::vector<json> steps;
+        steps.reserve(note.steps.size() + 1);
+
+        json startStep;
+        startStep["beat"] = start.tick / TICKS_PER_BEAT;
+        startStep["size"] = start.width;
+        startStep["lane"] = start.lane - 6;
+        startStep["ease"] = note.start.ease == EaseType::EaseIn ? "in" : note.start.ease == EaseType::EaseOut ? "out" : "linear";
+        steps.push_back(startStep);
+
+        for (const auto& step : note.steps) {
+          json stepObj;
+          auto& stepNote = score.notes.at(step.ID);
+          stepObj["beat"] = stepNote.tick / TICKS_PER_BEAT;
+          stepObj["size"] = stepNote.width;
+          stepObj["lane"] = stepNote.lane - 6;
+          stepObj["ease"] = note.start.ease == EaseType::EaseIn ? "in" : note.start.ease == EaseType::EaseOut ? "out" : "linear";
+          steps.push_back(startStep);
+        }
+
+        json endStep;
+        auto& end = score.notes.at(note.end);
+        endStep["beat"] = end.tick / TICKS_PER_BEAT;
+        endStep["size"] = end.width;
+        endStep["lane"] = end.lane - 6;
+        endStep["ease"] = "linear";
+        steps.push_back(endStep);
+
+        obj["midpoints"] = steps;
+        objects.push_back(obj);
+        continue;
+      }
+      obj["type"] = "slide";
+      auto& start = score.notes.at(note.start.ID);
+      obj["critical"] = start.critical;
+
+      std::vector<json> steps;
+      steps.reserve(note.steps.size() + 1);
+      json startStep;
+      startStep["type"] = "start";
+      startStep["beat"] = start.tick / TICKS_PER_BEAT;
+      startStep["size"] = start.width;
+      startStep["lane"] = start.lane - 6;
+      startStep["critical"] = start.critical;
+      startStep["ease"] = note.start.ease == EaseType::EaseIn ? "in" : note.start.ease == EaseType::EaseOut ? "out" : "linear";
+      startStep["judgeType"] = note.startType == HoldNoteType::Hidden ? "none" : start.friction ? "trace" : "normal";
+      steps.push_back(startStep);
+
+      for (const auto& step : note.steps) {
+        json stepObj;
+        auto& stepNote = score.notes.at(step.ID);
+        stepObj["type"] = step.type == HoldStepType::Skip ? "attach" : "tick";
+        stepObj["beat"] = stepNote.tick / TICKS_PER_BEAT;
+        stepObj["size"] = stepNote.width;
+        stepObj["lane"] = stepNote.lane - 6;
+        if (step.type != HoldStepType::Hidden) {
+          stepObj["critical"] = stepNote.critical;
+        }
+        stepObj["ease"] = note.start.ease == EaseType::EaseIn ? "in" : note.start.ease == EaseType::EaseOut ? "out" : "linear";
+        steps.push_back(startStep);
+      }
+
+      json endStep;
+      auto& end = score.notes.at(note.end);
+      endStep["type"] = "end";
+      endStep["beat"] = end.tick / TICKS_PER_BEAT;
+      endStep["size"] = end.width;
+      endStep["lane"] = end.lane - 6;
+      endStep["critical"] = end.critical;
+      endStep["judgeType"] = note.endType == HoldNoteType::Hidden ? "none" : end.friction ? "trace" : "normal";
+      if (end.flick != FlickType::None) {
+        endStep["direction"] = end.flick == FlickType::Default ? "up" : end.flick == FlickType::Left ? "left" : "right";
+      }
+      steps.push_back(endStep);
+    }
+
+    usc["objects"] = objects;
+
+    vusc["version"] = 2;
+    vusc["usc"] = usc;
+    return vusc;
+  }
 }

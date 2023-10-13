@@ -198,11 +198,11 @@ namespace MikuMikuWorld
 
     bool isCyanvas = signature == "CCMMWS";
 
+		int version = reader.readInt16();
 		int cyanvasVersion = reader.readInt16();
     if (isCyanvas && cyanvasVersion == 0) {
       cyanvasVersion = 1;
     }
-		int version = reader.readInt16();
 
 		uint32_t metadataAddress{};
 		uint32_t eventsAddress{};
@@ -325,8 +325,8 @@ namespace MikuMikuWorld
 		writer.writeString("CCMMWS");
 
 		// verison
-		writer.writeInt16(2);
 		writer.writeInt16(4);
+		writer.writeInt16(2);
 
 		// offsets address in order: metadata -> events -> taps -> holds
     // Cyanvas extension: -> damages

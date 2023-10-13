@@ -11,6 +11,8 @@
 #include <filesystem>
 #include <Windows.h>
 
+using nlohmann::json;
+
 namespace MikuMikuWorld
 {
 	static MultiInputBinding* timelineModeBindings[] =
@@ -207,6 +209,11 @@ namespace MikuMikuWorld
 				SusParser susParser;
 				newScore = ScoreConverter::susToScore(susParser.parse(filename));
 			}
+      else if (extension == USC_EXTENSION)
+			{
+        nlohmann::json usc = nlohmann::json::parse(IO::File::read(filename));
+				newScore = ScoreConverter::uscToScore(usc);
+			}
 			else if (extension == MMWS_EXTENSION || extension == CC_MMWS_EXTENSION)
 			{
 				newScore = deserializeScore(filename);
@@ -358,6 +365,39 @@ namespace MikuMikuWorld
 		}
 	}
 
+	void ScoreEditor::exportUsc()
+	{
+		IO::FileDialog fileDialog{};
+		fileDialog.title = "Export Chart";
+		fileDialog.filters = { { "Universal Sekai Chart", "*.usc" } };
+		fileDialog.defaultExtension = "usc";
+		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
+
+		if (fileDialog.saveFile() == IO::FileDialogResult::OK)
+		{
+			try
+			{
+				json usc = ScoreConverter::scoreToUsc(context.score);
+
+        std::wstring wFilename = IO::mbToWideStr(fileDialog.outputFilename);
+        IO::File uscfile(wFilename, L"w");
+
+        uscfile.write(usc.dump(4));
+        uscfile.flush();
+        uscfile.close();
+			}
+			catch (std::exception& err)
+			{
+				IO::messageBox(
+					APP_NAME,
+					IO::formatString("An error occured while exporting the score file\n%s", err.what()),
+					IO::MessageBoxButtons::Ok,
+					IO::MessageBoxIcon::Error
+				);
+			}
+		}
+	}
+
 	void ScoreEditor::drawMenubar()
 	{
 		ImGui::BeginMainMenuBar();
@@ -381,8 +421,11 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(getString("save_as"), ToShortcutString(config.input.saveAs)))
 				saveAs();
 
-			if (ImGui::MenuItem(getString("export"), ToShortcutString(config.input.exportSus)))
+			if (ImGui::MenuItem(getString("export_sus"), ToShortcutString(config.input.exportSus)))
 				exportSus();
+
+			if (ImGui::MenuItem(getString("export_usc"), ToShortcutString(config.input.exportUsc)))
+				exportUsc();
 
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("exit"), ToShortcutString(ImGuiKey_F4, ImGuiModFlags_Alt)))
