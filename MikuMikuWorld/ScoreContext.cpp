@@ -781,6 +781,8 @@ namespace MikuMikuWorld
 
 		hold.end = newSlideEnd.ID;
 		newHold.start = { newSlideStart.ID, HoldStepType::Normal, hold.steps[pos].ease };
+    newHold.startType = hold.startType;
+    newHold.endType = hold.endType;
     newHold.fadeType = hold.fadeType;
     newHold.guideColor = hold.guideColor;
 

@@ -1480,9 +1480,7 @@ void ScoreEditorTimeline::drawHoldNote(
     const int offsetLane) {
   const Note &start = notes.at(note.start.ID);
   const Note &end = notes.at(note.end);
-  const int length = end.tick - start.tick;
-  if (length <= 0)
-    return;
+  const int length = abs(end.tick - start.tick);
   if (note.steps.size()) {
     static constexpr auto isSkipStep = [](const HoldStep &step) {
       return step.type == HoldStepType::Skip;
@@ -1490,16 +1488,37 @@ void ScoreEditorTimeline::drawHoldNote(
     int s1 = -1;
     int s2 = -1;
 
-    for (int i = 0; i < note.steps.size(); ++i) {
-      if (isSkipStep(note.steps[i]))
-        continue;
 
-      s2 = i;
-      const Note &n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
-      const Note &n2 = s2 == -1 ? end : notes.at(note.steps[s2].ID);
-      const EaseType ease = s1 == -1 ? note.start.ease : note.steps[s1].ease;
-      const float p1 = (n1.tick - start.tick) / (float)length;
-      const float p2 = (n2.tick - start.tick) / (float)length;
+    if (length > 0) {
+      for (int i = 0; i < note.steps.size(); ++i) {
+        if (isSkipStep(note.steps[i]))
+          continue;
+
+        s2 = i;
+        const Note &n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
+        const Note &n2 = s2 == -1 ? end : notes.at(note.steps[s2].ID);
+        const EaseType ease = s1 == -1 ? note.start.ease : note.steps[s1].ease;
+        const float p1 = (n1.tick - start.tick) / (float)length;
+        const float p2 = (n2.tick - start.tick) / (float)length;
+        float a1, a2;
+        if (!note.isGuide() || note.fadeType == FadeType::None) {
+          a1 = 1;
+          a2 = 1;
+        } else if (note.fadeType == FadeType::In) {
+          a1 = p1;
+          a2 = p2;
+        } else {
+          a1 = 1 - p1;
+          a2 = 1 - p2;
+        }
+        drawHoldCurve(n1, n2, ease, note.isGuide(), renderer, tint, offsetTicks,
+                      offsetLane, a1, a2, note.guideColor);
+
+        s1 = s2;
+      }
+
+      const float p1 = (notes.at(note.steps[s1].ID).tick - start.tick) / (float)length;
+      const float p2 = 1;
       float a1, a2;
       if (!note.isGuide() || note.fadeType == FadeType::None) {
         a1 = 1;
@@ -1511,30 +1530,12 @@ void ScoreEditorTimeline::drawHoldNote(
         a1 = 1 - p1;
         a2 = 1 - p2;
       }
-      drawHoldCurve(n1, n2, ease, note.isGuide(), renderer, tint, offsetTicks,
+
+      const Note &n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
+      const EaseType ease = s1 == -1 ? note.start.ease : note.steps[s1].ease;
+      drawHoldCurve(n1, end, ease, note.isGuide(), renderer, tint, offsetTicks,
                     offsetLane, a1, a2, note.guideColor);
-
-      s1 = s2;
     }
-
-    const float p1 = (notes.at(note.steps[s1].ID).tick - start.tick) / (float)length;
-    const float p2 = 1;
-    float a1, a2;
-    if (!note.isGuide() || note.fadeType == FadeType::None) {
-      a1 = 1;
-      a2 = 1;
-    } else if (note.fadeType == FadeType::In) {
-      a1 = p1;
-      a2 = p2;
-    } else {
-      a1 = 1 - p1;
-      a2 = 1 - p2;
-    }
-
-    const Note &n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
-    const EaseType ease = s1 == -1 ? note.start.ease : note.steps[s1].ease;
-    drawHoldCurve(n1, end, ease, note.isGuide(), renderer, tint, offsetTicks,
-                  offsetLane, a1, a2, note.guideColor);
 
     s1 = -1;
     s2 = 1;
