@@ -476,6 +476,18 @@ namespace MikuMikuWorld
 				HoldNote hold;
 				hold.start = { start.ID, HoldStepType::Normal, (EaseType)findArrayItem(startEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes)) };
 				hold.end = end.ID;
+        for (int i = 0; i < TXT_ARR_SZ(fadeTypes); ++i) {
+          if (entry["fade"] == fadeTypes[i]) {
+            hold.fadeType = (FadeType)i;
+            break;
+          }
+        }
+        for (int i = 0; i < TXT_ARR_SZ(guideColors); ++i) {
+          if (entry["guide"] == guideColors[i]) {
+            hold.guideColor = (GuideColor)i;
+            break;
+          }
+        }
 
 				if (jsonIO::keyExists(entry, "steps"))
 				{

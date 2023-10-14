@@ -130,6 +130,8 @@ namespace jsonIO
 			holdData["start"] = holdStart;
 			holdData["steps"] = stepsArray;
 			holdData["end"] = holdEnd;
+      holdData["fade"] = mmw::fadeTypes[(int)hold.fadeType];
+      holdData["guide"] = mmw::guideColors[(int)hold.guideColor];
 			holds.push_back(holdData);
 		}
 
