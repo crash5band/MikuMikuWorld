@@ -591,7 +591,7 @@ namespace MikuMikuWorld
           stepObj["size"] = stepNote.width / 2.0;
           stepObj["lane"] = stepNote.lane - 6 + (stepNote.width / 2.0);
           stepObj["ease"] = note.start.ease == EaseType::EaseIn ? "in" : note.start.ease == EaseType::EaseOut ? "out" : "linear";
-          steps.push_back(startStep);
+          steps.push_back(stepObj);
         }
 
         json endStep;
