@@ -1509,7 +1509,7 @@ void ScoreEditorTimeline::drawHoldNote(
         a2 = 1 - p2;
       }
       drawHoldCurve(n1, n2, ease, note.isGuide(), renderer, tint, offsetTicks,
-                    offsetLane, a1, a2);
+                    offsetLane, a1, a2, note.guideColor);
 
       s1 = s2;
     }
