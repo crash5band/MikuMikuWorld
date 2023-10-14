@@ -32,6 +32,8 @@ namespace MikuMikuWorld
 		std::unordered_map<std::string, float> bpmDefinitions;
 		std::vector<Bar> bars;
 
+    std::string currentHiSpeedGroup;
+
 		bool isCommand(const std::string& line);
 		int toTicks(int measure, int i, int total);
 		SUSNoteStream toSlides(const std::vector<SUSNote>& stream);

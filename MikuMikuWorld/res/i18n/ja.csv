@@ -162,6 +162,7 @@ guide_green, 緑
 guide_yellow, 黄
 guide_purple, 紫
 guide_cyan, 水
+layer, レイヤー
 
 # preset manager
 presets, プリセット
@@ -171,6 +172,18 @@ description, 説明
 create_preset, プリセットを登録
 search, 検索
 confirm, 決定
+
+# layer manager
+layers, レイヤー
+name, 名前
+create_layer, レイヤーを作成
+confirm, 決定
+show_all_layers, 全てのレイヤーを表示
+layer_rename, 名前を変更
+layer_up, 上に移動
+layer_down, 下に移動
+layer_merge, 一つ下と結合
+layer_delete, 削除
 
 # commands
 action, コマンド

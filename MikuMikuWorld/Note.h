@@ -77,6 +77,8 @@ namespace MikuMikuWorld
 		bool friction{ false };
 		FlickType flick{ FlickType::None };
 
+    int layer{ 0 };
+
 		explicit Note(NoteType _type);
 		explicit Note(NoteType _type, int tick, int lane, int width);
 		Note();

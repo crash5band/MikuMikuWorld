@@ -4,6 +4,7 @@
 #include "File.h"
 #include <algorithm>
 #include <numeric>
+#include <unordered_set>
 
 using namespace IO;
 
@@ -79,7 +80,7 @@ namespace MikuMikuWorld
 		}
 	};
 
-	void SusExporter::appendData(int tick, std::string info, std::string data)
+	void SusExporter::appendData(int tick, std::string info, std::string data, std::string hiSpeedGroup)
 	{
 		for (const auto& [barLength, barTicks] : barLengthTicks)
 		{
@@ -90,7 +91,7 @@ namespace MikuMikuWorld
 				measureMap.measure = currentMeasure;
 
 				NoteMap& map = measureMap.notesMap[info];
-				map.data.push_back(NoteMap::RawData{ tick - barTicks, data });
+				map.data.push_back(NoteMap::RawData{ tick - barTicks, data, hiSpeedGroup });
 				map.ticksPerMeasure = barLength.length * ticksPerBeat;
 				break;
 			}
@@ -105,7 +106,7 @@ namespace MikuMikuWorld
 			info.append(channel);
 
 		char buff2[10];
-		appendData(note.tick, info, std::to_string(note.type) + tostringBaseN(buff2, note.width, 36));
+		appendData(note.tick, info, std::to_string(note.type) + tostringBaseN(buff2, note.width, 36), note.hiSpeedGroup);
 	}
 
 	std::vector<std::string> SusExporter::getNoteLines(int baseMeasure)
@@ -130,56 +131,71 @@ namespace MikuMikuWorld
 				baseMeasure = base;
 			}
 
-			for (const auto& [info, notes] : map.notesMap)
-			{
-				conflicts.clear();
+      std::unordered_set<std::string> hiSpeedGroups;
+			for (const auto& [_, notes] : map.notesMap) {
+        for (const auto& note : notes.data) {
+          if (std::find(hiSpeedGroups.begin(), hiSpeedGroups.end(), note.hiSpeedGroup) == hiSpeedGroups.end())
+            hiSpeedGroups.insert(note.hiSpeedGroup);
+        }
+      }
+      for (const auto& hiSpeedGroup : hiSpeedGroups) {
+        lines.push_back(formatString("#HISPEED %s", hiSpeedGroup.c_str()));
+        for (const auto& [info, notes] : map.notesMap)
+        {
+          conflicts.clear();
 
-				int gcd = notes.ticksPerMeasure;
-				for (const auto& raw : notes.data)
-					gcd = std::gcd(raw.tick, gcd);
+          int gcd = notes.ticksPerMeasure;
+          for (const auto& raw : notes.data) {
+            if (raw.hiSpeedGroup != hiSpeedGroup)
+              continue;
+            gcd = std::gcd(raw.tick, gcd);
+          }
 
-				// Number of notes including empty ones in a line
-				int dataCount = notes.ticksPerMeasure / gcd;
-				std::string data(dataCount * 2, '0');
-				for (const auto& raw : notes.data)
-				{
-					int index = (raw.tick % notes.ticksPerMeasure) / gcd * 2;
-					if (data.substr(index, 2) != "00")
-					{
-						conflicts.push_back(raw);
-					}
-					else
-					{
-						data[index + 0] = raw.data[0];
-						data[index + 1] = raw.data[1];
-					}
-				}
+          // Number of notes including empty ones in a line
+          int dataCount = notes.ticksPerMeasure / gcd;
+          std::string data(dataCount * 2, '0');
+          for (const auto& raw : notes.data)
+          {
+            if (raw.hiSpeedGroup != hiSpeedGroup)
+              continue;
+            int index = (raw.tick % notes.ticksPerMeasure) / gcd * 2;
+            if (data.substr(index, 2) != "00")
+            {
+              conflicts.push_back(raw);
+            }
+            else
+            {
+              data[index + 0] = raw.data[0];
+              data[index + 1] = raw.data[1];
+            }
+          }
 
-				lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) + data);
+          lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) + data);
 
-				while (conflicts.size())
-				{
-					temp.clear();
-					std::string data2(dataCount * 2, '0');
-					for (const auto& item : conflicts)
-					{
-						int index = (item.tick % notes.ticksPerMeasure) / gcd * 2;
-						if (data2.substr(index, 2) != "00")
-						{
-							temp.push_back(item);
-						}
-						else
-						{
-							data2[index + 0] = item.data[0];
-							data2[index + 1] = item.data[1];
-						}
-					}
+          while (conflicts.size())
+          {
+            temp.clear();
+            std::string data2(dataCount * 2, '0');
+            for (const auto& item : conflicts)
+            {
+              int index = (item.tick % notes.ticksPerMeasure) / gcd * 2;
+              if (data2.substr(index, 2) != "00")
+              {
+                temp.push_back(item);
+              }
+              else
+              {
+                data2[index + 0] = item.data[0];
+                data2[index + 1] = item.data[1];
+              }
+            }
 
-					lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) + data2);
-					conflicts = temp;
-				}
-			}
-		}
+            lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) + data2);
+            conflicts = temp;
+          }
+        }
+      }
+    }
 
 		return lines;
 	}
@@ -330,22 +346,31 @@ namespace MikuMikuWorld
 
 		lines.push_back("");
 
-		std::string speedLine = "\"";
-		for (int i = 0; i < sus.hiSpeeds.size(); ++i)
+		for (int i = 0; i < sus.hiSpeedGroups.size(); ++i)
 		{
-			int measure = getMeasureFromTicks(sus.hiSpeeds[i].tick);
-			int offsetTicks = sus.hiSpeeds[i].tick - getTicksFromMeasure(measure);
-			float speed = sus.hiSpeeds[i].speed;
+      std::string speedLine = "\"";
+      for (int j = 0; j < sus.hiSpeedGroups[i].hiSpeeds.size(); ++j)
+      {
+        const auto& hiSpeed = sus.hiSpeedGroups[i].hiSpeeds[j];
+        int measure = getMeasureFromTicks(hiSpeed.tick);
+        int offsetTicks = hiSpeed.tick - getTicksFromMeasure(measure);
+        float speed = hiSpeed.speed;
 
-			speedLine.append(formatString("%d'%d:%g", measure, offsetTicks, speed));
+        speedLine.append(formatString("%d'%d:%g", measure, offsetTicks, speed));
 
-			if (i < sus.hiSpeeds.size() - 1)
-				speedLine.append(", ");
+        if (i < sus.hiSpeedGroups.size() - 1 || j < sus.hiSpeedGroups[i].hiSpeeds.size() - 1)
+          speedLine.append(", ");
+      }
+      speedLine.append("\"");
+
+      char buff1[10];
+      std::string info = tostringBaseN(buff1, i, 36);
+      if (info.size() < 2)
+        info = "0" + info;
+
+      lines.push_back(formatString("#TIL%s: %s", info.c_str(), speedLine.c_str()));
 		}
-		speedLine.append("\"");
 
-		lines.push_back(formatString("#TIL00: %s", speedLine.c_str()));
-		lines.push_back("#HISPEED 00");
 		lines.push_back("#MEASUREHS 00");
 		lines.push_back("");
 

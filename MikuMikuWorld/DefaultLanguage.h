@@ -179,6 +179,18 @@ namespace MikuMikuWorld
 		{"search", "Search..."},
 		{"confirm", "Confirm"},
 
+    // layer manager
+    {"layers", "Layers"},
+		{"name", "Name"},
+		{"create_layer", "Create Layer"},
+		{"confirm", "Confirm"},
+    {"show_all_layers", "Show All Layers"},
+    {"layer_rename", "Rename Layer"},
+    {"layer_up", "Move Up"},
+    {"layer_down", "Move Down"},
+    {"layer_merge", "Merge Layer"},
+    {"layer_delete", "Delete Layer"},
+
 		// shortcuts
 		{"action", "Action"},
 		{"keys", "Keys"},

@@ -14,6 +14,7 @@ namespace MikuMikuWorld
 		ScorePropertiesWindow propertiesWindow{};
 		ScoreOptionsWindow optionsWindow{};
 		PresetsWindow presetsWindow{};
+    LayersWindow layersWindow{};
 		SettingsWindow settingsWindow{};
 		AboutDialog aboutDialog{};
 

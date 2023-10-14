@@ -45,15 +45,17 @@ namespace MikuMikuWorld
 		int width{};
 		StepDrawType type{};
 
+    int layer = -1;
+
 		StepDrawData() {}
-		StepDrawData(int _tick, int _lane, int _width, StepDrawType _type) :
-			tick{ _tick }, lane{ _lane }, width{ _width }, type{ _type }
+		StepDrawData(int _tick, int _lane, int _width, StepDrawType _type, int layer = -1) :
+			tick{ _tick }, lane{ _lane }, width{ _width }, type{ _type }, layer{ layer }
 		{
 
 		}
 
-		StepDrawData(const Note& n, StepDrawType _type) :
-			tick{ n.tick }, lane{ n.lane }, width{ n.width }, type{ _type }
+		StepDrawData(const Note& n, StepDrawType _type, int layer = -1) :
+			tick{ n.tick }, lane{ n.lane }, width{ n.width }, type{ _type }, layer{ layer }
 		{
 
 		}
@@ -143,10 +145,15 @@ namespace MikuMikuWorld
 		void updateScrollbar();
 		void updateScrollingPosition();
 
-		void drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, bool isGuide, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0, const float startAlpha = 1, const float endAlpha = 1, const GuideColor guideColor = GuideColor::Green);
-		void drawHoldNote(const std::unordered_map<int, Note>& notes, const HoldNote& note, Renderer* renderer, const Color& tint, const int offsetTicks = 0, const int offsetLane = 0);
+		void drawHoldCurve(
+        const Note& n1, const Note& n2,
+        EaseType ease, bool isGuide, Renderer* renderer, const Color& tint,
+        const int offsetTick = 0, const int offsetLane = 0, const float startAlpha = 1, const float endAlpha = 1,
+        const GuideColor guideColor = GuideColor::Green, const int selectedLayer = -1
+      );
+		void drawHoldNote(const std::unordered_map<int, Note>& notes, const HoldNote& note, Renderer* renderer, const Color& tint, const int selectedLayer = -1, const int offsetTicks = 0, const int offsetLane = 0);
 		void drawHoldMid(Note& note, HoldStepType type, Renderer* renderer, const Color& tint);
-		void drawOutline(const StepDrawData& data);
+		void drawOutline(const StepDrawData& data, const int selectedLayer = -1);
 		void drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
 		void drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
 		void drawCcNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
@@ -158,11 +165,11 @@ namespace MikuMikuWorld
 		bool skillControl(const Score& score, int tick, bool enabled);
 		bool feverControl(const Score& score, const Fever& fever);
 		bool feverControl(const Score& score, int tick, bool start, bool enabled);
-		bool hiSpeedControl(const Score& score, const HiSpeedChange& hiSpeed);
-		bool hiSpeedControl(const Score& score, int tick, float speed);
+		bool hiSpeedControl(const ScoreContext& context, const HiSpeedChange& hiSpeed);
+		bool hiSpeedControl(const ScoreContext& context, int tick, float speed, int layer);
 
 		void drawInputNote(Renderer* renderer);
-		void previewInput(const Score& score, EditArgs& edit, Renderer* renderer);
+		void previewInput(const ScoreContext& context, EditArgs& edit, Renderer* renderer);
 		void previewPaste(ScoreContext& context, Renderer* renderer);
 		void executeInput(ScoreContext& context, EditArgs& edit);
 		void eventEditor(ScoreContext& context);

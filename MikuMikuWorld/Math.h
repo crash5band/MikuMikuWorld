@@ -50,12 +50,15 @@ namespace MikuMikuWorld
 
 		inline bool operator==(const Color& c) { return r == c.r && g == c.g && b == c.b && a == c.a; }
 		inline bool operator!=(const Color& c) { return !(*this == c); }
+    inline Color operator*(const Color& c) { return Color{ r * c.r, g * c.g, b * c.b, a * c.a }; }
 
 		static inline int rgbaToInt(int r, int g, int b, int a) { return r << 24 | g << 16 | b << 8 | a; }
 		static inline int abgrToInt(int a, int b, int g, int r) { return a << 24 | b << 16 | g << 8 | r; }
 
 		inline ImVec4 toImVec4() const { return ImVec4{ r, g, b, a }; }
 		static inline Color fromImVec4(const ImVec4& col) { return Color{ col.x, col.y, col.z, col.w }; }
+
+    static inline Color lerp(const Color& start, const Color& end, float ratio) { return Color{ start.r + (end.r - start.r) * ratio, start.g + (end.g - start.g) * ratio, start.b + (end.b - start.b) * ratio, start.a + (end.a - start.a) * ratio }; }
 	};
 
 	float lerp(float start, float end, float ratio);

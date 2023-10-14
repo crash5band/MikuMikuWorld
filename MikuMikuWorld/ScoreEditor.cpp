@@ -172,6 +172,12 @@ namespace MikuMikuWorld
 		}
 		ImGui::End();
 
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_LAYER_GROUP, "layers"), NULL, ImGuiWindowFlags_Static))
+		{
+      layersWindow.update(context);
+		}
+		ImGui::End();
+
 #ifdef _DEBUG
 		if (showImGuiDemoWindow)
 			ImGui::ShowDemoWindow(&showImGuiDemoWindow);
@@ -540,7 +546,7 @@ namespace MikuMikuWorld
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 		ImGui::Begin("##app_toolbar", NULL, ImGuiWindowFlags_Toolbar);
-		
+
 		if (UI::toolbarButton(ICON_FA_FILE, getString("new"), ToShortcutString(config.input.create)))
 		{
 			Application::windowState.resetting = true;

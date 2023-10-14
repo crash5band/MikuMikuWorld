@@ -30,6 +30,7 @@ namespace MikuMikuWorld
 		{
 			int tick;
 			std::string data;
+      std::string hiSpeedGroup;
 		};
 
 		std::vector<RawData> data;
@@ -63,7 +64,7 @@ namespace MikuMikuWorld
 	public:
 		SusExporter();
 
-		void appendData(int tick, std::string info, std::string data);
+		void appendData(int tick, std::string info, std::string data, std::string hiSpeedGroup);
 		void appendNoteData(const SUSNote& note, const std::string infoPrefix, const std::string channel);
 		void dump(const SUS& sus, const std::string& filename, std::string comment = "");
 	};

@@ -5,6 +5,7 @@
 #include "Utilities.h"
 #include "Application.h"
 #include "ApplicationConfiguration.h"
+#include "ScoreContext.h"
 
 namespace MikuMikuWorld
 {
@@ -647,7 +648,7 @@ namespace MikuMikuWorld
 						UI::beginPropertyColumns();
 						UI::addCheckboxProperty(getString("match_notes_size_to_timeline"), config.matchNotesSizeToTimeline);
 						UI::addIntProperty(getString("lane_width"), config.timelineWidth, "%dpx", MIN_LANE_WIDTH, MAX_LANE_WIDTH);
-						
+
 						if (config.matchNotesSizeToTimeline)
 							UI::beginNextItemDisabled();
 						UI::addIntProperty(getString("notes_height"), config.notesHeight, "%dpx", MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT);
@@ -730,4 +731,214 @@ namespace MikuMikuWorld
 		ImGui::PopStyleVar();
 		return DialogResult::None;
 	}
+
+	void LayersWindow::update(ScoreContext& context)
+	{
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_LAYER_GROUP, "layers")))
+		{
+      int moveUpPattern = -1;
+      int moveDownPattern = -1;
+      int mergePattern = -1;
+			int removePattern = -1;
+
+
+			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
+			float layersButtonHeight = ImGui::GetFrameHeight();
+			float windowHeight = ImGui::GetContentRegionAvail().y - layersButtonHeight * 2 - ImGui::GetStyle().WindowPadding.y * 2;
+
+      bool showAllLayers = context.showAllLayers;
+
+      if (showAllLayers) {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+      }
+			if (ImGui::Button(getString("show_all_layers"), ImVec2(-1, layersButtonHeight))) {
+        context.showAllLayers = !context.showAllLayers;
+      }
+      if (showAllLayers)
+        ImGui::PopStyleColor(2);
+
+			if (ImGui::BeginChild("layers_child_window", ImVec2(-1, windowHeight), true))
+			{
+        int index = -1;
+        for (const auto& layer : context.score.layers)
+        {
+          ++index;
+          ImGui::PushID(index);
+
+          int isSelected = index == context.selectedLayer;
+
+          if (isSelected) {
+            ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+          }
+          if (ImGui::Button(layer.name.c_str(), ImVec2(ImGui::GetContentRegionAvail().x - UI::btnSmall.x * 5 - 2.0f * 6, layersButtonHeight)))
+            context.selectedLayer = index;
+          if (isSelected)
+            ImGui::PopStyleColor(2);
+
+          ImGui::SameLine();
+          if (UI::transparentButton(ICON_FA_PENCIL_ALT, ImVec2(UI::btnSmall.x, layersButtonHeight), false)) {
+            renameIndex = index;
+            layerName = layer.name;
+            dialogOpen = true;
+          }
+          UI::tooltip(getString("layer_rename"));
+
+          bool isFirst = index == 0;
+          ImGui::SameLine();
+          if (UI::transparentButton(ICON_FA_CHEVRON_UP, ImVec2(UI::btnSmall.x, layersButtonHeight), false, !isFirst))
+            moveUpPattern = index;
+          UI::tooltip(getString("layer_up"));
+
+          int isLast = index == context.score.layers.size() - 1;
+          ImGui::SameLine();
+          if (UI::transparentButton(ICON_FA_CHEVRON_DOWN, ImVec2(UI::btnSmall.x, layersButtonHeight), false, !isLast))
+            moveDownPattern = index;
+          UI::tooltip(getString("layer_down"));
+
+          ImGui::SameLine();
+          if (UI::transparentButton(ICON_FA_LEVEL_DOWN_ALT, ImVec2(UI::btnSmall.x, layersButtonHeight), false, !isLast))
+            mergePattern = index;
+          UI::tooltip(getString("layer_merge"));
+
+          ImGui::SameLine();
+          if (UI::transparentButton(ICON_FA_TRASH, ImVec2(UI::btnSmall.x, layersButtonHeight), false, context.score.layers.size() != 1))
+            removePattern = index;
+          UI::tooltip(getString("layer_delete"));
+
+          ImGui::PopID();
+				}
+			}
+			ImGui::EndChild();
+			ImGui::Separator();
+
+			if (ImGui::Button(getString("create_layer"), ImVec2(-1, layersButtonHeight))) {
+				dialogOpen = true;
+        renameIndex = -1;
+        layerName.clear();
+      }
+
+			ImGui::PopStyleColor();
+
+			if (removePattern != -1) {
+        Score prev = context.score;
+        context.score.layers.erase(context.score.layers.begin() + removePattern);
+        if (context.selectedLayer == removePattern)
+          context.selectedLayer = 0;
+        std::vector<int> willRemove;
+        for (auto& [id, note] : context.score.notes) {
+          if (note.layer == removePattern)
+            willRemove.push_back(id);
+        }
+        for (auto id : willRemove) {
+          context.score.notes.erase(id);
+        }
+        willRemove.clear();
+        context.pushHistory("Delete Layer", prev, context.score);
+      }
+
+      if (moveUpPattern != -1) {
+        Score prev = context.score;
+        std::swap(context.score.layers[moveUpPattern], context.score.layers[moveUpPattern - 1]);
+        for (auto& [_, note] : context.score.notes) {
+          if (note.layer == moveUpPattern)
+            note.layer = moveUpPattern - 1;
+          else if (note.layer == moveUpPattern - 1)
+            note.layer = moveUpPattern;
+        }
+        context.pushHistory("Change Layer Order", prev, context.score);
+      }
+
+      if (moveDownPattern != -1) {
+        Score prev = context.score;
+        std::swap(context.score.layers[moveDownPattern], context.score.layers[moveDownPattern + 1]);
+        for (auto& [_, note] : context.score.notes) {
+          if (note.layer == moveDownPattern)
+            note.layer = moveDownPattern + 1;
+          else if (note.layer == moveDownPattern + 1)
+            note.layer = moveDownPattern;
+        }
+        context.pushHistory("Change Layer Order", prev, context.score);
+      }
+
+      if (mergePattern != -1) {
+        Score prev = context.score;
+        context.score.layers.erase(context.score.layers.begin() + mergePattern);
+        for (auto& [_, note] : context.score.notes) {
+          if (note.layer > mergePattern)
+            note.layer -= 1;
+        }
+        if (context.selectedLayer > mergePattern)
+          context.selectedLayer -= 1;
+        context.pushHistory("Merge Layer", prev, context.score);
+      }
+		}
+
+		ImGui::End();
+
+		if (dialogOpen)
+		{
+			ImGui::OpenPopup(renameIndex >= 0 ? MODAL_TITLE("layer_rename") : MODAL_TITLE("create_layer"));
+			dialogOpen = false;
+		}
+
+		if (updateCreationDialog() == DialogResult::Ok)
+		{
+      if (renameIndex >= 0) {
+        context.score.layers[renameIndex].name = layerName;
+        renameIndex = -1;
+      }
+      else
+      {
+        context.score.layers.push_back(Layer{ layerName });
+        layerName.clear();
+      }
+		}
+	}
+
+	DialogResult LayersWindow::updateCreationDialog()
+	{
+		DialogResult result = DialogResult::None;
+
+		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+		ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_Always);
+		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
+		if (ImGui::BeginPopupModal(renameIndex >= 0 ? MODAL_TITLE("layer_rename") : MODAL_TITLE("create_layer"), NULL, ImGuiWindowFlags_NoResize))
+		{
+			ImVec2 padding = ImGui::GetStyle().WindowPadding;
+			ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
+
+			float xPos = padding.x;
+			float yPos = ImGui::GetWindowSize().y - UI::btnSmall.y - 2.0f - (padding.y * 2);
+
+			ImGui::Text(getString("name"));
+			ImGui::SetNextItemWidth(-1);
+			ImGui::InputText("##layer_name", &layerName);
+
+			ImVec2 btnSz{ (ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) / 2.0f, ImGui::GetFrameHeight() };
+			ImGui::SetCursorPos(ImVec2(xPos, yPos));
+			if (ImGui::Button(getString("cancel"), btnSz))
+			{
+				result = DialogResult::Cancel;
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::SameLine();
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !layerName.size());
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * !layerName.size()));
+			if (ImGui::Button(getString("confirm"), btnSz))
+			{
+				result = DialogResult::Ok;
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::PopItemFlag();
+			ImGui::PopStyleVar();
+			ImGui::EndPopup();
+		}
+
+		return result;
+	}
+
 }

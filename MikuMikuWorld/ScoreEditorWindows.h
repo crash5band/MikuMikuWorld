@@ -74,4 +74,17 @@ namespace MikuMikuWorld
 		bool open = false;
 		DialogResult update();
 	};
+
+	class LayersWindow
+	{
+	private:
+		std::string layerName{};
+		bool dialogOpen = false;
+    int renameIndex = -1;
+
+		DialogResult updateCreationDialog();
+
+	public:
+		void update(ScoreContext& context);
+	};
 }

@@ -95,7 +95,8 @@ namespace MikuMikuWorld
 			notes.push_back(SUSNote{ toTicks(measure, i, data.size()),
 				(int)std::stoul(header.substr(4, 1), nullptr, 36) + laneOffset,
 				(int)std::stoul(data.substr(i + 1, 1), nullptr, 36),
-				(int)std::stoul(data.substr(i, 1), nullptr, 36)
+				(int)std::stoul(data.substr(i, 1), nullptr, 36),
+        currentHiSpeedGroup
 			});
 		}
 
@@ -125,8 +126,6 @@ namespace MikuMikuWorld
 			designer = value;
 		else if (key == "WAVEOFFSET")
 			waveOffset = atof(value.c_str());
-		else if (key == "MEASUREBS")
-			measureOffset = atoi(value.c_str());
 		else if (key == "REQUEST")
 		{
 			std::vector<std::string> requestArgs = split(value, " ");
@@ -148,6 +147,11 @@ namespace MikuMikuWorld
 		auto lines = susFile.readAllLines();
 		susFile.close();
 
+    currentHiSpeedGroup = "00";
+
+    std::unordered_map<int, int> measureOffsets;
+    std::unordered_map<int, std::string> hiSpeedGroupChanges;
+
 		std::vector<SusLineData> noteLines;
 		std::vector<SusLineData> bpmLines;
 		std::vector<SusLineData> hiSpeedLines;
@@ -161,7 +165,25 @@ namespace MikuMikuWorld
 			if (!startsWith(line, "#"))
 				continue;
 
-			if (isCommand(line))
+      if (line.substr(0, 9) == "#HISPEED ")
+      {
+        int keyPos = line.find_first_of(' ');
+        if (keyPos == std::string::npos)
+          continue;
+
+        std::string value = line.substr(keyPos + 1);
+        hiSpeedGroupChanges.insert_or_assign((int)noteLines.size(), trim(value));
+        continue;
+      } else if (line.substr(0, 12) == "#MEASUREBS ")
+      {
+        int keyPos = line.find_first_of(' ');
+        if (keyPos == std::string::npos)
+          continue;
+
+        std::string value = line.substr(keyPos + 1);
+        measureOffsets.insert_or_assign((int)noteLines.size(), atoi(value.c_str()));
+        continue;
+		  } else if (isCommand(line))
 			{
 				processCommand(line);
 			}
@@ -182,13 +204,13 @@ namespace MikuMikuWorld
 				{
 					bpmDefinitions[header.substr(3)] = atof(data.c_str());
 				}
-				else if (header.size() == 5 && header.substr(header.size() - 2, 2) == "08")
-				{
-					bpmLines.push_back({ i, measureOffset, line });
-				}
 				else if (header.size() == 5 && header.substr(0, 3) == "TIL")
 				{
 					hiSpeedLines.push_back({ i, measureOffset, line });
+				}
+				else if (header.size() == 5 && header.substr(header.size() - 2, 2) == "08")
+				{
+					bpmLines.push_back({ i, measureOffset, line });
 				}
 				else if (header.size() == 5 || header.size() == 6)
 				{
@@ -245,12 +267,20 @@ namespace MikuMikuWorld
 			[](const BPM& a, const BPM& b) { return a.tick < b.tick; });
 
 		// process hi-speed changes
-		std::vector<HiSpeed> hiSpeeds;
+		std::vector<HiSpeedGroup> hiSpeedGroups;
 		for (auto& line : hiSpeedLines)
 		{
-			std::string lineData = line.line;
+			auto l = split(line.line, ":");
+			if (l.size() < 2) // no ':' found
+				continue;
+
+			std::string name = trim(l[0]).substr(4);
+			std::string lineData = line.line.substr(line.line.find_first_of(':') + 1);
 			int firstQuote = lineData.find_first_of('"') + 1;
 			int lastQuote = lineData.find_last_of('"');
+
+      HiSpeedGroup group;
+      group.name = name;
 
 			lineData = lineData.substr(firstQuote, lastQuote - firstQuote);
 			if (!lineData.size())
@@ -277,20 +307,26 @@ namespace MikuMikuWorld
 				speed = atof(change.substr(i1).c_str());
 
 				int measureTicks = toTicks(measure, 0, 1);
-				hiSpeeds.push_back({ measureTicks + tick, speed });
+				group.hiSpeeds.push_back({ measureTicks + tick, speed });
 			}
-		}
+      std::stable_sort(group.hiSpeeds.begin(), group.hiSpeeds.end(),
+        [](const HiSpeed& a, const HiSpeed& b) { return a.tick < b.tick; });
 
-		std::stable_sort(hiSpeeds.begin(), hiSpeeds.end(),
-			[](const HiSpeed& a, const HiSpeed& b) {return a.tick < b.tick; });
+      hiSpeedGroups.push_back(group);
+		}
 
 		// Process notes
 		std::vector<SUSNote> taps;
 		std::vector<SUSNote> directionals;
 		std::unordered_map<int, std::vector<SUSNote>> slideStreams;
 		std::unordered_map<int, std::vector<SUSNote>> guideStreams;
-		for (auto& line : noteLines)
+		for (int i = 0; i < noteLines.size(); i++)
 		{
+      if (measureOffsets.find(i) != measureOffsets.end())
+        measureOffset = measureOffsets[i];
+      if (hiSpeedGroupChanges.find(i) != hiSpeedGroupChanges.end())
+        currentHiSpeedGroup = hiSpeedGroupChanges[i];
+      auto line = noteLines[i];
 			auto l = split(line.line, ":");
 			if (l.size() < 2) // no ':' found
 				continue;
@@ -344,6 +380,6 @@ namespace MikuMikuWorld
 		metadata.data["designer"] = designer;
 		metadata.waveOffset = waveOffset;
 
-		return SUS{ metadata, taps, directionals, slides, guides, bpms, barLengths, hiSpeeds, laneOffset, sideLane };
+		return SUS{ metadata, taps, directionals, slides, guides, bpms, barLengths, hiSpeedGroups, laneOffset, sideLane };
 	}
 }

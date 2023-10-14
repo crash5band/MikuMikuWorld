@@ -46,6 +46,11 @@ namespace MikuMikuWorld
 			sus.metadata.waveOffset * 1000 // seconds -> milliseconds
 		};
 
+    std::vector<std::string> hiSpeedGroupNames;
+
+    for (const auto& group : sus.hiSpeedGroups)
+      hiSpeedGroupNames.push_back(group.name);
+
 		std::unordered_map<std::string, FlickType> flicks;
 		std::unordered_set<std::string> criticals;
 		std::unordered_set<std::string> stepIgnore;
@@ -181,6 +186,7 @@ namespace MikuMikuWorld
         n.friction = frictions.find(key) != frictions.end() || stepIgnore.find(key) != stepIgnore.end();
         n.flick = flicks.find(key) != flicks.end() ? flicks[key] : FlickType::None;
       }
+      n.layer = std::distance(hiSpeedGroupNames.begin(), std::find(hiSpeedGroupNames.begin(), hiSpeedGroupNames.end(), note.hiSpeedGroup));
 			n.ID = nextID++;
 
 			notes[n.ID] = n;
@@ -205,10 +211,6 @@ namespace MikuMikuWorld
 				HoldNote hold;
 				int startID = nextID++;
 				hold.steps.reserve(slide.size() - 2);
-
-        if (isGuide && critical) {
-          hold.guideColor = GuideColor::Yellow;
-        }
 
 				for (const auto& note : slide)
 				{
@@ -236,6 +238,9 @@ namespace MikuMikuWorld
 						if (isGuide || (hiddenHolds.find(noteKey(note)) != hiddenHolds.end() && stepIgnore.find(key) != stepIgnore.end()))
 						{
               isGuide = true;
+              if (critical) {
+                hold.guideColor = GuideColor::Yellow;
+              }
 							hold.startType = HoldNoteType::Guide;
 						}
 						else
@@ -311,6 +316,8 @@ namespace MikuMikuWorld
 
 		std::vector<Tempo> tempos;
 		tempos.reserve(sus.bpms.size());
+    if (sus.bpms.size() == 0)
+      tempos.push_back(Tempo(0, 120));
 		for (const auto& tempo : sus.bpms)
 			tempos.push_back(Tempo(tempo.tick, tempo.bpm));
 
@@ -322,10 +329,20 @@ namespace MikuMikuWorld
 				TimeSignature{ sign.bar, fraction.first, fraction.second }));
 		}
 
+    std::vector<Layer> layers;
 		std::vector<HiSpeedChange> hiSpeedChanges;
-		hiSpeedChanges.reserve(sus.hiSpeeds.size());
-		for (const auto& speed : sus.hiSpeeds)
-			hiSpeedChanges.push_back({ speed.tick, speed.speed });
+    int hiSpeedChangesCount = 0;
+    for (const auto& group : sus.hiSpeedGroups)
+      for (const auto& change : group.hiSpeeds)
+        hiSpeedChangesCount++;
+		hiSpeedChanges.reserve(hiSpeedChangesCount);
+    int hiSpeedGroupIndex = -1;
+		for (const auto& speed : sus.hiSpeedGroups) {
+      hiSpeedGroupIndex++;
+      layers.push_back(Layer{ IO::formatString("#%d", hiSpeedGroupIndex) });
+      for (const auto& change : speed.hiSpeeds)
+			  hiSpeedChanges.push_back({ change.tick, change.speed, hiSpeedGroupIndex });
+    }
 
 		Score score;
 		score.metadata = metadata;
@@ -333,6 +350,7 @@ namespace MikuMikuWorld
 		score.holdNotes = holds;
 		score.tempoChanges = tempos;
 		score.timeSignatures = timeSignatures;
+    score.layers = layers;
 		score.hiSpeedChanges = hiSpeedChanges;
 		score.skills = skills;
 		score.fever = fever;
@@ -356,6 +374,20 @@ namespace MikuMikuWorld
 		std::vector<BarLength> barlengths;
 		std::vector<HiSpeed> hiSpeeds;
 
+    std::unordered_map<int, std::string> hiSpeedGroupNames;
+
+    for (int i = 0; i < score.layers.size(); i++) {
+      char b36[36];
+      IO::tostringBaseN(b36, i, 36);
+
+      std::string b36Str(b36);
+
+      if (b36Str.size() == 1)
+        b36Str = "0" + b36Str;
+
+      hiSpeedGroupNames[i] = b36Str;
+    }
+
 		std::unordered_set<std::string> criticalKeys;
 		for (const auto& [id, note] : score.notes)
 		{
@@ -367,13 +399,13 @@ namespace MikuMikuWorld
 					type++;
 					criticalKeys.insert(noteKey(note));
 				}
-				taps.push_back(SUSNote{ note.tick, note.lane + offset, note.width, type });
+				taps.push_back(SUSNote{ note.tick, note.lane + offset, note.width, type, hiSpeedGroupNames[note.layer] });
 
 				if (note.isFlick())
 					directionals.push_back(SUSNote{ note.tick, note.lane + offset, note.width, flickToType[note.flick] });
 			}
 			if (note.getType() == NoteType::Damage)
-				taps.push_back(SUSNote{ note.tick, note.lane + offset, note.width, 4 });
+				taps.push_back(SUSNote{ note.tick, note.lane + offset, note.width, 4, hiSpeedGroupNames[note.layer] });
 		}
 
 		/*
@@ -398,7 +430,7 @@ namespace MikuMikuWorld
 
 			const Note& start = score.notes.at(hold.start.ID);
 
-			slide.push_back(SUSNote{ start.tick, start.lane + offset, start.width, 1 });
+			slide.push_back(SUSNote{ start.tick, start.lane + offset, start.width, 1, hiSpeedGroupNames[start.layer] });
 
 			bool hasEase = hold.start.ease != EaseType::Linear;
 			bool invisibleTapPoint =
@@ -426,7 +458,7 @@ namespace MikuMikuWorld
 			{
 				const Note& midNote = score.notes.at(step.ID);
 
-				slide.push_back(SUSNote{ midNote.tick, midNote.lane + offset, midNote.width, step.type == HoldStepType::Hidden ? 5 : 3 });
+				slide.push_back(SUSNote{ midNote.tick, midNote.lane + offset, midNote.width, step.type == HoldStepType::Hidden ? 5 : 3, hiSpeedGroupNames[midNote.layer] });
 				if (step.type == HoldStepType::Skip)
 				{
 					taps.push_back(SUSNote{ midNote.tick, midNote.lane + offset, midNote.width, 3 });
@@ -435,7 +467,7 @@ namespace MikuMikuWorld
 				{
 					int stepTapType = hold.isGuide() ? start.critical ? 8 : 7 : 1;
 					taps.push_back(SUSNote{ midNote.tick, midNote.lane + offset, midNote.width, stepTapType });
-					directionals.push_back(SUSNote{ midNote.tick, midNote.lane + offset, midNote.width, step.ease == EaseType::EaseIn ? 2 : 6 });
+					directionals.push_back(SUSNote{ midNote.tick, midNote.lane + offset, midNote.width, step.ease == EaseType::EaseIn ? 2 : 6, hiSpeedGroupNames[midNote.layer] });
 				}
 			}
 
@@ -512,7 +544,20 @@ namespace MikuMikuWorld
 		// milliseconds -> seconds
 		metadata.waveOffset = score.metadata.musicOffset / 1000.0f;
 
-		return SUS{ metadata, taps, directionals, slides, guides, bpms, barlengths, hiSpeeds, laneOffset };
+    std::vector<HiSpeedGroup> hiSpeedGroup;
+
+    for (int i = 0; i < score.layers.size(); i++) {
+      std::vector<HiSpeed> hiSpeeds;
+
+      for (const auto& hiSpeed : score.hiSpeedChanges) {
+        if (hiSpeed.layer == i) {
+          hiSpeeds.push_back(HiSpeed{ hiSpeed.tick, hiSpeed.speed });
+        }
+      }
+      hiSpeedGroup.push_back(HiSpeedGroup{ hiSpeedGroupNames[i], hiSpeeds });
+    }
+
+		return SUS{ metadata, taps, directionals, slides, guides, bpms, barlengths, hiSpeedGroup, laneOffset };
 	}
 
   json ScoreConverter::scoreToUsc(const Score& score)
@@ -532,17 +577,22 @@ namespace MikuMikuWorld
       objects.push_back(obj);
     }
 
-    json timeScaleGroup;
-    timeScaleGroup["type"] = "timeScaleGroup";
-    std::vector<json> timeScaleObjects;
-    for (const auto& hs : score.hiSpeedChanges) {
-      json obj;
-      obj["beat"] = hs.tick / (float)TICKS_PER_BEAT;
-      obj["timeScale"] = hs.speed;
-      timeScaleObjects.push_back(obj);
+    for (int i = 0; i < score.layers.size(); ++i) {
+      json timeScaleGroup;
+      timeScaleGroup["type"] = "timeScaleGroup";
+      std::vector<json> timeScaleObjects;
+      for (const auto& hs : score.hiSpeedChanges) {
+        if (hs.layer != i) {
+          continue;
+        }
+        json obj;
+        obj["beat"] = hs.tick / (float)TICKS_PER_BEAT;
+        obj["timeScale"] = hs.speed;
+        timeScaleObjects.push_back(obj);
+      }
+      timeScaleGroup["changes"] = timeScaleObjects;
+      objects.push_back(timeScaleGroup);
     }
-    timeScaleGroup["changes"] = timeScaleObjects;
-    objects.push_back(timeScaleGroup);
 
     for (const auto& [_, note] : score.notes) {
       if (note.getType() == NoteType::Tap) {
@@ -554,8 +604,9 @@ namespace MikuMikuWorld
         obj["critical"] = note.critical;
         obj["trace"] = note.friction;
         if (note.flick != FlickType::None) {
-          obj["flick"] = note.flick == FlickType::Default ? "up" : note.flick == FlickType::Left ? "left" : "right";
+          obj["direction"] = note.flick == FlickType::Default ? "up" : note.flick == FlickType::Left ? "left" : "right";
         }
+        obj["timeScaleGroup"] = note.layer;
         objects.push_back(obj);
       } else if (note.getType() == NoteType::Damage) {
         json obj;
@@ -563,6 +614,7 @@ namespace MikuMikuWorld
         obj["beat"] = note.tick / (float)TICKS_PER_BEAT;
         obj["size"] = note.width / 2.0;
         obj["lane"] = note.lane - 6 + (note.width / 2.0);
+        obj["timeScaleGroup"] = note.layer;
         objects.push_back(obj);
       }
     }
@@ -582,6 +634,7 @@ namespace MikuMikuWorld
         startStep["size"] = start.width / 2.0;
         startStep["lane"] = start.lane - 6 + (start.width / 2.0);
         startStep["ease"] = note.start.ease == EaseType::EaseIn ? "in" : note.start.ease == EaseType::EaseOut ? "out" : "linear";
+        startStep["timeScaleGroup"] = start.layer;
         steps.push_back(startStep);
 
         for (const auto& step : note.steps) {
@@ -590,7 +643,8 @@ namespace MikuMikuWorld
           stepObj["beat"] = stepNote.tick / (float)TICKS_PER_BEAT;
           stepObj["size"] = stepNote.width / 2.0;
           stepObj["lane"] = stepNote.lane - 6 + (stepNote.width / 2.0);
-          stepObj["ease"] = note.start.ease == EaseType::EaseIn ? "in" : note.start.ease == EaseType::EaseOut ? "out" : "linear";
+          stepObj["ease"] = step.ease == EaseType::EaseIn ? "in" : step.ease == EaseType::EaseOut ? "out" : "linear";
+          stepObj["timeScaleGroup"] = stepNote.layer;
           steps.push_back(stepObj);
         }
 
@@ -600,6 +654,7 @@ namespace MikuMikuWorld
         endStep["size"] = end.width / 2.0;
         endStep["lane"] = end.lane - 6 + (end.width / 2.0);
         endStep["ease"] = "linear";
+        endStep["timeScaleGroup"] = end.layer;
         steps.push_back(endStep);
 
         obj["midpoints"] = steps;
@@ -620,6 +675,7 @@ namespace MikuMikuWorld
       startStep["critical"] = start.critical;
       startStep["ease"] = note.start.ease == EaseType::EaseIn ? "in" : note.start.ease == EaseType::EaseOut ? "out" : "linear";
       startStep["judgeType"] = note.startType == HoldNoteType::Hidden ? "none" : start.friction ? "trace" : "normal";
+      startStep["timeScaleGroup"] = start.layer;
       steps.push_back(startStep);
 
       for (const auto& step : note.steps) {
@@ -632,7 +688,8 @@ namespace MikuMikuWorld
         if (step.type != HoldStepType::Hidden) {
           stepObj["critical"] = stepNote.critical;
         }
-        stepObj["ease"] = note.start.ease == EaseType::EaseIn ? "in" : note.start.ease == EaseType::EaseOut ? "out" : "linear";
+        stepObj["ease"] = step.ease == EaseType::EaseIn ? "in" : step.ease == EaseType::EaseOut ? "out" : "linear";
+        stepObj["timeScaleGroup"] = stepNote.layer;
         steps.push_back(stepObj);
       }
 
@@ -647,6 +704,7 @@ namespace MikuMikuWorld
       if (end.flick != FlickType::None) {
         endStep["direction"] = end.flick == FlickType::Default ? "up" : end.flick == FlickType::Left ? "left" : "right";
       }
+      endStep["timeScaleGroup"] = end.layer;
       steps.push_back(endStep);
 
       obj["connections"] = steps;

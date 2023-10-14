@@ -290,6 +290,14 @@ void ScoreEditorTimeline::contextMenu(ScoreContext &context) {
       ImGui::EndMenu();
     }
 
+    if (ImGui::BeginMenu(getString("layer"),
+                         context.selectedNotes.size() > 0)) {
+      for (int i = 0; i < context.score.layers.size(); ++i)
+        if (ImGui::MenuItem(context.score.layers[i].name.c_str()))
+          context.setLayer(i);
+      ImGui::EndMenu();
+    }
+
     ImGui::Separator();
     if (ImGui::MenuItem(getString("shrink_up"), NULL, false,
                         context.selectedNotes.size() > 1))
@@ -404,6 +412,8 @@ void ScoreEditorTimeline::update(ScoreContext &context, EditArgs &edit,
 
     float yThreshold = (notesHeight * 0.5f) + 2.0f;
     for (const auto &[id, note] : context.score.notes) {
+      if (note.layer != context.selectedLayer && !context.showAllLayers)
+        continue;
       float x1 = laneToPosition(note.lane);
       float x2 = laneToPosition(note.lane + note.width);
       float y = -tickToPosition(note.tick);
@@ -561,7 +571,7 @@ void ScoreEditorTimeline::update(ScoreContext &context, EditArgs &edit,
   // update hi-speed changes
   for (int index = 0; index < context.score.hiSpeedChanges.size(); ++index) {
     HiSpeedChange &hiSpeed = context.score.hiSpeedChanges[index];
-    if (hiSpeedControl(context.score, hiSpeed)) {
+    if (hiSpeedControl(context, hiSpeed)) {
       eventEdit.editIndex = index;
       eventEdit.editHiSpeed = hiSpeed.speed;
       eventEdit.type = EventType::HiSpeed;
@@ -804,11 +814,11 @@ void ScoreEditorTimeline::updateNotes(ScoreContext &context, EditArgs &edit,
       continue;
     if (note.getType() == NoteType::Tap) {
       updateNote(context, edit, note);
-      drawNote(note, renderer, noteTint);
+      drawNote(note, renderer, (context.showAllLayers || note.layer == context.selectedLayer) ? noteTint : otherLayerTint);
     }
     if (note.getType() == NoteType::Damage) {
       updateNote(context, edit, note);
-      drawCcNote(note, renderer, noteTint);
+      drawCcNote(note, renderer, (context.showAllLayers || note.layer == context.selectedLayer) ? noteTint : otherLayerTint);
     }
   }
 
@@ -829,7 +839,7 @@ void ScoreEditorTimeline::updateNotes(ScoreContext &context, EditArgs &edit,
         break;
     }
 
-    drawHoldNote(context.score.notes, hold, renderer, noteTint);
+    drawHoldNote(context.score.notes, hold, renderer, noteTint, context.showAllLayers ? -1 : context.selectedLayer);
   }
   skipUpdateAfterSortingSteps = false;
 
@@ -850,7 +860,7 @@ void ScoreEditorTimeline::updateNotes(ScoreContext &context, EditArgs &edit,
   if (mouseInTimeline && !isHoldingNote &&
       currentMode != TimelineMode::Select && !pasting && !playing &&
       !UI::isAnyPopupOpen()) {
-    previewInput(context.score, edit, renderer);
+    previewInput(context, edit, renderer);
     if (ImGui::IsMouseClicked(0) && hoverTick >= 0 && !isHoveringNote)
       executeInput(context, edit);
 
@@ -873,7 +883,7 @@ void ScoreEditorTimeline::updateNotes(ScoreContext &context, EditArgs &edit,
 
   // draw hold step outlines
   for (const auto &data : drawSteps)
-    drawOutline(data);
+    drawOutline(data, context.showAllLayers ? -1 : context.selectedLayer);
 
   drawSteps.clear();
 }
@@ -896,7 +906,7 @@ void ScoreEditorTimeline::previewPaste(ScoreContext &context,
       }
 
   for (const auto &[_, hold] : context.pasteData.holds)
-    drawHoldNote(context.pasteData.notes, hold, renderer, hoverTint, hoverTick,
+    drawHoldNote(context.pasteData.notes, hold, renderer, hoverTint, -1, hoverTick,
                  context.pasteData.offsetLane);
 }
 
@@ -959,18 +969,18 @@ void ScoreEditorTimeline::insertEvent(ScoreContext &context, EditArgs &edit) {
     context.pushHistory("Insert time signature", prev, context.score);
   } else if (currentMode == TimelineMode::InsertHiSpeed) {
     for (const auto &hs : context.score.hiSpeedChanges)
-      if (hs.tick == hoverTick)
+      if (hs.tick == hoverTick && hs.layer == context.selectedLayer)
         return;
 
     Score prev = context.score;
-    context.score.hiSpeedChanges.push_back({hoverTick, edit.hiSpeed});
+    context.score.hiSpeedChanges.push_back({hoverTick, edit.hiSpeed, context.selectedLayer});
     context.pushHistory("Insert hi-speed changes", prev, context.score);
   }
 }
 
-void ScoreEditorTimeline::previewInput(const Score &score, EditArgs &edit,
+void ScoreEditorTimeline::previewInput(const ScoreContext& context, EditArgs &edit,
                                        Renderer *renderer) {
-  updateInputNotes(score, edit);
+  updateInputNotes(context.score, edit);
   switch (currentMode) {
   case TimelineMode::InsertLong:
     if (insertingHold) {
@@ -1006,16 +1016,16 @@ void ScoreEditorTimeline::previewInput(const Score &score, EditArgs &edit,
     break;
 
   case TimelineMode::InsertBPM:
-    bpmControl(score, edit.bpm, hoverTick, false);
+    bpmControl(context.score, edit.bpm, hoverTick, false);
     break;
 
   case TimelineMode::InsertTimeSign:
-    timeSignatureControl(score, edit.timeSignatureNumerator,
+    timeSignatureControl(context.score, edit.timeSignatureNumerator,
                          edit.timeSignatureDenominator, hoverTick, false);
     break;
 
   case TimelineMode::InsertHiSpeed:
-    hiSpeedControl(score, hoverTick, edit.hiSpeed);
+    hiSpeedControl(context, hoverTick, edit.hiSpeed, -1);
     break;
 
   case TimelineMode::InsertDamage:
@@ -1029,6 +1039,7 @@ void ScoreEditorTimeline::previewInput(const Score &score, EditArgs &edit,
 }
 
 void ScoreEditorTimeline::executeInput(ScoreContext &context, EditArgs &edit) {
+  context.showAllLayers = false;
   switch (currentMode) {
   case TimelineMode::InsertTap:
   case TimelineMode::MakeCritical:
@@ -1220,7 +1231,7 @@ void ScoreEditorTimeline::updateNote(ScoreContext &context, EditArgs &edit,
   ImVec2 sz{noteControlWidth, notesHeight};
 
   const ImGuiIO &io = ImGui::GetIO();
-  if (ImGui::IsMouseHoveringRect(pos, pos + noteSz, false) && mouseInTimeline) {
+  if (ImGui::IsMouseHoveringRect(pos, pos + noteSz, false) && mouseInTimeline && (context.showAllLayers || note.layer == context.selectedLayer)) {
     isHoveringNote = true;
 
     float noteYDistance = std::abs(
@@ -1389,12 +1400,15 @@ void ScoreEditorTimeline::updateNote(ScoreContext &context, EditArgs &edit,
 
 void ScoreEditorTimeline::drawHoldCurve(
     const Note &n1, const Note &n2, EaseType ease, bool isGuide,
-    Renderer *renderer, const Color &tint, const int offsetTick,
-    const int offsetLane, const float startAlpha, const float endAlpha, const GuideColor guideColor) {
+    Renderer *renderer, const Color &tint_, const int offsetTick,
+    const int offsetLane, const float startAlpha, const float endAlpha, const GuideColor guideColor,
+    const int selectedLayer
+  ) {
   int texIndex = isGuide ? noteTextures.guideColors : noteTextures.holdPath;
   if (texIndex == -1)
     return;
 
+  auto tint = tint_;
   const Texture &pathTex = ResourceManager::textures[texIndex];
   int sprIndex = isGuide ? (int)guideColor : n1.critical ? 3 : 1;
   if (sprIndex > pathTex.sprites.size())
@@ -1415,6 +1429,8 @@ void ScoreEditorTimeline::drawHoldCurve(
 
   auto easeFunc = getEaseFunction(ease);
   float steps = std::max(5.0f, std::ceilf(abs((endY - startY)) / 10));
+
+  Color inactiveTint = tint * otherLayerTint;
   for (int y = 0; y < steps; ++y) {
     const float percent1 = y / steps;
     const float percent2 = (y + 1) / steps;
@@ -1433,7 +1449,11 @@ void ScoreEditorTimeline::drawHoldCurve(
     if (y1 > size.y + size.y + position.y + 100)
       break;
 
-    Color localTint = tint;
+    Color localTint = selectedLayer == -1 ? noteTint : Color::lerp(
+      n1.layer == selectedLayer ? noteTint : inactiveTint,
+      n2.layer == selectedLayer ? noteTint : inactiveTint,
+      percent1
+    );
 
     localTint.a = tint.a * lerp(0.7, 1, lerp(startAlpha, endAlpha, percent1));
 
@@ -1475,12 +1495,13 @@ void ScoreEditorTimeline::drawInputNote(Renderer *renderer) {
 }
 
 void ScoreEditorTimeline::drawHoldNote(
-    const std::unordered_map<int, Note> &notes, const HoldNote &note,
-    Renderer *renderer, const Color &tint, const int offsetTicks,
-    const int offsetLane) {
+    const std::unordered_map<int, Note> &notes , const HoldNote &note,
+    Renderer *renderer, const Color &tint_, const int selectedLayer,
+    const int offsetTicks, const int offsetLane) {
   const Note &start = notes.at(note.start.ID);
   const Note &end = notes.at(note.end);
   const int length = abs(end.tick - start.tick);
+  auto tint = tint_;
   if (note.steps.size()) {
     static constexpr auto isSkipStep = [](const HoldStep &step) {
       return step.type == HoldStepType::Skip;
@@ -1512,7 +1533,7 @@ void ScoreEditorTimeline::drawHoldNote(
           a2 = 1 - p2;
         }
         drawHoldCurve(n1, n2, ease, note.isGuide(), renderer, tint, offsetTicks,
-                      offsetLane, a1, a2, note.guideColor);
+                      offsetLane, a1, a2, note.guideColor, selectedLayer);
 
         s1 = s2;
       }
@@ -1534,7 +1555,7 @@ void ScoreEditorTimeline::drawHoldNote(
       const Note &n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
       const EaseType ease = s1 == -1 ? note.start.ease : note.steps[s1].ease;
       drawHoldCurve(n1, end, ease, note.isGuide(), renderer, tint, offsetTicks,
-                    offsetLane, a1, a2, note.guideColor);
+                    offsetLane, a1, a2, note.guideColor, selectedLayer);
     }
 
     s1 = -1;
@@ -1560,7 +1581,9 @@ void ScoreEditorTimeline::drawHoldNote(
               n3.tick + offsetTicks, n3.lane + offsetLane, n3.width,
               note.steps[i].type == HoldStepType::Skip
                   ? StepDrawType::SkipStep
-                  : StepDrawType::NormalStep});
+                  : StepDrawType::NormalStep,
+              n3.layer
+          });
 
         if (note.steps[i].type != HoldStepType::Hidden) {
           int sprIndex = getNoteSpriteIndex(n3);
@@ -1596,7 +1619,9 @@ void ScoreEditorTimeline::drawHoldNote(
 
             renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter,
                                  tex, s.getX(), s.getX() + s.getWidth(),
-                                 s.getY(), s.getY() + s.getHeight(), tint, 1);
+                                 s.getY(), s.getY() + s.getHeight(),
+                                 (selectedLayer == -1 || n3.layer == selectedLayer) ? tint : tint * otherLayerTint,
+                                 1);
           }
         }
       }
@@ -1618,12 +1643,14 @@ void ScoreEditorTimeline::drawHoldNote(
       a2 = 0;
     }
     drawHoldCurve(start, end, note.start.ease, note.isGuide(), renderer, tint,
-                  offsetTicks, offsetLane, a1, a2, note.guideColor);
+                  offsetTicks, offsetLane, a1, a2, note.guideColor, selectedLayer);
   }
+
+  auto inactiveTint = tint * otherLayerTint;
 
   if (isNoteVisible(start, offsetTicks)) {
     if (note.startType == HoldNoteType::Normal) {
-      drawNote(start, renderer, tint, offsetTicks, offsetLane);
+      drawNote(start, renderer, (selectedLayer == -1 || start.layer == selectedLayer) ? tint : inactiveTint, offsetTicks, offsetLane);
     } else if (drawHoldStepOutlines) {
       StepDrawType drawType;
       if (note.startType == HoldNoteType::Guide) {
@@ -1634,13 +1661,14 @@ void ScoreEditorTimeline::drawHoldNote(
       }
       drawSteps.push_back({start.tick + offsetTicks, start.lane + offsetLane,
                            start.width,
-                           drawType});
+                           drawType,
+                           start.layer});
     }
   }
 
   if (isNoteVisible(end, offsetTicks)) {
     if (note.endType == HoldNoteType::Normal) {
-      drawNote(end, renderer, tint, offsetTicks, offsetLane);
+      drawNote(end, renderer, (selectedLayer == -1 || end.layer == selectedLayer) ? tint : inactiveTint, offsetTicks, offsetLane);
     } else if (drawHoldStepOutlines) {
       StepDrawType drawType;
       if (note.startType == HoldNoteType::Guide) {
@@ -1651,7 +1679,8 @@ void ScoreEditorTimeline::drawHoldNote(
       }
       drawSteps.push_back({end.tick + offsetTicks, end.lane + offsetLane,
                            end.width,
-                           drawType});
+                           drawType,
+                           end.layer});
     }
   }
 }
@@ -1678,16 +1707,26 @@ void ScoreEditorTimeline::drawHoldMid(Note &note, HoldStepType type,
                        s.getY() + s.getHeight(), tint, 1);
 }
 
-void ScoreEditorTimeline::drawOutline(const StepDrawData &data) {
+void ScoreEditorTimeline::drawOutline(const StepDrawData &data, int selectedLayer) {
   float x = position.x;
   float y = position.y - tickToPosition(data.tick) + visualOffset;
 
   ImVec2 p1{x + laneToPosition(data.lane), y - (notesHeight * 0.15f)};
   ImVec2 p2{x + laneToPosition(data.lane + data.width),
             y + (notesHeight * 0.15f)};
-  ImGui::GetWindowDrawList()->AddRectFilled(p1, p2, data.getFillColor(), 1.0f,
+  auto fill = data.getFillColor();
+  auto outline = data.getOutlineColor();
+
+  if (selectedLayer != -1 && data.layer != -1 && selectedLayer != data.layer) {
+    int fillAlpha = (fill & 0xFF000000) >> 24;
+    fill = (fill & 0x00FFFFFF) | (fillAlpha / 2) << 24;
+    int outlineAlpha = (outline & 0xFF000000) >> 24;
+    outline = (outline & 0x00FFFFFF) | (outlineAlpha / 2) << 24;
+  }
+
+  ImGui::GetWindowDrawList()->AddRectFilled(p1, p2, fill, 1.0f,
                                             ImDrawFlags_RoundCornersAll);
-  ImGui::GetWindowDrawList()->AddRect(p1, p2, data.getOutlineColor(), 1,
+  ImGui::GetWindowDrawList()->AddRect(p1, p2, outline, 1,
                                       ImDrawFlags_RoundCornersAll, 2);
 }
 
@@ -1912,19 +1951,21 @@ bool ScoreEditorTimeline::feverControl(const Score &score, int tick, bool start,
                       enabled);
 }
 
-bool ScoreEditorTimeline::hiSpeedControl(const Score &score,
+bool ScoreEditorTimeline::hiSpeedControl(const ScoreContext& context,
                                          const HiSpeedChange &hiSpeed) {
-  return hiSpeedControl(score, hiSpeed.tick, hiSpeed.speed);
+  return hiSpeedControl(context, hiSpeed.tick, hiSpeed.speed, hiSpeed.layer);
 }
 
-bool ScoreEditorTimeline::hiSpeedControl(const Score &score, int tick,
-                                         float speed) {
-  std::string txt = IO::formatString("%.2fx", speed);
+bool ScoreEditorTimeline::hiSpeedControl(const ScoreContext& context, int tick,
+                                         float speed, int layer) {
+  std::string txt = layer == -1 ? IO::formatString("%.2fx", speed) : IO::formatString("%.2fx (%s)", speed, context.score.layers[layer].name.c_str());
   float dpiScale = ImGui::GetMainViewport()->DpiScale;
-  Vector2 pos{getTimelineEndX(score) + (115 * dpiScale),
+  Vector2 pos{getTimelineEndX(context.score) + (115 * dpiScale),
               position.y - tickToPosition(tick) + visualOffset};
-  return eventControl(getTimelineEndX(score), pos, speedColor, txt.c_str(),
-                      true);
+  bool enabled = layer == -1 || context.showAllLayers || context.selectedLayer == layer;
+  return eventControl(getTimelineEndX(context.score), pos,
+                      enabled ? speedColor : inactiveSpeedColor,
+                      txt.c_str(), enabled);
 }
 
 void ScoreEditorTimeline::eventEditor(ScoreContext &context) {
@@ -2063,6 +2104,7 @@ void ScoreEditorTimeline::insertNote(ScoreContext &context, EditArgs &edit) {
 
   Note newNote = inputNotes.tap;
   newNote.ID = nextID++;
+  newNote.layer = context.selectedLayer;
 
   context.score.notes[newNote.ID] = newNote;
   context.pushHistory("Insert note", prev, context.score);
@@ -2073,10 +2115,12 @@ void ScoreEditorTimeline::insertHold(ScoreContext &context, EditArgs &edit) {
 
   Note holdStart = inputNotes.holdStart;
   holdStart.ID = nextID++;
+  holdStart.layer = context.selectedLayer;
 
   Note holdEnd = inputNotes.holdEnd;
   holdEnd.ID = nextID++;
   holdEnd.parentID = holdStart.ID;
+  holdEnd.layer = context.selectedLayer;
 
   if (holdStart.tick == holdEnd.tick) {
     const TimeSignature &t = context.score.timeSignatures.at(
@@ -2125,6 +2169,7 @@ void ScoreEditorTimeline::insertHoldStep(ScoreContext &context, EditArgs &edit,
   holdStep.ID = nextID++;
   holdStep.critical = holdStart.critical;
   holdStep.parentID = holdStart.ID;
+  holdStep.layer = context.selectedLayer;
 
   context.score.notes[holdStep.ID] = holdStep;
 
@@ -2142,6 +2187,7 @@ void ScoreEditorTimeline::insertDamage(ScoreContext &context, EditArgs &edit) {
 
   Note newNote = inputNotes.damage;
   newNote.ID = nextID++;
+  newNote.layer = context.selectedLayer;
 
   context.score.notes[newNote.ID] = newNote;
   context.pushHistory("Insert damage", prev, context.score);

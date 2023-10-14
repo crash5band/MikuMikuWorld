@@ -76,6 +76,9 @@ namespace MikuMikuWorld
 		int currentTick{};
 		bool upToDate{ true };
 
+    int selectedLayer = 0;
+    bool showAllLayers = false;
+
 		std::unordered_set<int> getHoldsFromSelection()
 		{
 			std::unordered_set<int> holds;
@@ -107,6 +110,7 @@ namespace MikuMikuWorld
 		void setHoldType(HoldNoteType hold);
 		void setFadeType(FadeType fade);
 		void setGuideColor(GuideColor color);
+    void setLayer(int layer);
 		void toggleCriticals();
 		void toggleFriction();
 

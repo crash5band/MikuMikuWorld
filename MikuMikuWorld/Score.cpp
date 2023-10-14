@@ -36,12 +36,15 @@ namespace MikuMikuWorld
 		fever.startTick = fever.endTick = -1;
 	}
 
-	Note readNote(NoteType type, BinaryReader* reader)
+	Note readNote(NoteType type, BinaryReader* reader, int cyanvasVersion)
 	{
 		Note note(type);
 		note.tick = reader->readInt32();
 		note.lane = reader->readInt32();
 		note.width = reader->readInt32();
+
+    if (cyanvasVersion >= 4)
+      note.layer = reader->readInt32();
 
 		if (!note.hasEase())
 			note.flick = (FlickType)reader->readInt32();
@@ -57,6 +60,7 @@ namespace MikuMikuWorld
 		writer->writeInt32(note.tick);
 		writer->writeInt32(note.lane);
 		writer->writeInt32(note.width);
+		writer->writeInt32(note.layer);
 
 		if (!note.hasEase())
 			writer->writeInt32((int)note.flick);
@@ -209,6 +213,7 @@ namespace MikuMikuWorld
 		uint32_t tapsAddress{};
 		uint32_t holdsAddress{};
     uint32_t damagesAddress{};
+    uint32_t layersAddress{};
 		if (version > 2)
 		{
 			metadataAddress = reader.readInt32();
@@ -217,6 +222,8 @@ namespace MikuMikuWorld
 			holdsAddress = reader.readInt32();
       if (isCyanvas)
         damagesAddress = reader.readInt32();
+      if (cyanvasVersion >= 4)
+        layersAddress = reader.readInt32();
 
 			reader.seek(metadataAddress);
 		}
@@ -235,7 +242,7 @@ namespace MikuMikuWorld
 		score.notes.reserve(noteCount);
 		for (int i = 0; i < noteCount; ++i)
 		{
-			Note note = readNote(NoteType::Tap, &reader);
+			Note note = readNote(NoteType::Tap, &reader, cyanvasVersion);
 			note.ID = nextID++;
 			score.notes[note.ID] = note;
 		}
@@ -262,7 +269,7 @@ namespace MikuMikuWorld
 			if (flags & HOLD_GUIDE)
 				hold.startType = hold.endType = HoldNoteType::Guide;
 
-			Note start = readNote(NoteType::Hold, &reader);
+			Note start = readNote(NoteType::Hold, &reader, cyanvasVersion);
 			start.ID = nextID++;
 			hold.start.ease = (EaseType)reader.readInt32();
 			hold.start.ID = start.ID;
@@ -280,7 +287,7 @@ namespace MikuMikuWorld
 			hold.steps.reserve(stepCount);
 			for (int i = 0; i < stepCount; ++i)
 			{
-				Note mid = readNote(NoteType::HoldMid, &reader);
+				Note mid = readNote(NoteType::HoldMid, &reader, cyanvasVersion);
 				mid.ID = nextID++;
 				mid.parentID = start.ID;
 				score.notes[mid.ID] = mid;
@@ -292,7 +299,7 @@ namespace MikuMikuWorld
 				hold.steps.push_back(step);
 			}
 
-			Note end = readNote(NoteType::HoldEnd, &reader);
+			Note end = readNote(NoteType::HoldEnd, &reader, cyanvasVersion);
 			end.ID = nextID++;
 			end.parentID = start.ID;
 			score.notes[end.ID] = end;
@@ -309,9 +316,23 @@ namespace MikuMikuWorld
       score.notes.reserve(damageCount);
       for (int i = 0; i < damageCount; ++i)
       {
-        Note note = readNote(NoteType::Damage, &reader);
+        Note note = readNote(NoteType::Damage, &reader, cyanvasVersion);
         note.ID = nextID++;
         score.notes[note.ID] = note;
+      }
+    }
+
+    if (cyanvasVersion >= 4)
+    {
+      score.layers.clear();
+      reader.seek(layersAddress);
+
+      int layerCount = reader.readInt32();
+      score.layers.reserve(layerCount);
+      for (int i = 0; i < layerCount; ++i)
+      {
+        std::string name = reader.readString();
+        score.layers.push_back({ name });
       }
     }
 
@@ -330,12 +351,13 @@ namespace MikuMikuWorld
 
 		// verison
 		writer.writeInt16(4);
-		writer.writeInt16(3);
+    // cyanvas version
+		writer.writeInt16(4);
 
 		// offsets address in order: metadata -> events -> taps -> holds
-    // Cyanvas extension: -> damages
+    // Cyanvas extension: -> damages -> layers
 		uint32_t offsetsAddress = writer.getStreamPosition();
-		writer.writeNull(sizeof(uint32_t) * 5);
+		writer.writeNull(sizeof(uint32_t) * 6);
 
 		uint32_t metadataAddress = writer.getStreamPosition();
 		writeMetadata(score.metadata, &writer);
@@ -414,6 +436,15 @@ namespace MikuMikuWorld
     writer.seek(damagesAddress);
     writer.writeInt32(damageNoteCount);
 
+    // Cyanvas extension: write layers
+    uint32_t layersAddress = writer.getStreamPosition();
+    writer.writeInt32(score.layers.size());
+
+    for (const auto& layer : score.layers)
+    {
+      writer.writeString(layer.name);
+    }
+
 		// write offset addresses
 		writer.seek(offsetsAddress);
 		writer.writeInt32(metadataAddress);
@@ -421,6 +452,7 @@ namespace MikuMikuWorld
 		writer.writeInt32(tapsAddress);
 		writer.writeInt32(holdsAddress);
     writer.writeInt32(damagesAddress);
+    writer.writeInt32(layersAddress);
 
 		writer.flush();
 		writer.close();

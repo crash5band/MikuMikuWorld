@@ -22,10 +22,16 @@ namespace MikuMikuWorld
 		int endTick;
 	};
 
+  struct Layer
+  {
+    std::string name;
+  };
+
 	struct HiSpeedChange
 	{
 		int tick;
 		float speed;
+    int layer = 0;
 	};
 
 	struct ScoreMetadata
@@ -50,6 +56,8 @@ namespace MikuMikuWorld
 		std::vector<HiSpeedChange> hiSpeedChanges;
 		std::vector<SkillTrigger> skills;
 		Fever fever;
+
+    std::vector<Layer> layers{ {Layer{ "default" } } };
 
 		Score();
 	};

@@ -234,6 +234,27 @@ namespace MikuMikuWorld
 			pushHistory("Change guide", prev, score);
 	}
 
+	void ScoreContext::setLayer(int layer)
+	{
+		if (selectedNotes.empty())
+			return;
+
+		bool edit = false;
+		Score prev = score;
+		for (int id : selectedNotes)
+		{
+			Note& note = score.notes.at(id);
+
+      if (note.layer == layer)
+        continue;
+      note.layer = layer;
+      edit = true;
+		}
+
+		if (edit)
+			pushHistory("Change layer", prev, score);
+	}
+
 	void ScoreContext::toggleCriticals()
 	{
 		if (selectedNotes.empty())
@@ -438,6 +459,7 @@ namespace MikuMikuWorld
 			{
 				Note note = jsonIO::jsonToNote(entry, NoteType::Tap);
 				note.ID = baseId++;
+        note.layer = selectedLayer;
 
 				pasteData.notes[note.ID] = note;
 			}
@@ -449,6 +471,7 @@ namespace MikuMikuWorld
 			{
 				Note note = jsonIO::jsonToNote(entry, NoteType::Damage);
 				note.ID = baseId++;
+        note.layer = selectedLayer;
 
 				pasteData.notes[note.ID] = note;
 			}
@@ -463,12 +486,14 @@ namespace MikuMikuWorld
 
 				Note start = jsonIO::jsonToNote(entry["start"], NoteType::Hold);
 				start.ID = baseId++;
+        start.layer = selectedLayer;
 				pasteData.notes[start.ID] = start;
 
 				Note end = jsonIO::jsonToNote(entry["end"], NoteType::HoldEnd);
 				end.ID = baseId++;
 				end.parentID = start.ID;
 				end.critical = start.critical || ((end.isFlick() || end.friction) && end.critical);
+        end.layer = selectedLayer;
 				pasteData.notes[end.ID] = end;
 
 				std::string startEase = jsonIO::tryGetValue<std::string>(entry["start"], "ease", "linear");
@@ -498,6 +523,7 @@ namespace MikuMikuWorld
 						mid.critical = start.critical;
 						mid.ID = baseId++;
 						mid.parentID = start.ID;
+            mid.layer = selectedLayer;
 						pasteData.notes[mid.ID] = mid;
 
 						std::string midType = jsonIO::tryGetValue<std::string>(step, "type", "normal");
