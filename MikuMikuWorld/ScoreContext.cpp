@@ -697,13 +697,16 @@ namespace MikuMikuWorld
 		Note& earlierHoldStart = score.notes.at(earlierHold.start.ID);
 		Note& laterHoldEnd = score.notes.at(score.holdNotes.at(laterNote.ID).end);
 		laterHoldEnd.critical = earlierHoldStart.critical ? true : laterHoldEnd.isFlick() && laterHoldEnd.critical;
-		
+
 		// Update later note's end parent ID
 		laterHoldEnd.parentID = earlierHold.start.ID;
 
 		// Copy over later note's steps
 		for (auto& step : laterHold.steps)
 		{
+      if (earlierHold.isGuide()) {
+        step.type = HoldStepType::Hidden;
+      }
 			earlierHold.steps.push_back(step);
 
 			Note& note = score.notes.at(step.ID);
@@ -725,8 +728,8 @@ namespace MikuMikuWorld
 		// Insert new steps to their appropriate containers
 		score.notes[earlierNoteAsMid.ID] = earlierNoteAsMid;
 		score.notes[laterNoteAsMid.ID] = laterNoteAsMid;
-		earlierHold.steps.push_back({ earlierNoteAsMid.ID, HoldStepType::Normal, EaseType::Linear });
-		earlierHold.steps.push_back({ laterNoteAsMid.ID, laterHold.start.type, laterHold.start.ease });
+		earlierHold.steps.push_back({ earlierNoteAsMid.ID, earlierHold.isGuide() ? HoldStepType::Hidden : HoldStepType::Normal, EaseType::Linear });
+		earlierHold.steps.push_back({ laterNoteAsMid.ID, earlierHold.isGuide() ? HoldStepType::Hidden : laterHold.start.type, laterHold.start.ease });
 
 		// Remove old notes
 		score.notes.erase(earlierNote.ID);
@@ -778,7 +781,9 @@ namespace MikuMikuWorld
 
 		hold.end = newSlideEnd.ID;
 		newHold.start = { newSlideStart.ID, HoldStepType::Normal, hold.steps[pos].ease };
-		
+    newHold.fadeType = hold.fadeType;
+    newHold.guideColor = hold.guideColor;
+
 		// Backwards loop to avoid incorrect indices after removal
 		for (int i = hold.steps.size() - 1; i > pos; i--)
 		{
