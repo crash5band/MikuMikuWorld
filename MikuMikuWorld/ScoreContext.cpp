@@ -857,7 +857,7 @@ namespace MikuMikuWorld
 	bool ScoreContext::selectionHasFlickable() const
 	{
 		return std::any_of(selectedNotes.begin(), selectedNotes.end(),
-			[this](const int id) { return !score.notes.at(id).hasEase(); });
+			[this](const int id) { return score.notes.at(id).canFlick(); });
 	}
 
 	bool ScoreContext::selectionCanConnect() const
