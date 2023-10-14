@@ -1517,7 +1517,7 @@ void ScoreEditorTimeline::drawHoldNote(
         s1 = s2;
       }
 
-      const float p1 = (notes.at(note.steps[s1].ID).tick - start.tick) / (float)length;
+      const float p1 = s1 == -1 ? 0 : (notes.at(note.steps[s1].ID).tick - start.tick) / (float)length;
       const float p2 = 1;
       float a1, a2;
       if (!note.isGuide() || note.fadeType == FadeType::None) {
