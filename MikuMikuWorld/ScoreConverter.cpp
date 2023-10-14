@@ -633,7 +633,7 @@ namespace MikuMikuWorld
           stepObj["critical"] = stepNote.critical;
         }
         stepObj["ease"] = note.start.ease == EaseType::EaseIn ? "in" : note.start.ease == EaseType::EaseOut ? "out" : "linear";
-        steps.push_back(startStep);
+        steps.push_back(stepObj);
       }
 
       json endStep;
