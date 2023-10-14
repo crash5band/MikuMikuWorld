@@ -1900,7 +1900,8 @@ bool ScoreEditorTimeline::bpmControl(const Score &score, const Tempo &tempo) {
 
 bool ScoreEditorTimeline::bpmControl(const Score &score, float bpm, int tick,
                                      bool enabled) {
-  Vector2 pos{getTimelineEndX(score) + 15,
+  float dpiScale = ImGui::GetMainViewport()->DpiScale;
+  Vector2 pos{getTimelineEndX(score) + (15 * dpiScale),
               position.y - tickToPosition(tick) + visualOffset};
   return eventControl(getTimelineEndX(score), pos, tempoColor,
                       IO::formatString("%g BPM", bpm).c_str(), enabled);
@@ -1958,9 +1959,9 @@ bool ScoreEditorTimeline::hiSpeedControl(const ScoreContext& context,
 
 bool ScoreEditorTimeline::hiSpeedControl(const ScoreContext& context, int tick,
                                          float speed, int layer) {
-  std::string txt = layer == -1 ? IO::formatString("%.2fx", speed) : IO::formatString("%.2fx (%s)", speed, context.score.layers[layer].name.c_str());
+  std::string txt = (layer == -1 || context.selectedLayer == layer) ? IO::formatString("%.2fx", speed) : IO::formatString("%.2fx (%s)", speed, context.score.layers[layer].name.c_str());
   float dpiScale = ImGui::GetMainViewport()->DpiScale;
-  Vector2 pos{getTimelineEndX(context.score) + (115 * dpiScale),
+  Vector2 pos{getTimelineEndX(context.score) + (((layer == -1 || context.showAllLayers || context.selectedLayer == layer) ? 123 : 180) * dpiScale),
               position.y - tickToPosition(tick) + visualOffset};
   bool enabled = layer == -1 || context.showAllLayers || context.selectedLayer == layer;
   return eventControl(getTimelineEndX(context.score), pos,
