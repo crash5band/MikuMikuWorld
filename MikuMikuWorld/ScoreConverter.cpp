@@ -485,12 +485,14 @@ namespace MikuMikuWorld
 					taps.push_back(SUSNote{ end.tick, end.lane + offset, end.width, 2 });
 			}
 
-			int endType = hold.fadeType == FadeType::None ? 4 : hold.endType == HoldNoteType::Hidden ? 7 : end.friction ? 5 : 1;
+			int endType = hold.endType == HoldNoteType::Hidden ? 7 : end.friction ? 5 : 1;
 			if (end.critical)
 			{
 				endType++;
 				criticalKeys.insert(noteKey(end));
 			}
+      if (hold.fadeType == FadeType::None)
+        endType = 4;
 
 			if (endType != 1 && endType != 2)
 				taps.push_back(SUSNote{ end.tick, end.lane + offset, end.width, endType });

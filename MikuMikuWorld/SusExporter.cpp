@@ -139,7 +139,8 @@ namespace MikuMikuWorld
         }
       }
       for (const auto& hiSpeedGroup : hiSpeedGroups) {
-        lines.push_back(formatString("#HISPEED %s", hiSpeedGroup.c_str()));
+        if (hiSpeedGroup.size() > 0)
+          lines.push_back(formatString("#HISPEED %s", hiSpeedGroup.c_str()));
         for (const auto& [info, notes] : map.notesMap)
         {
           conflicts.clear();
