@@ -257,6 +257,7 @@ namespace MikuMikuWorld
 			ImGui::DockBuilderDockWindow("###chart_properties", midRightId);
 			ImGui::DockBuilderDockWindow("###options", bottomRightId);
 			ImGui::DockBuilderDockWindow("###presets", bottomRightId);
+			ImGui::DockBuilderDockWindow("###layers", bottomRightId);
 
 			ImGui::DockBuilderFinish(dockMainId);
 		}
