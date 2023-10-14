@@ -61,7 +61,7 @@ namespace MikuMikuWorld
 		for (int id : selectedNotes)
 		{
 			Note& note = score.notes.at(id);
-			bool canFlick = !note.hasEase();
+			bool canFlick = note.canFlick();
 
 			if (note.getType() == NoteType::HoldEnd)
 			{
@@ -207,6 +207,33 @@ namespace MikuMikuWorld
 			pushHistory("Change fade", prev, score);
 	}
 
+	void ScoreContext::setGuideColor(GuideColor color)
+	{
+		if (selectedNotes.empty())
+			return;
+
+		Score prev = score;
+		bool edit = false;
+		for (int id : selectedNotes)
+		{
+			// Invisible hold points cannot be trace notes!
+			Note& note = score.notes.at(id);
+
+      if (!(note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd))
+        continue;
+			HoldNote& holdNote = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
+
+			if (!holdNote.isGuide())
+				continue;
+
+      holdNote.guideColor = color;
+      edit = true;
+		}
+
+		if (edit)
+			pushHistory("Change guide", prev, score);
+	}
+
 	void ScoreContext::toggleCriticals()
 	{
 		if (selectedNotes.empty())
@@ -217,7 +244,11 @@ namespace MikuMikuWorld
 		for (int id : selectedNotes)
 		{
 			Note& note = score.notes.at(id);
-			if (note.getType() == NoteType::Tap)
+			if (note.getType() == NoteType::Damage)
+        // noop
+      {
+      }
+      else if (note.getType() == NoteType::Tap)
 			{
 				note.critical ^= true;
 			}
@@ -236,6 +267,15 @@ namespace MikuMikuWorld
 		{
 			// flip critical state
 			HoldNote& note = score.holdNotes.at(hold);
+
+      if (note.isGuide()) {
+        if (note.guideColor == GuideColor::Yellow) {
+          note.guideColor = GuideColor::Green;
+        } else {
+          note.guideColor = GuideColor::Yellow;
+        }
+        continue;
+      }
 			bool critical = !score.notes.at(note.start.ID).critical;
 
 			// again if the hold start is critical, every note in the hold must be critical

@@ -161,6 +161,14 @@ namespace MikuMikuWorld
     {"fade_none", "No Fade"},
     {"fade_in", "Fade In"},
     {"fade_out", "Fade Out"},
+    {"guide_color", "Guide Color"},
+    {"guide_neutral", "Neutral"},
+    {"guide_red", "Red"},
+    {"guide_blue", "Blue"},
+    {"guide_green", "Green"},
+    {"guide_yellow", "Yellow"},
+    {"guide_purple", "Purple"},
+    {"guide_cyan", "Cyan"},
 
 		// preset manager
 		{"presets", "Presets"},

@@ -15,7 +15,7 @@ namespace MikuMikuWorld
 	std::string Application::appDir;
 	WindowState Application::windowState;
 
-	NoteTextures noteTextures{ -1, -1, -1, -1 };
+	NoteTextures noteTextures{ -1, -1, -1, -1, -1 };
 
 	Application::Application() : 
 		initialized{ false }
@@ -327,6 +327,7 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(appDir + "res\\textures\\notes2.png");
 		ResourceManager::loadTexture(appDir + "res\\textures\\longNoteLine.png");
 		ResourceManager::loadTexture(appDir + "res\\textures\\touchLine_eff.png");
+		ResourceManager::loadTexture(appDir + "res\\textures\\guideColors.png");
 
 		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_select.png");
 		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_tap.png");
@@ -350,6 +351,7 @@ namespace MikuMikuWorld
 		noteTextures.holdPath = ResourceManager::getTexture(HOLD_PATH_TEX);
 		noteTextures.touchLine = ResourceManager::getTexture(TOUCH_LINE_TEX);
 		noteTextures.ccNotes = ResourceManager::getTexture(CC_NOTES_TEX);
+		noteTextures.guideColors = ResourceManager::getTexture(GUIDE_COLORS_TEX);
 
 		// load more languages here
 		Localization::loadDefault();

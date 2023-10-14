@@ -1,0 +1,14 @@
+#guide_color_0.png
+0,1,300,1
+#guide_color_1.png
+0,4,300,1
+#guide_color_2.png
+0,7,300,1
+#guide_color_3.png
+0,10,300,1
+#guide_color_4.png
+0,13,300,1
+#guide_color_5.png
+0,16,300,1
+#guide_color_6.png
+0,19,300,1

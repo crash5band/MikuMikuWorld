@@ -154,6 +154,14 @@ hi_speed_speed, ハイスピード速度
 fade_none, フェードなし
 fade_in, フェードイン
 fade_out, フェードアウト
+guide_color, ガイドの色
+guide_neutral, 灰
+guide_red, 赤
+guide_blue, 青
+guide_green, 緑
+guide_yellow, 黄
+guide_purple, 紫
+guide_cyan, 水
 
 # preset manager
 presets, プリセット

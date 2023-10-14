@@ -106,6 +106,7 @@ namespace MikuMikuWorld
 		void setEase(EaseType ease);
 		void setHoldType(HoldNoteType hold);
 		void setFadeType(FadeType fade);
+		void setGuideColor(GuideColor color);
 		void toggleCriticals();
 		void toggleFriction();
 

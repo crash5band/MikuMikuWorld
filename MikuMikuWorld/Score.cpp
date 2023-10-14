@@ -266,9 +266,13 @@ namespace MikuMikuWorld
 			start.ID = nextID++;
 			hold.start.ease = (EaseType)reader.readInt32();
 			hold.start.ID = start.ID;
-      if (cyanvasVersion >= 2)
-      {
+      if (cyanvasVersion >= 2) {
         hold.fadeType = (FadeType)reader.readInt32();
+      }
+      if (cyanvasVersion >= 3) {
+        hold.guideColor = (GuideColor)reader.readInt32();
+      } else {
+        hold.guideColor = start.critical ? GuideColor::Yellow : GuideColor::Green;
       }
 			score.notes[start.ID] = start;
 
@@ -326,7 +330,7 @@ namespace MikuMikuWorld
 
 		// verison
 		writer.writeInt16(4);
-		writer.writeInt16(2);
+		writer.writeInt16(3);
 
 		// offsets address in order: metadata -> events -> taps -> holds
     // Cyanvas extension: -> damages
@@ -374,6 +378,7 @@ namespace MikuMikuWorld
 			writeNote(start, &writer);
 			writer.writeInt32((int)hold.start.ease);
       writer.writeInt32((int)hold.fadeType);
+      writer.writeInt32((int)hold.guideColor);
 
 			// steps
 			int stepCount = hold.steps.size();

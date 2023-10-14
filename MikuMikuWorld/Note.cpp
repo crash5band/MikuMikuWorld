@@ -36,6 +36,11 @@ namespace MikuMikuWorld
 		return type == NoteType::Hold || type == NoteType::HoldMid;
 	}
 
+	bool Note::canFlick() const
+	{
+		return type == NoteType::Tap || type == NoteType::HoldEnd;
+	}
+
 	void resetNextID()
 	{
 		nextID = 1;

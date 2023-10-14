@@ -8,6 +8,7 @@
 #include "UI.h"
 #include "Utilities.h"
 #include <algorithm>
+#include <string>
 
 namespace MikuMikuWorld {
 bool eventControl(float xPos, Vector2 pos, ImU32 color, const char *txt,
@@ -275,6 +276,17 @@ void ScoreEditorTimeline::contextMenu(ScoreContext &context) {
       for (int i = 0; i < TXT_ARR_SZ(fadeTypes); ++i)
         if (ImGui::MenuItem(getString(fadeTypes[i])))
           context.setFadeType((FadeType)i);
+      ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu(getString("guide_color"),
+                         context.selectionCanChangeFadeType())) {
+      for (int i = 0; i < TXT_ARR_SZ(guideColors); ++i) {
+        char str[32];
+        sprintf_s(str, "guide_%s", guideColors[i]);
+        if (ImGui::MenuItem(getString(str)))
+          context.setGuideColor((GuideColor)i);
+      }
       ImGui::EndMenu();
     }
 
@@ -984,12 +996,12 @@ void ScoreEditorTimeline::previewInput(const Score &score, EditArgs &edit,
       drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, EaseType::Linear,
                     true, renderer, noteTint, 1, 0);
       drawOutline(
-          StepDrawData(inputNotes.holdStart, StepDrawType::InvisibleHold));
+          StepDrawData(inputNotes.holdStart, StepDrawType::GuideGreen));
       drawOutline(
-          StepDrawData(inputNotes.holdEnd, StepDrawType::InvisibleHold));
+          StepDrawData(inputNotes.holdEnd, StepDrawType::GuideGreen));
     } else {
       drawOutline(
-          StepDrawData(inputNotes.holdStart, StepDrawType::InvisibleHold));
+          StepDrawData(inputNotes.holdStart, StepDrawType::GuideGreen));
     }
     break;
 
@@ -1378,13 +1390,13 @@ void ScoreEditorTimeline::updateNote(ScoreContext &context, EditArgs &edit,
 void ScoreEditorTimeline::drawHoldCurve(
     const Note &n1, const Note &n2, EaseType ease, bool isGuide,
     Renderer *renderer, const Color &tint, const int offsetTick,
-    const int offsetLane, const float startAlpha, const float endAlpha) {
-  int texIndex = isGuide ? noteTextures.touchLine : noteTextures.holdPath;
+    const int offsetLane, const float startAlpha, const float endAlpha, const GuideColor guideColor) {
+  int texIndex = isGuide ? noteTextures.guideColors : noteTextures.holdPath;
   if (texIndex == -1)
     return;
 
   const Texture &pathTex = ResourceManager::textures[texIndex];
-  const int sprIndex = n1.critical ? 3 : 1;
+  int sprIndex = isGuide ? (int)guideColor : n1.critical ? 3 : 1;
   if (sprIndex > pathTex.sprites.size())
     return;
 
@@ -1519,7 +1531,7 @@ void ScoreEditorTimeline::drawHoldNote(
     const Note &n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
     const EaseType ease = s1 == -1 ? note.start.ease : note.steps[s1].ease;
     drawHoldCurve(n1, end, ease, note.isGuide(), renderer, tint, offsetTicks,
-                  offsetLane, a1, a2);
+                  offsetLane, a1, a2, note.guideColor);
 
     s1 = -1;
     s2 = 1;
@@ -1602,17 +1614,23 @@ void ScoreEditorTimeline::drawHoldNote(
       a2 = 0;
     }
     drawHoldCurve(start, end, note.start.ease, note.isGuide(), renderer, tint,
-                  offsetTicks, offsetLane, a1, a2);
+                  offsetTicks, offsetLane, a1, a2, note.guideColor);
   }
 
   if (isNoteVisible(start, offsetTicks)) {
     if (note.startType == HoldNoteType::Normal) {
       drawNote(start, renderer, tint, offsetTicks, offsetLane);
     } else if (drawHoldStepOutlines) {
+      StepDrawType drawType;
+      if (note.startType == HoldNoteType::Guide) {
+        drawType = static_cast<StepDrawType>(static_cast<int>(StepDrawType::GuideNeutral) + static_cast<int>(note.guideColor));
+      } else {
+        drawType = start.critical ? StepDrawType::InvisibleHoldCritical
+                                  : StepDrawType::InvisibleHold;
+      }
       drawSteps.push_back({start.tick + offsetTicks, start.lane + offsetLane,
                            start.width,
-                           start.critical ? StepDrawType::InvisibleHoldCritical
-                                          : StepDrawType::InvisibleHold});
+                           drawType});
     }
   }
 
@@ -1620,10 +1638,16 @@ void ScoreEditorTimeline::drawHoldNote(
     if (note.endType == HoldNoteType::Normal) {
       drawNote(end, renderer, tint, offsetTicks, offsetLane);
     } else if (drawHoldStepOutlines) {
+      StepDrawType drawType;
+      if (note.startType == HoldNoteType::Guide) {
+        drawType = static_cast<StepDrawType>(static_cast<int>(StepDrawType::GuideNeutral) + static_cast<int>(note.guideColor));
+      } else {
+        drawType = start.critical ? StepDrawType::InvisibleHoldCritical
+                                  : StepDrawType::InvisibleHold;
+      }
       drawSteps.push_back({end.tick + offsetTicks, end.lane + offsetLane,
                            end.width,
-                           start.critical ? StepDrawType::InvisibleHoldCritical
-                                          : StepDrawType::InvisibleHold});
+                           drawType});
     }
   }
 }

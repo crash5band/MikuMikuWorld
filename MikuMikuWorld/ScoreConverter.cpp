@@ -206,6 +206,10 @@ namespace MikuMikuWorld
 				int startID = nextID++;
 				hold.steps.reserve(slide.size() - 2);
 
+        if (isGuide && critical) {
+          hold.guideColor = GuideColor::Yellow;
+        }
+
 				for (const auto& note : slide)
 				{
 					const std::string key = noteKey(note);
@@ -409,7 +413,7 @@ namespace MikuMikuWorld
 
 			// We'll use type 1 to indicate it's a normal note
 			int type = invisibleTapPoint ? 7 : start.friction ? 5 : 1;
-			if (start.critical && criticalKeys.find(noteKey(start)) == criticalKeys.end())
+			if ((start.critical || hold.guideColor == GuideColor::Yellow) && criticalKeys.find(noteKey(start)) == criticalKeys.end())
 			{
 				type++;
 				criticalKeys.insert(noteKey(start));
@@ -567,7 +571,7 @@ namespace MikuMikuWorld
       if (note.isGuide()) {
         obj["type"] = "guide";
         auto& start = score.notes.at(note.start.ID);
-        obj["color"] = start.critical ? "yellow" : "green";
+        obj["color"] = guideColors[(int)note.guideColor];
         obj["fade"] = note.fadeType == FadeType::None ? "none" : note.fadeType == FadeType::In ? "in" : "out";
 
         std::vector<json> steps;

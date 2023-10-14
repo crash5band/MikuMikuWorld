@@ -15,17 +15,26 @@ namespace MikuMikuWorld
 		SkipStep,
 		InvisibleHold,
 		InvisibleHoldCritical,
+    GuideNeutral,
+    GuideRed,
+    GuideGreen,
+    GuideBlue,
+    GuideYellow,
+    GuidePurple,
+    GuideCyan,
 		StepDrawTypeMax
 	};
 
 	const std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawOutlineColors[] =
 	{
-		0xFFAAFFAA, 0xFFFFFFAA, 0xFFCCCCCC, 0xFFCCCCCC
+		0xFFAAFFAA, 0xFFFFFFAA, 0xFFCCCCCC, 0xFFCCCCCC,
+    0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC
 	};
 
 	const std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawFillColors[] =
 	{
-		0x00FFFFFF, 0x00FFFFFF, 0xFF66B622, 0xFF15A0C9
+		0x00FFFFFF, 0x00FFFFFF, 0xFF66B622, 0xFF15A0C9,
+    0xFFEDEDED, 0xFF7B73D6, 0xFF9DD673, 0xFFD67B73, 0xFF73CED6, 0xFFCD73D6, 0xFFD6AC73
 	};
 
 	class StepDrawData
@@ -134,7 +143,7 @@ namespace MikuMikuWorld
 		void updateScrollbar();
 		void updateScrollingPosition();
 
-		void drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, bool isGuide, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0, const float startAlpha = 1, const float endAlpha = 1);
+		void drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, bool isGuide, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0, const float startAlpha = 1, const float endAlpha = 1, const GuideColor guideColor = GuideColor::Green);
 		void drawHoldNote(const std::unordered_map<int, Note>& notes, const HoldNote& note, Renderer* renderer, const Color& tint, const int offsetTicks = 0, const int offsetLane = 0);
 		void drawHoldMid(Note& note, HoldStepType type, Renderer* renderer, const Color& tint);
 		void drawOutline(const StepDrawData& data);

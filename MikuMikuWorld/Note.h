@@ -53,6 +53,7 @@ namespace MikuMikuWorld
 		int holdPath;
 		int touchLine;
 		int ccNotes;
+    int guideColors;
 	};
 
 	extern NoteTextures noteTextures;
@@ -84,6 +85,7 @@ namespace MikuMikuWorld
 
 		bool isFlick() const;
 		bool hasEase() const;
+		bool canFlick() const;
 	};
 
 	struct HoldStep
@@ -104,6 +106,7 @@ namespace MikuMikuWorld
 		HoldNoteType endType{};
 
     FadeType fadeType{ FadeType::Out };
+    GuideColor guideColor{ GuideColor::Green };
 
 		constexpr bool isGuide() const
 		{
