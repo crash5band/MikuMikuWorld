@@ -422,8 +422,10 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(getString("save_as"), ToShortcutString(config.input.saveAs)))
 				saveAs();
 
+      ImGui::PushItemFlag(ImGuiItemFlags_Disabled, context.score.metadata.laneExtension > 12);
 			if (ImGui::MenuItem(getString("export_sus"), ToShortcutString(config.input.exportSus)))
 				exportSus();
+      ImGui::PopItemFlag();
 
 			if (ImGui::MenuItem(getString("export_usc"), ToShortcutString(config.input.exportUsc)))
 				exportUsc();

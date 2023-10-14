@@ -36,7 +36,7 @@ namespace MikuMikuWorld
 			}
 			context.workingData.jacket.draw();
 
-			UI::addIntProperty(getString("lane_extension"), context.score.metadata.laneExtension, 0, 12);
+			UI::addIntProperty(getString("lane_extension"), context.score.metadata.laneExtension, 0, 100);
 			UI::endPropertyColumns();
 		}
 
