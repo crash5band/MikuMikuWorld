@@ -82,6 +82,7 @@ namespace MikuMikuWorld
     Yellow,
     Purple,
     Cyan,
+    GuideColorCount
 	};
 
   constexpr const char* guideColors[]

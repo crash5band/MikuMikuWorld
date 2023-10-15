@@ -1352,6 +1352,10 @@ void ScoreEditorTimeline::updateNote(ScoreContext &context, EditArgs &edit,
 				context.setStep(HoldStepType::HoldStepTypeCount);
         break;
 
+      case TimelineMode::InsertGuide:
+				context.setGuideColor(GuideColor::GuideColorCount);
+        break;
+
       case TimelineMode::MakeFriction:
         context.toggleFriction();
         break;

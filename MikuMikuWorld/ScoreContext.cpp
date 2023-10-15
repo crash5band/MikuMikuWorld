@@ -226,8 +226,15 @@ namespace MikuMikuWorld
 			if (!holdNote.isGuide())
 				continue;
 
-      holdNote.guideColor = color;
-      edit = true;
+      if (color == GuideColor::GuideColorCount) {
+        holdNote.guideColor = (GuideColor)(((int)holdNote.guideColor + 1) % (int)GuideColor::GuideColorCount);
+        edit = true;
+      } else {
+        if (holdNote.guideColor != color) {
+          holdNote.guideColor = color;
+          edit = true;
+        }
+      }
 		}
 
 		if (edit)
