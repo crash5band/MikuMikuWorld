@@ -100,7 +100,7 @@ namespace MikuMikuWorld
 		writer->writeInt32(metadata.laneExtension);
 	}
 
-	void readScoreEvents(Score& score, int version, BinaryReader* reader)
+	void readScoreEvents(Score& score, int version, int cyanvasVersion, BinaryReader* reader)
 	{
 		// time signature
 		int timeSignatureCount = reader->readInt32();
@@ -135,8 +135,11 @@ namespace MikuMikuWorld
 			{
 				int tick = reader->readInt32();
 				float speed = reader->readSingle();
+        int layer = 0;
+        if (cyanvasVersion >= 4)
+          layer = reader->readInt32();
 
-				score.hiSpeedChanges.push_back({ tick, speed });
+				score.hiSpeedChanges.push_back({ tick, speed, layer });
 			}
 		}
 
@@ -177,6 +180,7 @@ namespace MikuMikuWorld
 		{
 			writer->writeInt32(hiSpeed.tick);
 			writer->writeSingle(hiSpeed.speed);
+      writer->writeInt32(hiSpeed.layer);
 		}
 
 		writer->writeInt32(score.skills.size());
@@ -233,7 +237,7 @@ namespace MikuMikuWorld
 		if (version > 2)
 			reader.seek(eventsAddress);
 
-		readScoreEvents(score, version, &reader);
+		readScoreEvents(score, version, cyanvasVersion, &reader);
 
 		if (version > 2)
 			reader.seek(tapsAddress);
