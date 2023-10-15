@@ -625,7 +625,7 @@ namespace MikuMikuWorld
     int laneExtension = context.score.metadata.laneExtension;
 		context.score.metadata = context.workingData.toScoreMetadata();
     context.score.metadata.laneExtension = laneExtension;
-		serializeScore(context.score, autoSavePath + "\\mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION);
+		serializeScore(context.score, autoSavePath + "\\mmw_auto_save_" + Utilities::getCurrentDateTime() + CC_MMWS_EXTENSION);
 
 		// get mmws files
 		int mmwsCount = 0;
@@ -633,7 +633,7 @@ namespace MikuMikuWorld
 		{
 			std::string extension = file.path().extension().string();
 			std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-			mmwsCount += extension == MMWS_EXTENSION;
+			mmwsCount += extension == CC_MMWS_EXTENSION;
 		}
 
 		// delete older files

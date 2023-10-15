@@ -162,7 +162,7 @@ namespace MikuMikuWorld
 			std::string extension = IO::File::getFileExtension(*it);
 			std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
 
-			if (extension == SUS_EXTENSION || extension == MMWS_EXTENSION)
+			if (extension == SUS_EXTENSION || extension == MMWS_EXTENSION || extension == CC_MMWS_EXTENSION)
 				scoreFile = *it;
 			else if (extension == ".mp3" || extension == ".wav" || extension == ".flac" || extension == ".ogg")
 				musicFile = *it;
