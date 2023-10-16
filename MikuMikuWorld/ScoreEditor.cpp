@@ -8,6 +8,7 @@
 #include "UI.h"
 #include "Constants.h"
 #include "Utilities.h"
+#include <fstream>
 #include <filesystem>
 #include <Windows.h>
 
@@ -174,7 +175,7 @@ namespace MikuMikuWorld
 
 		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_LAYER_GROUP, "layers"), NULL, ImGuiWindowFlags_Static))
 		{
-      layersWindow.update(context);
+			layersWindow.update(context);
 		}
 		ImGui::End();
 
@@ -214,6 +215,16 @@ namespace MikuMikuWorld
 			{
 				SusParser susParser;
 				newScore = ScoreConverter::susToScore(susParser.parse(filename));
+			}
+			else if (extension == USC_EXTENSION)
+			{
+				std::wstring wFilename = IO::mbToWideStr(filename);
+				std::ifstream uscfile(wFilename);
+				json usc;
+				uscfile >> usc;
+				uscfile.close();
+
+				newScore = ScoreConverter::uscToScore(usc);
 			}
 			else if (extension == MMWS_EXTENSION || extension == CC_MMWS_EXTENSION)
 			{
@@ -275,7 +286,7 @@ namespace MikuMikuWorld
 		IO::FileDialog fileDialog{};
 		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 		fileDialog.title = "Open Score File";
-		fileDialog.filters = { { "Score Files", "*.ccmmws;*.mmws;*.sus"} };
+		fileDialog.filters = { { "Score Files", "*.ccmmws;*.mmws;*.usc;*.sus"} };
 
 		if (fileDialog.openFile() == IO::FileDialogResult::OK)
 			loadScore(fileDialog.outputFilename);
@@ -295,9 +306,9 @@ namespace MikuMikuWorld
 	{
 		try
 		{
-      int laneExtension = context.score.metadata.laneExtension;
-      context.score.metadata = context.workingData.toScoreMetadata();
-      context.score.metadata.laneExtension = laneExtension;
+			int laneExtension = context.score.metadata.laneExtension;
+			context.score.metadata = context.workingData.toScoreMetadata();
+			context.score.metadata.laneExtension = laneExtension;
 			serializeScore(context.score, filename);
 
 			UI::setWindowTitle(IO::File::getFilename(filename));
@@ -380,12 +391,12 @@ namespace MikuMikuWorld
 			{
 				json usc = ScoreConverter::scoreToUsc(context.score);
 
-        std::wstring wFilename = IO::mbToWideStr(fileDialog.outputFilename);
-        IO::File uscfile(wFilename, L"w");
+				std::wstring wFilename = IO::mbToWideStr(fileDialog.outputFilename);
+				IO::File uscfile(wFilename, L"w");
 
-        uscfile.write(usc.dump(4));
-        uscfile.flush();
-        uscfile.close();
+				uscfile.write(usc.dump(4));
+				uscfile.flush();
+				uscfile.close();
 			}
 			catch (std::exception& err)
 			{
@@ -422,15 +433,15 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(getString("save_as"), ToShortcutString(config.input.saveAs)))
 				saveAs();
 
-      bool canExportSus = context.score.metadata.laneExtension <= 12;
-      ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !canExportSus);
-      if (!canExportSus)
-        ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+			bool canExportSus = context.score.metadata.laneExtension <= 12;
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !canExportSus);
+			if (!canExportSus)
+				ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
 			if (ImGui::MenuItem(getString("export_sus"), ToShortcutString(config.input.exportSus)))
 				exportSus();
-      if (!canExportSus)
-        ImGui::PopStyleColor();
-      ImGui::PopItemFlag();
+			if (!canExportSus)
+				ImGui::PopStyleColor();
+			ImGui::PopItemFlag();
 
 			if (ImGui::MenuItem(getString("export_usc"), ToShortcutString(config.input.exportUsc)))
 				exportUsc();
@@ -622,9 +633,9 @@ namespace MikuMikuWorld
 		if (!std::filesystem::exists(wAutoSaveDir))
 			std::filesystem::create_directory(wAutoSaveDir);
 
-    int laneExtension = context.score.metadata.laneExtension;
+		int laneExtension = context.score.metadata.laneExtension;
 		context.score.metadata = context.workingData.toScoreMetadata();
-    context.score.metadata.laneExtension = laneExtension;
+		context.score.metadata.laneExtension = laneExtension;
 		serializeScore(context.score, autoSavePath + "\\mmw_auto_save_" + Utilities::getCurrentDateTime() + CC_MMWS_EXTENSION);
 
 		// get mmws files

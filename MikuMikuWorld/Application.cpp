@@ -17,7 +17,7 @@ namespace MikuMikuWorld
 
 	NoteTextures noteTextures{ -1, -1, -1, -1, -1 };
 
-	Application::Application() : 
+	Application::Application() :
 		initialized{ false }
 	{
 		appDir = "";
@@ -90,7 +90,7 @@ namespace MikuMikuWorld
 							major = (verInfo->dwFileVersionMS >> 16) & 0xffff;
 							minor = (verInfo->dwFileVersionMS >> 0) & 0xffff;
 							rev = (verInfo->dwFileVersionLS >> 16) & 0xffff;
-              build = (verInfo->dwFileVersionLS >> 0) & 0xffff;
+							build = (verInfo->dwFileVersionLS >> 0) & 0xffff;
 						}
 					}
 				}
@@ -162,7 +162,7 @@ namespace MikuMikuWorld
 			std::string extension = IO::File::getFileExtension(*it);
 			std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
 
-			if (extension == SUS_EXTENSION || extension == MMWS_EXTENSION || extension == CC_MMWS_EXTENSION)
+			if (extension == SUS_EXTENSION || extension == USC_EXTENSION || extension == MMWS_EXTENSION || extension == CC_MMWS_EXTENSION)
 				scoreFile = *it;
 			else if (extension == ".mp3" || extension == ".wav" || extension == ".flac" || extension == ".ogg")
 				musicFile = *it;
@@ -189,7 +189,7 @@ namespace MikuMikuWorld
 		if (config.language != language)
 		{
 			std::string locale = config.language == "auto" ? Utilities::getSystemLocale() : config.language;
-			
+
 			// try to set the selected language and fallback to default (en) on failure
 			if (!Localization::setLanguage(locale))
 				Localization::setLanguage("en");
@@ -364,7 +364,7 @@ namespace MikuMikuWorld
 
 		/*
 			override the current GLFW/Imgui window procedure and store it in the GLFW window user pointer
-		
+
 			NOTE: for this to be safe, it should be only called AFTER ImGui is initialized
 			so that the WndProc ImGui is expecting matches with our own WndProc
 		*/

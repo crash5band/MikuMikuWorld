@@ -29,10 +29,10 @@ namespace MikuMikuWorld
 	void ScoreStats::calculateStats(const Score& score)
 	{
 		taps = std::count_if(score.notes.begin(), score.notes.end(), [](const auto& n)
-		{
-			const Note& note = n.second;
-			return note.getType() == NoteType::Tap && !note.isFlick() && !note.friction;
-		});
+			{
+				const Note& note = n.second;
+				return note.getType() == NoteType::Tap && !note.isFlick() && !note.friction;
+			});
 
 		holds = std::count_if(score.notes.begin(), score.notes.end(),
 			[](const auto& n) { return n.second.getType() == NoteType::Hold; });
