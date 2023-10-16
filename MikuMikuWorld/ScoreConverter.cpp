@@ -144,6 +144,8 @@ namespace MikuMikuWorld
 		std::vector<SkillTrigger> skills;
 		Fever fever{ -1, -1 };
 
+		std::unordered_set<std::string> cyanvasStyleCriticalTraces;
+
 		// Cyanvas extension: disable fever and skills
 
 		for (const auto& note : sus.taps)
@@ -186,6 +188,12 @@ namespace MikuMikuWorld
 				n.critical = criticals.find(key) != criticals.end();
 				n.friction = frictions.find(key) != frictions.end() || stepIgnore.find(key) != stepIgnore.end();
 				n.flick = flicks.find(key) != flicks.end() ? flicks[key] : FlickType::None;
+				if (n.critical && n.friction) {
+					if (cyanvasStyleCriticalTraces.find(key) != cyanvasStyleCriticalTraces.end()) {
+						continue;
+					}
+					cyanvasStyleCriticalTraces.insert(key);
+				}
 			}
 			n.layer = std::distance(hiSpeedGroupNames.begin(), std::find(hiSpeedGroupNames.begin(), hiSpeedGroupNames.end(), note.hiSpeedGroup));
 			n.ID = nextID++;
@@ -234,6 +242,7 @@ namespace MikuMikuWorld
 						{
 							Note n(NoteType::Hold, note.tick, note.lane - 2, note.width);
 							n.critical = critical;
+							n.layer = std::distance(hiSpeedGroupNames.begin(), std::find(hiSpeedGroupNames.begin(), hiSpeedGroupNames.end(), note.hiSpeedGroup));
 							n.ID = startID;
 
 							if (isGuide || (hiddenHolds.find(noteKey(note)) != hiddenHolds.end() && stepIgnore.find(key) != stepIgnore.end()))
@@ -259,6 +268,7 @@ namespace MikuMikuWorld
 						{
 							Note n(NoteType::HoldEnd, note.tick, note.lane - 2, note.width);
 							n.critical = (critical ? true : (criticals.find(key) != criticals.end()));
+							n.layer = std::distance(hiSpeedGroupNames.begin(), std::find(hiSpeedGroupNames.begin(), hiSpeedGroupNames.end(), note.hiSpeedGroup));
 							n.ID = nextID++;
 							n.parentID = startID;
 
@@ -284,6 +294,7 @@ namespace MikuMikuWorld
 						{
 							Note n(NoteType::HoldMid, note.tick, note.lane - 2, note.width);
 							n.critical = critical;
+							n.layer = std::distance(hiSpeedGroupNames.begin(), std::find(hiSpeedGroupNames.begin(), hiSpeedGroupNames.end(), note.hiSpeedGroup));
 							n.friction = false;
 							n.ID = nextID++;
 							n.parentID = startID;
@@ -344,6 +355,8 @@ namespace MikuMikuWorld
 			for (const auto& change : speed.hiSpeeds)
 				hiSpeedChanges.push_back({ change.tick, change.speed, hiSpeedGroupIndex });
 		}
+		if (layers.size() == 0)
+			layers.push_back(Layer{ "default" });
 
 		Score score;
 		score.metadata = metadata;
