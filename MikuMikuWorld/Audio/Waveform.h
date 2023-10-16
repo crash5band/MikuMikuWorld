@@ -10,7 +10,7 @@
 #include <vector>
 #include <limits>
 
-namespace MikuMikuWorld
+namespace Audio
 {
 	constexpr float averageTwoF32Samples(float a, float b)
 	{
@@ -46,7 +46,7 @@ namespace MikuMikuWorld
 			const size_t sampleIndexLo = std::max(0ull, static_cast<size_t>(sampleIndexAsFloat));
 			const size_t sampleIndexHi = sampleIndexLo + 1;
 
-			return lerp(getSampleAtIndex(sampleIndexLo), getSampleAtIndex(sampleIndexHi), sampleIndexFraction);
+			return MikuMikuWorld::lerp(getSampleAtIndex(sampleIndexLo), getSampleAtIndex(sampleIndexHi), sampleIndexFraction);
 		}
 
 		float averageNormalizedSampleInTimeRange(double startTime, double endTime) const
@@ -144,7 +144,7 @@ namespace MikuMikuWorld
 				for (auto& mip : mips) mip.clear();
 
 			WaveformMip& baseMip = mips[0];
-			baseMip.powerOfTwoSampleCount = roundUpToPowerOfTwo(audioData.frameCount);
+			baseMip.powerOfTwoSampleCount = MikuMikuWorld::roundUpToPowerOfTwo(audioData.frameCount);
 			baseMip.secondsPerSample = 1.0 / static_cast<double>(audioData.sampleRate);
 			baseMip.samplesPerSecond = audioData.sampleRate;
 

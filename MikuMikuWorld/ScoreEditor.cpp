@@ -42,10 +42,11 @@ namespace MikuMikuWorld
 	{
 		renderer = std::make_unique<Renderer>();
 
-		context.audio.initAudio();
+		context.audio.initializeAudioEngine();
 		context.audio.setMasterVolume(config.masterVolume);
-		context.audio.setBGMVolume(config.bgmVolume);
-		context.audio.setSEVolume(config.seVolume);
+		context.audio.setMusicVolume(config.bgmVolume);
+		context.audio.setSoundEffectsVolume(config.seVolume);
+		context.audio.loadSoundEffects();
 
 		timeline.setDivision(config.division);
 		timeline.setZoom(config.zoom);
@@ -57,8 +58,8 @@ namespace MikuMikuWorld
 	void ScoreEditor::writeSettings()
 	{
 		config.masterVolume = context.audio.getMasterVolume();
-		config.bgmVolume = context.audio.getBGMVolume();
-		config.seVolume = context.audio.getSEVolume();
+		config.bgmVolume = context.audio.getMusicVolume();
+		config.seVolume = context.audio.getSoundEffectsVolume();
 
 		config.division = timeline.getDivision();
 		config.zoom = timeline.getZoom();
@@ -66,7 +67,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::uninitialize()
 	{
-		context.audio.uninitAudio();
+		context.audio.uninitializeAudioEngine();
 		timeline.background.dispose();
 	}
 
@@ -129,6 +130,12 @@ namespace MikuMikuWorld
 			settingsWindow.isBackgroundChangePending = false;
 		}
 
+		if (!propertiesWindow.pendingLoadMusicFilename.empty())
+		{
+			loadMusic(propertiesWindow.pendingLoadMusicFilename);
+			propertiesWindow.pendingLoadMusicFilename.clear();
+		}
+
 		if (config.autoSaveEnabled && autoSaveTimer.elapsedMinutes() >= config.autoSaveInterval)
 		{
 			autoSave();
@@ -181,7 +188,7 @@ namespace MikuMikuWorld
 		context.workingData = {};
 		context.history.clear();
 		context.scoreStats.reset();
-		context.audio.disposeBGM();
+		context.audio.disposeMusic();
 		context.waveformL.clear();
 		context.waveformR.clear();
 		context.clearSelection();
@@ -222,7 +229,7 @@ namespace MikuMikuWorld
 			context.workingData = EditorScoreData(context.score.metadata, workingFilename);
 
 			loadMusic(context.workingData.musicFilename);
-			context.audio.setBGMOffset(0, context.workingData.musicOffset);
+			context.audio.setMusicOffset(0, context.workingData.musicOffset);
 
 			context.scoreStats.calculateStats(context.score);
 			timeline.calculateMaxOffsetFromScore(context.score);
@@ -247,7 +254,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::loadMusic(std::string filename)
 	{
-		Result result = context.audio.changeBGM(filename);
+		Result result = context.audio.loadMusic(filename);
 		if (result.isOk() || filename.empty())
 		{
 			context.workingData.musicFilename = filename;

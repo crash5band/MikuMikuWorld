@@ -19,6 +19,7 @@ namespace MikuMikuWorld
 	class ScorePropertiesWindow
 	{
 	public:
+		std::string pendingLoadMusicFilename{};
 		void update(ScoreContext& context);
 	};
 

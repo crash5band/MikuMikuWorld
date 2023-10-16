@@ -1,15 +1,12 @@
 #pragma once
+#include "../Result.h"
 #include "Sound.h"
-#include <string>
 #include <unordered_map>
 #include <vector>
-#include <queue>
 #include <memory>
 
-namespace MikuMikuWorld
+namespace Audio
 {
-	class Result;
-
 	struct AudioData
 	{
 		ma_format sampleFormat{ ma_format_unknown };
@@ -37,50 +34,57 @@ namespace MikuMikuWorld
 	{
 	private:
 		ma_engine engine;
-		ma_engine_config engineConfig;
-		ma_sound_group bgmGroup;
-		ma_sound_group seGroup;
-		ma_sound bgm;
-		std::unordered_map<std::string, std::unique_ptr<Sound>> sounds;
+		ma_sound music;
+		ma_sound_group musicGroup;
+		ma_sound_group soundEffectsGroup;
+		std::unordered_map<std::string_view, std::unique_ptr<SoundPool>> sounds;
 
-		float bgmOffset = 0.0f;
-		bool musicInitialized = false;
+		// Offset from chart time in seconds
+		float musicOffset{ 0.0f };
 
-		float masterVolume;
-		float bgmVolume;
-		float seVolume;
+		// Music is ready for playback
+		bool musicInitialized{ false };
 
-		float bgmVolumeFactor = 1.0f;
-		float seVolumeFactor = 0.74f;
+		float masterVolume{ 1.0f };
+		float musicVolume{ 1.0f };
+		float soundEffectsVolume{ 1.0f };
 
 	public:
 		AudioData musicAudioData;
 
-		void initAudio();
-		void loadSE();
-		Result changeBGM(const std::string& filename);
-		void setMasterVolume(float volume);
-		void setBGMVolume(float volume);
-		void setSEVolume(float volume);
-		void playBGM(float currTime);
-		void pauseBGM();
-		void stopBGM();
-		void seekBGM(float time);
-		void disposeBGM();
-		void uninitAudio();
-		void setBGMOffset(float time, float sec);
-		void reSync();
-		void playSound(const char* se, double start, double end);
-		void stopSounds(bool all);
-		float getAudioPosition();
-		float getBGMOffset();
-		float getEngineAbsTime();
-		float getSongEndTime();
-		bool isMusicInitialized();
-		bool isMusicAtEnd();
+		void initializeAudioEngine();
+		void uninitializeAudioEngine();
+		void syncAudioEngineTimer();
+		float getAudioEngineAbsoluteTime() const;
 
-		float getMasterVolume();
-		float getBGMVolume();
-		float getSEVolume();
+		void loadSoundEffects();
+		MikuMikuWorld::Result loadMusic(const std::string& filename);
+
+		void setMasterVolume(float volume);
+		float getMasterVolume() const;
+
+		void setMusicVolume(float volume);
+		float getMusicVolume() const;
+
+		void setSoundEffectsVolume(float volume);
+		float getSoundEffectsVolume() const;
+
+		void playMusic(float currentTime);
+		void stopMusic();
+		void seekMusic(float time);
+		void setMusicOffset(float currentTime, float offset);
+		float getMusicPosition();
+		float getMusicLength();
+		float getMusicOffset() const;
+		float getMusicEndTime();
+		bool isMusicInitialized() const;
+		bool isMusicAtEnd() const;
+		void disposeMusic();
+
+		void playSoundEffect(std::string_view name, float start, float end);
+		void stopSoundEffects(bool all);
+		bool isSoundPlaying(std::string_view name) const;
+
+		using SoundPoolPair = std::pair<std::string_view, std::unique_ptr<SoundPool>>;
 	};
 }

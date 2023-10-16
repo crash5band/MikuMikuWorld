@@ -393,6 +393,9 @@ namespace MikuMikuWorld
 			Color::abgrToInt(std::clamp((int)(config.laneOpacity * 255), 0, 255), 0x1E, 0x1E, 0x1E)
 		);
 
+		if (config.drawWaveform)
+			drawWaveform(context);
+
 		int firstTick = std::max(0, positionToTick(visualOffset - size.y));
 		int lastTick = positionToTick(visualOffset);
 		int measure = accumulateMeasures(firstTick, TICKS_PER_BEAT, context.score.timeSignatures);
@@ -425,7 +428,7 @@ namespace MikuMikuWorld
 			int measureTicks = measureToTicks(currentMeasure, TICKS_PER_BEAT, context.score.timeSignatures);
 
 			if (!((tick - measureTicks) % beatTicks))
-				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), measureColor, primaryLineThickness);
+				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), divColor1, primaryLineThickness);
 			else if (division < 192)
 				drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), divColor2, secondaryLineThickness);
 		}
@@ -459,9 +462,6 @@ namespace MikuMikuWorld
 			const bool boldLane = !(l & 1);
 			drawList->AddLine(ImVec2(x, position.y), ImVec2(x, position.y + size.y), boldLane ? divColor1 : divColor2, boldLane ? primaryLineThickness : secondaryLineThickness);
 		}
-
-		if (config.drawWaveform)
-			drawWaveform(context);
 
 		hoverTick = snapTickFromPos(-mousePos.y, context);
 		hoverLane = positionToLane(mousePos.x);
@@ -519,7 +519,7 @@ namespace MikuMikuWorld
 		if (context.audio.isMusicInitialized())
 		{
 			int startTick = accumulateTicks(context.workingData.musicOffset / 1000, TICKS_PER_BEAT, context.score.tempoChanges);
-			int endTick = accumulateTicks(context.audio.getSongEndTime(), TICKS_PER_BEAT, context.score.tempoChanges);
+			int endTick = accumulateTicks(context.audio.getMusicEndTime(), TICKS_PER_BEAT, context.score.tempoChanges);
 
 			float x = getTimelineEndX();
 			float y1 = position.y - tickToPosition(startTick) + visualOffset;
@@ -1942,9 +1942,9 @@ namespace MikuMikuWorld
 		if (playing)
 		{
 			playStartTime = time;
-			context.audio.seekBGM(time);
-			context.audio.reSync();
-			context.audio.playBGM(time);
+			context.audio.seekMusic(time);
+			context.audio.syncAudioEngineTimer();
+			context.audio.playMusic(time);
 		}
 		else
 		{
@@ -1954,8 +1954,8 @@ namespace MikuMikuWorld
 				offset = std::max(minOffset, tickToPosition(context.currentTick) + (size.y * (1.0f - config.cursorPositionThreshold)));
 			}
 
-			context.audio.stopSounds(false);
-			context.audio.stopBGM();
+			context.audio.stopSoundEffects(false);
+			context.audio.stopMusic();
 		}
 	}
 
@@ -1965,8 +1965,8 @@ namespace MikuMikuWorld
 		time = lastSelectedTick = context.currentTick = 0;
 		offset = std::max(minOffset, tickToPosition(context.currentTick) + (size.y * (1.0f - config.cursorPositionThreshold)));
 
-		context.audio.stopSounds(false);
-		context.audio.stopBGM();
+		context.audio.stopSoundEffects(false);
+		context.audio.stopMusic();
 	}
 
 	void ScoreEditorTimeline::updateNoteSE(ScoreContext& context)
@@ -1999,7 +1999,7 @@ namespace MikuMikuWorld
 					std::string key = std::to_string(note.tick) + "-" + se.data();
 					if (!se.empty() && (playingNoteSounds.find(key) == playingNoteSounds.end()))
 					{
-						context.audio.playSound(se.data(), notePlayTime, -1);
+						context.audio.playSoundEffect(se.data(), notePlayTime, -1);
 						playingNoteSounds.insert(key);
 					}
 				}
@@ -2010,11 +2010,8 @@ namespace MikuMikuWorld
 				int endTick = context.score.notes.at(context.score.holdNotes.at(note.ID).end).tick;
 				float endTime = accumulateDuration(endTick, TICKS_PER_BEAT, context.score.tempoChanges);
 				
-				bool playbackJustStarted = time == playStartTime;
-				bool cursorMidHold = (noteTime - time) <= audioLookAhead && endTime > time;
-
-				if (!playbackJustStarted || (playbackJustStarted && cursorMidHold))
-					context.audio.playSound(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, startTime, endTime - playStartTime + audioOffsetCorrection);
+				float adjustedEndTime = endTime - playStartTime + audioOffsetCorrection;
+				context.audio.playSoundEffect(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, startTime, adjustedEndTime);
 			};
 
 			if (offsetNoteTime >= timeLastFrame && offsetNoteTime < time)
@@ -2031,7 +2028,12 @@ namespace MikuMikuWorld
 
 				// Playback started mid-hold
 				if (note.getType() == NoteType::Hold && !context.score.holdNotes.at(note.ID).isGuide())
-					holdNoteSEFunc(note, std::max(0.0f, notePlayTime));
+				{
+					int endTick = context.score.notes.at(context.score.holdNotes.at(note.ID).end).tick;
+					float endTime = accumulateDuration(endTick, TICKS_PER_BEAT, context.score.tempoChanges);
+					if ((noteTime - time) <= audioLookAhead && endTime > time)
+						holdNoteSEFunc(note, std::max(0.0f, notePlayTime));
+				}
 			}
 		}
 	}
@@ -2042,8 +2044,7 @@ namespace MikuMikuWorld
 		if (!drawList)
 			return;
 
-		constexpr ImU32 waveformColor		= 0xA09C9C9C;
-		constexpr ImU32 waveformFadeColor	= 0x808A8A8A;
+		constexpr ImU32 waveformColor = 0x806C6C6C;
 
 		// Ideally this should be calculated based on the current BPM
 		const double secondsPerPixel = waveformSecondsPerPixel / zoom;
@@ -2052,12 +2053,12 @@ namespace MikuMikuWorld
 
 		for (size_t index = 0; index < 2; index++)
 		{
-			const WaveformMipChain& waveform = index == 0 ? context.waveformL : context.waveformR;
+			const Audio::WaveformMipChain& waveform = index == 0 ? context.waveformL : context.waveformR;
 			const bool rightChannel = index == 1;
 			if (waveform.isEmpty())
 				continue;
 
-			const WaveformMip& mip = waveform.findClosestMip(secondsPerPixel);
+			const Audio::WaveformMip& mip = waveform.findClosestMip(secondsPerPixel);
 			for (int y = visualOffset - size.y; y < visualOffset; y += 1)
 			{
 				int tick = positionToTick(y);
@@ -2070,10 +2071,10 @@ namespace MikuMikuWorld
 				float barValue = outOfBounds ? 0.0f : (amplitude * std::min(laneWidth * 6, 180.0f));
 
 				float timelineMidPosition = midpoint(getTimelineStartX(), getTimelineEndX());
-				int rectYPosition = roundf(position.y + visualOffset - y);
+				float rectYPosition = floorf(position.y + visualOffset - y);
 				ImVec2 rect1(timelineMidPosition, rectYPosition);
-				ImVec2 rect2(timelineMidPosition + (std::max(0.5f, barValue) * (rightChannel ? 1 : -1)), rectYPosition + 1.0f);
-				drawList->AddRectFilledMultiColor(rect1, rect2, waveformColor, waveformFadeColor, waveformFadeColor, waveformColor);
+				ImVec2 rect2(timelineMidPosition + (std::max(0.5f, barValue) * (rightChannel ? 1 : -1)), rectYPosition + 0.5f);
+				drawList->AddRectFilled(rect1, rect2, waveformColor);
 			}
 		}
 	}

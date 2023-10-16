@@ -1,74 +1,130 @@
 #include "Sound.h"
 #include "../IO.h"
+#include "../Math.h"
+#include <algorithm>
 
-namespace MikuMikuWorld
+namespace Audio
 {
-	ma_uint32 flags = MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC;
+	namespace mmw = MikuMikuWorld;
 
-	Sound::Sound() : next{ 0 }
+	ma_uint64 SoundPool::getDurationInFrames() const
 	{
+		ma_uint64 length{};
+		ma_data_source_get_length_in_pcm_frames(pool[0].source.pDataSource, &length);
 
+		return length;
 	}
 
-	Sound::Sound(const std::string& path, ma_engine* engine, ma_sound_group* group, bool loop)
+	void SoundPool::setLoopTime(ma_uint64 startFrames, ma_uint64 endFrames)
 	{
-		init(path, engine, group, loop);
+		for (auto& instance : pool)
+			ma_data_source_set_loop_point_in_pcm_frames(instance.source.pDataSource, startFrames, endFrames);
 	}
 
-	void Sound::playSound(float start, float end)
+	bool SoundPool::isLooping() const
 	{
-		sources[next].reset();
-		sources[next].setStart(start);
-		sources[next].setEnd(end);
-		sources[next].play();
-
-		next = ++next % sources.size();
+		return flags & SoundFlags::LOOP;
 	}
 
-	void Sound::init(const std::string& path, ma_engine* engine, ma_sound_group* group, bool loop)
+	void SoundPool::setVolume(float volume)
 	{
+		for (auto& instance : pool)
+			ma_sound_set_volume(&instance.source, volume);
+	}
+
+	float SoundPool::getVolume() const
+	{
+		return ma_sound_get_volume(&pool[0].source);
+	}
+
+	void SoundPool::initialize(const std::string& path, ma_engine* engine, ma_sound_group* group, SoundFlags flags)
+	{
+		constexpr ma_uint32 maSoundFlags =
+			MA_SOUND_FLAG_NO_PITCH |
+			MA_SOUND_FLAG_NO_SPATIALIZATION |
+			MA_SOUND_FLAG_DECODE |
+			MA_SOUND_FLAG_ASYNC;
+
 		std::wstring wPath = IO::mbToWideStr(path);
-		for (int i = 0; i < sources.size(); ++i)
+		for (int i = 0; i < pool.size(); ++i)
 		{
-			sources[i] = SoundSource();
-			sources[i].init(wPath, engine, group, flags, loop);
+			ma_result result = ma_sound_init_from_file_w(engine, wPath.c_str(), maSoundFlags, group, NULL, &pool[i].source);
+			if (flags & SoundFlags::LOOP)
+				ma_sound_set_looping(&pool[i].source, true);
 		}
 
-		next = 0;
+		this->flags = flags;
+		nextIndex = 0;
 	}
 
-	void Sound::dispose()
+	void SoundPool::dispose()
 	{
-		for (auto& src : sources)
-			src.dispose();
+		for (auto& instance : pool)
+			ma_sound_uninit(&instance.source);
 	}
 
-	void Sound::stopAll()
+	void SoundPool::extendInstanceDuration(SoundInstance& instance, float newEndTime)
 	{
-		for (auto& src : sources)
-			src.stop();
+		ma_sound_set_stop_time_in_milliseconds(&instance.source, newEndTime * 1000);
 	}
 
-	void Sound::setLooptime(ma_uint64 s, ma_uint64 e)
+	void SoundPool::play(float start, float end)
 	{
-		for (auto& src : sources)
-			src.setLoopTime(s, e);
+		if (flags & SoundFlags::EXTENDABLE)
+		{
+			// We want to re-use the currently playing instance
+			int currentIndex = std::max(nextIndex - 1, 0);
+			SoundInstance& currentInstance = pool[currentIndex];
+
+			// If playback is started on a note, the source's time is effectively 0 and the sound isn't marked playing yet
+			const bool isCurrentInstancePlaying = ma_sound_is_playing(&currentInstance.source) ||
+				(start == currentInstance.lastStartTime && currentInstance.lastStartTime != 0.0f);
+
+			const bool isNewSoundWithinOldRange = 
+				mmw::isWithinRange(start, currentInstance.lastStartTime, currentInstance.lastEndTime) &&
+				mmw::isWithinRange(end, currentInstance.lastStartTime, currentInstance.lastEndTime);
+
+			if (isNewSoundWithinOldRange && isCurrentInstancePlaying)
+				return;
+
+			if (isCurrentInstancePlaying && end > currentInstance.lastEndTime)
+			{
+				extendInstanceDuration(pool[currentIndex], end);
+				return;
+			}
+		}
+
+		SoundInstance& instance = pool[nextIndex];
+
+		ma_sound_seek_to_pcm_frame(&instance.source, 0);
+		ma_sound_set_start_time_in_milliseconds(&instance.source, start * 1000);
+		
+		if (end > -1)
+			ma_sound_set_stop_time_in_milliseconds(&instance.source, end * 1000);
+
+		ma_sound_start(&instance.source);
+		instance.lastStartTime = start;
+		instance.lastEndTime = end;
+
+		if ((flags & SoundFlags::EXTENDABLE) == 0)
+			nextIndex = ++nextIndex % pool.size();
 	}
 
-	ma_uint64 Sound::getDurationInFrames()
+	void SoundPool::stopAll()
 	{
-		return sources[0].getDurationInFrames();
+		for (auto& instance : pool)
+			ma_sound_stop(&instance.source);
 	}
 
-	float Sound::getDurectionInSeconds()
+	bool SoundPool::isPlaying(const SoundInstance& soundInstance) const
 	{
-		return sources[0].getDurationInSeconds();
+		return ma_sound_is_playing(&soundInstance.source);
 	}
 
-	bool Sound::isAnyPlaying()
+	bool SoundPool::isAnyPlaying() const
 	{
-		for (auto& src : sources)
-			if (src.isPlaying())
+		for (const auto& instance : pool)
+			if (ma_sound_is_playing(&instance.source))
 				return true;
 
 		return false;

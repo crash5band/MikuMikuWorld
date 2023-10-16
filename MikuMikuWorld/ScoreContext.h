@@ -70,11 +70,11 @@ namespace MikuMikuWorld
 		EditorScoreData workingData;
 		ScoreStats scoreStats;
 		HistoryManager history;
-		AudioManager audio;
+		Audio::AudioManager audio;
 		PasteData pasteData{};
 		std::unordered_set<int> selectedNotes;
 
-		WaveformMipChain waveformL, waveformR;
+		Audio::WaveformMipChain waveformL, waveformR;
 
 		int currentTick{};
 		bool upToDate{ true };

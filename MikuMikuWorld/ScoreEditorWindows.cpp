@@ -46,11 +46,7 @@ namespace MikuMikuWorld
 			int filePickResult = UI::addFileProperty(getString("music_file"), filename);
 			if (filePickResult == 1 && filename != context.workingData.musicFilename)
 			{
-				Result result = context.audio.changeBGM(filename);
-				if (result.isOk())
-					changeMusic = true;
-
-				context.workingData.musicFilename = filename;
+				pendingLoadMusicFilename = filename;
 			}
 			else if (filePickResult == 2)
 			{
@@ -60,19 +56,7 @@ namespace MikuMikuWorld
 				fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 
 				if (fileDialog.openFile() == IO::FileDialogResult::OK)
-				{
-					Result result = context.audio.changeBGM(fileDialog.outputFilename);
-					if (result.isOk())
-						changeMusic = true;
-
-					context.workingData.musicFilename = fileDialog.outputFilename;
-				}
-			}
-
-			if (changeMusic)
-			{
-				context.waveformL.generateMipChainsFromSampleBuffer(context.audio.musicAudioData, 0);
-				context.waveformR.generateMipChainsFromSampleBuffer(context.audio.musicAudioData, 1);
+					pendingLoadMusicFilename = fileDialog.outputFilename;
 			}
 
 			float offset = context.workingData.musicOffset;
@@ -80,13 +64,13 @@ namespace MikuMikuWorld
 			if (offset != context.workingData.musicOffset)
 			{
 				context.workingData.musicOffset = offset;
-				context.audio.setBGMOffset(context.getTimeAtCurrentTick(), offset);
+				context.audio.setMusicOffset(context.getTimeAtCurrentTick(), offset);
 			}
 
 			// volume controls
 			float master = context.audio.getMasterVolume();
-			float bgm = context.audio.getBGMVolume();
-			float se = context.audio.getSEVolume();
+			float bgm = context.audio.getMusicVolume();
+			float se = context.audio.getSoundEffectsVolume();
 
 			UI::addPercentSliderProperty(getString("volume_master"), master);
 			UI::addPercentSliderProperty(getString("volume_bgm"), bgm);
@@ -96,11 +80,11 @@ namespace MikuMikuWorld
 			if (master != context.audio.getMasterVolume())
 				context.audio.setMasterVolume(master);
 
-			if (bgm != context.audio.getBGMVolume())
-				context.audio.setBGMVolume(bgm);
+			if (bgm != context.audio.getMusicVolume())
+				context.audio.setMusicVolume(bgm);
 
-			if (se != context.audio.getSEVolume())
-				context.audio.setSEVolume(se);
+			if (se != context.audio.getSoundEffectsVolume())
+				context.audio.setSoundEffectsVolume(se);
 		}
 
 		if (ImGui::CollapsingHeader(IO::concat(ICON_FA_CHART_BAR, getString("statistics"), " ").c_str(), ImGuiTreeNodeFlags_DefaultOpen))
