@@ -104,13 +104,6 @@ namespace MikuMikuWorld
 		return version;
 	}
 
-	void Application::frameTime()
-	{
-		float currentFrame = glfwGetTime();
-		frameDelta = currentFrame - lastFrame;
-		lastFrame = currentFrame;
-	}
-
 	void Application::dispose()
 	{
 		if (initialized)
@@ -209,10 +202,9 @@ namespace MikuMikuWorld
 			windowState.lastDpiScale = dpiScale;
 		}
 
-		frameTime();
 		imgui->begin();
 
-		// inform ImGui of dpi changes
+		// Inform ImGui of dpi changes
 		ImGui::GetMainViewport()->DpiScale = dpiX;
 		UI::updateBtnSizesDpiScaling(dpiScale);
 
