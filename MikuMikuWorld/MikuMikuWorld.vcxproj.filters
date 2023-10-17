@@ -87,9 +87,6 @@
     <ClCompile Include="PresetManager.cpp">
       <Filter>Presets</Filter>
     </ClCompile>
-    <ClCompile Include="Preset.cpp">
-      <Filter>Presets</Filter>
-    </ClCompile>
     <ClCompile Include="BinaryReader.cpp">
       <Filter>IO\File</Filter>
     </ClCompile>
@@ -251,9 +248,6 @@
     <ClInclude Include="DefaultLanguage.h">
       <Filter>UI\i18n</Filter>
     </ClInclude>
-    <ClInclude Include="Result.h">
-      <Filter>Misc</Filter>
-    </ClInclude>
     <ClInclude Include="Colors.h">
       <Filter>UI</Filter>
     </ClInclude>
@@ -261,9 +255,6 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="PresetManager.h">
-      <Filter>Presets</Filter>
-    </ClInclude>
-    <ClInclude Include="Preset.h">
       <Filter>Presets</Filter>
     </ClInclude>
     <ClInclude Include="BinaryReader.h">

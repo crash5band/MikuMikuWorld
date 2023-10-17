@@ -5,15 +5,16 @@
 #include "../Depends/glad/include/glad/glad.h"
 #include "../Depends/GLFW/include/GLFW/glfw3.h"
 #include "File.h"
-#include "Constants.h"
 #include "UI.h"
-#include "Result.h"
+#include "Utilities.h"
 #include "IconsFontAwesome5.h"
 #include "Colors.h"
 
 namespace MikuMikuWorld
 {
-	ImGuiManager::ImGuiManager() 
+	constexpr const char* IMGUI_CONFIG_FILENAME = "imgui_config.ini";
+
+	ImGuiManager::ImGuiManager()
 	{
 
 	}
@@ -26,9 +27,10 @@ namespace MikuMikuWorld
 		configFilename = Application::getAppDir() + IMGUI_CONFIG_FILENAME;
 
 		ImGuiIO& io = ImGui::GetIO();
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable
-			| ImGuiConfigFlags_ViewportsEnable
-			| ImGuiConfigFlags_DpiEnableScaleViewports;
+		io.ConfigFlags |= 
+			ImGuiConfigFlags_DockingEnable |
+			ImGuiConfigFlags_ViewportsEnable |
+			ImGuiConfigFlags_DpiEnableScaleViewports;
 
 		io.ConfigWindowsMoveFromTitleBarOnly = true;
 		io.ConfigViewportsNoDefaultParent = false;

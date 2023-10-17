@@ -64,11 +64,11 @@ namespace MikuMikuWorld
 		int tick = positionToTick(offset - size.y);
 		float x1 = position.y - tickToPosition(tick) + offset;
 
-		zoom = std::clamp(value, MIN_ZOOM, MAX_ZOOM);
-		config.zoom = zoom;
+		zoom = std::clamp(value, minZoom, maxZoom);
 
+		// Prevent jittery movement when zooming
 		float x2 = position.y - tickToPosition(tick) + offset;
-		visualOffset = offset = std::max(offset + x1 - x2, minOffset); // prevent jittery movement when zooming
+		visualOffset = offset = std::max(offset + x1 - x2, minOffset);
 	}
 
 	int ScoreEditorTimeline::snapTickFromPos(float posY, const ScoreContext& context)
@@ -656,7 +656,7 @@ namespace MikuMikuWorld
 		ImGui::SameLine();
 		float _zoom = zoom;
 		int controlWidth = ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(rhythmString.c_str()).x - (UI::btnSmall.x * 3);
-		if (UI::zoomControl("zoom", _zoom, MIN_ZOOM, 10.0f, std::clamp(controlWidth, 120, 320)))
+		if (UI::zoomControl("zoom", _zoom, minZoom, 10, std::clamp(controlWidth, 120, 320)))
 			setZoom(_zoom);
 
 		ImGui::SameLine();
@@ -1738,8 +1738,8 @@ namespace MikuMikuWorld
 				{
 					Score prev = context.score;
 					TimeSignature& ts = context.score.timeSignatures[eventEdit.editIndex];
-					ts.numerator = std::clamp(abs(eventEdit.editTimeSignatureNumerator), MIN_TIME_SIGN, MAX_TIME_SIGN);
-					ts.denominator = std::clamp(abs(eventEdit.editTimeSignatureDenominator), MIN_TIME_SIGN, MAX_TIME_SIGN);
+					ts.numerator = std::clamp(abs(eventEdit.editTimeSignatureNumerator), MIN_TIME_SIGNATURE, MAX_TIME_SIGNATURE_NUMERATOR);
+					ts.denominator = std::clamp(abs(eventEdit.editTimeSignatureDenominator), MIN_TIME_SIGNATURE, MAX_TIME_SIGNATURE_DENOMINATOR);
 
 					context.pushHistory("Change time signature", prev, context.score);
 				}
@@ -1924,8 +1924,6 @@ namespace MikuMikuWorld
 		ImGui::Text("Hover tick: %d", hoverTick);
 
 		ImGui::Text("Last selected tick: %d", lastSelectedTick);
-
-		ImGui::InputDouble("Waveform Seconds Per Pixel", &waveformSecondsPerPixel);
 	}
 
 	ScoreEditorTimeline::ScoreEditorTimeline()

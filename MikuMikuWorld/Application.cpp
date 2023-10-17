@@ -5,7 +5,6 @@
 #include "UI.h"
 #include "Utilities.h"
 #include "Localization.h"
-#include "Constants.h"
 #include "ApplicationConfiguration.h"
 #include <filesystem>
 
@@ -246,7 +245,7 @@ namespace MikuMikuWorld
 				switch (unsavedChangesResult)
 				{
 				case DialogResult::Yes:
-					editor->trySave(editor->getWorkingFilename());
+					editor->trySave(editor->getWorkingFilename().data());
 					glfwSetWindowShouldClose(window, 1);
 					break;
 
@@ -275,7 +274,7 @@ namespace MikuMikuWorld
 				switch (unsavedChangesResult)
 				{
 				case DialogResult::Yes:
-					editor->trySave(editor->getWorkingFilename());
+					editor->trySave(editor->getWorkingFilename().data());
 					break;
 
 				case DialogResult::Cancel:

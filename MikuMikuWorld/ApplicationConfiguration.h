@@ -6,6 +6,8 @@
 
 namespace MikuMikuWorld
 {
+	constexpr const char* APP_CONFIG_FILENAME = "app_config.json";
+
 	struct InputConfiguration
 	{
 		MultiInputBinding togglePlayback = { "toggle_playback", {ImGuiKey_Space, ImGuiModFlags_None} };

@@ -5,6 +5,12 @@
 
 namespace MikuMikuWorld
 {
+	constexpr int MIN_NOTE_WIDTH = 1;
+	constexpr int MAX_NOTE_WIDTH = 12;
+	constexpr int MIN_LANE = 0;
+	constexpr int MAX_LANE = 11;
+	constexpr int NUM_LANES = 12;
+
 	constexpr const char* SE_PERFECT			= "perfect";
 	constexpr const char* SE_FLICK				= "flick";
 	constexpr const char* SE_CONNECT			= "connect";

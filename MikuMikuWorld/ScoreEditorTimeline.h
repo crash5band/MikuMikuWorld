@@ -40,13 +40,11 @@ namespace MikuMikuWorld
 		StepDrawData(int _tick, int _lane, int _width, StepDrawType _type) :
 			tick{ _tick }, lane{ _lane }, width{ _width }, type{ _type }
 		{
-
 		}
 
 		StepDrawData(const Note& n, StepDrawType _type) :
 			tick{ n.tick }, lane{ n.lane }, width{ n.width }, type{ _type }
 		{
-
 		}
 
 		inline constexpr ImU32 getFillColor() const { return stepDrawFillColors->at((int)type); }
@@ -66,18 +64,20 @@ namespace MikuMikuWorld
 
 		TimelineMode currentMode;
 		float laneOffset;
-		float zoom = 1.0f;
 		float maxOffset = 10000;
 		float minOffset;
 		float offset;
 		float visualOffset;
-		const float unitHeight = 0.15f;
-		const float scrollUnit = 50;
-
 		float scrollStartY;
-		bool mouseInTimeline;
+		float zoom = 1.0f;
 
-		float noteControlWidth = 12;
+		static constexpr float unitHeight = 0.15f;
+		static constexpr float scrollUnit = 50;
+		static constexpr float minZoom = 0.25f;
+		static constexpr float maxZoom = 30.0f;
+		static constexpr double waveformSecondsPerPixel = 0.005;
+		static constexpr float noteControlWidth = 12;
+
 		float minNoteYDistance;
 		int hoverLane;
 		int hoverTick;
@@ -87,6 +87,7 @@ namespace MikuMikuWorld
 		int lastSelectedTick;
 		int division = 8;
 
+		bool mouseInTimeline;
 		bool isHoveringNote;
 		bool isHoldingNote;
 		bool isMovingNote;
@@ -102,18 +103,8 @@ namespace MikuMikuWorld
 		float songPosLastFrame;
 		bool playing;
 
-		double waveformSecondsPerPixel = 0.005;
-
-		struct InputNotes
-		{
-			Note tap;
-			Note holdStart;
-			Note holdEnd;
-			Note holdStep;
-		} inputNotes{ Note(NoteType::Tap), Note(NoteType::Hold), Note(NoteType::HoldEnd), Note(NoteType::HoldMid) };
-		
-		std::vector<StepDrawData> drawSteps;
-
+		Camera camera;
+		std::unique_ptr<Framebuffer> framebuffer;
 		ImVec2 size;
 		ImVec2 position;
 		ImVec2 prevPos;
@@ -126,11 +117,18 @@ namespace MikuMikuWorld
 
 		Score prevUpdateScore;
 
-		Camera camera;
-		std::unique_ptr<Framebuffer> framebuffer;
+		struct InputNotes
+		{
+			Note tap;
+			Note holdStart;
+			Note holdEnd;
+			Note holdStep;
+		} inputNotes{ Note(NoteType::Tap), Note(NoteType::Hold), Note(NoteType::HoldEnd), Note(NoteType::HoldMid) };
+
+		std::vector<StepDrawData> drawSteps;
 		std::unordered_set<std::string> playingNoteSounds;
-		const float audioOffsetCorrection = 0.02f;
-		const float audioLookAhead = 0.05f;
+		static constexpr float audioOffsetCorrection = 0.02f;
+		static constexpr float audioLookAhead = 0.05f;
 
 		void updateScrollbar();
 		void updateScrollingPosition();
