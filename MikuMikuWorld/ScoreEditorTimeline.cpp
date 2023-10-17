@@ -21,7 +21,9 @@ namespace MikuMikuWorld
 		pos.y = floorf(pos.y);
 
 		ImGui::PushID(pos.y);
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {1, 1});
 		bool activated = UI::coloredButton(txt, { pos.x, pos.y - ImGui::GetFrameHeightWithSpacing() }, { -1, -1 }, color, enabled);
+		ImGui::PopStyleVar();
 		ImGui::PopID();
 		drawList->AddLine({ xPos, pos.y }, { pos.x + ImGui::GetItemRectSize().x, pos.y }, color, primaryLineThickness);
 
