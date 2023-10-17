@@ -43,8 +43,8 @@ namespace MikuMikuWorld
 		note.lane = reader->readInt32();
 		note.width = reader->readInt32();
 
-    if (cyanvasVersion >= 4)
-      note.layer = reader->readInt32();
+		if (cyanvasVersion >= 4)
+			note.layer = reader->readInt32();
 
 		if (!note.hasEase())
 			note.flick = (FlickType)reader->readInt32();
@@ -83,8 +83,8 @@ namespace MikuMikuWorld
 		if (version > 1)
 			metadata.jacketFile = reader->readString();
 
-    if (cyanvasVersion >= 1)
-      metadata.laneExtension = reader->readInt32();
+		if (cyanvasVersion >= 1)
+			metadata.laneExtension = reader->readInt32();
 
 		return metadata;
 	}
@@ -135,9 +135,9 @@ namespace MikuMikuWorld
 			{
 				int tick = reader->readInt32();
 				float speed = reader->readSingle();
-        int layer = 0;
-        if (cyanvasVersion >= 4)
-          layer = reader->readInt32();
+				int layer = 0;
+				if (cyanvasVersion >= 4)
+					layer = reader->readInt32();
 
 				score.hiSpeedChanges.push_back({ tick, speed, layer });
 			}
@@ -180,7 +180,7 @@ namespace MikuMikuWorld
 		{
 			writer->writeInt32(hiSpeed.tick);
 			writer->writeSingle(hiSpeed.speed);
-      writer->writeInt32(hiSpeed.layer);
+			writer->writeInt32(hiSpeed.layer);
 		}
 
 		writer->writeInt32(score.skills.size());
@@ -204,30 +204,30 @@ namespace MikuMikuWorld
 		if (signature != "MMWS" && signature != "CCMMWS")
 			throw std::runtime_error("Not a MMWS file.");
 
-    bool isCyanvas = signature == "CCMMWS";
+		bool isCyanvas = signature == "CCMMWS";
 
 		int version = reader.readInt16();
 		int cyanvasVersion = reader.readInt16();
-    if (isCyanvas && cyanvasVersion == 0) {
-      cyanvasVersion = 1;
-    }
+		if (isCyanvas && cyanvasVersion == 0) {
+			cyanvasVersion = 1;
+		}
 
 		uint32_t metadataAddress{};
 		uint32_t eventsAddress{};
 		uint32_t tapsAddress{};
 		uint32_t holdsAddress{};
-    uint32_t damagesAddress{};
-    uint32_t layersAddress{};
+		uint32_t damagesAddress{};
+		uint32_t layersAddress{};
 		if (version > 2)
 		{
 			metadataAddress = reader.readInt32();
 			eventsAddress = reader.readInt32();
 			tapsAddress = reader.readInt32();
 			holdsAddress = reader.readInt32();
-      if (isCyanvas)
-        damagesAddress = reader.readInt32();
-      if (cyanvasVersion >= 4)
-        layersAddress = reader.readInt32();
+			if (isCyanvas)
+				damagesAddress = reader.readInt32();
+			if (cyanvasVersion >= 4)
+				layersAddress = reader.readInt32();
 
 			reader.seek(metadataAddress);
 		}
@@ -277,14 +277,14 @@ namespace MikuMikuWorld
 			start.ID = nextID++;
 			hold.start.ease = (EaseType)reader.readInt32();
 			hold.start.ID = start.ID;
-      if (cyanvasVersion >= 2) {
-        hold.fadeType = (FadeType)reader.readInt32();
-      }
-      if (cyanvasVersion >= 3) {
-        hold.guideColor = (GuideColor)reader.readInt32();
-      } else {
-        hold.guideColor = start.critical ? GuideColor::Yellow : GuideColor::Green;
-      }
+			if (cyanvasVersion >= 2) {
+				hold.fadeType = (FadeType)reader.readInt32();
+			}
+			if (cyanvasVersion >= 3) {
+				hold.guideColor = (GuideColor)reader.readInt32();
+			} else {
+				hold.guideColor = start.critical ? GuideColor::Yellow : GuideColor::Green;
+			}
 			score.notes[start.ID] = start;
 
 			int stepCount = reader.readInt32();
@@ -312,33 +312,33 @@ namespace MikuMikuWorld
 			score.holdNotes[start.ID] = hold;
 		}
 
-    if (cyanvasVersion >= 1)
-    {
-      reader.seek(damagesAddress);
+		if (cyanvasVersion >= 1)
+		{
+			reader.seek(damagesAddress);
 
-      int damageCount = reader.readInt32();
-      score.notes.reserve(damageCount);
-      for (int i = 0; i < damageCount; ++i)
-      {
-        Note note = readNote(NoteType::Damage, &reader, cyanvasVersion);
-        note.ID = nextID++;
-        score.notes[note.ID] = note;
-      }
-    }
+			int damageCount = reader.readInt32();
+			score.notes.reserve(damageCount);
+			for (int i = 0; i < damageCount; ++i)
+			{
+				Note note = readNote(NoteType::Damage, &reader, cyanvasVersion);
+				note.ID = nextID++;
+				score.notes[note.ID] = note;
+			}
+		}
 
-    if (cyanvasVersion >= 4)
-    {
-      score.layers.clear();
-      reader.seek(layersAddress);
+		if (cyanvasVersion >= 4)
+		{
+			score.layers.clear();
+			reader.seek(layersAddress);
 
-      int layerCount = reader.readInt32();
-      score.layers.reserve(layerCount);
-      for (int i = 0; i < layerCount; ++i)
-      {
-        std::string name = reader.readString();
-        score.layers.push_back({ name });
-      }
-    }
+			int layerCount = reader.readInt32();
+			score.layers.reserve(layerCount);
+			for (int i = 0; i < layerCount; ++i)
+			{
+				std::string name = reader.readString();
+				score.layers.push_back({ name });
+			}
+		}
 
 		reader.close();
 		return score;
@@ -355,11 +355,11 @@ namespace MikuMikuWorld
 
 		// verison
 		writer.writeInt16(4);
-    // cyanvas version
+		// cyanvas version
 		writer.writeInt16(4);
 
 		// offsets address in order: metadata -> events -> taps -> holds
-    // Cyanvas extension: -> damages -> layers
+		// Cyanvas extension: -> damages -> layers
 		uint32_t offsetsAddress = writer.getStreamPosition();
 		writer.writeNull(sizeof(uint32_t) * 6);
 
@@ -403,8 +403,8 @@ namespace MikuMikuWorld
 			const Note& start = score.notes.at(hold.start.ID);
 			writeNote(start, &writer);
 			writer.writeInt32((int)hold.start.ease);
-      writer.writeInt32((int)hold.fadeType);
-      writer.writeInt32((int)hold.guideColor);
+			writer.writeInt32((int)hold.fadeType);
+			writer.writeInt32((int)hold.guideColor);
 
 			// steps
 			int stepCount = hold.steps.size();
@@ -425,7 +425,7 @@ namespace MikuMikuWorld
 		uint32_t damagesAddress = writer.getStreamPosition();
 		writer.writeNull(sizeof(uint32_t));
 
-    // Cyanvas extension: write damages
+		// Cyanvas extension: write damages
 		int damageNoteCount = 0;
 		for (const auto&[id, note] : score.notes)
 		{
@@ -436,18 +436,21 @@ namespace MikuMikuWorld
 			++damageNoteCount;
 		}
 
-    // write damages count
-    writer.seek(damagesAddress);
-    writer.writeInt32(damageNoteCount);
+		// Cyanvas extension: write layers
+		uint32_t layersAddress = writer.getStreamPosition();
 
-    // Cyanvas extension: write layers
-    uint32_t layersAddress = writer.getStreamPosition();
-    writer.writeInt32(score.layers.size());
+		// write damages count
+		writer.seek(damagesAddress);
+		writer.writeInt32(damageNoteCount);
 
-    for (const auto& layer : score.layers)
-    {
-      writer.writeString(layer.name);
-    }
+		writer.seek(layersAddress);
+
+		writer.writeInt32(score.layers.size());
+
+		for (const auto& layer : score.layers)
+		{
+			writer.writeString(layer.name);
+		}
 
 		// write offset addresses
 		writer.seek(offsetsAddress);
@@ -455,8 +458,8 @@ namespace MikuMikuWorld
 		writer.writeInt32(eventsAddress);
 		writer.writeInt32(tapsAddress);
 		writer.writeInt32(holdsAddress);
-    writer.writeInt32(damagesAddress);
-    writer.writeInt32(layersAddress);
+		writer.writeInt32(damagesAddress);
+		writer.writeInt32(layersAddress);
 
 		writer.flush();
 		writer.close();
