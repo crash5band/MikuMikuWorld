@@ -318,6 +318,7 @@ namespace MikuMikuWorld
 	bool UI::zoomControl(const char* label, float& value, float min, float max, float width)
 	{
 		bool act = false;
+		ImGui::PushButtonRepeat(true);
 		if (UI::transparentButton(ICON_FA_SEARCH_MINUS, UI::btnSmall))
 		{
 			value -= 0.25f;
@@ -335,6 +336,7 @@ namespace MikuMikuWorld
 			value += 0.25f;
 			act = true;
 		}
+		ImGui::PopButtonRepeat();
 
 		return act;
 	}
