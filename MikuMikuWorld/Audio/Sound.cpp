@@ -113,7 +113,11 @@ namespace Audio
 	void SoundPool::stopAll()
 	{
 		for (auto& instance : pool)
+		{
 			ma_sound_stop(&instance.source);
+			instance.lastStartTime = 0;
+			instance.lastEndTime = 0;
+		}
 	}
 
 	bool SoundPool::isPlaying(const SoundInstance& soundInstance) const

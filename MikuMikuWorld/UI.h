@@ -30,14 +30,14 @@ namespace MikuMikuWorld
 		| ImGuiWindowFlags_NoScrollWithMouse
 		| ImGuiWindowFlags_NoTitleBar;
 
-	enum class ColorDisplay
+	enum class ColorDisplay : uint8_t
 	{
 		RGB,
 		HSV,
 		HEX
 	};
 
-	enum class BaseTheme
+	enum class BaseTheme : uint8_t
 	{
 		DARK,
 		LIGHT,
