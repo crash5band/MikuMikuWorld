@@ -582,7 +582,7 @@ namespace MikuMikuWorld
 		json vusc;
 		json usc;
 
-		usc["offset"] = score.metadata.musicOffset * 1000;
+		usc["offset"] = score.metadata.musicOffset / 1000.0;
 
 		std::vector<json> objects;
 
@@ -744,7 +744,7 @@ namespace MikuMikuWorld
 		json usc = vusc["usc"];
 		score.layers.clear();
 
-		score.metadata.musicOffset = usc["offset"].get<float>();
+		score.metadata.musicOffset = usc["offset"].get<float>() * 1000.0f;
 
 		for (const auto& obj : usc["objects"].get<std::vector<json>>()) {
 			if (obj["type"] == "bpm") {
