@@ -622,7 +622,7 @@ namespace MikuMikuWorld
 
 		ImGui::SameLine();
 		if (UI::toolbarButton(playing ? ICON_FA_PAUSE : ICON_FA_PLAY, "", NULL))
-			togglePlaying(context);
+			setPlaying(context, !playing);
 
 		ImGui::SameLine();
 		ImGui::PushButtonRepeat(true);
@@ -1936,9 +1936,12 @@ namespace MikuMikuWorld
 		background.setBrightness(0.67);
 	}
 
-	void ScoreEditorTimeline::togglePlaying(ScoreContext& context)
+	void ScoreEditorTimeline::setPlaying(ScoreContext& context, bool state)
 	{
-		playing = !playing;
+		if (playing == state)
+			return;
+
+		playing = state;
 		if (playing)
 		{
 			playStartTime = time;

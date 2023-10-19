@@ -208,7 +208,7 @@ namespace MikuMikuWorld
 		int findClosestHold(ScoreContext& context, int lane, int tick);
 		bool isMouseInHoldPath(const Note& n1, const Note& n2, EaseType ease, float x, float y);
 		constexpr inline bool isPlaying() const { return playing; }
-		void togglePlaying(ScoreContext& context);
+		void setPlaying(ScoreContext& context, bool state);
 		void stop(ScoreContext& context);
 		void calculateMaxOffsetFromScore(const Score& score);
 
