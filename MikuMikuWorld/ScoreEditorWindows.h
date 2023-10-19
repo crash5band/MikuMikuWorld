@@ -20,6 +20,7 @@ namespace MikuMikuWorld
 	{
 	public:
 		std::string pendingLoadMusicFilename{};
+		bool isPendingLoadMusic{ false };
 		void update(ScoreContext& context);
 	};
 

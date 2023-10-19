@@ -130,10 +130,11 @@ namespace MikuMikuWorld
 			settingsWindow.isBackgroundChangePending = false;
 		}
 
-		if (!propertiesWindow.pendingLoadMusicFilename.empty())
+		if (propertiesWindow.isPendingLoadMusic)
 		{
 			loadMusic(propertiesWindow.pendingLoadMusicFilename);
 			propertiesWindow.pendingLoadMusicFilename.clear();
+			propertiesWindow.isPendingLoadMusic = false;
 		}
 
 		if (config.autoSaveEnabled && autoSaveTimer.elapsedMinutes() >= config.autoSaveInterval)

@@ -46,6 +46,7 @@ namespace MikuMikuWorld
 			int filePickResult = UI::addFileProperty(getString("music_file"), filename);
 			if (filePickResult == 1 && filename != context.workingData.musicFilename)
 			{
+				isPendingLoadMusic = true;
 				pendingLoadMusicFilename = filename;
 			}
 			else if (filePickResult == 2)
@@ -56,7 +57,10 @@ namespace MikuMikuWorld
 				fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 
 				if (fileDialog.openFile() == IO::FileDialogResult::OK)
+				{
 					pendingLoadMusicFilename = fileDialog.outputFilename;
+					isPendingLoadMusic = true;
+				}
 			}
 
 			float offset = context.workingData.musicOffset;
