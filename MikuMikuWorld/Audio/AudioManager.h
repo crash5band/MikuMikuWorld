@@ -7,29 +7,6 @@
 
 namespace Audio
 {
-	struct AudioData
-	{
-		ma_format sampleFormat{ ma_format_unknown };
-		ma_uint32 sampleRate{};
-		ma_uint32 channelCount{};
-		ma_uint64 frameCount{};
-		float* sampleBuffer{ nullptr };
-
-		void clear()
-		{
-			sampleFormat = ma_format_unknown;
-			sampleRate = {};
-			channelCount = {};
-			frameCount = {};
-			sampleBuffer = nullptr;
-		}
-
-		bool isValid() const
-		{
-			return sampleBuffer != nullptr && frameCount > 0 && sampleRate > 0;
-		}
-	};
-
 	class AudioManager
 	{
 	private:
@@ -50,7 +27,7 @@ namespace Audio
 		float soundEffectsVolume{ 1.0f };
 
 	public:
-		AudioData musicAudioData;
+		Sound musicAudioData;
 
 		void initializeAudioEngine();
 		void uninitializeAudioEngine();

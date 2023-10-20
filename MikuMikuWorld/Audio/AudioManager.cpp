@@ -2,14 +2,13 @@
 #include "../IO.h"
 #include "../UI.h"
 
-#define STB_VORBIS_HEADER_ONLY
-#include <stb_vorbis.c>
-
 // We need to include miniaudio header again AFTER the implementation define
 #define MINIAUDIO_IMPLEMENTATION
-#include <miniaudio.h>
-#include <execution>
+#define DR_MP3_IMPLEMENTATION
+#define DR_WAV_IMPLEMENTATION
+#define DR_FLAC_IMPLEMENTATION
 #include "AudioManager.h"
+#include <execution>
 
 #undef STB_VORBIS_HEADER_ONLY
 
@@ -112,32 +111,18 @@ namespace Audio
 	{
 		constexpr ma_uint32 flags =
 			MA_SOUND_FLAG_NO_PITCH |
-			MA_SOUND_FLAG_NO_SPATIALIZATION |
-			MA_SOUND_FLAG_DECODE;
+			MA_SOUND_FLAG_NO_SPATIALIZATION;
 
 		disposeMusic();
 
-		std::wstring wFilename = IO::mbToWideStr(filename);
-		ma_result musicResult = ma_sound_init_from_file_w(&engine, wFilename.c_str(), flags, &musicGroup, NULL, &music);
-		if (musicResult != MA_SUCCESS)
+		mmw::Result result = decodeAudioFile(filename, musicAudioData);
+		if (result.isOk())
 		{
-			musicInitialized = false;
-			printf("Failed to initialize audio from file %ws", wFilename.c_str());
-
-			return mmw::Result(mmw::ResultStatus::Error, ma_result_description(musicResult));
-		}
-		else
-		{
-			// We need some data to generate the audio waveform
-			ma_sound_get_data_format(&music, &musicAudioData.sampleFormat, &musicAudioData.channelCount, &musicAudioData.sampleRate, nullptr, 0);
-			ma_sound_get_length_in_pcm_frames(&music, &musicAudioData.frameCount);
-			
-			// The audio is fully decoded so the data is stored in the buffer connector
-			musicAudioData.sampleBuffer = (float*)music.pResourceManagerDataSource->backend.buffer.connector.buffer.ref.pData;
-
+			ma_sound_init_from_data_source(&engine, &musicAudioData.buffer, flags, &musicGroup, &music);
 			musicInitialized = true;
-			return mmw::Result::Ok();
 		}
+
+		return result;
 	}
 
 	void AudioManager::playMusic(float currentTime)
@@ -189,12 +174,14 @@ namespace Audio
 
 	void AudioManager::disposeMusic()
 	{
+		if (musicAudioData.isValid())
+			musicAudioData.dispose();
+
 		if (musicInitialized)
 		{
 			ma_sound_stop(&music);
 			ma_sound_uninit(&music);
 			musicInitialized = false;
-			musicAudioData.clear();
 		}
 	}
 

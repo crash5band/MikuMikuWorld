@@ -30,6 +30,7 @@ namespace IO
 		void close();
 		void flush();
 
+		std::vector<uint8_t> readAllBytes();
 		std::string readLine() const;
 		std::vector<std::string> readAllLines() const;
 		std::string readAllText() const;

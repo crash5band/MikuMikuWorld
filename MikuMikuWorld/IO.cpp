@@ -92,7 +92,9 @@ namespace IO
 
 	bool endsWith(const std::string& line, const std::string& key)
 	{
-		return line.find_last_of(key) == line.size() - key.size();
+		std::string_view lineView = line;
+		lineView = lineView.substr(line.length() - key.length());
+		return lineView == key;
 	}
 
 	bool isDigit(const std::string& str)

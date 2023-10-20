@@ -1,11 +1,120 @@
-#include "Sound.h"
 #include "../IO.h"
+#include "../File.h"
 #include "../Math.h"
+#include "../Stopwatch.h"
+
+#define MINIAUDIO_IMPLEMENTATION
+#include "Sound.h"
 #include <algorithm>
 
 namespace Audio
 {
 	namespace mmw = MikuMikuWorld;
+
+	void Sound::initialize(std::string name, ma_uint32 sampleRate, ma_uint32 channelCount, ma_uint64 frameCount, int16_t* samples)
+	{
+		this->name = name;
+		this->sampleFormat = ma_format_s16;
+		this->channelCount = channelCount;
+		this->frameCount = frameCount;
+		this->sampleRate = sampleRate;
+		this->samples = std::unique_ptr<int16_t[]>(samples);
+
+		ma_audio_buffer_config bufferConfig = ma_audio_buffer_config_init(this->sampleFormat, channelCount, frameCount, this->samples.get(), nullptr);
+		bufferConfig.sampleRate = sampleRate;
+		ma_audio_buffer_init(&bufferConfig, &buffer);
+	}
+
+	void Sound::dispose()
+	{
+		name.clear();
+		ma_audio_buffer_uninit(&buffer);
+		samples.reset();
+
+		sampleFormat	= ma_format_unknown;
+		sampleRate		= 0;
+		channelCount	= 0;
+		frameCount		= 0;
+	}
+
+	mmw::Result decodeAudioFile(std::string filename, Sound& sound)
+	{
+		mmw::Stopwatch loadMusicStopwatch;
+		loadMusicStopwatch.reset();
+
+		if (!IO::File::exists(filename))
+			return mmw::Result(mmw::ResultStatus::Error, "File not found");
+
+		std::string fileExtension = IO::File::getFileExtension(filename);
+		std::transform(fileExtension.begin(), fileExtension.end(), fileExtension.begin(), ::tolower);
+
+		if (!isSupportedFileFormat(fileExtension))
+			return mmw::Result(mmw::ResultStatus::Error, "Unsupported file format");
+
+		std::string nameWithoutExtension = IO::File::getFilenameWithoutExtension(filename);
+
+		std::wstring wFilename = IO::mbToWideStr(filename);
+
+		IO::File f(wFilename, L"rb");
+		std::vector<uint8_t> bytes = f.readAllBytes();
+		f.close();
+
+		if (fileExtension == ".mp3")
+		{
+			ma_dr_mp3_config mp3Config{};
+			uint64_t frameCount{};
+			int16_t* samples = ma_dr_mp3_open_memory_and_read_pcm_frames_s16(bytes.data(), bytes.size(), &mp3Config, &frameCount, nullptr);
+			if (samples == nullptr)
+				return mmw::Result(mmw::ResultStatus::Error, "Failed to decode mp3");
+
+			sound.initialize(nameWithoutExtension, mp3Config.sampleRate, mp3Config.channels, frameCount, samples);
+			return mmw::Result::Ok();
+		}
+		else if (fileExtension == ".wav")
+		{
+			uint32_t channels{};
+			uint32_t sampleRate{};
+			uint64_t frameCount{};
+			int16_t* samples = ma_dr_wav_open_memory_and_read_pcm_frames_s16(bytes.data(), bytes.size(), &channels, &sampleRate, &frameCount, nullptr);
+			if (samples == nullptr)
+				return mmw::Result(mmw::ResultStatus::Error, "Failed to decode wav");
+
+			sound.initialize(nameWithoutExtension, sampleRate, channels, frameCount, samples);
+			return mmw::Result::Ok();
+		}
+		else if (fileExtension == ".flac")
+		{
+			uint32_t channels{};
+			uint32_t sampleRate{};
+			uint64_t frameCount{};
+			int16_t* samples = ma_dr_flac_open_memory_and_read_pcm_frames_s16(bytes.data(), bytes.size(), &channels, &sampleRate, &frameCount, nullptr);
+			if (samples == nullptr)
+				return mmw::Result(mmw::ResultStatus::Error, "Failed to decode flac");
+
+			sound.initialize(nameWithoutExtension, sampleRate, channels, frameCount, samples);
+			return mmw::Result::Ok();
+		}
+		else if (fileExtension == ".ogg")
+		{
+			int32_t channels{};
+			int32_t sampleRate{};
+			int16_t* samples;
+			int32_t frameCount = stb_vorbis_decode_memory(bytes.data(), bytes.size(), &channels, &sampleRate, &samples);
+			if (samples == nullptr)
+				return mmw::Result(mmw::ResultStatus::Error, "Failed to decode ogg vorbis");
+
+			sound.initialize(nameWithoutExtension, sampleRate, channels, frameCount, samples);
+			return mmw::Result::Ok();
+		}
+
+		// Getting here should mean an unsupported file format
+		return mmw::Result(mmw::ResultStatus::Error, "Unsupported file format");
+	}
+
+	bool isSupportedFileFormat(const std::string_view& fileExtension)
+	{
+		return std::find(supportedFileFormats.begin(), supportedFileFormats.end(), fileExtension) != supportedFileFormats.end();
+	}
 
 	ma_uint64 SoundPool::getDurationInFrames() const
 	{

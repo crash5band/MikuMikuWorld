@@ -1,10 +1,13 @@
 #pragma once
 #include <array>
 #include <string>
+#include <memory>
 
 // Already defined somewhere else but Visual Studio gets confused
 #define NOMINMAX
-#include "miniaudio.h"
+#define STB_VORBIS_HEADER_ONLY
+#include <stb_vorbis.c>
+#include <miniaudio.h>
 #include "../Utilities.h"
 
 namespace Audio
@@ -17,6 +20,30 @@ namespace Audio
 	};
 
 	DECLARE_ENUM_FLAG_OPERATORS(SoundFlags)
+
+	struct Sound
+	{
+		std::string name;
+		std::unique_ptr<int16_t[]> samples;
+		ma_format sampleFormat{ ma_format_unknown };
+		ma_uint32 sampleRate{};
+		ma_uint32 channelCount{};
+		ma_uint64 frameCount{};
+		ma_audio_buffer buffer;
+
+		void initialize(std::string name, ma_uint32 sampleRate, ma_uint32 channelCount, ma_uint64 frameCount, int16_t* samples);
+		void dispose();
+
+		bool isValid() const { return samples.get() != nullptr && sampleRate > 0 && frameCount > 0; }
+	};
+
+	constexpr std::array<std::string_view, 4> supportedFileFormats =
+	{
+		".mp3", ".wav", ".flac", ".ogg"
+	};
+
+	MikuMikuWorld::Result decodeAudioFile(std::string filename, Sound& sound);
+	bool isSupportedFileFormat(const std::string_view& fileExtension);
 
 	struct SoundInstance
 	{
