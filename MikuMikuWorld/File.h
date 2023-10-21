@@ -34,7 +34,7 @@ namespace IO
 		std::string readLine() const;
 		std::vector<std::string> readAllLines() const;
 		std::string readAllText() const;
-		void write(const std::string str);
+		void write(const std::string& str);
 		void writeLine(const std::string line);
 		void writeAllLines(const std::vector<std::string>& lines);
 		bool isEndofFile() const;

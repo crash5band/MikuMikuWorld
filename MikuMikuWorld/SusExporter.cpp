@@ -63,7 +63,7 @@ namespace MikuMikuWorld
 		return 0;
 	}
 
-	void SusExporter::appendSlideData(SUSNoteStream& slides, const std::string& infoPrefix)
+	void SusExporter::appendSlideData(const SUSNoteStream& slides, const std::string& infoPrefix)
 	{
 		ChannelProvider channelProvider;
 		for (const auto& slide : slides)
@@ -236,7 +236,7 @@ namespace MikuMikuWorld
 		barLengthTicks.clear();
 		int baseMeasure = 0;
 
-		// write time signatures
+		// Write time signatures
 		for (const auto& barLength : barLengths)
 		{
 			int base = (barLength.bar / 1000) * 1000;
@@ -266,13 +266,6 @@ namespace MikuMikuWorld
 
 		std::reverse(barLengthTicks.begin(), barLengthTicks.end());
 
-		// write tempo changes
-		if (bpms.size() >= (36ll * 36ll) - 1)
-		{
-			printf("Too much tempo changes bpms.size() >= 36^2 - 1: %d", (int)bpms.size());
-			throw bpms.size();
-		}
-
 		std::unordered_map<float, std::string> bpmIdentifiers;
 		for (const auto& bpm : bpms)
 		{
@@ -288,7 +281,17 @@ namespace MikuMikuWorld
 			}
 		}
 
-		// group bpms by measure
+		// SUS can only handle up to 36^2 unique BPMs
+		constexpr size_t maxBpmIdentifiers = (36ll * 36ll) - 1;
+		if (bpmIdentifiers.size() >= maxBpmIdentifiers)
+		{
+			std::string errorMessage = IO::formatString("Too many BPM changes!\nNumber of unique identifiers (%l) exceeded limit (%l)", bpmIdentifiers.size(), maxBpmIdentifiers);
+			printf("%s", errorMessage.c_str());
+
+			throw std::exception(errorMessage.c_str());
+		}
+
+		// Group bpms by measure
 		std::map<int, std::vector<BPM>> measuresBpms;
 		for (const auto& bpm : bpms)
 		{

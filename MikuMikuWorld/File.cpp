@@ -108,14 +108,10 @@ namespace IO
 		int size = ftell(stream);
 		fseek(stream, 0, SEEK_SET);
 
-		char* buf = new char[size];
-		fread(buf, sizeof(char), size, stream);
+		std::string str(size, '0');
+		fread(str.data(), sizeof(char), size, stream);
 
-		std::string result(buf);
-
-		delete[] buf;
-
-		return result;
+		return str;
 	}
 
 	bool File::isEndofFile() const
@@ -126,15 +122,14 @@ namespace IO
 		return true;
 	}
 
-	void File::write(const std::string str)
+	void File::write(const std::string& str)
 	{
 		fwrite(str.c_str(), str.size(), 1, stream);
 	}
 
 	void File::writeLine(const std::string line)
 	{
-		write(line);
-		fwrite("\n", 1, 1, stream);
+		write(line + "\n");
 	}
 
 	void File::writeAllLines(const std::vector<std::string>& lines)

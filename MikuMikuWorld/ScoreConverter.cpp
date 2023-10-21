@@ -3,6 +3,7 @@
 #include "Score.h"
 #include "IO.h"
 #include "Constants.h"
+#include <array>
 #include <unordered_set>
 #include <algorithm>
 
@@ -318,10 +319,7 @@ namespace MikuMikuWorld
 
 	SUS ScoreConverter::scoreToSus(const Score& score)
 	{
-		std::unordered_map<FlickType, int> flickToType;
-		flickToType[FlickType::Default] = 1;
-		flickToType[FlickType::Left] = 3;
-		flickToType[FlickType::Right] = 4;
+		constexpr std::array<int, static_cast<int>(FlickType::FlickTypeCount)> flickToType { 0, 1, 3, 4 };
 
 		std::vector<SUSNote> taps, directionals;
 		std::vector<std::vector<SUSNote>> slides;
@@ -344,7 +342,7 @@ namespace MikuMikuWorld
 				taps.push_back(SUSNote{ note.tick, note.lane + 2, note.width, type });
 
 				if (note.isFlick())
-					directionals.push_back(SUSNote{ note.tick, note.lane + 2, note.width, flickToType[note.flick] });
+					directionals.push_back(SUSNote{ note.tick, note.lane + 2, note.width, flickToType[static_cast<int>(note.flick)] });
 			}
 		}
 
@@ -418,7 +416,7 @@ namespace MikuMikuWorld
 			// Hidden and guide slides do not have flicks
 			if (end.isFlick() && hold.endType == HoldNoteType::Normal)
 			{
-				directionals.push_back(SUSNote{ end.tick, end.lane + 2, end.width, flickToType[end.flick] });
+				directionals.push_back(SUSNote{ end.tick, end.lane + 2, end.width, flickToType[static_cast<int>(end.flick)] });
 				
 				// Critical friction notes use type 6 not 2
 				if (end.critical && !start.critical && !end.friction)
