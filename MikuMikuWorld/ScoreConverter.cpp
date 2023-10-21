@@ -557,7 +557,6 @@ namespace MikuMikuWorld
 			laneOffset = -score.metadata.laneExtension + 2;
 		}
 		metadata.requests.push_back("lane_offset " + std::to_string(laneOffset));
-
 		// milliseconds -> seconds
 		metadata.waveOffset = score.metadata.musicOffset / 1000.0f;
 
@@ -582,7 +581,7 @@ namespace MikuMikuWorld
 		json vusc;
 		json usc;
 
-		usc["offset"] = score.metadata.musicOffset / 1000.0;
+		usc["offset"] = score.metadata.musicOffset / -1000.0f;
 
 		std::vector<json> objects;
 
@@ -744,7 +743,7 @@ namespace MikuMikuWorld
 		json usc = vusc["usc"];
 		score.layers.clear();
 
-		score.metadata.musicOffset = usc["offset"].get<float>() * 1000.0f;
+		score.metadata.musicOffset = usc["offset"].get<float>() * -1000.0f;
 
 		for (const auto& obj : usc["objects"].get<std::vector<json>>()) {
 			if (obj["type"] == "bpm") {

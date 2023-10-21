@@ -39,8 +39,10 @@ namespace MikuMikuWorld
 			showFPS = jsonIO::tryGetValue<bool>(window, "show_fps", false);
 
 			windowPos = jsonIO::tryGetValue(window, "position", Vector2{});
-			if (windowPos.x <= 0) windowPos.x = 150;
-			if (windowPos.y <= 0) windowPos.y = 100;
+			if (windowPos.x <= 0)
+				windowPos.x = 150;
+			if (windowPos.y <= 0)
+				windowPos.y = 100;
 
 			windowSize = jsonIO::tryGetValue(window, "size", Vector2{});
 			if (windowSize.x <= 0 || windowSize.y <= 0)
@@ -54,22 +56,31 @@ namespace MikuMikuWorld
 		{
 			timelineWidth = jsonIO::tryGetValue<int>(config["timeline"], "lane_width", 26);
 			notesHeight = jsonIO::tryGetValue<int>(config["timeline"], "notes_height", 26);
-			matchNotesSizeToTimeline = jsonIO::tryGetValue<bool>(config["timeline"], "match_notes_size_to_timeline", true);
+			matchNotesSizeToTimeline =
+			    jsonIO::tryGetValue<bool>(config["timeline"], "match_notes_size_to_timeline", true);
 
 			division = jsonIO::tryGetValue<int>(config["timeline"], "division", 8);
 			zoom = jsonIO::tryGetValue<float>(config["timeline"], "zoom", 2.0f);
 			laneOpacity = jsonIO::tryGetValue<float>(config["timeline"], "lane_opacity", 0.0f);
-			backgroundBrightness = jsonIO::tryGetValue<float>(config["timeline"], "background_brightness", 0.5f);
+			backgroundBrightness =
+			    jsonIO::tryGetValue<float>(config["timeline"], "background_brightness", 0.5f);
 			drawBackground = jsonIO::tryGetValue<bool>(config["timeline"], "draw_background", true);
-			backgroundImage = jsonIO::tryGetValue<std::string>(config["timeline"], "background_image", "");
+			backgroundImage =
+			    jsonIO::tryGetValue<std::string>(config["timeline"], "background_image", "");
 
-			useSmoothScrolling = jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
-			smoothScrollingTime = jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 67.0f);
-			scrollSpeedNormal = jsonIO::tryGetValue<float>(config["timeline"], "scroll_speed_normal", 2.0f);
-			scrollSpeedShift = jsonIO::tryGetValue<float>(config["timleine"], "scroll_speed_fast", 5.0f);
+			useSmoothScrolling =
+			    jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
+			smoothScrollingTime =
+			    jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 67.0f);
+			scrollSpeedNormal =
+			    jsonIO::tryGetValue<float>(config["timeline"], "scroll_speed_normal", 2.0f);
+			scrollSpeedShift =
+			    jsonIO::tryGetValue<float>(config["timleine"], "scroll_speed_fast", 5.0f);
 
-			returnToLastSelectedTickOnPause = jsonIO::tryGetValue<bool>(config["timeline"], "return_to_last_tick_on_pause", false);
-			cursorPositionThreshold = jsonIO::tryGetValue<float>(config["timeline"], "cursor_position_threshold", 0.5f);
+			returnToLastSelectedTickOnPause = jsonIO::tryGetValue<bool>(
+			    config["timeline"], "return_to_last_tick_on_pause", false);
+			cursorPositionThreshold =
+			    jsonIO::tryGetValue<float>(config["timeline"], "cursor_position_threshold", 0.5f);
 		}
 
 		if (jsonIO::keyExists(config, "theme"))
@@ -81,16 +92,19 @@ namespace MikuMikuWorld
 
 		if (jsonIO::keyExists(config, "save"))
 		{
-			autoSaveEnabled	= jsonIO::tryGetValue<bool>(config["save"], "auto_save_enabled", true);
+			autoSaveEnabled = jsonIO::tryGetValue<bool>(config["save"], "auto_save_enabled", true);
 			autoSaveInterval = jsonIO::tryGetValue<int>(config["save"], "auto_save_interval", 5);
 			autoSaveMaxCount = jsonIO::tryGetValue<int>(config["save"], "auto_save_max_count", 100);
 		}
 
 		if (jsonIO::keyExists(config, "audio"))
 		{
-			masterVolume	= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "master_volume", 1.0f), 0.0f, 1.0f);
-			bgmVolume		= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "bgm_volume", 1.0f), 0.0f, 1.0f);
-			seVolume		= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "se_volume", 1.0f), 0.0f, 1.0f);
+			masterVolume = std::clamp(
+			    jsonIO::tryGetValue<float>(config["audio"], "master_volume", 1.0f), 0.0f, 1.0f);
+			bgmVolume = std::clamp(jsonIO::tryGetValue<float>(config["audio"], "bgm_volume", 1.0f),
+			                       0.0f, 1.0f);
+			seVolume = std::clamp(jsonIO::tryGetValue<float>(config["audio"], "se_volume", 1.0f),
+			                      0.0f, 1.0f);
 		}
 
 		if (jsonIO::keyExists(config, "input") && jsonIO::keyExists(config["input"], "bindings"))
@@ -120,62 +134,45 @@ namespace MikuMikuWorld
 		config["version"] = CONFIG_VERSION;
 		config["language"] = language;
 		config["debug"] = debugEnabled;
-		config["window"]["position"] = {
-			{"x", windowPos.x},
-			{"y", windowPos.y}
-		};
+		config["window"]["position"] = { { "x", windowPos.x }, { "y", windowPos.y } };
 
-		config["window"]["size"] = {
-			{"x", windowSize.x},
-			{"y", windowSize.y}
-		};
+		config["window"]["size"] = { { "x", windowSize.x }, { "y", windowSize.y } };
 
 		config["window"]["maximized"] = maximized;
 		config["window"]["vsync"] = vsync;
 		config["window"]["show_fps"] = showFPS;
 
-		config["timeline"] = {
-			{"lane_width", timelineWidth},
-			{"notes_height", notesHeight},
-			{"match_notes_size_to_timeline", matchNotesSizeToTimeline},
-			{"division", division},
-			{"zoom", zoom},
-			{"lane_opacity", laneOpacity},
-			{"background_brightness", backgroundBrightness},
-			{"draw_background", drawBackground},
-			{"background_image", backgroundImage},
-			{"smooth_scrolling_enable", useSmoothScrolling},
-			{"smooth_scrolling_time", smoothScrollingTime},
-			{"scroll_speed_normal", scrollSpeedNormal},
-			{"scroll_speed_fast", scrollSpeedShift},
-			{"return_to_last_tick_on_pause", returnToLastSelectedTickOnPause},
-			{"cursor_position_threshold", cursorPositionThreshold}
-		};
+		config["timeline"] = { { "lane_width", timelineWidth },
+			                   { "notes_height", notesHeight },
+			                   { "match_notes_size_to_timeline", matchNotesSizeToTimeline },
+			                   { "division", division },
+			                   { "zoom", zoom },
+			                   { "lane_opacity", laneOpacity },
+			                   { "background_brightness", backgroundBrightness },
+			                   { "draw_background", drawBackground },
+			                   { "background_image", backgroundImage },
+			                   { "smooth_scrolling_enable", useSmoothScrolling },
+			                   { "smooth_scrolling_time", smoothScrollingTime },
+			                   { "scroll_speed_normal", scrollSpeedNormal },
+			                   { "scroll_speed_fast", scrollSpeedShift },
+			                   { "return_to_last_tick_on_pause", returnToLastSelectedTickOnPause },
+			                   { "cursor_position_threshold", cursorPositionThreshold } };
 
-		config["theme"] = {
-			{"accent_color", accentColor},
-			{"user_color",
-				{
-					{"r", userColor.r},
-					{"g", userColor.g},
-					{"b", userColor.b},
-					{"a", userColor.a}
-				}
-			},
-			{ "base_theme", (int)baseTheme }
-		};
+		config["theme"] = { { "accent_color", accentColor },
+			                { "user_color",
+			                  { { "r", userColor.r },
+			                    { "g", userColor.g },
+			                    { "b", userColor.b },
+			                    { "a", userColor.a } } },
+			                { "base_theme", (int)baseTheme } };
 
-		config["save"] = {
-			{"auto_save_enabled", autoSaveEnabled},
-			{"auto_save_interval", autoSaveInterval},
-			{"auto_save_max_count", autoSaveMaxCount}
-		};
+		config["save"] = { { "auto_save_enabled", autoSaveEnabled },
+			               { "auto_save_interval", autoSaveInterval },
+			               { "auto_save_max_count", autoSaveMaxCount } };
 
-		config["audio"] = {
-			{"master_volume", masterVolume},
-			{"bgm_volume", bgmVolume},
-			{"se_volume", seVolume}
-		};
+		config["audio"] = { { "master_volume", masterVolume },
+			                { "bgm_volume", bgmVolume },
+			                { "se_volume", seVolume } };
 
 		json keyBindings;
 		for (const auto& binding : bindings)
@@ -190,9 +187,7 @@ namespace MikuMikuWorld
 			keyBindings[binding->name] = keys;
 		}
 
-		config["input"] = {
-			{"bindings", keyBindings}
-		};
+		config["input"] = { { "bindings", keyBindings } };
 
 		std::wstring wFilename = IO::mbToWideStr(filename);
 		std::ofstream configFile(wFilename);
