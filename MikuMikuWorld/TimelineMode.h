@@ -46,7 +46,7 @@ namespace MikuMikuWorld
 
 	enum class EventType : uint8_t
 	{
-		None = -1,
+		None,
 		Bpm,
 		TimeSignature,
 		HiSpeed,
