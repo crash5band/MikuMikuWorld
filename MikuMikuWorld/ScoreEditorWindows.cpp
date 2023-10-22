@@ -736,78 +736,72 @@ namespace MikuMikuWorld
 	{
 		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_LAYER_GROUP, "layers")))
 		{
-      int moveUpPattern = -1;
-      int moveDownPattern = -1;
-      int mergePattern = -1;
-			int removePattern = -1;
+			int moveUpPattern = -1;
+			int moveDownPattern = -1;
+			int mergePattern = -1;
 
 
 			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
 			float layersButtonHeight = ImGui::GetFrameHeight();
 			float windowHeight = ImGui::GetContentRegionAvail().y - layersButtonHeight * 2 - ImGui::GetStyle().WindowPadding.y * 2;
 
-      bool showAllLayers = context.showAllLayers;
+			bool showAllLayers = context.showAllLayers;
 
-      if (showAllLayers) {
-        ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
-      }
+			if (showAllLayers) {
+				ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+			}
 			if (ImGui::Button(getString("show_all_layers"), ImVec2(-1, layersButtonHeight))) {
-        context.showAllLayers = !context.showAllLayers;
-      }
-      if (showAllLayers)
-        ImGui::PopStyleColor(2);
+				context.showAllLayers = !context.showAllLayers;
+			}
+			if (showAllLayers)
+				ImGui::PopStyleColor(2);
 
 			if (ImGui::BeginChild("layers_child_window", ImVec2(-1, windowHeight), true))
 			{
-        int index = -1;
-        for (const auto& layer : context.score.layers)
-        {
-          ++index;
-          ImGui::PushID(index);
+				int index = -1;
+				for (const auto& layer : context.score.layers)
+				{
+					++index;
+					ImGui::PushID(index);
 
-          int isSelected = index == context.selectedLayer;
+					int isSelected = index == context.selectedLayer;
 
-          if (isSelected) {
-            ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
-          }
-          if (ImGui::Button(layer.name.c_str(), ImVec2(ImGui::GetContentRegionAvail().x - UI::btnSmall.x * 5 - 2.0f * 6, layersButtonHeight)))
-            context.selectedLayer = index;
-          if (isSelected)
-            ImGui::PopStyleColor(2);
+					if (isSelected) {
+						ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+						ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+					}
+					if (ImGui::Button(layer.name.c_str(), ImVec2(ImGui::GetContentRegionAvail().x - UI::btnSmall.x * 4 - 2.0f * 5, layersButtonHeight)))
+						context.selectedLayer = index;
+					if (isSelected)
+						ImGui::PopStyleColor(2);
 
-          ImGui::SameLine();
-          if (UI::transparentButton(ICON_FA_PENCIL_ALT, ImVec2(UI::btnSmall.x, layersButtonHeight), false)) {
-            renameIndex = index;
-            layerName = layer.name;
-            dialogOpen = true;
-          }
-          UI::tooltip(getString("layer_rename"));
+					ImGui::SameLine();
+					if (UI::transparentButton(ICON_FA_PENCIL_ALT, ImVec2(UI::btnSmall.x, layersButtonHeight), false)) {
+						renameIndex = index;
+						layerName = layer.name;
+						dialogOpen = true;
+					}
+					UI::tooltip(getString("layer_rename"));
 
-          bool isFirst = index == 0;
-          ImGui::SameLine();
-          if (UI::transparentButton(ICON_FA_CHEVRON_UP, ImVec2(UI::btnSmall.x, layersButtonHeight), false, !isFirst))
-            moveUpPattern = index;
-          UI::tooltip(getString("layer_up"));
+					bool isFirst = index == 0;
+					ImGui::SameLine();
+					if (UI::transparentButton(ICON_FA_CHEVRON_UP, ImVec2(UI::btnSmall.x, layersButtonHeight), false, !isFirst))
+						moveUpPattern = index;
+					UI::tooltip(getString("layer_up"));
 
-          int isLast = index == context.score.layers.size() - 1;
-          ImGui::SameLine();
-          if (UI::transparentButton(ICON_FA_CHEVRON_DOWN, ImVec2(UI::btnSmall.x, layersButtonHeight), false, !isLast))
-            moveDownPattern = index;
-          UI::tooltip(getString("layer_down"));
+					int isLast = index == context.score.layers.size() - 1;
+					ImGui::SameLine();
+					if (UI::transparentButton(ICON_FA_CHEVRON_DOWN, ImVec2(UI::btnSmall.x, layersButtonHeight), false, !isLast))
+						moveDownPattern = index;
+					UI::tooltip(getString("layer_down"));
 
-          ImGui::SameLine();
-          if (UI::transparentButton(ICON_FA_LEVEL_DOWN_ALT, ImVec2(UI::btnSmall.x, layersButtonHeight), false, !isLast))
-            mergePattern = index;
-          UI::tooltip(getString("layer_merge"));
+					ImGui::SameLine();
+					if (UI::transparentButton(ICON_FA_LEVEL_DOWN_ALT, ImVec2(UI::btnSmall.x, layersButtonHeight), false, !isLast))
+						mergePattern = index;
+					UI::tooltip(getString("layer_merge"));
 
-          ImGui::SameLine();
-          if (UI::transparentButton(ICON_FA_TRASH, ImVec2(UI::btnSmall.x, layersButtonHeight), false, context.score.layers.size() != 1))
-            removePattern = index;
-          UI::tooltip(getString("layer_delete"));
-
-          ImGui::PopID();
+					ImGui::PopID();
 				}
 			}
 			ImGui::EndChild();
@@ -815,64 +809,63 @@ namespace MikuMikuWorld
 
 			if (ImGui::Button(getString("create_layer"), ImVec2(-1, layersButtonHeight))) {
 				dialogOpen = true;
-        renameIndex = -1;
-        layerName.clear();
-      }
+				renameIndex = -1;
+				layerName.clear();
+			}
 
 			ImGui::PopStyleColor();
 
-			if (removePattern != -1) {
-        Score prev = context.score;
-        context.score.layers.erase(context.score.layers.begin() + removePattern);
-        if (context.selectedLayer == removePattern)
-          context.selectedLayer = 0;
-        std::vector<int> willRemove;
-        for (auto& [id, note] : context.score.notes) {
-          if (note.layer == removePattern)
-            willRemove.push_back(id);
-        }
-        for (auto id : willRemove) {
-          context.score.notes.erase(id);
-        }
-        willRemove.clear();
-        context.pushHistory("Delete Layer", prev, context.score);
-      }
+			if (moveUpPattern != -1) {
+				Score prev = context.score;
+				std::swap(context.score.layers[moveUpPattern], context.score.layers[moveUpPattern - 1]);
+				for (auto& [_, note] : context.score.notes) {
+					if (note.layer == moveUpPattern)
+						note.layer = moveUpPattern - 1;
+					else if (note.layer == moveUpPattern - 1)
+						note.layer = moveUpPattern;
+				}
+				for (auto& hiSpeed : context.score.hiSpeedChanges) {
+					if (hiSpeed.layer == moveUpPattern)
+						hiSpeed.layer = moveUpPattern - 1;
+					else if (hiSpeed.layer == moveUpPattern - 1)
+						hiSpeed.layer = moveUpPattern;
+				}
+				context.pushHistory("Change Layer Order", prev, context.score);
+			}
 
-      if (moveUpPattern != -1) {
-        Score prev = context.score;
-        std::swap(context.score.layers[moveUpPattern], context.score.layers[moveUpPattern - 1]);
-        for (auto& [_, note] : context.score.notes) {
-          if (note.layer == moveUpPattern)
-            note.layer = moveUpPattern - 1;
-          else if (note.layer == moveUpPattern - 1)
-            note.layer = moveUpPattern;
-        }
-        context.pushHistory("Change Layer Order", prev, context.score);
-      }
+			if (moveDownPattern != -1) {
+				Score prev = context.score;
+				std::swap(context.score.layers[moveDownPattern], context.score.layers[moveDownPattern + 1]);
+				for (auto& [_, note] : context.score.notes) {
+					if (note.layer == moveDownPattern)
+						note.layer = moveDownPattern + 1;
+					else if (note.layer == moveDownPattern + 1)
+						note.layer = moveDownPattern;
+				}
+				for (auto& hiSpeed : context.score.hiSpeedChanges) {
+					if (hiSpeed.layer == moveDownPattern)
+						hiSpeed.layer = moveDownPattern + 1;
+					else if (hiSpeed.layer == moveDownPattern + 1)
+						hiSpeed.layer = moveDownPattern;
+				}
+				context.pushHistory("Change Layer Order", prev, context.score);
+			}
 
-      if (moveDownPattern != -1) {
-        Score prev = context.score;
-        std::swap(context.score.layers[moveDownPattern], context.score.layers[moveDownPattern + 1]);
-        for (auto& [_, note] : context.score.notes) {
-          if (note.layer == moveDownPattern)
-            note.layer = moveDownPattern + 1;
-          else if (note.layer == moveDownPattern + 1)
-            note.layer = moveDownPattern;
-        }
-        context.pushHistory("Change Layer Order", prev, context.score);
-      }
-
-      if (mergePattern != -1) {
-        Score prev = context.score;
-        context.score.layers.erase(context.score.layers.begin() + mergePattern);
-        for (auto& [_, note] : context.score.notes) {
-          if (note.layer > mergePattern)
-            note.layer -= 1;
-        }
-        if (context.selectedLayer > mergePattern)
-          context.selectedLayer -= 1;
-        context.pushHistory("Merge Layer", prev, context.score);
-      }
+			if (mergePattern != -1) {
+				Score prev = context.score;
+				context.score.layers.erase(context.score.layers.begin() + mergePattern);
+				for (auto& [_, note] : context.score.notes) {
+					if (note.layer > mergePattern)
+						note.layer -= 1;
+				}
+				for (auto& hiSpeed : context.score.hiSpeedChanges) {
+					if (hiSpeed.layer > mergePattern)
+						hiSpeed.layer -= 1;
+				}
+				if (context.selectedLayer > mergePattern)
+					context.selectedLayer -= 1;
+				context.pushHistory("Merge Layer", prev, context.score);
+			}
 		}
 
 		ImGui::End();
@@ -885,15 +878,15 @@ namespace MikuMikuWorld
 
 		if (updateCreationDialog() == DialogResult::Ok)
 		{
-      if (renameIndex >= 0) {
-        context.score.layers[renameIndex].name = layerName;
-        renameIndex = -1;
-      }
-      else
-      {
-        context.score.layers.push_back(Layer{ layerName });
-        layerName.clear();
-      }
+			if (renameIndex >= 0) {
+				context.score.layers[renameIndex].name = layerName;
+				renameIndex = -1;
+			}
+			else
+			{
+				context.score.layers.push_back(Layer{ layerName });
+				layerName.clear();
+			}
 		}
 	}
 
@@ -912,7 +905,7 @@ namespace MikuMikuWorld
 			float xPos = padding.x;
 			float yPos = ImGui::GetWindowSize().y - UI::btnSmall.y - 2.0f - (padding.y * 2);
 
-			ImGui::Text(getString("name"));
+			ImGui::Text("%s", getString("name"));
 			ImGui::SetNextItemWidth(-1);
 			ImGui::InputText("##layer_name", &layerName);
 
