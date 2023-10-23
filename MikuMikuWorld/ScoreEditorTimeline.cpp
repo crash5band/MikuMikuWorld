@@ -980,31 +980,49 @@ namespace MikuMikuWorld
 		float xt = laneToPosition(lane);
 		float yt = getNoteYPosFromTick(tick);
 
-		for (auto& [id, hold] : context.score.holdNotes)
+		for (const auto& [id, hold] : context.score.holdNotes)
 		{
 			const Note& start = context.score.notes.at(hold.start.ID);
 			const Note& end = context.score.notes.at(hold.end);
 
-			if (hold.steps.size())
+			// No need to search holds outside the cursor's reach
+			if (start.tick > tick || end.tick < tick)
+				continue;
+
+			// Do not take skip steps into account
+			int s1{ -1 }, s2{ -1 };
+			while (++s2 < hold.steps.size())
 			{
-				const HoldStep& mid1 = hold.steps[0];
-				if (isMouseInHoldPath(start, context.score.notes.at(mid1.ID), hold.start.ease, xt, yt))
+				if (hold.steps[s2].type != HoldStepType::Skip)
+					break;
+			}
+
+			if (isArrayIndexInBounds(s2, hold.steps))
+			{
+				// Getting here means we found a non-skip step
+				if (isMouseInHoldPath(start, context.score.notes.at(hold.steps[s2].ID), hold.start.ease, xt, yt))
 					return id;
 
-				for (int step = 0; step < hold.steps.size() - 1; ++step)
+				s1 = s2;
+				while (++s2 < hold.steps.size())
 				{
-					const Note& m1 = context.score.notes.at(hold.steps[step].ID);
-					const Note& m2 = context.score.notes.at(hold.steps[step + 1].ID);
-					if (isMouseInHoldPath(m1, m2, hold.steps[step].ease, xt, yt))
-						return id;
+					if (hold.steps[s2].type != HoldStepType::Skip)
+					{
+						const Note& m1 = context.score.notes.at(hold.steps[s1].ID);
+						const Note& m2 = context.score.notes.at(hold.steps[s2].ID);
+						if (isMouseInHoldPath(m1, m2, hold.steps[s1].ease, xt, yt))
+							return id;
+
+						s1 = s2;
+					}
 				}
 
-				const Note& lastMid = context.score.notes.at(hold.steps[hold.steps.size() - 1].ID);
-				if (isMouseInHoldPath(lastMid, end, hold.steps[hold.steps.size() - 1].ease, xt, yt))
+				if (isMouseInHoldPath(context.score.notes.at(hold.steps[s1].ID), end, hold.steps[s1].ease, xt, yt))
 					return id;
 			}
 			else
 			{
+				// Hold consists of only skip steps or no steps at all
 				if (isMouseInHoldPath(start, end, hold.start.ease, xt, yt))
 					return id;
 			}
