@@ -185,6 +185,8 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::create()
 	{
+		timeline.setPlaying(context, false);
+
 		context.score = {};
 		context.workingData = {};
 		context.history.clear();
