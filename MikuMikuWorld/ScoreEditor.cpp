@@ -555,7 +555,7 @@ namespace MikuMikuWorld
 
 		UI::toolbarSeparator();
 
-		for (int i = 0; i < TXT_ARR_SZ(timelineModes); ++i)
+		for (int i = 0; i < arrayLength(timelineModes); ++i)
 		{
 			std::string img{ IO::concat("timeline", timelineModes[i], "_") };
 			if (i == (int)TimelineMode::InsertFlick)

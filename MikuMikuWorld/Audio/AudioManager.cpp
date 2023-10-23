@@ -81,7 +81,7 @@ namespace Audio
 		std::for_each(std::execution::par, sounds.begin(), sounds.end(), [&](auto& s)
 		{
 			std::string filename = path + s.first.data() + ".mp3";
-			int soundIndex = mmw::findArrayItem(s.first.data(), mmw::SE_NAMES, soundEffectsCount);
+			int soundIndex = mmw::findArrayItem(s.first.data(), mmw::SE_NAMES, mmw::arrayLength(mmw::SE_NAMES));
 
 			s.second->initialize(filename, &engine, &soundEffectsGroup, soundEffectsFlags[soundIndex]);
 			s.second->setVolume(soundEffectsVolumes[soundIndex]);

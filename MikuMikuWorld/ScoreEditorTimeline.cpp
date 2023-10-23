@@ -226,21 +226,21 @@ namespace MikuMikuWorld
 			ImGui::Separator();
 			if (ImGui::BeginMenu(getString("ease_type"), context.selectionHasEase()))
 			{
-				for (int i = 0; i < TXT_ARR_SZ(easeTypes); ++i)
+				for (int i = 0; i < arrayLength(easeTypes); ++i)
 					if (ImGui::MenuItem(getString(easeTypes[i]))) context.setEase((EaseType)i);
 				ImGui::EndMenu();
 			}
 
 			if (ImGui::BeginMenu(getString("step_type"), context.selectionHasStep()))
 			{
-				for (int i = 0; i < TXT_ARR_SZ(stepTypes); ++i)
+				for (int i = 0; i < arrayLength(stepTypes); ++i)
 					if (ImGui::MenuItem(getString(stepTypes[i]))) context.setStep((HoldStepType)i);
 				ImGui::EndMenu();
 			}
 
 			if (ImGui::BeginMenu(getString("flick_type"), context.selectionHasFlickable()))
 			{
-				for (int i = 0; i < TXT_ARR_SZ(flickTypes); ++i)
+				for (int i = 0; i < arrayLength(flickTypes); ++i)
 					if (ImGui::MenuItem(getString(flickTypes[i]))) context.setFlick((FlickType)i);
 				ImGui::EndMenu();
 			}
@@ -251,7 +251,7 @@ namespace MikuMikuWorld
 					* We we won't show the option to change holds to guides and vice versa
 					* at least for now since it will complicate changing hold types
 				*/
-				for (int i = 0; i < TXT_ARR_SZ(holdTypes) - 1; i++)
+				for (int i = 0; i < arrayLength(holdTypes) - 1; i++)
 					if (ImGui::MenuItem(getString(holdTypes[i]))) context.setHoldType((HoldNoteType)i);
 				ImGui::EndMenu();
 			}
@@ -1707,6 +1707,13 @@ namespace MikuMikuWorld
 
 			if (eventEdit.type == EventType::Bpm)
 			{
+				if (!isArrayIndexInBounds(eventEdit.editIndex, context.score.tempoChanges))
+				{
+					ImGui::CloseCurrentPopup();
+					ImGui::EndPopup();
+					return;
+				}
+
 				UI::beginPropertyColumns();
 
 				Tempo& tempo = context.score.tempoChanges[eventEdit.editIndex];
@@ -1735,6 +1742,13 @@ namespace MikuMikuWorld
 			}
 			else if (eventEdit.type == EventType::TimeSignature)
 			{
+				if (context.score.timeSignatures.find(eventEdit.editIndex) == context.score.timeSignatures.end())
+				{
+					ImGui::CloseCurrentPopup();
+					ImGui::EndPopup();
+					return;
+				}
+
 				UI::beginPropertyColumns();
 				if (UI::timeSignatureSelect(eventEdit.editTimeSignatureNumerator, eventEdit.editTimeSignatureDenominator))
 				{
@@ -1762,6 +1776,13 @@ namespace MikuMikuWorld
 			}
 			else if (eventEdit.type == EventType::HiSpeed)
 			{
+				if (!isArrayIndexInBounds(eventEdit.editIndex, context.score.hiSpeedChanges))
+				{
+					ImGui::CloseCurrentPopup();
+					ImGui::EndPopup();
+					return;
+				}
+
 				UI::beginPropertyColumns();
 				UI::addFloatProperty(getString("hi_speed_speed"), eventEdit.editHiSpeed, "%g");
 				HiSpeedChange& hiSpeed = context.score.hiSpeedChanges[eventEdit.editIndex];

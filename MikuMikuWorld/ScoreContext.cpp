@@ -378,7 +378,7 @@ namespace MikuMikuWorld
 				std::string startEase = jsonIO::tryGetValue<std::string>(entry["start"], "ease", "linear");
 
 				HoldNote hold;
-				hold.start = { start.ID, HoldStepType::Normal, (EaseType)findArrayItem(startEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes)) };
+				hold.start = { start.ID, HoldStepType::Normal, (EaseType)findArrayItem(startEase.c_str(), easeTypes, arrayLength(easeTypes)) };
 				hold.end = end.ID;
 
 				if (jsonIO::keyExists(entry, "steps"))
@@ -394,8 +394,8 @@ namespace MikuMikuWorld
 
 						std::string midType = jsonIO::tryGetValue<std::string>(step, "type", "normal");
 						std::string midEase = jsonIO::tryGetValue<std::string>(step, "ease", "linear");
-						int stepTypeIndex = findArrayItem(midType.c_str(), stepTypes, TXT_ARR_SZ(stepTypes));
-						int easeTypeIndex = findArrayItem(midEase.c_str(), easeTypes, TXT_ARR_SZ(easeTypes));
+						int stepTypeIndex = findArrayItem(midType.c_str(), stepTypes, arrayLength(stepTypes));
+						int easeTypeIndex = findArrayItem(midEase.c_str(), easeTypes, arrayLength(stepTypes));
 
 						// maintain compatibility with old step type names
 						if (stepTypeIndex == -1)

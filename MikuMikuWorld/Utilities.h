@@ -5,8 +5,6 @@
 #include "ImGui/imgui_internal.h"
 #include <type_traits>
 
-#define TXT_ARR_SZ(arr) (sizeof(arr) / sizeof(const char*)) 
-
 // Macro to allow usage of flags operators with types enums
 #define DECLARE_ENUM_FLAG_OPERATORS(EnumType) \
     inline constexpr EnumType operator|(EnumType lhs, EnumType rhs) { return static_cast<EnumType>(static_cast<std::underlying_type_t<EnumType>>(lhs) | static_cast<std::underlying_type_t<EnumType>>(rhs)); } \
@@ -60,15 +58,34 @@ namespace MikuMikuWorld
 		static Result Ok() { return Result(ResultStatus::Success); }
 	};
 
-	static const char* boolToString(bool value)
+	constexpr static const char* boolToString(bool value)
 	{
 		return value ? "true" : "false";
 	}
 
-	template <typename T>
-	static int findArrayItem(T item, const T array[], int length)
+	template<typename ArrayType>
+	static size_t arrayLength(const ArrayType& arr)
 	{
-		for (int i = 0; i < length; ++i)
+		static_assert(std::is_array_v<ArrayType>);
+		return (sizeof(arr) / sizeof(arr[0]));
+	}
+
+	template<typename Array>
+	static bool isArrayIndexInBounds(size_t index, const Array& arr)
+	{
+		return index >= 0 && index < arrayLength(arr);
+	}
+
+	template<typename T>
+	static bool isArrayIndexInBounds(size_t index, const std::vector<T>& arr)
+	{
+		return index >= 0 && index < arr.size();
+	}
+
+	template<typename Type>
+	static size_t findArrayItem(Type item, const Type array[], size_t length)
+	{
+		for (int i = 0; i < length; i++)
 		{
 			if (array[i] == item)
 				return i;
@@ -77,9 +94,9 @@ namespace MikuMikuWorld
 		return -1;
 	}
 
-	static int findArrayItem(const char* item, const char* const array[], int length)
+	static size_t findArrayItem(const char* item, const char* const array[], size_t length)
 	{
-		for (int i = 0; i < length; ++i)
+		for (int i = 0; i < length; i++)
 		{
 			if (!strcmp(item, array[i]))
 				return i;
