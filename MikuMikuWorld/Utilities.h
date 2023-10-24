@@ -71,13 +71,13 @@ namespace MikuMikuWorld
 	}
 
 	template<typename Array>
-	static bool isArrayIndexInBounds(size_t index, const Array& arr)
+	static inline bool isArrayIndexInBounds(size_t index, const Array& arr)
 	{
 		return index >= 0 && index < arrayLength(arr);
 	}
 
 	template<typename T>
-	static bool isArrayIndexInBounds(size_t index, const std::vector<T>& arr)
+	static inline bool isArrayIndexInBounds(size_t index, const std::vector<T>& arr)
 	{
 		return index >= 0 && index < arr.size();
 	}
