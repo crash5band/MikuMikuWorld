@@ -18,7 +18,6 @@ namespace MikuMikuWorld
 			return false;
 
 		pos.x = floorf(pos.x);
-		pos.y = floorf(pos.y);
 
 		ImGui::PushID(pos.y);
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {1, 0});
@@ -73,12 +72,12 @@ namespace MikuMikuWorld
 		visualOffset = offset = std::max(offset + x1 - x2, minOffset);
 	}
 
-	int ScoreEditorTimeline::snapTickFromPos(float posY, const ScoreContext& context)
+	int ScoreEditorTimeline::snapTickFromPos(float posY) const
 	{
-		return snapTick(positionToTick(posY), division, context.score.timeSignatures);
+		return snapTick(positionToTick(posY), division);
 	}
 
-	int ScoreEditorTimeline::laneFromCenterPosition(int lane, int width)
+	int ScoreEditorTimeline::laneFromCenterPosition(int lane, int width) const
 	{
 		return std::clamp(lane - (width / 2), MIN_LANE, MAX_LANE - width + 1);
 	}
@@ -248,7 +247,7 @@ namespace MikuMikuWorld
 			if (ImGui::BeginMenu(getString("hold_type"), context.selectionCanChangeHoldType()))
 			{
 				/*
-					* We we won't show the option to change holds to guides and vice versa
+					* We won't show the option to change holds to guides and vice versa
 					* at least for now since it will complicate changing hold types
 				*/
 				for (int i = 0; i < arrayLength(holdTypes) - 1; i++)
@@ -257,10 +256,10 @@ namespace MikuMikuWorld
 			}
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(getString("shrink_up"), NULL, false, context.selectedNotes.size() > 1))
+			if (ImGui::MenuItem(getString("shrink_up"), NULL, false, !context.selectedNotes.empty()))
 				context.shrinkSelection(Direction::Up);
 
-			if (ImGui::MenuItem(getString("shrink_down"), NULL, false, context.selectedNotes.size() > 1))
+			if (ImGui::MenuItem(getString("shrink_down"), NULL, false, !context.selectedNotes.empty()))
 				context.shrinkSelection(Direction::Down);
 
 			ImGui::Separator();
@@ -419,7 +418,7 @@ namespace MikuMikuWorld
 		// Snap to the sub-division before the current measure to prevent the lines from jumping around
 		for (int tick = firstTick - (firstTick % subdivision); tick <= lastTick; tick += subdivision)
 		{
-			const int y = position.y - tickToPosition(tick) + visualOffset;
+			const float y = position.y - tickToPosition(tick) + visualOffset;
 			int currentMeasure = accumulateMeasures(tick, TICKS_PER_BEAT, context.score.timeSignatures);
 
 			// Time signature changes on current measure
@@ -457,7 +456,7 @@ namespace MikuMikuWorld
 
 			std::string measureStr = std::to_string(measure);
 			const float txtPos = x1 - MEASURE_WIDTH - (ImGui::CalcTextSize(measureStr.c_str()).x * 0.5f);
-			const int y = position.y - tickToPosition(tick) + visualOffset;
+			const float y = position.y - tickToPosition(tick) + visualOffset;
 
 			drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH, y), ImVec2(x2 + MEASURE_WIDTH, y), measureColor, primaryLineThickness);
 			drawShadedText(drawList, ImVec2( txtPos, y), 26, measureTxtColor, measureStr.c_str());
@@ -465,12 +464,12 @@ namespace MikuMikuWorld
 			++measure;
 		}
 
-		hoverTick = snapTickFromPos(-mousePos.y, context);
+		hoverTick = snapTickFromPos(-mousePos.y);
 		hoverLane = positionToLane(mousePos.x);
 		isHoveringNote = false;
 
 		// Draw cursor behind notes
-		const int y = position.y - tickToPosition(context.currentTick) + visualOffset;
+		const float y = position.y - tickToPosition(context.currentTick) + visualOffset;
 		const int triPtOffset = 6;
 		const int triXPos = x1 - (triPtOffset * 2);
 		drawList->AddTriangleFilled(ImVec2(triXPos, y - triPtOffset), ImVec2(triXPos, y + triPtOffset), ImVec2(triXPos + (triPtOffset * 2), y), cursorColor);
@@ -1047,7 +1046,7 @@ namespace MikuMikuWorld
 		if (mouseInTimeline && ImGui::IsItemHovered() && !dragging)
 			ImGui::SetMouseCursor(cursor);
 
-		// note clicked
+		// Note clicked
 		if (ImGui::IsItemActivated())
 		{
 			prevUpdateScore = context.score;
@@ -1056,7 +1055,7 @@ namespace MikuMikuWorld
 			holdTick = hoverTick;
 		}
 
-		// holding note
+		// Holding note
 		if (ImGui::IsItemActive())
 		{
 			ImGui::SetMouseCursor(cursor);
@@ -1064,7 +1063,7 @@ namespace MikuMikuWorld
 			return true;
 		}
 
-		// note released
+		// Note released
 		if (ImGui::IsItemDeactivated())
 		{
 			isHoldingNote = false;
@@ -1088,7 +1087,7 @@ namespace MikuMikuWorld
 					{
 						sortHoldSteps(context.score, hold);
 
-						// ensure hold steps are between the start and end
+						// Ensure hold steps are between the start and end
 						Note& firstMid = context.score.notes.at(hold.steps[0].ID);
 						if (start.tick > firstMid.tick)
 						{
@@ -1152,7 +1151,7 @@ namespace MikuMikuWorld
 			}
 		}
 
-		// left resize
+		// Left resize
 		ImGui::PushID(note.ID);
 		if (noteControl(context, pos, sz, "L", ImGuiMouseCursor_ResizeEW))
 		{
@@ -1187,12 +1186,12 @@ namespace MikuMikuWorld
 		pos.x += noteControlWidth;
 		sz.x = (laneWidth * note.width) + 4.0f - (noteControlWidth * 2.0f);
 
-		// move
+		// Move
 		if (noteControl(context, pos, sz, "M", ImGuiMouseCursor_ResizeAll))
 		{
 			int curLane = positionToLane(mousePos.x);
 			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
-			int grabTick = snapTickFromPos(-ctrlMousePos.y, context);
+			int grabTick = snapTickFromPos(-ctrlMousePos.y);
 
 			int diff = curLane - grabLane;
 			if (abs(diff) > 0)
@@ -1238,7 +1237,7 @@ namespace MikuMikuWorld
 			}
 		}
 
-		// per note options here
+		// Per note options here
 		if (ImGui::IsItemDeactivated())
 		{
 			if (!isMovingNote && !context.selectedNotes.empty())
@@ -1276,7 +1275,7 @@ namespace MikuMikuWorld
 		pos.x += sz.x;
 		sz.x = noteControlWidth;
 
-		// right resize
+		// Right resize
 		if (noteControl(context, pos, sz, "R", ImGuiMouseCursor_ResizeEW))
 		{
 			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
@@ -1316,7 +1315,7 @@ namespace MikuMikuWorld
 
 		const Texture& pathTex = ResourceManager::textures[texIndex];
 		const int sprIndex = n1.critical ? 3 : 1;
-		if (sprIndex > pathTex.sprites.size())
+		if (!isArrayIndexInBounds(sprIndex, pathTex.sprites))
 			return;
 
 		const Sprite& spr = pathTex.sprites[sprIndex];
@@ -1561,7 +1560,7 @@ namespace MikuMikuWorld
 
 		const Texture& tex = ResourceManager::textures[noteTextures.notes];
 		const int sprIndex = getFlickArrowSpriteIndex(note);
-		if (sprIndex < 0 || sprIndex >= tex.sprites.size())
+		if (!isArrayIndexInBounds(sprIndex, tex.sprites))
 			return;
 
 		const Sprite& arrowS = tex.sprites[sprIndex];
@@ -1596,7 +1595,7 @@ namespace MikuMikuWorld
 
 		const Texture& tex = ResourceManager::textures[noteTextures.notes];
 		const int sprIndex = getNoteSpriteIndex(note);
-		if (sprIndex < 0 || sprIndex >= tex.sprites.size())
+		if (!isArrayIndexInBounds(sprIndex, tex.sprites))
 			return;
 
 		const Sprite& s = tex.sprites[sprIndex];
@@ -1635,7 +1634,7 @@ namespace MikuMikuWorld
 		if (note.friction)
 		{
 			int frictionSprIndex = getFrictionSpriteIndex(note);
-			if (frictionSprIndex >= 0 && frictionSprIndex < tex.sprites.size())
+			if (!isArrayIndexInBounds(frictionSprIndex, tex.sprites))
 			{
 				// friction diamond is slightly smaller
 				const Sprite& frictionSpr = tex.sprites[frictionSprIndex];
@@ -1895,15 +1894,7 @@ namespace MikuMikuWorld
 
 		if (holdStart.tick == holdEnd.tick)
 		{
-			const TimeSignature& t = context.score.timeSignatures.at(
-				findTimeSignature(
-					accumulateMeasures(
-						holdStart.tick, TICKS_PER_BEAT, context.score.timeSignatures
-					), context.score.timeSignatures
-				)
-			);
-
-			holdEnd.tick += (beatsPerMeasure(t) * TICKS_PER_BEAT) / (((float)division / 4) * t.numerator);
+			holdEnd.tick += TICKS_PER_BEAT / (static_cast<float>(division) / 4);
 		}
 		else if (holdStart.tick > holdEnd.tick)
 		{

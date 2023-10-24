@@ -18,12 +18,12 @@ namespace MikuMikuWorld
 		StepDrawTypeMax
 	};
 
-	const std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawOutlineColors[] =
+	constexpr std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawOutlineColors[] =
 	{
 		0xFFAAFFAA, 0xFFFFFFAA, 0xFFCCCCCC, 0xFFCCCCCC
 	};
 
-	const std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawFillColors[] =
+	constexpr std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawFillColors[] =
 	{
 		0x00FFFFFF, 0x00FFFFFF, 0xFF66B622, 0xFF15A0C9
 	};
@@ -184,12 +184,12 @@ namespace MikuMikuWorld
 			float editHiSpeed = 1.0f;
 		} eventEdit {};
 
-		int snapTickFromPos(float posY, const ScoreContext& context);
+		int snapTickFromPos(float posY) const;
 		int positionToTick(float pos) const;
 		float tickToPosition(int tick) const;
 		float getNoteYPosFromTick(int tick) const;
 
-		int laneFromCenterPosition(int lane, int width);
+		int laneFromCenterPosition(int lane, int width) const;
 		int positionToLane(float pos) const;
 		float laneToPosition(float lane) const;
 
@@ -223,7 +223,7 @@ namespace MikuMikuWorld
 		int roundTickDown(int tick, int division);
 		void focusCursor(ScoreContext& context, Direction direction);
 
-		constexpr TimelineMode getMode() const { return currentMode; }
+		constexpr inline TimelineMode getMode() const { return currentMode; }
 		void changeMode(TimelineMode mode, EditArgs& edit);
 
 		ScoreEditorTimeline();
