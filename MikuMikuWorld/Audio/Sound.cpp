@@ -61,9 +61,9 @@ namespace Audio
 
 		if (fileExtension == ".mp3")
 		{
-			ma_dr_mp3_config mp3Config{};
+			drmp3_config mp3Config{};
 			uint64_t frameCount{};
-			int16_t* samples = ma_dr_mp3_open_memory_and_read_pcm_frames_s16(bytes.data(), bytes.size(), &mp3Config, &frameCount, nullptr);
+			int16_t* samples = drmp3_open_memory_and_read_pcm_frames_s16(bytes.data(), bytes.size(), &mp3Config, &frameCount, nullptr);
 			if (samples == nullptr)
 				return mmw::Result(mmw::ResultStatus::Error, "Failed to decode mp3");
 
@@ -75,7 +75,7 @@ namespace Audio
 			uint32_t channels{};
 			uint32_t sampleRate{};
 			uint64_t frameCount{};
-			int16_t* samples = ma_dr_wav_open_memory_and_read_pcm_frames_s16(bytes.data(), bytes.size(), &channels, &sampleRate, &frameCount, nullptr);
+			int16_t* samples = drwav_open_memory_and_read_pcm_frames_s16(bytes.data(), bytes.size(), &channels, &sampleRate, &frameCount, nullptr);
 			if (samples == nullptr)
 				return mmw::Result(mmw::ResultStatus::Error, "Failed to decode wav");
 
@@ -87,7 +87,7 @@ namespace Audio
 			uint32_t channels{};
 			uint32_t sampleRate{};
 			uint64_t frameCount{};
-			int16_t* samples = ma_dr_flac_open_memory_and_read_pcm_frames_s16(bytes.data(), bytes.size(), &channels, &sampleRate, &frameCount, nullptr);
+			int16_t* samples = drflac_open_memory_and_read_pcm_frames_s16(bytes.data(), bytes.size(), &channels, &sampleRate, &frameCount, nullptr);
 			if (samples == nullptr)
 				return mmw::Result(mmw::ResultStatus::Error, "Failed to decode flac");
 
@@ -157,7 +157,7 @@ namespace Audio
 		std::wstring wPath = IO::mbToWideStr(path);
 		for (int i = 0; i < pool.size(); ++i)
 		{
-			ma_result result = ma_sound_init_from_file_w(engine, wPath.c_str(), maSoundFlags, group, NULL, &pool[i].source);
+			ma_result result = ma_sound_init_from_file_w(engine, wPath.c_str(), maSoundFlags, group, nullptr, &pool[i].source);
 			if (flags & SoundFlags::LOOP)
 				ma_sound_set_looping(&pool[i].source, true);
 		}

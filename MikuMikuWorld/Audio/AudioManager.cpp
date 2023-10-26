@@ -2,7 +2,7 @@
 #include "../IO.h"
 #include "../UI.h"
 
-// We need to include miniaudio header again AFTER the implementation define
+// We need add the implementation defines BEFORE including miniaudio's header
 #define MINIAUDIO_IMPLEMENTATION
 #define DR_MP3_IMPLEMENTATION
 #define DR_WAV_IMPLEMENTATION
@@ -24,21 +24,21 @@ namespace Audio
 
 		try
 		{
-			result = ma_engine_init(NULL, &engine);
+			result = ma_engine_init(nullptr, &engine);
 			if (result != MA_SUCCESS)
 			{
 				err = "FATAL: Failed to start audio engine. Aborting.\n";
 				throw(result);
 			}
 
-			result = ma_sound_group_init(&engine, groupFlags, NULL, &musicGroup);
+			result = ma_sound_group_init(&engine, groupFlags, nullptr, &musicGroup);
 			if (result != MA_SUCCESS)
 			{
 				err = "FATAL: Failed to initialize music audio group. Aborting.\n";
 				throw(result);
 			}
 
-			result = ma_sound_group_init(&engine, groupFlags, NULL, &soundEffectsGroup);
+			result = ma_sound_group_init(&engine, groupFlags, nullptr, &soundEffectsGroup);
 			if (result != MA_SUCCESS)
 			{
 				err = "FATAL: Failed to initialize sound effects audio group. Aborting.\n";
@@ -66,10 +66,9 @@ namespace Audio
 			NONE, NONE, LOOP | EXTENDABLE, NONE, NONE, NONE, LOOP | EXTENDABLE, NONE, NONE, NONE
 		};
 
-		// TODO: Add different volumes for each sound
 		constexpr std::array<float, soundEffectsCount> soundEffectsVolumes =
 		{
-			0.75f, 0.80f, 0.83f, 0.87f, 0.80f, 0.80f, 0.83f, 0.85f, 0.75f, 0.80f
+			0.75f, 0.80f, 0.83f, 1.10f, 0.80f, 0.80f, 0.83f, 0.85f, 0.75f, 0.80f
 		};
 
 		std::string path{ mmw::Application::getAppDir() + "res\\sound\\" };
