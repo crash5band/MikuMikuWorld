@@ -9,7 +9,7 @@ using namespace nlohmann;
 namespace MikuMikuWorld
 {
 	ApplicationConfiguration config{};
-	constexpr const char* CONFIG_VERSION{ "1.8.0" };
+	constexpr const char* CONFIG_VERSION{ "1.8.1" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -64,7 +64,7 @@ namespace MikuMikuWorld
 			backgroundImage = jsonIO::tryGetValue<std::string>(config["timeline"], "background_image", "");
 
 			useSmoothScrolling = jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
-			smoothScrollingTime = jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 67.0f);
+			smoothScrollingTime = jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 48.0f);
 			scrollSpeedNormal = jsonIO::tryGetValue<float>(config["timeline"], "scroll_speed_normal", 2.0f);
 			scrollSpeedShift = jsonIO::tryGetValue<float>(config["timleine"], "scroll_speed_fast", 5.0f);
 
@@ -223,7 +223,7 @@ namespace MikuMikuWorld
 		drawBackground = true;
 		backgroundImage = "";
 		useSmoothScrolling = true;
-		smoothScrollingTime = 67.0f;
+		smoothScrollingTime = 48.0f;
 		scrollSpeedNormal = 2.0f;
 		scrollSpeedShift = 5.0f;
 		cursorPositionThreshold = 0.5;
