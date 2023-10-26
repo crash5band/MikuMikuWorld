@@ -1,4 +1,4 @@
-#include "PresetManager.h"
+#include "NotesPreset.h"
 #include "IO.h"
 #include "Application.h"
 #include "File.h"
@@ -65,6 +65,7 @@ namespace MikuMikuWorld
 		std::ofstream file(wFilename);
 
 		file << std::setw(2) << data;
+		file.flush();
 		file.close();
 	}
 
@@ -169,7 +170,7 @@ namespace MikuMikuWorld
 		preset.data = jsonIO::noteSelectionToJson(score, selectedNotes, baseTick);
 
 		presets[preset.getID()] = preset;
-		createPresets.insert(preset.getID());
+		createPresets.push_back(preset.getID());
 	}
 
 	void PresetManager::removePreset(int id)
@@ -179,7 +180,7 @@ namespace MikuMikuWorld
 
 		const auto& preset = presets.at(id);
 		if (preset.getFilename().size())
-			deletePresets.insert(preset.getFilename());
+			deletePresets.push_back(preset.getFilename());
 
 		presets.erase(id);
 	}

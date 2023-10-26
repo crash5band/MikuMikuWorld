@@ -203,14 +203,14 @@ namespace MikuMikuWorld
 	{
 		if (ImGui::BeginPopupContextWindow(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline")))
 		{
-			if (ImGui::MenuItem(getString("delete"), ToShortcutString(config.input.deleteSelection), false, context.selectedNotes.size()))
+			if (ImGui::MenuItem(getString("delete"), ToShortcutString(config.input.deleteSelection), false, !context.selectedNotes.empty()))
 				context.deleteSelection();
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(getString("cut"), ToShortcutString(config.input.cutSelection), false, context.selectedNotes.size()))
+			if (ImGui::MenuItem(getString("cut"), ToShortcutString(config.input.cutSelection), false, !context.selectedNotes.empty()))
 				context.cutSelection();
 
-			if (ImGui::MenuItem(getString("copy"), ToShortcutString(config.input.copySelection), false, context.selectedNotes.size()))
+			if (ImGui::MenuItem(getString("copy"), ToShortcutString(config.input.copySelection), false, !context.selectedNotes.empty()))
 				context.copySelection();
 
 			if (ImGui::MenuItem(getString("paste"), ToShortcutString(config.input.paste)))
@@ -219,7 +219,7 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(getString("flip_paste"), ToShortcutString(config.input.flipPaste)))
 				context.paste(true);
 
-			if (ImGui::MenuItem(getString("flip"), ToShortcutString(config.input.flip), false, context.selectedNotes.size()))
+			if (ImGui::MenuItem(getString("flip"), ToShortcutString(config.input.flip), false, !context.selectedNotes.empty()))
 				context.flipSelection();
 
 			ImGui::Separator();

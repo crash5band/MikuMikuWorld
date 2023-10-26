@@ -84,7 +84,7 @@
     <ClCompile Include="ImGui\imgui_demo.cpp">
       <Filter>Imgui</Filter>
     </ClCompile>
-    <ClCompile Include="PresetManager.cpp">
+    <ClCompile Include="NotesPreset.cpp">
       <Filter>Presets</Filter>
     </ClCompile>
     <ClCompile Include="BinaryReader.cpp">
@@ -254,7 +254,7 @@
     <ClInclude Include="IconsFontAwesome5.h">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="PresetManager.h">
+    <ClInclude Include="NotesPreset.h">
       <Filter>Presets</Filter>
     </ClInclude>
     <ClInclude Include="BinaryReader.h">

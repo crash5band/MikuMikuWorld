@@ -37,8 +37,8 @@ namespace MikuMikuWorld
 	{
 	private:
 		std::atomic<int> nextPresetID;
-		std::unordered_set<int> createPresets;
-		std::unordered_set<std::string> deletePresets;
+		std::vector<int> createPresets;
+		std::vector<std::string> deletePresets;
 
 	public:
 		std::unordered_map<int, NotesPreset> presets;
