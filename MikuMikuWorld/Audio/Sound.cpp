@@ -11,7 +11,7 @@ namespace Audio
 {
 	namespace mmw = MikuMikuWorld;
 
-	void Sound::initialize(std::string name, ma_uint32 sampleRate, ma_uint32 channelCount, ma_uint64 frameCount, int16_t* samples)
+	void Sound::initialize(const std::string& name, ma_uint32 sampleRate, ma_uint32 channelCount, ma_uint64 frameCount, int16_t* samples)
 	{
 		this->name = name;
 		this->sampleFormat = ma_format_s16;
@@ -39,9 +39,6 @@ namespace Audio
 
 	mmw::Result decodeAudioFile(std::string filename, Sound& sound)
 	{
-		mmw::Stopwatch loadMusicStopwatch;
-		loadMusicStopwatch.reset();
-
 		if (!IO::File::exists(filename))
 			return mmw::Result(mmw::ResultStatus::Error, "File not found");
 
@@ -52,7 +49,6 @@ namespace Audio
 			return mmw::Result(mmw::ResultStatus::Error, "Unsupported file format");
 
 		std::string nameWithoutExtension = IO::File::getFilenameWithoutExtension(filename);
-
 		std::wstring wFilename = IO::mbToWideStr(filename);
 
 		IO::File f(wFilename, L"rb");

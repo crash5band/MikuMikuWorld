@@ -18,6 +18,7 @@ namespace MikuMikuWorld
 			return false;
 
 		pos.x = floorf(pos.x);
+		pos.y = floorf(pos.y);
 
 		ImGui::PushID(pos.y);
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {1, 0});
@@ -390,7 +391,7 @@ namespace MikuMikuWorld
 		drawList->AddRectFilled(
 			{ x1, position.y },
 			{ x2, position.y + size.y },
-			Color::abgrToInt(std::clamp((int)(config.laneOpacity * 255), 0, 255), 0x1E, 0x1E, 0x1E)
+			Color::abgrToInt(std::clamp(static_cast<int>(config.laneOpacity * 255), 0, 255), 0x1E, 0x1E, 0x1E)
 		);
 
 		if (config.drawWaveform)
@@ -418,7 +419,7 @@ namespace MikuMikuWorld
 		// Snap to the sub-division before the current measure to prevent the lines from jumping around
 		for (int tick = firstTick - (firstTick % subdivision); tick <= lastTick; tick += subdivision)
 		{
-			const float y = position.y - tickToPosition(tick) + visualOffset;
+			const int y = position.y - tickToPosition(tick) + visualOffset;
 			int currentMeasure = accumulateMeasures(tick, TICKS_PER_BEAT, context.score.timeSignatures);
 
 			// Time signature changes on current measure
@@ -456,7 +457,7 @@ namespace MikuMikuWorld
 
 			std::string measureStr = std::to_string(measure);
 			const float txtPos = x1 - MEASURE_WIDTH - (ImGui::CalcTextSize(measureStr.c_str()).x * 0.5f);
-			const float y = position.y - tickToPosition(tick) + visualOffset;
+			const int y = position.y - tickToPosition(tick) + visualOffset;
 
 			drawList->AddLine(ImVec2(x1 - MEASURE_WIDTH, y), ImVec2(x2 + MEASURE_WIDTH, y), measureColor, primaryLineThickness);
 			drawShadedText(drawList, ImVec2( txtPos, y), 26, measureTxtColor, measureStr.c_str());
@@ -1634,7 +1635,7 @@ namespace MikuMikuWorld
 		if (note.friction)
 		{
 			int frictionSprIndex = getFrictionSpriteIndex(note);
-			if (!isArrayIndexInBounds(frictionSprIndex, tex.sprites))
+			if (isArrayIndexInBounds(frictionSprIndex, tex.sprites))
 			{
 				// friction diamond is slightly smaller
 				const Sprite& frictionSpr = tex.sprites[frictionSprIndex];

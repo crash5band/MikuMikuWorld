@@ -68,7 +68,7 @@ namespace Audio
 
 		constexpr std::array<float, soundEffectsCount> soundEffectsVolumes =
 		{
-			0.75f, 0.80f, 0.83f, 1.10f, 0.80f, 0.80f, 0.83f, 0.85f, 0.75f, 0.80f
+			0.75f, 0.80f, 0.83f, 0.80f, 0.80f, 0.80f, 0.83f, 0.85f, 0.75f, 0.80f
 		};
 
 		std::string path{ mmw::Application::getAppDir() + "res\\sound\\" };
