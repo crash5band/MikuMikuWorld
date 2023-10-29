@@ -138,14 +138,16 @@ namespace MikuMikuWorld
 		return 0;
 	}
 
-	int findHighSpeedChange(int tick, const std::vector<HiSpeedChange>& hiSpeeds)
+	int findHighSpeedChange(int tick, const std::vector<HiSpeedChange>& hiSpeeds, int selectedLayer)
 	{
 		for (int i = hiSpeeds.size() - 1; i >= 0; --i)
 		{
+			if (selectedLayer != -1 && hiSpeeds[i].layer != selectedLayer)
+				continue;
 			if (hiSpeeds[i].tick <= tick)
 				return i;
 		}
-		
+
 		return -1;
 	}
 

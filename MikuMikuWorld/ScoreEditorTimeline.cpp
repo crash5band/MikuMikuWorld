@@ -689,7 +689,7 @@ namespace MikuMikuWorld {
 		const TimeSignature& ts = context.score.timeSignatures[findTimeSignature(currentMeasure, context.score.timeSignatures)];
 		const Tempo& tempo = getTempoAt(context.currentTick, context.score.tempoChanges);
 
-		int hiSpeed = findHighSpeedChange(context.currentTick, context.score.hiSpeedChanges);
+		int hiSpeed = findHighSpeedChange(context.currentTick, context.score.hiSpeedChanges, context.selectedLayer);
 		float speed = (hiSpeed == -1 ? 1.0f : context.score.hiSpeedChanges[hiSpeed].speed);
 
 		std::string rhythmString = IO::formatString(

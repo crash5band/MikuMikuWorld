@@ -36,5 +36,5 @@ namespace MikuMikuWorld
 
 	const Tempo& getTempoAt(int tick, const std::vector<Tempo>& tempos);
 	int findTimeSignature(int measure, const std::map<int, TimeSignature>& ts);
-	int findHighSpeedChange(int tick, const std::vector<HiSpeedChange>& hiSpeeds);
+	int findHighSpeedChange(int tick, const std::vector<HiSpeedChange>& hiSpeeds, int selectedLayer);
 }
