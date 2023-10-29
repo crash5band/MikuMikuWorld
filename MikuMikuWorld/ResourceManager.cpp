@@ -11,8 +11,7 @@ namespace MikuMikuWorld
 	{
 		if (!IO::File::exists(filename))
 		{
-			printf("ERROR: ResourceManager::loadTexture() Could not find texture file %s\n",
-			       filename.c_str());
+			printf("ERROR: ResourceManager::loadTexture() Could not find texture file %s\n", filename.c_str());
 			return;
 		}
 

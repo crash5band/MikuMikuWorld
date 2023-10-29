@@ -3,8 +3,8 @@
 
 namespace IO
 {
-	MessageBoxResult messageBox(std::string title, std::string message, MessageBoxButtons buttons,
-	                            MessageBoxIcon icon, void* parentWindow)
+	MessageBoxResult messageBox(std::string title, std::string message, MessageBoxButtons buttons, MessageBoxIcon icon,
+	                            void* parentWindow)
 	{
 		UINT flags = 0;
 		switch (icon)
@@ -43,9 +43,8 @@ namespace IO
 			break;
 		}
 
-		const int result =
-		    MessageBoxExW(reinterpret_cast<HWND>(parentWindow), mbToWideStr(message).c_str(),
-		                  mbToWideStr(title).c_str(), flags, 0);
+		const int result = MessageBoxExW(reinterpret_cast<HWND>(parentWindow), mbToWideStr(message).c_str(),
+		                                 mbToWideStr(title).c_str(), flags, 0);
 		switch (result)
 		{
 		case IDABORT:
@@ -115,10 +114,7 @@ namespace IO
 		return line.find_first_of(delim) == 0 || line.at(0) == '\n';
 	}
 
-	bool startsWith(const std::string_view& line, const std::string_view& key)
-	{
-		return line.find_first_of(key) == 0;
-	}
+	bool startsWith(const std::string_view& line, const std::string_view& key) { return line.find_first_of(key) == 0; }
 
 	bool endsWith(const std::string_view& line, const std::string_view& key)
 	{

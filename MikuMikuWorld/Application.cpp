@@ -148,8 +148,7 @@ namespace MikuMikuWorld
 
 			if (extension == SUS_EXTENSION || extension == MMWS_EXTENSION)
 				scoreFile = *it;
-			else if (extension == ".mp3" || extension == ".wav" || extension == ".flac" ||
-			         extension == ".ogg")
+			else if (extension == ".mp3" || extension == ".wav" || extension == ".flac" || extension == ".ogg")
 				musicFile = *it;
 
 			if (scoreFile.size() && musicFile.size())
@@ -173,8 +172,7 @@ namespace MikuMikuWorld
 	{
 		if (config.language != language)
 		{
-			std::string locale =
-			    config.language == "auto" ? Utilities::getSystemLocale() : config.language;
+			std::string locale = config.language == "auto" ? Utilities::getSystemLocale() : config.language;
 
 			// try to set the selected language and fallback to default (en) on failure
 			if (!Localization::setLanguage(locale))
@@ -217,8 +215,7 @@ namespace MikuMikuWorld
 		if (config.baseTheme != imgui->getBaseTheme())
 			imgui->setBaseTheme(config.baseTheme);
 
-		if ((windowState.closing || windowState.resetting) && !editor->isUpToDate() &&
-		    !unsavedChangesDialog.open)
+		if ((windowState.closing || windowState.resetting) && !editor->isUpToDate() && !unsavedChangesDialog.open)
 		{
 			unsavedChangesDialog.open = true;
 			ImGui::OpenPopup(MODAL_TITLE("unsaved_changes"));
@@ -276,8 +273,8 @@ namespace MikuMikuWorld
 			}
 
 			// already saved or clicked save changes or discard changes
-			if (editor->isUpToDate() || (unsavedChangesResult != DialogResult::Cancel &&
-			                             unsavedChangesResult != DialogResult::None))
+			if (editor->isUpToDate() ||
+			    (unsavedChangesResult != DialogResult::Cancel && unsavedChangesResult != DialogResult::None))
 			{
 				if (windowState.shouldPickScore)
 				{
@@ -356,8 +353,7 @@ namespace MikuMikuWorld
 
 		windowState.windowHandle = hwnd;
 		windowState.windowTimerId =
-		    ::SetTimer(hwnd, reinterpret_cast<UINT_PTR>(&windowState.windowTimerId),
-		               USER_TIMER_MINIMUM, nullptr);
+		    ::SetTimer(hwnd, reinterpret_cast<UINT_PTR>(&windowState.windowTimerId), USER_TIMER_MINIMUM, nullptr);
 
 		::DragAcceptFiles(hwnd, TRUE);
 

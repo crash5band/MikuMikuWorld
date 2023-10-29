@@ -94,10 +94,7 @@ namespace MikuMikuWorld
 		HoldNoteType startType{};
 		HoldNoteType endType{};
 
-		constexpr bool isGuide() const
-		{
-			return startType == HoldNoteType::Guide || endType == HoldNoteType::Guide;
-		}
+		constexpr bool isGuide() const { return startType == HoldNoteType::Guide || endType == HoldNoteType::Guide; }
 	};
 
 	void resetNextID();

@@ -13,8 +13,7 @@ namespace MikuMikuWorld
 
 	  public:
 		Language(const char* code, std::string name, const std::string& filename);
-		Language(const char* code, std::string name,
-		         const std::unordered_map<std::string, std::string>& strings);
+		Language(const char* code, std::string name, const std::unordered_map<std::string, std::string>& strings);
 
 		void read(const std::string& filename);
 		const char* getCode() const;

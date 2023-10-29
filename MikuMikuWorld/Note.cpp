@@ -9,20 +9,18 @@ namespace MikuMikuWorld
 	int nextSkillID = 1;
 
 	Note::Note(NoteType _type)
-	    : type{ _type }, parentID{ -1 }, tick{ 0 }, lane{ 0 }, width{ 3 }, critical{ false },
-	      friction{ false }
+	    : type{ _type }, parentID{ -1 }, tick{ 0 }, lane{ 0 }, width{ 3 }, critical{ false }, friction{ false }
 	{
 	}
 
 	Note::Note(NoteType _type, int _tick, int _lane, int _width)
-	    : type{ _type }, parentID{ -1 }, tick{ _tick }, lane{ _lane }, width{ _width },
-	      critical{ false }, friction{ false }
+	    : type{ _type }, parentID{ -1 }, tick{ _tick }, lane{ _lane }, width{ _width }, critical{ false },
+	      friction{ false }
 	{
 	}
 
 	Note::Note()
-	    : type{ NoteType::Tap }, parentID{ -1 }, tick{ 0 }, lane{ 0 }, width{ 3 },
-	      critical{ false }, friction{ false }
+	    : type{ NoteType::Tap }, parentID{ -1 }, tick{ 0 }, lane{ 0 }, width{ 3 }, critical{ false }, friction{ false }
 	{
 	}
 
@@ -43,10 +41,7 @@ namespace MikuMikuWorld
 		note.flick = (FlickType)(((int)note.flick + 1) % (int)FlickType::FlickTypeCount);
 	}
 
-	void cycleStepEase(HoldStep& note)
-	{
-		note.ease = (EaseType)(((int)note.ease + 1) % (int)EaseType::EaseTypeCount);
-	}
+	void cycleStepEase(HoldStep& note) { note.ease = (EaseType)(((int)note.ease + 1) % (int)EaseType::EaseTypeCount); }
 
 	void cycleStepType(HoldStep& note)
 	{
@@ -67,8 +62,7 @@ namespace MikuMikuWorld
 	int getFlickArrowSpriteIndex(const Note& note)
 	{
 		int startIndex = note.critical ? 24 : 12;
-		return startIndex + ((std::min(note.width, 6) - 1) * 2) +
-		       (note.flick != FlickType::Default ? 1 : 0);
+		return startIndex + ((std::min(note.width, 6) - 1) * 2) + (note.flick != FlickType::Default ? 1 : 0);
 	}
 
 	int getNoteSpriteIndex(const Note& note)
@@ -109,10 +103,7 @@ namespace MikuMikuWorld
 		return index;
 	}
 
-	int getFrictionSpriteIndex(const Note& note)
-	{
-		return note.critical ? 10 : note.flick != FlickType::None ? 11 : 9;
-	}
+	int getFrictionSpriteIndex(const Note& note) { return note.critical ? 10 : note.flick != FlickType::None ? 11 : 9; }
 
 	int findHoldStep(const HoldNote& note, int stepID)
 	{

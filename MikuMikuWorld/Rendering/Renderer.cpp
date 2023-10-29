@@ -80,8 +80,7 @@ namespace MikuMikuWorld
 		uvCoords[3] = DirectX::XMVECTOR{ left, top, 0.0f, 0.0f };
 	}
 
-	DirectX::XMMATRIX Renderer::getModelMatrix(const Vector2& pos, const float rot,
-	                                           const Vector2& sz)
+	DirectX::XMMATRIX Renderer::getModelMatrix(const Vector2& pos, const float rot, const Vector2& sz)
 	{
 		DirectX::XMMATRIX model = DirectX::XMMatrixIdentity();
 		model *= DirectX::XMMatrixScaling(sz.x, sz.y, 1.0f);
@@ -91,17 +90,16 @@ namespace MikuMikuWorld
 		return model;
 	}
 
-	void Renderer::drawSprite(const Vector2& pos, float rot, const Vector2& sz, AnchorType anchor,
-	                          const Texture& tex, int spr, const Color& tint, int z)
+	void Renderer::drawSprite(const Vector2& pos, float rot, const Vector2& sz, AnchorType anchor, const Texture& tex,
+	                          int spr, const Color& tint, int z)
 	{
 		const Sprite& s = tex.sprites[spr];
-		drawSprite(pos, rot, sz, anchor, tex, s.getX(), s.getX() + s.getWidth(), s.getY(),
-		           s.getY() + s.getHeight(), tint, z);
+		drawSprite(pos, rot, sz, anchor, tex, s.getX(), s.getX() + s.getWidth(), s.getY(), s.getY() + s.getHeight(),
+		           tint, z);
 	}
 
-	void Renderer::drawSprite(const Vector2& pos, float rot, const Vector2& sz, AnchorType anchor,
-	                          const Texture& tex, float x1, float x2, float y1, float y2,
-	                          const Color& tint, int z)
+	void Renderer::drawSprite(const Vector2& pos, float rot, const Vector2& sz, AnchorType anchor, const Texture& tex,
+	                          float x1, float x2, float y1, float y2, const Color& tint, int z)
 	{
 		DirectX::XMMATRIX model = getModelMatrix(pos, rot, sz);
 		DirectX::XMVECTOR color{ tint.r, tint.g, tint.b, tint.a };
@@ -111,9 +109,8 @@ namespace MikuMikuWorld
 		pushQuad(vPos, uvCoords, model, color, tex.getID(), z);
 	}
 
-	void Renderer::drawQuad(const Vector2& p1, const Vector2& p2, const Vector2& p3,
-	                        const Vector2& p4, const Texture& tex, float x1, float x2, float y1,
-	                        float y2, const Color& tint, int z)
+	void Renderer::drawQuad(const Vector2& p1, const Vector2& p2, const Vector2& p3, const Vector2& p4,
+	                        const Texture& tex, float x1, float x2, float y1, float y2, const Color& tint, int z)
 	{
 		setUVCoords(tex, x1, x2, y1, y2);
 		vPos[0] = DirectX::XMVECTOR{ p4.x, p4.y, 0.0f, 1.0f };
@@ -125,8 +122,8 @@ namespace MikuMikuWorld
 		pushQuad(vPos, uvCoords, DirectX::XMMatrixIdentity(), color, tex.getID(), z);
 	}
 
-	void Renderer::drawRectangle(Vector2 position, Vector2 size, const Texture& tex, float x1,
-	                             float x2, float y1, float y2, Color tint, int z)
+	void Renderer::drawRectangle(Vector2 position, Vector2 size, const Texture& tex, float x1, float x2, float y1,
+	                             float y2, Color tint, int z)
 	{
 		Vector2 p1{ position.x, position.y };
 		Vector2 p2{ position.x + size.x, position.y };
@@ -136,9 +133,8 @@ namespace MikuMikuWorld
 		drawQuad(p4, p3, p1, p2, tex, x1, x2, y1, y2, tint, z);
 	}
 
-	void Renderer::pushQuad(const std::array<DirectX::XMVECTOR, 4>& pos,
-	                        const std::array<DirectX::XMVECTOR, 4>& uv, const DirectX::XMMATRIX& m,
-	                        const DirectX::XMVECTOR& col, int tex, int z)
+	void Renderer::pushQuad(const std::array<DirectX::XMVECTOR, 4>& pos, const std::array<DirectX::XMVECTOR, 4>& uv,
+	                        const DirectX::XMMATRIX& m, const DirectX::XMVECTOR& col, int tex, int z)
 	{
 		Quad q;
 		q.matrix = m;

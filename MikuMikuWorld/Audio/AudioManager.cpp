@@ -61,30 +61,27 @@ namespace Audio
 	void AudioManager::loadSoundEffects()
 	{
 		constexpr int soundEffectsCount = sizeof(mmw::SE_NAMES) / sizeof(const char*);
-		constexpr std::array<SoundFlags, soundEffectsCount> soundEffectsFlags = {
-			NONE, NONE, LOOP | EXTENDABLE, NONE, NONE, NONE, LOOP | EXTENDABLE, NONE, NONE, NONE
-		};
+		constexpr std::array<SoundFlags, soundEffectsCount> soundEffectsFlags = { NONE, NONE, LOOP | EXTENDABLE, NONE,
+			                                                                      NONE, NONE, LOOP | EXTENDABLE, NONE,
+			                                                                      NONE, NONE };
 
-		constexpr std::array<float, soundEffectsCount> soundEffectsVolumes = {
-			0.75f, 0.80f, 0.83f, 1.10f, 0.80f, 0.80f, 0.83f, 0.85f, 0.75f, 0.80f
-		};
+		constexpr std::array<float, soundEffectsCount> soundEffectsVolumes = { 0.75f, 0.80f, 0.83f, 1.10f, 0.80f,
+			                                                                   0.80f, 0.83f, 0.85f, 0.75f, 0.80f };
 
 		std::string path{ mmw::Application::getAppDir() + "res\\sound\\" };
 
 		sounds.reserve(soundEffectsVolume);
 		for (int i = 0; i < soundEffectsCount; ++i)
-			sounds.emplace(
-			    std::move(SoundPoolPair(mmw::SE_NAMES[i], std::make_unique<SoundPool>())));
+			sounds.emplace(std::move(SoundPoolPair(mmw::SE_NAMES[i], std::make_unique<SoundPool>())));
 
 		std::for_each(std::execution::par, sounds.begin(), sounds.end(),
 		              [&](auto& s)
 		              {
 			              std::string filename = path + s.first.data() + ".mp3";
-			              int soundIndex = mmw::findArrayItem(s.first.data(), mmw::SE_NAMES,
-			                                                  mmw::arrayLength(mmw::SE_NAMES));
+			              int soundIndex =
+			                  mmw::findArrayItem(s.first.data(), mmw::SE_NAMES, mmw::arrayLength(mmw::SE_NAMES));
 
-			              s.second->initialize(filename, &engine, &soundEffectsGroup,
-			                                   soundEffectsFlags[soundIndex]);
+			              s.second->initialize(filename, &engine, &soundEffectsGroup, soundEffectsFlags[soundIndex]);
 			              s.second->setVolume(soundEffectsVolumes[soundIndex]);
 		              });
 
@@ -117,8 +114,7 @@ namespace Audio
 		mmw::Result result = decodeAudioFile(filename, musicAudioData);
 		if (result.isOk())
 		{
-			ma_sound_init_from_data_source(&engine, &musicAudioData.buffer, flags, &musicGroup,
-			                               &music);
+			ma_sound_init_from_data_source(&engine, &musicAudioData.buffer, flags, &musicGroup, &music);
 			musicInitialized = true;
 		}
 
@@ -265,8 +261,7 @@ namespace Audio
 	float AudioManager::getAudioEngineAbsoluteTime() const
 	{
 		// Engine time is in milliseconds
-		return static_cast<float>(ma_engine_get_time(&engine)) /
-		       static_cast<float>(engine.sampleRate) / 1000.0f;
+		return static_cast<float>(ma_engine_get_time(&engine)) / static_cast<float>(engine.sampleRate) / 1000.0f;
 	}
 
 	float AudioManager::getMusicOffset() const { return musicOffset; }

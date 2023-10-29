@@ -10,8 +10,7 @@ namespace MikuMikuWorld
 
 	struct InputConfiguration
 	{
-		MultiInputBinding togglePlayback = { "toggle_playback",
-			                                 { ImGuiKey_Space, ImGuiModFlags_None } };
+		MultiInputBinding togglePlayback = { "toggle_playback", { ImGuiKey_Space, ImGuiModFlags_None } };
 		MultiInputBinding stop = { "stop", { ImGuiKey_Backspace } };
 		MultiInputBinding decreaseNoteSize = { "decrease_note_size", {} };
 		MultiInputBinding increaseNoteSize = { "increase_note_size", {} };
@@ -25,8 +24,7 @@ namespace MikuMikuWorld
 		MultiInputBinding copySelection = { "copy", { ImGuiKey_C, ImGuiModFlags_Ctrl } };
 		MultiInputBinding cutSelection = { "cut", { ImGuiKey_X, ImGuiModFlags_Ctrl } };
 		MultiInputBinding paste = { "paste", { ImGuiKey_V, ImGuiModFlags_Ctrl } };
-		MultiInputBinding flipPaste = { "flip_paste",
-			                            { ImGuiKey_V, ImGuiModFlags_Ctrl | ImGuiModFlags_Shift } };
+		MultiInputBinding flipPaste = { "flip_paste", { ImGuiKey_V, ImGuiModFlags_Ctrl | ImGuiModFlags_Shift } };
 		MultiInputBinding flip = { "flip", { ImGuiKey_F, ImGuiModFlags_Ctrl } };
 		MultiInputBinding cancelPaste = { "cancel_paste", { ImGuiKey_Escape } };
 		MultiInputBinding previousTick = { "previous_tick", { ImGuiKey_DownArrow } };
@@ -34,8 +32,7 @@ namespace MikuMikuWorld
 		MultiInputBinding create = { "new_chart", { ImGuiKey_N, ImGuiModFlags_Ctrl } };
 		MultiInputBinding open = { "open", { ImGuiKey_O, ImGuiModFlags_Ctrl } };
 		MultiInputBinding save = { "save", { ImGuiKey_S, ImGuiModFlags_Ctrl } };
-		MultiInputBinding saveAs = { "save_as",
-			                         { ImGuiKey_S, ImGuiModFlags_Ctrl | ImGuiModFlags_Shift } };
+		MultiInputBinding saveAs = { "save_as", { ImGuiKey_S, ImGuiModFlags_Ctrl | ImGuiModFlags_Shift } };
 		MultiInputBinding exportSus = { "export", { ImGuiKey_E, ImGuiModFlags_Ctrl } };
 		MultiInputBinding selectAll = { "select_all", { ImGuiKey_A, ImGuiModFlags_Ctrl } };
 		MultiInputBinding undo = { "undo", { ImGuiKey_Z, ImGuiModFlags_Ctrl } };
@@ -43,31 +40,17 @@ namespace MikuMikuWorld
 		MultiInputBinding zoomOut = { "zoom_out", {} };
 		MultiInputBinding zoomIn = { "zoom_in", {} };
 
-		MultiInputBinding timelineSelect = { "timeline_select",
-			                                 { ImGuiKey_1 },
-			                                 { ImGuiKey_Keypad1 } };
+		MultiInputBinding timelineSelect = { "timeline_select", { ImGuiKey_1 }, { ImGuiKey_Keypad1 } };
 		MultiInputBinding timelineTap = { "timeline_tap", { ImGuiKey_2 }, { ImGuiKey_Keypad2 } };
 		MultiInputBinding timelineHold = { "timeline_hold", { ImGuiKey_3 }, { ImGuiKey_Keypad3 } };
-		MultiInputBinding timelineHoldMid = { "timeline_hold_step",
-			                                  { ImGuiKey_4 },
-			                                  { ImGuiKey_Keypad4 } };
-		MultiInputBinding timelineFlick = { "timeline_flick",
-			                                { ImGuiKey_5 },
-			                                { ImGuiKey_Keypad5 } };
-		MultiInputBinding timelineCritical = { "timeline_critical",
-			                                   { ImGuiKey_6 },
-			                                   { ImGuiKey_Keypad6 } };
-		MultiInputBinding timelineFriction = { "timeline_trace",
-			                                   { ImGuiKey_7 },
-			                                   { ImGuiKey_Keypad7 } };
+		MultiInputBinding timelineHoldMid = { "timeline_hold_step", { ImGuiKey_4 }, { ImGuiKey_Keypad4 } };
+		MultiInputBinding timelineFlick = { "timeline_flick", { ImGuiKey_5 }, { ImGuiKey_Keypad5 } };
+		MultiInputBinding timelineCritical = { "timeline_critical", { ImGuiKey_6 }, { ImGuiKey_Keypad6 } };
+		MultiInputBinding timelineFriction = { "timeline_trace", { ImGuiKey_7 }, { ImGuiKey_Keypad7 } };
 		MultiInputBinding timelineGuide = { "timeline_guide", {} };
 		MultiInputBinding timelineBpm = { "timeline_bpm", { ImGuiKey_8 }, { ImGuiKey_Keypad8 } };
-		MultiInputBinding timelineTimeSignature = { "timeline_time_signature",
-			                                        { ImGuiKey_9 },
-			                                        { ImGuiKey_Keypad9 } };
-		MultiInputBinding timelineHiSpeed = { "timeline_hi_speed",
-			                                  { ImGuiKey_0 },
-			                                  { ImGuiKey_Keypad0 } };
+		MultiInputBinding timelineTimeSignature = { "timeline_time_signature", { ImGuiKey_9 }, { ImGuiKey_Keypad9 } };
+		MultiInputBinding timelineHiSpeed = { "timeline_hi_speed", { ImGuiKey_0 }, { ImGuiKey_Keypad0 } };
 	};
 
 	struct ApplicationConfiguration

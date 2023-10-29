@@ -126,8 +126,7 @@ namespace MikuMikuWorld
 		addIntProperty(label, val, "%d", lowerBound, higherBound);
 	}
 
-	void UI::addIntProperty(const char* label, int& val, const char* format, int lowerBound,
-	                        int higherBound)
+	void UI::addIntProperty(const char* label, int& val, const char* format, int lowerBound, int higherBound)
 	{
 		propertyLabel(label);
 
@@ -150,8 +149,7 @@ namespace MikuMikuWorld
 	{
 		propertyLabel(label);
 
-		ImGui::DragFloat(labelID(label), &val, 1.0f, 0.0f, 0.0f, format,
-		                 ImGuiSliderFlags_NoRoundToFormat);
+		ImGui::DragFloat(labelID(label), &val, 1.0f, 0.0f, 0.0f, format, ImGuiSliderFlags_NoRoundToFormat);
 		ImGui::NextColumn();
 	}
 
@@ -163,8 +161,7 @@ namespace MikuMikuWorld
 		ImGui::NextColumn();
 	}
 
-	void UI::addSliderProperty(const char* label, float& val, float min, float max,
-	                           const char* format)
+	void UI::addSliderProperty(const char* label, float& val, float min, float max, const char* format)
 	{
 		propertyLabel(label);
 
@@ -189,10 +186,8 @@ namespace MikuMikuWorld
 
 		int result = 0;
 
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - UI::btnSmall.x -
-		                        ImGui::GetStyle().ItemSpacing.x);
-		if (ImGui::InputTextWithHint(labelID(label), "n/a", &val,
-		                             ImGuiInputTextFlags_EnterReturnsTrue))
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - ImGui::GetStyle().ItemSpacing.x);
+		if (ImGui::InputTextWithHint(labelID(label), "n/a", &val, ImGuiInputTextFlags_EnterReturnsTrue))
 			result = 1;
 		ImGui::SameLine();
 
@@ -216,8 +211,7 @@ namespace MikuMikuWorld
 		idNumerator.append("_numerator");
 		idDenominator.append("_denominator");
 
-		float controlWidth =
-		    (ImGui::GetContentRegionAvail().x / 2.0f) - (ImGui::CalcTextSize("/").x);
+		float controlWidth = (ImGui::GetContentRegionAvail().x / 2.0f) - (ImGui::CalcTextSize("/").x);
 		bool edit = false;
 
 		ImGui::SetNextItemWidth(controlWidth);
@@ -259,8 +253,7 @@ namespace MikuMikuWorld
 		{
 			float txtWidth = ImGui::CalcTextSize(label).x + (ImGui::GetStyle().WindowPadding.x * 2);
 			ImGui::SetNextWindowSize(ImVec2(std::min(txtWidth, 250.0f), -1));
-			ImGui::BeginTooltipEx(ImGuiTooltipFlags_OverridePreviousTooltip,
-			                      ImGuiWindowFlags_NoResize);
+			ImGui::BeginTooltipEx(ImGuiTooltipFlags_OverridePreviousTooltip, ImGuiWindowFlags_NoResize);
 			ImGui::TextWrapped(label);
 			ImGui::EndTooltip();
 		}
@@ -301,8 +294,7 @@ namespace MikuMikuWorld
 		{
 			for (int i = 0; i < count; ++i)
 			{
-				if (ImGui::Selectable(Utilities::getDivisionString(items[i]).c_str(),
-				                      value == items[i]))
+				if (ImGui::Selectable(Utilities::getDivisionString(items[i]).c_str(), value == items[i]))
 				{
 					value = items[i];
 					act = true;
@@ -346,8 +338,7 @@ namespace MikuMikuWorld
 	{
 		propertyLabel(getString("time_signature"));
 
-		float controlWidth =
-		    (ImGui::GetContentRegionAvail().x / 2.0f) - (ImGui::CalcTextSize("/").x);
+		float controlWidth = (ImGui::GetContentRegionAvail().x / 2.0f) - (ImGui::CalcTextSize("/").x);
 		bool edit = false;
 
 		ImGui::SetNextItemWidth(controlWidth);
@@ -405,8 +396,7 @@ namespace MikuMikuWorld
 		toolbarBtnImgSize = _toolbarBtnImgSize * scale;
 	}
 
-	bool UI::toolbarButton(const char* icon, const char* label, const char* shortcut, bool enabled,
-	                       bool selected)
+	bool UI::toolbarButton(const char* icon, const char* label, const char* shortcut, bool enabled, bool selected)
 	{
 		if (!enabled)
 		{
@@ -417,8 +407,7 @@ namespace MikuMikuWorld
 		if (selected)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_TabActive]);
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
-			                      ImGui::GetStyle().Colors[ImGuiCol_TabActive]);
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_TabActive]);
 		}
 
 		bool activated = ImGui::Button(icon, UI::toolbarBtnSize);
@@ -444,8 +433,7 @@ namespace MikuMikuWorld
 		return activated;
 	}
 
-	bool UI::toolbarImageButton(const char* img, const char* label, const char* shortcut,
-	                            bool enabled, bool selected)
+	bool UI::toolbarImageButton(const char* img, const char* label, const char* shortcut, bool enabled, bool selected)
 	{
 		std::string lblId;
 		lblId.append("##").append(img).append(label);
@@ -467,13 +455,11 @@ namespace MikuMikuWorld
 		if (selected)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_TabActive]);
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
-			                      ImGui::GetStyle().Colors[ImGuiCol_TabActive]);
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_TabActive]);
 		}
 
-		bool activated =
-		    ImGui::ImageButton(lblId.c_str(), (void*)ResourceManager::textures[texIndex].getID(),
-		                       UI::toolbarBtnImgSize);
+		bool activated = ImGui::ImageButton(lblId.c_str(), (void*)ResourceManager::textures[texIndex].getID(),
+		                                    UI::toolbarBtnImgSize);
 
 		std::string tooltipLabel = label;
 		if (shortcut && strlen(shortcut))

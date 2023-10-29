@@ -55,8 +55,7 @@ namespace jsonIO
 		return data;
 	}
 
-	json noteSelectionToJson(const mmw::Score& score, const std::unordered_set<int>& selection,
-	                         int baseTick)
+	json noteSelectionToJson(const mmw::Score& score, const std::unordered_set<int>& selection, int baseTick)
 	{
 		json data, notes, holds;
 		std::unordered_set<int> selectedNotes;

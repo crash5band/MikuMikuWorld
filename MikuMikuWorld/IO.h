@@ -35,8 +35,7 @@ namespace IO
 		Ok
 	};
 
-	constexpr const char digits[] =
-	    "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	constexpr const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 	char* reverse(char* str);
 	char* tostringBaseN(char* buff, long long num, int base);
@@ -64,6 +63,6 @@ namespace IO
 		return std::string(buf.get());
 	}
 
-	MessageBoxResult messageBox(std::string title, std::string message, MessageBoxButtons buttons,
-	                            MessageBoxIcon icon, void* parentWindow = NULL);
+	MessageBoxResult messageBox(std::string title, std::string message, MessageBoxButtons buttons, MessageBoxIcon icon,
+	                            void* parentWindow = NULL);
 }

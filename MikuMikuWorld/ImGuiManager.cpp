@@ -203,8 +203,7 @@ namespace MikuMikuWorld
 		fontConfig.PixelSnapH = false;
 		fontConfig.OversampleH = 1;
 		static const ImWchar iconRanges[] = { start, end, 0 };
-		ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), (int)size, &fontConfig,
-		                                         iconRanges);
+		ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), (int)size, &fontConfig, iconRanges);
 	}
 
 	void ImGuiManager::buildFonts(float dpiScale)
@@ -217,8 +216,7 @@ namespace MikuMikuWorld
 		io.FontDefault = nullptr;
 
 		loadFont(Application::getAppDir() + "res/fonts/NotoSansCJK-Regular.ttc", 16 * dpiScale);
-		loadIconFont(Application::getAppDir() + "res/fonts/fa-solid-900.ttf", ICON_MIN_FA,
-		             ICON_MAX_FA, 12 * dpiScale);
+		loadIconFont(Application::getAppDir() + "res/fonts/fa-solid-900.ttf", ICON_MIN_FA, ICON_MAX_FA, 12 * dpiScale);
 		ImGui_ImplOpenGL3_CreateFontsTexture();
 	}
 
@@ -226,8 +224,7 @@ namespace MikuMikuWorld
 	{
 		ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
 		                               ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-		                               ImGuiWindowFlags_NoMove |
-		                               ImGuiWindowFlags_NoBringToFrontOnFocus |
+		                               ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
 		                               ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
 
 		ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -253,10 +250,8 @@ namespace MikuMikuWorld
 			ImGui::DockBuilderSetNodeSize(dockSpaceId, viewport->WorkSize - viewportOffset);
 
 			ImGuiID dockMainId = dockSpaceId;
-			ImGuiID midRightId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Right, 0.25f,
-			                                                 nullptr, &dockMainId);
-			ImGuiID bottomRightId =
-			    ImGui::DockBuilderSplitNode(midRightId, ImGuiDir_Down, 0.3f, nullptr, &midRightId);
+			ImGuiID midRightId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Right, 0.25f, nullptr, &dockMainId);
+			ImGuiID bottomRightId = ImGui::DockBuilderSplitNode(midRightId, ImGuiDir_Down, 0.3f, nullptr, &midRightId);
 
 			ImGui::DockBuilderDockWindow("###notes_timeline", dockMainId);
 			ImGui::DockBuilderDockWindow("###chart_properties", midRightId);

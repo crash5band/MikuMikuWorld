@@ -20,8 +20,7 @@ namespace MikuMikuWorld
 		return history.curr;
 	}
 
-	void HistoryManager::pushHistory(const std::string& description, const Score& prev,
-	                                 const Score& curr)
+	void HistoryManager::pushHistory(const std::string& description, const Score& prev, const Score& curr)
 	{
 		History history{ description, prev, curr };
 		pushHistory(history);
@@ -52,13 +51,7 @@ namespace MikuMikuWorld
 
 	int HistoryManager::redoCount() const { return redoHistory.size(); }
 
-	std::string HistoryManager::peekUndo() const
-	{
-		return undoHistory.size() ? undoHistory.top().description : "";
-	}
+	std::string HistoryManager::peekUndo() const { return undoHistory.size() ? undoHistory.top().description : ""; }
 
-	std::string HistoryManager::peekRedo() const
-	{
-		return redoHistory.size() ? redoHistory.top().description : "";
-	}
+	std::string HistoryManager::peekRedo() const { return redoHistory.size() ? redoHistory.top().description : ""; }
 }

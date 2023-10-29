@@ -104,10 +104,7 @@ namespace MikuMikuWorld
 		bool selectionHasFlickable() const;
 		bool selectionCanConnect() const;
 		bool selectionCanChangeHoldType() const;
-		inline bool isNoteSelected(const Note& note)
-		{
-			return selectedNotes.find(note.ID) != selectedNotes.end();
-		}
+		inline bool isNoteSelected(const Note& note) { return selectedNotes.find(note.ID) != selectedNotes.end(); }
 		inline void selectAll()
 		{
 			selectedNotes.clear();

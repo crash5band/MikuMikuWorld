@@ -112,20 +112,11 @@ namespace MikuMikuWorld
 
 	void Shader::use() { glUseProgram(ID); }
 
-	void Shader::setBool(const std::string& name, bool value)
-	{
-		glUniform1i(getUniformLoc(name), (int)value);
-	}
+	void Shader::setBool(const std::string& name, bool value) { glUniform1i(getUniformLoc(name), (int)value); }
 
-	void Shader::setInt(const std::string& name, int value)
-	{
-		glUniform1i(getUniformLoc(name), value);
-	}
+	void Shader::setInt(const std::string& name, int value) { glUniform1i(getUniformLoc(name), value); }
 
-	void Shader::setFloat(const std::string& name, float value)
-	{
-		glUniform1f(getUniformLoc(name), value);
-	}
+	void Shader::setFloat(const std::string& name, float value) { glUniform1f(getUniformLoc(name), value); }
 
 	void Shader::setVec2(const std::string& name, DirectX::XMVECTOR value)
 	{

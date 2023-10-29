@@ -120,8 +120,7 @@ namespace MikuMikuWorld
 			for (auto& warning : warnings)
 				message += "- " + warning.getMessage() + "\n";
 
-			IO::messageBox(APP_NAME, message, IO::MessageBoxButtons::Ok,
-			               IO::MessageBoxIcon::Warning);
+			IO::messageBox(APP_NAME, message, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Warning);
 		}
 	}
 
@@ -151,15 +150,13 @@ namespace MikuMikuWorld
 				              // filename without extension
 				              // we will add the extension later after determining what the final
 				              // filename should be
-				              std::string filename =
-				                  (libPath / fixFilename(preset.getName())).string();
+				              std::string filename = (libPath / fixFilename(preset.getName())).string();
 				              preset.write(filename, false);
 			              }
 		              });
 	}
 
-	void PresetManager::createPreset(const Score& score,
-	                                 const std::unordered_set<int>& selectedNotes,
+	void PresetManager::createPreset(const Score& score, const std::unordered_set<int>& selectedNotes,
 	                                 const std::string& name, const std::string& desc)
 	{
 		if (!selectedNotes.size() || !name.size())
@@ -171,10 +168,8 @@ namespace MikuMikuWorld
 
 		int baseTick = score.notes
 		                   .at(*std::min_element(selectedNotes.begin(), selectedNotes.end(),
-		                                         [&score](int id1, int id2) {
-			                                         return score.notes.at(id1).tick <
-			                                                score.notes.at(id2).tick;
-		                                         }))
+		                                         [&score](int id1, int id2)
+		                                         { return score.notes.at(id1).tick < score.notes.at(id2).tick; }))
 		                   .tick;
 		preset.data = jsonIO::noteSelectionToJson(score, selectedNotes, baseTick);
 
@@ -197,8 +192,7 @@ namespace MikuMikuWorld
 	std::string PresetManager::fixFilename(const std::string& name)
 	{
 		std::string result = name;
-		constexpr std::array<char, 9> invalidFilenameChars{ '\\', '/', '\"', '|', '<',
-			                                                '>',  '?', '*',  ':' };
+		constexpr std::array<char, 9> invalidFilenameChars{ '\\', '/', '\"', '|', '<', '>', '?', '*', ':' };
 		for (char c : invalidFilenameChars)
 		{
 			std::replace(result.begin(), result.end(), c, '_');

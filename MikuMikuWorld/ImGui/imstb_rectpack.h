@@ -131,8 +131,7 @@ extern "C"
 
 	}; // 16 bytes, nominally
 
-	STBRP_DEF void stbrp_init_target(stbrp_context* context, int width, int height,
-	                                 stbrp_node* nodes, int num_nodes);
+	STBRP_DEF void stbrp_init_target(stbrp_context* context, int width, int height, stbrp_node* nodes, int num_nodes);
 	// Initialize a rectangle packer to:
 	//    pack a rectangle that is 'width' by 'height' in dimensions
 	//    using temporary storage provided by the array 'nodes', which is 'num_nodes' long
@@ -265,8 +264,7 @@ STBRP_DEF void stbrp_setup_allow_out_of_mem(stbrp_context* context, int allow_ou
 	}
 }
 
-STBRP_DEF void stbrp_init_target(stbrp_context* context, int width, int height, stbrp_node* nodes,
-                                 int num_nodes)
+STBRP_DEF void stbrp_init_target(stbrp_context* context, int width, int height, stbrp_node* nodes, int num_nodes)
 {
 	int i;
 
@@ -292,8 +290,7 @@ STBRP_DEF void stbrp_init_target(stbrp_context* context, int width, int height, 
 }
 
 // find minimum y position if it starts at x1
-static int stbrp__skyline_find_min_y(stbrp_context* c, stbrp_node* first, int x0, int width,
-                                     int* pwaste)
+static int stbrp__skyline_find_min_y(stbrp_context* c, stbrp_node* first, int x0, int width, int* pwaste)
 {
 	stbrp_node* node = first;
 	int x1 = x0 + width;
@@ -469,8 +466,7 @@ static stbrp__findresult stbrp__skyline_find_best_pos(stbrp_context* c, int widt
 	return fr;
 }
 
-static stbrp__findresult stbrp__skyline_pack_rectangle(stbrp_context* context, int width,
-                                                       int height)
+static stbrp__findresult stbrp__skyline_pack_rectangle(stbrp_context* context, int width, int height)
 {
 	// find best position according to heuristic
 	stbrp__findresult res = stbrp__skyline_find_best_pos(context, width, height);

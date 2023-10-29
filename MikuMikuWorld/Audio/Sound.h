@@ -31,18 +31,14 @@ namespace Audio
 		ma_uint64 frameCount{};
 		ma_audio_buffer buffer;
 
-		void initialize(std::string name, ma_uint32 sampleRate, ma_uint32 channelCount,
-		                ma_uint64 frameCount, int16_t* samples);
+		void initialize(std::string name, ma_uint32 sampleRate, ma_uint32 channelCount, ma_uint64 frameCount,
+		                int16_t* samples);
 		void dispose();
 
-		bool isValid() const
-		{
-			return samples.get() != nullptr && sampleRate > 0 && frameCount > 0;
-		}
+		bool isValid() const { return samples.get() != nullptr && sampleRate > 0 && frameCount > 0; }
 	};
 
-	constexpr std::array<std::string_view, 4> supportedFileFormats = { ".mp3", ".wav", ".flac",
-		                                                               ".ogg" };
+	constexpr std::array<std::string_view, 4> supportedFileFormats = { ".mp3", ".wav", ".flac", ".ogg" };
 
 	MikuMikuWorld::Result decodeAudioFile(std::string filename, Sound& sound);
 	bool isSupportedFileFormat(const std::string_view& fileExtension);
@@ -76,8 +72,7 @@ namespace Audio
 		bool isPlaying(const SoundInstance& soundInstance) const;
 		bool isAnyPlaying() const;
 
-		void initialize(const std::string& path, ma_engine* engine, ma_sound_group* group,
-		                SoundFlags flags);
+		void initialize(const std::string& path, ma_engine* engine, ma_sound_group* group, SoundFlags flags);
 		void dispose();
 
 	  private:

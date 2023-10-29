@@ -78,8 +78,7 @@ namespace MikuMikuWorld
 		return slides;
 	}
 
-	std::vector<SUSNote> SusParser::toNotes(const std::string& header, const std::string& data,
-	                                        int measureBase)
+	std::vector<SUSNote> SusParser::toNotes(const std::string& header, const std::string& data, int measureBase)
 	{
 		std::vector<SUSNote> notes;
 		int measure = measureBase + std::stoul(header.substr(0, 3).c_str(), nullptr, 10);
@@ -89,10 +88,9 @@ namespace MikuMikuWorld
 			if (data.substr(i, 2) == "00")
 				continue;
 
-			notes.push_back(SUSNote{ toTicks(measure, i, data.size()),
-			                         (int)std::stoul(header.substr(4, 1), nullptr, 36),
-			                         (int)std::stoul(data.substr(i + 1, 1), nullptr, 36),
-			                         (int)std::stoul(data.substr(i, 1), nullptr, 36) });
+			notes.push_back(SUSNote{
+			    toTicks(measure, i, data.size()), (int)std::stoul(header.substr(4, 1), nullptr, 36),
+			    (int)std::stoul(data.substr(i + 1, 1), nullptr, 36), (int)std::stoul(data.substr(i, 1), nullptr, 36) });
 		}
 
 		return notes;
@@ -165,11 +163,10 @@ namespace MikuMikuWorld
 				std::string header = trim(l[0]).substr(1);
 				std::string data = l.size() > 1 ? trim(l[1]) : "";
 
-				if (header.size() == 5 && header.substr(header.size() - 2) == "02" &&
-				    isDigit(header))
+				if (header.size() == 5 && header.substr(header.size() - 2) == "02" && isDigit(header))
 				{
-					barLengths.push_back({ measureOffset + atoi(header.substr(0, 3).c_str()),
-					                       (float)atof((data.c_str())) });
+					barLengths.push_back(
+					    { measureOffset + atoi(header.substr(0, 3).c_str()), (float)atof((data.c_str())) });
 				}
 				else if (header.size() == 5 && startsWith(header, "BPM"))
 				{
@@ -201,14 +198,11 @@ namespace MikuMikuWorld
 		{
 			int measure = barLengths[i].bar;
 			int ticksPerMeasure = barLengths[i].length * ticksPerBeat;
-			ticks = ticks + i == 0 ? 0
-			                       : (measure - barLengths[i - 1].bar) * barLengths[i - 1].length *
-			                             ticksPerBeat;
+			ticks = ticks + i == 0 ? 0 : (measure - barLengths[i - 1].bar) * barLengths[i - 1].length * ticksPerBeat;
 
 			bars.push_back(Bar{ measure, ticksPerMeasure, ticks });
 		}
-		std::sort(bars.begin(), bars.end(),
-		          [](const Bar& b1, const Bar& b2) { return b1.measure < b2.measure; });
+		std::sort(bars.begin(), bars.end(), [](const Bar& b1, const Bar& b2) { return b1.measure < b2.measure; });
 
 		// Process BPM changes
 		std::vector<BPM> bpms;
@@ -227,8 +221,7 @@ namespace MikuMikuWorld
 				if (subData == "00")
 					continue;
 
-				int tick =
-				    toTicks(line.measureOffset + atoi(header.substr(0, 3).c_str()), i, data.size());
+				int tick = toTicks(line.measureOffset + atoi(header.substr(0, 3).c_str()), i, data.size());
 				float bpm = 120;
 
 				if (bpmDefinitions.find(subData) != bpmDefinitions.end())
@@ -237,8 +230,7 @@ namespace MikuMikuWorld
 				bpms.push_back({ tick, bpm });
 			}
 		}
-		std::sort(bpms.begin(), bpms.end(),
-		          [](const BPM& a, const BPM& b) { return a.tick < b.tick; });
+		std::sort(bpms.begin(), bpms.end(), [](const BPM& a, const BPM& b) { return a.tick < b.tick; });
 
 		// process hi-speed changes
 		std::vector<HiSpeed> hiSpeeds;
@@ -304,8 +296,7 @@ namespace MikuMikuWorld
 				int channel = std::stoul(header.substr(5, 1), nullptr, 36);
 
 				std::vector<SUSNote> appendNotes = toNotes(header, data, line.measureOffset);
-				slideStreams[channel].insert(slideStreams[channel].end(), appendNotes.begin(),
-				                             appendNotes.end());
+				slideStreams[channel].insert(slideStreams[channel].end(), appendNotes.begin(), appendNotes.end());
 			}
 			else if (header.size() == 5 && header[3] == '5')
 			{
@@ -317,8 +308,7 @@ namespace MikuMikuWorld
 				int channel = std::stoul(header.substr(5, 1), nullptr, 36);
 
 				std::vector<SUSNote> appendNotes = toNotes(header, data, line.measureOffset);
-				guideStreams[channel].insert(guideStreams[channel].end(), appendNotes.begin(),
-				                             appendNotes.end());
+				guideStreams[channel].insert(guideStreams[channel].end(), appendNotes.begin(), appendNotes.end());
 			}
 		}
 

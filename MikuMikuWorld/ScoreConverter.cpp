@@ -9,15 +9,9 @@
 
 namespace MikuMikuWorld
 {
-	std::string ScoreConverter::noteKey(const SUSNote& note)
-	{
-		return IO::formatString("%d-%d", note.tick, note.lane);
-	}
+	std::string ScoreConverter::noteKey(const SUSNote& note) { return IO::formatString("%d-%d", note.tick, note.lane); }
 
-	std::string ScoreConverter::noteKey(const Note& note)
-	{
-		return IO::formatString("%d-%d", note.tick, note.lane);
-	}
+	std::string ScoreConverter::noteKey(const Note& note) { return IO::formatString("%d-%d", note.tick, note.lane); }
 
 	std::pair<int, int> ScoreConverter::barLengthToFraction(float length, float fractionDenom)
 	{
@@ -36,11 +30,7 @@ namespace MikuMikuWorld
 	Score ScoreConverter::susToScore(const SUS& sus)
 	{
 		ScoreMetadata metadata{
-			sus.metadata.data.at("title"),
-			sus.metadata.data.at("artist"),
-			sus.metadata.data.at("designer"),
-			"",
-			"",
+			sus.metadata.data.at("title"), sus.metadata.data.at("artist"), sus.metadata.data.at("designer"), "", "",
 			sus.metadata.waveOffset * 1000 // seconds -> milliseconds
 		};
 
@@ -171,16 +161,14 @@ namespace MikuMikuWorld
 		}
 
 		// Not the best way to handle this but it will do the job
-		static auto slideFillFunc =
-		    [&](const std::vector<std::vector<SUSNote>>& slides, bool isGuide)
+		static auto slideFillFunc = [&](const std::vector<std::vector<SUSNote>>& slides, bool isGuide)
 		{
 			for (const auto& slide : slides)
 			{
 				const std::string key = noteKey(slide[0]);
 
-				auto start =
-				    std::find_if(slide.begin(), slide.end(),
-				                 [](const SUSNote& a) { return a.type == 1 || a.type == 2; });
+				auto start = std::find_if(slide.begin(), slide.end(),
+				                          [](const SUSNote& a) { return a.type == 1 || a.type == 2; });
 
 				if (start == slide.end() || slide.size() < 2)
 					continue;
@@ -244,12 +232,10 @@ namespace MikuMikuWorld
 						}
 						else
 						{
-							n.flick =
-							    flicks.find(key) != flicks.end() ? flicks[key] : FlickType::None;
+							n.flick = flicks.find(key) != flicks.end() ? flicks[key] : FlickType::None;
 							n.friction = frictions.find(noteKey(note)) != frictions.end();
-							hold.endType = hiddenHolds.find(noteKey(note)) != hiddenHolds.end()
-							                   ? HoldNoteType::Hidden
-							                   : HoldNoteType::Normal;
+							hold.endType = hiddenHolds.find(noteKey(note)) != hiddenHolds.end() ? HoldNoteType::Hidden
+							                                                                    : HoldNoteType::Normal;
 						}
 
 						notes[n.ID] = n;
@@ -269,8 +255,7 @@ namespace MikuMikuWorld
 						if (n.friction)
 							printf("Note at %d-%d is friction", n.tick, n.lane);
 
-						HoldStepType type =
-						    note.type == 3 ? HoldStepType::Normal : HoldStepType::Hidden;
+						HoldStepType type = note.type == 3 ? HoldStepType::Normal : HoldStepType::Hidden;
 						if (stepIgnore.find(key) != stepIgnore.end())
 							type = HoldStepType::Skip;
 
@@ -302,8 +287,8 @@ namespace MikuMikuWorld
 		for (const auto& sign : sus.barlengths)
 		{
 			auto fraction = barLengthToFraction(sign.length, 4.0f);
-			timeSignatures.insert(std::pair<int, TimeSignature>(
-			    sign.bar, TimeSignature{ sign.bar, fraction.first, fraction.second }));
+			timeSignatures.insert(
+			    std::pair<int, TimeSignature>(sign.bar, TimeSignature{ sign.bar, fraction.first, fraction.second }));
 		}
 
 		std::vector<HiSpeedChange> hiSpeedChanges;
@@ -326,8 +311,7 @@ namespace MikuMikuWorld
 
 	SUS ScoreConverter::scoreToSus(const Score& score)
 	{
-		constexpr std::array<int, static_cast<int>(FlickType::FlickTypeCount)> flickToType{ 0, 1, 3,
-			                                                                                4 };
+		constexpr std::array<int, static_cast<int>(FlickType::FlickTypeCount)> flickToType{ 0, 1, 3, 4 };
 
 		std::vector<SUSNote> taps, directionals;
 		std::vector<std::vector<SUSNote>> slides;
@@ -350,8 +334,8 @@ namespace MikuMikuWorld
 				taps.push_back(SUSNote{ note.tick, note.lane + 2, note.width, type });
 
 				if (note.isFlick())
-					directionals.push_back(SUSNote{ note.tick, note.lane + 2, note.width,
-					                                flickToType[static_cast<int>(note.flick)] });
+					directionals.push_back(
+					    SUSNote{ note.tick, note.lane + 2, note.width, flickToType[static_cast<int>(note.flick)] });
 			}
 		}
 
@@ -385,11 +369,10 @@ namespace MikuMikuWorld
 			                         hold.startType != HoldNoteType::Normal && start.critical;
 
 			if (hasEase)
-				directionals.push_back(SUSNote{ start.tick, start.lane + 2, start.width,
-				                                hold.start.ease == EaseType::EaseIn ? 2 : 6 });
+				directionals.push_back(
+				    SUSNote{ start.tick, start.lane + 2, start.width, hold.start.ease == EaseType::EaseIn ? 2 : 6 });
 
-			bool guideAlreadyOnCritical =
-			    hold.isGuide() && criticalKeys.find(noteKey(start)) != criticalKeys.end();
+			bool guideAlreadyOnCritical = hold.isGuide() && criticalKeys.find(noteKey(start)) != criticalKeys.end();
 
 			// We'll use type 1 to indicate it's a normal note
 			int type = invisibleTapPoint ? 7 : start.friction ? 5 : 1;
@@ -415,8 +398,7 @@ namespace MikuMikuWorld
 				else if (step.ease != EaseType::Linear)
 				{
 					int stepTapType = hold.isGuide() ? start.critical ? 8 : 7 : 1;
-					taps.push_back(
-					    SUSNote{ midNote.tick, midNote.lane + 2, midNote.width, stepTapType });
+					taps.push_back(SUSNote{ midNote.tick, midNote.lane + 2, midNote.width, stepTapType });
 					directionals.push_back(SUSNote{ midNote.tick, midNote.lane + 2, midNote.width,
 					                                step.ease == EaseType::EaseIn ? 2 : 6 });
 				}
@@ -429,8 +411,8 @@ namespace MikuMikuWorld
 			// Hidden and guide slides do not have flicks
 			if (end.isFlick() && hold.endType == HoldNoteType::Normal)
 			{
-				directionals.push_back(SUSNote{ end.tick, end.lane + 2, end.width,
-				                                flickToType[static_cast<int>(end.flick)] });
+				directionals.push_back(
+				    SUSNote{ end.tick, end.lane + 2, end.width, flickToType[static_cast<int>(end.flick)] });
 
 				// Critical friction notes use type 6 not 2
 				if (end.critical && !start.critical && !end.friction)
@@ -473,8 +455,7 @@ namespace MikuMikuWorld
 			bpms.push_back(BPM{ 0, 120 });
 
 		for (const auto& [measure, ts] : score.timeSignatures)
-			barlengths.push_back(
-			    BarLength{ ts.measure, ((float)ts.numerator / (float)ts.denominator) * 4 });
+			barlengths.push_back(BarLength{ ts.measure, ((float)ts.numerator / (float)ts.denominator) * 4 });
 
 		hiSpeeds.reserve(score.hiSpeedChanges.size());
 		for (const auto& hiSpeed : score.hiSpeedChanges)

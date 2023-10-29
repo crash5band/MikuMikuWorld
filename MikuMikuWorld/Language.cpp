@@ -15,8 +15,7 @@ namespace MikuMikuWorld
 		read(filename);
 	}
 
-	Language::Language(const char* code, std::string name,
-	                   const std::unordered_map<std::string, std::string>& strings)
+	Language::Language(const char* code, std::string name, const std::unordered_map<std::string, std::string>& strings)
 	{
 		this->code = code;
 		displayName = name;

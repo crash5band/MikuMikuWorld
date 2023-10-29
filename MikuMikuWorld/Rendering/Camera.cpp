@@ -11,14 +11,10 @@ namespace MikuMikuWorld
 		return DirectX::XMMatrixOrthographicRH(width, height, 0.001f, 100);
 	}
 
-	DirectX::XMMATRIX Camera::getOffCenterOrthographicProjection(float left, float right, float up,
-	                                                             float down) const
+	DirectX::XMMATRIX Camera::getOffCenterOrthographicProjection(float left, float right, float up, float down) const
 	{
 		return DirectX::XMMatrixOrthographicOffCenterRH(left, right, down, up, 0.001f, 100.0f);
 	}
 
-	DirectX::XMMATRIX Camera::getViewMatrix() const
-	{
-		return DirectX::XMMatrixLookAtRH(position, target, up);
-	}
+	DirectX::XMMATRIX Camera::getViewMatrix() const { return DirectX::XMMatrixLookAtRH(position, target, up); }
 }

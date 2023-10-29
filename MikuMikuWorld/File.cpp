@@ -192,8 +192,8 @@ namespace IO
 		ofn.nFilterIndex = filterIndex + 1;
 		ofn.nFileOffset = 0;
 		ofn.nMaxFile = MAX_PATH;
-		ofn.Flags = OFN_LONGNAMES | OFN_EXPLORER | OFN_ENABLESIZING | OFN_OVERWRITEPROMPT |
-		            OFN_HIDEREADONLY | OFN_PATHMUSTEXIST;
+		ofn.Flags = OFN_LONGNAMES | OFN_EXPLORER | OFN_ENABLESIZING | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+		            OFN_PATHMUSTEXIST;
 
 		std::wstring wDefaultExtension = mbToWideStr(defaultExtension);
 		ofn.lpstrDefExt = wDefaultExtension.c_str();
@@ -253,13 +253,7 @@ namespace IO
 		return outputFilename.empty() ? FileDialogResult::Cancel : FileDialogResult::OK;
 	}
 
-	FileDialogResult FileDialog::openFile()
-	{
-		return showFileDialog(DialogType::Open, DialogSelectType::File);
-	}
+	FileDialogResult FileDialog::openFile() { return showFileDialog(DialogType::Open, DialogSelectType::File); }
 
-	FileDialogResult FileDialog::saveFile()
-	{
-		return showFileDialog(DialogType::Save, DialogSelectType::File);
-	}
+	FileDialogResult FileDialog::saveFile() { return showFileDialog(DialogType::Save, DialogSelectType::File); }
 }

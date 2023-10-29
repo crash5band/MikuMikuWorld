@@ -9,10 +9,7 @@
 
 namespace MikuMikuWorld
 {
-	void frameBufferResizeCallback(GLFWwindow* window, int width, int height)
-	{
-		glViewport(0, 0, width, height);
-	}
+	void frameBufferResizeCallback(GLFWwindow* window, int width, int height) { glViewport(0, 0, width, height); }
 
 	void windowSizeCallback(GLFWwindow* window, int width, int height)
 	{
@@ -38,10 +35,7 @@ namespace MikuMikuWorld
 		Application::windowState.closing = true;
 	}
 
-	void windowMaximizeCallback(GLFWwindow* window, int _maximized)
-	{
-		Application::windowState.maximized = _maximized;
-	}
+	void windowMaximizeCallback(GLFWwindow* window, int _maximized) { Application::windowState.maximized = _maximized; }
 
 	Result Application::initOpenGL()
 	{
@@ -54,8 +48,7 @@ namespace MikuMikuWorld
 		if (possibleError != GLFW_NO_ERROR)
 		{
 			glfwTerminate();
-			return Result(ResultStatus::Error,
-			              "Failed to initialize GLFW.\n" + std::string(glfwErrorDescription));
+			return Result(ResultStatus::Error, "Failed to initialize GLFW.\n" + std::string(glfwErrorDescription));
 		}
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -68,8 +61,7 @@ namespace MikuMikuWorld
 		if (possibleError != GLFW_NO_ERROR)
 		{
 			glfwTerminate();
-			return Result(ResultStatus::Error,
-			              "Failed to create GLFW Window.\n" + std::string(glfwErrorDescription));
+			return Result(ResultStatus::Error, "Failed to create GLFW Window.\n" + std::string(glfwErrorDescription));
 		}
 
 		glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
@@ -85,8 +77,8 @@ namespace MikuMikuWorld
 		if (IO::File::exists(iconFilename))
 		{
 			GLFWimage images[1]{};
-			images[0].pixels = stbi_load(iconFilename.c_str(), &images[0].width, &images[0].height,
-			                             0, 4); // rgba channels
+			images[0].pixels =
+			    stbi_load(iconFilename.c_str(), &images[0].width, &images[0].height, 0, 4); // rgba channels
 			glfwSetWindowIcon(window, 1, images);
 			stbi_image_free(images[0].pixels);
 		}

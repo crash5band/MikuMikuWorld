@@ -4,8 +4,7 @@
 
 namespace MikuMikuWorld
 {
-	VertexBuffer::VertexBuffer(int _capacity)
-	    : vertexCapcity{ _capacity }, bufferPos{ 0 }, vao{ 0 }, vbo{ 0 }, ebo{ 0 }
+	VertexBuffer::VertexBuffer(int _capacity) : vertexCapcity{ _capacity }, bufferPos{ 0 }, vao{ 0 }, vbo{ 0 }, ebo{ 0 }
 	{
 		buffer = nullptr;
 		indices = nullptr;
@@ -43,20 +42,16 @@ namespace MikuMikuWorld
 		glBufferData(GL_ARRAY_BUFFER, vertexCapcity * sizeof(Vertex), NULL, GL_DYNAMIC_DRAW);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCapacity * sizeof(unsigned int), indices,
-		             GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCapacity * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-		                      (void*)offsetof(Vertex, position));
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
 
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-		                      (void*)offsetof(Vertex, color));
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
 
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-		                      (void*)offsetof(Vertex, uv));
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
@@ -86,8 +81,7 @@ namespace MikuMikuWorld
 	{
 		for (int offset = 0; offset < 4; ++offset)
 		{
-			buffer[bufferPos + offset].position =
-			    DirectX::XMVector2Transform(q.vertices[offset].position, q.matrix);
+			buffer[bufferPos + offset].position = DirectX::XMVector2Transform(q.vertices[offset].position, q.matrix);
 			buffer[bufferPos + offset].color = q.vertices[offset].color;
 			buffer[bufferPos + offset].uv = q.vertices[offset].uv;
 		}

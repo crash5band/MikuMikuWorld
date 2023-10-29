@@ -19,8 +19,7 @@ namespace MikuMikuWorld
 
 		DirectX::XMMATRIX getViewMatrix() const;
 		DirectX::XMMATRIX getOrthographicProjection(float width, float height) const;
-		DirectX::XMMATRIX getOffCenterOrthographicProjection(float left, float right, float up,
-		                                                     float down) const;
+		DirectX::XMMATRIX getOffCenterOrthographicProjection(float left, float right, float up, float down) const;
 		DirectX::XMMATRIX getPerspectiveProjection() const;
 	};
 }

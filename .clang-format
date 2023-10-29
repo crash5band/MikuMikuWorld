@@ -4,7 +4,7 @@ UseTab: ForIndentation
 IndentWidth: 4
 TabWidth: 4
 Cpp11BracedListStyle: false
-ColumnLimit: 100
+ColumnLimit: 120
 ReferenceAlignment: Left
 PointerAlignment: Left
 FixNamespaceComments: false

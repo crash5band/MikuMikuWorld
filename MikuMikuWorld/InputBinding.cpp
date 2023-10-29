@@ -86,16 +86,15 @@ static constexpr ImGuiKeyInfo imguiKeysTable[] = {
 	{ ImGuiKey_F10, "F10", "F10" },
 	{ ImGuiKey_F11, "F11", "F11" },
 	{ ImGuiKey_F12, "F12", "F12" },
-	{ ImGuiKey_Apostrophe, "Apostrophe", "'" },   // '
-	{ ImGuiKey_Comma, "Comma", "," },             // ,
-	{ ImGuiKey_Minus, "Minus", "-" },             // -
-	{ ImGuiKey_Period, "Period", "." },           // .
-	{ ImGuiKey_Slash, "Slash", "/" },             // /
-	{ ImGuiKey_Semicolon, "Semicolon", ";" },     // ;
-	{ ImGuiKey_Equal, "Equal", "=" },             // =
-	{ ImGuiKey_LeftBracket, "LeftBracket", "[" }, // [
-	{ ImGuiKey_Backslash, "Backslash",
-	  "\\" }, // \ (this text inhibits multiline comment caused by backslash)
+	{ ImGuiKey_Apostrophe, "Apostrophe", "'" },     // '
+	{ ImGuiKey_Comma, "Comma", "," },               // ,
+	{ ImGuiKey_Minus, "Minus", "-" },               // -
+	{ ImGuiKey_Period, "Period", "." },             // .
+	{ ImGuiKey_Slash, "Slash", "/" },               // /
+	{ ImGuiKey_Semicolon, "Semicolon", ";" },       // ;
+	{ ImGuiKey_Equal, "Equal", "=" },               // =
+	{ ImGuiKey_LeftBracket, "LeftBracket", "[" },   // [
+	{ ImGuiKey_Backslash, "Backslash", "\\" },      // \ (this text inhibits multiline comment caused by backslash)
 	{ ImGuiKey_RightBracket, "RightBracket", "]" }, // ]
 	{ ImGuiKey_GraveAccent, "GraveAccent", "`" },   // `
 	{ ImGuiKey_CapsLock, "CapsLock", "Caps Lock" },
@@ -260,8 +259,7 @@ InputBinding FromSerializedString(std::string string)
 				continue;
 
 			std::string infoKeyName{ infoKey.name };
-			if (std::equal(key.begin(), key.end(), infoKeyName.begin(), infoKeyName.end(),
-			               stringCompare))
+			if (std::equal(key.begin(), key.end(), infoKeyName.begin(), infoKeyName.end(), stringCompare))
 			{
 				binding.keyCode = infoKey.key;
 				break;

@@ -18,13 +18,12 @@ namespace MikuMikuWorld
 		StepDrawTypeMax
 	};
 
-	constexpr std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawOutlineColors[] = {
-		0xFFAAFFAA, 0xFFFFFFAA, 0xFFCCCCCC, 0xFFCCCCCC
-	};
+	constexpr std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawOutlineColors[] = { 0xFFAAFFAA, 0xFFFFFFAA,
+		                                                                                        0xFFCCCCCC,
+		                                                                                        0xFFCCCCCC };
 
-	constexpr std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawFillColors[] = {
-		0x00FFFFFF, 0x00FFFFFF, 0xFF66B622, 0xFF15A0C9
-	};
+	constexpr std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawFillColors[] = { 0x00FFFFFF, 0x00FFFFFF,
+		                                                                                     0xFF66B622, 0xFF15A0C9 };
 
 	class StepDrawData
 	{
@@ -46,10 +45,7 @@ namespace MikuMikuWorld
 		}
 
 		inline constexpr ImU32 getFillColor() const { return stepDrawFillColors->at((int)type); }
-		inline constexpr ImU32 getOutlineColor() const
-		{
-			return stepDrawOutlineColors->at((int)type);
-		}
+		inline constexpr ImU32 getOutlineColor() const { return stepDrawOutlineColors->at((int)type); }
 	};
 
 	class ScoreEditorTimeline
@@ -124,8 +120,7 @@ namespace MikuMikuWorld
 			Note holdStart;
 			Note holdEnd;
 			Note holdStep;
-		} inputNotes{ Note(NoteType::Tap), Note(NoteType::Hold), Note(NoteType::HoldEnd),
-			          Note(NoteType::HoldMid) };
+		} inputNotes{ Note(NoteType::Tap), Note(NoteType::Hold), Note(NoteType::HoldEnd), Note(NoteType::HoldMid) };
 
 		std::vector<StepDrawData> drawSteps;
 		std::unordered_set<std::string> playingNoteSounds;
@@ -137,18 +132,16 @@ namespace MikuMikuWorld
 
 		void drawWaveform(ScoreContext& context);
 
-		void drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, bool isGuide,
-		                   Renderer* renderer, const Color& tint, const int offsetTick = 0,
-		                   const int offsetLane = 0);
-		void drawHoldNote(const std::unordered_map<int, Note>& notes, const HoldNote& note,
-		                  Renderer* renderer, const Color& tint, const int offsetTicks = 0,
-		                  const int offsetLane = 0);
+		void drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, bool isGuide, Renderer* renderer,
+		                   const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
+		void drawHoldNote(const std::unordered_map<int, Note>& notes, const HoldNote& note, Renderer* renderer,
+		                  const Color& tint, const int offsetTicks = 0, const int offsetLane = 0);
 		void drawHoldMid(Note& note, HoldStepType type, Renderer* renderer, const Color& tint);
 		void drawOutline(const StepDrawData& data);
-		void drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint,
-		                    const int offsetTick = 0, const int offsetLane = 0);
-		void drawNote(const Note& note, Renderer* renderer, const Color& tint,
-		              const int offsetTick = 0, const int offsetLane = 0);
+		void drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0,
+		                    const int offsetLane = 0);
+		void drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0,
+		              const int offsetLane = 0);
 		bool noteControl(ScoreContext& context, const ImVec2& pos, const ImVec2& sz, const char* id,
 		                 ImGuiMouseCursor cursor);
 		bool bpmControl(const Tempo& tempo);
@@ -203,10 +196,7 @@ namespace MikuMikuWorld
 		float laneToPosition(float lane) const;
 
 		constexpr inline float getTimelineStartX() const { return position.x + laneOffset; }
-		constexpr inline float getTimelineEndX() const
-		{
-			return getTimelineStartX() + (laneWidth * 12);
-		}
+		constexpr inline float getTimelineEndX() const { return getTimelineStartX() + (laneWidth * 12); }
 
 		constexpr inline float getZoom() const { return zoom; }
 		void setZoom(float zoom);

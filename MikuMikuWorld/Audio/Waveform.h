@@ -27,10 +27,7 @@ namespace Audio
 		double samplesPerSecond{};
 		std::vector<int16_t> absoluteSamples;
 
-		double getDuration() const
-		{
-			return static_cast<double>(absoluteSamples.size()) / samplesPerSecond;
-		}
+		double getDuration() const { return static_cast<double>(absoluteSamples.size()) / samplesPerSecond; }
 
 		int16_t getSampleAtIndex(size_t index) const
 		{
@@ -43,16 +40,13 @@ namespace Audio
 		int16_t linearSampleAtSeconds(double seconds) const
 		{
 			const float sampleIndexAsFloat = static_cast<float>(seconds * samplesPerSecond);
-			const float sampleIndexFraction =
-			    sampleIndexAsFloat - static_cast<int32_t>(sampleIndexAsFloat);
+			const float sampleIndexFraction = sampleIndexAsFloat - static_cast<int32_t>(sampleIndexAsFloat);
 
 			const size_t sampleIndexLo = std::max(0ull, static_cast<size_t>(sampleIndexAsFloat));
 			const size_t sampleIndexHi = sampleIndexLo + 1;
 
-			const float normalizedSampleLo =
-			    getSampleAtIndex(sampleIndexLo) / static_cast<float>(int16_t_max);
-			const float normalizedSampleHi =
-			    getSampleAtIndex(sampleIndexHi) / static_cast<float>(int16_t_max);
+			const float normalizedSampleLo = getSampleAtIndex(sampleIndexLo) / static_cast<float>(int16_t_max);
+			const float normalizedSampleHi = getSampleAtIndex(sampleIndexHi) / static_cast<float>(int16_t_max);
 			const float normalizedSample =
 			    MikuMikuWorld::lerp(normalizedSampleLo, normalizedSampleHi, sampleIndexFraction);
 
@@ -146,16 +140,14 @@ namespace Audio
 				return;
 			}
 
-			durationInSeconds =
-			    static_cast<float>(audioData.frameCount) / static_cast<float>(audioData.sampleRate);
+			durationInSeconds = static_cast<float>(audioData.frameCount) / static_cast<float>(audioData.sampleRate);
 
 			if (mips[0].powerOfTwoSampleCount != 0)
 				for (auto& mip : mips)
 					mip.clear();
 
 			WaveformMip& baseMip = mips[0];
-			baseMip.powerOfTwoSampleCount =
-			    MikuMikuWorld::roundUpToPowerOfTwo(audioData.frameCount);
+			baseMip.powerOfTwoSampleCount = MikuMikuWorld::roundUpToPowerOfTwo(audioData.frameCount);
 			baseMip.secondsPerSample = 1.0 / static_cast<double>(audioData.sampleRate);
 			baseMip.samplesPerSecond = audioData.sampleRate;
 
@@ -163,21 +155,16 @@ namespace Audio
 			baseMip.secondsPerSample *= 2.0;
 			baseMip.samplesPerSecond /= 2.0;
 			baseMip.absoluteSamples.resize(baseMip.powerOfTwoSampleCount);
-			const size_t samplesToFill = std::min(baseMip.absoluteSamples.size(),
-			                                      static_cast<size_t>(audioData.frameCount / 2));
+			const size_t samplesToFill =
+			    std::min(baseMip.absoluteSamples.size(), static_cast<size_t>(audioData.frameCount / 2));
 
 			// The original full samples are already included in the sample buffer
 			// So we'll skip processing the full data mip to reduce memory usage
 			for (size_t frameIndex = 0; frameIndex < samplesToFill; frameIndex++)
 			{
-				int16_t sampleA =
-				    audioData
-				        .samples[((frameIndex * 2 + 0) * audioData.channelCount) + channelIndex];
-				int16_t sampleB =
-				    audioData
-				        .samples[((frameIndex * 2 + 1) * audioData.channelCount) + channelIndex];
-				baseMip.absoluteSamples[frameIndex] =
-				    averageTwoInt16Samples(abs(sampleA), abs(sampleB));
+				int16_t sampleA = audioData.samples[((frameIndex * 2 + 0) * audioData.channelCount) + channelIndex];
+				int16_t sampleB = audioData.samples[((frameIndex * 2 + 1) * audioData.channelCount) + channelIndex];
+				baseMip.absoluteSamples[frameIndex] = averageTwoInt16Samples(abs(sampleA), abs(sampleB));
 			}
 
 			// First loop to calculate sample counts
@@ -205,13 +192,11 @@ namespace Audio
 
 				WaveformMip& currentMip = mips[i];
 				currentMip.absoluteSamples.resize(currentMip.powerOfTwoSampleCount);
-				const size_t samplesToFill =
-				    std::min(currentMip.absoluteSamples.size(), parentSampleCount / 2);
+				const size_t samplesToFill = std::min(currentMip.absoluteSamples.size(), parentSampleCount / 2);
 
 				for (size_t index = 0; index < samplesToFill; index++)
 				{
-					currentMip.absoluteSamples[index] =
-					    averageTwoInt16Samples(parentSamples[0], parentSamples[1]);
+					currentMip.absoluteSamples[index] = averageTwoInt16Samples(parentSamples[0], parentSamples[1]);
 					parentSamples += 2;
 				}
 			}

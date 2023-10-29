@@ -8,10 +8,7 @@ namespace mmw = MikuMikuWorld;
 
 namespace jsonIO
 {
-	static bool keyExists(const nlohmann::json& js, const char* key)
-	{
-		return (js.find(key) != js.end());
-	}
+	static bool keyExists(const nlohmann::json& js, const char* key) { return (js.find(key) != js.end()); }
 
 	static bool arrayHasData(const nlohmann::json& js, const char* key)
 	{
@@ -53,6 +50,5 @@ namespace jsonIO
 
 	nlohmann::json noteToJson(const mmw::Note& note);
 
-	nlohmann::json noteSelectionToJson(const mmw::Score& score,
-	                                   const std::unordered_set<int>& selection, int baseTick);
+	nlohmann::json noteSelectionToJson(const mmw::Score& score, const std::unordered_set<int>& selection, int baseTick);
 }

@@ -8,20 +8,11 @@ namespace MikuMikuWorld
 
 	Tempo::Tempo(int _tick, float _bpm) : tick{ _tick }, bpm{ _bpm } {}
 
-	float beatsPerMeasure(const TimeSignature& t)
-	{
-		return ((float)t.numerator / (float)t.denominator) * 4.0f;
-	}
+	float beatsPerMeasure(const TimeSignature& t) { return ((float)t.numerator / (float)t.denominator) * 4.0f; }
 
-	float ticksToSec(int ticks, int beatTicks, float bpm)
-	{
-		return ticks * (60.0f / bpm / (float)beatTicks);
-	}
+	float ticksToSec(int ticks, int beatTicks, float bpm) { return ticks * (60.0f / bpm / (float)beatTicks); }
 
-	int secsToTicks(float secs, int beatTicks, float bpm)
-	{
-		return secs / (60.0f / bpm / (float)beatTicks);
-	}
+	int secsToTicks(float secs, int beatTicks, float bpm) { return secs / (60.0f / bpm / (float)beatTicks); }
 
 	float accumulateDuration(int tick, int beatTicks, const std::vector<Tempo>& bpms)
 	{
@@ -117,8 +108,7 @@ namespace MikuMikuWorld
 			lastSignature = std::next(t);
 		}
 
-		total +=
-		    (measure - lastSignature->first) * (beatsPerMeasure(lastSignature->second) * beatTicks);
+		total += (measure - lastSignature->first) * (beatsPerMeasure(lastSignature->second) * beatTicks);
 		return total;
 	}
 

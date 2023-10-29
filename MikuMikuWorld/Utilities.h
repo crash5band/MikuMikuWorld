@@ -6,40 +6,40 @@
 #include <vector>
 
 // Macro to allow usage of flags operators with types enums
-#define DECLARE_ENUM_FLAG_OPERATORS(EnumType)                                                      \
-	inline constexpr EnumType operator|(EnumType lhs, EnumType rhs)                                \
-	{                                                                                              \
-		return static_cast<EnumType>(static_cast<std::underlying_type_t<EnumType>>(lhs) |          \
-		                             static_cast<std::underlying_type_t<EnumType>>(rhs));          \
-	}                                                                                              \
-	inline constexpr EnumType operator&(EnumType lhs, EnumType rhs)                                \
-	{                                                                                              \
-		return static_cast<EnumType>(static_cast<std::underlying_type_t<EnumType>>(lhs) &          \
-		                             static_cast<std::underlying_type_t<EnumType>>(rhs));          \
-	}                                                                                              \
-	inline constexpr EnumType operator^(EnumType lhs, EnumType rhs)                                \
-	{                                                                                              \
-		return static_cast<EnumType>(static_cast<std::underlying_type_t<EnumType>>(lhs) ^          \
-		                             static_cast<std::underlying_type_t<EnumType>>(rhs));          \
-	}                                                                                              \
-	inline constexpr EnumType operator~(EnumType value)                                            \
-	{                                                                                              \
-		return static_cast<EnumType>(~static_cast<std::underlying_type_t<EnumType>>(value));       \
-	}                                                                                              \
-	inline constexpr EnumType& operator|=(EnumType& lhs, EnumType rhs)                             \
-	{                                                                                              \
-		lhs = lhs | rhs;                                                                           \
-		return lhs;                                                                                \
-	}                                                                                              \
-	inline constexpr EnumType& operator&=(EnumType& lhs, EnumType rhs)                             \
-	{                                                                                              \
-		lhs = lhs & rhs;                                                                           \
-		return lhs;                                                                                \
-	}                                                                                              \
-	inline constexpr EnumType& operator^=(EnumType& lhs, EnumType rhs)                             \
-	{                                                                                              \
-		lhs = lhs ^ rhs;                                                                           \
-		return lhs;                                                                                \
+#define DECLARE_ENUM_FLAG_OPERATORS(EnumType)                                                                          \
+	inline constexpr EnumType operator|(EnumType lhs, EnumType rhs)                                                    \
+	{                                                                                                                  \
+		return static_cast<EnumType>(static_cast<std::underlying_type_t<EnumType>>(lhs) |                              \
+		                             static_cast<std::underlying_type_t<EnumType>>(rhs));                              \
+	}                                                                                                                  \
+	inline constexpr EnumType operator&(EnumType lhs, EnumType rhs)                                                    \
+	{                                                                                                                  \
+		return static_cast<EnumType>(static_cast<std::underlying_type_t<EnumType>>(lhs) &                              \
+		                             static_cast<std::underlying_type_t<EnumType>>(rhs));                              \
+	}                                                                                                                  \
+	inline constexpr EnumType operator^(EnumType lhs, EnumType rhs)                                                    \
+	{                                                                                                                  \
+		return static_cast<EnumType>(static_cast<std::underlying_type_t<EnumType>>(lhs) ^                              \
+		                             static_cast<std::underlying_type_t<EnumType>>(rhs));                              \
+	}                                                                                                                  \
+	inline constexpr EnumType operator~(EnumType value)                                                                \
+	{                                                                                                                  \
+		return static_cast<EnumType>(~static_cast<std::underlying_type_t<EnumType>>(value));                           \
+	}                                                                                                                  \
+	inline constexpr EnumType& operator|=(EnumType& lhs, EnumType rhs)                                                 \
+	{                                                                                                                  \
+		lhs = lhs | rhs;                                                                                               \
+		return lhs;                                                                                                    \
+	}                                                                                                                  \
+	inline constexpr EnumType& operator&=(EnumType& lhs, EnumType rhs)                                                 \
+	{                                                                                                                  \
+		lhs = lhs & rhs;                                                                                               \
+		return lhs;                                                                                                    \
+	}                                                                                                                  \
+	inline constexpr EnumType& operator^=(EnumType& lhs, EnumType rhs)                                                 \
+	{                                                                                                                  \
+		lhs = lhs ^ rhs;                                                                                               \
+		return lhs;                                                                                                    \
 	}
 
 namespace MikuMikuWorld
@@ -54,8 +54,7 @@ namespace MikuMikuWorld
 		static void ImGuiCenteredText(const std::string& str);
 		static void ImGuiCenteredText(const char* str);
 
-		template <typename T>
-		static void sort(std::vector<T>& list, bool (*func)(const T& a, const T& b))
+		template <typename T> static void sort(std::vector<T>& list, bool (*func)(const T& a, const T& b))
 		{
 			std::sort(list.begin(), list.end(), func);
 		}
@@ -92,20 +91,17 @@ namespace MikuMikuWorld
 		return (sizeof(arr) / sizeof(arr[0]));
 	}
 
-	template <typename Array>
-	static inline bool isArrayIndexInBounds(size_t index, const Array& arr)
+	template <typename Array> static inline bool isArrayIndexInBounds(size_t index, const Array& arr)
 	{
 		return index >= 0 && index < arrayLength(arr);
 	}
 
-	template <typename T>
-	static inline bool isArrayIndexInBounds(size_t index, const std::vector<T>& arr)
+	template <typename T> static inline bool isArrayIndexInBounds(size_t index, const std::vector<T>& arr)
 	{
 		return index >= 0 && index < arr.size();
 	}
 
-	template <typename Type>
-	static size_t findArrayItem(Type item, const Type array[], size_t length)
+	template <typename Type> static size_t findArrayItem(Type item, const Type array[], size_t length)
 	{
 		for (int i = 0; i < length; i++)
 		{
@@ -127,6 +123,5 @@ namespace MikuMikuWorld
 		return -1;
 	}
 
-	void drawShadedText(ImDrawList* drawList, ImVec2 textPos, float fontSize, ImU32 fontColor,
-	                    const char* text);
+	void drawShadedText(ImDrawList* drawList, ImVec2 textPos, float fontSize, ImU32 fontColor, const char* text);
 }

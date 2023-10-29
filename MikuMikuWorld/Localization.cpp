@@ -29,10 +29,7 @@ namespace MikuMikuWorld
 		return true;
 	}
 
-	void Localization::loadDefault()
-	{
-		languages["en"] = std::make_unique<Language>("en", "English", en);
-	}
+	void Localization::loadDefault() { languages["en"] = std::make_unique<Language>("en", "English", en); }
 
 	const char* getString(const std::string& key)
 	{

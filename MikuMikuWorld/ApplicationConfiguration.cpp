@@ -11,10 +11,7 @@ namespace MikuMikuWorld
 	ApplicationConfiguration config{};
 	constexpr const char* CONFIG_VERSION{ "1.8.1" };
 
-	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
-	{
-		restoreDefault();
-	}
+	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION } { restoreDefault(); }
 
 	void ApplicationConfiguration::read(const std::string& filename)
 	{
@@ -62,26 +59,19 @@ namespace MikuMikuWorld
 			division = jsonIO::tryGetValue<int>(config["timeline"], "division", 8);
 			zoom = jsonIO::tryGetValue<float>(config["timeline"], "zoom", 2.0f);
 			laneOpacity = jsonIO::tryGetValue<float>(config["timeline"], "lane_opacity", 0.0f);
-			backgroundBrightness =
-			    jsonIO::tryGetValue<float>(config["timeline"], "background_brightness", 0.5f);
+			backgroundBrightness = jsonIO::tryGetValue<float>(config["timeline"], "background_brightness", 0.5f);
 			drawBackground = jsonIO::tryGetValue<bool>(config["timeline"], "draw_background", true);
-			backgroundImage =
-			    jsonIO::tryGetValue<std::string>(config["timeline"], "background_image", "");
+			backgroundImage = jsonIO::tryGetValue<std::string>(config["timeline"], "background_image", "");
 
-			useSmoothScrolling =
-			    jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
-			smoothScrollingTime =
-			    jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 48.0f);
-			scrollSpeedNormal =
-			    jsonIO::tryGetValue<float>(config["timeline"], "scroll_speed_normal", 2.0f);
-			scrollSpeedShift =
-			    jsonIO::tryGetValue<float>(config["timleine"], "scroll_speed_fast", 5.0f);
+			useSmoothScrolling = jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
+			smoothScrollingTime = jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 48.0f);
+			scrollSpeedNormal = jsonIO::tryGetValue<float>(config["timeline"], "scroll_speed_normal", 2.0f);
+			scrollSpeedShift = jsonIO::tryGetValue<float>(config["timleine"], "scroll_speed_fast", 5.0f);
 
 			drawWaveform = jsonIO::tryGetValue<bool>(config["timeline"], "draw_waveform", true);
-			returnToLastSelectedTickOnPause = jsonIO::tryGetValue<bool>(
-			    config["timeline"], "return_to_last_tick_on_pause", false);
-			cursorPositionThreshold =
-			    jsonIO::tryGetValue<float>(config["timeline"], "cursor_position_threshold", 0.5f);
+			returnToLastSelectedTickOnPause =
+			    jsonIO::tryGetValue<bool>(config["timeline"], "return_to_last_tick_on_pause", false);
+			cursorPositionThreshold = jsonIO::tryGetValue<float>(config["timeline"], "cursor_position_threshold", 0.5f);
 		}
 
 		if (jsonIO::keyExists(config, "theme"))
@@ -100,12 +90,9 @@ namespace MikuMikuWorld
 
 		if (jsonIO::keyExists(config, "audio"))
 		{
-			masterVolume = std::clamp(
-			    jsonIO::tryGetValue<float>(config["audio"], "master_volume", 1.0f), 0.0f, 1.0f);
-			bgmVolume = std::clamp(jsonIO::tryGetValue<float>(config["audio"], "bgm_volume", 1.0f),
-			                       0.0f, 1.0f);
-			seVolume = std::clamp(jsonIO::tryGetValue<float>(config["audio"], "se_volume", 1.0f),
-			                      0.0f, 1.0f);
+			masterVolume = std::clamp(jsonIO::tryGetValue<float>(config["audio"], "master_volume", 1.0f), 0.0f, 1.0f);
+			bgmVolume = std::clamp(jsonIO::tryGetValue<float>(config["audio"], "bgm_volume", 1.0f), 0.0f, 1.0f);
+			seVolume = std::clamp(jsonIO::tryGetValue<float>(config["audio"], "se_volume", 1.0f), 0.0f, 1.0f);
 		}
 
 		if (jsonIO::keyExists(config, "input") && jsonIO::keyExists(config["input"], "bindings"))
@@ -160,21 +147,18 @@ namespace MikuMikuWorld
 			                   { "return_to_last_tick_on_pause", returnToLastSelectedTickOnPause },
 			                   { "cursor_position_threshold", cursorPositionThreshold } };
 
-		config["theme"] = { { "accent_color", accentColor },
-			                { "user_color",
-			                  { { "r", userColor.r },
-			                    { "g", userColor.g },
-			                    { "b", userColor.b },
-			                    { "a", userColor.a } } },
-			                { "base_theme", (int)baseTheme } };
+		config["theme"] = {
+			{ "accent_color", accentColor },
+			{ "user_color",
+			  { { "r", userColor.r }, { "g", userColor.g }, { "b", userColor.b }, { "a", userColor.a } } },
+			{ "base_theme", (int)baseTheme }
+		};
 
 		config["save"] = { { "auto_save_enabled", autoSaveEnabled },
 			               { "auto_save_interval", autoSaveInterval },
 			               { "auto_save_max_count", autoSaveMaxCount } };
 
-		config["audio"] = { { "master_volume", masterVolume },
-			                { "bgm_volume", bgmVolume },
-			                { "se_volume", seVolume } };
+		config["audio"] = { { "master_volume", masterVolume }, { "bgm_volume", bgmVolume }, { "se_volume", seVolume } };
 
 		json keyBindings;
 		for (const auto& binding : bindings)
