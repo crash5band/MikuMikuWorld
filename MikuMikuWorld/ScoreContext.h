@@ -1,12 +1,12 @@
 #pragma once
-#include "Score.h"
-#include "ScoreStats.h"
-#include "HistoryManager.h"
 #include "Audio/AudioManager.h"
 #include "Audio/Waveform.h"
-#include "JsonIO.h"
-#include "Jacket.h"
 #include "Constants.h"
+#include "HistoryManager.h"
+#include "Jacket.h"
+#include "JsonIO.h"
+#include "Score.h"
+#include "ScoreStats.h"
 #include "TimelineMode.h"
 #include <unordered_set>
 
@@ -27,7 +27,7 @@ namespace MikuMikuWorld
 
 	class EditorScoreData
 	{
-	public:
+	  public:
 		std::string title{};
 		std::string designer{};
 		std::string artist{};
@@ -37,9 +37,9 @@ namespace MikuMikuWorld
 		Jacket jacket{};
 
 		EditorScoreData() {}
-		EditorScoreData(const ScoreMetadata& metadata, const std::string& filename) :
-			title{ metadata.title }, designer{ metadata.author }, artist{ metadata.artist },
-			musicFilename{ metadata.musicFile }, musicOffset{ metadata.musicOffset }
+		EditorScoreData(const ScoreMetadata& metadata, const std::string& filename)
+		    : title{ metadata.title }, designer{ metadata.author }, artist{ metadata.artist },
+		      musicFilename{ metadata.musicFile }, musicOffset{ metadata.musicOffset }
 		{
 			this->filename = filename;
 			jacket.load(metadata.jacketFile);
@@ -65,7 +65,7 @@ namespace MikuMikuWorld
 
 	class ScoreContext
 	{
-	public:
+	  public:
 		Score score;
 		EditorScoreData workingData;
 		ScoreStats scoreStats;
@@ -104,8 +104,16 @@ namespace MikuMikuWorld
 		bool selectionHasFlickable() const;
 		bool selectionCanConnect() const;
 		bool selectionCanChangeHoldType() const;
-		inline bool isNoteSelected(const Note& note) { return selectedNotes.find(note.ID) != selectedNotes.end(); }
-		inline void selectAll() { selectedNotes.clear(); for (auto& it : score.notes) selectedNotes.insert(it.first); }
+		inline bool isNoteSelected(const Note& note)
+		{
+			return selectedNotes.find(note.ID) != selectedNotes.end();
+		}
+		inline void selectAll()
+		{
+			selectedNotes.clear();
+			for (auto& it : score.notes)
+				selectedNotes.insert(it.first);
+		}
 		inline void clearSelection() { selectedNotes.clear(); }
 
 		void setStep(HoldStepType step);

@@ -1,13 +1,13 @@
 #pragma once
-#include <vector>
-#include "Rendering/Texture.h"
 #include "Rendering/Shader.h"
+#include "Rendering/Texture.h"
+#include <vector>
 
 namespace MikuMikuWorld
 {
 	class ResourceManager
 	{
-	public:
+	  public:
 		static std::vector<Texture> textures;
 		static std::vector<Shader*> shaders;
 
@@ -21,4 +21,3 @@ namespace MikuMikuWorld
 		static void disposeTexture(int texID);
 	};
 }
-

@@ -1,7 +1,7 @@
 #pragma once
+#include <string>
 #include <unordered_map>
 #include <vector>
-#include <string>
 
 namespace MikuMikuWorld
 {
@@ -46,8 +46,7 @@ namespace MikuMikuWorld
 		float movieOffset;
 		float baseBPM;
 
-		SUSMetadata() :
-			waveOffset{ 0 }, movieOffset{ 0 }, baseBPM{ 0 } {}
+		SUSMetadata() : waveOffset{ 0 }, movieOffset{ 0 }, baseBPM{ 0 } {}
 	};
 
 	typedef std::vector<std::vector<SUSNote>> SUSNoteStream;

@@ -1,9 +1,9 @@
 #pragma once
 #include <cstdint>
+#include <memory>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <stdexcept>
-#include <memory>
 
 namespace IO
 {
@@ -35,7 +35,8 @@ namespace IO
 		Ok
 	};
 
-	constexpr const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	constexpr const char digits[] =
+	    "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 	char* reverse(char* str);
 	char* tostringBaseN(char* buff, long long num, int base);
@@ -51,18 +52,18 @@ namespace IO
 
 	std::string concat(const char* s1, const char* s2, const char* join = "");
 
-	template<typename ... Args>
-	std::string formatString(const char* format, Args ... args)
+	template <typename... Args> std::string formatString(const char* format, Args... args)
 	{
-		size_t length = std::snprintf(nullptr, 0, format, args ...) + 1;
+		size_t length = std::snprintf(nullptr, 0, format, args...) + 1;
 		if (length <= 0)
 			throw std::runtime_error("An error occured while attempting to format a string.");
 
 		std::unique_ptr<char[]> buf(new char[length]);
-		std::snprintf(buf.get(), length, format, args ...);
+		std::snprintf(buf.get(), length, format, args...);
 
 		return std::string(buf.get());
 	}
 
-	MessageBoxResult messageBox(std::string title, std::string message, MessageBoxButtons buttons, MessageBoxIcon icon, void* parentWindow = NULL);
+	MessageBoxResult messageBox(std::string title, std::string message, MessageBoxButtons buttons,
+	                            MessageBoxIcon icon, void* parentWindow = NULL);
 }

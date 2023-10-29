@@ -1,15 +1,15 @@
 #pragma once
 #include "../Utilities.h"
 #include "Sound.h"
+#include <memory>
 #include <unordered_map>
 #include <vector>
-#include <memory>
 
 namespace Audio
 {
 	class AudioManager
 	{
-	private:
+	  private:
 		ma_engine engine;
 		ma_sound music;
 		ma_sound_group musicGroup;
@@ -26,7 +26,7 @@ namespace Audio
 		float musicVolume{ 1.0f };
 		float soundEffectsVolume{ 1.0f };
 
-	public:
+	  public:
 		Sound musicAudioData;
 
 		void initializeAudioEngine();

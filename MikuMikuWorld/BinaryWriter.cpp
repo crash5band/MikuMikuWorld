@@ -10,15 +10,9 @@ namespace IO
 		stream = _wfopen(wFilename.c_str(), L"wb");
 	}
 
-	BinaryWriter::~BinaryWriter()
-	{
-		close();
-	}
+	BinaryWriter::~BinaryWriter() { close(); }
 
-	bool BinaryWriter::isStreamValid()
-	{
-		return stream;
-	}
+	bool BinaryWriter::isStreamValid() { return stream; }
 
 	void BinaryWriter::close()
 	{
@@ -43,10 +37,7 @@ namespace IO
 		return size;
 	}
 
-	size_t BinaryWriter::getStreamPosition()
-	{
-		return ftell(stream);
-	}
+	size_t BinaryWriter::getStreamPosition() { return ftell(stream); }
 
 	void BinaryWriter::seek(size_t pos)
 	{

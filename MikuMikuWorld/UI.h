@@ -1,17 +1,19 @@
 #pragma once
-#include "ImGui/imgui.h"
-#include "ImGui/imgui_stdlib.h"
-#include "ImGui/imgui_internal.h"
+#include "IO.h"
 #include "IconsFontAwesome5.h"
+#include "ImGui/imgui.h"
+#include "ImGui/imgui_internal.h"
+#include "ImGui/imgui_stdlib.h"
 #include "Localization.h"
 #include "NoteTypes.h"
-#include "IO.h"
 #include <vector>
 
 #define APP_NAME "MikuMikuWorld"
 
-#define IMGUI_TITLE(icon, title) IO::formatString("%s %s###%s", icon, getString(title), title).c_str()
-#define MODAL_TITLE(title) IO::formatString("%s - %s###%s", APP_NAME, getString(title), title).c_str()
+#define IMGUI_TITLE(icon, title)                                                                   \
+	IO::formatString("%s %s###%s", icon, getString(title), title).c_str()
+#define MODAL_TITLE(title)                                                                         \
+	IO::formatString("%s - %s###%s", APP_NAME, getString(title), title).c_str()
 
 namespace MikuMikuWorld
 {
@@ -22,13 +24,10 @@ namespace MikuMikuWorld
 	constexpr float toolTipDelay = 0.5f;
 
 	constexpr ImGuiWindowFlags ImGuiWindowFlags_Static = ImGuiWindowFlags_NoCollapse;
-	constexpr ImGuiWindowFlags ImGuiWindowFlags_Toolbar = ImGuiWindowFlags_NoCollapse
-		| ImGuiWindowFlags_NoDocking
-		| ImGuiWindowFlags_NoMove
-		| ImGuiWindowFlags_NoResize
-		| ImGuiWindowFlags_NoScrollbar
-		| ImGuiWindowFlags_NoScrollWithMouse
-		| ImGuiWindowFlags_NoTitleBar;
+	constexpr ImGuiWindowFlags ImGuiWindowFlags_Toolbar =
+	    ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoMove |
+	    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar |
+	    ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar;
 
 	enum class ColorDisplay : uint8_t
 	{
@@ -44,45 +43,45 @@ namespace MikuMikuWorld
 		BASE_THEME_MAX
 	};
 
-	constexpr const char* colorDisplayStr[]
-	{
-		"RGB", "HSV", "Hex"
-	};
+	constexpr const char* colorDisplayStr[]{ "RGB", "HSV", "Hex" };
 
-	constexpr const char* baseThemes[]
-	{
-		"theme_dark", "theme_light"
-	};
+	constexpr const char* baseThemes[]{ "theme_dark", "theme_light" };
 
 	class UI
 	{
-	private:
+	  private:
 		static char idStr[256];
 		static const ImVec2 _btnNormal;
 		static const ImVec2 _btnSmall;
 		static const ImVec2 _toolbarBtnSize;
 		static const ImVec2 _toolbarBtnImgSize;
 
-	public:
+	  public:
 		static ImVec2 btnNormal;
 		static ImVec2 btnSmall;
 		static ImVec2 toolbarBtnSize;
 		static ImVec2 toolbarBtnImgSize;
 		static std::vector<ImVec4> accentColors;
 
-		static bool transparentButton(const char* txt, ImVec2 size = btnNormal, bool repeat = false, bool enabled = true);
+		static bool transparentButton(const char* txt, ImVec2 size = btnNormal, bool repeat = false,
+		                              bool enabled = true);
 		static bool transparentButton2(const char* txt, ImVec2 pos, ImVec2 size);
-		static bool coloredButton(const char* txt, ImVec2 pos, ImVec2 size, ImU32 col, bool enabled = true);
+		static bool coloredButton(const char* txt, ImVec2 pos, ImVec2 size, ImU32 col,
+		                          bool enabled = true);
 		static bool isAnyPopupOpen();
 		static void beginPropertyColumns();
 		static void endPropertyColumns();
 		static void propertyLabel(const char* label);
-		static void addIntProperty(const char* label, int& val, int lowerBound = 0, int higherBound = 0);
-		static void addIntProperty(const char* label, int& val, const char* format, int lowerBound = 0, int higherBound = 0);
+		static void addIntProperty(const char* label, int& val, int lowerBound = 0,
+		                           int higherBound = 0);
+		static void addIntProperty(const char* label, int& val, const char* format,
+		                           int lowerBound = 0, int higherBound = 0);
 		static void addFloatProperty(const char* label, float& val, const char* format);
 		static void addStringProperty(const char* label, std::string& val);
-		static void addSliderProperty(const char* label, int& val, int min, int max, const char* format);
-		static void addSliderProperty(const char* label, float& val, float min, float max, const char* format);
+		static void addSliderProperty(const char* label, int& val, int min, int max,
+		                              const char* format);
+		static void addSliderProperty(const char* label, float& val, float min, float max,
+		                              const char* format);
 		static void addDragFloatProperty(const char* label, float& val, const char* format);
 		static void addPercentSliderProperty(const char* label, float& val);
 		static bool addFractionProperty(const char* label, int& numerator, int& denominator);
@@ -94,8 +93,10 @@ namespace MikuMikuWorld
 		static bool divisionSelect(const char* label, int& value, const int* items, size_t count);
 		static bool zoomControl(const char* label, float& value, float min, float max, float width);
 		static bool timeSignatureSelect(int& numerator, int& denominator);
-		static bool toolbarButton(const char* icon, const char* label, const char* shortcut, bool enabled = true, bool selected = false);
-		static bool toolbarImageButton(const char* img, const char* label, const char* shortcut, bool enabled = true, bool selected = false);
+		static bool toolbarButton(const char* icon, const char* label, const char* shortcut,
+		                          bool enabled = true, bool selected = false);
+		static bool toolbarImageButton(const char* img, const char* label, const char* shortcut,
+		                               bool enabled = true, bool selected = false);
 		static void toolbarSeparator();
 		static void beginNextItemDisabled();
 		static void endNextItemDisabled();
@@ -103,8 +104,7 @@ namespace MikuMikuWorld
 		static void setWindowTitle(std::string title);
 		static void updateBtnSizesDpiScaling(float scale);
 
-		template <typename T>
-		static void addReadOnlyProperty(const char* label, T val)
+		template <typename T> static void addReadOnlyProperty(const char* label, T val)
 		{
 			propertyLabel(label);
 			ImGui::Text(std::to_string(val).c_str());
@@ -115,7 +115,8 @@ namespace MikuMikuWorld
 		/// For use with sequential enums only
 		/// </summary>
 		template <typename T>
-		static void addSelectProperty(const char* label, T& value, const char* const* items, int count)
+		static void addSelectProperty(const char* label, T& value, const char* const* items,
+		                              int count)
 		{
 			propertyLabel(label);
 
@@ -146,7 +147,8 @@ namespace MikuMikuWorld
 
 		// we don't want FlickType::None to appear in the selection
 		template <>
-		static void addSelectProperty<FlickType>(const char* label, FlickType& value, const char* const* items, int count)
+		static void addSelectProperty<FlickType>(const char* label, FlickType& value,
+		                                         const char* const* items, int count)
 		{
 			propertyLabel(label);
 

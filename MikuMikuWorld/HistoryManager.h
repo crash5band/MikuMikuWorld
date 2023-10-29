@@ -1,9 +1,9 @@
 #pragma once
-#include <stack>
-#include <map>
-#include <unordered_map>
-#include <string>
 #include "Score.h"
+#include <map>
+#include <stack>
+#include <string>
+#include <unordered_map>
 
 namespace MikuMikuWorld
 {
@@ -16,11 +16,11 @@ namespace MikuMikuWorld
 
 	class HistoryManager
 	{
-	private:
+	  private:
 		std::stack<History> undoHistory;
 		std::stack<History> redoHistory;
 
-	public:
+	  public:
 		Score undo();
 		Score redo();
 

@@ -1,7 +1,7 @@
 #pragma once
-#include <string>
-#include <regex>
 #include "SUS.h"
+#include <regex>
+#include <string>
 
 namespace MikuMikuWorld
 {
@@ -20,7 +20,7 @@ namespace MikuMikuWorld
 
 	class SusParser
 	{
-	private:
+	  private:
 		int ticksPerBeat;
 		int measureOffset;
 		float waveOffset;
@@ -33,9 +33,10 @@ namespace MikuMikuWorld
 		bool isCommand(const std::string& line);
 		int toTicks(int measure, int i, int total);
 		SUSNoteStream toSlides(const std::vector<SUSNote>& stream);
-		std::vector<SUSNote> toNotes(const std::string& header, const std::string& data, int measureBase);
+		std::vector<SUSNote> toNotes(const std::string& header, const std::string& data,
+		                             int measureBase);
 
-	public:
+	  public:
 		SusParser();
 
 		SUS parse(const std::string& filename);

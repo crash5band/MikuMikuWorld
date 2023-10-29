@@ -61,13 +61,11 @@ namespace Audio
 	void AudioManager::loadSoundEffects()
 	{
 		constexpr int soundEffectsCount = sizeof(mmw::SE_NAMES) / sizeof(const char*);
-		constexpr std::array<SoundFlags, soundEffectsCount> soundEffectsFlags =
-		{
+		constexpr std::array<SoundFlags, soundEffectsCount> soundEffectsFlags = {
 			NONE, NONE, LOOP | EXTENDABLE, NONE, NONE, NONE, LOOP | EXTENDABLE, NONE, NONE, NONE
 		};
 
-		constexpr std::array<float, soundEffectsCount> soundEffectsVolumes =
-		{
+		constexpr std::array<float, soundEffectsCount> soundEffectsVolumes = {
 			0.75f, 0.80f, 0.83f, 1.10f, 0.80f, 0.80f, 0.83f, 0.85f, 0.75f, 0.80f
 		};
 
@@ -75,17 +73,21 @@ namespace Audio
 
 		sounds.reserve(soundEffectsVolume);
 		for (int i = 0; i < soundEffectsCount; ++i)
-			sounds.emplace(std::move(SoundPoolPair(mmw::SE_NAMES[i], std::make_unique<SoundPool>())));
+			sounds.emplace(
+			    std::move(SoundPoolPair(mmw::SE_NAMES[i], std::make_unique<SoundPool>())));
 
-		std::for_each(std::execution::par, sounds.begin(), sounds.end(), [&](auto& s)
-		{
-			std::string filename = path + s.first.data() + ".mp3";
-			int soundIndex = mmw::findArrayItem(s.first.data(), mmw::SE_NAMES, mmw::arrayLength(mmw::SE_NAMES));
+		std::for_each(std::execution::par, sounds.begin(), sounds.end(),
+		              [&](auto& s)
+		              {
+			              std::string filename = path + s.first.data() + ".mp3";
+			              int soundIndex = mmw::findArrayItem(s.first.data(), mmw::SE_NAMES,
+			                                                  mmw::arrayLength(mmw::SE_NAMES));
 
-			s.second->initialize(filename, &engine, &soundEffectsGroup, soundEffectsFlags[soundIndex]);
-			s.second->setVolume(soundEffectsVolumes[soundIndex]);
-		});
-		
+			              s.second->initialize(filename, &engine, &soundEffectsGroup,
+			                                   soundEffectsFlags[soundIndex]);
+			              s.second->setVolume(soundEffectsVolumes[soundIndex]);
+		              });
+
 		// Adjust hold SE loop times for gapless playback
 		ma_uint64 holdNrmDuration = sounds[mmw::SE_CONNECT]->getDurationInFrames();
 		ma_uint64 holdCrtDuration = sounds[mmw::SE_CRITICAL_CONNECT]->getDurationInFrames();
@@ -108,16 +110,15 @@ namespace Audio
 
 	mmw::Result AudioManager::loadMusic(const std::string& filename)
 	{
-		constexpr ma_uint32 flags =
-			MA_SOUND_FLAG_NO_PITCH |
-			MA_SOUND_FLAG_NO_SPATIALIZATION;
+		constexpr ma_uint32 flags = MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION;
 
 		disposeMusic();
 
 		mmw::Result result = decodeAudioFile(filename, musicAudioData);
 		if (result.isOk())
 		{
-			ma_sound_init_from_data_source(&engine, &musicAudioData.buffer, flags, &musicGroup, &music);
+			ma_sound_init_from_data_source(&engine, &musicAudioData.buffer, flags, &musicGroup,
+			                               &music);
 			musicInitialized = true;
 		}
 
@@ -140,10 +141,7 @@ namespace Audio
 		ma_sound_start(&music);
 	}
 
-	void AudioManager::stopMusic()
-	{
-		ma_sound_stop(&music);
-	}
+	void AudioManager::stopMusic() { ma_sound_stop(&music); }
 
 	void AudioManager::setMusicOffset(float currentTime, float offset)
 	{
@@ -206,10 +204,7 @@ namespace Audio
 		}
 	}
 
-	float AudioManager::getMasterVolume() const
-	{
-		return masterVolume;
-	}
+	float AudioManager::getMasterVolume() const { return masterVolume; }
 
 	void AudioManager::setMasterVolume(float volume)
 	{
@@ -217,10 +212,7 @@ namespace Audio
 		ma_engine_set_volume(&engine, volume);
 	}
 
-	float AudioManager::getMusicVolume() const
-	{
-		return musicVolume;
-	}
+	float AudioManager::getMusicVolume() const { return musicVolume; }
 
 	void AudioManager::setMusicVolume(float volume)
 	{
@@ -228,10 +220,7 @@ namespace Audio
 		ma_sound_group_set_volume(&musicGroup, volume);
 	}
 
-	float AudioManager::getSoundEffectsVolume() const
-	{
-		return soundEffectsVolume;
-	}
+	float AudioManager::getSoundEffectsVolume() const { return soundEffectsVolume; }
 
 	void AudioManager::setSoundEffectsVolume(float volume)
 	{
@@ -276,13 +265,11 @@ namespace Audio
 	float AudioManager::getAudioEngineAbsoluteTime() const
 	{
 		// Engine time is in milliseconds
-		return static_cast<float>(ma_engine_get_time(&engine)) / static_cast<float>(engine.sampleRate) / 1000.0f;
+		return static_cast<float>(ma_engine_get_time(&engine)) /
+		       static_cast<float>(engine.sampleRate) / 1000.0f;
 	}
 
-	float AudioManager::getMusicOffset() const
-	{
-		return musicOffset;
-	}
+	float AudioManager::getMusicOffset() const { return musicOffset; }
 
 	float AudioManager::getMusicEndTime()
 	{
@@ -292,20 +279,11 @@ namespace Audio
 		return length + musicOffset;
 	}
 
-	void AudioManager::syncAudioEngineTimer()
-	{
-		ma_engine_set_time(&engine, 0);
-	}
+	void AudioManager::syncAudioEngineTimer() { ma_engine_set_time(&engine, 0); }
 
-	bool AudioManager::isMusicInitialized() const
-	{
-		return musicInitialized;
-	}
+	bool AudioManager::isMusicInitialized() const { return musicInitialized; }
 
-	bool AudioManager::isMusicAtEnd() const
-	{
-		return ma_sound_at_end(&music);
-	}
+	bool AudioManager::isMusicAtEnd() const { return ma_sound_at_end(&music); }
 
 	bool AudioManager::isSoundPlaying(std::string_view name) const
 	{

@@ -1,8 +1,8 @@
 #include "ScoreContext.h"
 #include "Constants.h"
 #include "IO.h"
-#include "Utilities.h"
 #include "UI.h"
+#include "Utilities.h"
 #include <stdio.h>
 #include <vector>
 
@@ -149,7 +149,8 @@ namespace MikuMikuWorld
 			if (note.getType() == NoteType::Tap || note.getType() == NoteType::HoldMid)
 				continue;
 
-			HoldNote& holdNote = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
+			HoldNote& holdNote =
+			    score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
 
 			// For now do not allow changing guides to normal holds or vice versa
 			if (holdNote.isGuide())
@@ -220,10 +221,11 @@ namespace MikuMikuWorld
 
 			if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd)
 			{
-				HoldNote& holdNote = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
+				HoldNote& holdNote =
+				    score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
 				if (holdNote.isGuide())
 					continue;
-				
+
 				if (note.getType() == NoteType::Hold)
 				{
 					holdNote.startType = HoldNoteType::Normal;
@@ -268,15 +270,16 @@ namespace MikuMikuWorld
 					if (score.holdNotes.find(note.parentID) != score.holdNotes.end())
 					{
 						std::vector<HoldStep>& steps = score.holdNotes.at(note.parentID).steps;
-						steps.erase(std::find_if(steps.cbegin(), steps.cend(), [id](const HoldStep& s)
-							{ return s.ID == id; }));
+						steps.erase(std::find_if(steps.cbegin(), steps.cend(),
+						                         [id](const HoldStep& s) { return s.ID == id; }));
 					}
 				}
 				score.notes.erase(id);
 			}
 			else
 			{
-				const HoldNote& hold = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
+				const HoldNote& hold =
+				    score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
 				score.notes.erase(hold.start.ID);
 				score.notes.erase(hold.end);
 
@@ -323,10 +326,13 @@ namespace MikuMikuWorld
 		if (selectedNotes.empty())
 			return;
 
-		int minTick = score.notes.at(*std::min_element(selectedNotes.begin(), selectedNotes.end(), [this](int id1, int id2)
-		{
-			return score.notes.at(id1).tick < score.notes.at(id2).tick;
-		})).tick;
+		int minTick = score.notes
+		                  .at(*std::min_element(selectedNotes.begin(), selectedNotes.end(),
+		                                        [this](int id1, int id2) {
+			                                        return score.notes.at(id1).tick <
+			                                               score.notes.at(id2).tick;
+		                                        }))
+		                  .tick;
 
 		json data = jsonIO::noteSelectionToJson(score, selectedNotes, minTick);
 
@@ -336,10 +342,7 @@ namespace MikuMikuWorld
 		ImGui::SetClipboardText(clipboard.c_str());
 	}
 
-	void ScoreContext::cancelPaste()
-	{
-		pasteData.pasting = false;
-	}
+	void ScoreContext::cancelPaste() { pasteData.pasting = false; }
 
 	void ScoreContext::doPasteData(const json& data, bool flip)
 	{
@@ -375,10 +378,13 @@ namespace MikuMikuWorld
 				end.critical = start.critical || ((end.isFlick() || end.friction) && end.critical);
 				pasteData.notes[end.ID] = end;
 
-				std::string startEase = jsonIO::tryGetValue<std::string>(entry["start"], "ease", "linear");
+				std::string startEase =
+				    jsonIO::tryGetValue<std::string>(entry["start"], "ease", "linear");
 
 				HoldNote hold;
-				hold.start = { start.ID, HoldStepType::Normal, (EaseType)findArrayItem(startEase.c_str(), easeTypes, arrayLength(easeTypes)) };
+				hold.start = { start.ID, HoldStepType::Normal,
+					           (EaseType)findArrayItem(startEase.c_str(), easeTypes,
+					                                   arrayLength(easeTypes)) };
 				hold.end = end.ID;
 
 				if (jsonIO::keyExists(entry, "steps"))
@@ -392,33 +398,44 @@ namespace MikuMikuWorld
 						mid.parentID = start.ID;
 						pasteData.notes[mid.ID] = mid;
 
-						std::string midType = jsonIO::tryGetValue<std::string>(step, "type", "normal");
-						std::string midEase = jsonIO::tryGetValue<std::string>(step, "ease", "linear");
-						int stepTypeIndex = findArrayItem(midType.c_str(), stepTypes, arrayLength(stepTypes));
-						int easeTypeIndex = findArrayItem(midEase.c_str(), easeTypes, arrayLength(stepTypes));
+						std::string midType =
+						    jsonIO::tryGetValue<std::string>(step, "type", "normal");
+						std::string midEase =
+						    jsonIO::tryGetValue<std::string>(step, "ease", "linear");
+						int stepTypeIndex =
+						    findArrayItem(midType.c_str(), stepTypes, arrayLength(stepTypes));
+						int easeTypeIndex =
+						    findArrayItem(midEase.c_str(), easeTypes, arrayLength(stepTypes));
 
 						// maintain compatibility with old step type names
 						if (stepTypeIndex == -1)
 						{
 							stepTypeIndex = 0;
-							if (midType == "invisible") stepTypeIndex = 1;
-							if (midType == "ignored") stepTypeIndex = 2;
+							if (midType == "invisible")
+								stepTypeIndex = 1;
+							if (midType == "ignored")
+								stepTypeIndex = 2;
 						}
 
 						// maintain compatibility with old ease type names
 						if (easeTypeIndex == -1)
 						{
 							easeTypeIndex = 0;
-							if (midEase == "in") easeTypeIndex = 1;
-							if (midEase == "out") easeTypeIndex = 2;
+							if (midEase == "in")
+								easeTypeIndex = 1;
+							if (midEase == "out")
+								easeTypeIndex = 2;
 						}
 
-						hold.steps.push_back({ mid.ID, (HoldStepType)stepTypeIndex, (EaseType)easeTypeIndex });
+						hold.steps.push_back(
+						    { mid.ID, (HoldStepType)stepTypeIndex, (EaseType)easeTypeIndex });
 					}
 				}
 
-				std::string startType = jsonIO::tryGetValue<std::string>(entry["start"], "type", "normal");
-				std::string endType = jsonIO::tryGetValue<std::string>(entry["end"], "type", "normal");
+				std::string startType =
+				    jsonIO::tryGetValue<std::string>(entry["start"], "type", "normal");
+				std::string endType =
+				    jsonIO::tryGetValue<std::string>(entry["end"], "type", "normal");
 
 				if (startType == "guide" || endType == "guide")
 				{
@@ -510,8 +527,8 @@ namespace MikuMikuWorld
 		// select newly pasted notes
 		selectedNotes.clear();
 		std::transform(pasteData.notes.begin(), pasteData.notes.end(),
-			std::inserter(selectedNotes, selectedNotes.end()),
-			[this](const auto& it) { return it.second.ID; });
+		               std::inserter(selectedNotes, selectedNotes.end()),
+		               [this](const auto& it) { return it.second.ID; });
 
 		nextID += pasteData.notes.size();
 		pasteData.pasting = false;
@@ -539,12 +556,13 @@ namespace MikuMikuWorld
 		Score prev = score;
 
 		std::vector<int> sortedSelection(selectedNotes.begin(), selectedNotes.end());
-		std::sort(sortedSelection.begin(), sortedSelection.end(), [this](int a, int b)
-		{
-			const Note& n1 = score.notes.at(a);
-			const Note& n2 = score.notes.at(b);
-			return n1.tick == n2.tick ? n1.lane < n2.lane : n1.tick < n2.tick;
-		});
+		std::sort(sortedSelection.begin(), sortedSelection.end(),
+		          [this](int a, int b)
+		          {
+			          const Note& n1 = score.notes.at(a);
+			          const Note& n2 = score.notes.at(b);
+			          return n1.tick == n2.tick ? n1.lane < n2.lane : n1.tick < n2.tick;
+		          });
 
 		int factor = 1; // tick increment/decrement amount
 		if (direction == Direction::Up)
@@ -588,8 +606,9 @@ namespace MikuMikuWorld
 		// We need to determine whether the new end will be critical
 		Note& earlierHoldStart = score.notes.at(earlierHold.start.ID);
 		Note& laterHoldEnd = score.notes.at(score.holdNotes.at(laterNote.ID).end);
-		laterHoldEnd.critical = earlierHoldStart.critical ? true : laterHoldEnd.isFlick() && laterHoldEnd.critical;
-		
+		laterHoldEnd.critical =
+		    earlierHoldStart.critical ? true : laterHoldEnd.isFlick() && laterHoldEnd.critical;
+
 		// Update later note's end parent ID
 		laterHoldEnd.parentID = earlierHold.start.ID;
 
@@ -604,12 +623,14 @@ namespace MikuMikuWorld
 		}
 
 		// Create new steps to connect both ends
-		Note earlierNoteAsMid = Note(NoteType::HoldMid, earlierNote.tick, earlierNote.lane, earlierNote.width);
+		Note earlierNoteAsMid =
+		    Note(NoteType::HoldMid, earlierNote.tick, earlierNote.lane, earlierNote.width);
 		earlierNoteAsMid.ID = nextID++;
 		earlierNoteAsMid.critical = earlierHoldStart.critical;
 		earlierNoteAsMid.parentID = earlierHold.start.ID;
 
-		Note laterNoteAsMid = Note(NoteType::HoldMid, laterNote.tick, laterNote.lane, laterNote.width);
+		Note laterNoteAsMid =
+		    Note(NoteType::HoldMid, laterNote.tick, laterNote.lane, laterNote.width);
 		laterNoteAsMid.ID = nextID++;
 		laterNoteAsMid.critical = earlierHoldStart.critical;
 		laterNoteAsMid.parentID = earlierHold.start.ID;
@@ -617,8 +638,10 @@ namespace MikuMikuWorld
 		// Insert new steps to their appropriate containers
 		score.notes[earlierNoteAsMid.ID] = earlierNoteAsMid;
 		score.notes[laterNoteAsMid.ID] = laterNoteAsMid;
-		earlierHold.steps.push_back({ earlierNoteAsMid.ID, HoldStepType::Normal, EaseType::Linear });
-		earlierHold.steps.push_back({ laterNoteAsMid.ID, laterHold.start.type, laterHold.start.ease });
+		earlierHold.steps.push_back(
+		    { earlierNoteAsMid.ID, HoldStepType::Normal, EaseType::Linear });
+		earlierHold.steps.push_back(
+		    { laterNoteAsMid.ID, laterHold.start.type, laterHold.start.ease });
 
 		// Remove old notes
 		score.notes.erase(earlierNote.ID);
@@ -670,7 +693,7 @@ namespace MikuMikuWorld
 
 		hold.end = newSlideEnd.ID;
 		newHold.start = { newSlideStart.ID, HoldStepType::Normal, hold.steps[pos].ease };
-		
+
 		// Backwards loop to avoid incorrect indices after removal
 		for (int i = hold.steps.size() - 1; i > pos; i--)
 		{
@@ -703,7 +726,10 @@ namespace MikuMikuWorld
 			score = history.undo();
 			clearSelection();
 
-			UI::setWindowTitle((workingData.filename.size() ? File::getFilename(workingData.filename) : windowUntitled) + "*");
+			UI::setWindowTitle((workingData.filename.size()
+			                        ? File::getFilename(workingData.filename)
+			                        : windowUntitled) +
+			                   "*");
 			upToDate = false;
 
 			scoreStats.calculateStats(score);
@@ -717,7 +743,10 @@ namespace MikuMikuWorld
 			score = history.redo();
 			clearSelection();
 
-			UI::setWindowTitle((workingData.filename.size() ? File::getFilename(workingData.filename) : windowUntitled) + "*");
+			UI::setWindowTitle((workingData.filename.size()
+			                        ? File::getFilename(workingData.filename)
+			                        : windowUntitled) +
+			                   "*");
 			upToDate = false;
 
 			scoreStats.calculateStats(score);
@@ -728,7 +757,9 @@ namespace MikuMikuWorld
 	{
 		history.pushHistory(description, prev, curr);
 
-		UI::setWindowTitle((workingData.filename.size() ? File::getFilename(workingData.filename) : windowUntitled) + "*");
+		UI::setWindowTitle((workingData.filename.size() ? File::getFilename(workingData.filename)
+		                                                : windowUntitled) +
+		                   "*");
 		scoreStats.calculateStats(score);
 
 		upToDate = false;
@@ -737,19 +768,20 @@ namespace MikuMikuWorld
 	bool ScoreContext::selectionHasEase() const
 	{
 		return std::any_of(selectedNotes.begin(), selectedNotes.end(),
-			[this](const int id) { return score.notes.at(id).hasEase(); });
+		                   [this](const int id) { return score.notes.at(id).hasEase(); });
 	}
 
 	bool ScoreContext::selectionHasStep() const
 	{
 		return std::any_of(selectedNotes.begin(), selectedNotes.end(),
-			[this](const int id) { return score.notes.at(id).getType() == NoteType::HoldMid; });
+		                   [this](const int id)
+		                   { return score.notes.at(id).getType() == NoteType::HoldMid; });
 	}
 
 	bool ScoreContext::selectionHasFlickable() const
 	{
 		return std::any_of(selectedNotes.begin(), selectedNotes.end(),
-			[this](const int id) { return !score.notes.at(id).hasEase(); });
+		                   [this](const int id) { return !score.notes.at(id).hasEase(); });
 	}
 
 	bool ScoreContext::selectionCanConnect() const
@@ -761,24 +793,29 @@ namespace MikuMikuWorld
 		const auto& note2 = score.notes.at(*std::next(selectedNotes.begin()));
 		if (note1.tick == note2.tick)
 			return (note1.getType() == NoteType::Hold && note2.getType() == NoteType::HoldEnd) ||
-						 (note1.getType() == NoteType::HoldEnd && note2.getType() == NoteType::Hold);
+			       (note1.getType() == NoteType::HoldEnd && note2.getType() == NoteType::Hold);
 
 		auto noteTickCompareFunc = [](const Note& n1, const Note& n2) { return n1.tick < n2.tick; };
 		Note earlierNote = std::min(note1, note2, noteTickCompareFunc);
 		Note laterNote = std::max(note1, note2, noteTickCompareFunc);
 
-		return (earlierNote.getType() == NoteType::HoldEnd && laterNote.getType() == NoteType::Hold);
+		return (earlierNote.getType() == NoteType::HoldEnd &&
+		        laterNote.getType() == NoteType::Hold);
 	}
 
 	bool ScoreContext::selectionCanChangeHoldType() const
 	{
-		return std::any_of(selectedNotes.begin(), selectedNotes.end(), [this](const int id)
-		{
-			const Note& note = score.notes.at(id);
-			if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd)
-				return !score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID).isGuide();
+		return std::any_of(
+		    selectedNotes.begin(), selectedNotes.end(),
+		    [this](const int id)
+		    {
+			    const Note& note = score.notes.at(id);
+			    if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd)
+				    return !score.holdNotes
+				                .at(note.getType() == NoteType::Hold ? note.ID : note.parentID)
+				                .isGuide();
 
-			return false;
-		});
+			    return false;
+		    });
 	}
 }

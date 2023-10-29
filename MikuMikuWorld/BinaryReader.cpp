@@ -10,15 +10,9 @@ namespace IO
 		stream = _wfopen(wFilename.c_str(), L"rb");
 	}
 
-	BinaryReader::~BinaryReader()
-	{
-		close();
-	}
+	BinaryReader::~BinaryReader() { close(); }
 
-	bool BinaryReader::isStreamValid()
-	{
-		return stream;
-	}
+	bool BinaryReader::isStreamValid() { return stream; }
 
 	void BinaryReader::close()
 	{
@@ -39,10 +33,7 @@ namespace IO
 		return size;
 	}
 
-	size_t BinaryReader::getStreamPosition()
-	{
-		return ftell(stream);
-	}
+	size_t BinaryReader::getStreamPosition() { return ftell(stream); }
 
 	uint32_t BinaryReader::readInt32()
 	{
@@ -74,7 +65,6 @@ namespace IO
 				if (c)
 					data += c;
 			}
-
 		}
 		return data;
 	}

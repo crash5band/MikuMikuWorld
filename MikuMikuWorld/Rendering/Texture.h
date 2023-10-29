@@ -1,8 +1,8 @@
 #pragma once
+#include "../File.h"
+#include "Sprite.h"
 #include <string>
 #include <vector>
-#include "Sprite.h"
-#include "../File.h"
 
 namespace MikuMikuWorld
 {
@@ -14,16 +14,16 @@ namespace MikuMikuWorld
 
 	class Texture
 	{
-	private:
+	  private:
 		std::string name;
 		std::string filename;
 		int width;
 		int height;
 		unsigned int glID;
 
-		Sprite parseSprite(const IO::File &f, const std::string& line);
+		Sprite parseSprite(const IO::File& f, const std::string& line);
 
-	public:
+	  public:
 		std::vector<Sprite> sprites;
 
 		Texture(const std::string& filename);

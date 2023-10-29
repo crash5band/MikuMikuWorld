@@ -1,6 +1,6 @@
 #pragma once
-#include "Rendering/Texture.h"
 #include "ImGui/imgui.h"
+#include "Rendering/Texture.h"
 #include <memory>
 #include <string>
 
@@ -8,11 +8,11 @@ namespace MikuMikuWorld
 {
 	class Jacket
 	{
-	private:
+	  private:
 		std::string filename;
 		std::unique_ptr<Texture> texture;
 
-	public:
+	  public:
 		Jacket();
 
 		void load(const std::string& filename);

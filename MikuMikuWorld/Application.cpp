@@ -1,11 +1,11 @@
 ﻿#include "Application.h"
-#include "ResourceManager.h"
-#include "IO.h"
+#include "ApplicationConfiguration.h"
 #include "Colors.h"
+#include "IO.h"
+#include "Localization.h"
+#include "ResourceManager.h"
 #include "UI.h"
 #include "Utilities.h"
-#include "Localization.h"
-#include "ApplicationConfiguration.h"
 #include <filesystem>
 
 namespace MikuMikuWorld
@@ -16,8 +16,7 @@ namespace MikuMikuWorld
 
 	NoteTextures noteTextures{ -1, -1, -1 };
 
-	Application::Application() : 
-		initialized{ false }
+	Application::Application() : initialized{ false }
 	{
 		appDir = "";
 		version = "";
@@ -57,20 +56,17 @@ namespace MikuMikuWorld
 		return Result::Ok();
 	}
 
-	const std::string& Application::getAppDir()
-	{
-		return appDir;
-	}
+	const std::string& Application::getAppDir() { return appDir; }
 
 	std::string Application::getVersion()
 	{
 		wchar_t filename[1024];
 		lstrcpyW(filename, IO::mbToWideStr(std::string(appDir + "MikuMikuWorld.exe")).c_str());
 
-		DWORD  verHandle = 0;
-		UINT   size = 0;
+		DWORD verHandle = 0;
+		UINT size = 0;
 		LPBYTE lpBuffer = NULL;
-		DWORD  verSize = GetFileVersionInfoSizeW(filename, &verHandle);
+		DWORD verSize = GetFileVersionInfoSizeW(filename, &verHandle);
 
 		int major = 0, minor = 0, build = 0, rev = 0;
 		if (verSize != NULL)
@@ -79,7 +75,7 @@ namespace MikuMikuWorld
 
 			if (GetFileVersionInfoW(filename, verHandle, verSize, verData))
 			{
-				if (VerQueryValue(verData, "\\", (VOID FAR * FAR*) & lpBuffer, &size))
+				if (VerQueryValue(verData, "\\", (VOID FAR * FAR*)&lpBuffer, &size))
 				{
 					if (size)
 					{
@@ -99,10 +95,7 @@ namespace MikuMikuWorld
 		return IO::formatString("%d.%d.%d", major, minor, rev);
 	}
 
-	const std::string& Application::getAppVersion()
-	{
-		return version;
-	}
+	const std::string& Application::getAppVersion() { return version; }
 
 	void Application::dispose()
 	{
@@ -155,7 +148,8 @@ namespace MikuMikuWorld
 
 			if (extension == SUS_EXTENSION || extension == MMWS_EXTENSION)
 				scoreFile = *it;
-			else if (extension == ".mp3" || extension == ".wav" || extension == ".flac" || extension == ".ogg")
+			else if (extension == ".mp3" || extension == ".wav" || extension == ".flac" ||
+			         extension == ".ogg")
 				musicFile = *it;
 
 			if (scoreFile.size() && musicFile.size())
@@ -179,8 +173,9 @@ namespace MikuMikuWorld
 	{
 		if (config.language != language)
 		{
-			std::string locale = config.language == "auto" ? Utilities::getSystemLocale() : config.language;
-			
+			std::string locale =
+			    config.language == "auto" ? Utilities::getSystemLocale() : config.language;
+
 			// try to set the selected language and fallback to default (en) on failure
 			if (!Localization::setLanguage(locale))
 				Localization::setLanguage("en");
@@ -222,7 +217,8 @@ namespace MikuMikuWorld
 		if (config.baseTheme != imgui->getBaseTheme())
 			imgui->setBaseTheme(config.baseTheme);
 
-		if ((windowState.closing || windowState.resetting) && !editor->isUpToDate() && !unsavedChangesDialog.open)
+		if ((windowState.closing || windowState.resetting) && !editor->isUpToDate() &&
+		    !unsavedChangesDialog.open)
 		{
 			unsavedChangesDialog.open = true;
 			ImGui::OpenPopup(MODAL_TITLE("unsaved_changes"));
@@ -280,7 +276,8 @@ namespace MikuMikuWorld
 			}
 
 			// already saved or clicked save changes or discard changes
-			if (editor->isUpToDate() || (unsavedChangesResult != DialogResult::Cancel && unsavedChangesResult != DialogResult::None))
+			if (editor->isUpToDate() || (unsavedChangesResult != DialogResult::Cancel &&
+			                             unsavedChangesResult != DialogResult::None))
 			{
 				if (windowState.shouldPickScore)
 				{
@@ -348,17 +345,19 @@ namespace MikuMikuWorld
 		HWND hwnd = glfwGetWin32Window(window);
 
 		/*
-			override the current GLFW/Imgui window procedure and store it in the GLFW window user pointer
-		
-			NOTE: for this to be safe, it should be only called AFTER ImGui is initialized
-			so that the WndProc ImGui is expecting matches with our own WndProc
+		    override the current GLFW/Imgui window procedure and store it in the GLFW window user
+		   pointer
+
+		    NOTE: for this to be safe, it should be only called AFTER ImGui is initialized
+		    so that the WndProc ImGui is expecting matches with our own WndProc
 		*/
 		glfwSetWindowUserPointer(window, (void*)::GetWindowLongPtrW(hwnd, GWLP_WNDPROC));
 		::SetWindowLongPtrW(hwnd, GWLP_WNDPROC, (LONG_PTR)wndProc);
 
 		windowState.windowHandle = hwnd;
-		windowState.windowTimerId = ::SetTimer(hwnd,
-			reinterpret_cast<UINT_PTR>(&windowState.windowTimerId), USER_TIMER_MINIMUM, nullptr);
+		windowState.windowTimerId =
+		    ::SetTimer(hwnd, reinterpret_cast<UINT_PTR>(&windowState.windowTimerId),
+		               USER_TIMER_MINIMUM, nullptr);
 
 		::DragAcceptFiles(hwnd, TRUE);
 

@@ -5,7 +5,7 @@ namespace MikuMikuWorld
 {
 	class ScoreEditor
 	{
-	private:
+	  private:
 		ScoreContext context{};
 		EditArgs edit{};
 		std::unique_ptr<Renderer> renderer;
@@ -24,7 +24,7 @@ namespace MikuMikuWorld
 
 		bool save(std::string filename);
 
-	public:
+	  public:
 		ScoreEditor();
 
 		void update();

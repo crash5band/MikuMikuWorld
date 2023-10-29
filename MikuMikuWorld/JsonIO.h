@@ -18,8 +18,7 @@ namespace jsonIO
 		return jsonIO::keyExists(js, key) && js[key].is_array() && js[key].size();
 	}
 
-	template<typename T>
-	T tryGetValue(const nlohmann::json& js, const char* key, T def = {})
+	template <typename T> T tryGetValue(const nlohmann::json& js, const char* key, T def = {})
 	{
 		return keyExists(js, key) ? (T)js[key] : def;
 	}
@@ -54,5 +53,6 @@ namespace jsonIO
 
 	nlohmann::json noteToJson(const mmw::Note& note);
 
-	nlohmann::json noteSelectionToJson(const mmw::Score& score, const std::unordered_set<int>& selection, int baseTick);
+	nlohmann::json noteSelectionToJson(const mmw::Score& score,
+	                                   const std::unordered_set<int>& selection, int baseTick);
 }

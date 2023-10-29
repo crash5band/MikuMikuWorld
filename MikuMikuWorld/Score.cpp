@@ -1,9 +1,9 @@
 #include "Score.h"
-#include "File.h"
 #include "BinaryReader.h"
 #include "BinaryWriter.h"
-#include "IO.h"
 #include "Constants.h"
+#include "File.h"
+#include "IO.h"
 #include <unordered_set>
 
 using namespace IO;
@@ -18,9 +18,9 @@ namespace MikuMikuWorld
 
 	enum HoldFlags
 	{
-		HOLD_START_HIDDEN	= 1 << 0,
-		HOLD_END_HIDDEN		= 1 << 1,
-		HOLD_GUIDE			= 1 << 2
+		HOLD_START_HIDDEN = 1 << 0,
+		HOLD_END_HIDDEN = 1 << 1,
+		HOLD_GUIDE = 1 << 2
 	};
 
 	Score::Score()
@@ -60,10 +60,12 @@ namespace MikuMikuWorld
 
 		if (!note.hasEase())
 			writer->writeInt32((int)note.flick);
-		
+
 		unsigned int flags{};
-		if (note.critical) flags |= NOTE_CRITICAL;
-		if (note.friction) flags |= NOTE_FRICTION;
+		if (note.critical)
+			flags |= NOTE_CRITICAL;
+		if (note.friction)
+			flags |= NOTE_FRICTION;
 		writer->writeInt32(flags);
 	}
 
@@ -275,7 +277,7 @@ namespace MikuMikuWorld
 			end.ID = nextID++;
 			end.parentID = start.ID;
 			score.notes[end.ID] = end;
-			
+
 			hold.end = end.ID;
 			score.holdNotes[start.ID] = hold;
 		}
@@ -310,7 +312,7 @@ namespace MikuMikuWorld
 		writer.writeNull(sizeof(uint32_t));
 
 		int noteCount = 0;
-		for (const auto&[id, note] : score.notes)
+		for (const auto& [id, note] : score.notes)
 		{
 			if (note.getType() != NoteType::Tap)
 				continue;
@@ -318,21 +320,24 @@ namespace MikuMikuWorld
 			writeNote(note, &writer);
 			++noteCount;
 		}
-		
+
 		uint32_t holdsAddress = writer.getStreamPosition();
-		
+
 		// write taps count
 		writer.seek(tapsAddress);
 		writer.writeInt32(noteCount);
 		writer.seek(holdsAddress);
-		
+
 		writer.writeInt32(score.holdNotes.size());
-		for (const auto&[id, hold] : score.holdNotes)
-		{	
+		for (const auto& [id, hold] : score.holdNotes)
+		{
 			unsigned int flags{};
-			if (hold.startType == HoldNoteType::Guide) flags	|=	HOLD_GUIDE;
-			if (hold.startType == HoldNoteType::Hidden) flags	|=	HOLD_START_HIDDEN;
-			if (hold.endType == HoldNoteType::Hidden) flags		|=	HOLD_END_HIDDEN;
+			if (hold.startType == HoldNoteType::Guide)
+				flags |= HOLD_GUIDE;
+			if (hold.startType == HoldNoteType::Hidden)
+				flags |= HOLD_START_HIDDEN;
+			if (hold.endType == HoldNoteType::Hidden)
+				flags |= HOLD_END_HIDDEN;
 			writer.writeInt32(flags);
 
 			// note data

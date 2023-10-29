@@ -1,18 +1,12 @@
 #include "Tempo.h"
-#include "Score.h"
 #include "Constants.h"
+#include "Score.h"
 
 namespace MikuMikuWorld
 {
-	Tempo::Tempo()
-		: tick{ 0 }, bpm{ 160 }
-	{
-	}
+	Tempo::Tempo() : tick{ 0 }, bpm{ 160 } {}
 
-	Tempo::Tempo(int _tick, float _bpm)
-		: tick{ _tick }, bpm{ _bpm }
-	{
-	}
+	Tempo::Tempo(int _tick, float _bpm) : tick{ _tick }, bpm{ _bpm } {}
 
 	float beatsPerMeasure(const TimeSignature& t)
 	{
@@ -123,9 +117,10 @@ namespace MikuMikuWorld
 			lastSignature = std::next(t);
 		}
 
-		total += (measure - lastSignature->first) * (beatsPerMeasure(lastSignature->second) * beatTicks);
+		total +=
+		    (measure - lastSignature->first) * (beatsPerMeasure(lastSignature->second) * beatTicks);
 		return total;
- 	}
+	}
 
 	int findTimeSignature(int measure, const std::map<int, TimeSignature>& ts)
 	{
@@ -145,7 +140,7 @@ namespace MikuMikuWorld
 			if (hiSpeeds[i].tick <= tick)
 				return i;
 		}
-		
+
 		return -1;
 	}
 

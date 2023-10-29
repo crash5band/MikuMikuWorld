@@ -1,11 +1,11 @@
 #pragma once
-#include "ScoreContext.h"
+#include "Background.h"
 #include "ImGui/imgui_internal.h"
 #include "Rendering/Camera.h"
 #include "Rendering/Framebuffer.h"
 #include "Rendering/Renderer.h"
+#include "ScoreContext.h"
 #include "TimelineMode.h"
-#include "Background.h"
 
 namespace MikuMikuWorld
 {
@@ -18,49 +18,50 @@ namespace MikuMikuWorld
 		StepDrawTypeMax
 	};
 
-	constexpr std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawOutlineColors[] =
-	{
+	constexpr std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawOutlineColors[] = {
 		0xFFAAFFAA, 0xFFFFFFAA, 0xFFCCCCCC, 0xFFCCCCCC
 	};
 
-	constexpr std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawFillColors[] =
-	{
+	constexpr std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawFillColors[] = {
 		0x00FFFFFF, 0x00FFFFFF, 0xFF66B622, 0xFF15A0C9
 	};
 
 	class StepDrawData
 	{
-	public:
+	  public:
 		int tick{};
 		int lane{};
 		int width{};
 		StepDrawType type{};
 
 		StepDrawData() {}
-		StepDrawData(int _tick, int _lane, int _width, StepDrawType _type) :
-			tick{ _tick }, lane{ _lane }, width{ _width }, type{ _type }
+		StepDrawData(int _tick, int _lane, int _width, StepDrawType _type)
+		    : tick{ _tick }, lane{ _lane }, width{ _width }, type{ _type }
 		{
 		}
 
-		StepDrawData(const Note& n, StepDrawType _type) :
-			tick{ n.tick }, lane{ n.lane }, width{ n.width }, type{ _type }
+		StepDrawData(const Note& n, StepDrawType _type)
+		    : tick{ n.tick }, lane{ n.lane }, width{ n.width }, type{ _type }
 		{
 		}
 
 		inline constexpr ImU32 getFillColor() const { return stepDrawFillColors->at((int)type); }
-		inline constexpr ImU32 getOutlineColor() const { return stepDrawOutlineColors->at((int)type); }
+		inline constexpr ImU32 getOutlineColor() const
+		{
+			return stepDrawOutlineColors->at((int)type);
+		}
 	};
 
 	class ScoreEditorTimeline
 	{
-	private:
-		int noteCutoffX		= 30;
-		int noteSliceWidth	= 90;
-		int noteOffsetX		= 5;
-		int notesSliceSize	= 18;
-		int holdCutoffX		= 33;
-		int holdSliceWidth	= 10;
-		int holdSliceSize	= 5;
+	  private:
+		int noteCutoffX = 30;
+		int noteSliceWidth = 90;
+		int noteOffsetX = 5;
+		int notesSliceSize = 18;
+		int holdCutoffX = 33;
+		int holdSliceWidth = 10;
+		int holdSliceSize = 5;
 
 		TimelineMode currentMode;
 		float laneOffset;
@@ -123,7 +124,8 @@ namespace MikuMikuWorld
 			Note holdStart;
 			Note holdEnd;
 			Note holdStep;
-		} inputNotes{ Note(NoteType::Tap), Note(NoteType::Hold), Note(NoteType::HoldEnd), Note(NoteType::HoldMid) };
+		} inputNotes{ Note(NoteType::Tap), Note(NoteType::Hold), Note(NoteType::HoldEnd),
+			          Note(NoteType::HoldMid) };
 
 		std::vector<StepDrawData> drawSteps;
 		std::unordered_set<std::string> playingNoteSounds;
@@ -135,13 +137,20 @@ namespace MikuMikuWorld
 
 		void drawWaveform(ScoreContext& context);
 
-		void drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, bool isGuide, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
-		void drawHoldNote(const std::unordered_map<int, Note>& notes, const HoldNote& note, Renderer* renderer, const Color& tint, const int offsetTicks = 0, const int offsetLane = 0);
+		void drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, bool isGuide,
+		                   Renderer* renderer, const Color& tint, const int offsetTick = 0,
+		                   const int offsetLane = 0);
+		void drawHoldNote(const std::unordered_map<int, Note>& notes, const HoldNote& note,
+		                  Renderer* renderer, const Color& tint, const int offsetTicks = 0,
+		                  const int offsetLane = 0);
 		void drawHoldMid(Note& note, HoldStepType type, Renderer* renderer, const Color& tint);
 		void drawOutline(const StepDrawData& data);
-		void drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
-		void drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
-		bool noteControl(ScoreContext& context, const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor);
+		void drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint,
+		                    const int offsetTick = 0, const int offsetLane = 0);
+		void drawNote(const Note& note, Renderer* renderer, const Color& tint,
+		              const int offsetTick = 0, const int offsetLane = 0);
+		bool noteControl(ScoreContext& context, const ImVec2& pos, const ImVec2& sz, const char* id,
+		                 ImGuiMouseCursor cursor);
 		bool bpmControl(const Tempo& tempo);
 		bool bpmControl(float bpm, int tick, bool enabled);
 		bool timeSignatureControl(int numerator, int denominator, int tick, bool enabled);
@@ -167,7 +176,7 @@ namespace MikuMikuWorld
 
 		void contextMenu(ScoreContext& context);
 
-	public:
+	  public:
 		float laneWidth = 26;
 		float notesHeight = 28;
 		bool drawHoldStepOutlines = true;
@@ -182,7 +191,7 @@ namespace MikuMikuWorld
 			int editTimeSignatureNumerator = 4;
 			int editTimeSignatureDenominator = 4;
 			float editHiSpeed = 1.0f;
-		} eventEdit {};
+		} eventEdit{};
 
 		int snapTickFromPos(float posY) const;
 		int positionToTick(float pos) const;
@@ -194,7 +203,10 @@ namespace MikuMikuWorld
 		float laneToPosition(float lane) const;
 
 		constexpr inline float getTimelineStartX() const { return position.x + laneOffset; }
-		constexpr inline float getTimelineEndX() const { return getTimelineStartX() + (laneWidth * 12); }
+		constexpr inline float getTimelineEndX() const
+		{
+			return getTimelineStartX() + (laneWidth * 12);
+		}
 
 		constexpr inline float getZoom() const { return zoom; }
 		void setZoom(float zoom);

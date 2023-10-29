@@ -1,13 +1,13 @@
 #include "Background.h"
 #include "Math.h"
-#include "ResourceManager.h"
-#include "Rendering/Renderer.h"
 #include "Rendering/Framebuffer.h"
+#include "Rendering/Renderer.h"
+#include "ResourceManager.h"
 
 namespace MikuMikuWorld
 {
-	Background::Background() :
-		blur{ 0.0f }, brightness{ 0.4f }, width{ 0 }, height{ 0 }, dirty{ false }
+	Background::Background()
+	    : blur{ 0.0f }, brightness{ 0.4f }, width{ 0 }, height{ 0 }, dirty{ false }
 	{
 		framebuffer = std::make_unique<Framebuffer>(1, 1);
 	}
@@ -108,30 +108,15 @@ namespace MikuMikuWorld
 		dirty = false;
 	}
 
-	std::string Background::getFilename() const
-	{
-		return filename;
-	}
+	std::string Background::getFilename() const { return filename; }
 
-	int Background::getWidth() const
-	{
-		return width;
-	}
+	int Background::getWidth() const { return width; }
 
-	int Background::getHeight() const
-	{
-		return height;
-	}
+	int Background::getHeight() const { return height; }
 
-	int Background::getTextureID() const
-	{
-		return framebuffer->getTexture();
-	}
+	int Background::getTextureID() const { return framebuffer->getTexture(); }
 
-	float Background::getBlur() const
-	{
-		return blur;
-	}
+	float Background::getBlur() const { return blur; }
 
 	void Background::setBlur(float b)
 	{
@@ -139,10 +124,7 @@ namespace MikuMikuWorld
 		dirty = true;
 	}
 
-	float Background::getBrightness() const
-	{
-		return brightness;
-	}
+	float Background::getBrightness() const { return brightness; }
 
 	void Background::setBrightness(float b)
 	{
@@ -150,10 +132,7 @@ namespace MikuMikuWorld
 		dirty = true;
 	}
 
-	bool Background::isDirty() const
-	{
-		return dirty;
-	}
+	bool Background::isDirty() const { return dirty; }
 
 	void Background::dispose()
 	{

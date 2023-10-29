@@ -19,30 +19,14 @@ namespace MikuMikuWorld
 		TimelineModeMax
 	};
 
-	constexpr const char* timelineModes[]
-	{
-		"select",
-		"tap",
-		"hold",
-		"hold_step",
-		"flick",
-		"critical",
-		"trace",
-		"guide",
-		"bpm",
-		"time_signature",
-		"hi_speed"
-	};
+	constexpr const char* timelineModes[]{ "select",         "tap",     "hold",
+		                                   "hold_step",      "flick",   "critical",
+		                                   "trace",          "guide",   "bpm",
+		                                   "time_signature", "hi_speed" };
 
-	constexpr int divisions[]
-	{
-		4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192
-	};
+	constexpr int divisions[]{ 4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192 };
 
-	constexpr int timeSignatureDenominators[]
-	{
-		2, 4, 8, 16, 32, 64
-	};
+	constexpr int timeSignatureDenominators[]{ 2, 4, 8, 16, 32, 64 };
 
 	enum class EventType : uint8_t
 	{
@@ -55,14 +39,7 @@ namespace MikuMikuWorld
 		EventTypeMax
 	};
 
-	constexpr const char* eventTypes[]
-	{
-		"bpm",
-		"time_signature",
-		"hi_speed",
-		"skill",
-		"fever"
-	};
+	constexpr const char* eventTypes[]{ "bpm", "time_signature", "hi_speed", "skill", "fever" };
 
 	enum class Direction : uint8_t
 	{

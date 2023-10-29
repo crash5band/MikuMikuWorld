@@ -1,7 +1,7 @@
-#include "SUS.h"
 #include "SusExporter.h"
-#include "IO.h"
 #include "File.h"
+#include "IO.h"
+#include "SUS.h"
 #include <algorithm>
 #include <numeric>
 
@@ -31,10 +31,7 @@ namespace MikuMikuWorld
 			channels[i] = TickRange{ 0, 0 };
 	}
 
-	SusExporter::SusExporter() : ticksPerBeat{ 480 }
-	{
-
-	}
+	SusExporter::SusExporter() : ticksPerBeat{ 480 } {}
 
 	int SusExporter::getTicksFromMeasure(int measure)
 	{
@@ -56,7 +53,8 @@ namespace MikuMikuWorld
 		for (const auto& [barLength, barTicks] : barLengthTicks)
 		{
 			if (ticks >= barTicks)
-				return barLength.bar + ((float)(ticks - barTicks) / (float)ticksPerBeat / barLength.length);
+				return barLength.bar +
+				       ((float)(ticks - barTicks) / (float)ticksPerBeat / barLength.length);
 		}
 
 		// no time signatures
@@ -85,7 +83,8 @@ namespace MikuMikuWorld
 		{
 			if (tick >= barTicks)
 			{
-				int currentMeasure = barLength.bar + ((float)(tick - barTicks) / (float)ticksPerBeat / barLength.length);
+				int currentMeasure = barLength.bar + ((float)(tick - barTicks) /
+				                                      (float)ticksPerBeat / barLength.length);
 				MeasureMap& measureMap = measuresMap[currentMeasure];
 				measureMap.measure = currentMeasure;
 
@@ -97,7 +96,8 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void SusExporter::appendNoteData(const SUSNote& note, const std::string infoPrefix, const std::string channel)
+	void SusExporter::appendNoteData(const SUSNote& note, const std::string infoPrefix,
+	                                 const std::string channel)
 	{
 		char buff1[10];
 		std::string info = infoPrefix + tostringBaseN(buff1, note.lane, 36);
@@ -105,7 +105,8 @@ namespace MikuMikuWorld
 			info.append(channel);
 
 		char buff2[10];
-		appendData(note.tick, info, std::to_string(note.type) + tostringBaseN(buff2, note.width, 36));
+		appendData(note.tick, info,
+		           std::to_string(note.type) + tostringBaseN(buff2, note.width, 36));
 	}
 
 	std::vector<std::string> SusExporter::getNoteLines(int baseMeasure)
@@ -155,7 +156,8 @@ namespace MikuMikuWorld
 					}
 				}
 
-				lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) + data);
+				lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) +
+				                data);
 
 				while (conflicts.size())
 				{
@@ -175,7 +177,8 @@ namespace MikuMikuWorld
 						}
 					}
 
-					lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) + data2);
+					lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) +
+					                data2);
 					conflicts = temp;
 				}
 			}
@@ -189,12 +192,12 @@ namespace MikuMikuWorld
 		std::vector<std::string> lines;
 		if (!comment.empty())
 		{
-			// Make sure the comment is ignored by parsers. 
+			// Make sure the comment is ignored by parsers.
 			lines.push_back(comment.substr(comment.find_first_not_of("#")));
 		}
 
 		// Write metadata
-		for (const auto&[attrKey, attrValue] : sus.metadata.data)
+		for (const auto& [attrKey, attrValue] : sus.metadata.data)
 		{
 			std::string key = attrKey;
 			std::transform(key.begin(), key.end(), key.begin(), ::toupper);
@@ -210,27 +213,27 @@ namespace MikuMikuWorld
 		// Do we really need a copy of each here?
 		auto barLengths = sus.barlengths;
 		std::stable_sort(barLengths.begin(), barLengths.end(),
-			[](const BarLength& a, const BarLength& b) { return a.bar < b.bar; });
+		                 [](const BarLength& a, const BarLength& b) { return a.bar < b.bar; });
 
 		auto bpms = sus.bpms;
 		std::stable_sort(bpms.begin(), bpms.end(),
-			[](const BPM& a, const BPM& b) { return a.tick < b.tick; });
+		                 [](const BPM& a, const BPM& b) { return a.tick < b.tick; });
 
 		auto taps = sus.taps;
 		std::stable_sort(taps.begin(), taps.end(),
-			[](const SUSNote& a, const SUSNote& b) { return a.tick < b.tick; });
+		                 [](const SUSNote& a, const SUSNote& b) { return a.tick < b.tick; });
 
 		auto directionals = sus.directionals;
 		std::stable_sort(directionals.begin(), directionals.end(),
-			[](const SUSNote& a, const SUSNote& b) { return a.tick < b.tick; });
+		                 [](const SUSNote& a, const SUSNote& b) { return a.tick < b.tick; });
 
 		auto slides = sus.slides;
 		std::stable_sort(slides.begin(), slides.end(),
-			[](const auto& a, const auto& b) { return a[0].tick < b[0].tick; });
+		                 [](const auto& a, const auto& b) { return a[0].tick < b[0].tick; });
 
 		auto guides = sus.guides;
 		std::stable_sort(guides.begin(), guides.end(),
-			[](const auto& a, const auto& b) { return a[0].tick < b[0].tick; });
+		                 [](const auto& a, const auto& b) { return a[0].tick < b[0].tick; });
 
 		measuresMap.clear();
 		barLengthTicks.clear();
@@ -285,7 +288,9 @@ namespace MikuMikuWorld
 		constexpr size_t maxBpmIdentifiers = (36ll * 36ll) - 1;
 		if (bpmIdentifiers.size() >= maxBpmIdentifiers)
 		{
-			std::string errorMessage = IO::formatString("Too many BPM changes!\nNumber of unique identifiers (%l) exceeded limit (%l)", bpmIdentifiers.size(), maxBpmIdentifiers);
+			std::string errorMessage = IO::formatString(
+			    "Too many BPM changes!\nNumber of unique identifiers (%l) exceeded limit (%l)",
+			    bpmIdentifiers.size(), maxBpmIdentifiers);
 			printf("%s", errorMessage.c_str());
 
 			throw std::exception(errorMessage.c_str());
@@ -345,7 +350,7 @@ namespace MikuMikuWorld
 				speedLine.append(", ");
 		}
 		speedLine.append("\"");
-		
+
 		lines.push_back(formatString("#TIL00: %s", speedLine.c_str()));
 		lines.push_back("#HISPEED 00");
 		lines.push_back("#MEASUREHS 00");

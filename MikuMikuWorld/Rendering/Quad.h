@@ -19,10 +19,7 @@ namespace MikuMikuWorld
 		Vertex vertices[4];
 		DirectX::XMMATRIX matrix;
 
-		Quad() : zIndex{ 0 }, sprite{ 0 }, texture{ 0 }
-		{
-
-		}
+		Quad() : zIndex{ 0 }, sprite{ 0 }, texture{ 0 } {}
 
 		Quad(const std::array<Vertex, 4>& v, const DirectX::XMMATRIX& m, int tex, int z = 0)
 		{

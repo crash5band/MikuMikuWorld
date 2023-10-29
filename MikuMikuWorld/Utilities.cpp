@@ -1,8 +1,8 @@
 #include "Utilities.h"
 #include "Constants.h"
+#include "IO.h"
 #include "ImGui/imgui.h"
 #include "Localization.h"
-#include "IO.h"
 #include <Windows.h>
 #include <ctime>
 
@@ -48,15 +48,19 @@ namespace MikuMikuWorld
 
 	void Utilities::ImGuiCenteredText(const char* str)
 	{
-		ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(str).x) * 0.5f);
+		ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(str).x) *
+		                     0.5f);
 		ImGui::Text(str);
 	}
 
-	void drawShadedText(ImDrawList* drawList, ImVec2 textPos, float fontSize, ImU32 fontColor, const char* text)
+	void drawShadedText(ImDrawList* drawList, ImVec2 textPos, float fontSize, ImU32 fontColor,
+	                    const char* text)
 	{
-		if (!drawList) return;
+		if (!drawList)
+			return;
 
-		drawList->AddText(ImGui::GetFont(), fontSize, textPos + ImVec2{ 0.75f, 1.0f }, 0xff111111, text);
+		drawList->AddText(ImGui::GetFont(), fontSize, textPos + ImVec2{ 0.75f, 1.0f }, 0xff111111,
+		                  text);
 		drawList->AddText(ImGui::GetFont(), fontSize, textPos, fontColor, text);
 	}
 }

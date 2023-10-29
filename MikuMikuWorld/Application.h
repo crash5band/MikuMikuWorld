@@ -3,14 +3,14 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #define NOMINMAX
 
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
-#include "ScoreEditor.h"
 #include "ImGuiManager.h"
+#include "ScoreEditor.h"
 #include <Windows.h>
 
 LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -38,7 +38,7 @@ namespace MikuMikuWorld
 
 	class Application
 	{
-	private:
+	  private:
 		GLFWwindow* window;
 		std::unique_ptr<ScoreEditor> editor;
 		std::unique_ptr<ImGuiManager> imgui;
@@ -59,7 +59,7 @@ namespace MikuMikuWorld
 
 		std::string getVersion();
 
-	public:
+	  public:
 		static WindowState windowState;
 
 		Application();

@@ -1,23 +1,20 @@
+#include "../Depends/GLFW/include/GLFW/glfw3.h"
+#include "../Depends/glad/include/glad/glad.h"
 #include "Application.h"
 #include "ApplicationConfiguration.h"
+#include "Colors.h"
+#include "File.h"
+#include "IconsFontAwesome5.h"
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.h"
-#include "../Depends/glad/include/glad/glad.h"
-#include "../Depends/GLFW/include/GLFW/glfw3.h"
-#include "File.h"
 #include "UI.h"
 #include "Utilities.h"
-#include "IconsFontAwesome5.h"
-#include "Colors.h"
 
 namespace MikuMikuWorld
 {
 	constexpr const char* IMGUI_CONFIG_FILENAME = "imgui_config.ini";
 
-	ImGuiManager::ImGuiManager()
-	{
-
-	}
+	ImGuiManager::ImGuiManager() {}
 
 	Result ImGuiManager::initialize(GLFWwindow* window)
 	{
@@ -27,10 +24,8 @@ namespace MikuMikuWorld
 		configFilename = Application::getAppDir() + IMGUI_CONFIG_FILENAME;
 
 		ImGuiIO& io = ImGui::GetIO();
-		io.ConfigFlags |= 
-			ImGuiConfigFlags_DockingEnable |
-			ImGuiConfigFlags_ViewportsEnable |
-			ImGuiConfigFlags_DpiEnableScaleViewports;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable |
+		                  ImGuiConfigFlags_DpiEnableScaleViewports;
 
 		io.ConfigWindowsMoveFromTitleBarOnly = true;
 		io.ConfigViewportsNoDefaultParent = false;
@@ -51,25 +46,25 @@ namespace MikuMikuWorld
 	void ImGuiManager::setBaseTheme(BaseTheme theme)
 	{
 		ImGuiStyle* style = &ImGui::GetStyle();
-		style->FramePadding.x		= 4;
-		style->FramePadding.y		= 2;
-		style->ItemSpacing.x		= 3;
-		style->ItemSpacing.y		= 4;
-		style->WindowPadding.x		= 6;
-		style->WindowRounding		= 4;
-		style->WindowBorderSize		= 1;
-		style->FrameBorderSize		= 0;
-		style->FrameRounding		= 1;
-		style->ScrollbarRounding	= 6;
-		style->ChildRounding		= 2;
-		style->PopupRounding		= 2;
-		style->GrabRounding			= 1;
-		style->TabRounding			= 1;
-		style->ScrollbarSize		= 12;
-		style->GrabMinSize			= 8;
+		style->FramePadding.x = 4;
+		style->FramePadding.y = 2;
+		style->ItemSpacing.x = 3;
+		style->ItemSpacing.y = 4;
+		style->WindowPadding.x = 6;
+		style->WindowRounding = 4;
+		style->WindowBorderSize = 1;
+		style->FrameBorderSize = 0;
+		style->FrameRounding = 1;
+		style->ScrollbarRounding = 6;
+		style->ChildRounding = 2;
+		style->PopupRounding = 2;
+		style->GrabRounding = 1;
+		style->TabRounding = 1;
+		style->ScrollbarSize = 12;
+		style->GrabMinSize = 8;
 
 		style->AntiAliasedLines = true;
-		style->AntiAliasedFill	= true;
+		style->AntiAliasedFill = true;
 
 		ImVec4* colors = style->Colors;
 
@@ -193,7 +188,8 @@ namespace MikuMikuWorld
 		fontConfig.PixelSnapH = true;
 		fontConfig.OversampleH = 1;
 		fontConfig.RasterizerMultiply = 1.05f;
-		ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), (int)size, &fontConfig, ImGui::GetIO().Fonts->GetGlyphRangesChineseFull());
+		ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), (int)size, &fontConfig,
+		                                         ImGui::GetIO().Fonts->GetGlyphRangesChineseFull());
 	}
 
 	void ImGuiManager::loadIconFont(const std::string& filename, int start, int end, float size)
@@ -207,7 +203,8 @@ namespace MikuMikuWorld
 		fontConfig.PixelSnapH = false;
 		fontConfig.OversampleH = 1;
 		static const ImWchar iconRanges[] = { start, end, 0 };
-		ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), (int)size, &fontConfig, iconRanges);
+		ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), (int)size, &fontConfig,
+		                                         iconRanges);
 	}
 
 	void ImGuiManager::buildFonts(float dpiScale)
@@ -220,16 +217,18 @@ namespace MikuMikuWorld
 		io.FontDefault = nullptr;
 
 		loadFont(Application::getAppDir() + "res/fonts/NotoSansCJK-Regular.ttc", 16 * dpiScale);
-		loadIconFont(Application::getAppDir() + "res/fonts/fa-solid-900.ttf", ICON_MIN_FA, ICON_MAX_FA, 12 * dpiScale);
+		loadIconFont(Application::getAppDir() + "res/fonts/fa-solid-900.ttf", ICON_MIN_FA,
+		             ICON_MAX_FA, 12 * dpiScale);
 		ImGui_ImplOpenGL3_CreateFontsTexture();
 	}
 
 	void ImGuiManager::initializeLayout()
 	{
 		ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
-			ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
-			ImGuiWindowFlags_NoBackground;
+		                               ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+		                               ImGuiWindowFlags_NoMove |
+		                               ImGuiWindowFlags_NoBringToFrontOnFocus |
+		                               ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
 
 		ImGuiViewport* viewport = ImGui::GetMainViewport();
 		ImVec2 viewportOffset{ 0, UI::toolbarBtnSize.y + ImGui::GetStyle().WindowPadding.y + 5 };
@@ -240,7 +239,9 @@ namespace MikuMikuWorld
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::Begin("InvisibleWindow", nullptr, windowFlags); // This is basically the background window that contains all the dockable windows
+		ImGui::Begin("InvisibleWindow", nullptr,
+		             windowFlags); // This is basically the background window that contains all the
+		                           // dockable windows
 		ImGui::PopStyleVar(3);
 
 		std::string dockStrId{ "InvisibleWindowDockSpace" };
@@ -252,8 +253,10 @@ namespace MikuMikuWorld
 			ImGui::DockBuilderSetNodeSize(dockSpaceId, viewport->WorkSize - viewportOffset);
 
 			ImGuiID dockMainId = dockSpaceId;
-			ImGuiID midRightId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Right, 0.25f, nullptr, &dockMainId);
-			ImGuiID bottomRightId = ImGui::DockBuilderSplitNode(midRightId, ImGuiDir_Down, 0.3f, nullptr, &midRightId);
+			ImGuiID midRightId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Right, 0.25f,
+			                                                 nullptr, &dockMainId);
+			ImGuiID bottomRightId =
+			    ImGui::DockBuilderSplitNode(midRightId, ImGuiDir_Down, 0.3f, nullptr, &midRightId);
 
 			ImGui::DockBuilderDockWindow("###notes_timeline", dockMainId);
 			ImGui::DockBuilderDockWindow("###chart_properties", midRightId);

@@ -6,10 +6,10 @@ namespace IO
 {
 	class BinaryReader
 	{
-	private:
+	  private:
 		FILE* stream;
 
-	public:
+	  public:
 		BinaryReader(const std::string& filename);
 		~BinaryReader();
 

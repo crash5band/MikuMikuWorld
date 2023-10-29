@@ -1,6 +1,6 @@
 #pragma once
-#include <glad/glad.h>
 #include "DirectXMath.h"
+#include <glad/glad.h>
 #include <string>
 #include <unordered_map>
 
@@ -8,7 +8,7 @@ namespace MikuMikuWorld
 {
 	class Shader
 	{
-	private:
+	  private:
 		unsigned int ID;
 		unsigned int uloc;
 		std::string name;
@@ -17,8 +17,8 @@ namespace MikuMikuWorld
 		void compile(const std::string& source);
 		GLint getUniformLoc(const std::string& name);
 
-	public:	
-		Shader(const std::string& name, const std::string &source);
+	  public:
+		Shader(const std::string& name, const std::string& source);
 		~Shader();
 
 		std::string getName() const;

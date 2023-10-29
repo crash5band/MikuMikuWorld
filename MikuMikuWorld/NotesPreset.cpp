@@ -1,25 +1,20 @@
 #include "NotesPreset.h"
-#include "IO.h"
 #include "Application.h"
 #include "File.h"
-#include "Utilities.h"
-#include <fstream>
-#include <filesystem>
-#include <execution>
+#include "IO.h"
 #include "JsonIO.h"
+#include "Utilities.h"
+#include <execution>
+#include <filesystem>
+#include <fstream>
 
 using nlohmann::json;
 
 namespace MikuMikuWorld
 {
-	NotesPreset::NotesPreset(int _id, std::string _name) :
-		ID{ _id }, name{ _name }
-	{
-	}
+	NotesPreset::NotesPreset(int _id, std::string _name) : ID{ _id }, name{ _name } {}
 
-	NotesPreset::NotesPreset() : ID{ -1 }, name{ "" }, description{ "" }
-	{
-	}
+	NotesPreset::NotesPreset() : ID{ -1 }, name{ "" }, description{ "" } {}
 
 	Result NotesPreset::read(const std::string& filepath)
 	{
@@ -40,7 +35,8 @@ namespace MikuMikuWorld
 			description = data["description"];
 
 		if (data.find("notes") == data.end() && data.find("holds") == data.end())
-			return Result(ResultStatus::Warning, "The preset " + name + " does not contain any notes data. Skipping...");
+			return Result(ResultStatus::Warning,
+			              "The preset " + name + " does not contain any notes data. Skipping...");
 
 		return Result::Ok();
 	}
@@ -90,22 +86,24 @@ namespace MikuMikuWorld
 		std::vector<Result> warnings;
 		std::vector<Result> errors;
 
-		std::for_each(std::execution::par, filenames.begin(), filenames.end(), [this, &warnings, &errors, &m2](const auto& filename) {
-			int id = nextPresetID++;
+		std::for_each(std::execution::par, filenames.begin(), filenames.end(),
+		              [this, &warnings, &errors, &m2](const auto& filename)
+		              {
+			              int id = nextPresetID++;
 
-			NotesPreset preset(id, "");
-			Result result = preset.read(filename);
-			{
-				std::lock_guard<std::mutex> lock{ m2 };
+			              NotesPreset preset(id, "");
+			              Result result = preset.read(filename);
+			              {
+				              std::lock_guard<std::mutex> lock{ m2 };
 
-				if (result.getStatus() == ResultStatus::Success)
-					presets.emplace(id, std::move(preset));
-				else if (result.getStatus() == ResultStatus::Warning)
-					warnings.push_back(result);
-				else if (result.getStatus() == ResultStatus::Error)
-					errors.push_back(result);
-			}
-		});
+				              if (result.getStatus() == ResultStatus::Success)
+					              presets.emplace(id, std::move(preset));
+				              else if (result.getStatus() == ResultStatus::Warning)
+					              warnings.push_back(result);
+				              else if (result.getStatus() == ResultStatus::Error)
+					              errors.push_back(result);
+			              }
+		              });
 
 		if (errors.size())
 		{
@@ -122,7 +120,8 @@ namespace MikuMikuWorld
 			for (auto& warning : warnings)
 				message += "- " + warning.getMessage() + "\n";
 
-			IO::messageBox(APP_NAME, message, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Warning);
+			IO::messageBox(APP_NAME, message, IO::MessageBoxButtons::Ok,
+			               IO::MessageBoxIcon::Warning);
 		}
 	}
 
@@ -142,21 +141,26 @@ namespace MikuMikuWorld
 				std::filesystem::remove(wFullPath);
 		}
 
-		std::for_each(std::execution::par, createPresets.begin(), createPresets.end(), [this, &libPath](int id) {
-			if (presets.find(id) != presets.end())
-			{
-				NotesPreset& preset = presets.at(id);
+		std::for_each(std::execution::par, createPresets.begin(), createPresets.end(),
+		              [this, &libPath](int id)
+		              {
+			              if (presets.find(id) != presets.end())
+			              {
+				              NotesPreset& preset = presets.at(id);
 
-				// filename without extension
-				// we will add the extension later after determining what the final filename should be
-				std::string filename = (libPath / fixFilename(preset.getName())).string();
-				preset.write(filename, false);
-			}
-		});
+				              // filename without extension
+				              // we will add the extension later after determining what the final
+				              // filename should be
+				              std::string filename =
+				                  (libPath / fixFilename(preset.getName())).string();
+				              preset.write(filename, false);
+			              }
+		              });
 	}
 
-	void PresetManager::createPreset(const Score& score, const std::unordered_set<int>& selectedNotes,
-		const std::string &name, const std::string& desc)
+	void PresetManager::createPreset(const Score& score,
+	                                 const std::unordered_set<int>& selectedNotes,
+	                                 const std::string& name, const std::string& desc)
 	{
 		if (!selectedNotes.size() || !name.size())
 			return;
@@ -165,8 +169,13 @@ namespace MikuMikuWorld
 		preset.name = name;
 		preset.description = desc;
 
-		int baseTick = score.notes.at(*std::min_element(selectedNotes.begin(), selectedNotes.end(),
-			[&score](int id1, int id2) { return score.notes.at(id1).tick < score.notes.at(id2).tick; })).tick;
+		int baseTick = score.notes
+		                   .at(*std::min_element(selectedNotes.begin(), selectedNotes.end(),
+		                                         [&score](int id1, int id2) {
+			                                         return score.notes.at(id1).tick <
+			                                                score.notes.at(id2).tick;
+		                                         }))
+		                   .tick;
 		preset.data = jsonIO::noteSelectionToJson(score, selectedNotes, baseTick);
 
 		presets[preset.getID()] = preset;
@@ -188,7 +197,8 @@ namespace MikuMikuWorld
 	std::string PresetManager::fixFilename(const std::string& name)
 	{
 		std::string result = name;
-		constexpr std::array<char, 9> invalidFilenameChars{ '\\', '/', '\"', '|', '<', '>', '?', '*', ':' };
+		constexpr std::array<char, 9> invalidFilenameChars{ '\\', '/', '\"', '|', '<',
+			                                                '>',  '?', '*',  ':' };
 		for (char c : invalidFilenameChars)
 		{
 			std::replace(result.begin(), result.end(), c, '_');

@@ -1,11 +1,11 @@
+#include "Texture.h"
 #include "../File.h"
 #include "../IO.h"
-#include "Texture.h"
-#include <glad/glad.h>
 #include "GLFW/glfw3.h"
 #include "stb_image.h"
 #include <filesystem>
 #include <fstream>
+#include <glad/glad.h>
 
 using namespace IO;
 
@@ -28,20 +28,11 @@ namespace MikuMikuWorld
 		}
 	}
 
-	Texture::Texture()
-	{
+	Texture::Texture() {}
 
-	}
+	void Texture::bind() const { glBindTexture(GL_TEXTURE_2D, glID); }
 
-	void Texture::bind() const
-	{
-		glBindTexture(GL_TEXTURE_2D, glID);
-	}
-
-	void Texture::dispose()
-	{
-		glDeleteTextures(1, &glID);
-	}
+	void Texture::dispose() { glDeleteTextures(1, &glID); }
 
 	void Texture::readSprites(const std::string& filename)
 	{
