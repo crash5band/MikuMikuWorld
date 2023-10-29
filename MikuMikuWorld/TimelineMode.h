@@ -1,8 +1,9 @@
 #pragma once
+#include <stdint.h>
 
 namespace MikuMikuWorld
 {
-	enum class TimelineMode
+	enum class TimelineMode : uint8_t
 	{
 		Select,
 		InsertTap,
@@ -45,9 +46,9 @@ namespace MikuMikuWorld
 		2, 4, 8, 16, 32, 64
 	};
 
-	enum class EventType
+	enum class EventType : uint8_t
 	{
-		None = -1,
+		None,
 		Bpm,
 		TimeSignature,
 		HiSpeed,
@@ -65,7 +66,7 @@ namespace MikuMikuWorld
 		"fever"
 	};
 
-	enum class Direction
+	enum class Direction : uint8_t
 	{
 		Down,
 		Up,

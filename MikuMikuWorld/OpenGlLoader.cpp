@@ -5,7 +5,6 @@
 #include "ApplicationConfiguration.h"
 #include "IO.h"
 #include "UI.h"
-#include "Result.h"
 #include "stb_image.h"
 
 namespace MikuMikuWorld

@@ -1,5 +1,5 @@
 #pragma once
-#include "PresetManager.h"
+#include "NotesPreset.h"
 #include "ScoreEditorTimeline.h"
 #include "Stopwatch.h"
 #include "InputBinding.h"
@@ -19,6 +19,8 @@ namespace MikuMikuWorld
 	class ScorePropertiesWindow
 	{
 	public:
+		std::string pendingLoadMusicFilename{};
+		bool isPendingLoadMusic{ false };
 		void update(ScoreContext& context);
 	};
 

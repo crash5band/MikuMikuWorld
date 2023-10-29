@@ -9,7 +9,7 @@ using namespace nlohmann;
 namespace MikuMikuWorld
 {
 	ApplicationConfiguration config{};
-	constexpr const char* CONFIG_VERSION{ "1.7.0" };
+	constexpr const char* CONFIG_VERSION{ "1.8.1" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -68,19 +68,14 @@ namespace MikuMikuWorld
 			backgroundImage =
 			    jsonIO::tryGetValue<std::string>(config["timeline"], "background_image", "");
 
-			useSmoothScrolling =
-			    jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
-			smoothScrollingTime =
-			    jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 67.0f);
-			scrollSpeedNormal =
-			    jsonIO::tryGetValue<float>(config["timeline"], "scroll_speed_normal", 2.0f);
-			scrollSpeedShift =
-			    jsonIO::tryGetValue<float>(config["timleine"], "scroll_speed_fast", 5.0f);
+			useSmoothScrolling = jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
+			smoothScrollingTime = jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 48.0f);
+			scrollSpeedNormal = jsonIO::tryGetValue<float>(config["timeline"], "scroll_speed_normal", 2.0f);
+			scrollSpeedShift = jsonIO::tryGetValue<float>(config["timleine"], "scroll_speed_fast", 5.0f);
 
-			returnToLastSelectedTickOnPause = jsonIO::tryGetValue<bool>(
-			    config["timeline"], "return_to_last_tick_on_pause", false);
-			cursorPositionThreshold =
-			    jsonIO::tryGetValue<float>(config["timeline"], "cursor_position_threshold", 0.5f);
+			drawWaveform = jsonIO::tryGetValue<bool>(config["timeline"], "draw_waveform", true);
+			returnToLastSelectedTickOnPause = jsonIO::tryGetValue<bool>(config["timeline"], "return_to_last_tick_on_pause", false);
+			cursorPositionThreshold = jsonIO::tryGetValue<float>(config["timeline"], "cursor_position_threshold", 0.5f);
 		}
 
 		if (jsonIO::keyExists(config, "theme"))
@@ -142,21 +137,24 @@ namespace MikuMikuWorld
 		config["window"]["vsync"] = vsync;
 		config["window"]["show_fps"] = showFPS;
 
-		config["timeline"] = { { "lane_width", timelineWidth },
-			                   { "notes_height", notesHeight },
-			                   { "match_notes_size_to_timeline", matchNotesSizeToTimeline },
-			                   { "division", division },
-			                   { "zoom", zoom },
-			                   { "lane_opacity", laneOpacity },
-			                   { "background_brightness", backgroundBrightness },
-			                   { "draw_background", drawBackground },
-			                   { "background_image", backgroundImage },
-			                   { "smooth_scrolling_enable", useSmoothScrolling },
-			                   { "smooth_scrolling_time", smoothScrollingTime },
-			                   { "scroll_speed_normal", scrollSpeedNormal },
-			                   { "scroll_speed_fast", scrollSpeedShift },
-			                   { "return_to_last_tick_on_pause", returnToLastSelectedTickOnPause },
-			                   { "cursor_position_threshold", cursorPositionThreshold } };
+		config["timeline"] = {
+			{"lane_width", timelineWidth},
+			{"notes_height", notesHeight},
+			{"match_notes_size_to_timeline", matchNotesSizeToTimeline},
+			{"division", division},
+			{"zoom", zoom},
+			{"lane_opacity", laneOpacity},
+			{"background_brightness", backgroundBrightness},
+			{"draw_background", drawBackground},
+			{"background_image", backgroundImage},
+			{"smooth_scrolling_enable", useSmoothScrolling},
+			{"smooth_scrolling_time", smoothScrollingTime},
+			{"scroll_speed_normal", scrollSpeedNormal},
+			{"scroll_speed_fast", scrollSpeedShift},
+			{"draw_waveform", drawWaveform},
+			{"return_to_last_tick_on_pause", returnToLastSelectedTickOnPause},
+			{"cursor_position_threshold", cursorPositionThreshold}
+		};
 
 		config["theme"] = { { "accent_color", accentColor },
 			                { "user_color",
@@ -216,10 +214,11 @@ namespace MikuMikuWorld
 		drawBackground = true;
 		backgroundImage = "";
 		useSmoothScrolling = true;
-		smoothScrollingTime = 67.0f;
+		smoothScrollingTime = 48.0f;
 		scrollSpeedNormal = 2.0f;
 		scrollSpeedShift = 5.0f;
 		cursorPositionThreshold = 0.5;
+		drawWaveform = true;
 		followCursorInPlayback = true;
 		returnToLastSelectedTickOnPause = false;
 

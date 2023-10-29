@@ -77,34 +77,34 @@ namespace IO
 		return savedbuff;
 	}
 
-	bool isComment(const std::string& line, const std::string& delim)
+	bool isComment(const std::string_view& line, const std::string_view& delim)
 	{
-		if (line.size() < 1)
+		if (line.empty())
 			return true;
 
-		return line.at(0) == '#' || line.at(0) == '\n';
+		return line.find_first_of(delim) == 0 || line.at(0) == '\n';
 	}
 
-	bool startsWith(const std::string& line, const std::string& key)
+	bool startsWith(const std::string_view& line, const std::string_view& key)
 	{
 		return line.find_first_of(key) == 0;
 	}
 
-	bool endsWith(const std::string& line, const std::string& key)
+	bool endsWith(const std::string_view& line, const std::string_view& key)
 	{
-		return line.find_last_of(key) == line.size() - key.size();
+		return line.substr(line.length() - key.length()) == key;
 	}
 
-	bool isDigit(const std::string& str)
+	bool isDigit(const std::string_view& str)
 	{
-		if (!str.size())
+		if (str.empty())
 			return false;
 
 		int index = 0;
 		if (str.at(index) == '-')
 			index = 1;
 
-		for (; index < str.size(); ++index)
+		for (; index < str.length(); ++index)
 		{
 			if (!isdigit(str[index]))
 				return false;
@@ -115,7 +115,7 @@ namespace IO
 
 	std::string trim(std::string& line)
 	{
-		if (line.size() < 1)
+		if (line.empty())
 			return line;
 
 		size_t start = line.find_first_not_of(" ");
@@ -128,9 +128,9 @@ namespace IO
 	{
 		std::vector<std::string> values;
 		size_t start = 0;
-		size_t end = line.size() - 1;
+		size_t end = line.length() - 1;
 
-		while (start < line.size() && end != std::string::npos)
+		while (start < line.length() && end != std::string::npos)
 		{
 			end = line.find_first_of(delim, start);
 			values.push_back(line.substr(start, end - start));

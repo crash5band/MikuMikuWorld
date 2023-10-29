@@ -5,7 +5,6 @@
 #include "UI.h"
 #include "Utilities.h"
 #include "Localization.h"
-#include "Constants.h"
 #include "ApplicationConfiguration.h"
 #include <filesystem>
 
@@ -106,13 +105,6 @@ namespace MikuMikuWorld
 		return version;
 	}
 
-	void Application::frameTime()
-	{
-		float currentFrame = glfwGetTime();
-		frameDelta = currentFrame - lastFrame;
-		lastFrame = currentFrame;
-	}
-
 	void Application::dispose()
 	{
 		if (initialized)
@@ -211,10 +203,9 @@ namespace MikuMikuWorld
 			windowState.lastDpiScale = dpiScale;
 		}
 
-		frameTime();
 		imgui->begin();
 
-		// inform ImGui of dpi changes
+		// Inform ImGui of dpi changes
 		ImGui::GetMainViewport()->DpiScale = dpiX;
 		UI::updateBtnSizesDpiScaling(dpiScale);
 
@@ -247,7 +238,7 @@ namespace MikuMikuWorld
 				switch (unsavedChangesResult)
 				{
 				case DialogResult::Yes:
-					editor->trySave(editor->getWorkingFilename());
+					editor->trySave(editor->getWorkingFilename().data());
 					glfwSetWindowShouldClose(window, 1);
 					break;
 
@@ -276,7 +267,7 @@ namespace MikuMikuWorld
 				switch (unsavedChangesResult)
 				{
 				case DialogResult::Yes:
-					editor->trySave(editor->getWorkingFilename());
+					editor->trySave(editor->getWorkingFilename().data());
 					break;
 
 				case DialogResult::Cancel:

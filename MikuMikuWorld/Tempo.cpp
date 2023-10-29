@@ -158,9 +158,9 @@ namespace MikuMikuWorld
 		return tempos[0];
 	}
 
-	int snapTick(int tick, int div, const std::map<int, TimeSignature>& ts)
+	int snapTick(int tick, int div)
 	{
-		const int subDivision = TICKS_PER_BEAT / (div / 4);
+		const int subDivision = TICKS_PER_BEAT / (static_cast<float>(div) / 4);
 		const int remainingTicks = tick % subDivision;
 
 		tick -= remainingTicks;

@@ -1,4 +1,5 @@
 #include "ScoreEditorWindows.h"
+#include <future>
 
 namespace MikuMikuWorld
 {
@@ -36,7 +37,7 @@ namespace MikuMikuWorld
 		void exportSus();
 		void exportUsc();
 		bool saveAs();
-		bool trySave(std::string filename = "");
+		bool trySave(std::string);
 		void autoSave();
 		int deleteOldAutoSave(int count);
 
@@ -49,7 +50,7 @@ namespace MikuMikuWorld
 
 		void writeSettings();
 		void uninitialize();
-		inline const char* getWorkingFilename() const { return context.workingData.filename.c_str(); }
+		inline std::string_view getWorkingFilename() const { return context.workingData.filename; }
 		constexpr inline bool isUpToDate() const { return context.upToDate; }
 	};
 }

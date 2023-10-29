@@ -39,10 +39,10 @@ namespace IO
 
 	char* reverse(char* str);
 	char* tostringBaseN(char* buff, long long num, int base);
-	bool isComment(const std::string& line, const std::string& delim);
-	bool startsWith(const std::string& line, const std::string& key);
-	bool endsWith(const std::string& line, const std::string& key);
-	bool isDigit(const std::string& str);
+	bool isComment(const std::string_view& line, const std::string_view& delim);
+	bool startsWith(const std::string_view& line, const std::string_view& key);
+	bool endsWith(const std::string_view& line, const std::string_view& key);
+	bool isDigit(const std::string_view& str);
 	std::string trim(std::string& line);
 	std::vector<std::string> split(const std::string& line, const std::string& delim);
 

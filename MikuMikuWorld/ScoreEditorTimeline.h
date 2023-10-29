@@ -25,13 +25,13 @@ namespace MikuMikuWorld
 		StepDrawTypeMax
 	};
 
-	const std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawOutlineColors[] =
+	constexpr std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawOutlineColors[] =
 	{
 		0xFFAAFFAA, 0xFFFFFFAA, 0xFFCCCCCC, 0xFFCCCCCC,
     0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC
 	};
 
-	const std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawFillColors[] =
+	constexpr std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawFillColors[] =
 	{
 		0x00FFFFFF, 0x00FFFFFF, 0xFF66B622, 0xFF15A0C9,
     0xFFEDEDED, 0xFF7B73D6, 0xFF9DD673, 0xFFD67B73, 0xFF73CED6, 0xFFCD73D6, 0xFFD6AC73
@@ -51,13 +51,11 @@ namespace MikuMikuWorld
 		StepDrawData(int _tick, int _lane, int _width, StepDrawType _type, int layer = -1) :
 			tick{ _tick }, lane{ _lane }, width{ _width }, type{ _type }, layer{ layer }
 		{
-
 		}
 
 		StepDrawData(const Note& n, StepDrawType _type, int layer = -1) :
 			tick{ n.tick }, lane{ n.lane }, width{ n.width }, type{ _type }, layer{ layer }
 		{
-
 		}
 
 		inline constexpr ImU32 getFillColor() const { return stepDrawFillColors->at((int)type); }
@@ -77,18 +75,20 @@ namespace MikuMikuWorld
 
 		TimelineMode currentMode;
 		float laneOffset;
-		float zoom = 1.0f;
 		float maxOffset = 10000;
 		float minOffset;
 		float offset;
 		float visualOffset;
-		const float unitHeight = 0.15f;
-		const float scrollUnit = 50;
-
 		float scrollStartY;
-		bool mouseInTimeline;
+		float zoom = 1.0f;
 
-		float noteControlWidth = 12;
+		static constexpr float unitHeight = 0.15f;
+		static constexpr float scrollUnit = 50;
+		static constexpr float minZoom = 0.25f;
+		static constexpr float maxZoom = 30.0f;
+		static constexpr double waveformSecondsPerPixel = 0.005;
+		static constexpr float noteControlWidth = 12;
+
 		float minNoteYDistance;
 		int hoverLane;
 		int hoverTick;
@@ -98,6 +98,7 @@ namespace MikuMikuWorld
 		int lastSelectedTick;
 		int division = 8;
 
+		bool mouseInTimeline;
 		bool isHoveringNote;
 		bool isHoldingNote;
 		bool isMovingNote;
@@ -113,17 +114,8 @@ namespace MikuMikuWorld
 		float songPosLastFrame;
 		bool playing;
 
-		struct InputNotes
-		{
-			Note tap;
-			Note holdStart;
-			Note holdEnd;
-			Note holdStep;
-      Note damage;
-		} inputNotes{ Note(NoteType::Tap), Note(NoteType::Hold), Note(NoteType::HoldEnd), Note(NoteType::HoldMid), Note(NoteType::Damage) };
-
-		std::vector<StepDrawData> drawSteps;
-
+		Camera camera;
+		std::unique_ptr<Framebuffer> framebuffer;
 		ImVec2 size;
 		ImVec2 position;
 		ImVec2 prevPos;
@@ -136,21 +128,26 @@ namespace MikuMikuWorld
 
 		Score prevUpdateScore;
 
-		Camera camera;
-		std::unique_ptr<Framebuffer> framebuffer;
+		struct InputNotes
+		{
+			Note tap;
+			Note holdStart;
+			Note holdEnd;
+			Note holdStep;
+			Note damage;
+		} inputNotes{ Note(NoteType::Tap), Note(NoteType::Hold), Note(NoteType::HoldEnd), Note(NoteType::HoldMid), Note(NoteType::Damage) };
+
+		std::vector<StepDrawData> drawSteps;
 		std::unordered_set<std::string> playingNoteSounds;
-		const float audioOffsetCorrection = 0.02f;
-		const float audioLookAhead = 0.05f;
+		static constexpr float audioOffsetCorrection = 0.02f;
+		static constexpr float audioLookAhead = 0.05f;
 
 		void updateScrollbar();
 		void updateScrollingPosition();
 
-		void drawHoldCurve(
-        const Note& n1, const Note& n2,
-        EaseType ease, bool isGuide, Renderer* renderer, const Color& tint,
-        const int offsetTick = 0, const int offsetLane = 0, const float startAlpha = 1, const float endAlpha = 1,
-        const GuideColor guideColor = GuideColor::Green, const int selectedLayer = -1
-      );
+		void drawWaveform(ScoreContext& context);
+
+		void drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, bool isGuide, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0, const float startAlpha = 1, const float endAlpha = 1, const GuideColor guideColor = GuideColor::Green, const int selectedLayer = -1);
 		void drawHoldNote(const std::unordered_map<int, Note>& notes, const HoldNote& note, Renderer* renderer, const Color& tint, const int selectedLayer = -1, const int offsetTicks = 0, const int offsetLane = 0);
 		void drawHoldMid(Note& note, HoldStepType type, Renderer* renderer, const Color& tint);
 		void drawOutline(const StepDrawData& data, const int selectedLayer = -1);
@@ -201,7 +198,7 @@ namespace MikuMikuWorld
 			float editHiSpeed = 1.0f;
 		} eventEdit {};
 
-		int snapTickFromPos(float posY, const ScoreContext& context);
+		int snapTickFromPos(float posY) const;
 		int positionToTick(float pos) const;
 		float tickToPosition(int tick) const;
 		float getNoteYPosFromTick(int tick) const;
@@ -227,7 +224,7 @@ namespace MikuMikuWorld
 		int findClosestHold(ScoreContext& context, int lane, int tick);
 		bool isMouseInHoldPath(const Note& n1, const Note& n2, EaseType ease, float x, float y);
 		constexpr inline bool isPlaying() const { return playing; }
-		void togglePlaying(ScoreContext& context);
+		void setPlaying(ScoreContext& context, bool state);
 		void stop(ScoreContext& context);
 		void calculateMaxOffsetFromScore(const Score& score);
 
@@ -242,7 +239,7 @@ namespace MikuMikuWorld
 		int roundTickDown(int tick, int division);
 		void focusCursor(ScoreContext& context, Direction direction);
 
-		constexpr TimelineMode getMode() const { return currentMode; }
+		constexpr inline TimelineMode getMode() const { return currentMode; }
 		void changeMode(TimelineMode mode, EditArgs& edit);
 
 		ScoreEditorTimeline();

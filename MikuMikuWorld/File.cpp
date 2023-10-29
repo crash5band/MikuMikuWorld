@@ -61,6 +61,19 @@ namespace IO
 			fflush(stream);
 	}
 
+	std::vector<uint8_t> File::readAllBytes()
+	{
+		fseek(stream, 0, SEEK_END);
+		size_t size = ftell(stream);
+		fseek(stream, 0, SEEK_SET);
+		
+		std::vector<uint8_t> bytes;
+		bytes.resize(size);
+		fread(&bytes[0], sizeof(uint8_t), size, stream);
+
+		return bytes;
+	}
+
 	std::string File::readLine() const
 	{
 		std::string line = "";
@@ -95,14 +108,10 @@ namespace IO
 		int size = ftell(stream);
 		fseek(stream, 0, SEEK_SET);
 
-		char* buf = new char[size];
-		fread(buf, sizeof(char), size, stream);
+		std::string str(size, '0');
+		fread(str.data(), sizeof(char), size, stream);
 
-		std::string result(buf);
-
-		delete[] buf;
-
-		return result;
+		return str;
 	}
 
 	bool File::isEndofFile() const
@@ -113,15 +122,14 @@ namespace IO
 		return true;
 	}
 
-	void File::write(const std::string str)
+	void File::write(const std::string& str)
 	{
 		fwrite(str.c_str(), str.size(), 1, stream);
 	}
 
 	void File::writeLine(const std::string line)
 	{
-		write(line);
-		fwrite("\n", 1, 1, stream);
+		write(line + "\n");
 	}
 
 	void File::writeAllLines(const std::vector<std::string>& lines)
@@ -140,7 +148,7 @@ namespace IO
 	{
 		size_t end = filename.find_last_of(".");
 		if (end == std::string::npos)
-			throw std::runtime_error("Cannot get the extension of a file without extension.");
+			return "";
 
 		return filename.substr(end);
 	}

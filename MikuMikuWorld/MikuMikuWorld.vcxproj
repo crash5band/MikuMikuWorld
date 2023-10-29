@@ -167,7 +167,6 @@
     <ClCompile Include="ApplicationConfiguration.cpp" />
     <ClCompile Include="Audio\Sound.cpp" />
     <ClCompile Include="Audio\AudioManager.cpp" />
-    <ClCompile Include="Audio\SoundSource.cpp" />
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="BinaryReader.cpp" />
     <ClCompile Include="BinaryWriter.cpp" />
@@ -192,8 +191,7 @@
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="Note.cpp" />
     <ClCompile Include="OpenGlLoader.cpp" />
-    <ClCompile Include="Preset.cpp" />
-    <ClCompile Include="PresetManager.cpp" />
+    <ClCompile Include="NotesPreset.cpp" />
     <ClCompile Include="Rendering\Camera.cpp" />
     <ClCompile Include="Rendering\Framebuffer.cpp" />
     <ClCompile Include="Rendering\Renderer.cpp" />
@@ -221,7 +219,6 @@
     <ClInclude Include="ApplicationConfiguration.h" />
     <ClInclude Include="Audio\Sound.h" />
     <ClInclude Include="Audio\AudioManager.h" />
-    <ClInclude Include="Audio\SoundSource.h" />
     <ClInclude Include="Background.h" />
     <ClInclude Include="BinaryReader.h" />
     <ClInclude Include="BinaryWriter.h" />
@@ -251,8 +248,7 @@
     <ClInclude Include="Audio\miniaudio.h" />
     <ClInclude Include="Note.h" />
     <ClInclude Include="NoteTypes.h" />
-    <ClInclude Include="Preset.h" />
-    <ClInclude Include="PresetManager.h" />
+    <ClInclude Include="NotesPreset.h" />
     <ClInclude Include="Rendering\AnchorType.h" />
     <ClInclude Include="Rendering\Camera.h" />
     <ClInclude Include="Rendering\Framebuffer.h" />
@@ -265,7 +261,6 @@
     <ClInclude Include="Rendering\VertexBuffer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceManager.h" />
-    <ClInclude Include="Result.h" />
     <ClInclude Include="Score.h" />
     <ClInclude Include="ScoreContext.h" />
     <ClInclude Include="ScoreConverter.h" />
@@ -281,6 +276,7 @@
     <ClInclude Include="TimelineMode.h" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="Utilities.h" />
+    <ClInclude Include="Audio\Waveform.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="mmw_icon.ico" />

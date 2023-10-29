@@ -46,10 +46,11 @@ namespace MikuMikuWorld
 	{
 		renderer = std::make_unique<Renderer>();
 
-		context.audio.initAudio();
+		context.audio.initializeAudioEngine();
 		context.audio.setMasterVolume(config.masterVolume);
-		context.audio.setBGMVolume(config.bgmVolume);
-		context.audio.setSEVolume(config.seVolume);
+		context.audio.setMusicVolume(config.bgmVolume);
+		context.audio.setSoundEffectsVolume(config.seVolume);
+		context.audio.loadSoundEffects();
 
 		timeline.setDivision(config.division);
 		timeline.setZoom(config.zoom);
@@ -61,8 +62,8 @@ namespace MikuMikuWorld
 	void ScoreEditor::writeSettings()
 	{
 		config.masterVolume = context.audio.getMasterVolume();
-		config.bgmVolume = context.audio.getBGMVolume();
-		config.seVolume = context.audio.getSEVolume();
+		config.bgmVolume = context.audio.getMusicVolume();
+		config.seVolume = context.audio.getSoundEffectsVolume();
 
 		config.division = timeline.getDivision();
 		config.zoom = timeline.getZoom();
@@ -70,7 +71,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::uninitialize()
 	{
-		context.audio.uninitAudio();
+		context.audio.uninitializeAudioEngine();
 		timeline.background.dispose();
 	}
 
@@ -93,7 +94,7 @@ namespace MikuMikuWorld
 			if (ImGui::IsAnyPressed(config.input.save)) trySave(context.workingData.filename);
 			if (ImGui::IsAnyPressed(config.input.saveAs)) saveAs();
 			if (ImGui::IsAnyPressed(config.input.exportSus)) exportSus();
-			if (ImGui::IsAnyPressed(config.input.togglePlayback)) timeline.togglePlaying(context);
+			if (ImGui::IsAnyPressed(config.input.togglePlayback)) timeline.setPlaying(context, !timeline.isPlaying());
 			if (ImGui::IsAnyPressed(config.input.stop)) timeline.stop(context);
 			if (ImGui::IsAnyPressed(config.input.previousTick, true)) timeline.previousTick(context);
 			if (ImGui::IsAnyPressed(config.input.nextTick, true)) timeline.nextTick(context);
@@ -131,6 +132,13 @@ namespace MikuMikuWorld
 			static const std::string defaultBackgroundPath = Application::getAppDir() + "res\\textures\\default.png";
 			timeline.background.load(config.backgroundImage.empty() ? defaultBackgroundPath : config.backgroundImage);
 			settingsWindow.isBackgroundChangePending = false;
+		}
+
+		if (propertiesWindow.isPendingLoadMusic)
+		{
+			loadMusic(propertiesWindow.pendingLoadMusicFilename);
+			propertiesWindow.pendingLoadMusicFilename.clear();
+			propertiesWindow.isPendingLoadMusic = false;
 		}
 
 		if (config.autoSaveEnabled && autoSaveTimer.elapsedMinutes() >= config.autoSaveInterval)
@@ -187,13 +195,19 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::create()
 	{
+		timeline.setPlaying(context, false);
+
 		context.score = {};
 		context.workingData = {};
 		context.history.clear();
 		context.scoreStats.reset();
-		context.audio.disposeBGM();
+		context.audio.disposeMusic();
+		context.waveformL.clear();
+		context.waveformR.clear();
 		context.clearSelection();
-		context.upToDate = true; // new score; nothing to save
+
+		// New score; nothing to save
+		context.upToDate = true; 
 
 		UI::setWindowTitle(windowUntitled);
 	}
@@ -237,8 +251,8 @@ namespace MikuMikuWorld
 			context.score = std::move(newScore);
 			context.workingData = EditorScoreData(context.score.metadata, workingFilename);
 
-			context.audio.changeBGM(context.workingData.musicFilename);
-			context.audio.setBGMOffset(0, context.workingData.musicOffset);
+			loadMusic(context.workingData.musicFilename);
+			context.audio.setMusicOffset(0, context.workingData.musicOffset);
 
 			context.scoreStats.calculateStats(context.score);
 			timeline.calculateMaxOffsetFromScore(context.score);
@@ -263,8 +277,8 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::loadMusic(std::string filename)
 	{
-		Result result = context.audio.changeBGM(filename);
-		if (result.isOk())
+		Result result = context.audio.loadMusic(filename);
+		if (result.isOk() || filename.empty())
 		{
 			context.workingData.musicFilename = filename;
 		}
@@ -279,6 +293,10 @@ namespace MikuMikuWorld
 
 			IO::messageBox(APP_NAME, errorMessage, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 		}
+
+		context.waveformL.generateMipChainsFromSampleBuffer(context.audio.musicAudioData, 0);
+		context.waveformR.generateMipChainsFromSampleBuffer(context.audio.musicAudioData, 1);
+		timeline.setPlaying(context, false);
 	}
 
 	void ScoreEditor::open()
@@ -492,6 +510,7 @@ namespace MikuMikuWorld
 			ImGui::MenuItem(getString("show_step_outlines"), NULL, &timeline.drawHoldStepOutlines);
 			ImGui::MenuItem(getString("cursor_auto_scroll"), NULL, &config.followCursorInPlayback);
 			ImGui::MenuItem(getString("return_to_last_tick"), NULL, &config.returnToLastSelectedTickOnPause);
+			ImGui::MenuItem(getString("draw_waveform"), NULL, &config.drawWaveform);
 
 			ImGui::EndMenu();
 		}
@@ -605,7 +624,7 @@ namespace MikuMikuWorld
 
 		UI::toolbarSeparator();
 
-		for (int i = 0; i < TXT_ARR_SZ(timelineModes); ++i)
+		for (int i = 0; i < arrayLength(timelineModes); ++i)
 		{
 			std::string img{ IO::concat("timeline", timelineModes[i], "_") };
 			if (i == (int)TimelineMode::InsertFlick)

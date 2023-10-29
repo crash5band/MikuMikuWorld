@@ -44,12 +44,13 @@ namespace MikuMikuWorld
 		{
 			UI::beginPropertyColumns();
 
+			bool changeMusic = false;
 			std::string filename = context.workingData.musicFilename;
 			int filePickResult = UI::addFileProperty(getString("music_file"), filename);
 			if (filePickResult == 1 && filename != context.workingData.musicFilename)
 			{
-				context.audio.changeBGM(filename);
-				context.workingData.musicFilename = filename;
+				isPendingLoadMusic = true;
+				pendingLoadMusicFilename = filename;
 			}
 			else if (filePickResult == 2)
 			{
@@ -60,23 +61,23 @@ namespace MikuMikuWorld
 
 				if (fileDialog.openFile() == IO::FileDialogResult::OK)
 				{
-					context.audio.changeBGM(fileDialog.outputFilename);
-					context.workingData.musicFilename = fileDialog.outputFilename;
+					pendingLoadMusicFilename = fileDialog.outputFilename;
+					isPendingLoadMusic = true;
 				}
 			}
 
 			float offset = context.workingData.musicOffset;
-			UI::addFloatProperty(getString("music_offset"), offset, "%gms");
+			UI::addDragFloatProperty(getString("music_offset"), offset, "%.3fms");
 			if (offset != context.workingData.musicOffset)
 			{
 				context.workingData.musicOffset = offset;
-				context.audio.setBGMOffset(0, offset);
+				context.audio.setMusicOffset(context.getTimeAtCurrentTick(), offset);
 			}
 
 			// volume controls
 			float master = context.audio.getMasterVolume();
-			float bgm = context.audio.getBGMVolume();
-			float se = context.audio.getSEVolume();
+			float bgm = context.audio.getMusicVolume();
+			float se = context.audio.getSoundEffectsVolume();
 
 			UI::addPercentSliderProperty(getString("volume_master"), master);
 			UI::addPercentSliderProperty(getString("volume_bgm"), bgm);
@@ -86,11 +87,11 @@ namespace MikuMikuWorld
 			if (master != context.audio.getMasterVolume())
 				context.audio.setMasterVolume(master);
 
-			if (bgm != context.audio.getBGMVolume())
-				context.audio.setBGMVolume(bgm);
+			if (bgm != context.audio.getMusicVolume())
+				context.audio.setMusicVolume(bgm);
 
-			if (se != context.audio.getSEVolume())
-				context.audio.setSEVolume(se);
+			if (se != context.audio.getSoundEffectsVolume())
+				context.audio.setSoundEffectsVolume(se);
 		}
 
 		if (ImGui::CollapsingHeader(IO::concat(ICON_FA_CHART_BAR, getString("statistics"), " ").c_str(), ImGuiTreeNodeFlags_DefaultOpen))
@@ -127,9 +128,9 @@ namespace MikuMikuWorld
 
 		default:
 			UI::addIntProperty(getString("note_width"), edit.noteWidth, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
-			UI::addSelectProperty(getString("step_type"), edit.stepType, stepTypes, TXT_ARR_SZ(stepTypes));
-			UI::addSelectProperty(getString("ease_type"), edit.easeType, easeTypes, TXT_ARR_SZ(easeTypes));
-			UI::addSelectProperty<FlickType>(getString("flick"), edit.flickType, flickTypes, TXT_ARR_SZ(flickTypes));
+			UI::addSelectProperty(getString("step_type"), edit.stepType, stepTypes, arrayLength(stepTypes));
+			UI::addSelectProperty(getString("ease_type"), edit.easeType, easeTypes, arrayLength(easeTypes));
+			UI::addSelectProperty<FlickType>(getString("flick"), edit.flickType, flickTypes, arrayLength(flickTypes));
 			break;
 		}
 		UI::endPropertyColumns();
@@ -656,6 +657,7 @@ namespace MikuMikuWorld
 							UI::endNextItemDisabled();
 						ImGui::Separator();
 
+						UI::addCheckboxProperty(getString("draw_waveform"), config.drawWaveform);
 						UI::addCheckboxProperty(getString("return_to_last_tick"), config.returnToLastSelectedTickOnPause);
 						UI::addCheckboxProperty(getString("cursor_auto_scroll"), config.followCursorInPlayback);
 						UI::addPercentSliderProperty(getString("cursor_auto_scroll_amount"), config.cursorPositionThreshold);

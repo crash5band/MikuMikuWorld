@@ -17,9 +17,9 @@ namespace MikuMikuWorld
 {
 	constexpr const char* windowUntitled = "Untitled";
 
-	constexpr float primaryLineThickness = 0.400f;
-	constexpr float secondaryLineThickness = 0.200f;
-  constexpr float tertiaryLineThickness = 0.100f;
+	constexpr float primaryLineThickness = 0.200f;
+	constexpr float secondaryLineThickness = 0.100f;
+	constexpr float tertiaryLineThickness = 0.100f;
 	constexpr float toolTipDelay = 0.5f;
 
 	constexpr ImGuiWindowFlags ImGuiWindowFlags_Static = ImGuiWindowFlags_NoCollapse;
@@ -31,14 +31,14 @@ namespace MikuMikuWorld
 		| ImGuiWindowFlags_NoScrollWithMouse
 		| ImGuiWindowFlags_NoTitleBar;
 
-	enum class ColorDisplay
+	enum class ColorDisplay : uint8_t
 	{
 		RGB,
 		HSV,
 		HEX
 	};
 
-	enum class BaseTheme
+	enum class BaseTheme : uint8_t
 	{
 		DARK,
 		LIGHT,
@@ -84,6 +84,7 @@ namespace MikuMikuWorld
 		static void addStringProperty(const char* label, std::string& val);
 		static void addSliderProperty(const char* label, int& val, int min, int max, const char* format);
 		static void addSliderProperty(const char* label, float& val, float min, float max, const char* format);
+		static void addDragFloatProperty(const char* label, float& val, const char* format);
 		static void addPercentSliderProperty(const char* label, float& val);
 		static bool addFractionProperty(const char* label, int& numerator, int& denominator);
 		static void addCheckboxProperty(const char* label, bool& val);
@@ -92,7 +93,7 @@ namespace MikuMikuWorld
 		static void tooltip(const char* label);
 		static const char* labelID(const char* label);
 		static bool divisionSelect(const char* label, int& value, const int* items, size_t count);
-		static bool zoomControl(const char* label, float& value, float min, float max);
+		static bool zoomControl(const char* label, float& value, float min, float max, float width);
 		static bool timeSignatureSelect(int& numerator, int& denominator);
 		static bool toolbarButton(const char* icon, const char* label, const char* shortcut, bool enabled = true, bool selected = false);
 		static bool toolbarImageButton(const char* img, const char* label, const char* shortcut, bool enabled = true, bool selected = false);

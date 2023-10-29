@@ -42,11 +42,8 @@ namespace MikuMikuWorld
 		GLFWwindow* window;
 		std::unique_ptr<ScoreEditor> editor;
 		std::unique_ptr<ImGuiManager> imgui;
-
 		UnsavedChangesDialog unsavedChangesDialog;
 
-		float lastFrame;
-		float frameDelta;
 		bool initialized;
 		bool shouldPickScore;
 		std::string language;
@@ -70,7 +67,6 @@ namespace MikuMikuWorld
 		Result initialize(const std::string& root);
 		void run();
 		void update();
-		void frameTime();
 		void appendOpenFile(std::string filename);
 		void handlePendingOpenFiles();
 		void readSettings();

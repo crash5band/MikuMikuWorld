@@ -9321,6 +9321,7 @@ typedef struct
     ma_data_source_base ds;
     ma_format format;
     ma_uint32 channels;
+    ma_uint32 sampleRate;
     ma_uint64 cursor;
     ma_uint64 sizeInFrames;
     const void* pData;
@@ -9345,6 +9346,7 @@ typedef struct
     ma_format format;
     ma_uint32 channels;
     ma_uint64 sizeInFrames;
+    ma_uint32 sampleRate;
     const void* pData;  /* If set to NULL, will allocate a block of memory for you. */
     ma_allocation_callbacks allocationCallbacks;
 } ma_audio_buffer_config;
@@ -55185,7 +55187,7 @@ static ma_result ma_audio_buffer_ref__data_source_on_get_data_format(ma_data_sou
 
     *pFormat     = pAudioBufferRef->format;
     *pChannels   = pAudioBufferRef->channels;
-    *pSampleRate = 0;   /* There is no notion of a sample rate with audio buffers. */
+    *pSampleRate = pAudioBufferRef->sampleRate;   /* There is no notion of a sample rate with audio buffers. */
     ma_channel_map_init_standard(ma_standard_channel_map_default, pChannelMap, channelMapCap, pAudioBufferRef->channels);
 
     return MA_SUCCESS;
@@ -55220,7 +55222,7 @@ static ma_data_source_vtable g_ma_audio_buffer_ref_data_source_vtable =
     0
 };
 
-MA_API ma_result ma_audio_buffer_ref_init(ma_format format, ma_uint32 channels, const void* pData, ma_uint64 sizeInFrames, ma_audio_buffer_ref* pAudioBufferRef)
+MA_API ma_result ma_audio_buffer_ref_init(ma_format format, ma_uint32 channels, ma_uint32 sampleRate, const void* pData, ma_uint64 sizeInFrames, ma_audio_buffer_ref* pAudioBufferRef)
 {
     ma_result result;
     ma_data_source_config dataSourceConfig;
@@ -55243,6 +55245,7 @@ MA_API ma_result ma_audio_buffer_ref_init(ma_format format, ma_uint32 channels, 
     pAudioBufferRef->channels     = channels;
     pAudioBufferRef->cursor       = 0;
     pAudioBufferRef->sizeInFrames = sizeInFrames;
+    pAudioBufferRef->sampleRate   = sampleRate;
     pAudioBufferRef->pData        = pData;
 
     return MA_SUCCESS;
@@ -55478,7 +55481,7 @@ static ma_result ma_audio_buffer_init_ex(const ma_audio_buffer_config* pConfig, 
         return MA_INVALID_ARGS; /* Not allowing buffer sizes of 0 frames. */
     }
 
-    result = ma_audio_buffer_ref_init(pConfig->format, pConfig->channels, NULL, 0, &pAudioBuffer->ref);
+    result = ma_audio_buffer_ref_init(pConfig->format, pConfig->channels, pConfig->sampleRate, NULL, 0, &pAudioBuffer->ref);
     if (result != MA_SUCCESS) {
         return result;
     }

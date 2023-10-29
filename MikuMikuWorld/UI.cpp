@@ -153,6 +153,14 @@ namespace MikuMikuWorld
 		ImGui::NextColumn();
 	}
 
+	void UI::addDragFloatProperty(const char* label, float& val, const char* format)
+	{
+		propertyLabel(label);
+
+		ImGui::DragFloat(labelID(label), &val, 1.0f, 0.0f, 0.0f, format, ImGuiSliderFlags_NoRoundToFormat);
+		ImGui::NextColumn();
+	}
+
 	void UI::addSliderProperty(const char* label, int& val, int min, int max, const char* format)
 	{
 		propertyLabel(label);
@@ -308,9 +316,10 @@ namespace MikuMikuWorld
 		return act;
 	}
 
-	bool UI::zoomControl(const char* label, float& value, float min, float max)
+	bool UI::zoomControl(const char* label, float& value, float min, float max, float width)
 	{
 		bool act = false;
+		ImGui::PushButtonRepeat(true);
 		if (UI::transparentButton(ICON_FA_SEARCH_MINUS, UI::btnSmall))
 		{
 			value -= 0.25f;
@@ -318,7 +327,7 @@ namespace MikuMikuWorld
 		}
 
 		ImGui::SameLine();
-		ImGui::SetNextItemWidth(120);
+		ImGui::SetNextItemWidth(width);
 
 		act |= ImGui::SliderFloat(labelID(label), &value, min, max, "%.2fx");
 		ImGui::SameLine();
@@ -328,6 +337,7 @@ namespace MikuMikuWorld
 			value += 0.25f;
 			act = true;
 		}
+		ImGui::PopButtonRepeat();
 
 		return act;
 	}

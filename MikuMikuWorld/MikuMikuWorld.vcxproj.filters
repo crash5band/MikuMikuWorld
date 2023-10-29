@@ -69,9 +69,6 @@
     <ClCompile Include="Audio\Sound.cpp">
       <Filter>Audio</Filter>
     </ClCompile>
-    <ClCompile Include="Audio\SoundSource.cpp">
-      <Filter>Audio</Filter>
-    </ClCompile>
     <ClCompile Include="ScoreStats.cpp">
       <Filter>Score</Filter>
     </ClCompile>
@@ -87,10 +84,7 @@
     <ClCompile Include="ImGui\imgui_demo.cpp">
       <Filter>Imgui</Filter>
     </ClCompile>
-    <ClCompile Include="PresetManager.cpp">
-      <Filter>Presets</Filter>
-    </ClCompile>
-    <ClCompile Include="Preset.cpp">
+    <ClCompile Include="NotesPreset.cpp">
       <Filter>Presets</Filter>
     </ClCompile>
     <ClCompile Include="BinaryReader.cpp">
@@ -242,9 +236,6 @@
     <ClInclude Include="Audio\Sound.h">
       <Filter>Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Audio\SoundSource.h">
-      <Filter>Audio</Filter>
-    </ClInclude>
     <ClInclude Include="ImGuiManager.h">
       <Filter>UI</Filter>
     </ClInclude>
@@ -257,19 +248,13 @@
     <ClInclude Include="DefaultLanguage.h">
       <Filter>UI\i18n</Filter>
     </ClInclude>
-    <ClInclude Include="Result.h">
-      <Filter>Misc</Filter>
-    </ClInclude>
     <ClInclude Include="Colors.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="IconsFontAwesome5.h">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="PresetManager.h">
-      <Filter>Presets</Filter>
-    </ClInclude>
-    <ClInclude Include="Preset.h">
+    <ClInclude Include="NotesPreset.h">
       <Filter>Presets</Filter>
     </ClInclude>
     <ClInclude Include="BinaryReader.h">
@@ -340,6 +325,9 @@
     </ClInclude>
     <ClInclude Include="IO.h">
       <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\Waveform.h">
+      <Filter>Audio</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

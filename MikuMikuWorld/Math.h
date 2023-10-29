@@ -61,6 +61,18 @@ namespace MikuMikuWorld
     static inline Color lerp(const Color& start, const Color& end, float ratio) { return Color{ start.r + (end.r - start.r) * ratio, start.g + (end.g - start.g) * ratio, start.b + (end.b - start.b) * ratio, start.a + (end.a - start.a) * ratio }; }
 	};
 
+	constexpr uint32_t roundUpToPowerOfTwo(uint32_t v)
+	{
+		v--;
+		v |= v >> 1;
+		v |= v >> 2;
+		v |= v >> 4;
+		v |= v >> 8;
+		v |= v >> 16;
+		v++;
+		return v;
+	}
+
 	float lerp(float start, float end, float ratio);
 	float easeIn(float start, float end, float ratio);
 	float easeOut(float start, float end, float ratio);

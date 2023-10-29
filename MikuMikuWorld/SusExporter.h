@@ -58,7 +58,7 @@ namespace MikuMikuWorld
 
 		int getMeasureFromTicks(int ticks);
 		int getTicksFromMeasure(int measure);
-		void appendSlideData(SUSNoteStream& slides, const std::string& infoPrefix);
+		void appendSlideData(const SUSNoteStream& slides, const std::string& infoPrefix);
 		std::vector<std::string> getNoteLines(int baseMeasure);
 
 	public:
