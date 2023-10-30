@@ -31,7 +31,7 @@ namespace Audio
 		ma_uint64 frameCount{};
 		ma_audio_buffer buffer;
 
-		void initialize(std::string name, ma_uint32 sampleRate, ma_uint32 channelCount, ma_uint64 frameCount, int16_t* samples);
+		void initialize(const std::string &name, ma_uint32 sampleRate, ma_uint32 channelCount, ma_uint64 frameCount, int16_t* samples);
 		void dispose();
 
 		bool isValid() const { return samples.get() != nullptr && sampleRate > 0 && frameCount > 0; }
