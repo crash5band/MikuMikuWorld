@@ -34,14 +34,14 @@ namespace Audio
 			result = ma_sound_group_init(&engine, groupFlags, nullptr, &musicGroup);
 			if (result != MA_SUCCESS)
 			{
-				err = "FATAL: Failed to initialize music audio group. Aborting.\n";
+				err = "FATAL: Failed to initialize music sound group. Aborting.\n";
 				throw(result);
 			}
 
 			result = ma_sound_group_init(&engine, groupFlags, nullptr, &soundEffectsGroup);
 			if (result != MA_SUCCESS)
 			{
-				err = "FATAL: Failed to initialize sound effects audio group. Aborting.\n";
+				err = "FATAL: Failed to initialize sound effects sound group. Aborting.\n";
 				throw(result);
 			}
 		}
@@ -63,12 +63,12 @@ namespace Audio
 		constexpr int soundEffectsCount = sizeof(mmw::SE_NAMES) / sizeof(const char*);
 		constexpr std::array<SoundFlags, soundEffectsCount> soundEffectsFlags =
 		{
-			NONE, NONE, LOOP | EXTENDABLE, NONE, NONE, NONE, LOOP | EXTENDABLE, NONE, NONE, NONE
+			NONE, NONE, NONE, NONE, LOOP | EXTENDABLE, NONE, NONE, NONE, NONE, LOOP | EXTENDABLE
 		};
 
 		constexpr std::array<float, soundEffectsCount> soundEffectsVolumes =
 		{
-			0.75f, 0.80f, 0.83f, 0.80f, 0.80f, 0.80f, 0.83f, 0.85f, 0.75f, 0.80f
+			0.75f, 0.75f, 0.90f, 0.80f, 0.70f, 0.75f, 0.80f, 0.92f, 0.82f, 0.70f
 		};
 
 		std::string path{ mmw::Application::getAppDir() + "res\\sound\\" };
@@ -108,15 +108,11 @@ namespace Audio
 
 	mmw::Result AudioManager::loadMusic(const std::string& filename)
 	{
-		constexpr ma_uint32 flags =
-			MA_SOUND_FLAG_NO_PITCH |
-			MA_SOUND_FLAG_NO_SPATIALIZATION;
-
 		disposeMusic();
-
 		mmw::Result result = decodeAudioFile(filename, musicAudioData);
 		if (result.isOk())
 		{
+			constexpr ma_uint32 flags = MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION;
 			ma_sound_init_from_data_source(&engine, &musicAudioData.buffer, flags, &musicGroup, &music);
 			musicInitialized = true;
 		}
@@ -129,11 +125,11 @@ namespace Audio
 		ma_uint64 length{};
 		ma_result lengthResult = ma_sound_get_length_in_pcm_frames(&music, &length);
 
-		// Negative time means the sound is midway
+		// Negative time means the sound is midways
 		float time = musicOffset - currentTime;
 
-		// Miniaudio restarts sounds if we start playing past the sound's length
-		if (time * engine.sampleRate * -1 > length)
+		// Starting past the music end
+		if (time * musicAudioData.sampleRate * -1 > length)
 			return;
 
 		ma_sound_set_start_time_in_milliseconds(&music, std::max(0.0f, time * 1000));
@@ -149,7 +145,7 @@ namespace Audio
 	{
 		musicOffset = offset / 1000.0f;
 		float seekTime = currentTime - musicOffset;
-		ma_sound_seek_to_pcm_frame(&music, seekTime * engine.sampleRate);
+		ma_sound_seek_to_pcm_frame(&music, seekTime * musicAudioData.sampleRate);
 
 		float start = getAudioEngineAbsoluteTime() + musicOffset - currentTime;
 		ma_sound_set_start_time_in_milliseconds(&music, std::max(0.0f, start * 1000));
@@ -186,7 +182,7 @@ namespace Audio
 
 	void AudioManager::seekMusic(float time)
 	{
-		ma_uint64 seekFrame = (time - musicOffset) * engine.sampleRate;
+		ma_uint64 seekFrame = (time - musicOffset) * musicAudioData.sampleRate;
 		ma_sound_seek_to_pcm_frame(&music, seekFrame);
 
 		ma_uint64 length{};

@@ -52806,128 +52806,22 @@ static ma_result ma_channel_map_apply_mono_in_f32(float* MA_RESTRICT pFramesOut,
             }
         };  /* Fallthrough. See comments above. */
 
+        // NOTE: Modified to use older algorihtm because mono audio sounds weird with new one
         case ma_mono_expansion_mode_duplicate:
         default:
         {
             default_handler:
             {
-                if (channelsOut <= MA_MAX_CHANNELS) {
-                    ma_bool32 hasEmptyChannel = MA_FALSE;
-                    ma_channel channelPositions[MA_MAX_CHANNELS];
+                for (iFrame = 0; iFrame < frameCount; iFrame += 1) {
                     for (iChannelOut = 0; iChannelOut < channelsOut; iChannelOut += 1) {
-                        channelPositions[iChannelOut] = ma_channel_map_get_channel(pChannelMapOut, channelsOut, iChannelOut);
-                        if (channelPositions[iChannelOut] == MA_CHANNEL_NONE) {
-                            hasEmptyChannel = MA_TRUE;
+                        ma_channel channelOut = ma_channel_map_get_channel(pChannelMapOut, channelsOut, iChannelOut);
+                        if (channelOut != MA_CHANNEL_NONE) {
+                            pFramesOut[iChannelOut] = pFramesIn[0];
                         }
                     }
 
-                    if (hasEmptyChannel == MA_FALSE) {
-                        /*
-                        Faster path when there's no MA_CHANNEL_NONE channel positions. This should hopefully
-                        help the compiler with auto-vectorization.m
-                        */
-                        if (channelsOut == 2) {
-                        #if defined(MA_SUPPORT_SSE2)
-                            if (ma_has_sse2()) {
-                                /* We want to do two frames in each iteration. */
-                                ma_uint64 unrolledFrameCount = frameCount >> 1;
-
-                                for (iFrame = 0; iFrame < unrolledFrameCount; iFrame += 1) {
-                                    __m128 in0 = _mm_set1_ps(pFramesIn[iFrame*2 + 0]);
-                                    __m128 in1 = _mm_set1_ps(pFramesIn[iFrame*2 + 1]);
-                                    _mm_storeu_ps(&pFramesOut[iFrame*4 + 0], _mm_shuffle_ps(in1, in0, _MM_SHUFFLE(0, 0, 0, 0)));
-                                }
-
-                                /* Tail. */
-                                iFrame = unrolledFrameCount << 1;
-                                goto generic_on_fastpath;
-                            } else
-                        #endif
-                            {
-                                for (iFrame = 0; iFrame < frameCount; iFrame += 1) {
-                                    for (iChannelOut = 0; iChannelOut < 2; iChannelOut += 1) {
-                                        pFramesOut[iFrame*2 + iChannelOut] = pFramesIn[iFrame];
-                                    }
-                                }
-                            }
-                        } else if (channelsOut == 6) {
-                        #if defined(MA_SUPPORT_SSE2)
-                            if (ma_has_sse2()) {
-                                /* We want to do two frames in each iteration so we can have a multiple of 4 samples. */
-                                ma_uint64 unrolledFrameCount = frameCount >> 1;
-
-                                for (iFrame = 0; iFrame < unrolledFrameCount; iFrame += 1) {
-                                    __m128 in0 = _mm_set1_ps(pFramesIn[iFrame*2 + 0]);
-                                    __m128 in1 = _mm_set1_ps(pFramesIn[iFrame*2 + 1]);
-
-                                    _mm_storeu_ps(&pFramesOut[iFrame*12 + 0], in0);
-                                    _mm_storeu_ps(&pFramesOut[iFrame*12 + 4], _mm_shuffle_ps(in1, in0, _MM_SHUFFLE(0, 0, 0, 0)));
-                                    _mm_storeu_ps(&pFramesOut[iFrame*12 + 8], in1);
-                                }
-
-                                /* Tail. */
-                                iFrame = unrolledFrameCount << 1;
-                                goto generic_on_fastpath;
-                            } else
-                        #endif
-                            {
-                                for (iFrame = 0; iFrame < frameCount; iFrame += 1) {
-                                    for (iChannelOut = 0; iChannelOut < 6; iChannelOut += 1) {
-                                        pFramesOut[iFrame*6 + iChannelOut] = pFramesIn[iFrame];
-                                    }
-                                }
-                            }
-                        } else if (channelsOut == 8) {
-                        #if defined(MA_SUPPORT_SSE2)
-                            if (ma_has_sse2()) {
-                                for (iFrame = 0; iFrame < frameCount; iFrame += 1) {
-                                    __m128 in = _mm_set1_ps(pFramesIn[iFrame]);
-                                    _mm_storeu_ps(&pFramesOut[iFrame*8 + 0], in);
-                                    _mm_storeu_ps(&pFramesOut[iFrame*8 + 4], in);
-                                }
-                            } else
-                        #endif
-                            {
-                                for (iFrame = 0; iFrame < frameCount; iFrame += 1) {
-                                    for (iChannelOut = 0; iChannelOut < 8; iChannelOut += 1) {
-                                        pFramesOut[iFrame*8 + iChannelOut] = pFramesIn[iFrame];
-                                    }
-                                }
-                            }
-                        } else {
-                            iFrame = 0;
-
-                            #if defined(MA_SUPPORT_SSE2)    /* For silencing a warning with non-x86 builds. */
-                            generic_on_fastpath:
-                            #endif
-                            {
-                                for (; iFrame < frameCount; iFrame += 1) {
-                                    for (iChannelOut = 0; iChannelOut < channelsOut; iChannelOut += 1) {
-                                        pFramesOut[iFrame*channelsOut + iChannelOut] = pFramesIn[iFrame];
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        /* Slow path. Need to handle MA_CHANNEL_NONE. */
-                        for (iFrame = 0; iFrame < frameCount; iFrame += 1) {
-                            for (iChannelOut = 0; iChannelOut < channelsOut; iChannelOut += 1) {
-                                if (channelPositions[iChannelOut] != MA_CHANNEL_NONE) {
-                                    pFramesOut[iFrame*channelsOut + iChannelOut] = pFramesIn[iFrame];
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    /* Slow path. Too many channels to store on the stack. */
-                    for (iFrame = 0; iFrame < frameCount; iFrame += 1) {
-                        for (iChannelOut = 0; iChannelOut < channelsOut; iChannelOut += 1) {
-                            ma_channel channelOut = ma_channel_map_get_channel(pChannelMapOut, channelsOut, iChannelOut);
-                            if (channelOut != MA_CHANNEL_NONE) {
-                                pFramesOut[iFrame*channelsOut + iChannelOut] = pFramesIn[iFrame];
-                            }
-                        }
-                    }
+                    pFramesOut += channelsOut;
+                    pFramesIn += 1;
                 }
             }
         } break;
