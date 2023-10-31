@@ -146,8 +146,8 @@ namespace MikuMikuWorld
 		{
 			// Invisible hold points cannot be trace notes!
 			Note& note = score.notes.at(id);
-      if (!(note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd))
-        continue;
+			if (!(note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd))
+				continue;
 			HoldNote& holdNote = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
 
 			// For now do not allow changing guides to normal holds or vice versa
@@ -192,15 +192,15 @@ namespace MikuMikuWorld
 			// Invisible hold points cannot be trace notes!
 			Note& note = score.notes.at(id);
 
-      if (!(note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd))
-        continue;
+			if (!(note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd))
+				continue;
 			HoldNote& holdNote = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
 
 			if (!holdNote.isGuide())
 				continue;
 
-      holdNote.fadeType = fade;
-      edit = true;
+			holdNote.fadeType = fade;
+			edit = true;
 		}
 
 		if (edit)
@@ -219,22 +219,22 @@ namespace MikuMikuWorld
 			// Invisible hold points cannot be trace notes!
 			Note& note = score.notes.at(id);
 
-      if (!(note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd))
-        continue;
+			if (!(note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd))
+				continue;
 			HoldNote& holdNote = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
 
 			if (!holdNote.isGuide())
 				continue;
 
-      if (color == GuideColor::GuideColorCount) {
-        holdNote.guideColor = (GuideColor)(((int)holdNote.guideColor + 1) % (int)GuideColor::GuideColorCount);
-        edit = true;
-      } else {
-        if (holdNote.guideColor != color) {
-          holdNote.guideColor = color;
-          edit = true;
-        }
-      }
+			if (color == GuideColor::GuideColorCount) {
+				holdNote.guideColor = (GuideColor)(((int)holdNote.guideColor + 1) % (int)GuideColor::GuideColorCount);
+				edit = true;
+			} else {
+				if (holdNote.guideColor != color) {
+					holdNote.guideColor = color;
+					edit = true;
+				}
+			}
 		}
 
 		if (edit)
@@ -252,10 +252,10 @@ namespace MikuMikuWorld
 		{
 			Note& note = score.notes.at(id);
 
-      if (note.layer == layer)
-        continue;
-      note.layer = layer;
-      edit = true;
+			if (note.layer == layer)
+				continue;
+			note.layer = layer;
+			edit = true;
 		}
 
 		if (edit)
@@ -273,10 +273,10 @@ namespace MikuMikuWorld
 		{
 			Note& note = score.notes.at(id);
 			if (note.getType() == NoteType::Damage)
-        // noop
-      {
-      }
-      else if (note.getType() == NoteType::Tap)
+				// noop
+			{
+			}
+			else if (note.getType() == NoteType::Tap)
 			{
 				note.critical ^= true;
 			}
@@ -296,14 +296,14 @@ namespace MikuMikuWorld
 			// flip critical state
 			HoldNote& note = score.holdNotes.at(hold);
 
-      if (note.isGuide()) {
-        if (note.guideColor == GuideColor::Yellow) {
-          note.guideColor = GuideColor::Green;
-        } else {
-          note.guideColor = GuideColor::Yellow;
-        }
-        continue;
-      }
+			if (note.isGuide()) {
+				if (note.guideColor == GuideColor::Yellow) {
+					note.guideColor = GuideColor::Green;
+				} else {
+					note.guideColor = GuideColor::Yellow;
+				}
+				continue;
+			}
 			bool critical = !score.notes.at(note.start.ID).critical;
 
 			// again if the hold start is critical, every note in the hold must be critical
@@ -466,7 +466,7 @@ namespace MikuMikuWorld
 			{
 				Note note = jsonIO::jsonToNote(entry, NoteType::Tap);
 				note.ID = baseId++;
-        note.layer = selectedLayer;
+				note.layer = selectedLayer;
 
 				pasteData.notes[note.ID] = note;
 			}
@@ -478,7 +478,7 @@ namespace MikuMikuWorld
 			{
 				Note note = jsonIO::jsonToNote(entry, NoteType::Damage);
 				note.ID = baseId++;
-        note.layer = selectedLayer;
+				note.layer = selectedLayer;
 
 				pasteData.notes[note.ID] = note;
 			}
@@ -493,14 +493,14 @@ namespace MikuMikuWorld
 
 				Note start = jsonIO::jsonToNote(entry["start"], NoteType::Hold);
 				start.ID = baseId++;
-        start.layer = selectedLayer;
+				start.layer = selectedLayer;
 				pasteData.notes[start.ID] = start;
 
 				Note end = jsonIO::jsonToNote(entry["end"], NoteType::HoldEnd);
 				end.ID = baseId++;
 				end.parentID = start.ID;
 				end.critical = start.critical || ((end.isFlick() || end.friction) && end.critical);
-        end.layer = selectedLayer;
+				end.layer = selectedLayer;
 				pasteData.notes[end.ID] = end;
 
 				std::string startEase = jsonIO::tryGetValue<std::string>(entry["start"], "ease", "linear");
@@ -530,7 +530,7 @@ namespace MikuMikuWorld
 						mid.critical = start.critical;
 						mid.ID = baseId++;
 						mid.parentID = start.ID;
-            mid.layer = selectedLayer;
+						mid.layer = selectedLayer;
 						pasteData.notes[mid.ID] = mid;
 
 						std::string midType = jsonIO::tryGetValue<std::string>(step, "type", "normal");
@@ -737,9 +737,9 @@ namespace MikuMikuWorld
 		// Copy over later note's steps
 		for (auto& step : laterHold.steps)
 		{
-      if (earlierHold.isGuide()) {
-        step.type = HoldStepType::Hidden;
-      }
+			if (earlierHold.isGuide()) {
+				step.type = HoldStepType::Hidden;
+			}
 			earlierHold.steps.push_back(step);
 
 			Note& note = score.notes.at(step.ID);
@@ -801,10 +801,12 @@ namespace MikuMikuWorld
 		newSlideEnd.ID = nextID++;
 		newSlideEnd.parentID = hold.start.ID;
 		newSlideEnd.critical = note.critical;
+		newSlideEnd.layer = holdStart.layer;
 
 		Note newSlideStart = Note(NoteType::Hold, note.tick, note.lane, note.width);
 		newSlideStart.ID = nextID++;
 		newSlideStart.critical = holdStart.critical;
+		newSlideStart.layer = holdStart.layer;
 
 		HoldNote newHold;
 		newHold.end = hold.end;
@@ -814,10 +816,10 @@ namespace MikuMikuWorld
 
 		hold.end = newSlideEnd.ID;
 		newHold.start = { newSlideStart.ID, HoldStepType::Normal, hold.steps[pos].ease };
-    newHold.startType = hold.startType;
-    newHold.endType = hold.endType;
-    newHold.fadeType = hold.fadeType;
-    newHold.guideColor = hold.guideColor;
+		newHold.startType = hold.startType;
+		newHold.endType = hold.endType;
+		newHold.fadeType = hold.fadeType;
+		newHold.guideColor = hold.guideColor;
 
 		// Backwards loop to avoid incorrect indices after removal
 		for (int i = hold.steps.size() - 1; i > pos; i--)

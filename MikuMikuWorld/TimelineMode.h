@@ -30,7 +30,7 @@ namespace MikuMikuWorld
 		"critical",
 		"trace",
 		"guide",
-    "damage",
+		"damage",
 		"bpm",
 		"time_signature",
 		"hi_speed"
@@ -59,6 +59,7 @@ namespace MikuMikuWorld
 
 	constexpr const char* eventTypes[]
 	{
+		"",
 		"bpm",
 		"time_signature",
 		"hi_speed",

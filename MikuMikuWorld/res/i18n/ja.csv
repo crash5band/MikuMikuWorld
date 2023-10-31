@@ -141,7 +141,7 @@ custom_division, カスタム分割
 zoom, ズーム
 show_step_outlines, 中継点に枠線を表示
 draw_waveform, 波形を表示
-edit_bpm, 編集
+edit_bpm, BPMを編集
 tick, 拍子
 remove, 削除
 edit_time_signature, 拍子を編集
