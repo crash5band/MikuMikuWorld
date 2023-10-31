@@ -10,6 +10,8 @@ namespace MikuMikuWorld
 		{"file", "File"},
 		{"new", "New"},
 		{"open", "Open"},
+		{"open_recent", "Open Recent"},
+		{"clear", "Clear"},
 		{"save", "Save"},
 		{"save_as", "Save As"},
 		{"export", "Export"},

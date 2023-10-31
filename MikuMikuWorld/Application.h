@@ -49,25 +49,23 @@ namespace MikuMikuWorld
 		std::string language;
 
 		std::vector<std::string> pendingOpenFiles;
-		std::string pendingDropScoreFile;
 
 		static std::string version;
 		static std::string appDir;
 
 		Result initOpenGL();
-		void installCallbacks();
-
 		std::string getVersion();
 
 	public:
 		static WindowState windowState;
+		static std::string pendingLoadScoreFile;
 
 		Application();
 
 		Result initialize(const std::string& root);
 		void run();
 		void update();
-		void appendOpenFile(std::string filename);
+		void appendOpenFile(const std::string& filename);
 		void handlePendingOpenFiles();
 		void readSettings();
 		void writeSettings();

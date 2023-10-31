@@ -53,6 +53,8 @@ namespace MikuMikuWorld
 		MultiInputBinding timelineHiSpeed = { "timeline_hi_speed", {ImGuiKey_0}, {ImGuiKey_Keypad0} };
 	};
 
+	constexpr size_t maxRecentFilesEntries = 10;
+
 	struct ApplicationConfiguration
 	{
 		std::string version;
@@ -95,6 +97,8 @@ namespace MikuMikuWorld
 		bool debugEnabled;
 
 		InputConfiguration input;
+
+		std::vector<std::string> recentFiles;
 
 		ApplicationConfiguration();
 

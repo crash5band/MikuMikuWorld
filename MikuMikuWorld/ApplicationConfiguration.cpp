@@ -13,6 +13,7 @@ namespace MikuMikuWorld
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
+		recentFiles.reserve(maxRecentFilesEntries);
 		restoreDefault();
 	}
 
@@ -111,6 +112,13 @@ namespace MikuMikuWorld
 				}
 			}
 		}
+
+		if (jsonIO::arrayHasData(config, "recent_files"))
+		{
+			const json& recentFilesJson = config["recent_files"];
+			for (size_t i = 0; i < std::min(recentFilesJson.size(), maxRecentFilesEntries); i++)
+				recentFiles.push_back(recentFilesJson[i]);
+		}
 	}
 
 	void ApplicationConfiguration::write(const std::string& filename)
@@ -164,7 +172,7 @@ namespace MikuMikuWorld
 					{"a", userColor.a}
 				}
 			},
-			{ "base_theme", (int)baseTheme }
+			{ "base_theme", static_cast<int>(baseTheme) }
 		};
 
 		config["save"] = {
@@ -195,6 +203,8 @@ namespace MikuMikuWorld
 		config["input"] = {
 			{"bindings", keyBindings}
 		};
+
+		config["recent_files"] = recentFiles;
 
 		std::wstring wFilename = IO::mbToWideStr(filename);
 		std::ofstream configFile(wFilename);

@@ -23,6 +23,7 @@ namespace MikuMikuWorld
 		bool showImGuiDemoWindow;
 
 		bool save(std::string filename);
+		size_t updateRecentFilesList(const std::string& entry);
 
 	public:
 		ScoreEditor();

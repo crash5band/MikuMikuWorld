@@ -183,6 +183,18 @@ namespace MikuMikuWorld
 #endif
 	}
 
+	size_t ScoreEditor::updateRecentFilesList(const std::string& entry)
+	{
+		if (std::find(config.recentFiles.begin(), config.recentFiles.end(), entry) == config.recentFiles.end())
+		{
+			while (config.recentFiles.size() >= maxRecentFilesEntries)
+				config.recentFiles.pop_back();
+
+			config.recentFiles.insert(config.recentFiles.begin(), entry);
+		}
+		return config.recentFiles.size();
+	}
+
 	void ScoreEditor::create()
 	{
 		timeline.setPlaying(context, false);
@@ -204,6 +216,9 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::loadScore(std::string filename)
 	{
+		if (!IO::File::exists(filename))
+			return;
+
 		std::string extension = IO::File::getFileExtension(filename);
 		std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 
@@ -253,6 +268,8 @@ namespace MikuMikuWorld
 
 			IO::messageBox(APP_NAME, errorMessage, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 		}
+
+		updateRecentFilesList(filename);
 	}
 
 	void ScoreEditor::loadMusic(std::string filename)
@@ -337,7 +354,11 @@ namespace MikuMikuWorld
 		if (fileDialog.saveFile() == IO::FileDialogResult::OK)
 		{
 			context.workingData.filename = fileDialog.outputFilename;
-			return save(context.workingData.filename);
+			bool saved = save(context.workingData.filename);
+			if (saved)
+				updateRecentFilesList(fileDialog.outputFilename);
+
+			return saved;
 		}
 
 		return false;
@@ -376,7 +397,7 @@ namespace MikuMikuWorld
 	void ScoreEditor::drawMenubar()
 	{
 		ImGui::BeginMainMenuBar();
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 3));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 2));
 
 		if (ImGui::BeginMenu(getString("file")))
 		{
@@ -387,6 +408,31 @@ namespace MikuMikuWorld
 			{
 				Application::windowState.resetting = true;
 				Application::windowState.shouldPickScore = true;
+			}
+
+			if (ImGui::BeginMenu(getString("open_recent")))
+			{
+				for (const std::string& entry : config.recentFiles)
+				{
+					if (ImGui::MenuItem(entry.c_str()))
+					{
+						if (IO::File::exists(entry))
+						{
+							Application::windowState.resetting = true;
+							Application::pendingLoadScoreFile = entry;
+						}
+						else
+						{
+							// TODO: Warn that the file does not exist and ask for removal from recents list
+						}
+					}
+				}
+
+				ImGui::Separator();
+				if (ImGui::MenuItem(getString("clear"), nullptr, false, !config.recentFiles.empty()))
+					config.recentFiles.clear();
+
+				ImGui::EndMenu();
 			}
 
 			ImGui::Separator();
