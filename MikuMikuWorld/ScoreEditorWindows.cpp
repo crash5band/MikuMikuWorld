@@ -826,7 +826,7 @@ namespace MikuMikuWorld
 					else if (note.layer == moveUpPattern - 1)
 						note.layer = moveUpPattern;
 				}
-				for (auto& hiSpeed : context.score.hiSpeedChanges) {
+				for (auto& [_, hiSpeed] : context.score.hiSpeedChanges) {
 					if (hiSpeed.layer == moveUpPattern)
 						hiSpeed.layer = moveUpPattern - 1;
 					else if (hiSpeed.layer == moveUpPattern - 1)
@@ -844,7 +844,7 @@ namespace MikuMikuWorld
 					else if (note.layer == moveDownPattern + 1)
 						note.layer = moveDownPattern;
 				}
-				for (auto& hiSpeed : context.score.hiSpeedChanges) {
+				for (auto& [_, hiSpeed] : context.score.hiSpeedChanges) {
 					if (hiSpeed.layer == moveDownPattern)
 						hiSpeed.layer = moveDownPattern + 1;
 					else if (hiSpeed.layer == moveDownPattern + 1)
@@ -860,7 +860,7 @@ namespace MikuMikuWorld
 					if (note.layer > mergePattern)
 						note.layer -= 1;
 				}
-				for (auto& hiSpeed : context.score.hiSpeedChanges) {
+				for (auto& [_, hiSpeed] : context.score.hiSpeedChanges) {
 					if (hiSpeed.layer > mergePattern)
 						hiSpeed.layer -= 1;
 				}

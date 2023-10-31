@@ -59,7 +59,7 @@ namespace MikuMikuWorld
 		int holdPath;
 		int touchLine;
 		int ccNotes;
-    int guideColors;
+		int guideColors;
 	};
 
 	extern NoteTextures noteTextures;

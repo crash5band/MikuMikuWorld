@@ -1,12 +1,12 @@
 #pragma once
-#include "Score.h"
-#include "ScoreStats.h"
-#include "HistoryManager.h"
 #include "Audio/AudioManager.h"
 #include "Audio/Waveform.h"
-#include "JsonIO.h"
-#include "Jacket.h"
 #include "Constants.h"
+#include "HistoryManager.h"
+#include "Jacket.h"
+#include "JsonIO.h"
+#include "Score.h"
+#include "ScoreStats.h"
 #include "TimelineMode.h"
 #include <unordered_set>
 
@@ -27,7 +27,7 @@ namespace MikuMikuWorld
 
 	class EditorScoreData
 	{
-	public:
+	  public:
 		std::string title{};
 		std::string designer{};
 		std::string artist{};
@@ -37,9 +37,9 @@ namespace MikuMikuWorld
 		Jacket jacket{};
 
 		EditorScoreData() {}
-		EditorScoreData(const ScoreMetadata& metadata, const std::string& filename) :
-			title{ metadata.title }, designer{ metadata.author }, artist{ metadata.artist },
-			musicFilename{ metadata.musicFile }, musicOffset{ metadata.musicOffset }
+		EditorScoreData(const ScoreMetadata& metadata, const std::string& filename)
+		    : title{ metadata.title }, designer{ metadata.author }, artist{ metadata.artist },
+		      musicFilename{ metadata.musicFile }, musicOffset{ metadata.musicOffset }
 		{
 			this->filename = filename;
 			jacket.load(metadata.jacketFile);
@@ -66,7 +66,7 @@ namespace MikuMikuWorld
 
 	class ScoreContext
 	{
-	public:
+	  public:
 		Score score;
 		EditorScoreData workingData;
 		ScoreStats scoreStats;
@@ -74,14 +74,15 @@ namespace MikuMikuWorld
 		Audio::AudioManager audio;
 		PasteData pasteData{};
 		std::unordered_set<int> selectedNotes;
+		std::unordered_set<int> selectedHiSpeedChanges;
 
 		Audio::WaveformMipChain waveformL, waveformR;
 
 		int currentTick{};
 		bool upToDate{ true };
 
-    int selectedLayer = 0;
-    bool showAllLayers = false;
+		int selectedLayer = 0;
+		bool showAllLayers = false;
 
 		std::unordered_set<int> getHoldsFromSelection()
 		{
@@ -109,8 +110,16 @@ namespace MikuMikuWorld
 		bool selectionCanConnect() const;
 		bool selectionCanChangeHoldType() const;
 		bool selectionCanChangeFadeType() const;
-		inline bool isNoteSelected(const Note& note) { return selectedNotes.find(note.ID) != selectedNotes.end(); }
-		inline void selectAll() { selectedNotes.clear(); for (auto& it : score.notes) selectedNotes.insert(it.first); }
+		inline bool isNoteSelected(const Note& note)
+		{
+			return selectedNotes.find(note.ID) != selectedNotes.end();
+		}
+		inline void selectAll()
+		{
+			selectedNotes.clear();
+			for (auto& it : score.notes)
+				selectedNotes.insert(it.first);
+		}
 		inline void clearSelection() { selectedNotes.clear(); }
 
 		void setStep(HoldStepType step);
@@ -119,7 +128,7 @@ namespace MikuMikuWorld
 		void setHoldType(HoldNoteType hold);
 		void setFadeType(FadeType fade);
 		void setGuideColor(GuideColor color);
-    void setLayer(int layer);
+		void setLayer(int layer);
 		void toggleCriticals();
 		void toggleFriction();
 

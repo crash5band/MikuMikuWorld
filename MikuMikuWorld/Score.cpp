@@ -138,8 +138,8 @@ namespace MikuMikuWorld
 				int layer = 0;
 				if (cyanvasVersion >= 4)
 					layer = reader->readInt32();
-
-				score.hiSpeedChanges.push_back({ tick, speed, layer });
+				int id = nextHiSpeedID++;
+				score.hiSpeedChanges[id] = HiSpeedChange{ id, tick, speed, layer };
 			}
 		}
 
@@ -176,7 +176,7 @@ namespace MikuMikuWorld
 		}
 
 		writer->writeInt32(score.hiSpeedChanges.size());
-		for (const auto& hiSpeed : score.hiSpeedChanges)
+		for (const auto& [_, hiSpeed] : score.hiSpeedChanges)
 		{
 			writer->writeInt32(hiSpeed.tick);
 			writer->writeSingle(hiSpeed.speed);

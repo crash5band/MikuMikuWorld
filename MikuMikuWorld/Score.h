@@ -9,6 +9,7 @@
 namespace MikuMikuWorld
 {
 	extern int nextSkillID;
+	extern int nextHiSpeedID;
 
 	struct SkillTrigger
 	{
@@ -29,9 +30,10 @@ namespace MikuMikuWorld
 
 	struct HiSpeedChange
 	{
+		int ID;
 		int tick;
 		float speed;
-    int layer = 0;
+		int layer = 0;
 	};
 
 	struct ScoreMetadata
@@ -53,7 +55,7 @@ namespace MikuMikuWorld
 		std::unordered_map<int, HoldNote> holdNotes;
 		std::vector<Tempo> tempoChanges;
 		std::map<int, TimeSignature> timeSignatures;
-		std::vector<HiSpeedChange> hiSpeedChanges;
+		std::unordered_map<int, HiSpeedChange> hiSpeedChanges;
 		std::vector<SkillTrigger> skills;
 		Fever fever;
 

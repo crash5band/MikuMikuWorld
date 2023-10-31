@@ -11,7 +11,7 @@ namespace jsonIO
 		note.tick = tryGetValue<int>(data, "tick", 0);
 		note.lane = tryGetValue<int>(data, "lane", 0);
 		note.width = tryGetValue<int>(data, "width", 3);
-		
+
 		if (note.getType() != mmw::NoteType::HoldMid)
 		{
 			note.critical = tryGetValue<bool>(data, "critical", false);
@@ -55,10 +55,12 @@ namespace jsonIO
 		return data;
 	}
 
-	json noteSelectionToJson(const mmw::Score& score, const std::unordered_set<int>& selection, int baseTick)
+	json noteSelectionToJson(const mmw::Score& score, const std::unordered_set<int>& selection,
+	                         int baseTick)
 	{
-		json data, notes, holds, damages;
+		json data, notes, holds, damages, hiSpeedChanges;
 		std::unordered_set<int> selectedNotes;
+		std::unordered_set<int> selectedHiSpeedChanges;
 		std::unordered_set<int> selectedHolds;
 		std::unordered_set<int> selectedDamages;
 
@@ -70,15 +72,22 @@ namespace jsonIO
 			const mmw::Note& note = score.notes.at(id);
 			switch (note.getType())
 			{
-			case mmw::NoteType::Tap: selectedNotes.insert(note.ID); break;
-			case mmw::NoteType::Hold: selectedHolds.insert(note.ID); break;
+			case mmw::NoteType::Tap:
+				selectedNotes.insert(note.ID);
+				break;
+			case mmw::NoteType::Hold:
+				selectedHolds.insert(note.ID);
+				break;
 			case mmw::NoteType::HoldMid:
 			case mmw::NoteType::HoldEnd:
 				selectedHolds.insert(note.parentID);
 				break;
 
-			case mmw::NoteType::Damage: selectedDamages.insert(note.ID); break;
-			default: break;
+			case mmw::NoteType::Damage:
+				selectedDamages.insert(note.ID);
+				break;
+			default:
+				break;
 			}
 		}
 
@@ -97,6 +106,14 @@ namespace jsonIO
 			data["tick"] = note.tick - baseTick;
 
 			damages.push_back(data);
+		}
+		for (int id : selectedHiSpeedChanges)
+		{
+			const mmw::HiSpeedChange& note = score.hiSpeedChanges.at(id);
+			data["tick"] = note.tick - baseTick;
+			data["speed"] = note.tick;
+
+			hiSpeedChanges.push_back(data);
 		}
 
 		for (int id : selectedHolds)
@@ -130,14 +147,15 @@ namespace jsonIO
 			holdData["start"] = holdStart;
 			holdData["steps"] = stepsArray;
 			holdData["end"] = holdEnd;
-      holdData["fade"] = mmw::fadeTypes[(int)hold.fadeType];
-      holdData["guide"] = mmw::guideColors[(int)hold.guideColor];
+			holdData["fade"] = mmw::fadeTypes[(int)hold.fadeType];
+			holdData["guide"] = mmw::guideColors[(int)hold.guideColor];
 			holds.push_back(holdData);
 		}
 
 		data["notes"] = notes;
 		data["holds"] = holds;
-    data["damages"] = damages;
+		data["damages"] = damages;
+		data["hi_speed_changes"] = hiSpeedChanges;
 		return data;
 	}
 }

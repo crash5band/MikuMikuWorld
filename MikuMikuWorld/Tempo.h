@@ -1,6 +1,8 @@
 #pragma once
-#include <vector>
+#include "TimelineMode.h"
 #include <map>
+#include <unordered_map>
+#include <vector>
 
 namespace MikuMikuWorld
 {
@@ -36,5 +38,6 @@ namespace MikuMikuWorld
 
 	const Tempo& getTempoAt(int tick, const std::vector<Tempo>& tempos);
 	int findTimeSignature(int measure, const std::map<int, TimeSignature>& ts);
-	int findHighSpeedChange(int tick, const std::vector<HiSpeedChange>& hiSpeeds, int selectedLayer);
+	int findHighSpeedChange(int tick, const std::unordered_map<int, HiSpeedChange>& hiSpeeds,
+	                        int selectedLayer);
 }
