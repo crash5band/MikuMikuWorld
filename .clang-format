@@ -1,0 +1,11 @@
+BreakBeforeBraces: Allman
+NamespaceIndentation: All
+UseTab: ForIndentation
+IndentWidth: 4
+TabWidth: 4
+Cpp11BracedListStyle: false
+ColumnLimit: 100
+ReferenceAlignment: Left
+PointerAlignment: Left
+FixNamespaceComments: false
+BreakArrays: true
