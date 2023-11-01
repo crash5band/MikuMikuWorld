@@ -9,7 +9,7 @@ using namespace nlohmann;
 namespace MikuMikuWorld
 {
 	ApplicationConfiguration config{};
-	constexpr const char* CONFIG_VERSION{ "1.8.1" };
+	constexpr const char* CONFIG_VERSION{ "1.9.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -116,8 +116,8 @@ namespace MikuMikuWorld
 		if (jsonIO::arrayHasData(config, "recent_files"))
 		{
 			const json& recentFilesJson = config["recent_files"];
-			for (size_t i = 0; i < std::min(recentFilesJson.size(), maxRecentFilesEntries); i++)
-				recentFiles.push_back(recentFilesJson[i]);
+			const size_t count = std::min(recentFilesJson.size(), maxRecentFilesEntries);
+			recentFiles.insert(recentFiles.end(), recentFilesJson.begin(), recentFilesJson.begin() + count);
 		}
 	}
 

@@ -26,6 +26,12 @@ help, ヘルプ
 about, 概要
 
 # dialogs
+file_not_found, ファイルが見つかれません
+file_not_found_msg1, ファイル
+file_not_found_msg2, が見つかれません
+remove_recent_file_not_found, 最近使用した項目から削除しますか？
+yes, はい
+no, いいえ
 unsaved_changes, 最後の保存から譜面が変更されています！
 ask_save, 譜面を保存しますか？
 warn_unsaved, 保存されていない変更は失われます。

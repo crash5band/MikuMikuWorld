@@ -265,6 +265,62 @@ namespace MikuMikuWorld
 		return result;
 	}
 
+	DialogResult RecentFileNotFoundDialog::update()
+	{
+		DialogResult result{ DialogResult::None };
+		if (open)
+		{
+			ImGui::OpenPopup(MODAL_TITLE("file_not_found"));
+			open = false;
+		}
+
+		std::string dialogText = IO::formatString("%s \"%s\" %s. %s",
+			getString("file_not_found_msg1"),
+			removeFilename.c_str(),
+			getString("file_not_found_msg2"),
+			getString("remove_recent_file_not_found")
+		);
+
+		float maxDialogSizeX{ ImGui::GetMainViewport()->WorkSize.x * 0.80f };
+		ImVec2 padding = ImGui::GetStyle().WindowPadding;
+		ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
+		ImVec2 textSize = ImGui::CalcTextSize(dialogText.c_str());
+
+		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+		ImGui::SetNextWindowSize(ImVec2(std::min(maxDialogSizeX, textSize.x + (padding.x * 2) + spacing.x ), 0), ImGuiCond_Always);
+		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
+		if (ImGui::BeginPopupModal(MODAL_TITLE("file_not_found"), NULL, ImGuiWindowFlags_NoResize))
+		{
+			ImGui::TextWrapped(dialogText.c_str());
+			
+			// New line to move the buttons a bit down
+			ImGui::Text("\n");
+
+			ImVec2 btnSz{ (ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) / 2.0f, ImGui::GetFrameHeight() };
+			btnSz.x = std::min(btnSz.x, 150.0f);
+			
+			// Right align buttons
+			ImGui::SetCursorPos(ImVec2(ImGui::GetWindowSize().x - (btnSz.x * 2) - spacing.x - padding.x, ImGui::GetCursorPosY()));
+
+			if (ImGui::Button(getString("yes"), btnSz))
+			{
+				close();
+				result = DialogResult::Yes;
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button(getString("no"), btnSz))
+			{
+				close();
+				result = DialogResult::No;
+			}
+
+			ImGui::EndPopup();
+		}
+
+		return result;
+	}
+
 	DialogResult UnsavedChangesDialog::update()
 	{
 		DialogResult result = DialogResult::None;

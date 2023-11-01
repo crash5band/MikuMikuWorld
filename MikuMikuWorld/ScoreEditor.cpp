@@ -143,6 +143,12 @@ namespace MikuMikuWorld
 			autoSaveTimer.reset();
 		}
 
+		if (recentFileNotFoundDialog.update() == DialogResult::Yes)
+		{
+			if (isArrayIndexInBounds(recentFileNotFoundDialog.removeIndex, config.recentFiles))
+				config.recentFiles.erase(config.recentFiles.begin() + recentFileNotFoundDialog.removeIndex);
+		}
+
 		settingsWindow.update();
 		aboutDialog.update();
 
@@ -412,8 +418,9 @@ namespace MikuMikuWorld
 
 			if (ImGui::BeginMenu(getString("open_recent")))
 			{
-				for (const std::string& entry : config.recentFiles)
+				for (size_t index = 0; index < config.recentFiles.size(); index++)
 				{
+					const std::string& entry = config.recentFiles[index];
 					if (ImGui::MenuItem(entry.c_str()))
 					{
 						if (IO::File::exists(entry))
@@ -423,7 +430,9 @@ namespace MikuMikuWorld
 						}
 						else
 						{
-							// TODO: Warn that the file does not exist and ask for removal from recents list
+							recentFileNotFoundDialog.removeFilename = entry;
+							recentFileNotFoundDialog.removeIndex = index;
+							recentFileNotFoundDialog.open = true;
 						}
 					}
 				}

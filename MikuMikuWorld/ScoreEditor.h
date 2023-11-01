@@ -16,6 +16,7 @@ namespace MikuMikuWorld
 		ScoreOptionsWindow optionsWindow{};
 		PresetsWindow presetsWindow{};
 		SettingsWindow settingsWindow{};
+		RecentFileNotFoundDialog recentFileNotFoundDialog{};
 		AboutDialog aboutDialog{};
 
 		Stopwatch autoSaveTimer;

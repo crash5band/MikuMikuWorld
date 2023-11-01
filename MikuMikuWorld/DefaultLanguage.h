@@ -6,7 +6,7 @@ namespace MikuMikuWorld
 {
 	extern std::unordered_map<std::string, std::string> en
 	{
-		// menu bar
+		// Menu bar
 		{"file", "File"},
 		{"new", "New"},
 		{"open", "Open"},
@@ -30,7 +30,13 @@ namespace MikuMikuWorld
 		{"help", "Help"},
 		{"about", "About"},
 
-		// dialogs
+		// Dialogs
+		{"file_not_found", "File not found"},
+		{"file_not_found_msg1", "The file"},
+		{"file_not_found_msg2", "was not found"},
+		{"remove_recent_file_not_found", "Do you want to remove it from the recent files list?"},
+		{"yes", "Yes"},
+		{"no", "No"},
 		{"unsaved_changes", "Unsaved Changes"},
 		{"ask_save", "Save current changes?"},
 		{"warn_unsaved", "Any unsaved changes will be lost."},
@@ -78,7 +84,7 @@ namespace MikuMikuWorld
 		{"lanes_opacity", "Lanes Opacity"},
 		{"video", "Video"},
 
-		// score editor
+		// Score editor
 		{"chart_properties", "Chart Properties"},
 		{"notes_timeline", "Notes Timeline"},
 		{"options", "Options"},
@@ -158,7 +164,7 @@ namespace MikuMikuWorld
 		{"edit_hi_speed", "Edit Hi-Speed"},
 		{"hi_speed_speed", "Speed"},
 
-		// preset manager
+		// Presets
 		{"presets", "Presets"},
 		{"no_presets", "No presets available"},
 		{"name", "Name"},
@@ -167,7 +173,7 @@ namespace MikuMikuWorld
 		{"search", "Search..."},
 		{"confirm", "Confirm"},
 
-		// shortcuts
+		// Shortcuts
 		{"action", "Action"},
 		{"keys", "Keys"},
 		{"add", "Add"},
