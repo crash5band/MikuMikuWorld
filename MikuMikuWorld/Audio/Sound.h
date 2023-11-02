@@ -55,7 +55,7 @@ namespace Audio
 	class SoundPool
 	{
 	public:
-		static constexpr int poolSize{ 32 };
+		static constexpr int poolSize{ 24 };
 		std::array<SoundInstance, poolSize> pool;
 		SoundFlags flags{};
 	
