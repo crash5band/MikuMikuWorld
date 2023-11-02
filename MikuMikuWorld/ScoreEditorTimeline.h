@@ -216,7 +216,7 @@ namespace MikuMikuWorld
 		void updateNotes(ScoreContext& context, EditArgs& edit, Renderer* renderer);
 		void updateNote(ScoreContext& context, EditArgs& edit, Note& note);
 		void updateInputNotes(EditArgs& edit);
-		void debug();
+		void debug(ScoreContext& context);
 
 		void previousTick(ScoreContext& context);
 		void nextTick(ScoreContext& context);

@@ -120,6 +120,14 @@ namespace Audio
 		return length;
 	}
 
+	float SoundPool::getDurationInSeconds() const
+	{
+		float length{};
+		ma_data_source_get_length_in_seconds(pool[0].source.pDataSource, &length);
+
+		return length;
+	}
+
 	void SoundPool::setLoopTime(ma_uint64 startFrames, ma_uint64 endFrames)
 	{
 		for (auto& instance : pool)

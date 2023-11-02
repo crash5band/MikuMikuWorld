@@ -467,6 +467,7 @@ namespace MikuMikuWorld
 
 		hoverTick = snapTickFromPos(-mousePos.y);
 		hoverLane = positionToLane(mousePos.x);
+		hoveringNote = -1;
 		isHoveringNote = false;
 
 		// Draw cursor behind notes
@@ -1940,23 +1941,43 @@ namespace MikuMikuWorld
 		context.pushHistory("Insert hold step", prev, context.score);
 	}
 
-	void ScoreEditorTimeline::debug()
+	void ScoreEditorTimeline::debug(ScoreContext& context)
 	{
-		ImGui::Text("Viewport position: (%f, %f)", position.x, position.y);
-		ImGui::Text("Viewport size: (%f, %f)", size.x, size.y);
+		ImGui::Text("Window position: (%.2f, %.2f)\nWindow size: (%.2f, %.2f)", position.x, position.y, size.x, size.y);
+		ImGui::Separator();
 
-		ImGui::Text("Mouse position: (%f, %f)", mousePos.x, mousePos.y);
+		ImGui::Text("Mouse position: (%.2f, %.2f)\nMouse in timeline: %s", mousePos.x, mousePos.y, boolToString(mouseInTimeline));
+		ImGui::Separator();
 
-		ImGui::Text("Minimum offset: %f", minOffset);
-		ImGui::Text("Current offset: %f", offset);
-		ImGui::Text("Maximum offset: %f", maxOffset);
+		ImGui::Text("Minimum offset: %g\nCurrent offset: %g\nMaximum offset: %g", minOffset, offset, maxOffset);
+		ImGui::Separator();
 
-		ImGui::Text("Mouse in timeline: %s", boolToString(mouseInTimeline));
+		ImGui::Text("Hover lane: %d\nHover tick: %d\nLast selected tick: %d", hoverLane, hoverTick, lastSelectedTick);
+		ImGui::Separator();
 
-		ImGui::Text("Hover lane: %d", hoverLane);
-		ImGui::Text("Hover tick: %d", hoverTick);
-
-		ImGui::Text("Last selected tick: %d", lastSelectedTick);
+		if (ImGui::CollapsingHeader("Hover Note", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			auto it = context.score.notes.find(hoveringNote);
+			if (it != context.score.notes.end())
+			{
+				const Note& note = it->second;
+				ImGui::Text("ID: %d\nType: %s\nTick: %d\nLane: %d\nWidth: %d\nCritical: %s\nFriction: %s\nFlick: %s",
+					note.ID,
+					note.getType(),
+					note.tick,
+					note.lane,
+					note.width,
+					boolToString(note.critical),
+					boolToString(note.friction),
+					flickTypes[static_cast<int>(note.flick)]
+				);
+			}
+			else
+			{
+				// Prevent window scrolling from jumping around
+				ImGui::TextDisabled("ID: -\nType: -\nTick: -\nLane: -\nWidth: -\nCritical: -\nFriction: -\nFlick: -");
+			}
+		}
 	}
 
 	ScoreEditorTimeline::ScoreEditorTimeline()

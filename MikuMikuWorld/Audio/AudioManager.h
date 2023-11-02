@@ -14,7 +14,6 @@ namespace Audio
 		ma_sound music;
 		ma_sound_group musicGroup;
 		ma_sound_group soundEffectsGroup;
-		std::unordered_map<std::string_view, std::unique_ptr<SoundPool>> sounds;
 
 		// Offset from chart time in seconds
 		float musicOffset{ 0.0f };
@@ -28,10 +27,14 @@ namespace Audio
 
 	public:
 		Sound musicAudioData;
+		std::unordered_map<std::string_view, std::unique_ptr<SoundPool>> sounds;
 
 		void initializeAudioEngine();
 		void uninitializeAudioEngine();
 		void syncAudioEngineTimer();
+		uint32_t getDeviceSampleRate() const;
+		uint32_t getDeviceChannelCount() const;
+		float getDeviceLatency() const;
 		float getAudioEngineAbsoluteTime() const;
 
 		void loadSoundEffects();
@@ -58,6 +61,12 @@ namespace Audio
 		bool isMusicAtEnd() const;
 		void disposeMusic();
 
+		void debugPlaySound(std::string_view name);
+		void debugStopSound(std::string_view name);
+		uint64_t debugGetSoundCurrentFrame(std::string_view name);
+		uint64_t debugGetSoundTotalFrames(std::string_view name);
+
+		void playOneShotSound(std::string_view name);
 		void playSoundEffect(std::string_view name, float start, float end);
 		void stopSoundEffects(bool all);
 		bool isSoundPlaying(std::string_view name) const;

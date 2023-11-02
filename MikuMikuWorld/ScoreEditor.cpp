@@ -158,11 +158,7 @@ namespace MikuMikuWorld
 
 		if (config.debugEnabled)
 		{
-			if (ImGui::Begin(IMGUI_TITLE(ICON_FA_BUG, "debug"), NULL))
-			{
-				timeline.debug();
-			}
-			ImGui::End();
+			debugWindow.update(context, timeline);
 		}
 
 		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_ALIGN_LEFT, "chart_properties"), NULL, ImGuiWindowFlags_Static))

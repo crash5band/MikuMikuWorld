@@ -234,6 +234,58 @@ namespace Audio
 		soundEffectsVolume = volume;
 		ma_sound_group_set_volume(&soundEffectsGroup, volume);
 	}
+	
+	void AudioManager::debugPlaySound(std::string_view name)
+	{
+		if (sounds.find(name) == sounds.end())
+			return;
+
+		ma_sound& source = sounds.at(name)->pool[0].source;
+		ma_sound_stop(&source);
+		ma_sound_seek_to_pcm_frame(&source, 0);
+		ma_sound_start(&source);
+	}
+	
+	void AudioManager::debugStopSound(std::string_view name)
+	{
+		if (sounds.find(name) == sounds.end())
+			return;
+
+		ma_sound& source = sounds.at(name)->pool[0].source;
+		ma_sound_stop(&source);
+		ma_sound_seek_to_pcm_frame(&source, 0);
+	}
+
+	uint64_t AudioManager::debugGetSoundCurrentFrame(std::string_view name)
+	{
+		uint64_t cursor{};
+		if (sounds.find(name) == sounds.end())
+			return cursor;
+
+		ma_sound& source = sounds.at(name)->pool[0].source;
+		ma_sound_get_cursor_in_pcm_frames(&source, &cursor);
+		return cursor;
+	}
+
+	uint64_t AudioManager::debugGetSoundTotalFrames(std::string_view name)
+	{
+		uint64_t length{};
+		if (sounds.find(name) == sounds.end())
+			return length;
+
+		ma_sound& source = sounds.at(name)->pool[0].source;
+		ma_sound_get_length_in_pcm_frames(&source, &length);
+		return length;
+	}
+
+	void AudioManager::playOneShotSound(std::string_view name)
+	{
+		if (sounds.find(name) == sounds.end())
+			return;
+
+		ma_sound& source = sounds.at(name)->pool[0].source;
+		ma_sound_start(&source);
+	}
 
 	void AudioManager::playSoundEffect(std::string_view name, float start, float end)
 	{
@@ -267,6 +319,21 @@ namespace Audio
 				}
 			}
 		}
+	}
+
+	uint32_t AudioManager::getDeviceChannelCount() const
+	{
+		return engine.pDevice->playback.channels;
+	}
+
+	float AudioManager::getDeviceLatency() const
+	{
+		return engine.pDevice->playback.internalPeriodSizeInFrames / static_cast<float>(engine.pDevice->playback.internalSampleRate);
+	}
+
+	uint32_t AudioManager::getDeviceSampleRate() const
+	{
+		return engine.pDevice->playback.internalSampleRate;
 	}
 
 	float AudioManager::getAudioEngineAbsoluteTime() const

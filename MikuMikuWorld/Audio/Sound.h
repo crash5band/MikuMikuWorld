@@ -60,7 +60,8 @@ namespace Audio
 		SoundFlags flags{};
 	
 		ma_uint64 getDurationInFrames() const;
-		
+		float getDurationInSeconds() const;
+
 		void setLoopTime(ma_uint64 startFrames, ma_uint64 endFrames);
 		bool isLooping() const;
 

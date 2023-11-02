@@ -44,6 +44,12 @@ namespace MikuMikuWorld
 		void update(ScoreContext& context, PresetManager& presetManager);
 	};
 
+	class DebugWindow
+	{
+	public:
+		void update(ScoreContext& context, ScoreEditorTimeline& timeline);
+	};
+
 	class SettingsWindow
 	{
 	private:

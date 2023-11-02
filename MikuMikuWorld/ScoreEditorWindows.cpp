@@ -405,22 +405,129 @@ namespace MikuMikuWorld
 		return DialogResult::None;
 	}
 
+	void DebugWindow::update(ScoreContext& context, ScoreEditorTimeline& timeline)
+	{
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_BUG, "debug")))
+		{
+			constexpr ImGuiTreeNodeFlags headerFlags = ImGuiTreeNodeFlags_DefaultOpen;
+			constexpr ImGuiTreeNodeFlags treeNodeFlags = headerFlags | ImGuiTreeNodeFlags_Framed;
+			if (ImGui::TreeNodeEx("Audio", treeNodeFlags))
+			{
+				if (ImGui::CollapsingHeader("Engine", headerFlags))
+				{
+					UI::beginPropertyColumns();
+					UI::addReadOnlyProperty("Sample Rate", context.audio.getDeviceSampleRate());
+					UI::addReadOnlyProperty("Channel Count", context.audio.getDeviceChannelCount());
+					UI::addReadOnlyProperty("Latency", IO::formatString("%.2fms", context.audio.getDeviceLatency() * 1000));
+					UI::endPropertyColumns();
+				}
+
+				if (ImGui::CollapsingHeader("Music", headerFlags))
+				{
+					UI::beginPropertyColumns();
+					UI::addReadOnlyProperty("Music Initialized", boolToString(context.audio.isMusicInitialized()));
+					UI::addReadOnlyProperty("Music Filename", context.audio.musicAudioData.name);
+					UI::addReadOnlyProperty("Music Time", IO::formatString("%.2fs/%.2fs", context.audio.getMusicPosition(), context.audio.getMusicLength()));
+					UI::addReadOnlyProperty("Sample Rate", context.audio.musicAudioData.sampleRate);
+					UI::addReadOnlyProperty("Channel Count", context.audio.musicAudioData.channelCount);
+					UI::endPropertyColumns();
+				}
+
+				if (ImGui::CollapsingHeader("Sound Test", headerFlags))
+				{
+					ImVec2 size = ImVec2(-1, std::min(ImGui::GetContentRegionAvail().y, 200.0f));
+					const ImGuiTableFlags tableFlags =
+						ImGuiTableFlags_BordersOuter |
+						ImGuiTableFlags_BordersInnerH |
+						ImGuiTableFlags_BordersInnerV |
+						ImGuiTableFlags_ScrollY |
+						ImGuiTableFlags_RowBg;
+
+					const int rowHeight = ImGui::GetFrameHeight() + 5;
+
+					if (ImGui::BeginTable("##sound_test_table", 4, tableFlags, size))
+					{
+						ImGui::TableSetupScrollFreeze(0, 1);
+						ImGui::TableSetupColumn("Name");
+						ImGui::TableSetupColumn("Flags");
+						ImGui::TableSetupColumn("Duration (sec)");
+						ImGui::TableSetupColumn("Play/Stop");
+						ImGui::TableHeadersRow();
+
+						for (size_t i = 0; i < arrayLength(SE_NAMES); i++)
+						{
+							const Audio::SoundPool* pool = context.audio.sounds[SE_NAMES[i]].get();
+
+							ImGui::PushID(SE_NAMES[i]);
+							ImGui::TableNextRow(0, rowHeight);
+							ImGui::TableSetColumnIndex(0);
+
+							float ratio = context.audio.debugGetSoundCurrentFrame(SE_NAMES[i]) / static_cast<float>(context.audio.debugGetSoundTotalFrames(SE_NAMES[i]));
+							if (!pool->isPlaying(pool->pool[0]))
+								ratio = 0.0f;
+
+							ImGui::ProgressBar(ratio, { -1, 0 }, SE_NAMES[i]);
+
+							ImGui::TableSetColumnIndex(1);						
+							ImGui::Text("0x%04x", pool->flags);
+							
+							float duration = pool->getDurationInSeconds();
+							int durationSecondsOnly = duration;
+							ImGui::TableSetColumnIndex(2);
+							ImGui::Text("%02d:%02d", durationSecondsOnly, static_cast<int>((duration - durationSecondsOnly) * 100));
+
+							ImGui::TableSetColumnIndex(3);
+							if (UI::transparentButton(ICON_FA_PLAY, UI::btnSmall))
+								context.audio.debugPlaySound(SE_NAMES[i]);
+
+							ImGui::SameLine();
+							ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+							ImGui::SameLine();
+							if (UI::transparentButton(ICON_FA_STOP, UI::btnSmall))
+								context.audio.debugStopSound(SE_NAMES[i]);
+
+							ImGui::PopID();
+						}
+
+						ImGui::EndTable();
+					}
+				}
+
+				ImGui::TreePop();
+			}
+
+			if (ImGui::TreeNodeEx("Timeline", treeNodeFlags))
+			{
+				timeline.debug(context);
+				ImGui::TreePop();
+			}
+		}
+
+		ImGui::End();
+	}
+
 	void SettingsWindow::updateKeyConfig(MultiInputBinding* bindings[], int count)
 	{
 		ImVec2 size = ImVec2(-1, ImGui::GetContentRegionAvail().y * 0.7);
-		const ImGuiTableFlags tableFlags =
-			ImGuiTableFlags_BordersOuter
-			| ImGuiTableFlags_BordersInnerH
-			| ImGuiTableFlags_ScrollY
-			| ImGuiTableFlags_RowBg;
+		constexpr ImGuiTableFlags tableFlags =
+			ImGuiTableFlags_BordersOuter |
+			ImGuiTableFlags_BordersInnerH |
+			ImGuiTableFlags_ScrollY |
+			ImGuiTableFlags_RowBg;
 
-		const ImGuiSelectableFlags selectionFlags = ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap;
-		int rowHeight = ImGui::GetFrameHeight() + 5;
+		constexpr ImGuiSelectableFlags selectionFlags =
+			ImGuiSelectableFlags_SpanAllColumns |
+			ImGuiSelectableFlags_AllowItemOverlap;
+
+		const int rowHeight = ImGui::GetFrameHeight() + 5;
 
 		if (ImGui::BeginTable("##commands_table", 2, tableFlags, size))
 		{
+			ImGui::TableSetupScrollFreeze(0, 1);
 			ImGui::TableSetupColumn(getString("action"));
 			ImGui::TableSetupColumn(getString("keys"));
+			ImGui::TableHeadersRow();
+
 			for (int i = 0; i < count; ++i)
 			{
 				ImGui::TableNextRow(0, rowHeight);

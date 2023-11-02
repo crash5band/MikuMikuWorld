@@ -15,6 +15,7 @@ namespace MikuMikuWorld
 		ScorePropertiesWindow propertiesWindow{};
 		ScoreOptionsWindow optionsWindow{};
 		PresetsWindow presetsWindow{};
+		DebugWindow debugWindow{};
 		SettingsWindow settingsWindow{};
 		RecentFileNotFoundDialog recentFileNotFoundDialog{};
 		AboutDialog aboutDialog{};

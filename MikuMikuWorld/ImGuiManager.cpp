@@ -68,9 +68,6 @@ namespace MikuMikuWorld
 		style->ScrollbarSize		= 12;
 		style->GrabMinSize			= 8;
 
-		style->AntiAliasedLines = true;
-		style->AntiAliasedFill	= true;
-
 		ImVec4* colors = style->Colors;
 
 		if (theme == BaseTheme::LIGHT)
@@ -89,6 +86,7 @@ namespace MikuMikuWorld
 			colors[ImGuiCol_Button] = ImVec4(0.75f, 0.75f, 0.75f, 1.00f);
 			colors[ImGuiCol_ButtonHovered] = ImVec4(0.7f, 0.7f, 0.7f, 1.00f);
 			colors[ImGuiCol_ButtonActive] = ImVec4(0.66f, 0.84f, 0.95f, 1.00f);
+			colors[ImGuiCol_PlotHistogram] = ImVec4(0.66f, 0.84f, 0.95f, 1.00f);
 			colors[ImGuiCol_Header] = ImVec4(0.97f, 0.97f, 0.97f, 1.00f);
 			colors[ImGuiCol_HeaderHovered] = ImVec4(0.97f, 0.97f, 0.97f, 1.00f);
 			colors[ImGuiCol_HeaderActive] = ImVec4(0.97f, 0.97f, 0.97f, 1.00f);
@@ -124,6 +122,7 @@ namespace MikuMikuWorld
 			colors[ImGuiCol_Button] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
 			colors[ImGuiCol_ButtonHovered] = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
 			colors[ImGuiCol_ButtonActive] = ImVec4(0.16f, 0.44f, 0.75f, 1.00f);
+			colors[ImGuiCol_PlotHistogram] = ImVec4(0.16f, 0.44f, 0.75f, 1.00f);
 			colors[ImGuiCol_Header] = ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
 			colors[ImGuiCol_HeaderHovered] = ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
 			colors[ImGuiCol_HeaderActive] = ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
@@ -281,6 +280,8 @@ namespace MikuMikuWorld
 		colors[ImGuiCol_TabHovered] = lightColor;
 		colors[ImGuiCol_TabActive] = color;
 		colors[ImGuiCol_CheckMark] = color;
+		colors[ImGuiCol_PlotHistogram] = color;
+		colors[ImGuiCol_PlotHistogramHovered] = darkColor;
 
 		accentColor = colIndex;
 	}
