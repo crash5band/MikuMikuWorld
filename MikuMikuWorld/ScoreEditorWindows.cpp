@@ -151,7 +151,6 @@ namespace MikuMikuWorld
 			ImGui::PopStyleVar();
 			ImGui::PopStyleColor();
 
-			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
 			float presetButtonHeight = ImGui::GetFrameHeight();
 			float windowHeight = ImGui::GetContentRegionAvail().y - presetButtonHeight - ImGui::GetStyle().WindowPadding.y;
 			if (ImGui::BeginChild("presets_child_window", ImVec2(-1, windowHeight), true))
@@ -193,7 +192,6 @@ namespace MikuMikuWorld
 			if (ImGui::Button(getString("create_preset"), ImVec2(-1, presetButtonHeight)))
 				dialogOpen = true;
 
-			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
 			ImGui::PopItemFlag();
 
