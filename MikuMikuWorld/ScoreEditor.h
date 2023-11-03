@@ -17,6 +17,7 @@ namespace MikuMikuWorld
 		PresetsWindow presetsWindow{};
     LayersWindow layersWindow{};
 		SettingsWindow settingsWindow{};
+		RecentFileNotFoundDialog recentFileNotFoundDialog{};
 		AboutDialog aboutDialog{};
 
 		Stopwatch autoSaveTimer;
@@ -24,6 +25,7 @@ namespace MikuMikuWorld
 		bool showImGuiDemoWindow;
 
 		bool save(std::string filename);
+		size_t updateRecentFilesList(const std::string& entry);
 
 	public:
 		ScoreEditor();

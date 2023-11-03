@@ -6,7 +6,7 @@
 
 namespace MikuMikuWorld
 {
-	enum class DialogResult
+	enum class DialogResult : uint8_t
 	{
 		None,
 		Ok,
@@ -59,6 +59,17 @@ namespace MikuMikuWorld
 		bool open = false;
 		bool isBackgroundChangePending = false;
 		DialogResult update();
+	};
+
+	class RecentFileNotFoundDialog
+	{
+	public:
+		std::string removeFilename;
+		size_t removeIndex{ 0 };
+		bool open{ false };
+
+		DialogResult update();
+		inline void close() { ImGui::CloseCurrentPopup(); }
 	};
 
 	class UnsavedChangesDialog

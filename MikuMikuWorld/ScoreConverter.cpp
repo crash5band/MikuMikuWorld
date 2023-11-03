@@ -209,7 +209,7 @@ namespace MikuMikuWorld
 		}
 
 		// Not the best way to handle this but it will do the job
-		static auto slideFillFunc =
+		auto slideFillFunc =
 		    [&](const std::vector<std::vector<SUSNote>>& slides, bool isGuideSlides)
 		{
 			for (const auto& slide : slides)

@@ -2,7 +2,6 @@
 #include "ResourceManager.h"
 #include "IO.h"
 #include "Colors.h"
-#include "UI.h"
 #include "Utilities.h"
 #include "Localization.h"
 #include "ApplicationConfiguration.h"
@@ -12,6 +11,7 @@ namespace MikuMikuWorld
 {
 	std::string Application::version;
 	std::string Application::appDir;
+	std::string Application::pendingLoadScoreFile;
 	WindowState Application::windowState;
 
 	NoteTextures noteTextures{ -1, -1, -1, -1, -1 };
@@ -138,7 +138,7 @@ namespace MikuMikuWorld
 		config.write(appDir + APP_CONFIG_FILENAME);
 	}
 
-	void Application::appendOpenFile(std::string filename)
+	void Application::appendOpenFile(const std::string& filename)
 	{
 		pendingOpenFiles.push_back(filename);
 		windowState.dragDropHandled = false;
@@ -146,8 +146,8 @@ namespace MikuMikuWorld
 
 	void Application::handlePendingOpenFiles()
 	{
-		std::string scoreFile = "";
-		std::string musicFile = "";
+		std::string scoreFile{};
+		std::string musicFile{};
 
 		for (auto it = pendingOpenFiles.rbegin(); it != pendingOpenFiles.rend(); ++it)
 		{
@@ -156,20 +156,20 @@ namespace MikuMikuWorld
 
 			if (extension == SUS_EXTENSION || extension == USC_EXTENSION || extension == MMWS_EXTENSION || extension == CC_MMWS_EXTENSION)
 				scoreFile = *it;
-			else if (extension == ".mp3" || extension == ".wav" || extension == ".flac" || extension == ".ogg")
+			else if (Audio::isSupportedFileFormat(extension))
 				musicFile = *it;
 
-			if (scoreFile.size() && musicFile.size())
+			if (!scoreFile.empty() && !musicFile.empty())
 				break;
 		}
 
-		if (scoreFile.size())
+		if (!scoreFile.empty())
 		{
 			windowState.resetting = true;
-			pendingDropScoreFile = scoreFile;
+			pendingLoadScoreFile = scoreFile;
 		}
 
-		if (musicFile.size())
+		if (!musicFile.empty())
 			editor->loadMusic(musicFile);
 
 		pendingOpenFiles.clear();
@@ -182,7 +182,7 @@ namespace MikuMikuWorld
 		{
 			std::string locale = config.language == "auto" ? Utilities::getSystemLocale() : config.language;
 
-			// try to set the selected language and fallback to default (en) on failure
+			// Try to set the selected language and fallback to default (en) on failure
 			if (!Localization::setLanguage(locale))
 				Localization::setLanguage("en");
 
@@ -272,7 +272,7 @@ namespace MikuMikuWorld
 
 				case DialogResult::Cancel:
 					windowState.resetting = shouldPickScore = false;
-					pendingDropScoreFile.clear();
+					pendingLoadScoreFile.clear();
 					break;
 
 				default:
@@ -280,7 +280,7 @@ namespace MikuMikuWorld
 				}
 			}
 
-			// already saved or clicked save changes or discard changes
+			// Already saved or clicked save changes or discard changes
 			if (editor->isUpToDate() || (unsavedChangesResult != DialogResult::Cancel && unsavedChangesResult != DialogResult::None))
 			{
 				if (windowState.shouldPickScore)
@@ -288,10 +288,10 @@ namespace MikuMikuWorld
 					editor->open();
 					windowState.shouldPickScore = false;
 				}
-				else if (pendingDropScoreFile.size())
+				else if (pendingLoadScoreFile.size())
 				{
-					editor->loadScore(pendingDropScoreFile);
-					pendingDropScoreFile.clear();
+					editor->loadScore(pendingLoadScoreFile);
+					pendingLoadScoreFile.clear();
 				}
 				else
 				{
@@ -354,9 +354,9 @@ namespace MikuMikuWorld
 		HWND hwnd = glfwGetWin32Window(window);
 
 		/*
-			override the current GLFW/Imgui window procedure and store it in the GLFW window user pointer
+			Override the current GLFW/Imgui window procedure and store it in the GLFW window user pointer
 
-			NOTE: for this to be safe, it should be only called AFTER ImGui is initialized
+			NOTE: For this to be safe, it should be only called AFTER ImGui is initialized
 			so that the WndProc ImGui is expecting matches with our own WndProc
 		*/
 		glfwSetWindowUserPointer(window, (void*)::GetWindowLongPtrW(hwnd, GWLP_WNDPROC));

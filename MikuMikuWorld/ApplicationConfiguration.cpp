@@ -9,10 +9,11 @@ using namespace nlohmann;
 namespace MikuMikuWorld
 {
 	ApplicationConfiguration config{};
-	constexpr const char* CONFIG_VERSION{ "1.8.1" };
+	constexpr const char* CONFIG_VERSION{ "1.9.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
+		recentFiles.reserve(maxRecentFilesEntries);
 		restoreDefault();
 	}
 
@@ -119,6 +120,13 @@ namespace MikuMikuWorld
 				}
 			}
 		}
+
+		if (jsonIO::arrayHasData(config, "recent_files"))
+		{
+			const json& recentFilesJson = config["recent_files"];
+			const size_t count = std::min(recentFilesJson.size(), maxRecentFilesEntries);
+			recentFiles.insert(recentFiles.end(), recentFilesJson.begin(), recentFilesJson.begin() + count);
+		}
 	}
 
 	void ApplicationConfiguration::write(const std::string& filename)
@@ -156,13 +164,18 @@ namespace MikuMikuWorld
 			{"cursor_position_threshold", cursorPositionThreshold}
 		};
 
-		config["theme"] = { { "accent_color", accentColor },
-			                { "user_color",
-			                  { { "r", userColor.r },
-			                    { "g", userColor.g },
-			                    { "b", userColor.b },
-			                    { "a", userColor.a } } },
-			                { "base_theme", (int)baseTheme } };
+		config["theme"] = {
+			{"accent_color", accentColor},
+			{"user_color",
+				{
+					{"r", userColor.r},
+					{"g", userColor.g},
+					{"b", userColor.b},
+					{"a", userColor.a}
+				}
+			},
+			{ "base_theme", static_cast<int>(baseTheme) }
+		};
 
 		config["save"] = { { "auto_save_enabled", autoSaveEnabled },
 			               { "auto_save_interval", autoSaveInterval },
@@ -186,6 +199,8 @@ namespace MikuMikuWorld
 		}
 
 		config["input"] = { { "bindings", keyBindings } };
+
+		config["recent_files"] = recentFiles;
 
 		std::wstring wFilename = IO::mbToWideStr(filename);
 		std::ofstream configFile(wFilename);
