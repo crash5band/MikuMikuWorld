@@ -1951,8 +1951,17 @@ namespace MikuMikuWorld
 
 		ImGui::Text("Minimum offset: %g\nCurrent offset: %g\nMaximum offset: %g", minOffset, offset, maxOffset);
 		ImGui::Separator();
+		
+		if (mouseInTimeline)
+		{
+			ImGui::Text("Hover lane: %d\nHover tick: %d", hoverLane, hoverTick);
+		}
+		else
+		{
+			ImGui::TextDisabled("Hover lane: --\nHover tick: --");
+		}
 
-		ImGui::Text("Hover lane: %d\nHover tick: %d\nLast selected tick: %d", hoverLane, hoverTick, lastSelectedTick);
+		ImGui::Text("Last selected tick : % d", lastSelectedTick);
 		ImGui::Separator();
 
 		if (ImGui::CollapsingHeader("Hover Note", ImGuiTreeNodeFlags_DefaultOpen))
@@ -1961,7 +1970,7 @@ namespace MikuMikuWorld
 			if (it != context.score.notes.end())
 			{
 				const Note& note = it->second;
-				ImGui::Text("ID: %d\nType: %s\nTick: %d\nLane: %d\nWidth: %d\nCritical: %s\nFriction: %s\nFlick: %s",
+				ImGui::Text("ID: %d\nType: %d\nTick: %d\nLane: %d\nWidth: %d\nCritical: %s\nFriction: %s\nFlick: %s",
 					note.ID,
 					note.getType(),
 					note.tick,

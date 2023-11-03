@@ -97,9 +97,7 @@ namespace Audio
 
 	void AudioManager::uninitializeAudioEngine()
 	{
-		if (musicInitialized)
-			ma_sound_uninit(&music);
-
+		disposeMusic();
 		for (auto& [name, sound] : sounds)
 			sound->dispose();
 
@@ -115,7 +113,6 @@ namespace Audio
 		if (result.isOk())
 		{
 			ma_sound_init_from_data_source(&engine, &musicBuffer.buffer, maSoundFlagsDefault, &musicGroup, &music);
-			musicInitialized = true;
 		}
 
 		return result;
@@ -171,13 +168,10 @@ namespace Audio
 	void AudioManager::disposeMusic()
 	{
 		if (musicBuffer.isValid())
-			musicBuffer.dispose();
-
-		if (musicInitialized)
 		{
 			ma_sound_stop(&music);
 			ma_sound_uninit(&music);
-			musicInitialized = false;
+			musicBuffer.dispose();
 		}
 	}
 
@@ -319,7 +313,7 @@ namespace Audio
 
 	bool AudioManager::isMusicInitialized() const
 	{
-		return musicInitialized;
+		return musicBuffer.isValid();
 	}
 
 	bool AudioManager::isMusicAtEnd() const

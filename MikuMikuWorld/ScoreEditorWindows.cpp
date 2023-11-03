@@ -425,7 +425,14 @@ namespace MikuMikuWorld
 					UI::beginPropertyColumns();
 					UI::addReadOnlyProperty("Music Initialized", boolToString(context.audio.isMusicInitialized()));
 					UI::addReadOnlyProperty("Music Filename", context.audio.musicBuffer.name);
-					UI::addReadOnlyProperty("Music Time", IO::formatString("%.2fs/%.2fs", context.audio.getMusicPosition(), context.audio.getMusicLength()));
+
+					float musicTime = context.audio.getMusicPosition(), musicLength = context.audio.getMusicLength();
+					int musicTimeSeconds = static_cast<int>(musicTime), musicLengthSeconds = static_cast<int>(musicLength);
+					UI::addReadOnlyProperty("Music Time",IO::formatString("%02d:%02d/%02d:%02d",
+						musicTimeSeconds, static_cast<int>((musicTime - musicTimeSeconds) * 100),
+						musicLengthSeconds, static_cast<int>((musicLength - musicLengthSeconds) * 100)
+					));
+
 					UI::addReadOnlyProperty("Sample Rate", context.audio.musicBuffer.sampleRate);
 					UI::addReadOnlyProperty("Channel Count", context.audio.musicBuffer.channelCount);
 					UI::endPropertyColumns();

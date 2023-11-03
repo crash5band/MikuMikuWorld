@@ -18,9 +18,6 @@ namespace Audio
 		// Offset from chart time in seconds
 		float musicOffset{ 0.0f };
 
-		// Music is ready for playback
-		bool musicInitialized{ false };
-
 		float masterVolume{ 1.0f };
 		float musicVolume{ 1.0f };
 		float soundEffectsVolume{ 1.0f };
