@@ -177,7 +177,7 @@ namespace MikuMikuWorld
 		bool feverControl(const Score& score, const Fever& fever);
 		bool feverControl(const Score& score, int tick, bool start, bool enabled);
 		bool hiSpeedControl(const ScoreContext& context, const HiSpeedChange& hiSpeed);
-		bool hiSpeedControl(const ScoreContext& context, int tick, float speed, int layer);
+		bool hiSpeedControl(const ScoreContext& context, int tick, float speed, int layer, bool selected = false);
 
 		void drawInputNote(Renderer* renderer);
 		void previewInput(const ScoreContext& context, EditArgs& edit, Renderer* renderer);

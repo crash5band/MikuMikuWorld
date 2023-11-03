@@ -234,8 +234,8 @@ namespace MikuMikuWorld
 
 		if (updateCreationDialog() == DialogResult::Ok)
 		{
-			presetManager.createPreset(context.score, context.selectedNotes, presetName,
-			                           presetDesc);
+			presetManager.createPreset(context.score, context.selectedNotes,
+			                           context.selectedHiSpeedChanges, presetName, presetDesc);
 			presetName.clear();
 			presetDesc.clear();
 		}

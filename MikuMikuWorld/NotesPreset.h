@@ -1,17 +1,17 @@
 #pragma once
 #include "ScoreContext.h"
-#include <unordered_set>
 #include <atomic>
+#include <unordered_set>
 
 namespace MikuMikuWorld
 {
 	class NotesPreset
 	{
-	private:
+	  private:
 		int ID;
 		std::string filename;
 
-	public:
+	  public:
 		NotesPreset(int id, std::string name);
 		NotesPreset();
 
@@ -30,24 +30,26 @@ namespace MikuMikuWorld
 
 	enum class UpdateMode
 	{
-		Create, Delete
+		Create,
+		Delete
 	};
 
 	class PresetManager
 	{
-	private:
+	  private:
 		std::atomic<int> nextPresetID;
 		std::vector<int> createPresets;
 		std::vector<std::string> deletePresets;
 
-	public:
+	  public:
 		std::unordered_map<int, NotesPreset> presets;
 
 		void loadPresets(const std::string& path);
 		void savePresets(const std::string& path);
 
 		void createPreset(const Score& score, const std::unordered_set<int>& selectedNotes,
-			const std::string& name, const std::string& desc);
+		                  const std::unordered_set<int>& selectedHiSpeedChanges,
+		                  const std::string& name, const std::string& desc);
 
 		void removePreset(int id);
 

@@ -308,12 +308,12 @@ namespace MikuMikuWorld
 			}
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(getString("shrink_up"), NULL, false,
-			                    !context.selectedNotes.empty()))
+			bool canShrink =
+			    (context.selectedNotes.size() + context.selectedHiSpeedChanges.size()) >= 1;
+			if (ImGui::MenuItem(getString("shrink_up"), NULL, false, canShrink))
 				context.shrinkSelection(Direction::Up);
 
-			if (ImGui::MenuItem(getString("shrink_down"), NULL, false,
-			                    !context.selectedNotes.empty()))
+			if (ImGui::MenuItem(getString("shrink_down"), NULL, false, canShrink))
 				context.shrinkSelection(Direction::Down);
 
 			ImGui::Separator();
@@ -400,7 +400,10 @@ namespace MikuMikuWorld
 					dragStart = mousePos;
 					if (!io.KeyCtrl && !io.KeyAlt &&
 					    !ImGui::IsPopupOpen(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline")))
+					{
 						context.selectedNotes.clear();
+						context.selectedHiSpeedChanges.clear();
+					}
 				}
 
 				// Clicked and dragging inside the timeline
@@ -445,6 +448,24 @@ namespace MikuMikuWorld
 						context.selectedNotes.erase(id);
 					else
 						context.selectedNotes.insert(id);
+				}
+			}
+			for (const auto& [id, hsc] : context.score.hiSpeedChanges)
+			{
+				float lx =
+				    laneToPosition(MAX_LANE + context.score.metadata.laneExtension + 1) + 123;
+				float rx =
+				    laneToPosition(MAX_LANE + context.score.metadata.laneExtension + 1) + 180;
+				float y = -tickToPosition(hsc.tick);
+
+				if (right > lx && left < rx &&
+				    (hsc.layer == context.selectedLayer || context.showAllLayers) &&
+				    isWithinRange(y, top - yThreshold / 2, bottom + yThreshold / 2))
+				{
+					if (io.KeyAlt)
+						context.selectedHiSpeedChanges.erase(id);
+					else
+						context.selectedHiSpeedChanges.insert(id);
 				}
 			}
 
@@ -968,6 +989,9 @@ namespace MikuMikuWorld
 		for (const auto& [_, hold] : context.pasteData.holds)
 			drawHoldNote(context.pasteData.notes, hold, renderer, hoverTint, -1, hoverTick,
 			             context.pasteData.offsetLane);
+
+		for (const auto& [_, hsc] : context.pasteData.hiSpeedChanges)
+			hiSpeedControl(context, hsc.tick + hoverTick, hsc.speed, -1);
 	}
 
 	void ScoreEditorTimeline::updateInputNotes(const Score& score, EditArgs& edit)
@@ -1365,7 +1389,10 @@ namespace MikuMikuWorld
 				if (ImGui::IsMouseClicked(0) && !UI::isAnyPopupOpen())
 				{
 					if (!io.KeyCtrl && !io.KeyAlt && !context.isNoteSelected(note))
+					{
 						context.selectedNotes.clear();
+						context.selectedHiSpeedChanges.clear();
+					}
 
 					context.selectedNotes.insert(note.ID);
 
@@ -2161,11 +2188,13 @@ namespace MikuMikuWorld
 	bool ScoreEditorTimeline::hiSpeedControl(const ScoreContext& context,
 	                                         const HiSpeedChange& hiSpeed)
 	{
-		return hiSpeedControl(context, hiSpeed.tick, hiSpeed.speed, hiSpeed.layer);
+		return hiSpeedControl(context, hiSpeed.tick, hiSpeed.speed, hiSpeed.layer,
+		                      context.selectedHiSpeedChanges.find(hiSpeed.ID) !=
+		                          context.selectedHiSpeedChanges.end());
 	}
 
 	bool ScoreEditorTimeline::hiSpeedControl(const ScoreContext& context, int tick, float speed,
-	                                         int layer)
+	                                         int layer, bool selected)
 	{
 		std::string txt =
 		    (layer == -1 || context.selectedLayer == layer)
@@ -2179,8 +2208,14 @@ namespace MikuMikuWorld
 			              dpiScale),
 			         position.y - tickToPosition(tick) + visualOffset };
 		bool enabled = layer == -1 || context.showAllLayers || context.selectedLayer == layer;
-		return eventControl(getTimelineEndX(context.score), pos,
-		                    enabled ? speedColor : inactiveSpeedColor, txt.c_str(), enabled);
+		auto color = enabled ? speedColor : inactiveSpeedColor;
+
+		return eventControl(
+		    getTimelineEndX(context.score), pos,
+		    selected ? ImGui::ColorConvertFloat4ToU32(generateHighlightColor(
+		                   generateHighlightColor(ImGui::ColorConvertU32ToFloat4(color))))
+		             : color,
+		    txt.c_str(), enabled);
 	}
 
 	void ScoreEditorTimeline::eventEditor(ScoreContext& context)

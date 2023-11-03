@@ -56,6 +56,7 @@ namespace MikuMikuWorld
 		std::unordered_map<int, Note> notes;
 		std::unordered_map<int, HoldNote> holds;
 		std::unordered_map<int, Note> damages;
+		std::unordered_map<int, HiSpeedChange> hiSpeedChanges;
 		bool pasting{ false };
 		int offsetTicks{};
 		int offsetLane{};
