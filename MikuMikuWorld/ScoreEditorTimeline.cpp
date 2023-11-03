@@ -859,7 +859,8 @@ namespace MikuMikuWorld
 				drawNote(note, renderer,
 				         (context.showAllLayers || note.layer == context.selectedLayer)
 				             ? noteTint
-				             : otherLayerTint);
+				             : otherLayerTint,
+				         0, 0, context.showAllLayers || note.layer == context.selectedLayer);
 			}
 			if (note.getType() == NoteType::Damage)
 			{
@@ -867,7 +868,8 @@ namespace MikuMikuWorld
 				drawCcNote(note, renderer,
 				           (context.showAllLayers || note.layer == context.selectedLayer)
 				               ? noteTint
-				               : otherLayerTint);
+				               : otherLayerTint,
+				           0, 0, context.showAllLayers || note.layer == context.selectedLayer);
 			}
 		}
 
@@ -955,11 +957,12 @@ namespace MikuMikuWorld
 				if (isNoteVisible(note, hoverTick))
 				{
 					if (note.getType() == NoteType::Tap)
-						drawNote(note, renderer, hoverTint, hoverTick,
-						         context.pasteData.offsetLane);
+						drawNote(note, renderer, hoverTint, hoverTick, context.pasteData.offsetLane,
+						         context.showAllLayers || note.layer == context.selectedLayer);
 					else if (note.getType() == NoteType::Damage)
 						drawCcNote(note, renderer, hoverTint, hoverTick,
-						           context.pasteData.offsetLane);
+						           context.pasteData.offsetLane,
+						           context.showAllLayers || note.layer == context.selectedLayer);
 				}
 
 		for (const auto& [_, hold] : context.pasteData.holds)
@@ -1194,7 +1197,9 @@ namespace MikuMikuWorld
 			if (isArrayIndexInBounds(s2, hold.steps))
 			{
 				// Getting here means we found a non-skip step
-				if (isMouseInHoldPath(start, context.score.notes.at(hold.steps[s2].ID),
+				if ((context.showAllLayers || start.layer == context.selectedLayer ||
+				     context.score.notes.at(hold.steps[s2].ID).layer == context.selectedLayer) &&
+				    isMouseInHoldPath(start, context.score.notes.at(hold.steps[s2].ID),
 				                      hold.start.ease, xt, yt))
 					return id;
 
@@ -1205,21 +1210,28 @@ namespace MikuMikuWorld
 					{
 						const Note& m1 = context.score.notes.at(hold.steps[s1].ID);
 						const Note& m2 = context.score.notes.at(hold.steps[s2].ID);
-						if (isMouseInHoldPath(m1, m2, hold.steps[s1].ease, xt, yt))
+						if ((context.showAllLayers || m1.layer == context.selectedLayer ||
+						     m2.layer == context.selectedLayer) &&
+						    isMouseInHoldPath(m1, m2, hold.steps[s1].ease, xt, yt))
 							return id;
 
 						s1 = s2;
 					}
 				}
 
-				if (isMouseInHoldPath(context.score.notes.at(hold.steps[s1].ID), end,
+				if ((context.showAllLayers || start.layer == context.selectedLayer ||
+				     context.score.notes.at(hold.steps[s2].ID).layer == context.selectedLayer) &&
+				    isMouseInHoldPath(context.score.notes.at(hold.steps[s1].ID), end,
 				                      hold.steps[s1].ease, xt, yt))
 					return id;
 			}
 			else
 			{
 				// Hold consists of only skip steps or no steps at all
-				if (isMouseInHoldPath(start, end, hold.start.ease, xt, yt))
+
+				if ((context.showAllLayers || start.layer == context.selectedLayer ||
+				     end.layer == context.selectedLayer) &&
+				    isMouseInHoldPath(start, end, hold.start.ease, xt, yt))
 					return id;
 			}
 		}
@@ -1324,6 +1336,8 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::updateNote(ScoreContext& context, EditArgs& edit, Note& note)
 	{
+		if (!(context.showAllLayers || context.selectedLayer == note.layer))
+			return;
 		const int minLane = MIN_LANE - context.score.metadata.laneExtension;
 		const int maxLane = MAX_LANE + context.score.metadata.laneExtension;
 		const int maxNoteWidth = MAX_NOTE_WIDTH + context.score.metadata.laneExtension * 2;
@@ -1338,8 +1352,7 @@ namespace MikuMikuWorld
 		ImVec2 sz{ noteControlWidth, notesHeight };
 
 		const ImGuiIO& io = ImGui::GetIO();
-		if (ImGui::IsMouseHoveringRect(pos, pos + noteSz, false) && mouseInTimeline &&
-		    (context.showAllLayers || note.layer == context.selectedLayer))
+		if (ImGui::IsMouseHoveringRect(pos, pos + noteSz, false) && mouseInTimeline)
 		{
 			isHoveringNote = true;
 
@@ -1576,6 +1589,10 @@ namespace MikuMikuWorld
 			float xl2 = easeFunc(startX1, endX1, percent2) - 2;
 			float xr2 = easeFunc(startX2, endX2, percent2) + 2;
 
+			int z = selectedLayer == -1                                  ? 2
+			        : ((y < steps / 2) ? n1 : n2).layer == selectedLayer ? 2
+			                                                             : 0;
+
 			if (y2 <= 0)
 				continue;
 
@@ -1596,7 +1613,7 @@ namespace MikuMikuWorld
 			Vector2 p3{ xl2, y2 };
 			Vector2 p4{ xl2 + holdSliceSize, y2 };
 			renderer->drawQuad(p1, p2, p3, p4, pathTex, left, left + holdSliceWidth, spr.getY(),
-			                   spr.getY() + spr.getHeight(), localTint);
+			                   spr.getY() + spr.getHeight(), localTint, z);
 
 			p1.x = xl1 + holdSliceSize;
 			p2.x = xr1 - holdSliceSize;
@@ -1604,14 +1621,14 @@ namespace MikuMikuWorld
 			p4.x = xr2 - holdSliceSize;
 			renderer->drawQuad(p1, p2, p3, p4, pathTex, left + holdSliceWidth,
 			                   right - holdSliceWidth, spr.getY(), spr.getY() + spr.getHeight(),
-			                   localTint);
+			                   localTint, z);
 
 			p1.x = xr1 - holdSliceSize;
 			p2.x = xr1;
 			p3.x = xr2 - holdSliceSize;
 			p4.x = xr2;
 			renderer->drawQuad(p1, p2, p3, p4, pathTex, right - holdSliceWidth, right, spr.getY(),
-			                   spr.getY() + spr.getHeight(), localTint);
+			                   spr.getY() + spr.getHeight(), localTint, z);
 		}
 	}
 
@@ -1769,13 +1786,15 @@ namespace MikuMikuWorld
 								pos.x = midpoint(x1, x2);
 							}
 
+							int z = selectedLayer == -1 ? 3 : (n3.layer == selectedLayer ? 3 : 1);
+
 							renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex,
 							                     s.getX(), s.getX() + s.getWidth(), s.getY(),
 							                     s.getY() + s.getHeight(),
 							                     (selectedLayer == -1 || n3.layer == selectedLayer)
 							                         ? tint
 							                         : tint * otherLayerTint,
-							                     1);
+							                     z);
 						}
 					}
 				}
@@ -1813,10 +1832,10 @@ namespace MikuMikuWorld
 		{
 			if (note.startType == HoldNoteType::Normal)
 			{
-				drawNote(start, renderer,
-				         (selectedLayer == -1 || start.layer == selectedLayer) ? tint
-				                                                               : inactiveTint,
-				         offsetTicks, offsetLane);
+				drawNote(
+				    start, renderer,
+				    (selectedLayer == -1 || start.layer == selectedLayer) ? tint : inactiveTint,
+				    offsetTicks, offsetLane, selectedLayer == -1 || start.layer == selectedLayer);
 			}
 			else if (drawHoldStepOutlines)
 			{
@@ -1843,7 +1862,8 @@ namespace MikuMikuWorld
 			{
 				drawNote(end, renderer,
 				         (selectedLayer == -1 || end.layer == selectedLayer) ? tint : inactiveTint,
-				         offsetTicks, offsetLane);
+				         offsetTicks, offsetLane,
+				         selectedLayer == -1 || start.layer == selectedLayer);
 			}
 			else if (drawHoldStepOutlines)
 			{
@@ -1866,7 +1886,7 @@ namespace MikuMikuWorld
 	}
 
 	void ScoreEditorTimeline::drawHoldMid(Note& note, HoldStepType type, Renderer* renderer,
-	                                      const Color& tint)
+	                                      const Color& tint, const bool selectedLayer)
 	{
 		if (type == HoldStepType::Hidden || noteTextures.notes == -1)
 			return;
@@ -1883,8 +1903,10 @@ namespace MikuMikuWorld
 			         getNoteYPosFromTick(note.tick) };
 		Vector2 nodeSz{ notesHeight - 5, notesHeight - 5 };
 
+		int z = selectedLayer ? 3 : 1;
+
 		renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, s.getX(),
-		                     s.getX() + s.getWidth(), s.getY(), s.getY() + s.getHeight(), tint, 1);
+		                     s.getX() + s.getWidth(), s.getY(), s.getY() + s.getHeight(), tint, z);
 	}
 
 	void ScoreEditorTimeline::drawOutline(const StepDrawData& data, int selectedLayer)
@@ -1948,7 +1970,8 @@ namespace MikuMikuWorld
 	}
 
 	void ScoreEditorTimeline::drawNote(const Note& note, Renderer* renderer, const Color& tint,
-	                                   const int offsetTick, const int offsetLane)
+	                                   const int offsetTick, const int offsetLane,
+	                                   const bool selectedLayer)
 	{
 		if (noteTextures.notes == -1)
 			return;
@@ -1973,19 +1996,21 @@ namespace MikuMikuWorld
 		const int left = s.getX() + noteCutoffX;
 		const int right = s.getX() + s.getWidth() - noteCutoffX;
 
+		const int z = selectedLayer ? 3 : 1;
+
 		// left slice
 		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex, left, left + noteSliceWidth, s.getY(),
-		                     s.getY() + s.getHeight(), tint, 1);
+		                     s.getY() + s.getHeight(), tint, z);
 		pos.x += sliceSz.x;
 
 		// middle
 		renderer->drawSprite(pos, 0.0f, midSz, anchor, tex, left + noteSliceWidth,
-		                     right - noteSliceWidth, s.getY(), s.getY() + s.getHeight(), tint, 1);
+		                     right - noteSliceWidth, s.getY(), s.getY() + s.getHeight(), tint, z);
 		pos.x += midLen;
 
 		// right slice
 		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex, right - noteSliceWidth, right,
-		                     s.getY(), s.getY() + s.getHeight(), tint, 1);
+		                     s.getY(), s.getY() + s.getHeight(), tint, z);
 
 		if (note.friction)
 		{
@@ -2002,7 +2027,7 @@ namespace MikuMikuWorld
 				renderer->drawSprite(
 				    pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, frictionSpr.getX(),
 				    frictionSpr.getX() + frictionSpr.getWidth(), frictionSpr.getY(),
-				    frictionSpr.getY() + frictionSpr.getHeight(), tint, 1);
+				    frictionSpr.getY() + frictionSpr.getHeight(), tint, z);
 			}
 		}
 
@@ -2011,7 +2036,8 @@ namespace MikuMikuWorld
 	}
 
 	void ScoreEditorTimeline::drawCcNote(const Note& note, Renderer* renderer, const Color& tint,
-	                                     const int offsetTick, const int offsetLane)
+	                                     const int offsetTick, const int offsetLane,
+	                                     const bool selectedLayer)
 	{
 		if (noteTextures.notes == -1)
 			return;
@@ -2036,19 +2062,21 @@ namespace MikuMikuWorld
 		const int left = s.getX() + noteCutoffX;
 		const int right = s.getX() + s.getWidth() - noteCutoffX;
 
+		const int z = selectedLayer ? 3 : 1;
+
 		// left slice
 		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex, left, left + noteSliceWidth, s.getY(),
-		                     s.getY() + s.getHeight(), tint, 1);
+		                     s.getY() + s.getHeight(), tint, z);
 		pos.x += sliceSz.x;
 
 		// middle
 		renderer->drawSprite(pos, 0.0f, midSz, anchor, tex, left + noteSliceWidth,
-		                     right - noteSliceWidth, s.getY(), s.getY() + s.getHeight(), tint, 1);
+		                     right - noteSliceWidth, s.getY(), s.getY() + s.getHeight(), tint, z);
 		pos.x += midLen;
 
 		// right slice
 		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex, right - noteSliceWidth, right,
-		                     s.getY(), s.getY() + s.getHeight(), tint, 1);
+		                     s.getY(), s.getY() + s.getHeight(), tint, z);
 
 		if (note.friction)
 		{
@@ -2065,7 +2093,7 @@ namespace MikuMikuWorld
 				renderer->drawSprite(
 				    pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, frictionSpr.getX(),
 				    frictionSpr.getX() + frictionSpr.getWidth(), frictionSpr.getY(),
-				    frictionSpr.getY() + frictionSpr.getHeight(), tint, 1);
+				    frictionSpr.getY() + frictionSpr.getHeight(), tint, z);
 			}
 		}
 

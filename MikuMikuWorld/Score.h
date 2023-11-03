@@ -1,8 +1,8 @@
 #pragma once
 #include "Note.h"
 #include "Tempo.h"
-#include <string>
 #include <map>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -23,10 +23,10 @@ namespace MikuMikuWorld
 		int endTick;
 	};
 
-  struct Layer
-  {
-    std::string name;
-  };
+	struct Layer
+	{
+		std::string name;
+	};
 
 	struct HiSpeedChange
 	{
@@ -45,7 +45,7 @@ namespace MikuMikuWorld
 		std::string jacketFile;
 		float musicOffset;
 
-    int laneExtension = 0;
+		int laneExtension = 0;
 	};
 
 	struct Score
@@ -59,7 +59,7 @@ namespace MikuMikuWorld
 		std::vector<SkillTrigger> skills;
 		Fever fever;
 
-    std::vector<Layer> layers{ {Layer{ "default" } } };
+		std::vector<Layer> layers{ { Layer{ "default" } } };
 
 		Score();
 	};

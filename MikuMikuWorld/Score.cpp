@@ -1,9 +1,9 @@
 #include "Score.h"
-#include "File.h"
 #include "BinaryReader.h"
 #include "BinaryWriter.h"
-#include "IO.h"
 #include "Constants.h"
+#include "File.h"
+#include "IO.h"
 #include <unordered_set>
 
 using namespace IO;
@@ -18,9 +18,9 @@ namespace MikuMikuWorld
 
 	enum HoldFlags
 	{
-		HOLD_START_HIDDEN	= 1 << 0,
-		HOLD_END_HIDDEN		= 1 << 1,
-		HOLD_GUIDE			= 1 << 2
+		HOLD_START_HIDDEN = 1 << 0,
+		HOLD_END_HIDDEN = 1 << 1,
+		HOLD_GUIDE = 1 << 2
 	};
 
 	Score::Score()
@@ -32,6 +32,8 @@ namespace MikuMikuWorld
 
 		tempoChanges.push_back(Tempo());
 		timeSignatures[0] = { 0, 4, 4 };
+		auto id = nextHiSpeedID++;
+		hiSpeedChanges[id] = HiSpeedChange{ id, 0, 1.0f, 0 };
 
 		fever.startTick = fever.endTick = -1;
 	}
@@ -66,8 +68,10 @@ namespace MikuMikuWorld
 			writer->writeInt32((int)note.flick);
 
 		unsigned int flags{};
-		if (note.critical) flags |= NOTE_CRITICAL;
-		if (note.friction) flags |= NOTE_FRICTION;
+		if (note.critical)
+			flags |= NOTE_CRITICAL;
+		if (note.friction)
+			flags |= NOTE_FRICTION;
 		writer->writeInt32(flags);
 	}
 
@@ -208,7 +212,8 @@ namespace MikuMikuWorld
 
 		int version = reader.readInt16();
 		int cyanvasVersion = reader.readInt16();
-		if (isCyanvas && cyanvasVersion == 0) {
+		if (isCyanvas && cyanvasVersion == 0)
+		{
 			cyanvasVersion = 1;
 		}
 
@@ -277,12 +282,16 @@ namespace MikuMikuWorld
 			start.ID = nextID++;
 			hold.start.ease = (EaseType)reader.readInt32();
 			hold.start.ID = start.ID;
-			if (cyanvasVersion >= 2) {
+			if (cyanvasVersion >= 2)
+			{
 				hold.fadeType = (FadeType)reader.readInt32();
 			}
-			if (cyanvasVersion >= 3) {
+			if (cyanvasVersion >= 3)
+			{
 				hold.guideColor = (GuideColor)reader.readInt32();
-			} else {
+			}
+			else
+			{
 				hold.guideColor = start.critical ? GuideColor::Yellow : GuideColor::Green;
 			}
 			score.notes[start.ID] = start;
@@ -373,7 +382,7 @@ namespace MikuMikuWorld
 		writer.writeNull(sizeof(uint32_t));
 
 		int noteCount = 0;
-		for (const auto&[id, note] : score.notes)
+		for (const auto& [id, note] : score.notes)
 		{
 			if (note.getType() != NoteType::Tap)
 				continue;
@@ -391,12 +400,15 @@ namespace MikuMikuWorld
 		writer.seek(holdsAddress);
 
 		writer.writeInt32(score.holdNotes.size());
-		for (const auto&[id, hold] : score.holdNotes)
+		for (const auto& [id, hold] : score.holdNotes)
 		{
 			unsigned int flags{};
-			if (hold.startType == HoldNoteType::Guide) flags	|=	HOLD_GUIDE;
-			if (hold.startType == HoldNoteType::Hidden) flags	|=	HOLD_START_HIDDEN;
-			if (hold.endType == HoldNoteType::Hidden) flags		|=	HOLD_END_HIDDEN;
+			if (hold.startType == HoldNoteType::Guide)
+				flags |= HOLD_GUIDE;
+			if (hold.startType == HoldNoteType::Hidden)
+				flags |= HOLD_START_HIDDEN;
+			if (hold.endType == HoldNoteType::Hidden)
+				flags |= HOLD_END_HIDDEN;
 			writer.writeInt32(flags);
 
 			// note data
@@ -427,7 +439,7 @@ namespace MikuMikuWorld
 
 		// Cyanvas extension: write damages
 		int damageNoteCount = 0;
-		for (const auto&[id, note] : score.notes)
+		for (const auto& [id, note] : score.notes)
 		{
 			if (note.getType() != NoteType::Damage)
 				continue;
