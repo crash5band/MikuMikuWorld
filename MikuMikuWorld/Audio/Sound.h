@@ -21,7 +21,14 @@ namespace Audio
 
 	DECLARE_ENUM_FLAG_OPERATORS(SoundFlags)
 
-	struct Sound
+	constexpr ma_uint32 maSoundFlagsDefault = MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION;
+	constexpr ma_uint32 maSoundFlagsDecodeAsync =
+		MA_SOUND_FLAG_NO_PITCH |
+		MA_SOUND_FLAG_NO_SPATIALIZATION |
+		MA_SOUND_FLAG_DECODE |
+		MA_SOUND_FLAG_ASYNC;
+
+	struct SoundBuffer
 	{
 		std::string name;
 		std::unique_ptr<int16_t[]> samples;
@@ -42,7 +49,7 @@ namespace Audio
 		".mp3", ".wav", ".flac", ".ogg"
 	};
 
-	MikuMikuWorld::Result decodeAudioFile(std::string filename, Sound& sound);
+	MikuMikuWorld::Result decodeAudioFile(std::string filename, SoundBuffer& sound);
 	bool isSupportedFileFormat(const std::string_view& fileExtension);
 
 	struct SoundInstance
@@ -50,6 +57,39 @@ namespace Audio
 		ma_sound source;
 		float lastStartTime{};
 		float lastEndTime{};
+
+		inline void play() { ma_sound_start(&source); }
+		inline void stop() { ma_sound_stop(&source); }
+		inline void seek(uint64_t frame) { ma_sound_seek_to_pcm_frame(&source, frame); }
+		inline bool isPlaying() const { return ma_sound_is_playing(&source); }
+		
+		uint64_t getCurrentFrame()
+		{
+			uint64_t frame{};
+			ma_sound_get_cursor_in_pcm_frames(&source, &frame);
+			return frame;
+		}
+
+		uint64_t getLengthInFrames()
+		{
+			uint64_t frame{};
+			ma_sound_get_length_in_pcm_frames(&source, &frame);
+			return frame;
+		}
+
+		float getCurrentTime()
+		{
+			float time{};
+			ma_sound_get_cursor_in_seconds(&source, &time);
+			return time;
+		}
+
+		float getDuration()
+		{
+			float time{};
+			ma_sound_get_length_in_seconds(&source, &time);
+			return time;
+		}
 	};
 
 	class SoundPool
@@ -76,6 +116,7 @@ namespace Audio
 		bool isAnyPlaying() const;
 		
 		void initialize(const std::string& path, ma_engine* engine, ma_sound_group* group, SoundFlags flags);
+		void initialize(SoundBuffer& sound, ma_engine* engine, ma_sound_group* group, SoundFlags flags);
 		void dispose();
 
 	private:

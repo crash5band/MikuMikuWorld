@@ -11,7 +11,7 @@ namespace Audio
 {
 	namespace mmw = MikuMikuWorld;
 
-	void Sound::initialize(const std::string& name, ma_uint32 sampleRate, ma_uint32 channelCount, ma_uint64 frameCount, int16_t* samples)
+	void SoundBuffer::initialize(const std::string& name, ma_uint32 sampleRate, ma_uint32 channelCount, ma_uint64 frameCount, int16_t* samples)
 	{
 		this->name = name;
 		this->sampleFormat = ma_format_s16;
@@ -25,7 +25,7 @@ namespace Audio
 		ma_audio_buffer_init(&bufferConfig, &buffer);
 	}
 
-	void Sound::dispose()
+	void SoundBuffer::dispose()
 	{
 		name.clear();
 		ma_audio_buffer_uninit(&buffer);
@@ -37,7 +37,7 @@ namespace Audio
 		frameCount		= 0;
 	}
 
-	mmw::Result decodeAudioFile(std::string filename, Sound& sound)
+	mmw::Result decodeAudioFile(std::string filename, SoundBuffer& sound)
 	{
 		if (!IO::File::exists(filename))
 			return mmw::Result(mmw::ResultStatus::Error, "File not found");
@@ -152,16 +152,23 @@ namespace Audio
 
 	void SoundPool::initialize(const std::string& path, ma_engine* engine, ma_sound_group* group, SoundFlags flags)
 	{
-		constexpr ma_uint32 maSoundFlags =
-			MA_SOUND_FLAG_NO_PITCH |
-			MA_SOUND_FLAG_NO_SPATIALIZATION |
-			MA_SOUND_FLAG_DECODE |
-			MA_SOUND_FLAG_ASYNC;
-
 		std::wstring wPath = IO::mbToWideStr(path);
-		for (int i = 0; i < pool.size(); ++i)
+		for (int i = 0; i < pool.size(); i++)
 		{
-			ma_result result = ma_sound_init_from_file_w(engine, wPath.c_str(), maSoundFlags, group, NULL, &pool[i].source);
+			ma_result result = ma_sound_init_from_file_w(engine, wPath.c_str(), maSoundFlagsDecodeAsync, group, NULL, &pool[i].source);
+			if (flags & SoundFlags::LOOP)
+				ma_sound_set_looping(&pool[i].source, true);
+		}
+
+		this->flags = flags;
+		nextIndex = 0;
+	}
+
+	void SoundPool::initialize(SoundBuffer& sound, ma_engine* engine, ma_sound_group* group, SoundFlags flags)
+	{
+		for (int i = 0; i < pool.size(); i++)
+		{
+			ma_result result = ma_sound_init_from_data_source(engine, &sound.buffer, maSoundFlagsDefault, group, &pool[i].source);
 			if (flags & SoundFlags::LOOP)
 				ma_sound_set_looping(&pool[i].source, true);
 		}
@@ -209,13 +216,13 @@ namespace Audio
 
 		SoundInstance& instance = pool[nextIndex];
 
-		ma_sound_seek_to_pcm_frame(&instance.source, 0);
+		instance.seek(0);
 		ma_sound_set_start_time_in_milliseconds(&instance.source, start * 1000);
 		
 		if (end > -1)
 			ma_sound_set_stop_time_in_milliseconds(&instance.source, end * 1000);
 
-		ma_sound_start(&instance.source);
+		instance.play();
 		instance.lastStartTime = start;
 		instance.lastEndTime = end;
 
@@ -227,7 +234,7 @@ namespace Audio
 	{
 		for (auto& instance : pool)
 		{
-			ma_sound_stop(&instance.source);
+			instance.stop();
 			instance.lastStartTime = 0;
 			instance.lastEndTime = 0;
 		}
@@ -235,13 +242,13 @@ namespace Audio
 
 	bool SoundPool::isPlaying(const SoundInstance& soundInstance) const
 	{
-		return ma_sound_is_playing(&soundInstance.source);
+		return soundInstance.isPlaying();
 	}
 
 	bool SoundPool::isAnyPlaying() const
 	{
 		for (const auto& instance : pool)
-			if (ma_sound_is_playing(&instance.source))
+			if (instance.isPlaying())
 				return true;
 
 		return false;

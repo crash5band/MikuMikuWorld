@@ -424,10 +424,10 @@ namespace MikuMikuWorld
 				{
 					UI::beginPropertyColumns();
 					UI::addReadOnlyProperty("Music Initialized", boolToString(context.audio.isMusicInitialized()));
-					UI::addReadOnlyProperty("Music Filename", context.audio.musicAudioData.name);
+					UI::addReadOnlyProperty("Music Filename", context.audio.musicBuffer.name);
 					UI::addReadOnlyProperty("Music Time", IO::formatString("%.2fs/%.2fs", context.audio.getMusicPosition(), context.audio.getMusicLength()));
-					UI::addReadOnlyProperty("Sample Rate", context.audio.musicAudioData.sampleRate);
-					UI::addReadOnlyProperty("Channel Count", context.audio.musicAudioData.channelCount);
+					UI::addReadOnlyProperty("Sample Rate", context.audio.musicBuffer.sampleRate);
+					UI::addReadOnlyProperty("Channel Count", context.audio.musicBuffer.channelCount);
 					UI::endPropertyColumns();
 				}
 
@@ -443,46 +443,47 @@ namespace MikuMikuWorld
 
 					const int rowHeight = ImGui::GetFrameHeight() + 5;
 
-					if (ImGui::BeginTable("##sound_test_table", 4, tableFlags, size))
+					if (ImGui::BeginTable("##sound_test_table", 3, tableFlags, size))
 					{
 						ImGui::TableSetupScrollFreeze(0, 1);
 						ImGui::TableSetupColumn("Name");
-						ImGui::TableSetupColumn("Flags");
-						ImGui::TableSetupColumn("Duration (sec)");
-						ImGui::TableSetupColumn("Play/Stop");
+						ImGui::TableSetupColumn("Duration (sec)", ImGuiTableColumnFlags_WidthFixed);
+						ImGui::TableSetupColumn("Play/Stop", ImGuiTableColumnFlags_WidthFixed);
 						ImGui::TableHeadersRow();
 
 						for (size_t i = 0; i < arrayLength(SE_NAMES); i++)
 						{
-							const Audio::SoundPool* pool = context.audio.sounds[SE_NAMES[i]].get();
+							Audio::SoundInstance& sound = context.audio.debugSounds[i];
 
 							ImGui::PushID(SE_NAMES[i]);
 							ImGui::TableNextRow(0, rowHeight);
 							ImGui::TableSetColumnIndex(0);
 
-							float ratio = context.audio.debugGetSoundCurrentFrame(SE_NAMES[i]) / static_cast<float>(context.audio.debugGetSoundTotalFrames(SE_NAMES[i]));
-							if (!pool->isPlaying(pool->pool[0]))
+							float ratio = sound.getCurrentFrame() / static_cast<float>(sound.getLengthInFrames());
+							if (!sound.isPlaying())
 								ratio = 0.0f;
 
 							ImGui::ProgressBar(ratio, { -1, 0 }, SE_NAMES[i]);
-
-							ImGui::TableSetColumnIndex(1);						
-							ImGui::Text("0x%04x", pool->flags);
 							
-							float duration = pool->getDurationInSeconds();
-							int durationSecondsOnly = duration;
-							ImGui::TableSetColumnIndex(2);
-							ImGui::Text("%02d:%02d", durationSecondsOnly, static_cast<int>((duration - durationSecondsOnly) * 100));
+							float duration = sound.getDuration(); int durationSecondsOnly = duration;
+							float time = sound.isPlaying() ? sound.getCurrentTime() : 0.0f; int timeSecondsOnly = time;
+							ImGui::TableSetColumnIndex(1);
+							ImGui::Text("%02d:%02d/%02d:%02d",
+								timeSecondsOnly,
+								static_cast<int>((time - timeSecondsOnly) * 100),
+								durationSecondsOnly,
+								static_cast<int>((duration - durationSecondsOnly) * 100)
+							);
 
-							ImGui::TableSetColumnIndex(3);
+							ImGui::TableSetColumnIndex(2);
 							if (UI::transparentButton(ICON_FA_PLAY, UI::btnSmall))
-								context.audio.debugPlaySound(SE_NAMES[i]);
+								sound.play();
 
 							ImGui::SameLine();
 							ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
 							ImGui::SameLine();
 							if (UI::transparentButton(ICON_FA_STOP, UI::btnSmall))
-								context.audio.debugStopSound(SE_NAMES[i]);
+								sound.stop();
 
 							ImGui::PopID();
 						}

@@ -293,8 +293,8 @@ namespace MikuMikuWorld
 			IO::messageBox(APP_NAME, errorMessage, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 		}
 
-		context.waveformL.generateMipChainsFromSampleBuffer(context.audio.musicAudioData, 0);
-		context.waveformR.generateMipChainsFromSampleBuffer(context.audio.musicAudioData, 1);
+		context.waveformL.generateMipChainsFromSampleBuffer(context.audio.musicBuffer, 0);
+		context.waveformR.generateMipChainsFromSampleBuffer(context.audio.musicBuffer, 1);
 		timeline.setPlaying(context, false);
 	}
 

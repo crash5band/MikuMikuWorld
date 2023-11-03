@@ -20,7 +20,6 @@ namespace Audio
 	{
 		std::string err = "";
 		ma_result result = MA_SUCCESS;
-		constexpr ma_uint32 groupFlags = MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION;
 
 		try
 		{
@@ -31,14 +30,14 @@ namespace Audio
 				throw(result);
 			}
 
-			result = ma_sound_group_init(&engine, groupFlags, nullptr, &musicGroup);
+			result = ma_sound_group_init(&engine, maSoundFlagsDefault, nullptr, &musicGroup);
 			if (result != MA_SUCCESS)
 			{
 				err = "FATAL: Failed to initialize music sound group. Aborting.\n";
 				throw(result);
 			}
 
-			result = ma_sound_group_init(&engine, groupFlags, nullptr, &soundEffectsGroup);
+			result = ma_sound_group_init(&engine, maSoundFlagsDefault, nullptr, &soundEffectsGroup);
 			if (result != MA_SUCCESS)
 			{
 				err = "FATAL: Failed to initialize sound effects sound group. Aborting.\n";
@@ -73,7 +72,8 @@ namespace Audio
 
 		std::string path{ mmw::Application::getAppDir() + "res\\sound\\" };
 
-		sounds.reserve(soundEffectsVolume);
+		sounds.reserve(soundEffectsCount);
+		debugSounds.resize(soundEffectsCount);
 		for (int i = 0; i < soundEffectsCount; ++i)
 			sounds.emplace(std::move(SoundPoolPair(mmw::SE_NAMES[i], std::make_unique<SoundPool>())));
 
@@ -84,6 +84,8 @@ namespace Audio
 
 			s.second->initialize(filename, &engine, &soundEffectsGroup, soundEffectsFlags[soundIndex]);
 			s.second->setVolume(soundEffectsVolumes[soundIndex]);
+
+			ma_sound_init_from_file_w(&engine, IO::mbToWideStr(filename).c_str(), maSoundFlagsDecodeAsync, &soundEffectsGroup, nullptr, &debugSounds[soundIndex].source);
 		});
 		
 		// Adjust hold SE loop times for gapless playback
@@ -109,11 +111,10 @@ namespace Audio
 	mmw::Result AudioManager::loadMusic(const std::string& filename)
 	{
 		disposeMusic();
-		mmw::Result result = decodeAudioFile(filename, musicAudioData);
+		mmw::Result result = decodeAudioFile(filename, musicBuffer);
 		if (result.isOk())
 		{
-			constexpr ma_uint32 flags = MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION;
-			ma_sound_init_from_data_source(&engine, &musicAudioData.buffer, flags, &musicGroup, &music);
+			ma_sound_init_from_data_source(&engine, &musicBuffer.buffer, maSoundFlagsDefault, &musicGroup, &music);
 			musicInitialized = true;
 		}
 
@@ -123,13 +124,13 @@ namespace Audio
 	void AudioManager::playMusic(float currentTime)
 	{
 		ma_uint64 length{};
-		ma_result lengthResult = ma_sound_get_length_in_pcm_frames(&music, &length);
+		ma_sound_get_length_in_pcm_frames(&music, &length);
 
 		// Negative time means the sound is midways
 		float time = musicOffset - currentTime;
 
 		// Starting past the music end
-		if (time * musicAudioData.sampleRate * -1 > length)
+		if (time * musicBuffer.sampleRate * -1 > length)
 			return;
 
 		ma_sound_set_start_time_in_milliseconds(&music, std::max(0.0f, time * 1000));
@@ -145,7 +146,7 @@ namespace Audio
 	{
 		musicOffset = offset / 1000.0f;
 		float seekTime = currentTime - musicOffset;
-		ma_sound_seek_to_pcm_frame(&music, seekTime * musicAudioData.sampleRate);
+		ma_sound_seek_to_pcm_frame(&music, seekTime * musicBuffer.sampleRate);
 
 		float start = getAudioEngineAbsoluteTime() + musicOffset - currentTime;
 		ma_sound_set_start_time_in_milliseconds(&music, std::max(0.0f, start * 1000));
@@ -169,8 +170,8 @@ namespace Audio
 
 	void AudioManager::disposeMusic()
 	{
-		if (musicAudioData.isValid())
-			musicAudioData.dispose();
+		if (musicBuffer.isValid())
+			musicBuffer.dispose();
 
 		if (musicInitialized)
 		{
@@ -182,7 +183,7 @@ namespace Audio
 
 	void AudioManager::seekMusic(float time)
 	{
-		ma_uint64 seekFrame = (time - musicOffset) * musicAudioData.sampleRate;
+		ma_uint64 seekFrame = (time - musicOffset) * musicBuffer.sampleRate;
 		ma_sound_seek_to_pcm_frame(&music, seekFrame);
 
 		ma_uint64 length{};
@@ -234,57 +235,13 @@ namespace Audio
 		soundEffectsVolume = volume;
 		ma_sound_group_set_volume(&soundEffectsGroup, volume);
 	}
-	
-	void AudioManager::debugPlaySound(std::string_view name)
-	{
-		if (sounds.find(name) == sounds.end())
-			return;
-
-		ma_sound& source = sounds.at(name)->pool[0].source;
-		ma_sound_stop(&source);
-		ma_sound_seek_to_pcm_frame(&source, 0);
-		ma_sound_start(&source);
-	}
-	
-	void AudioManager::debugStopSound(std::string_view name)
-	{
-		if (sounds.find(name) == sounds.end())
-			return;
-
-		ma_sound& source = sounds.at(name)->pool[0].source;
-		ma_sound_stop(&source);
-		ma_sound_seek_to_pcm_frame(&source, 0);
-	}
-
-	uint64_t AudioManager::debugGetSoundCurrentFrame(std::string_view name)
-	{
-		uint64_t cursor{};
-		if (sounds.find(name) == sounds.end())
-			return cursor;
-
-		ma_sound& source = sounds.at(name)->pool[0].source;
-		ma_sound_get_cursor_in_pcm_frames(&source, &cursor);
-		return cursor;
-	}
-
-	uint64_t AudioManager::debugGetSoundTotalFrames(std::string_view name)
-	{
-		uint64_t length{};
-		if (sounds.find(name) == sounds.end())
-			return length;
-
-		ma_sound& source = sounds.at(name)->pool[0].source;
-		ma_sound_get_length_in_pcm_frames(&source, &length);
-		return length;
-	}
 
 	void AudioManager::playOneShotSound(std::string_view name)
 	{
 		if (sounds.find(name) == sounds.end())
 			return;
 
-		ma_sound& source = sounds.at(name)->pool[0].source;
-		ma_sound_start(&source);
+		sounds.at(name)->play(0, -1);
 	}
 
 	void AudioManager::playSoundEffect(std::string_view name, float start, float end)

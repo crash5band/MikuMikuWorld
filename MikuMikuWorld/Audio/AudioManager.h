@@ -1,5 +1,4 @@
 #pragma once
-#include "../Utilities.h"
 #include "Sound.h"
 #include <unordered_map>
 #include <vector>
@@ -14,6 +13,7 @@ namespace Audio
 		ma_sound music;
 		ma_sound_group musicGroup;
 		ma_sound_group soundEffectsGroup;
+		std::unordered_map<std::string_view, std::unique_ptr<SoundPool>> sounds;
 
 		// Offset from chart time in seconds
 		float musicOffset{ 0.0f };
@@ -26,12 +26,13 @@ namespace Audio
 		float soundEffectsVolume{ 1.0f };
 
 	public:
-		Sound musicAudioData;
-		std::unordered_map<std::string_view, std::unique_ptr<SoundPool>> sounds;
+		SoundBuffer musicBuffer;
+		std::vector<SoundInstance> debugSounds;
 
 		void initializeAudioEngine();
 		void uninitializeAudioEngine();
 		void syncAudioEngineTimer();
+
 		uint32_t getDeviceSampleRate() const;
 		uint32_t getDeviceChannelCount() const;
 		float getDeviceLatency() const;
@@ -60,11 +61,6 @@ namespace Audio
 		bool isMusicInitialized() const;
 		bool isMusicAtEnd() const;
 		void disposeMusic();
-
-		void debugPlaySound(std::string_view name);
-		void debugStopSound(std::string_view name);
-		uint64_t debugGetSoundCurrentFrame(std::string_view name);
-		uint64_t debugGetSoundTotalFrames(std::string_view name);
 
 		void playOneShotSound(std::string_view name);
 		void playSoundEffect(std::string_view name, float start, float end);

@@ -83,7 +83,7 @@ namespace MikuMikuWorld
 	}
 
 	template<typename Type>
-	static size_t findArrayItem(Type item, const Type array[], size_t length)
+	static size_t findArrayItem(const Type& item, const Type array[], size_t length)
 	{
 		for (int i = 0; i < length; i++)
 		{
