@@ -593,7 +593,7 @@ namespace MikuMikuWorld
 
 			std::string measureStr = std::to_string(measure);
 			const float txtPos =
-			    x1 - MEASURE_WIDTH - (ImGui::CalcTextSize(measureStr.c_str()).x * 0.5f);
+			    exX1 - MEASURE_WIDTH - (ImGui::CalcTextSize(measureStr.c_str()).x * 0.5f);
 			const int y = position.y - tickToPosition(tick) + visualOffset;
 
 			drawList->AddLine(ImVec2(exX1 - MEASURE_WIDTH, y), ImVec2(exX2 + MEASURE_WIDTH, y),
@@ -1464,7 +1464,7 @@ namespace MikuMikuWorld
 		if (noteControl(context, pos, sz, "M", ImGuiMouseCursor_ResizeAll))
 		{
 			int curLane = positionToLane(mousePos.x);
-			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
+			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), minLane, maxLane);
 			int grabTick = snapTickFromPos(-ctrlMousePos.y);
 
 			int diff = curLane - grabLane;
