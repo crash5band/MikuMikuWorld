@@ -194,6 +194,12 @@ layer_down, 下に移動
 layer_merge, 一つ下と結合
 layer_delete, 削除
 
+# waypoint manager
+waypoints,しおり
+create_waypoint,しおりを作成
+edit_waypoint,しおりを編集
+waypoint_name,名前
+
 # commands
 action, コマンド
 keys, キー

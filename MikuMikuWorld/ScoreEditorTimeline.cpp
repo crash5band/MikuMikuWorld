@@ -12,6 +12,14 @@
 
 namespace MikuMikuWorld
 {
+	ScoreEditorTimeline* timelineInstance = nullptr;
+
+	void scrollTimeline(ScoreContext& context, const int tick)
+	{
+		if (timelineInstance != nullptr)
+			timelineInstance->scrollTimeline(context, tick);
+	}
+
 	bool eventControl(float xPos, Vector2 pos, ImU32 color, const char* txt, bool enabled)
 	{
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
@@ -665,6 +673,19 @@ namespace MikuMikuWorld
 			}
 		}
 
+		// Update waypoints
+		for (int index = 0; index < context.score.waypoints.size(); ++index)
+		{
+			Waypoint& wp = context.score.waypoints[index];
+			if (waypointControl(context.score, wp))
+			{
+				eventEdit.editIndex = index;
+				eventEdit.editName = wp.name;
+				eventEdit.type = EventType::Waypoint;
+				ImGui::OpenPopup("edit_event");
+			}
+		}
+
 		// Update song boundaries
 		if (context.audio.isMusicInitialized())
 		{
@@ -805,11 +826,9 @@ namespace MikuMikuWorld
 
 		if (activated)
 		{
-			gotoMeasure = std::clamp(gotoMeasure, 0, 999);
-			context.currentTick =
-			    measureToTicks(gotoMeasure, TICKS_PER_BEAT, context.score.timeSignatures);
-			offset = std::max(minOffset, tickToPosition(context.currentTick) +
-			                                 (size.y * (1.0f - config.cursorPositionThreshold)));
+			gotoMeasure = std::max(gotoMeasure, 0);
+			scrollTimeline(
+			    context, measureToTicks(gotoMeasure, TICKS_PER_BEAT, context.score.timeSignatures));
 		}
 
 		ImGui::SameLine();
@@ -2218,6 +2237,21 @@ namespace MikuMikuWorld
 		    txt.c_str(), enabled);
 	}
 
+	bool ScoreEditorTimeline::waypointControl(const Score& score, const Waypoint& waypoint)
+	{
+		return waypointControl(score, waypoint.name, waypoint.tick);
+	}
+	bool ScoreEditorTimeline::waypointControl(const Score& score, std::string name, int tick)
+	{
+		if (tick < 0)
+			return false;
+
+		float dpiScale = ImGui::GetMainViewport()->DpiScale;
+		Vector2 pos{ getTimelineStartX(score) - (176 * dpiScale),
+			         position.y - tickToPosition(tick) + visualOffset };
+		return eventControl(getTimelineStartX(score), pos, waypointColor, name.c_str(), true);
+	}
+
 	void ScoreEditorTimeline::eventEditor(ScoreContext& context)
 	{
 		ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
@@ -2331,6 +2365,37 @@ namespace MikuMikuWorld
 					Score prev = context.score;
 					context.score.hiSpeedChanges.erase(eventEdit.editIndex);
 					context.pushHistory("Remove hi-speed change", prev, context.score);
+				}
+			}
+			else if (eventEdit.type == EventType::Waypoint)
+			{
+				if (eventEdit.editIndex >= context.score.waypoints.size())
+				{
+					ImGui::CloseCurrentPopup();
+					ImGui::EndPopup();
+					return;
+				}
+
+				UI::beginPropertyColumns();
+				UI::addStringProperty(getString("waypoint_name"), eventEdit.editName);
+				Waypoint& waypoint = context.score.waypoints[eventEdit.editIndex];
+				if (ImGui::IsItemDeactivatedAfterEdit())
+				{
+					Score prev = context.score;
+					waypoint.name = eventEdit.editName;
+
+					context.pushHistory("Change waypoint", prev, context.score);
+				}
+				UI::endPropertyColumns();
+
+				ImGui::Separator();
+				if (ImGui::Button(getString("remove"), ImVec2(-1, UI::btnSmall.y + 2)))
+				{
+					ImGui::CloseCurrentPopup();
+					Score prev = context.score;
+					context.score.waypoints.erase(context.score.waypoints.begin() +
+					                              eventEdit.editIndex);
+					context.pushHistory("Remove waypint", prev, context.score);
 				}
 			}
 			ImGui::EndPopup();
@@ -2504,6 +2569,8 @@ namespace MikuMikuWorld
 		                    ? (Application::getAppDir() + "res\\textures\\default.png")
 		                    : config.backgroundImage);
 		background.setBrightness(0.67);
+
+		timelineInstance = this;
 	}
 
 	void ScoreEditorTimeline::setPlaying(ScoreContext& context, bool state)
@@ -2669,5 +2736,12 @@ namespace MikuMikuWorld
 				drawList->AddRectFilled(rect1, rect2, waveformColor);
 			}
 		}
+	}
+
+	void ScoreEditorTimeline::scrollTimeline(ScoreContext& context, const int tick)
+	{
+		context.currentTick = tick;
+		offset = std::max(minOffset, tickToPosition(context.currentTick) +
+		                                 (size.y * (1.0f - config.cursorPositionThreshold)));
 	}
 } // namespace MikuMikuWorld

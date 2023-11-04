@@ -5,7 +5,7 @@ namespace MikuMikuWorld
 {
 	class ScoreEditor
 	{
-	private:
+	  private:
 		ScoreContext context{};
 		EditArgs edit{};
 		std::unique_ptr<Renderer> renderer;
@@ -15,7 +15,8 @@ namespace MikuMikuWorld
 		ScorePropertiesWindow propertiesWindow{};
 		ScoreOptionsWindow optionsWindow{};
 		PresetsWindow presetsWindow{};
-    LayersWindow layersWindow{};
+		LayersWindow layersWindow{};
+		WaypointsWindow waypointsWindow{};
 		SettingsWindow settingsWindow{};
 		RecentFileNotFoundDialog recentFileNotFoundDialog{};
 		AboutDialog aboutDialog{};
@@ -27,7 +28,7 @@ namespace MikuMikuWorld
 		bool save(std::string filename);
 		size_t updateRecentFilesList(const std::string& entry);
 
-	public:
+	  public:
 		ScoreEditor();
 
 		void update();

@@ -1,8 +1,8 @@
 #pragma once
+#include "InputBinding.h"
 #include "NotesPreset.h"
 #include "ScoreEditorTimeline.h"
 #include "Stopwatch.h"
-#include "InputBinding.h"
 
 namespace MikuMikuWorld
 {
@@ -18,7 +18,7 @@ namespace MikuMikuWorld
 
 	class ScorePropertiesWindow
 	{
-	public:
+	  public:
 		std::string pendingLoadMusicFilename{};
 		bool isPendingLoadMusic{ false };
 		void update(ScoreContext& context);
@@ -26,13 +26,13 @@ namespace MikuMikuWorld
 
 	class ScoreOptionsWindow
 	{
-	public:
+	  public:
 		void update(ScoreContext& context, EditArgs& edit, TimelineMode currentMode);
 	};
 
 	class PresetsWindow
 	{
-	private:
+	  private:
 		ImGuiTextFilter presetFilter;
 		std::string presetName{};
 		std::string presetDesc{};
@@ -40,13 +40,13 @@ namespace MikuMikuWorld
 
 		DialogResult updateCreationDialog();
 
-	public:
+	  public:
 		void update(ScoreContext& context, PresetManager& presetManager);
 	};
 
 	class SettingsWindow
 	{
-	private:
+	  private:
 		Stopwatch inputTimer;
 		const int inputTimeoutSeconds = 5;
 		bool listeningForInput = false;
@@ -55,7 +55,7 @@ namespace MikuMikuWorld
 
 		void updateKeyConfig(MultiInputBinding* bindings[], int count);
 
-	public:
+	  public:
 		bool open = false;
 		bool isBackgroundChangePending = false;
 		DialogResult update();
@@ -63,7 +63,7 @@ namespace MikuMikuWorld
 
 	class RecentFileNotFoundDialog
 	{
-	public:
+	  public:
 		std::string removeFilename;
 		size_t removeIndex{ 0 };
 		bool open{ false };
@@ -74,30 +74,40 @@ namespace MikuMikuWorld
 
 	class UnsavedChangesDialog
 	{
-	public:
+	  public:
 		bool open = false;
-		inline void close() { ImGui::CloseCurrentPopup(); open = false; }
+		inline void close()
+		{
+			ImGui::CloseCurrentPopup();
+			open = false;
+		}
 
 		DialogResult update();
 	};
 
 	class AboutDialog
 	{
-	public:
+	  public:
 		bool open = false;
 		DialogResult update();
 	};
 
 	class LayersWindow
 	{
-	private:
+	  private:
 		std::string layerName{};
 		bool dialogOpen = false;
-    int renameIndex = -1;
+		int renameIndex = -1;
 
 		DialogResult updateCreationDialog();
 
-	public:
+	  public:
+		void update(ScoreContext& context);
+	};
+
+	class WaypointsWindow
+	{
+	  public:
 		void update(ScoreContext& context);
 	};
 }

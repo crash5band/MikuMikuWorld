@@ -28,6 +28,12 @@ namespace MikuMikuWorld
 		std::string name;
 	};
 
+	struct Waypoint
+	{
+		std::string name;
+		int tick;
+	};
+
 	struct HiSpeedChange
 	{
 		int ID;
@@ -60,6 +66,7 @@ namespace MikuMikuWorld
 		Fever fever;
 
 		std::vector<Layer> layers{ { Layer{ "default" } } };
+		std::vector<Waypoint> waypoints;
 
 		Score();
 	};

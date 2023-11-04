@@ -193,6 +193,12 @@ namespace MikuMikuWorld
 		}
 		ImGui::End();
 
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_LOCATION_ARROW, "waypoints"), NULL, ImGuiWindowFlags_Static))
+		{
+			waypointsWindow.update(context);
+		}
+		ImGui::End();
+
 #ifdef _DEBUG
 		if (showImGuiDemoWindow)
 			ImGui::ShowDemoWindow(&showImGuiDemoWindow);

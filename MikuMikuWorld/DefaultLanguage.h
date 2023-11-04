@@ -188,7 +188,7 @@ namespace MikuMikuWorld
 		{ "search", "Search..." },
 		{ "confirm", "Confirm" },
 
-		// layer manager
+		// Layer manager
 		{ "layers", "Layers" },
 		{ "name", "Name" },
 		{ "create_layer", "Create Layer" },
@@ -199,6 +199,12 @@ namespace MikuMikuWorld
 		{ "layer_down", "Move Down" },
 		{ "layer_merge", "Merge Layer" },
 		{ "layer_delete", "Delete Layer" },
+
+		// WayPoint Manager
+		{ "waypoints", "Waypoints" },
+		{ "create_waypoint", "Create Waypoint" },
+		{ "edit_waypoint", "Edit Waypoint" },
+		{ "waypoint_name", "Name" },
 
 		// Shortcuts
 		{ "action", "Action" },

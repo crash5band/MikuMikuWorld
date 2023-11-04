@@ -1117,4 +1117,47 @@ namespace MikuMikuWorld
 		return result;
 	}
 
+	void WaypointsWindow::update(ScoreContext& context)
+	{
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_LOCATION_ARROW, "waypoints")))
+		{
+			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
+			float waypointButtonHeight = ImGui::GetFrameHeight();
+			float windowHeight = ImGui::GetContentRegionAvail().y - waypointButtonHeight * 1 -
+			                     ImGui::GetStyle().WindowPadding.y * 2;
+
+			if (ImGui::BeginChild("waypoints_child_window", ImVec2(-1, windowHeight), true))
+			{
+				int index = -1;
+				for (const auto& waypoint : context.score.waypoints)
+				{
+					++index;
+					ImGui::PushID(index);
+
+					if (ImGui::Button(
+					        waypoint.name.c_str(),
+					        ImVec2(ImGui::GetContentRegionAvail().x, waypointButtonHeight)))
+					{
+						context.currentTick = waypoint.tick;
+						scrollTimeline(context, waypoint.tick);
+					}
+					ImGui::PopID();
+				}
+			}
+			ImGui::EndChild();
+			ImGui::Separator();
+
+			if (ImGui::Button(getString("create_waypoint"), ImVec2(-1, waypointButtonHeight)))
+			{
+				context.score.waypoints.push_back(Waypoint{ "New Waypoint", context.currentTick });
+				std::sort(context.score.waypoints.begin(), context.score.waypoints.end(),
+				          [](const Waypoint& a, const Waypoint& b) { return a.tick < b.tick; });
+			}
+
+			ImGui::PopStyleColor();
+		}
+
+		ImGui::End();
+	}
+
 }

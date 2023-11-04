@@ -9,6 +9,7 @@
 
 namespace MikuMikuWorld
 {
+	void scrollTimeline(ScoreContext& context, const int tick);
 	enum class StepDrawType
 	{
 		NormalStep,
@@ -158,14 +159,17 @@ namespace MikuMikuWorld
 		void drawHoldNote(const std::unordered_map<int, Note>& notes, const HoldNote& note,
 		                  Renderer* renderer, const Color& tint, const int selectedLayer = -1,
 		                  const int offsetTicks = 0, const int offsetLane = 0);
-		void drawHoldMid(Note& note, HoldStepType type, Renderer* renderer, const Color& tint, const bool selectedLayer = true);
+		void drawHoldMid(Note& note, HoldStepType type, Renderer* renderer, const Color& tint,
+		                 const bool selectedLayer = true);
 		void drawOutline(const StepDrawData& data, const int selectedLayer = -1);
 		void drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint,
 		                    const int offsetTick = 0, const int offsetLane = 0);
 		void drawNote(const Note& note, Renderer* renderer, const Color& tint,
-		              const int offsetTick = 0, const int offsetLane = 0, const bool selectedLayer = true);
+		              const int offsetTick = 0, const int offsetLane = 0,
+		              const bool selectedLayer = true);
 		void drawCcNote(const Note& note, Renderer* renderer, const Color& tint,
-		                const int offsetTick = 0, const int offsetLane = 0, const bool selectedLayer = true);
+		                const int offsetTick = 0, const int offsetLane = 0,
+		                const bool selectedLayer = true);
 		bool noteControl(ScoreContext& context, const ImVec2& pos, const ImVec2& sz, const char* id,
 		                 ImGuiMouseCursor cursor);
 		bool bpmControl(const Score& score, const Tempo& tempo);
@@ -177,7 +181,10 @@ namespace MikuMikuWorld
 		bool feverControl(const Score& score, const Fever& fever);
 		bool feverControl(const Score& score, int tick, bool start, bool enabled);
 		bool hiSpeedControl(const ScoreContext& context, const HiSpeedChange& hiSpeed);
-		bool hiSpeedControl(const ScoreContext& context, int tick, float speed, int layer, bool selected = false);
+		bool hiSpeedControl(const ScoreContext& context, int tick, float speed, int layer,
+		                    bool selected = false);
+		bool waypointControl(const Score& score, const Waypoint& waypoint);
+		bool waypointControl(const Score& score, std::string name, int tick);
 
 		void drawInputNote(Renderer* renderer);
 		void previewInput(const ScoreContext& context, EditArgs& edit, Renderer* renderer);
@@ -209,7 +216,10 @@ namespace MikuMikuWorld
 			float editBpm = 120.0f;
 			int editTimeSignatureNumerator = 4;
 			int editTimeSignatureDenominator = 4;
+
 			float editHiSpeed = 1.0f;
+
+			std::string editName = "";
 		} eventEdit{};
 
 		int snapTickFromPos(float posY) const;
@@ -264,6 +274,8 @@ namespace MikuMikuWorld
 
 		constexpr inline TimelineMode getMode() const { return currentMode; }
 		void changeMode(TimelineMode mode, EditArgs& edit);
+
+		void scrollTimeline(ScoreContext& context, const int tick);
 
 		ScoreEditorTimeline();
 	};

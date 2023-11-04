@@ -223,6 +223,7 @@ namespace MikuMikuWorld
 		uint32_t holdsAddress{};
 		uint32_t damagesAddress{};
 		uint32_t layersAddress{};
+		uint32_t waypointsAddress{};
 		if (version > 2)
 		{
 			metadataAddress = reader.readInt32();
@@ -233,6 +234,8 @@ namespace MikuMikuWorld
 				damagesAddress = reader.readInt32();
 			if (cyanvasVersion >= 4)
 				layersAddress = reader.readInt32();
+			if (cyanvasVersion >= 5)
+				waypointsAddress = reader.readInt32();
 
 			reader.seek(metadataAddress);
 		}
@@ -349,6 +352,21 @@ namespace MikuMikuWorld
 			}
 		}
 
+		if (cyanvasVersion >= 5)
+		{
+			score.waypoints.clear();
+			reader.seek(waypointsAddress);
+
+			int waypointCount = reader.readInt32();
+			score.waypoints.reserve(waypointCount);
+			for (int i = 0; i < waypointCount; ++i)
+			{
+				std::string name = reader.readString();
+				int tick = reader.readInt32();
+				score.waypoints.push_back({ name, tick });
+			}
+		}
+
 		reader.close();
 		return score;
 	}
@@ -365,12 +383,12 @@ namespace MikuMikuWorld
 		// verison
 		writer.writeInt16(4);
 		// cyanvas version
-		writer.writeInt16(4);
+		writer.writeInt16(5);
 
 		// offsets address in order: metadata -> events -> taps -> holds
-		// Cyanvas extension: -> damages -> layers
+		// Cyanvas extension: -> damages -> layers -> waypoints
 		uint32_t offsetsAddress = writer.getStreamPosition();
-		writer.writeNull(sizeof(uint32_t) * 6);
+		writer.writeNull(sizeof(uint32_t) * 7);
 
 		uint32_t metadataAddress = writer.getStreamPosition();
 		writeMetadata(score.metadata, &writer);
@@ -464,6 +482,15 @@ namespace MikuMikuWorld
 			writer.writeString(layer.name);
 		}
 
+		uint32_t waypointsAddress = writer.getStreamPosition();
+
+		writer.writeInt32(score.waypoints.size());
+
+		for (const auto& waypoint : score.waypoints)
+		{
+			writer.writeString(waypoint.name);
+			writer.writeInt32(waypoint.tick);
+		}
 		// write offset addresses
 		writer.seek(offsetsAddress);
 		writer.writeInt32(metadataAddress);
@@ -472,6 +499,7 @@ namespace MikuMikuWorld
 		writer.writeInt32(holdsAddress);
 		writer.writeInt32(damagesAddress);
 		writer.writeInt32(layersAddress);
+		writer.writeInt32(waypointsAddress);
 
 		writer.flush();
 		writer.close();
