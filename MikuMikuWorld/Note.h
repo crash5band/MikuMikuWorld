@@ -1,7 +1,7 @@
 #pragma once
 #include "NoteTypes.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace MikuMikuWorld
 {
@@ -11,40 +11,25 @@ namespace MikuMikuWorld
 	constexpr int MAX_LANE = 11;
 	constexpr int NUM_LANES = 12;
 
-	constexpr const char* SE_PERFECT			= "perfect";
-	constexpr const char* SE_FLICK				= "flick";
-	constexpr const char* SE_TICK				= "tick";
-	constexpr const char* SE_FRICTION			= "friction";
-	constexpr const char* SE_CONNECT			= "connect";
-	constexpr const char* SE_CRITICAL_TAP		= "critical_tap";
-	constexpr const char* SE_CRITICAL_FLICK		= "critical_flick";
-	constexpr const char* SE_CRITICAL_TICK		= "critical_tick";
-	constexpr const char* SE_CRITICAL_FRICTION	= "critical_friction";
-	constexpr const char* SE_CRITICAL_CONNECT	= "critical_connect";
+	constexpr const char* SE_PERFECT = "perfect";
+	constexpr const char* SE_FLICK = "flick";
+	constexpr const char* SE_TICK = "tick";
+	constexpr const char* SE_FRICTION = "friction";
+	constexpr const char* SE_CONNECT = "connect";
+	constexpr const char* SE_CRITICAL_TAP = "critical_tap";
+	constexpr const char* SE_CRITICAL_FLICK = "critical_flick";
+	constexpr const char* SE_CRITICAL_TICK = "critical_tick";
+	constexpr const char* SE_CRITICAL_FRICTION = "critical_friction";
+	constexpr const char* SE_CRITICAL_CONNECT = "critical_connect";
 
-	constexpr const char* SE_NAMES[] =
-	{
-		SE_PERFECT,
-		SE_FLICK,
-		SE_TICK,
-		SE_FRICTION,
-		SE_CONNECT,
-		SE_CRITICAL_TAP,
-		SE_CRITICAL_FLICK,
-		SE_CRITICAL_TICK,
-		SE_CRITICAL_FRICTION,
-		SE_CRITICAL_CONNECT
-	};
+	constexpr const char* SE_NAMES[] = { SE_PERFECT,         SE_FLICK,         SE_TICK,
+		                                 SE_FRICTION,        SE_CONNECT,       SE_CRITICAL_TAP,
+		                                 SE_CRITICAL_FLICK,  SE_CRITICAL_TICK, SE_CRITICAL_FRICTION,
+		                                 SE_CRITICAL_CONNECT };
 
-	constexpr float flickArrowWidths[] =
-	{
-		0.95f, 1.25f, 1.8f, 2.3f, 2.6f, 3.2f
-	};
+	constexpr float flickArrowWidths[] = { 0.95f, 1.25f, 1.8f, 2.3f, 2.6f, 3.2f };
 
-	constexpr float flickArrowHeights[] =
-	{
-		1, 1.05f, 1.2f, 1.4f, 1.5f, 1.6f
-	};
+	constexpr float flickArrowHeights[] = { 1, 1.05f, 1.2f, 1.4f, 1.5f, 1.6f };
 
 	enum class ZIndex : int32_t
 	{
@@ -67,10 +52,10 @@ namespace MikuMikuWorld
 
 	class Note
 	{
-	private:
+	  private:
 		NoteType type;
 
-	public:
+	  public:
 		int ID;
 		int parentID;
 		int tick;
@@ -80,7 +65,7 @@ namespace MikuMikuWorld
 		bool friction{ false };
 		FlickType flick{ FlickType::None };
 
-    int layer{ 0 };
+		int layer{ 0 };
 
 		explicit Note(NoteType _type);
 		explicit Note(NoteType _type, int tick, int lane, int width);
@@ -102,7 +87,7 @@ namespace MikuMikuWorld
 
 	class HoldNote
 	{
-	public:
+	  public:
 		HoldStep start;
 		std::vector<HoldStep> steps;
 		int end;
@@ -110,15 +95,14 @@ namespace MikuMikuWorld
 		HoldNoteType startType{};
 		HoldNoteType endType{};
 
-    FadeType fadeType{ FadeType::Out };
-    GuideColor guideColor{ GuideColor::Green };
+		FadeType fadeType{ FadeType::Out };
+		GuideColor guideColor{ GuideColor::Green };
 
 		constexpr bool isGuide() const
 		{
 			return startType == HoldNoteType::Guide || endType == HoldNoteType::Guide;
 		}
 	};
-
 
 	struct Score;
 

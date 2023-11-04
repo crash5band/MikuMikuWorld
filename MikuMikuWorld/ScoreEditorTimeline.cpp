@@ -1119,18 +1119,39 @@ namespace MikuMikuWorld
 			break;
 
 		case TimelineMode::InsertGuide:
+		{
+			StepDrawType color = static_cast<StepDrawType>(
+			    static_cast<int>(StepDrawType::GuideNeutral) + static_cast<int>(edit.colorType));
 			if (insertingHold)
 			{
+				float a1, a2;
+				switch (edit.fadeType)
+				{
+				case FadeType::Out:
+					a1 = 1.0f;
+					a2 = 0.0f;
+					break;
+				case FadeType::In:
+					a1 = 0.0f;
+					a2 = 1.0f;
+					break;
+				default:
+					a1 = 1.0f;
+					a2 = 1.0f;
+				}
+				if (inputNotes.holdStart.tick > inputNotes.holdEnd.tick)
+					std::swap(a1, a2);
 				drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, EaseType::Linear, true,
-				              renderer, noteTint, 1, 0);
-				drawOutline(StepDrawData(inputNotes.holdStart, StepDrawType::GuideGreen));
-				drawOutline(StepDrawData(inputNotes.holdEnd, StepDrawType::GuideGreen));
+				              renderer, noteTint, 1, 0, a1, a2, edit.colorType);
+				drawOutline(StepDrawData(inputNotes.holdStart, color));
+				drawOutline(StepDrawData(inputNotes.holdEnd, color));
 			}
 			else
 			{
-				drawOutline(StepDrawData(inputNotes.holdStart, StepDrawType::GuideGreen));
+				drawOutline(StepDrawData(inputNotes.holdStart, color));
 			}
-			break;
+		}
+		break;
 
 		case TimelineMode::InsertBPM:
 			bpmControl(context.score, edit.bpm, hoverTick, false);
@@ -1210,6 +1231,11 @@ namespace MikuMikuWorld
 				    (FlickType)(((int)edit.flickType + 1) % (int)FlickType::FlickTypeCount);
 				if (!(int)edit.flickType)
 					edit.flickType = FlickType::Default;
+			}
+			else if (mode == TimelineMode::InsertGuide)
+			{
+				edit.colorType =
+				    (GuideColor)(((int)edit.colorType + 1) % (int)GuideColor::GuideColorCount);
 			}
 		}
 
@@ -2495,12 +2521,17 @@ namespace MikuMikuWorld
 		    currentMode == TimelineMode::InsertGuide ? HoldNoteType::Guide : HoldNoteType::Normal;
 		context.score.notes[holdStart.ID] = holdStart;
 		context.score.notes[holdEnd.ID] = holdEnd;
-		context.score.holdNotes[holdStart.ID] = { { holdStart.ID, HoldStepType::Normal,
-			                                        edit.easeType },
+		context.score.holdNotes[holdStart.ID] = { {
+			                                          holdStart.ID,
+			                                          HoldStepType::Normal,
+			                                          edit.easeType,
+			                                      },
 			                                      {},
 			                                      holdEnd.ID,
 			                                      holdType,
-			                                      holdType };
+			                                      holdType,
+			                                      edit.fadeType,
+			                                      edit.colorType };
 		context.pushHistory("Insert hold", prev, context.score);
 	}
 

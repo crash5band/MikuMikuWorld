@@ -1,10 +1,10 @@
 ﻿#include "Application.h"
-#include "ResourceManager.h"
-#include "IO.h"
-#include "Colors.h"
-#include "Utilities.h"
-#include "Localization.h"
 #include "ApplicationConfiguration.h"
+#include "Colors.h"
+#include "IO.h"
+#include "Localization.h"
+#include "ResourceManager.h"
+#include "Utilities.h"
 #include <filesystem>
 
 namespace MikuMikuWorld
@@ -16,8 +16,7 @@ namespace MikuMikuWorld
 
 	NoteTextures noteTextures{ -1, -1, -1, -1, -1 };
 
-	Application::Application() :
-		initialized{ false }
+	Application::Application() : initialized{ false }
 	{
 		appDir = "";
 		version = "";
@@ -57,20 +56,17 @@ namespace MikuMikuWorld
 		return Result::Ok();
 	}
 
-	const std::string& Application::getAppDir()
-	{
-		return appDir;
-	}
+	const std::string& Application::getAppDir() { return appDir; }
 
 	std::string Application::getVersion()
 	{
 		wchar_t filename[1024];
 		lstrcpyW(filename, IO::mbToWideStr(std::string(appDir + "MikuMikuWorld.exe")).c_str());
 
-		DWORD  verHandle = 0;
-		UINT   size = 0;
+		DWORD verHandle = 0;
+		UINT size = 0;
 		LPBYTE lpBuffer = NULL;
-		DWORD  verSize = GetFileVersionInfoSizeW(filename, &verHandle);
+		DWORD verSize = GetFileVersionInfoSizeW(filename, &verHandle);
 
 		int major = 0, minor = 0, build = 0, rev = 0;
 		if (verSize != NULL)
@@ -79,7 +75,7 @@ namespace MikuMikuWorld
 
 			if (GetFileVersionInfoW(filename, verHandle, verSize, verData))
 			{
-				if (VerQueryValue(verData, "\\", (VOID FAR * FAR*) & lpBuffer, &size))
+				if (VerQueryValue(verData, "\\", (VOID FAR * FAR*)&lpBuffer, &size))
 				{
 					if (size)
 					{
@@ -100,10 +96,7 @@ namespace MikuMikuWorld
 		return IO::formatString("%d.%d.%d.%d", major, minor, rev, build);
 	}
 
-	const std::string& Application::getAppVersion()
-	{
-		return version;
-	}
+	const std::string& Application::getAppVersion() { return version; }
 
 	void Application::dispose()
 	{
@@ -154,7 +147,8 @@ namespace MikuMikuWorld
 			std::string extension = IO::File::getFileExtension(*it);
 			std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
 
-			if (extension == SUS_EXTENSION || extension == USC_EXTENSION || extension == MMWS_EXTENSION || extension == CC_MMWS_EXTENSION)
+			if (extension == SUS_EXTENSION || extension == USC_EXTENSION ||
+			    extension == MMWS_EXTENSION || extension == CC_MMWS_EXTENSION)
 				scoreFile = *it;
 			else if (Audio::isSupportedFileFormat(extension))
 				musicFile = *it;
@@ -180,7 +174,8 @@ namespace MikuMikuWorld
 	{
 		if (config.language != language)
 		{
-			std::string locale = config.language == "auto" ? Utilities::getSystemLocale() : config.language;
+			std::string locale =
+			    config.language == "auto" ? Utilities::getSystemLocale() : config.language;
 
 			// Try to set the selected language and fallback to default (en) on failure
 			if (!Localization::setLanguage(locale))
@@ -223,7 +218,8 @@ namespace MikuMikuWorld
 		if (config.baseTheme != imgui->getBaseTheme())
 			imgui->setBaseTheme(config.baseTheme);
 
-		if ((windowState.closing || windowState.resetting) && !editor->isUpToDate() && !unsavedChangesDialog.open)
+		if ((windowState.closing || windowState.resetting) && !editor->isUpToDate() &&
+		    !unsavedChangesDialog.open)
 		{
 			unsavedChangesDialog.open = true;
 			ImGui::OpenPopup(MODAL_TITLE("unsaved_changes"));
@@ -281,7 +277,8 @@ namespace MikuMikuWorld
 			}
 
 			// Already saved or clicked save changes or discard changes
-			if (editor->isUpToDate() || (unsavedChangesResult != DialogResult::Cancel && unsavedChangesResult != DialogResult::None))
+			if (editor->isUpToDate() || (unsavedChangesResult != DialogResult::Cancel &&
+			                             unsavedChangesResult != DialogResult::None))
 			{
 				if (windowState.shouldPickScore)
 				{
@@ -331,7 +328,11 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_flick_right.png");
 		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_critical.png");
 		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_trace.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_guide.png");
+		for (auto color : guideColors)
+			for (auto fade : fadeTypes)
+				ResourceManager::loadTexture(
+				    appDir + IO::formatString("res\\textures\\timeline_guide_%s_%s.png", color,
+				                              std::string(fade).substr(5).c_str()));
 		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_damage.png");
 		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_bpm.png");
 		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_time_signature.png");
@@ -354,17 +355,19 @@ namespace MikuMikuWorld
 		HWND hwnd = glfwGetWin32Window(window);
 
 		/*
-			Override the current GLFW/Imgui window procedure and store it in the GLFW window user pointer
+		    Override the current GLFW/Imgui window procedure and store it in the GLFW window user
+		   pointer
 
-			NOTE: For this to be safe, it should be only called AFTER ImGui is initialized
-			so that the WndProc ImGui is expecting matches with our own WndProc
+		    NOTE: For this to be safe, it should be only called AFTER ImGui is initialized
+		    so that the WndProc ImGui is expecting matches with our own WndProc
 		*/
 		glfwSetWindowUserPointer(window, (void*)::GetWindowLongPtrW(hwnd, GWLP_WNDPROC));
 		::SetWindowLongPtrW(hwnd, GWLP_WNDPROC, (LONG_PTR)wndProc);
 
 		windowState.windowHandle = hwnd;
-		windowState.windowTimerId = ::SetTimer(hwnd,
-			reinterpret_cast<UINT_PTR>(&windowState.windowTimerId), USER_TIMER_MINIMUM, nullptr);
+		windowState.windowTimerId =
+		    ::SetTimer(hwnd, reinterpret_cast<UINT_PTR>(&windowState.windowTimerId),
+		               USER_TIMER_MINIMUM, nullptr);
 
 		::DragAcceptFiles(hwnd, TRUE);
 

@@ -18,6 +18,8 @@ namespace MikuMikuWorld
 		FlickType flickType{ FlickType::Default };
 		HoldStepType stepType{ HoldStepType::Normal };
 		EaseType easeType{ EaseType::Linear };
+		GuideColor colorType{ GuideColor::Green };
+		FadeType fadeType{ FadeType::Out };
 
 		float bpm{ 160.0f };
 		int timeSignatureNumerator{ 4 };

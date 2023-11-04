@@ -143,6 +143,11 @@ namespace MikuMikuWorld
 			                      arrayLength(easeTypes));
 			UI::addSelectProperty<FlickType>(getString("flick"), edit.flickType, flickTypes,
 			                                 arrayLength(flickTypes));
+			UI::addSelectProperty<GuideColor>(getString("guide_color"), edit.colorType,
+			                                  guideColorsForString, arrayLength(guideColors));
+			UI::addSelectProperty<FadeType>(getString("fade_type"), edit.fadeType, fadeTypes,
+			                                arrayLength(fadeTypes));
+
 			break;
 		}
 		UI::endPropertyColumns();

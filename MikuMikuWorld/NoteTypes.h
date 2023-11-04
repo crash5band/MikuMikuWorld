@@ -95,6 +95,16 @@ namespace MikuMikuWorld
     "purple",
     "cyan"
   };
+  constexpr const char* guideColorsForString[]
+  {
+    "guide_neutral",
+    "guide_red",
+    "guide_green",
+    "guide_blue",
+    "guide_yellow",
+    "guide_purple",
+    "guide_cyan"
+  };
 
 	enum class FadeType : uint8_t
 	{
