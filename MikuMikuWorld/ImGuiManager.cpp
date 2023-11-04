@@ -258,6 +258,7 @@ namespace MikuMikuWorld
 			ImGui::DockBuilderDockWindow("###options", bottomRightId);
 			ImGui::DockBuilderDockWindow("###presets", bottomRightId);
 			ImGui::DockBuilderDockWindow("###layers", bottomRightId);
+			ImGui::DockBuilderDockWindow("###waypoints", bottomRightId);
 
 			ImGui::DockBuilderFinish(dockMainId);
 		}

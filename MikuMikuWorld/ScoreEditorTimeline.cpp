@@ -12,6 +12,7 @@
 
 namespace MikuMikuWorld
 {
+	int zPerLayer = 3;
 	ScoreEditorTimeline* timelineInstance = nullptr;
 
 	void scrollTimeline(ScoreContext& context, const int tick)
@@ -1635,9 +1636,9 @@ namespace MikuMikuWorld
 			float xl2 = easeFunc(startX1, endX1, percent2) - 2;
 			float xr2 = easeFunc(startX2, endX2, percent2) + 2;
 
-			int z = selectedLayer == -1                                  ? 2
-			        : ((y < steps / 2) ? n1 : n2).layer == selectedLayer ? 2
-			                                                             : 0;
+			int z = (selectedLayer == -1 || ((y < steps / 2) ? n1 : n2).layer == selectedLayer)
+			            ? zPerLayer
+			            : 0;
 
 			if (y2 <= 0)
 				continue;
@@ -1832,7 +1833,10 @@ namespace MikuMikuWorld
 								pos.x = midpoint(x1, x2);
 							}
 
-							int z = selectedLayer == -1 ? 3 : (n3.layer == selectedLayer ? 3 : 1);
+							int z = (selectedLayer == -1
+							             ? zPerLayer
+							             : (n3.layer == selectedLayer ? zPerLayer : 0)) +
+							        1;
 
 							renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex,
 							                     s.getX(), s.getX() + s.getWidth(), s.getY(),
@@ -1949,7 +1953,7 @@ namespace MikuMikuWorld
 			         getNoteYPosFromTick(note.tick) };
 		Vector2 nodeSz{ notesHeight - 5, notesHeight - 5 };
 
-		int z = selectedLayer ? 3 : 1;
+		int z = (selectedLayer ? zPerLayer : 0) + 1;
 
 		renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, s.getX(),
 		                     s.getX() + s.getWidth(), s.getY(), s.getY() + s.getHeight(), tint, z);
@@ -1979,7 +1983,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::drawFlickArrow(const Note& note, Renderer* renderer,
 	                                         const Color& tint, const int offsetTick,
-	                                         const int offsetLane)
+	                                         const int offsetLane, const bool selectedLayer)
 	{
 		if (noteTextures.notes == -1)
 			return;
@@ -2012,7 +2016,8 @@ namespace MikuMikuWorld
 		}
 
 		renderer->drawSprite(pos, 0.0f, size, AnchorType::MiddleCenter, tex, sx1, sx2,
-		                     arrowS.getY(), arrowS.getY() + arrowS.getHeight(), tint, 2);
+		                     arrowS.getY(), arrowS.getY() + arrowS.getHeight(), tint,
+		                     (selectedLayer ? zPerLayer : 0) + 2);
 	}
 
 	void ScoreEditorTimeline::drawNote(const Note& note, Renderer* renderer, const Color& tint,
@@ -2042,7 +2047,7 @@ namespace MikuMikuWorld
 		const int left = s.getX() + noteCutoffX;
 		const int right = s.getX() + s.getWidth() - noteCutoffX;
 
-		const int z = selectedLayer ? 3 : 1;
+		const int z = (selectedLayer ? zPerLayer : 0) + 1;
 
 		// left slice
 		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex, left, left + noteSliceWidth, s.getY(),
@@ -2108,7 +2113,7 @@ namespace MikuMikuWorld
 		const int left = s.getX() + noteCutoffX;
 		const int right = s.getX() + s.getWidth() - noteCutoffX;
 
-		const int z = selectedLayer ? 3 : 1;
+		const int z = (selectedLayer ? zPerLayer : 0) + 1;
 
 		// left slice
 		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex, left, left + noteSliceWidth, s.getY(),
