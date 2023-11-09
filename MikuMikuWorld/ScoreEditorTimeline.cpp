@@ -1586,7 +1586,7 @@ namespace MikuMikuWorld
 		// Right resize
 		if (noteControl(context, pos, sz, "R", ImGuiMouseCursor_ResizeEW))
 		{
-			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
+			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), minLane, maxLane);
 			int curLane = positionToLane(mousePos.x);
 
 			int diff = curLane - grabLane;
