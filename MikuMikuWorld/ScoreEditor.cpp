@@ -187,13 +187,15 @@ namespace MikuMikuWorld
 
 	size_t ScoreEditor::updateRecentFilesList(const std::string& entry)
 	{
-		if (std::find(config.recentFiles.begin(), config.recentFiles.end(), entry) == config.recentFiles.end())
-		{
-			while (config.recentFiles.size() >= maxRecentFilesEntries)
-				config.recentFiles.pop_back();
+		while (config.recentFiles.size() >= maxRecentFilesEntries)
+			config.recentFiles.pop_back();
 
-			config.recentFiles.insert(config.recentFiles.begin(), entry);
-		}
+		// Remove the entry (if found) to the beginning of the vector
+		auto it = std::find(config.recentFiles.begin(), config.recentFiles.end(), entry);
+		if (it != config.recentFiles.end())
+			config.recentFiles.erase(it);
+
+		config.recentFiles.insert(config.recentFiles.begin(), entry);
 		return config.recentFiles.size();
 	}
 
