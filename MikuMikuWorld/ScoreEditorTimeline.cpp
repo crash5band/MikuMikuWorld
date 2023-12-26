@@ -257,10 +257,10 @@ namespace MikuMikuWorld
 			}
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(getString("shrink_up"), NULL, false, !context.selectedNotes.empty()))
+			if (ImGui::MenuItem(getString("shrink_up"), NULL, false, context.selectedNotes.size() > 1))
 				context.shrinkSelection(Direction::Up);
 
-			if (ImGui::MenuItem(getString("shrink_down"), NULL, false, !context.selectedNotes.empty()))
+			if (ImGui::MenuItem(getString("shrink_down"), NULL, false, context.selectedNotes.size() > 1))
 				context.shrinkSelection(Direction::Down);
 
 			ImGui::Separator();
