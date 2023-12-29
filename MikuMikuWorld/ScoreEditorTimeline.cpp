@@ -1295,7 +1295,7 @@ namespace MikuMikuWorld
 				else
 					nextId = hold.end;
 				if ((context.showAllLayers || start.layer == context.selectedLayer ||
-				     context.score.notes.at(hold.steps[s2].ID).layer == context.selectedLayer) &&
+				     context.score.notes.at(nextId).layer == context.selectedLayer) &&
 				    isMouseInHoldPath(context.score.notes.at(nextId), end,
 				                      hold.steps[s1].ease, xt, yt))
 					return id;
