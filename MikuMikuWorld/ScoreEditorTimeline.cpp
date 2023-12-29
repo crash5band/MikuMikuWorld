@@ -609,27 +609,23 @@ namespace MikuMikuWorld
 		);
 
 		// Status bar: playback controls, division, zoom, current time and rhythm
-		ImGui::SetCursorPos(ImVec2{ ImGui::GetStyle().WindowPadding.x, size.y + UI::toolbarBtnSize.y + ImGui::GetStyle().WindowPadding.y });
+		ImGui::SetCursorPos(ImVec2{ ImGui::GetStyle().WindowPadding.x, size.y + UI::toolbarBtnSize.y + 4 + ImGui::GetStyle().WindowPadding.y });
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
 
-		ImGui::PushButtonRepeat(true);
-		if (UI::toolbarButton(ICON_FA_BACKWARD, "", NULL, !playing && context.currentTick > 0))
+		if (UI::transparentButton(ICON_FA_BACKWARD, UI::btnSmall, true, context.currentTick > 0 && !playing))
 			previousTick(context);
-		ImGui::PopButtonRepeat();
 
 		ImGui::SameLine();
-		if (UI::toolbarButton(ICON_FA_STOP, "", NULL))
+		if (UI::transparentButton(ICON_FA_STOP, UI::btnSmall, false))
 			stop(context);
 
 		ImGui::SameLine();
-		if (UI::toolbarButton(playing ? ICON_FA_PAUSE : ICON_FA_PLAY, "", NULL))
+		if (UI::transparentButton(playing ? ICON_FA_PAUSE : ICON_FA_PLAY, UI::btnSmall))
 			setPlaying(context, !playing);
 
 		ImGui::SameLine();
-		ImGui::PushButtonRepeat(true);
-		if (UI::toolbarButton(ICON_FA_FORWARD, "", NULL, !playing))
+		if (UI::transparentButton(ICON_FA_FORWARD, UI::btnSmall, true, !playing))
 			nextTick(context);
-		ImGui::PopButtonRepeat();
 
 		ImGui::PopStyleColor();
 		ImGui::SameLine();
@@ -657,6 +653,22 @@ namespace MikuMikuWorld
 		}
 
 		ImGui::SameLine();
+		ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+		ImGui::SameLine();
+		if (UI::transparentButton(ICON_FA_MINUS, UI::btnSmall, false, playbackSpeed > minPlaybackSpeed))
+			setPlaybackSpeed(context, playbackSpeed - 0.25f);
+
+		ImGui::SameLine();
+		UI::transparentButton(IO::formatString("%.0f%%", playbackSpeed * 100).c_str(), ImVec2{ ImGui::CalcTextSize("0000%").x, UI::btnSmall.y}, false, false);
+
+		ImGui::SameLine();
+		if (UI::transparentButton(ICON_FA_PLUS, UI::btnSmall, false, playbackSpeed < maxPlaybackSpeed))
+			setPlaybackSpeed(context, playbackSpeed + 0.25f);
+
+		ImGui::SameLine();
+		ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+		ImGui::SameLine();
+
 		float _zoom = zoom;
 		int controlWidth = ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(rhythmString.c_str()).x - (UI::btnSmall.x * 3);
 		if (UI::zoomControl("zoom", _zoom, minZoom, 10, std::clamp(controlWidth, 120, 320)))
@@ -674,7 +686,7 @@ namespace MikuMikuWorld
 		timeLastFrame = time;
 		if (playing)
 		{
-			time += ImGui::GetIO().DeltaTime;
+			time += ImGui::GetIO().DeltaTime * playbackSpeed;
 			context.currentTick = accumulateTicks(time, TICKS_PER_BEAT, context.score.tempoChanges);
 
 			float cursorY = tickToPosition(context.currentTick);
@@ -1992,9 +2004,16 @@ namespace MikuMikuWorld
 	ScoreEditorTimeline::ScoreEditorTimeline()
 	{
 		framebuffer = std::make_unique<Framebuffer>(1920, 1080);
+		playbackSpeed = 1.0f;
 
 		background.load(config.backgroundImage.empty() ? (Application::getAppDir() + "res\\textures\\default.png") : config.backgroundImage);
 		background.setBrightness(0.67);
+	}
+
+	void ScoreEditorTimeline::setPlaybackSpeed(ScoreContext& context, float speed)
+	{
+		playbackSpeed = std::clamp(speed, minPlaybackSpeed, maxPlaybackSpeed);
+		context.audio.setPlaybackSpeed(playbackSpeed);
 	}
 
 	void ScoreEditorTimeline::setPlaying(ScoreContext& context, bool state)

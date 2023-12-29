@@ -19,6 +19,7 @@ namespace Audio
 		this->frameCount = frameCount;
 		this->sampleRate = sampleRate;
 		this->samples = std::unique_ptr<int16_t[]>(samples);
+		this->effectiveSampleRate = sampleRate;
 
 		ma_audio_buffer_config bufferConfig = ma_audio_buffer_config_init(this->sampleFormat, channelCount, frameCount, this->samples.get(), nullptr);
 		bufferConfig.sampleRate = sampleRate;
@@ -35,6 +36,8 @@ namespace Audio
 		sampleRate		= 0;
 		channelCount	= 0;
 		frameCount		= 0;
+		resamplerOutRate = 0;
+		effectiveSampleRate = 0;
 	}
 
 	mmw::Result decodeAudioFile(std::string filename, SoundBuffer& sound)

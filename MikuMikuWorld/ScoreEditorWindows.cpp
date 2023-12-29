@@ -434,6 +434,7 @@ namespace MikuMikuWorld
 					));
 
 					UI::addReadOnlyProperty("Sample Rate", context.audio.musicBuffer.sampleRate);
+					UI::addReadOnlyProperty("Effective Sample Rate", context.audio.musicBuffer.effectiveSampleRate);
 					UI::addReadOnlyProperty("Channel Count", context.audio.musicBuffer.channelCount);
 					UI::endPropertyColumns();
 				}

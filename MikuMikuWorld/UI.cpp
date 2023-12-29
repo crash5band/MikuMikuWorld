@@ -11,7 +11,7 @@
 namespace MikuMikuWorld
 {
 	const ImVec2 UI::_btnNormal{ 24, 24 };
-	const ImVec2 UI::_btnSmall{ 18, 18 };
+	const ImVec2 UI::_btnSmall{ 19, 19 };
 	const ImVec2 UI::_toolbarBtnSize{ 22, 22 };
 	const ImVec2 UI::_toolbarBtnImgSize{ 19, 19 };
 
@@ -317,9 +317,10 @@ namespace MikuMikuWorld
 
 	bool UI::zoomControl(const char* label, float& value, float min, float max, float width)
 	{
-		bool act = false;
 		ImGui::PushButtonRepeat(true);
-		if (UI::transparentButton(ICON_FA_SEARCH_MINUS, UI::btnSmall))
+
+		bool act = false;
+		if (UI::transparentButton(ICON_FA_SEARCH_MINUS, UI::btnSmall, true, value > min))
 		{
 			value -= 0.25f;
 			act = true;
@@ -331,7 +332,7 @@ namespace MikuMikuWorld
 		act |= ImGui::SliderFloat(labelID(label), &value, min, max, "%.2fx");
 		ImGui::SameLine();
 
-		if (UI::transparentButton(ICON_FA_SEARCH_PLUS, UI::btnSmall))
+		if (UI::transparentButton(ICON_FA_SEARCH_PLUS, UI::btnSmall, true, value < max))
 		{
 			value += 0.25f;
 			act = true;

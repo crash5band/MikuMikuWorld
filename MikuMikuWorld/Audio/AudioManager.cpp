@@ -113,6 +113,10 @@ namespace Audio
 		if (result.isOk())
 		{
 			ma_sound_init_from_data_source(&engine, &musicBuffer.buffer, maSoundFlagsDefault, &musicGroup, &music);
+			musicBuffer.resamplerOutRate = music.engineNode.resampler.config.sampleRateOut;
+
+			// Sync
+			setPlaybackSpeed(playbackSpeed);
 		}
 
 		return result;
@@ -228,6 +232,21 @@ namespace Audio
 	{
 		soundEffectsVolume = volume;
 		ma_sound_group_set_volume(&soundEffectsGroup, volume);
+	}
+
+	float AudioManager::getPlaybackSpeed() const
+	{
+		return playbackSpeed;
+	}
+
+	void AudioManager::setPlaybackSpeed(float speed)
+	{
+		const ma_uint32 speedAdjustedSampleRate = static_cast<ma_uint32>(speed * musicBuffer.sampleRate);
+		musicBuffer.effectiveSampleRate = speedAdjustedSampleRate;
+		music.engineNode.sampleRate = speedAdjustedSampleRate;
+		
+		// Also need to update engine node resampler config for changes to take effect
+		music.engineNode.resampler.config.sampleRateOut = static_cast<ma_uint32>(static_cast<float>(musicBuffer.resamplerOutRate) / speed);
 	}
 
 	void AudioManager::playOneShotSound(std::string_view name)

@@ -78,6 +78,9 @@ namespace MikuMikuWorld
 		static constexpr double waveformSecondsPerPixel = 0.005;
 		static constexpr float noteControlWidth = 12;
 
+		static constexpr float minPlaybackSpeed = 0.25f;
+		static constexpr float maxPlaybackSpeed = 1.00f;
+
 		float minNoteYDistance;
 		int hoverLane;
 		int hoverTick;
@@ -101,6 +104,7 @@ namespace MikuMikuWorld
 		float playStartTime;
 		float songPos;
 		float songPosLastFrame;
+		float playbackSpeed;
 		bool playing;
 
 		Camera camera;
@@ -225,6 +229,9 @@ namespace MikuMikuWorld
 
 		constexpr inline TimelineMode getMode() const { return currentMode; }
 		void changeMode(TimelineMode mode, EditArgs& edit);
+
+		constexpr inline float getPlaybackSpeed() const { return playbackSpeed; }
+		void setPlaybackSpeed(ScoreContext& context, float speed);
 
 		ScoreEditorTimeline();
 	};

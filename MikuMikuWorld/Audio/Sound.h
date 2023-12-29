@@ -38,6 +38,9 @@ namespace Audio
 		ma_uint64 frameCount{};
 		ma_audio_buffer buffer;
 
+		ma_uint32 resamplerOutRate;
+		ma_uint32 effectiveSampleRate;
+
 		void initialize(const std::string &name, ma_uint32 sampleRate, ma_uint32 channelCount, ma_uint64 frameCount, int16_t* samples);
 		void dispose();
 

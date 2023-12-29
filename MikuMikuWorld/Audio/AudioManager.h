@@ -22,6 +22,8 @@ namespace Audio
 		float musicVolume{ 1.0f };
 		float soundEffectsVolume{ 1.0f };
 
+		float playbackSpeed{ 1.0f };
+
 	public:
 		SoundBuffer musicBuffer;
 		std::vector<SoundInstance> debugSounds;
@@ -46,6 +48,9 @@ namespace Audio
 
 		void setSoundEffectsVolume(float volume);
 		float getSoundEffectsVolume() const;
+
+		void setPlaybackSpeed(float speed);
+		float getPlaybackSpeed() const;
 
 		void playMusic(float currentTime);
 		void stopMusic();
