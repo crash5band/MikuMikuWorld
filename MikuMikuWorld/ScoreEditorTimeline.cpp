@@ -1289,9 +1289,14 @@ namespace MikuMikuWorld
 					}
 				}
 
+				int nextId;
+				if (s2 < hold.steps.size())
+					nextId = hold.steps[s2].ID;
+				else
+					nextId = hold.end;
 				if ((context.showAllLayers || start.layer == context.selectedLayer ||
 				     context.score.notes.at(hold.steps[s2].ID).layer == context.selectedLayer) &&
-				    isMouseInHoldPath(context.score.notes.at(hold.steps[s1].ID), end,
+				    isMouseInHoldPath(context.score.notes.at(nextId), end,
 				                      hold.steps[s1].ease, xt, yt))
 					return id;
 			}
