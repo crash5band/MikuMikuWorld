@@ -2113,12 +2113,12 @@ namespace MikuMikuWorld
 		// Ideally this should be calculated based on the current BPM
 		const double secondsPerPixel = waveformSecondsPerPixel / zoom;
 		const double durationSeconds = context.waveformL.durationInSeconds;
-		const double musicOffsetInSeconds = context.workingData.musicOffset / 1000;
+		const double musicOffsetInSeconds = context.workingData.musicOffset / 1000.0f;
 
 		for (size_t index = 0; index < 2; index++)
 		{
-			const Audio::WaveformMipChain& waveform = index == 0 ? context.waveformL : context.waveformR;
 			const bool rightChannel = index == 1;
+			const Audio::WaveformMipChain& waveform = rightChannel ? context.waveformR : context.waveformL;
 			if (waveform.isEmpty())
 				continue;
 
@@ -2136,8 +2136,10 @@ namespace MikuMikuWorld
 
 				float timelineMidPosition = midpoint(getTimelineStartX(), getTimelineEndX());
 				float rectYPosition = floorf(position.y + visualOffset - y);
+
+				// WARNING: A thickness of 0.5 or less does not draw with integrated graphics (optimization? limitation?)
 				ImVec2 rect1(timelineMidPosition, rectYPosition);
-				ImVec2 rect2(timelineMidPosition + (std::max(0.5f, barValue) * (rightChannel ? 1 : -1)), rectYPosition + 0.5f);
+				ImVec2 rect2(timelineMidPosition + (std::max(0.75f, barValue) * (rightChannel ? 1 : -1)), rectYPosition + 0.75f);
 				drawList->AddRectFilled(rect1, rect2, waveformColor);
 			}
 		}
