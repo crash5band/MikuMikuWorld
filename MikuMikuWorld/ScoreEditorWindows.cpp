@@ -439,10 +439,27 @@ namespace MikuMikuWorld
 					UI::endPropertyColumns();
 				}
 
+				if (ImGui::CollapsingHeader("Waveform", headerFlags))
+				{
+					UI::beginPropertyColumns();
+					UI::addReadOnlyProperty("Waveform L", boolToString(!context.waveformL.isEmpty()));
+					UI::addReadOnlyProperty("Waveform L Mip Count", context.waveformL.getUsedMipCount());
+					UI::addReadOnlyProperty("Waveform L Samples", context.waveformL.mips->absoluteSamples.size());
+					UI::addReadOnlyProperty("Waveform R", boolToString(!context.waveformR.isEmpty()));
+					UI::addReadOnlyProperty("Waveform R Mip Count", context.waveformR.getUsedMipCount());
+					UI::addReadOnlyProperty("Waveform R Samples", context.waveformL.mips->absoluteSamples.size());
+					UI::endPropertyColumns();
+
+					if (ImGui::Button("Re-Generate Waveform", { -1, UI::btnSmall.y }))
+					{
+						context.waveformL.generateMipChainsFromSampleBuffer(context.audio.musicBuffer, 0);
+						context.waveformR.generateMipChainsFromSampleBuffer(context.audio.musicBuffer, 1);
+					}
+				}
+
 				if (ImGui::CollapsingHeader("Sound Test", headerFlags))
 				{
-					ImVec2 size = ImVec2(-1, std::min(ImGui::GetContentRegionAvail().y, 200.0f));
-					const ImGuiTableFlags tableFlags =
+					constexpr ImGuiTableFlags tableFlags =
 						ImGuiTableFlags_BordersOuter |
 						ImGuiTableFlags_BordersInnerH |
 						ImGuiTableFlags_BordersInnerV |
@@ -451,7 +468,7 @@ namespace MikuMikuWorld
 
 					const int rowHeight = ImGui::GetFrameHeight() + 5;
 
-					if (ImGui::BeginTable("##sound_test_table", 3, tableFlags, size))
+					if (ImGui::BeginTable("##sound_test_table", 3, tableFlags, { -1, 200 }))
 					{
 						ImGui::TableSetupScrollFreeze(0, 1);
 						ImGui::TableSetupColumn("Name");
