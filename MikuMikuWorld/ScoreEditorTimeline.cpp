@@ -2115,6 +2115,8 @@ namespace MikuMikuWorld
 		const double durationSeconds = context.waveformL.durationInSeconds;
 		const double musicOffsetInSeconds = context.workingData.musicOffset / 1000.0f;
 
+		const float timelineMidPosition = midpoint(getTimelineStartX(), getTimelineEndX());
+
 		for (size_t index = 0; index < 2; index++)
 		{
 			const bool rightChannel = index == 1;
@@ -2133,8 +2135,6 @@ namespace MikuMikuWorld
 
 				float amplitude = std::max(waveform.getAmplitudeAt(mip, secondsAtPixel, secondsPerPixel), 0.0f);
 				float barValue = outOfBounds ? 0.0f : (amplitude * std::min(laneWidth * 6, 180.0f));
-
-				float timelineMidPosition = midpoint(getTimelineStartX(), getTimelineEndX());
 				float rectYPosition = floorf(position.y + visualOffset - y);
 
 				// WARNING: A thickness of 0.5 or less does not draw with integrated graphics (optimization? limitation?)
