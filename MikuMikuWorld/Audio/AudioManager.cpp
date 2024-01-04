@@ -2,7 +2,7 @@
 #include "../IO.h"
 #include "../UI.h"
 
-// We need add the implementation defines BEFORE including miniaudio's header
+// We need to add the implementation defines BEFORE including miniaudio's header
 #define MINIAUDIO_IMPLEMENTATION
 #define DR_MP3_IMPLEMENTATION
 #define DR_WAV_IMPLEMENTATION
@@ -59,7 +59,7 @@ namespace Audio
 
 	void AudioManager::loadSoundEffects()
 	{
-		constexpr int soundEffectsCount = sizeof(mmw::SE_NAMES) / sizeof(const char*);
+		constexpr size_t soundEffectsCount = sizeof(mmw::SE_NAMES) / sizeof(const char*);
 		constexpr std::array<SoundFlags, soundEffectsCount> soundEffectsFlags =
 		{
 			NONE, NONE, NONE, NONE, LOOP | EXTENDABLE, NONE, NONE, NONE, NONE, LOOP | EXTENDABLE
@@ -70,38 +70,51 @@ namespace Audio
 			0.75f, 0.75f, 0.90f, 0.80f, 0.70f, 0.75f, 0.80f, 0.92f, 0.82f, 0.70f
 		};
 
-		std::string path{ mmw::Application::getAppDir() + "res\\sound\\" };
-
-		sounds.reserve(soundEffectsCount);
-		debugSounds.resize(soundEffectsCount);
-		for (int i = 0; i < soundEffectsCount; ++i)
-			sounds.emplace(std::move(SoundPoolPair(mmw::SE_NAMES[i], std::make_unique<SoundPool>())));
-
-		std::for_each(std::execution::par, sounds.begin(), sounds.end(), [&](auto& s)
-		{
-			std::string filename = path + s.first.data() + ".mp3";
-			int soundIndex = mmw::findArrayItem(s.first.data(), mmw::SE_NAMES, mmw::arrayLength(mmw::SE_NAMES));
-
-			s.second->initialize(filename, &engine, &soundEffectsGroup, soundEffectsFlags[soundIndex]);
-			s.second->setVolume(soundEffectsVolumes[soundIndex]);
-
-			ma_sound_init_from_file_w(&engine, IO::mbToWideStr(filename).c_str(), maSoundFlagsDecodeAsync, &soundEffectsGroup, nullptr, &debugSounds[soundIndex].source);
-		});
+		debugSounds.resize(soundEffectsCount * soundEffectProfileCount);
 		
-		// Adjust hold SE loop times for gapless playback
-		ma_uint64 holdNrmDuration = sounds[mmw::SE_CONNECT]->getDurationInFrames();
-		ma_uint64 holdCrtDuration = sounds[mmw::SE_CRITICAL_CONNECT]->getDurationInFrames();
-		sounds[mmw::SE_CONNECT]->setLoopTime(3000, holdNrmDuration - 3000);
-		sounds[mmw::SE_CRITICAL_CONNECT]->setLoopTime(3000, holdCrtDuration - 3000);
+		for (size_t index = 0; index < soundEffectProfileCount; index++)
+		{
+			std::string path = IO::formatString("%s%s%02d\\", mmw::Application::getAppDir().c_str(), "res\\sound\\", index + 1);
+			sounds[index].pool.reserve(soundEffectsCount);
+			for (size_t i = 0; i < soundEffectsCount; ++i)
+				sounds[index].pool.emplace(std::move(SoundPoolPair(mmw::SE_NAMES[i], std::make_unique<SoundPool>())));
+			
+			std::for_each(std::execution::par, sounds[index].pool.begin(), sounds[index].pool.end(), [&](auto& s)
+			{
+				std::string filename = path + s.first.data() + ".mp3";
+				size_t soundNameIndex = mmw::findArrayItem(s.first.data(), mmw::SE_NAMES, mmw::arrayLength(mmw::SE_NAMES));
+
+				std::string name{};
+				if (mmw::isArrayIndexInBounds(soundNameIndex, mmw::SE_NAMES))
+					name = IO::formatString("%s_%02d", mmw::SE_NAMES[soundNameIndex], index + 1);
+
+				s.second->initialize(name, filename, &engine, &soundEffectsGroup, soundEffectsFlags[soundNameIndex]);
+				s.second->setVolume(soundEffectsVolumes[soundNameIndex]);
+
+				SoundInstance& debugSound = debugSounds[soundNameIndex + (index * soundEffectsCount)];
+				debugSound.name = name;
+
+				ma_sound_init_from_file_w(&engine, IO::mbToWideStr(filename).c_str(), maSoundFlagsDecodeAsync, &soundEffectsGroup, nullptr, &debugSound.source);
+			});
+
+			// Adjust hold SE loop times for gapless playback
+			ma_uint64 holdNrmDuration = sounds[index].pool[mmw::SE_CONNECT]->getDurationInFrames();
+			ma_uint64 holdCrtDuration = sounds[index].pool[mmw::SE_CRITICAL_CONNECT]->getDurationInFrames();
+			sounds[index].pool[mmw::SE_CONNECT]->setLoopTime(3000, holdNrmDuration - 3000);
+			sounds[index].pool[mmw::SE_CRITICAL_CONNECT]->setLoopTime(3000, holdCrtDuration - 3000);
+		}
 	}
 
 	void AudioManager::uninitializeAudioEngine()
 	{
 		disposeMusic();
-		for (auto& [name, sound] : sounds)
-			sound->dispose();
+		for (size_t index = 0; index < 2; index++)
+		{
+			for (auto& [name, sound] : sounds[index].pool)
+				sound->dispose();
 
-		sounds.clear();
+			sounds[index].pool.clear();
+		}
 
 		ma_engine_uninit(&engine);
 	}
@@ -251,41 +264,45 @@ namespace Audio
 
 	void AudioManager::playOneShotSound(std::string_view name)
 	{
-		if (sounds.find(name) == sounds.end())
+		if (sounds[soundEffectsProfileIndex].pool.find(name) == sounds[soundEffectsProfileIndex].pool.end())
 			return;
 
-		sounds.at(name)->play(0, -1);
+		sounds[soundEffectsProfileIndex].pool.at(name)->play(0, -1);
 	}
 
 	void AudioManager::playSoundEffect(std::string_view name, float start, float end)
 	{
-		if (sounds.find(name) == sounds.end())
+		if (sounds[soundEffectsProfileIndex].pool.find(name) == sounds[soundEffectsProfileIndex].pool.end())
 			return;
 
-		sounds.at(name)->play(start, end);
+		sounds[soundEffectsProfileIndex].pool.at(name)->play(start, end);
 	}
 
 	void AudioManager::stopSoundEffects(bool all)
 	{
 		if (all)
 		{
-			for (auto& [se, sound] : sounds)
-				sound->stopAll();
+			for (size_t index = 0; index < 2; index++)
+				for (auto& [se, sound] : sounds[index].pool)
+					sound->stopAll();
 		}
 		else
 		{
-			sounds[mmw::SE_CONNECT]->stopAll();
-			sounds[mmw::SE_CRITICAL_CONNECT]->stopAll();
+			sounds[soundEffectsProfileIndex].pool[mmw::SE_CONNECT]->stopAll();
+			sounds[soundEffectsProfileIndex].pool[mmw::SE_CRITICAL_CONNECT]->stopAll();
 
 			// Also stop any scheduled sounds
-			for (auto& [se, sound] : sounds)
+			for (size_t index = 0; index < 2; index++)
 			{
-				for (auto& instance : sound->pool)
+				for (auto& [se, sound] : sounds[index].pool)
 				{
-					ma_uint64 cursor{};
-					ma_sound_get_cursor_in_pcm_frames(&instance.source, &cursor);
-					if (cursor <= 0)
-						ma_sound_stop(&instance.source);
+					for (auto& instance : sound->pool)
+					{
+						ma_uint64 cursor{};
+						ma_sound_get_cursor_in_pcm_frames(&instance.source, &cursor);
+						if (cursor <= 0)
+							ma_sound_stop(&instance.source);
+					}
 				}
 			}
 		}
@@ -342,9 +359,19 @@ namespace Audio
 
 	bool AudioManager::isSoundPlaying(std::string_view name) const
 	{
-		if (sounds.find(name) == sounds.end())
+		if (sounds[soundEffectsProfileIndex].pool.find(name) == sounds[soundEffectsProfileIndex].pool.end())
 			return false;
 
-		return sounds.at(name)->isAnyPlaying();
+		return sounds[soundEffectsProfileIndex].pool.at(name)->isAnyPlaying();
+	}
+
+	size_t AudioManager::getSoundEffectsProfileIndex() const
+	{
+		return soundEffectsProfileIndex;
+	}
+
+	void AudioManager::setSoundEffectsProfileIndex(size_t index)
+	{
+		soundEffectsProfileIndex = index;
 	}
 }

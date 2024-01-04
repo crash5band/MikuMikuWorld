@@ -9,7 +9,7 @@ using namespace nlohmann;
 namespace MikuMikuWorld
 {
 	ApplicationConfiguration config{};
-	constexpr const char* CONFIG_VERSION{ "1.9.0" };
+	constexpr const char* CONFIG_VERSION{ "1.10.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -90,6 +90,7 @@ namespace MikuMikuWorld
 
 		if (jsonIO::keyExists(config, "audio"))
 		{
+			seProfileIndex = jsonIO::tryGetValue<int>(config["audio"], "se_profile", 0);
 			masterVolume	= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "master_volume", 1.0f), 0.0f, 1.0f);
 			bgmVolume		= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "bgm_volume", 1.0f), 0.0f, 1.0f);
 			seVolume		= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "se_volume", 1.0f), 0.0f, 1.0f);
@@ -182,6 +183,7 @@ namespace MikuMikuWorld
 		};
 
 		config["audio"] = {
+			{"se_profile", seProfileIndex},
 			{"master_volume", masterVolume},
 			{"bgm_volume", bgmVolume},
 			{"se_volume", seVolume}
@@ -245,6 +247,7 @@ namespace MikuMikuWorld
 		autoSaveInterval = 5;
 		autoSaveMaxCount = 100;
 
+		seProfileIndex = 0;
 		masterVolume = 1.0f;
 		bgmVolume = 1.0f;
 		seVolume = 1.0f;

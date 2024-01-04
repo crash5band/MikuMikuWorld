@@ -83,6 +83,7 @@ namespace MikuMikuWorld
 		{"background_brightnes", "Background Brightness"},
 		{"lanes_opacity", "Lanes Opacity"},
 		{"video", "Video"},
+		{"notes_se", "Notes SE"},
 
 		// Score editor
 		{"chart_properties", "Chart Properties"},

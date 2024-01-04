@@ -2,6 +2,8 @@
 #include <array>
 #include <string>
 #include <memory>
+#include <unordered_map>
+#include <string_view>
 
 // Already defined somewhere else but Visual Studio gets confused
 #define NOMINMAX
@@ -12,6 +14,14 @@
 
 namespace Audio
 {
+	constexpr size_t soundEffectProfileCount = 2;
+
+	constexpr const char* soundEffectProfileNames[]
+	{
+		"SE 01",
+		"SE 02"
+	};
+
 	enum SoundFlags : uint8_t
 	{
 		NONE		= 0,
@@ -57,6 +67,7 @@ namespace Audio
 
 	struct SoundInstance
 	{
+		std::string name;
 		ma_sound source;
 		float lastStartTime{};
 		float lastEndTime{};
@@ -118,12 +129,23 @@ namespace Audio
 		bool isPlaying(const SoundInstance& soundInstance) const;
 		bool isAnyPlaying() const;
 		
+		void initialize(const std::string& name, const std::string& path, ma_engine* engine, ma_sound_group* group, SoundFlags flags);
 		void initialize(const std::string& path, ma_engine* engine, ma_sound_group* group, SoundFlags flags);
 		void initialize(SoundBuffer& sound, ma_engine* engine, ma_sound_group* group, SoundFlags flags);
 		void dispose();
 
+		std::string getName() const;
+
 	private:
-		float volume;
-		int nextIndex;
+		float volume{ 1.0f };
+		int nextIndex{ 0 };
+
+		std::string name{};
+	};
+
+	struct SoundEffectProfile
+	{
+		std::string name;
+		std::unordered_map<std::string_view, std::unique_ptr<SoundPool>> pool;
 	};
 }

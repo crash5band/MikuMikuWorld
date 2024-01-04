@@ -167,6 +167,12 @@ namespace Audio
 		nextIndex = 0;
 	}
 
+	void SoundPool::initialize(const std::string& name, const std::string& path, ma_engine* engine, ma_sound_group* group, SoundFlags flags)
+	{
+		this->name = name;
+		initialize(path, engine, group, flags);
+	}
+
 	void SoundPool::initialize(SoundBuffer& sound, ma_engine* engine, ma_sound_group* group, SoundFlags flags)
 	{
 		for (int i = 0; i < pool.size(); i++)
@@ -255,5 +261,10 @@ namespace Audio
 				return true;
 
 		return false;
+	}
+
+	std::string SoundPool::getName() const
+	{
+		return name;
 	}
 }

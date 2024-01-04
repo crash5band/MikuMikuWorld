@@ -47,6 +47,7 @@ namespace MikuMikuWorld
 		context.audio.setMusicVolume(config.bgmVolume);
 		context.audio.setSoundEffectsVolume(config.seVolume);
 		context.audio.loadSoundEffects();
+		context.audio.setSoundEffectsProfileIndex(config.seProfileIndex);
 
 		timeline.setDivision(config.division);
 		timeline.setZoom(config.zoom);
@@ -128,6 +129,12 @@ namespace MikuMikuWorld
 			static const std::string defaultBackgroundPath = Application::getAppDir() + "res\\textures\\default.png";
 			timeline.background.load(config.backgroundImage.empty() ? defaultBackgroundPath : config.backgroundImage);
 			settingsWindow.isBackgroundChangePending = false;
+		}
+
+		if (config.seProfileIndex != context.audio.getSoundEffectsProfileIndex())
+		{
+			context.audio.stopSoundEffects(false);
+			context.audio.setSoundEffectsProfileIndex(config.seProfileIndex);
 		}
 
 		if (propertiesWindow.isPendingLoadMusic)

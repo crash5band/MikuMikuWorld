@@ -2,6 +2,7 @@
 #include "Sound.h"
 #include <unordered_map>
 #include <vector>
+#include <array>
 #include <memory>
 
 namespace Audio
@@ -13,7 +14,7 @@ namespace Audio
 		ma_sound music;
 		ma_sound_group musicGroup;
 		ma_sound_group soundEffectsGroup;
-		std::unordered_map<std::string_view, std::unique_ptr<SoundPool>> sounds;
+		std::array<SoundEffectProfile, soundEffectProfileCount> sounds;
 
 		// Offset from chart time in seconds
 		float musicOffset{ 0.0f };
@@ -23,6 +24,7 @@ namespace Audio
 		float soundEffectsVolume{ 1.0f };
 
 		float playbackSpeed{ 1.0f };
+		size_t soundEffectsProfileIndex{ 0 };
 
 	public:
 		SoundBuffer musicBuffer;
@@ -68,6 +70,9 @@ namespace Audio
 		void playSoundEffect(std::string_view name, float start, float end);
 		void stopSoundEffects(bool all);
 		bool isSoundPlaying(std::string_view name) const;
+
+		size_t getSoundEffectsProfileIndex() const;
+		void setSoundEffectsProfileIndex(size_t index);
 
 		using SoundPoolPair = std::pair<std::string_view, std::unique_ptr<SoundPool>>;
 	};

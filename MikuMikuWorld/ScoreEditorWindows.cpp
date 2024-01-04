@@ -476,11 +476,11 @@ namespace MikuMikuWorld
 						ImGui::TableSetupColumn("Play/Stop", ImGuiTableColumnFlags_WidthFixed);
 						ImGui::TableHeadersRow();
 
-						for (size_t i = 0; i < arrayLength(SE_NAMES); i++)
+						for (size_t i = 0; i < arrayLength(SE_NAMES) * Audio::soundEffectProfileCount; i++)
 						{
 							Audio::SoundInstance& sound = context.audio.debugSounds[i];
 
-							ImGui::PushID(SE_NAMES[i]);
+							ImGui::PushID(i);
 							ImGui::TableNextRow(0, rowHeight);
 							ImGui::TableSetColumnIndex(0);
 
@@ -488,7 +488,7 @@ namespace MikuMikuWorld
 							if (!sound.isPlaying())
 								ratio = 0.0f;
 
-							ImGui::ProgressBar(ratio, { -1, 0 }, SE_NAMES[i]);
+							ImGui::ProgressBar(ratio, { -1, 0 }, sound.name.c_str());
 							
 							float duration = sound.getDuration(); int durationSecondsOnly = duration;
 							float time = sound.isPlaying() ? sound.getCurrentTime() : 0.0f; int timeSecondsOnly = time;
@@ -502,7 +502,10 @@ namespace MikuMikuWorld
 
 							ImGui::TableSetColumnIndex(2);
 							if (UI::transparentButton(ICON_FA_PLAY, UI::btnSmall))
+							{
+								sound.seek(0);
 								sound.play();
+							}
 
 							ImGui::SameLine();
 							ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
@@ -859,6 +862,13 @@ namespace MikuMikuWorld
 
 						UI::addCheckboxProperty(getString("use_smooth_scroll"), config.useSmoothScrolling);
 						UI::addSliderProperty(getString("smooth_scroll_time"), config.smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
+						UI::endPropertyColumns();
+					}
+
+					if (ImGui::CollapsingHeader(getString("audio"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						UI::beginPropertyColumns();
+						UI::addSelectProperty(getString("notes_se"), config.seProfileIndex, Audio::soundEffectProfileNames, Audio::soundEffectProfileCount);
 						UI::endPropertyColumns();
 					}
 

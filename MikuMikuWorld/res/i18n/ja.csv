@@ -78,6 +78,7 @@ background_brightnes, 背景の明るさ
 lanes_opacity, レーンの不透明度
 video, 画面
 vsync_enable, VSync（垂直同期）
+notes_se, ノーツのSE
 
 # score editor
 options, オプション
