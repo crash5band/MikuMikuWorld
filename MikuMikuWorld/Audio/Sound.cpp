@@ -195,6 +195,7 @@ namespace Audio
 	void SoundPool::extendInstanceDuration(SoundInstance& instance, float newEndTime)
 	{
 		ma_sound_set_stop_time_in_milliseconds(&instance.source, newEndTime * 1000);
+		instance.lastEndTime = newEndTime;
 	}
 
 	void SoundPool::play(float start, float end)
@@ -205,7 +206,7 @@ namespace Audio
 			int currentIndex = std::max(nextIndex - 1, 0);
 			SoundInstance& currentInstance = pool[currentIndex];
 
-			// If playback is started on a note, the source's time is effectively 0 and the sound isn't marked playing yet
+			// If the start time is immediate, the source's time is effectively 0 and the sound isn't marked playing yet
 			const bool isCurrentInstancePlaying = ma_sound_is_playing(&currentInstance.source) ||
 				(start == currentInstance.lastStartTime && currentInstance.lastStartTime != 0.0f);
 
