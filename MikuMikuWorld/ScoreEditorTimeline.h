@@ -62,13 +62,13 @@ namespace MikuMikuWorld
 		int holdSliceWidth	= 10;
 		int holdSliceSize	= 5;
 
-		TimelineMode currentMode;
-		float laneOffset;
+		TimelineMode currentMode{ TimelineMode::Select };
+		float laneOffset{};
 		float maxOffset = 10000;
-		float minOffset;
-		float offset;
-		float visualOffset;
-		float scrollStartY;
+		float minOffset{};
+		float offset{};
+		float visualOffset{};
+		float scrollStartY{};
 		float zoom = 1.0f;
 
 		static constexpr float unitHeight = 0.15f;
@@ -81,31 +81,31 @@ namespace MikuMikuWorld
 		static constexpr float minPlaybackSpeed = 0.25f;
 		static constexpr float maxPlaybackSpeed = 1.00f;
 
-		float minNoteYDistance;
-		int hoverLane;
-		int hoverTick;
-		int hoveringNote;
-		int holdLane;
-		int holdTick;
-		int lastSelectedTick;
+		float minNoteYDistance{};
+		int hoverLane{};
+		int hoverTick{};
+		int hoveringNote{};
+		int holdingNote{};
+		int holdLane{};
+		int holdTick{};
+		int lastSelectedTick{};
 		int division = 8;
 
-		bool mouseInTimeline;
-		bool isHoveringNote;
-		bool isHoldingNote;
-		bool isMovingNote;
-		bool skipUpdateAfterSortingSteps;
-		bool dragging;
-		bool insertingHold;
-		bool hasEdit;
+		bool mouseInTimeline{ false };
+		bool isHoveringNote{ false };
+		bool isHoldingNote{ false };
+		bool isMovingNote{ false };
+		bool skipUpdateAfterSortingSteps{ false };
+		bool dragging{ false };
+		bool insertingHold{ false };
 
-		float time;
-		float timeLastFrame;
-		float playStartTime;
-		float songPos;
-		float songPosLastFrame;
-		float playbackSpeed;
-		bool playing;
+		float time{};
+		float timeLastFrame{};
+		float playStartTime{};
+		float songPos{};
+		float songPosLastFrame{};
+		float playbackSpeed{ 1.0f };
+		bool playing{ false };
 
 		Camera camera;
 		std::unique_ptr<Framebuffer> framebuffer;
@@ -129,6 +129,22 @@ namespace MikuMikuWorld
 			Note holdStep;
 		} inputNotes{ Note(NoteType::Tap), Note(NoteType::Hold), Note(NoteType::HoldEnd), Note(NoteType::HoldMid) };
 
+		struct NoteTransform
+		{
+			int tick{}, lane{}, width{};
+
+			static NoteTransform fromNote(const Note& note)
+			{
+				return NoteTransform{ note.tick, note.lane, note.width };
+			}
+
+			bool isSame(const Note& note) const
+			{
+				return tick == note.tick && lane == note.lane && width == note.width;
+			}
+
+		} noteTransformOrigin;
+
 		std::vector<StepDrawData> drawSteps;
 		std::unordered_set<std::string> playingNoteSounds;
 		static constexpr float audioOffsetCorrection = 0.02f;
@@ -145,7 +161,7 @@ namespace MikuMikuWorld
 		void drawOutline(const StepDrawData& data);
 		void drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
 		void drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
-		bool noteControl(ScoreContext& context, const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor);
+		bool noteControl(ScoreContext& context, Note& note, const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor);
 		bool bpmControl(const Tempo& tempo);
 		bool bpmControl(float bpm, int tick, bool enabled);
 		bool timeSignatureControl(int numerator, int denominator, int tick, bool enabled);

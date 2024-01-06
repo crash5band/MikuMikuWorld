@@ -1044,7 +1044,7 @@ namespace MikuMikuWorld
 		return -1;
 	}
 
-	bool ScoreEditorTimeline::noteControl(ScoreContext& context, const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor)
+	bool ScoreEditorTimeline::noteControl(ScoreContext& context, Note& note, const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor)
 	{
 		// Do not process notes if the cursor is outside of the timeline
 		// This fixes ui buttons conflicting with note "buttons"
@@ -1067,6 +1067,9 @@ namespace MikuMikuWorld
 			ctrlMousePos = mousePos;
 			holdLane = hoverLane;
 			holdTick = hoverTick;
+
+			holdingNote = note.ID;
+			noteTransformOrigin = NoteTransform::fromNote(note);
 		}
 
 		// Holding note
@@ -1080,8 +1083,15 @@ namespace MikuMikuWorld
 		// Note released
 		if (ImGui::IsItemDeactivated())
 		{
+			bool noChange = false;
+			auto it = context.score.notes.find(holdingNote);
+			if (it != context.score.notes.end())
+				noChange = noteTransformOrigin.isSame(it->second);
+
 			isHoldingNote = false;
-			if (hasEdit)
+			holdingNote = 0;
+
+			if (!noChange)
 			{
 				std::unordered_set<int> sortHolds = context.getHoldsFromSelection();
 				for (int id : sortHolds)
@@ -1126,7 +1136,6 @@ namespace MikuMikuWorld
 				}
 
 				context.pushHistory("Update notes", prevUpdateScore, context.score);
-				hasEdit = false;
 			}
 		}
 
@@ -1167,7 +1176,7 @@ namespace MikuMikuWorld
 
 		// Left resize
 		ImGui::PushID(note.ID);
-		if (noteControl(context, pos, sz, "L", ImGuiMouseCursor_ResizeEW))
+		if (noteControl(context, note, pos, sz, "L", ImGuiMouseCursor_ResizeEW))
 		{
 			int curLane = positionToLane(mousePos.x);
 			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
@@ -1186,7 +1195,6 @@ namespace MikuMikuWorld
 				if (canResize)
 				{
 					ctrlMousePos.x = mousePos.x;
-					hasEdit = true;
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
@@ -1201,7 +1209,7 @@ namespace MikuMikuWorld
 		sz.x = (laneWidth * note.width) + 4.0f - (noteControlWidth * 2.0f);
 
 		// Move
-		if (noteControl(context, pos, sz, "M", ImGuiMouseCursor_ResizeAll))
+		if (noteControl(context, note, pos, sz, "M", ImGuiMouseCursor_ResizeAll))
 		{
 			int curLane = positionToLane(mousePos.x);
 			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
@@ -1221,7 +1229,6 @@ namespace MikuMikuWorld
 
 				if (canMove)
 				{
-					hasEdit = true;
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
@@ -1241,7 +1248,6 @@ namespace MikuMikuWorld
 
 				if (canMove)
 				{
-					hasEdit = true;
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
@@ -1290,7 +1296,7 @@ namespace MikuMikuWorld
 		sz.x = noteControlWidth;
 
 		// Right resize
-		if (noteControl(context, pos, sz, "R", ImGuiMouseCursor_ResizeEW))
+		if (noteControl(context, note, pos, sz, "R", ImGuiMouseCursor_ResizeEW))
 		{
 			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
 			int curLane = positionToLane(mousePos.x);
@@ -1308,7 +1314,6 @@ namespace MikuMikuWorld
 				if (canResize)
 				{
 					ctrlMousePos.x = mousePos.x;
-					hasEdit = true;
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
