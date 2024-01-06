@@ -888,9 +888,9 @@ namespace MikuMikuWorld
 		case TimelineMode::InsertLong:
 			if (insertingHold)
 			{
-				drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, EaseType::Linear, false, renderer, noteTint);
-				drawNote(inputNotes.holdStart, renderer, noteTint);
-				drawNote(inputNotes.holdEnd, renderer, noteTint);
+				drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, edit.easeType, false, renderer, hoverTint);
+				drawNote(inputNotes.holdStart, renderer, hoverTint);
+				drawNote(inputNotes.holdEnd, renderer, hoverTint);
 			}
 			else
 			{
@@ -906,7 +906,7 @@ namespace MikuMikuWorld
 		case TimelineMode::InsertGuide:
 			if (insertingHold)
 			{
-				drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, EaseType::Linear, true, renderer, noteTint);
+				drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, edit.easeType, true, renderer, hoverTint);
 				drawOutline(StepDrawData(inputNotes.holdStart, StepDrawType::InvisibleHold));
 				drawOutline(StepDrawData(inputNotes.holdEnd, StepDrawType::InvisibleHold));
 			}
