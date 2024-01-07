@@ -77,4 +77,6 @@ namespace MikuMikuWorld
 	bool isWithinRange(float x, float left, float right);
 
 	std::function<float(float, float, float)> getEaseFunction(EaseType ease);
+
+	uint32_t gcf(uint32_t a, uint32_t b);
 }

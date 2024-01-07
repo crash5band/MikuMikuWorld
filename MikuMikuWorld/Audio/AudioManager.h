@@ -33,6 +33,9 @@ namespace Audio
 		void initializeAudioEngine();
 		void uninitializeAudioEngine();
 		void syncAudioEngineTimer();
+		void startEngine();
+		void stopEngine();
+		bool isEngineStarted() const;
 
 		uint32_t getDeviceSampleRate() const;
 		uint32_t getDeviceChannelCount() const;

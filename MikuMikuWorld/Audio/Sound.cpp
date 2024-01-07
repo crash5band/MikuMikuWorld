@@ -36,7 +36,6 @@ namespace Audio
 		sampleRate		= 0;
 		channelCount	= 0;
 		frameCount		= 0;
-		resamplerOutRate = 0;
 		effectiveSampleRate = 0;
 	}
 

@@ -525,6 +525,16 @@ namespace MikuMikuWorld
 				if (ImGui::MenuItem("Delete Old Auto Save (Max)"))
 					deleteOldAutoSave(config.autoSaveMaxCount);
 
+				bool audioRunning = context.audio.isEngineStarted();
+				if (ImGui::MenuItem(audioRunning ? "Stop Audio" : "Start Audio",
+					audioRunning ? ICON_FA_VOLUME_UP : ICON_FA_VOLUME_MUTE))
+				{
+					if (audioRunning)
+						context.audio.stopEngine();
+					else
+						context.audio.startEngine();
+				}
+
 				ImGui::EndMenu();
 			}
 		}

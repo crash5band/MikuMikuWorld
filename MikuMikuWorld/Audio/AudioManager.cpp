@@ -51,10 +51,21 @@ namespace Audio
 
 			exit(result);
 		}
+	}
 
-		setMasterVolume(1.0f);
-		setMusicVolume(1.0f);
-		setSoundEffectsVolume(1.0f);
+	void AudioManager::startEngine()
+	{
+		ma_engine_start(&engine);
+	}
+
+	void AudioManager::stopEngine()
+	{
+		ma_engine_stop(&engine);
+	}
+
+	bool AudioManager::isEngineStarted() const
+	{
+		return ma_device_get_state(engine.pDevice) == ma_device_state_started;
 	}
 
 	void AudioManager::loadSoundEffects()
@@ -125,8 +136,8 @@ namespace Audio
 		mmw::Result result = decodeAudioFile(filename, musicBuffer);
 		if (result.isOk())
 		{
-			ma_sound_init_from_data_source(&engine, &musicBuffer.buffer, maSoundFlagsDefault, &musicGroup, &music);
-			musicBuffer.resamplerOutRate = music.engineNode.resampler.config.sampleRateOut;
+			// We want to always enable pitch here for miniaudio's resampler to work with playback speed
+			ma_sound_init_from_data_source(&engine, &musicBuffer.buffer, MA_SOUND_FLAG_NO_SPATIALIZATION, &musicGroup, &music);
 
 			// Sync
 			setPlaybackSpeed(playbackSpeed);
@@ -257,9 +268,19 @@ namespace Audio
 		const ma_uint32 speedAdjustedSampleRate = static_cast<ma_uint32>(speed * musicBuffer.sampleRate);
 		musicBuffer.effectiveSampleRate = speedAdjustedSampleRate;
 		music.engineNode.sampleRate = speedAdjustedSampleRate;
-		
-		// Also need to update engine node resampler config for changes to take effect
-		music.engineNode.resampler.config.sampleRateOut = static_cast<ma_uint32>(static_cast<float>(musicBuffer.resamplerOutRate) / speed);
+
+		ma_uint32 sampleRateIn = musicBuffer.effectiveSampleRate;
+		ma_uint32 sampleRateOut = engine.sampleRate;
+		ma_uint32 gcf = mmw::gcf(sampleRateIn, sampleRateOut);
+		sampleRateIn /= gcf;
+		sampleRateOut /= gcf;
+
+		ma_linear_resampler& resampler = music.engineNode.resampler;
+		resampler.lpf.sampleRate = std::max(sampleRateIn, sampleRateOut);
+		resampler.inAdvanceInt = sampleRateIn / sampleRateOut;
+		resampler.inAdvanceFrac = sampleRateIn % sampleRateOut;
+		resampler.config.sampleRateIn = sampleRateIn;
+		resampler.config.sampleRateOut = sampleRateOut;
 	}
 
 	void AudioManager::playOneShotSound(std::string_view name)
