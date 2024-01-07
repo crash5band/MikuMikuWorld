@@ -2066,7 +2066,7 @@ namespace MikuMikuWorld
 		for (const auto& [id, note] : context.score.notes)
 		{
 			float noteTime = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
-			float notePlayTime = noteTime - playStartTime;
+			float notePlayTime = (noteTime - playStartTime) / playbackSpeed;
 			float offsetNoteTime = noteTime - audioLookAhead;
 
 			static auto singleNoteSEFunc = [&context, this](const Note& note, float notePlayTime)
