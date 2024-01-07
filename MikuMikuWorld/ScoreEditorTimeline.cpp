@@ -1328,7 +1328,14 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, bool isGuide, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
 	{
-		int texIndex = isGuide ? noteTextures.touchLine : noteTextures.holdPath;
+		int texIndex{ noteTextures.holdPath };
+		ZIndex zIndex{ ZIndex::HoldLine };
+		if (isGuide)
+		{
+			zIndex = ZIndex::Guide;
+			texIndex = noteTextures.touchLine;
+		}
+
 		if (texIndex == -1)
 			return;
 
@@ -1352,6 +1359,7 @@ namespace MikuMikuWorld
 
 		auto easeFunc = getEaseFunction(ease);
 		float steps = ease == EaseType::Linear ? 1 : std::max(5.0f, std::ceilf(abs((endY - startY)) / 10));
+
 		for (int y = 0; y < steps; ++y)
 		{
 			const float percent1 = y / steps;
@@ -1376,21 +1384,21 @@ namespace MikuMikuWorld
 			Vector2 p3{ xl2, y2 };
 			Vector2 p4{ xl2 + holdSliceSize, y2 };
 			renderer->drawQuad(p1, p2, p3, p4, pathTex, left, left + holdSliceWidth,
-				spr.getY(), spr.getY() + spr.getHeight(), tint);
+				spr.getY(), spr.getY() + spr.getHeight(), tint, (int)zIndex);
 
 			p1.x = xl1 + holdSliceSize;
 			p2.x = xr1 - holdSliceSize;
 			p3.x = xl2 + holdSliceSize;
 			p4.x = xr2 - holdSliceSize;
 			renderer->drawQuad(p1, p2, p3, p4, pathTex, left + holdSliceWidth, right - holdSliceWidth,
-				spr.getY(), spr.getY() + spr.getHeight(), tint);
+				spr.getY(), spr.getY() + spr.getHeight(), tint, (int)zIndex);
 
 			p1.x = xr1 - holdSliceSize;
 			p2.x = xr1;
 			p3.x = xr2 - holdSliceSize;
 			p4.x = xr2;
 			renderer->drawQuad(p1, p2, p3, p4, pathTex, right - holdSliceWidth, right,
-				spr.getY(), spr.getY() + spr.getHeight(), tint);
+				spr.getY(), spr.getY() + spr.getHeight(), tint, (int)zIndex);
 		}
 	}
 
@@ -1588,7 +1596,7 @@ namespace MikuMikuWorld
 		const float x1 = laneToPosition(note.lane + offsetLane);
 		const float x2 = pos.x + laneToPosition(note.lane + note.width + offsetLane);
 		pos.x = midpoint(x1, x2);
-		pos.y += notesHeight * 0.7f; // move the arrow up a bit
+		pos.y += notesHeight * 0.7f; // Move the arrow up a bit
 
 		// Notes wider than 6 lanes also use flick arrow size 6
 		int sizeIndex = std::min(note.width - 1, 5);
@@ -1604,7 +1612,7 @@ namespace MikuMikuWorld
 		}
 
 		renderer->drawSprite(pos, 0.0f, size, AnchorType::MiddleCenter, tex,
-			sx1, sx2, arrowS.getY(), arrowS.getY() + arrowS.getHeight(), tint, 2);
+			sx1, sx2, arrowS.getY(), arrowS.getY() + arrowS.getHeight(), tint, (int)ZIndex::FlickArrow);
 	}
 
 	void ScoreEditorTimeline::drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
@@ -1630,24 +1638,24 @@ namespace MikuMikuWorld
 		const int left = s.getX() + noteCutoffX;
 		const int right = s.getX() + s.getWidth() - noteCutoffX;
 
-		// left slice
+		// Left slice
 		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
 			left, left + noteSliceWidth,
-			s.getY(), s.getY() + s.getHeight(), tint, 1
+			s.getY(), s.getY() + s.getHeight(), tint, (int)ZIndex::Note
 		);
 		pos.x += sliceSz.x;
 
-		// middle
+		// Middle
 		renderer->drawSprite(pos, 0.0f, midSz, anchor, tex,
 			left + noteSliceWidth, right - noteSliceWidth,
-			s.getY(), s.getY() + s.getHeight(), tint, 1
+			s.getY(), s.getY() + s.getHeight(), tint, (int)ZIndex::Note
 		);
 		pos.x += midLen;
 
-		// right slice
+		// Right slice
 		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
 			right - noteSliceWidth, right,
-			s.getY(), s.getY() + s.getHeight(), tint, 1
+			s.getY(), s.getY() + s.getHeight(), tint, (int)ZIndex::Note
 		);
 
 		if (note.friction)
@@ -1655,14 +1663,14 @@ namespace MikuMikuWorld
 			int frictionSprIndex = getFrictionSpriteIndex(note);
 			if (isArrayIndexInBounds(frictionSprIndex, tex.sprites))
 			{
-				// friction diamond is slightly smaller
+				// Friction diamond is slightly smaller
 				const Sprite& frictionSpr = tex.sprites[frictionSprIndex];
 				const Vector2 nodeSz{ notesHeight * 0.8f, notesHeight * 0.8f };
 
-				// diamond is always centered
+				// Diamond is always centered
 				pos.x = midpoint(laneToPosition(note.lane + offsetLane), laneToPosition(note.lane + offsetLane + note.width));
 				renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, frictionSpr.getX(), frictionSpr.getX() + frictionSpr.getWidth(),
-					frictionSpr.getY(), frictionSpr.getY() + frictionSpr.getHeight(), tint, 1);
+					frictionSpr.getY(), frictionSpr.getY() + frictionSpr.getHeight(), tint, (int)ZIndex::Note);
 			}
 		}
 

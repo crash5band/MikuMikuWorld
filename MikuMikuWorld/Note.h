@@ -49,6 +49,7 @@ namespace MikuMikuWorld
 	enum class ZIndex : int32_t
 	{
 		HoldLine,
+		Guide,
 		Note,
 		FlickArrow
 	};
