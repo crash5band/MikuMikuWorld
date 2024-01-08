@@ -164,6 +164,10 @@ namespace MikuMikuWorld
 		{"hi_speed", "Hi-Speed"},
 		{"edit_hi_speed", "Edit Hi-Speed"},
 		{"hi_speed_speed", "Speed"},
+		{ "edit_skill", "Edit Skill Trigger" },
+		{ "edit_fever", "Edit FEVER Trigger" },
+		{ "edit_none", "Edit" },
+		{ "edit_event", "Edit Event" },
 
 		// Presets
 		{"presets", "Presets"},

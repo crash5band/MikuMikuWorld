@@ -157,6 +157,10 @@ decrease_note_size, ノーツの幅を狭める
 hi_speed, ハイスピード
 edit_hi_speed, ハイスピードを編集
 hi_speed_speed, ハイスピード速度
+edit_skill, スキル発動を編集
+edit_fever,　FEVER発動を編集
+edit_none,　編集
+edit_event,　イベントを編集
 
 # preset manager
 presets, プリセット
