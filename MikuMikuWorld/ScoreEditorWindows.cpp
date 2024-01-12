@@ -476,7 +476,7 @@ namespace MikuMikuWorld
 						ImGui::TableSetupColumn("Play/Stop", ImGuiTableColumnFlags_WidthFixed);
 						ImGui::TableHeadersRow();
 
-						for (size_t i = 0; i < arrayLength(SE_NAMES) * Audio::soundEffectProfileCount; i++)
+						for (size_t i = 0; i < arrayLength(SE_NAMES) * Audio::soundEffectsProfileCount; i++)
 						{
 							Audio::SoundInstance& sound = context.audio.debugSounds[i];
 
@@ -868,7 +868,7 @@ namespace MikuMikuWorld
 					if (ImGui::CollapsingHeader(getString("audio"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
-						UI::addSelectProperty(getString("notes_se"), config.seProfileIndex, Audio::soundEffectProfileNames, Audio::soundEffectProfileCount);
+						UI::addSelectProperty(getString("notes_se"), config.seProfileIndex, Audio::soundEffectsProfileNames, Audio::soundEffectsProfileCount);
 						UI::endPropertyColumns();
 					}
 

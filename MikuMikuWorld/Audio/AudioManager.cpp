@@ -81,9 +81,9 @@ namespace Audio
 			0.75f, 0.75f, 0.90f, 0.80f, 0.70f, 0.75f, 0.80f, 0.92f, 0.82f, 0.70f
 		};
 
-		debugSounds.resize(soundEffectsCount * soundEffectProfileCount);
+		debugSounds.resize(soundEffectsCount * soundEffectsProfileCount);
 		
-		for (size_t index = 0; index < soundEffectProfileCount; index++)
+		for (size_t index = 0; index < soundEffectsProfileCount; index++)
 		{
 			std::string path = IO::formatString("%s%s%02d\\", mmw::Application::getAppDir().c_str(), "res\\sound\\", index + 1);
 			sounds[index].pool.reserve(soundEffectsCount);
@@ -119,7 +119,7 @@ namespace Audio
 	void AudioManager::uninitializeAudioEngine()
 	{
 		disposeMusic();
-		for (size_t index = 0; index < 2; index++)
+		for (size_t index = 0; index < soundEffectsProfileCount; index++)
 		{
 			for (auto& [name, sound] : sounds[index].pool)
 				sound->dispose();
@@ -140,7 +140,7 @@ namespace Audio
 			ma_sound_init_from_data_source(&engine, &musicBuffer.buffer, MA_SOUND_FLAG_NO_SPATIALIZATION, &musicGroup, &music);
 
 			// Sync
-			setPlaybackSpeed(playbackSpeed);
+			setPlaybackSpeed(playbackSpeed, 0);
 		}
 
 		return result;
@@ -263,13 +263,13 @@ namespace Audio
 		return playbackSpeed;
 	}
 
-	void AudioManager::setPlaybackSpeed(float speed)
+	void AudioManager::setPlaybackSpeed(float speed, float currentTime)
 	{
 		const ma_uint32 speedAdjustedSampleRate = static_cast<ma_uint32>(speed * musicBuffer.sampleRate);
 		musicBuffer.effectiveSampleRate = speedAdjustedSampleRate;
 		music.engineNode.sampleRate = speedAdjustedSampleRate;
 
-		ma_uint32 sampleRateIn = musicBuffer.effectiveSampleRate;
+		ma_uint32 sampleRateIn = speedAdjustedSampleRate;
 		ma_uint32 sampleRateOut = engine.sampleRate;
 		ma_uint32 gcf = mmw::gcf(sampleRateIn, sampleRateOut);
 		sampleRateIn /= gcf;
@@ -281,6 +281,21 @@ namespace Audio
 		resampler.inAdvanceFrac = sampleRateIn % sampleRateOut;
 		resampler.config.sampleRateIn = sampleRateIn;
 		resampler.config.sampleRateOut = sampleRateOut;
+
+		// Adjust timing of extendable sounds
+		for (auto& [name, sound] : sounds[soundEffectsProfileIndex].pool)
+		{
+			if ((sound->flags & EXTENDABLE) != 0)
+			{
+				for (auto& instance : sound->pool)
+				{
+					if (instance.isPlaying())
+						instance.extendDuration(currentTime, instance.absoluteEnd, speed);
+				}
+			}
+		}
+
+		playbackSpeed = speed;
 	}
 
 	void AudioManager::playOneShotSound(std::string_view name)
@@ -291,19 +306,51 @@ namespace Audio
 		sounds[soundEffectsProfileIndex].pool.at(name)->play(0, -1);
 	}
 
-	void AudioManager::playSoundEffect(std::string_view name, float start, float end)
+	void AudioManager::playSoundEffect(std::string_view name, float start, float end, float currentTime)
 	{
 		if (sounds[soundEffectsProfileIndex].pool.find(name) == sounds[soundEffectsProfileIndex].pool.end())
 			return;
 
-		sounds[soundEffectsProfileIndex].pool.at(name)->play(start, end);
+		SoundPool* soundPool = sounds[soundEffectsProfileIndex].pool.at(name).get();
+		const float absoluteStart = start + lastPlaybackTime;
+		const float absoluteEnd = end + lastPlaybackTime;
+		const int poolIndex = soundPool->getCurrentIndex();
+
+		if (soundPool->flags & SoundFlags::EXTENDABLE)
+		{
+			// We want to re-use the currently playing instance
+			SoundInstance& currentInstance = soundPool->pool[poolIndex];
+
+			// If the start time is immediate, the source's time is effectively 0 and the sound isn't marked playing yet
+			const bool isCurrentInstancePlaying = ma_sound_is_playing(&currentInstance.source) ||
+				(absoluteStart == currentInstance.absoluteStart && currentInstance.lastStartTime != 0.0f);
+
+			const bool isNewSoundWithinOldRange =
+				mmw::isWithinRange(absoluteStart, currentInstance.absoluteStart, currentInstance.absoluteEnd) &&
+				mmw::isWithinRange(absoluteEnd, currentInstance.absoluteStart, currentInstance.absoluteEnd);
+
+			if (isNewSoundWithinOldRange && isCurrentInstancePlaying)
+				return;
+
+			if (isCurrentInstancePlaying && absoluteEnd > currentInstance.absoluteEnd)
+			{
+				currentInstance.extendDuration(currentTime, absoluteEnd, playbackSpeed);
+				return;
+			}
+		}
+
+		const float scaledEnd = ((absoluteEnd - absoluteStart) / playbackSpeed) + getAudioEngineAbsoluteTime();
+
+		soundPool->play(start, end == -1 ? end : scaledEnd);
+		soundPool->pool[poolIndex].absoluteStart = absoluteStart;
+		soundPool->pool[poolIndex].absoluteEnd = absoluteEnd;
 	}
 
 	void AudioManager::stopSoundEffects(bool all)
 	{
 		if (all)
 		{
-			for (size_t index = 0; index < 2; index++)
+			for (size_t index = 0; index < soundEffectsProfileCount; index++)
 				for (auto& [se, sound] : sounds[index].pool)
 					sound->stopAll();
 		}
@@ -313,7 +360,7 @@ namespace Audio
 			sounds[soundEffectsProfileIndex].pool[mmw::SE_CRITICAL_CONNECT]->stopAll();
 
 			// Also stop any scheduled sounds
-			for (size_t index = 0; index < 2; index++)
+			for (size_t index = 0; index < soundEffectsProfileCount; index++)
 			{
 				for (auto& [se, sound] : sounds[index].pool)
 				{
@@ -346,8 +393,7 @@ namespace Audio
 
 	float AudioManager::getAudioEngineAbsoluteTime() const
 	{
-		// Engine time is in milliseconds
-		return static_cast<float>(ma_engine_get_time(&engine)) / static_cast<float>(engine.sampleRate) / 1000.0f;
+		return static_cast<float>(ma_engine_get_time_in_milliseconds(&engine)) / 1000.0f;
 	}
 
 	float AudioManager::getMusicOffset() const
@@ -394,5 +440,15 @@ namespace Audio
 	void AudioManager::setSoundEffectsProfileIndex(size_t index)
 	{
 		soundEffectsProfileIndex = index;
+	}
+
+	float AudioManager::getLastPlaybackTime() const
+	{
+		return lastPlaybackTime;
+	}
+
+	void AudioManager::setLastPlaybackTime(float time)
+	{
+		lastPlaybackTime = time;
 	}
 }

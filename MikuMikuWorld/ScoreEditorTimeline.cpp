@@ -2026,7 +2026,7 @@ namespace MikuMikuWorld
 	void ScoreEditorTimeline::setPlaybackSpeed(ScoreContext& context, float speed)
 	{
 		playbackSpeed = std::clamp(speed, minPlaybackSpeed, maxPlaybackSpeed);
-		context.audio.setPlaybackSpeed(playbackSpeed);
+		context.audio.setPlaybackSpeed(playbackSpeed, time);
 	}
 
 	void ScoreEditorTimeline::setPlaying(ScoreContext& context, bool state)
@@ -2039,8 +2039,9 @@ namespace MikuMikuWorld
 		{
 			playStartTime = time;
 			context.audio.seekMusic(time);
-			context.audio.syncAudioEngineTimer();
 			context.audio.playMusic(time);
+			context.audio.setLastPlaybackTime(time);
+			context.audio.syncAudioEngineTimer();
 		}
 		else
 		{
@@ -2070,45 +2071,45 @@ namespace MikuMikuWorld
 		if (!playing)
 			return;
 
+		static auto singleNoteSEFunc = [&context, this](const Note& note, float notePlayTime)
+		{
+			bool playSE = true;
+			if (note.getType() == NoteType::Hold)
+			{
+				playSE = context.score.holdNotes.at(note.ID).startType == HoldNoteType::Normal;
+			}
+			else if (note.getType() == NoteType::HoldEnd)
+			{
+				playSE = context.score.holdNotes.at(note.parentID).endType == HoldNoteType::Normal;
+			}
+
+			if (playSE)
+			{
+				std::string_view se = getNoteSE(note, context.score);
+				std::string key = std::to_string(note.tick) + "-" + se.data();
+				if (!se.empty() && (playingNoteSounds.find(key) == playingNoteSounds.end()))
+				{
+					context.audio.playSoundEffect(se.data(), notePlayTime, -1, time);
+					playingNoteSounds.insert(key);
+				}
+			}
+		};
+
+		static auto holdNoteSEFunc = [&context, this](const Note& note, float startTime)
+		{
+			int endTick = context.score.notes.at(context.score.holdNotes.at(note.ID).end).tick;
+			float endTime = accumulateDuration(endTick, TICKS_PER_BEAT, context.score.tempoChanges);
+
+			float adjustedEndTime = endTime - playStartTime + audioOffsetCorrection;
+			context.audio.playSoundEffect(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, startTime, adjustedEndTime, time);
+		};
+
 		playingNoteSounds.clear();
 		for (const auto& [id, note] : context.score.notes)
 		{
 			float noteTime = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
-			float notePlayTime = (noteTime - playStartTime) / playbackSpeed;
-			float offsetNoteTime = noteTime - audioLookAhead;
-
-			static auto singleNoteSEFunc = [&context, this](const Note& note, float notePlayTime)
-			{
-				bool playSE = true;
-				if (note.getType() == NoteType::Hold)
-				{
-					playSE = context.score.holdNotes.at(note.ID).startType == HoldNoteType::Normal;
-				}
-				else if (note.getType() == NoteType::HoldEnd)
-				{
-					playSE = context.score.holdNotes.at(note.parentID).endType == HoldNoteType::Normal;
-				}
-
-				if (playSE)
-				{
-					std::string_view se = getNoteSE(note, context.score);
-					std::string key = std::to_string(note.tick) + "-" + se.data();
-					if (!se.empty() && (playingNoteSounds.find(key) == playingNoteSounds.end()))
-					{
-						context.audio.playSoundEffect(se.data(), notePlayTime, -1);
-						playingNoteSounds.insert(key);
-					}
-				}
-			};
-
-			static auto holdNoteSEFunc = [&context, this, noteTime](const Note& note, float startTime)
-			{
-				int endTick = context.score.notes.at(context.score.holdNotes.at(note.ID).end).tick;
-				float endTime = accumulateDuration(endTick, TICKS_PER_BEAT, context.score.tempoChanges);
-				
-				float adjustedEndTime = endTime - playStartTime + audioOffsetCorrection;
-				context.audio.playSoundEffect(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, startTime, adjustedEndTime);
-			};
+			float notePlayTime = noteTime - playStartTime;
+			float offsetNoteTime = noteTime - (audioLookAhead * playbackSpeed);
 
 			if (offsetNoteTime >= timeLastFrame && offsetNoteTime < time)
 			{

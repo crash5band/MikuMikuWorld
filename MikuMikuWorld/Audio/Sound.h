@@ -14,9 +14,9 @@
 
 namespace Audio
 {
-	constexpr size_t soundEffectProfileCount = 2;
+	constexpr size_t soundEffectsProfileCount = 2;
 
-	constexpr const char* soundEffectProfileNames[]
+	constexpr const char* soundEffectsProfileNames[]
 	{
 		"SE 01",
 		"SE 02"
@@ -71,6 +71,12 @@ namespace Audio
 		float lastStartTime{};
 		float lastEndTime{};
 
+		// The absolute start time in seconds
+		float absoluteStart{};
+
+		// The absolute end time in seconds
+		float absoluteEnd{};
+
 		inline void play() { ma_sound_start(&source); }
 		inline void stop() { ma_sound_stop(&source); }
 		inline void seek(uint64_t frame) { ma_sound_seek_to_pcm_frame(&source, frame); }
@@ -103,6 +109,18 @@ namespace Audio
 			ma_sound_get_length_in_seconds(&source, &time);
 			return time;
 		}
+
+		void extendDuration(float currentTime, float newAbsoluteEnd, float timeScale)
+		{
+			const float engineTime = static_cast<float>(ma_engine_get_time_in_milliseconds(source.engineNode.pEngine)) / 1000.0f;
+			const float duration = newAbsoluteEnd - absoluteStart;
+			const float instanceTime = currentTime - absoluteStart;
+			const float newEndTime = ((duration - instanceTime) / timeScale) + engineTime;
+
+			absoluteEnd = newAbsoluteEnd;
+			lastEndTime = newEndTime;
+			ma_sound_set_stop_time_in_milliseconds(&source, newEndTime * 1000);
+		}
 	};
 
 	class SoundPool
@@ -133,7 +151,8 @@ namespace Audio
 		void initialize(SoundBuffer& sound, ma_engine* engine, ma_sound_group* group, SoundFlags flags);
 		void dispose();
 
-		std::string getName() const;
+		std::string getName() const { return name; }
+		int getCurrentIndex() const { return std::clamp(nextIndex - 1, 0, poolSize - 1); }
 
 	private:
 		float volume{ 1.0f };
