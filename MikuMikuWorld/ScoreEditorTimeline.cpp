@@ -2141,7 +2141,8 @@ namespace MikuMikuWorld
 		if (!drawList)
 			return;
 
-		constexpr ImU32 waveformColor = 0x806C6C6C;
+		constexpr ImU32 waveformColorL = 0x80646464;
+		constexpr ImU32 waveformColorR = 0x80585858;
 
 		// Ideally this should be calculated based on the current BPM
 		const double secondsPerPixel = waveformSecondsPerPixel / zoom;
@@ -2157,7 +2158,9 @@ namespace MikuMikuWorld
 			if (waveform.isEmpty())
 				continue;
 
+			const ImU32 waveformColor = rightChannel ? waveformColorR : waveformColorL;
 			const Audio::WaveformMip& mip = waveform.findClosestMip(secondsPerPixel);
+
 			for (int y = visualOffset - size.y; y < visualOffset; y += 1)
 			{
 				int tick = positionToTick(y);
@@ -2171,9 +2174,9 @@ namespace MikuMikuWorld
 				float rectYPosition = floorf(position.y + visualOffset - y);
 
 				// WARNING: A thickness of 0.5 or less does not draw with integrated graphics (optimization? limitation?)
-				ImVec2 rect1(timelineMidPosition, rectYPosition);
-				ImVec2 rect2(timelineMidPosition + (std::max(0.75f, barValue) * (rightChannel ? 1 : -1)), rectYPosition + 0.75f);
-				drawList->AddRectFilled(rect1, rect2, waveformColor);
+				ImVec2 p1(timelineMidPosition - std::max(0.75f, barValue), rectYPosition);
+				ImVec2 p2(timelineMidPosition + std::max(0.75f, barValue), rectYPosition);
+				drawList->AddLine(p1, p2, waveformColor, 0.75f);
 			}
 		}
 	}

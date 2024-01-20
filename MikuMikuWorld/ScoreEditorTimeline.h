@@ -214,7 +214,7 @@ namespace MikuMikuWorld
 		float laneToPosition(float lane) const;
 
 		constexpr inline float getTimelineStartX() const { return position.x + laneOffset; }
-		constexpr inline float getTimelineEndX() const { return getTimelineStartX() + (laneWidth * 12); }
+		constexpr inline float getTimelineEndX() const { return getTimelineStartX() + (laneWidth * NUM_LANES); }
 
 		constexpr inline float getZoom() const { return zoom; }
 		void setZoom(float zoom);
