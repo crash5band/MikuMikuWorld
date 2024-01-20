@@ -152,11 +152,11 @@ namespace Audio
 		void dispose();
 
 		std::string getName() const { return name; }
-		int getCurrentIndex() const { return std::clamp(nextIndex - 1, 0, poolSize - 1); }
+		int getCurrentIndex() const { return currentIndex; }
 
 	private:
 		float volume{ 1.0f };
-		int nextIndex{ 0 };
+		int currentIndex{ 0 };
 
 		std::string name{};
 	};

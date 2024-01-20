@@ -163,7 +163,7 @@ namespace Audio
 		}
 
 		this->flags = flags;
-		nextIndex = 0;
+		currentIndex = 0;
 	}
 
 	void SoundPool::initialize(const std::string& name, const std::string& path, ma_engine* engine, ma_sound_group* group, SoundFlags flags)
@@ -182,7 +182,7 @@ namespace Audio
 		}
 
 		this->flags = flags;
-		nextIndex = 0;
+		currentIndex = 0;
 	}
 
 	void SoundPool::dispose()
@@ -199,7 +199,7 @@ namespace Audio
 
 	void SoundPool::play(float start, float end)
 	{
-		SoundInstance& instance = pool[nextIndex];
+		SoundInstance& instance = pool[currentIndex];
 
 		instance.seek(0);
 		ma_sound_set_start_time_in_milliseconds(&instance.source, start * 1000);
@@ -212,7 +212,7 @@ namespace Audio
 		instance.lastEndTime = end;
 
 		if ((flags & SoundFlags::EXTENDABLE) == 0)
-			nextIndex = ++nextIndex % pool.size();
+			currentIndex = ++currentIndex % pool.size();
 	}
 
 	void SoundPool::stopAll()

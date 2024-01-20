@@ -341,9 +341,9 @@ namespace Audio
 
 		const float scaledEnd = ((absoluteEnd - absoluteStart) / playbackSpeed) + getAudioEngineAbsoluteTime();
 
-		soundPool->play(start, end == -1 ? end : scaledEnd);
 		soundPool->pool[poolIndex].absoluteStart = absoluteStart;
 		soundPool->pool[poolIndex].absoluteEnd = absoluteEnd;
+		soundPool->play(start, end == -1 ? end : scaledEnd);
 	}
 
 	void AudioManager::stopSoundEffects(bool all)
