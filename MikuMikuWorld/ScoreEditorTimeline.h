@@ -161,7 +161,7 @@ namespace MikuMikuWorld
 		void drawOutline(const StepDrawData& data);
 		void drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
 		void drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
-		bool noteControl(ScoreContext& context, Note& note, const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor);
+		bool noteControl(ScoreContext& context, const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor);
 		bool bpmControl(const Tempo& tempo);
 		bool bpmControl(float bpm, int tick, bool enabled);
 		bool timeSignatureControl(int numerator, int denominator, int tick, bool enabled);
