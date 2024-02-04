@@ -464,7 +464,10 @@ namespace MikuMikuWorld
 		{
 			try
 			{
+				int oldLaneExtension = context.score.metadata.laneExtension;
 				context.score.metadata = context.workingData.toScoreMetadata();
+				context.score.metadata.laneExtension = oldLaneExtension;
+
 				json usc = ScoreConverter::scoreToUsc(context.score);
 
 				std::wstring wFilename = IO::mbToWideStr(fileDialog.outputFilename);
