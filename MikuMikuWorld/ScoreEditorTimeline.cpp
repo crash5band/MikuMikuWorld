@@ -788,7 +788,8 @@ namespace MikuMikuWorld
 		            size.y + UI::toolbarBtnSize.y + 4 + ImGui::GetStyle().WindowPadding.y });
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
 
-		if (UI::transparentButton(ICON_FA_BACKWARD, UI::btnSmall, true, context.currentTick > 0 && !playing))
+		if (UI::transparentButton(ICON_FA_BACKWARD, UI::btnSmall, true,
+		                          context.currentTick > 0 && !playing))
 			previousTick(context);
 
 		ImGui::SameLine();
@@ -832,14 +833,18 @@ namespace MikuMikuWorld
 		ImGui::SameLine();
 		ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
 		ImGui::SameLine();
-		if (UI::transparentButton(ICON_FA_MINUS, UI::btnSmall, false, playbackSpeed > minPlaybackSpeed))
+		if (UI::transparentButton(ICON_FA_MINUS, UI::btnSmall, false,
+		                          playbackSpeed > minPlaybackSpeed))
 			setPlaybackSpeed(context, playbackSpeed - 0.25f);
 
 		ImGui::SameLine();
-		UI::transparentButton(IO::formatString("%.0f%%", playbackSpeed * 100).c_str(), ImVec2{ ImGui::CalcTextSize("0000%").x, UI::btnSmall.y}, false, false);
+		UI::transparentButton(IO::formatString("%.0f%%", playbackSpeed * 100).c_str(),
+		                      ImVec2{ ImGui::CalcTextSize("0000%").x, UI::btnSmall.y }, false,
+		                      false);
 
 		ImGui::SameLine();
-		if (UI::transparentButton(ICON_FA_PLUS, UI::btnSmall, false, playbackSpeed < maxPlaybackSpeed))
+		if (UI::transparentButton(ICON_FA_PLUS, UI::btnSmall, false,
+		                          playbackSpeed < maxPlaybackSpeed))
 			setPlaybackSpeed(context, playbackSpeed + 0.25f);
 
 		ImGui::SameLine();
@@ -1113,7 +1118,8 @@ namespace MikuMikuWorld
 		case TimelineMode::InsertLong:
 			if (insertingHold)
 			{
-				drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, edit.easeType, false, renderer, hoverTint);
+				drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, edit.easeType, false,
+				              renderer, hoverTint);
 				drawNote(inputNotes.holdStart, renderer, hoverTint);
 				drawNote(inputNotes.holdEnd, renderer, hoverTint);
 			}
@@ -1136,8 +1142,8 @@ namespace MikuMikuWorld
 			    static_cast<int>(StepDrawType::GuideNeutral) + static_cast<int>(edit.colorType));
 			if (insertingHold)
 			{
-				drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, EaseType::Linear, true, renderer, noteTint);
-				drawOutline(StepDrawData(inputNotes.holdStart, StepDrawType::InvisibleHold));
+				float a1, a2;
+				switch (edit.fadeType)
 				{
 				case FadeType::Out:
 					a1 = 1.0f;
@@ -1304,8 +1310,8 @@ namespace MikuMikuWorld
 				int nextId = hold.steps[s1].ID;
 				if ((context.showAllLayers || start.layer == context.selectedLayer ||
 				     context.score.notes.at(nextId).layer == context.selectedLayer) &&
-				    isMouseInHoldPath(context.score.notes.at(nextId), end,
-				                      hold.steps[s1].ease, xt, yt))
+				    isMouseInHoldPath(context.score.notes.at(nextId), end, hold.steps[s1].ease, xt,
+				                      yt))
 					return id;
 			}
 			else
@@ -1322,7 +1328,9 @@ namespace MikuMikuWorld
 		return -1;
 	}
 
-	bool ScoreEditorTimeline::noteControl(ScoreContext& context, const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor)
+	bool ScoreEditorTimeline::noteControl(ScoreContext& context, const Note& note,
+	                                      const ImVec2& pos, const ImVec2& sz, const char* id,
+	                                      ImGuiMouseCursor cursor)
 	{
 		int minLane = MIN_LANE - context.score.metadata.laneExtension;
 		int maxLane = MAX_LANE + context.score.metadata.laneExtension;
@@ -1671,11 +1679,11 @@ namespace MikuMikuWorld
 		int right = spr.getX() + spr.getWidth() - holdCutoffX;
 
 		auto easeFunc = getEaseFunction(ease);
-		float steps = ease == EaseType::Linear ? 1 : std::max(5.0f, std::ceilf(abs((endY - startY)) / 10));
-		for (int y = 0; y < steps; ++y)
-		Color inactiveTint = tint * otherLayerTint;
+		float steps =
+		    ease == EaseType::Linear ? 1 : std::max(5.0f, std::ceilf(abs((endY - startY)) / 10));
 		for (int y = 0; y < steps; ++y)
 		{
+			Color inactiveTint = tint * otherLayerTint;
 			const float percent1 = y / steps;
 			const float percent2 = (y + 1) / steps;
 
@@ -1709,21 +1717,21 @@ namespace MikuMikuWorld
 			Vector2 p2{ xl1 + holdSliceSize, y1 };
 			Vector2 p3{ xl2, y2 };
 			Vector2 p4{ xl2 + holdSliceSize, y2 };
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, left, left + holdSliceWidth,
-				spr.getY(), spr.getY() + spr.getHeight(), tint);
-			p1.x = xr1 + holdSliceSize;
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, left, left + holdSliceWidth, spr.getY(),
+			                   spr.getY() + spr.getHeight(), tint);
+			p1.x = xl1 + holdSliceSize;
 			p2.x = xr1 - holdSliceSize;
 			p3.x = xl2 + holdSliceSize;
 			p4.x = xr2 - holdSliceSize;
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, left + holdSliceWidth, right - holdSliceWidth,
-				spr.getY(), spr.getY() + spr.getHeight(), tint);
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, left + holdSliceWidth, right - holdSliceWidth,
-				spr.getY(), spr.getY() + spr.getHeight(), tint);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, left + holdSliceWidth,
+			                   right - holdSliceWidth, spr.getY(), spr.getY() + spr.getHeight(),
+			                   tint);
+			p1.x = xr1 - holdSliceSize;
 			p2.x = xr1;
 			p3.x = xr2 - holdSliceSize;
 			p4.x = xr2;
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, right - holdSliceWidth, right,
-				spr.getY(), spr.getY() + spr.getHeight(), tint);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, right - holdSliceWidth, right, spr.getY(),
+			                   spr.getY() + spr.getHeight(), tint);
 		}
 	}
 
@@ -2063,8 +2071,8 @@ namespace MikuMikuWorld
 			sx2 = arrowS.getX();
 		}
 
-		renderer->drawSprite(pos, 0.0f, size, AnchorType::MiddleCenter, tex,
-			sx1, sx2, arrowS.getY(), arrowS.getY() + arrowS.getHeight(), tint, 2);
+		renderer->drawSprite(pos, 0.0f, size, AnchorType::MiddleCenter, tex, sx1, sx2,
+		                     arrowS.getY(), arrowS.getY() + arrowS.getHeight(), tint, 2);
 	}
 
 	void ScoreEditorTimeline::drawNote(const Note& note, Renderer* renderer, const Color& tint,
@@ -2095,24 +2103,18 @@ namespace MikuMikuWorld
 		const int right = s.getX() + s.getWidth() - noteCutoffX;
 
 		// left slice
-		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
-			left, left + noteSliceWidth,
-			s.getY(), s.getY() + s.getHeight(), tint, 1
-		);
+		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex, left, left + noteSliceWidth, s.getY(),
+		                     s.getY() + s.getHeight(), tint, 1);
 		pos.x += sliceSz.x;
 
 		// middle
-		renderer->drawSprite(pos, 0.0f, midSz, anchor, tex,
-			left + noteSliceWidth, right - noteSliceWidth,
-			s.getY(), s.getY() + s.getHeight(), tint, 1
-		);
+		renderer->drawSprite(pos, 0.0f, midSz, anchor, tex, left + noteSliceWidth,
+		                     right - noteSliceWidth, s.getY(), s.getY() + s.getHeight(), tint, 1);
 		pos.x += midLen;
 
 		// right slice
-		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
-			right - noteSliceWidth, right,
-			s.getY(), s.getY() + s.getHeight(), tint, 1
-		);
+		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex, right - noteSliceWidth, right,
+		                     s.getY(), s.getY() + s.getHeight(), tint, 1);
 
 		if (note.friction)
 		{
@@ -2124,9 +2126,78 @@ namespace MikuMikuWorld
 				const Vector2 nodeSz{ notesHeight * 0.8f, notesHeight * 0.8f };
 
 				// diamond is always centered
-				pos.x = midpoint(laneToPosition(note.lane + offsetLane), laneToPosition(note.lane + offsetLane + note.width));
-				renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, frictionSpr.getX(), frictionSpr.getX() + frictionSpr.getWidth(),
-					frictionSpr.getY(), frictionSpr.getY() + frictionSpr.getHeight(), tint, 1);
+				pos.x = midpoint(laneToPosition(note.lane + offsetLane),
+				                 laneToPosition(note.lane + offsetLane + note.width));
+				renderer->drawSprite(
+				    pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, frictionSpr.getX(),
+				    frictionSpr.getX() + frictionSpr.getWidth(), frictionSpr.getY(),
+				    frictionSpr.getY() + frictionSpr.getHeight(), tint, 1);
+			}
+		}
+
+		if (note.isFlick())
+			drawFlickArrow(note, renderer, tint, offsetTick, offsetLane);
+	}
+
+	void ScoreEditorTimeline::drawCcNote(const Note& note, Renderer* renderer, const Color& tint,
+	                                     const int offsetTick, const int offsetLane,
+	                                     const bool selectedLayer)
+	{
+		if (noteTextures.notes == -1)
+			return;
+
+		const Texture& tex = ResourceManager::textures[noteTextures.ccNotes];
+		const int sprIndex = getCcNoteSpriteIndex(note);
+		if (sprIndex < 0 || sprIndex >= tex.sprites.size())
+			return;
+
+		const Sprite& s = tex.sprites[sprIndex];
+
+		Vector2 pos{ laneToPosition(note.lane + offsetLane),
+			         getNoteYPosFromTick(note.tick + offsetTick) };
+		const Vector2 sliceSz(notesSliceSize, notesHeight);
+		const AnchorType anchor = AnchorType::MiddleLeft;
+
+		const float midLen =
+		    std::max(0.0f, (laneWidth * note.width) - (sliceSz.x * 2) + noteOffsetX + 5);
+		const Vector2 midSz{ midLen, notesHeight };
+
+		pos.x -= noteOffsetX;
+		const int left = s.getX() + noteCutoffX;
+		const int right = s.getX() + s.getWidth() - noteCutoffX;
+
+		const int z = (selectedLayer ? zPerLayer : 0) + 1;
+
+		// left slice
+		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex, left, left + noteSliceWidth, s.getY(),
+		                     s.getY() + s.getHeight(), tint, z);
+		pos.x += sliceSz.x;
+
+		// middle
+		renderer->drawSprite(pos, 0.0f, midSz, anchor, tex, left + noteSliceWidth,
+		                     right - noteSliceWidth, s.getY(), s.getY() + s.getHeight(), tint, z);
+		pos.x += midLen;
+
+		// right slice
+		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex, right - noteSliceWidth, right,
+		                     s.getY(), s.getY() + s.getHeight(), tint, z);
+
+		if (note.friction)
+		{
+			int frictionSprIndex = getFrictionSpriteIndex(note);
+			if (frictionSprIndex >= 0 && frictionSprIndex < tex.sprites.size())
+			{
+				// friction diamond is slightly smaller
+				const Sprite& frictionSpr = tex.sprites[frictionSprIndex];
+				const Vector2 nodeSz{ notesHeight * 0.8f, notesHeight * 0.8f };
+
+				// diamond is always centered
+				pos.x = midpoint(laneToPosition(note.lane + offsetLane),
+				                 laneToPosition(note.lane + offsetLane + note.width));
+				renderer->drawSprite(
+				    pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, frictionSpr.getX(),
+				    frictionSpr.getX() + frictionSpr.getWidth(), frictionSpr.getY(),
+				    frictionSpr.getY() + frictionSpr.getHeight(), tint, z);
 			}
 		}
 
@@ -2522,17 +2593,32 @@ namespace MikuMikuWorld
 		context.pushHistory("Insert hold step", prev, context.score);
 	}
 
-	void ScoreEditorTimeline::debug()
+	void ScoreEditorTimeline::insertDamage(ScoreContext& context, EditArgs& edit)
 	{
-		ImGui::Text("Window position: (%.2f, %.2f)\nWindow size: (%.2f, %.2f)", position.x, position.y, size.x, size.y);
+		Score prev = context.score;
+
+		Note newNote = inputNotes.damage;
+		newNote.ID = nextID++;
+		newNote.layer = context.selectedLayer;
+
+		context.score.notes[newNote.ID] = newNote;
+		context.pushHistory("Insert damage", prev, context.score);
+	}
+
+	void ScoreEditorTimeline::debug(ScoreContext& context)
+	{
+		ImGui::Text("Window position: (%.2f, %.2f)\nWindow size: (%.2f, %.2f)", position.x,
+		            position.y, size.x, size.y);
 		ImGui::Separator();
 
-		ImGui::Text("Mouse position: (%.2f, %.2f)\nMouse in timeline: %s", mousePos.x, mousePos.y, boolToString(mouseInTimeline));
+		ImGui::Text("Mouse position: (%.2f, %.2f)\nMouse in timeline: %s", mousePos.x, mousePos.y,
+		            boolToString(mouseInTimeline));
 		ImGui::Separator();
 
-		ImGui::Text("Minimum offset: %g\nCurrent offset: %g\nMaximum offset: %g", minOffset, offset, maxOffset);
+		ImGui::Text("Minimum offset: %g\nCurrent offset: %g\nMaximum offset: %g", minOffset, offset,
+		            maxOffset);
 		ImGui::Separator();
-		
+
 		if (mouseInTimeline)
 		{
 			ImGui::Text("Hover lane: %d\nHover tick: %d", hoverLane, hoverTick);
@@ -2551,21 +2637,17 @@ namespace MikuMikuWorld
 			if (it != context.score.notes.end())
 			{
 				const Note& note = it->second;
-				ImGui::Text("ID: %d\nType: %d\nTick: %d\nLane: %d\nWidth: %d\nCritical: %s\nFriction: %s\nFlick: %s",
-					note.ID,
-					note.getType(),
-					note.tick,
-					note.lane,
-					note.width,
-					boolToString(note.critical),
-					boolToString(note.friction),
-					flickTypes[static_cast<int>(note.flick)]
-				);
+				ImGui::Text("ID: %d\nType: %d\nTick: %d\nLane: %d\nWidth: %d\nCritical: "
+				            "%s\nFriction: %s\nFlick: %s",
+				            note.ID, note.getType(), note.tick, note.lane, note.width,
+				            boolToString(note.critical), boolToString(note.friction),
+				            flickTypes[static_cast<int>(note.flick)]);
 			}
 			else
 			{
 				// Prevent window scrolling from jumping around
-				ImGui::TextDisabled("ID: -\nType: -\nTick: -\nLane: -\nWidth: -\nCritical: -\nFriction: -\nFlick: -");
+				ImGui::TextDisabled("ID: -\nType: -\nTick: -\nLane: -\nWidth: -\nCritical: "
+				                    "-\nFriction: -\nFlick: -");
 			}
 		}
 	}
@@ -2634,24 +2716,17 @@ namespace MikuMikuWorld
 		if (!playing)
 			return;
 
-		playingNoteSounds.clear();
-		for (const auto& [id, note] : context.score.notes)
+		static auto singleNoteSEFunc = [&context, this](const Note& note, float notePlayTime)
 		{
-			float noteTime = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
-			float notePlayTime = noteTime - playStartTime;
-			float offsetNoteTime = noteTime - audioLookAhead;
-
-			static auto singleNoteSEFunc = [&context, this](const Note& note, float notePlayTime)
+			bool playSE = true;
+			if (note.getType() == NoteType::Hold)
 			{
-				bool playSE = true;
-				if (note.getType() == NoteType::Hold)
-				{
-					playSE = context.score.holdNotes.at(note.ID).startType == HoldNoteType::Normal;
-				}
-				else if (note.getType() == NoteType::HoldEnd)
-				{
-					playSE = context.score.holdNotes.at(note.parentID).endType == HoldNoteType::Normal;
-				}
+				playSE = context.score.holdNotes.at(note.ID).startType == HoldNoteType::Normal;
+			}
+			else if (note.getType() == NoteType::HoldEnd)
+			{
+				playSE = context.score.holdNotes.at(note.parentID).endType == HoldNoteType::Normal;
+			}
 
 			if (playSE)
 			{
@@ -2665,19 +2740,21 @@ namespace MikuMikuWorld
 			}
 		};
 
-			static auto holdNoteSEFunc = [&context, this, noteTime](const Note& note, float startTime)
-			{
-				int endTick = context.score.notes.at(context.score.holdNotes.at(note.ID).end).tick;
-				float endTime = accumulateDuration(endTick, TICKS_PER_BEAT, context.score.tempoChanges);
-				
-				float adjustedEndTime = endTime - playStartTime + audioOffsetCorrection;
-				context.audio.playSoundEffect(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, startTime, adjustedEndTime);
-			};
+		static auto holdNoteSEFunc = [&context, this](const Note& note, float startTime)
+		{
+			int endTick = context.score.notes.at(context.score.holdNotes.at(note.ID).end).tick;
+			float endTime = accumulateDuration(endTick, TICKS_PER_BEAT, context.score.tempoChanges);
+
+			float adjustedEndTime = endTime - playStartTime + audioOffsetCorrection;
+			context.audio.playSoundEffect(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT,
+			                              startTime, adjustedEndTime, time);
+		};
 
 		playingNoteSounds.clear();
 		for (const auto& [id, note] : context.score.notes)
 		{
-			float noteTime = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
+			float noteTime =
+			    accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
 			float notePlayTime = noteTime - playStartTime;
 			float offsetNoteTime = noteTime - (audioLookAhead * playbackSpeed);
 
@@ -2727,9 +2804,9 @@ namespace MikuMikuWorld
 
 		for (size_t index = 0; index < 2; index++)
 		{
-			const Audio::WaveformMipChain& waveform = index == 0 ? context.waveformL : context.waveformR;
 			const bool rightChannel = index == 1;
-			const Audio::WaveformMipChain& waveform = rightChannel ? context.waveformR : context.waveformL;
+			const Audio::WaveformMipChain& waveform =
+			    rightChannel ? context.waveformR : context.waveformL;
 			if (waveform.isEmpty())
 				continue;
 
@@ -2753,9 +2830,10 @@ namespace MikuMikuWorld
 				float rectYPosition = floorf(position.y + visualOffset - y);
 
 				float timelineMidPosition = midpoint(getTimelineStartX(), getTimelineEndX());
-				float rectYPosition = floorf(position.y + visualOffset - y);
 				ImVec2 rect1(timelineMidPosition, rectYPosition);
-				ImVec2 rect2(timelineMidPosition + (std::max(0.5f, barValue) * (rightChannel ? 1 : -1)), rectYPosition + 0.5f);
+				ImVec2 rect2(timelineMidPosition +
+				                 (std::max(0.5f, barValue) * (rightChannel ? 1 : -1)),
+				             rectYPosition + 0.5f);
 				drawList->AddRectFilled(rect1, rect2, waveformColor);
 			}
 		}

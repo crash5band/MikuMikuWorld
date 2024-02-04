@@ -191,8 +191,8 @@ namespace MikuMikuWorld
 		void drawCcNote(const Note& note, Renderer* renderer, const Color& tint,
 		                const int offsetTick = 0, const int offsetLane = 0,
 		                const bool selectedLayer = true);
-		bool noteControl(ScoreContext& context, const ImVec2& pos, const ImVec2& sz, const char* id,
-		                 ImGuiMouseCursor cursor);
+		bool noteControl(ScoreContext& context, const Note& note, const ImVec2& pos,
+		                 const ImVec2& sz, const char* id, ImGuiMouseCursor cursor);
 		bool bpmControl(const Score& score, const Tempo& tempo);
 		bool bpmControl(const Score& score, float bpm, int tick, bool enabled);
 		bool timeSignatureControl(const Score& score, int numerator, int denominator, int tick,
