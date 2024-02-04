@@ -9,22 +9,22 @@ namespace MikuMikuWorld
 	int nextSkillID = 1;
 	int nextHiSpeedID = 1;
 
-	Note::Note(NoteType _type) :
-		type{ _type }, parentID{ -1 }, tick{ 0 }, lane{ 0 }, width{ 3 }, critical { false }, friction{ false }
+	Note::Note(NoteType _type)
+	    : type{ _type }, parentID{ -1 }, tick{ 0 }, lane{ 0 }, width{ 3 }, critical{ false },
+	      friction{ false }
 	{
-
 	}
 
-	Note::Note(NoteType _type, int _tick, int _lane, int _width) :
-		type{ _type }, parentID{ -1 }, tick{ _tick }, lane{ _lane }, width{ _width }, critical{ false }, friction{ false }
+	Note::Note(NoteType _type, int _tick, int _lane, int _width)
+	    : type{ _type }, parentID{ -1 }, tick{ _tick }, lane{ _lane }, width{ _width },
+	      critical{ false }, friction{ false }
 	{
-
 	}
 
-	Note::Note() :
-		type{ NoteType::Tap }, parentID{ -1 }, tick{ 0 }, lane{ 0 }, width{ 3 }, critical{ false }, friction{ false }
+	Note::Note()
+	    : type{ NoteType::Tap }, parentID{ -1 }, tick{ 0 }, lane{ 0 }, width{ 3 },
+	      critical{ false }, friction{ false }
 	{
-
 	}
 
 	bool Note::isFlick() const
@@ -32,20 +32,11 @@ namespace MikuMikuWorld
 		return flick != FlickType::None && type != NoteType::Hold && type != NoteType::HoldMid;
 	}
 
-	bool Note::hasEase() const
-	{
-		return type == NoteType::Hold || type == NoteType::HoldMid;
-	}
+	bool Note::hasEase() const { return type == NoteType::Hold || type == NoteType::HoldMid; }
 
-	bool Note::canFlick() const
-	{
-		return type == NoteType::Tap || type == NoteType::HoldEnd;
-	}
+	bool Note::canFlick() const { return type == NoteType::Tap || type == NoteType::HoldEnd; }
 
-	void resetNextID()
-	{
-		nextID = 1;
-	}
+	void resetNextID() { nextID = 1; }
 
 	void cycleFlick(Note& note)
 	{
@@ -68,19 +59,19 @@ namespace MikuMikuWorld
 	void sortHoldSteps(const Score& score, HoldNote& note)
 	{
 		std::stable_sort(note.steps.begin(), note.steps.end(),
-			[&score](const HoldStep& s1, const HoldStep& s2)
-			{
-				const Note& n1 = score.notes.at(s1.ID);
-				const Note& n2 = score.notes.at(s2.ID);
-				return n1.tick == n2.tick ? n1.lane < n2.lane : n1.tick < n2.tick;
-			}
-		);
+		                 [&score](const HoldStep& s1, const HoldStep& s2)
+		                 {
+			                 const Note& n1 = score.notes.at(s1.ID);
+			                 const Note& n2 = score.notes.at(s2.ID);
+			                 return n1.tick == n2.tick ? n1.lane < n2.lane : n1.tick < n2.tick;
+		                 });
 	}
 
 	int getFlickArrowSpriteIndex(const Note& note)
 	{
 		int startIndex = note.critical ? 24 : 12;
-		return startIndex + ((std::min(note.width, 6) - 1) * 2) + (note.flick != FlickType::Default ? 1 : 0);
+		return startIndex + ((std::min(note.width, 6) - 1) * 2) +
+		       (note.flick != FlickType::Default ? 1 : 0);
 	}
 
 	int getNoteSpriteIndex(const Note& note)
@@ -123,16 +114,16 @@ namespace MikuMikuWorld
 
 	int getCcNoteSpriteIndex(const Note& note)
 	{
-    int index;
+		int index;
 
-    switch (note.getType())
-    {
-    case NoteType::Damage:
-      index = 0;
-      break;
+		switch (note.getType())
+		{
+		case NoteType::Damage:
+			index = 0;
+			break;
 
-    default:
-      break;
+		default:
+			break;
 		}
 
 		return index;
@@ -157,7 +148,11 @@ namespace MikuMikuWorld
 	std::string_view getNoteSE(const Note& note, const Score& score)
 	{
 		std::string_view se = SE_PERFECT;
-		if (note.getType() == NoteType::HoldMid)
+		if (note.getType() == NoteType::Damage)
+		{
+			return "";
+		}
+		else if (note.getType() == NoteType::HoldMid)
 		{
 			const HoldNote& hold = score.holdNotes.at(note.parentID);
 			int pos = findHoldStep(hold, note.ID);
