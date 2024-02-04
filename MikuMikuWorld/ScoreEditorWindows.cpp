@@ -12,8 +12,8 @@ namespace MikuMikuWorld
 	void ScorePropertiesWindow::update(ScoreContext& context)
 	{
 		if (ImGui::CollapsingHeader(
-		        IO::concat(ICON_FA_ALIGN_LEFT, getString("metadata"), " ").c_str(),
-		        ImGuiTreeNodeFlags_DefaultOpen))
+			IO::concat(ICON_FA_ALIGN_LEFT, getString("metadata"), " ").c_str(),
+			ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			UI::beginPropertyColumns();
 			UI::addStringProperty(getString("title"), context.workingData.title);
@@ -31,7 +31,7 @@ namespace MikuMikuWorld
 				IO::FileDialog fileDialog{};
 				fileDialog.title = "Open Image File";
 				fileDialog.filters = { { "Image Files", "*.jpg;*.jpeg;*.png" },
-					                   { IO::allFilesName, IO::allFilesFilter } };
+									   { IO::allFilesName, IO::allFilesFilter } };
 				fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 
 				if (fileDialog.openFile() == IO::FileDialogResult::OK)
@@ -40,12 +40,12 @@ namespace MikuMikuWorld
 			context.workingData.jacket.draw();
 
 			UI::addIntProperty(getString("lane_extension"), context.score.metadata.laneExtension, 0,
-			                   100);
+				100);
 			UI::endPropertyColumns();
 		}
 
 		if (ImGui::CollapsingHeader(IO::concat(ICON_FA_VOLUME_UP, getString("audio"), " ").c_str(),
-		                            ImGuiTreeNodeFlags_DefaultOpen))
+			ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			UI::beginPropertyColumns();
 
@@ -62,7 +62,7 @@ namespace MikuMikuWorld
 				IO::FileDialog fileDialog{};
 				fileDialog.title = "Open Audio File";
 				fileDialog.filters = { { "Audio Files", "*.mp3;*.wav;*.flac;*.ogg" },
-					                   { IO::allFilesName, IO::allFilesFilter } };
+									   { IO::allFilesName, IO::allFilesFilter } };
 				fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 
 				if (fileDialog.openFile() == IO::FileDialogResult::OK)
@@ -101,8 +101,8 @@ namespace MikuMikuWorld
 		}
 
 		if (ImGui::CollapsingHeader(
-		        IO::concat(ICON_FA_CHART_BAR, getString("statistics"), " ").c_str(),
-		        ImGuiTreeNodeFlags_DefaultOpen))
+			IO::concat(ICON_FA_CHART_BAR, getString("statistics"), " ").c_str(),
+			ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			UI::beginPropertyColumns();
 			UI::addReadOnlyProperty(getString("taps"), context.scoreStats.getTaps());
@@ -136,17 +136,17 @@ namespace MikuMikuWorld
 
 		default:
 			UI::addIntProperty(getString("note_width"), edit.noteWidth, MIN_NOTE_WIDTH,
-			                   MAX_NOTE_WIDTH);
+				MAX_NOTE_WIDTH);
 			UI::addSelectProperty(getString("step_type"), edit.stepType, stepTypes,
-			                      arrayLength(stepTypes));
+				arrayLength(stepTypes));
 			UI::addSelectProperty(getString("ease_type"), edit.easeType, easeTypes,
-			                      arrayLength(easeTypes));
+				arrayLength(easeTypes));
 			UI::addSelectProperty<FlickType>(getString("flick"), edit.flickType, flickTypes,
-			                                 arrayLength(flickTypes));
+				arrayLength(flickTypes));
 			UI::addSelectProperty<GuideColor>(getString("guide_color"), edit.colorType,
-			                                  guideColorsForString, arrayLength(guideColors));
+				guideColorsForString, arrayLength(guideColors));
 			UI::addSelectProperty<FadeType>(getString("fade_type"), edit.fadeType, fadeTypes,
-			                                arrayLength(fadeTypes));
+				arrayLength(fadeTypes));
 
 			break;
 		}
@@ -160,13 +160,13 @@ namespace MikuMikuWorld
 			int removePattern = -1;
 
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,
-			                    ImVec2(0, ImGui::GetStyle().ItemSpacing.y));
+				ImVec2(0, ImGui::GetStyle().ItemSpacing.y));
 			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
 			float filterWidth = ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2;
 
 			presetFilter.Draw("##preset_filter",
-			                  IO::concat(ICON_FA_SEARCH, getString("search"), " ").c_str(),
-			                  filterWidth);
+				IO::concat(ICON_FA_SEARCH, getString("search"), " ").c_str(),
+				filterWidth);
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_FA_TIMES, UI::btnSmall))
 				presetFilter.Clear();
@@ -174,10 +174,9 @@ namespace MikuMikuWorld
 			ImGui::PopStyleVar();
 			ImGui::PopStyleColor();
 
-			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
 			float presetButtonHeight = ImGui::GetFrameHeight();
 			float windowHeight = ImGui::GetContentRegionAvail().y - presetButtonHeight -
-			                     ImGui::GetStyle().WindowPadding.y;
+				ImGui::GetStyle().WindowPadding.y;
 			if (ImGui::BeginChild("presets_child_window", ImVec2(-1, windowHeight), true))
 			{
 				if (!presetManager.presets.size())
@@ -196,9 +195,9 @@ namespace MikuMikuWorld
 						ImGui::PushID(id);
 
 						if (ImGui::Button(
-						        preset.getName().c_str(),
-						        ImVec2(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2.0f,
-						               presetButtonHeight)))
+							preset.getName().c_str(),
+							ImVec2(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2.0f,
+								presetButtonHeight)))
 							presetManager.applyPreset(id, context);
 
 						if (preset.description.size())
@@ -206,7 +205,7 @@ namespace MikuMikuWorld
 
 						ImGui::SameLine();
 						if (UI::transparentButton(ICON_FA_TRASH,
-						                          ImVec2(UI::btnSmall.x, presetButtonHeight)))
+							ImVec2(UI::btnSmall.x, presetButtonHeight)))
 							removePattern = id;
 
 						ImGui::PopID();
@@ -221,7 +220,6 @@ namespace MikuMikuWorld
 			if (ImGui::Button(getString("create_preset"), ImVec2(-1, presetButtonHeight)))
 				dialogOpen = true;
 
-			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
 			ImGui::PopItemFlag();
 
@@ -240,7 +238,7 @@ namespace MikuMikuWorld
 		if (updateCreationDialog() == DialogResult::Ok)
 		{
 			presetManager.createPreset(context.score, context.selectedNotes,
-			                           context.selectedHiSpeedChanges, presetName, presetDesc);
+				context.selectedHiSpeedChanges, presetName, presetDesc);
 			presetName.clear();
 			presetDesc.clear();
 		}
@@ -251,7 +249,7 @@ namespace MikuMikuWorld
 		DialogResult result = DialogResult::None;
 
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always,
-		                        ImVec2(0.5f, 0.5f));
+			ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_Always);
 		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
 		if (ImGui::BeginPopupModal(MODAL_TITLE("create_preset"), NULL, ImGuiWindowFlags_NoResize))
@@ -268,12 +266,12 @@ namespace MikuMikuWorld
 
 			ImGui::Text(getString("description"));
 			ImGui::InputTextMultiline(
-			    "##preset_desc", &presetDesc,
-			    { -1, ImGui::GetContentRegionAvail().y - UI::btnSmall.y - 10.0f - padding.y });
+				"##preset_desc", &presetDesc,
+				{ -1, ImGui::GetContentRegionAvail().y - UI::btnSmall.y - 10.0f - padding.y });
 
 			ImVec2 btnSz{ (ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) /
-				              2.0f,
-				          ImGui::GetFrameHeight() };
+							  2.0f,
+						  ImGui::GetFrameHeight() };
 			ImGui::SetCursorPos(ImVec2(xPos, yPos));
 			if (ImGui::Button(getString("cancel"), btnSz))
 			{
@@ -308,8 +306,8 @@ namespace MikuMikuWorld
 		}
 
 		std::string dialogText = IO::formatString(
-		    "%s \"%s\" %s. %s", getString("file_not_found_msg1"), removeFilename.c_str(),
-		    getString("file_not_found_msg2"), getString("remove_recent_file_not_found"));
+			"%s \"%s\" %s. %s", getString("file_not_found_msg1"), removeFilename.c_str(),
+			getString("file_not_found_msg2"), getString("remove_recent_file_not_found"));
 
 		float maxDialogSizeX{ ImGui::GetMainViewport()->WorkSize.x * 0.80f };
 		ImVec2 padding = ImGui::GetStyle().WindowPadding;
@@ -317,10 +315,10 @@ namespace MikuMikuWorld
 		ImVec2 textSize = ImGui::CalcTextSize(dialogText.c_str());
 
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always,
-		                        ImVec2(0.5f, 0.5f));
+			ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(
-		    ImVec2(std::min(maxDialogSizeX, textSize.x + (padding.x * 2) + spacing.x), 0),
-		    ImGuiCond_Always);
+			ImVec2(std::min(maxDialogSizeX, textSize.x + (padding.x * 2) + spacing.x), 0),
+			ImGuiCond_Always);
 		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
 		if (ImGui::BeginPopupModal(MODAL_TITLE("file_not_found"), NULL, ImGuiWindowFlags_NoResize))
 		{
@@ -330,14 +328,14 @@ namespace MikuMikuWorld
 			ImGui::Text("\n");
 
 			ImVec2 btnSz{ (ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) /
-				              2.0f,
-				          ImGui::GetFrameHeight() };
+							  2.0f,
+						  ImGui::GetFrameHeight() };
 			btnSz.x = std::min(btnSz.x, 150.0f);
 
 			// Right align buttons
 			ImGui::SetCursorPos(
-			    ImVec2(ImGui::GetWindowSize().x - (btnSz.x * 2) - spacing.x - padding.x,
-			           ImGui::GetCursorPosY()));
+				ImVec2(ImGui::GetWindowSize().x - (btnSz.x * 2) - spacing.x - padding.x,
+					ImGui::GetCursorPosY()));
 
 			if (ImGui::Button(getString("yes"), btnSz))
 			{
@@ -362,7 +360,7 @@ namespace MikuMikuWorld
 	{
 		DialogResult result = DialogResult::None;
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always,
-		                        ImVec2(0.5f, 0.5f));
+			ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(ImVec2(450, 200), ImGuiCond_Always);
 		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
 		if (ImGui::BeginPopupModal(MODAL_TITLE("unsaved_changes"), NULL, ImGuiWindowFlags_NoResize))
@@ -379,8 +377,8 @@ namespace MikuMikuWorld
 			ImGui::SetCursorPos(ImVec2(xPos, yPos));
 
 			ImVec2 btnSz{ (ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) /
-				              3.0f,
-				          btnsHeight };
+							  3.0f,
+						  btnsHeight };
 
 			if (ImGui::Button(getString("save_changes"), btnSz))
 			{
@@ -417,22 +415,22 @@ namespace MikuMikuWorld
 		}
 
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always,
-		                        ImVec2(0.5f, 0.5f));
+			ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(ImVec2(450, 250), ImGuiCond_Always);
 		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
 		if (ImGui::BeginPopupModal(MODAL_TITLE("about"), NULL, ImGuiWindowFlags_NoResize))
 		{
 			ImGui::Text("MikuMikuWorld for Chart Cyanvas\nCopyright (c) 2023 Nanashi. "
-			            "(@sevenc-nanashi)\n\nThis application is based on "
-			            "MikuMikuWorld.\nCopyright (C) 2022 Crash5b\n\n");
+				"(@sevenc-nanashi)\n\nThis application is based on "
+				"MikuMikuWorld.\nCopyright (C) 2022 Crash5b\n\n");
 			ImGui::Separator();
 
 			float okButtonHeight = ImGui::GetFrameHeight();
 
 			ImGui::Text("Version %s", Application::getAppVersion().c_str());
 			ImGui::SetCursorPos(
-			    { ImGui::GetStyle().WindowPadding.x,
-			      ImGui::GetWindowSize().y - okButtonHeight - ImGui::GetStyle().WindowPadding.y });
+				{ ImGui::GetStyle().WindowPadding.x,
+				  ImGui::GetWindowSize().y - okButtonHeight - ImGui::GetStyle().WindowPadding.y });
 
 			if (ImGui::Button("OK", { ImGui::GetContentRegionAvail().x, okButtonHeight }))
 			{
@@ -447,21 +445,154 @@ namespace MikuMikuWorld
 		return DialogResult::None;
 	}
 
+	void DebugWindow::update(ScoreContext& context, ScoreEditorTimeline& timeline)
+	{
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_BUG, "debug")))
+		{
+			constexpr ImGuiTreeNodeFlags headerFlags = ImGuiTreeNodeFlags_DefaultOpen;
+			constexpr ImGuiTreeNodeFlags treeNodeFlags = headerFlags | ImGuiTreeNodeFlags_Framed;
+			if (ImGui::TreeNodeEx("Audio", treeNodeFlags))
+			{
+				if (ImGui::CollapsingHeader("Engine", headerFlags))
+				{
+					UI::beginPropertyColumns();
+					UI::addReadOnlyProperty("Sample Rate", context.audio.getDeviceSampleRate());
+					UI::addReadOnlyProperty("Channel Count", context.audio.getDeviceChannelCount());
+					UI::addReadOnlyProperty("Latency", IO::formatString("%.2fms", context.audio.getDeviceLatency() * 1000));
+					UI::endPropertyColumns();
+				}
+
+				if (ImGui::CollapsingHeader("Music", headerFlags))
+				{
+					UI::beginPropertyColumns();
+					UI::addReadOnlyProperty("Music Initialized", boolToString(context.audio.isMusicInitialized()));
+					UI::addReadOnlyProperty("Music Filename", context.audio.musicBuffer.name);
+
+					float musicTime = context.audio.getMusicPosition(), musicLength = context.audio.getMusicLength();
+					int musicTimeSeconds = static_cast<int>(musicTime), musicLengthSeconds = static_cast<int>(musicLength);
+					UI::addReadOnlyProperty("Music Time", IO::formatString("%02d:%02d/%02d:%02d",
+						musicTimeSeconds, static_cast<int>((musicTime - musicTimeSeconds) * 100),
+						musicLengthSeconds, static_cast<int>((musicLength - musicLengthSeconds) * 100)
+					));
+
+					UI::addReadOnlyProperty("Sample Rate", context.audio.musicBuffer.sampleRate);
+					UI::addReadOnlyProperty("Effective Sample Rate", context.audio.musicBuffer.effectiveSampleRate);
+					UI::addReadOnlyProperty("Channel Count", context.audio.musicBuffer.channelCount);
+					UI::endPropertyColumns();
+				}
+
+				if (ImGui::CollapsingHeader("Waveform", headerFlags))
+				{
+					UI::beginPropertyColumns();
+					UI::addReadOnlyProperty("Waveform L", boolToString(!context.waveformL.isEmpty()));
+					UI::addReadOnlyProperty("Waveform L Mip Count", context.waveformL.getUsedMipCount());
+					UI::addReadOnlyProperty("Waveform L Samples", context.waveformL.mips->absoluteSamples.size());
+					UI::addReadOnlyProperty("Waveform R", boolToString(!context.waveformR.isEmpty()));
+					UI::addReadOnlyProperty("Waveform R Mip Count", context.waveformR.getUsedMipCount());
+					UI::addReadOnlyProperty("Waveform R Samples", context.waveformL.mips->absoluteSamples.size());
+					UI::endPropertyColumns();
+
+					if (ImGui::Button("Re-Generate Waveform", { -1, UI::btnSmall.y }))
+					{
+						context.waveformL.generateMipChainsFromSampleBuffer(context.audio.musicBuffer, 0);
+						context.waveformR.generateMipChainsFromSampleBuffer(context.audio.musicBuffer, 1);
+					}
+				}
+
+				if (ImGui::CollapsingHeader("Sound Test", headerFlags))
+				{
+					constexpr ImGuiTableFlags tableFlags =
+						ImGuiTableFlags_BordersOuter |
+						ImGuiTableFlags_BordersInnerH |
+						ImGuiTableFlags_BordersInnerV |
+						ImGuiTableFlags_ScrollY |
+						ImGuiTableFlags_RowBg;
+
+					const int rowHeight = ImGui::GetFrameHeight() + 5;
+
+					if (ImGui::BeginTable("##sound_test_table", 3, tableFlags, { -1, 200 }))
+					{
+						ImGui::TableSetupScrollFreeze(0, 1);
+						ImGui::TableSetupColumn("Name");
+						ImGui::TableSetupColumn("Duration (sec)", ImGuiTableColumnFlags_WidthFixed);
+						ImGui::TableSetupColumn("Play/Stop", ImGuiTableColumnFlags_WidthFixed);
+						ImGui::TableHeadersRow();
+
+						for (size_t i = 0; i < arrayLength(SE_NAMES) * Audio::soundEffectsProfileCount; i++)
+						{
+							Audio::SoundInstance& sound = context.audio.debugSounds[i];
+
+							ImGui::PushID(i);
+							ImGui::TableNextRow(0, rowHeight);
+							ImGui::TableSetColumnIndex(0);
+
+							float ratio = sound.getCurrentFrame() / static_cast<float>(sound.getLengthInFrames());
+							if (!sound.isPlaying())
+								ratio = 0.0f;
+
+							ImGui::ProgressBar(ratio, { -1, 0 }, sound.name.c_str());
+
+							float duration = sound.getDuration(); int durationSecondsOnly = duration;
+							float time = sound.isPlaying() ? sound.getCurrentTime() : 0.0f; int timeSecondsOnly = time;
+							ImGui::TableSetColumnIndex(1);
+							ImGui::Text("%02d:%02d/%02d:%02d",
+								timeSecondsOnly,
+								static_cast<int>((time - timeSecondsOnly) * 100),
+								durationSecondsOnly,
+								static_cast<int>((duration - durationSecondsOnly) * 100)
+							);
+
+							ImGui::TableSetColumnIndex(2);
+							if (UI::transparentButton(ICON_FA_PLAY, UI::btnSmall))
+							{
+								sound.seek(0);
+								sound.play();
+							}
+
+							ImGui::SameLine();
+							ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+							ImGui::SameLine();
+							if (UI::transparentButton(ICON_FA_STOP, UI::btnSmall))
+								sound.stop();
+
+							ImGui::PopID();
+						}
+
+						ImGui::EndTable();
+					}
+				}
+
+				ImGui::TreePop();
+			}
+
+			if (ImGui::TreeNodeEx("Timeline", treeNodeFlags))
+			{
+				timeline.debug(context);
+				ImGui::TreePop();
+			}
+		}
+
+		ImGui::End();
+	}
+
 	void SettingsWindow::updateKeyConfig(MultiInputBinding* bindings[], int count)
 	{
 		ImVec2 size = ImVec2(-1, ImGui::GetContentRegionAvail().y * 0.7);
 		const ImGuiTableFlags tableFlags = ImGuiTableFlags_BordersOuter |
-		                                   ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_ScrollY |
-		                                   ImGuiTableFlags_RowBg;
+			ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_ScrollY |
+			ImGuiTableFlags_RowBg;
 
 		const ImGuiSelectableFlags selectionFlags =
-		    ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap;
+			ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap;
 		int rowHeight = ImGui::GetFrameHeight() + 5;
 
 		if (ImGui::BeginTable("##commands_table", 2, tableFlags, size))
 		{
+			ImGui::TableSetupScrollFreeze(0, 1);
 			ImGui::TableSetupColumn(getString("action"));
 			ImGui::TableSetupColumn(getString("keys"));
+			ImGui::TableHeadersRow();
+
 			for (int i = 0; i < count; ++i)
 			{
 				ImGui::TableNextRow(0, rowHeight);
@@ -469,7 +600,7 @@ namespace MikuMikuWorld
 				ImGui::TableSetColumnIndex(0);
 				ImGui::PushID(i);
 				if (ImGui::Selectable(getString(bindings[i]->name), i == selectedBindingIndex,
-				                      selectionFlags))
+					selectionFlags))
 					selectedBindingIndex = i;
 
 				ImGui::PopID();
@@ -516,7 +647,7 @@ namespace MikuMikuWorld
 				ImGui::PushID(b);
 
 				std::string buttonText =
-				    ToShortcutString(bindings[selectedBindingIndex]->bindings[b]);
+					ToShortcutString(bindings[selectedBindingIndex]->bindings[b]);
 				;
 				if (!buttonText.size())
 					buttonText = getString("none");
@@ -525,7 +656,7 @@ namespace MikuMikuWorld
 					buttonText = getString("cmd_key_listen");
 
 				if (ImGui::Button(buttonText.c_str(),
-				                  ImVec2(ImGui::GetContentRegionAvail().x - btnWidth, btnHeight)))
+					ImVec2(ImGui::GetContentRegionAvail().x - btnWidth, btnHeight)))
 				{
 					listeningForInput = true;
 					inputTimer.reset();
@@ -592,20 +723,20 @@ namespace MikuMikuWorld
 				for (int key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_MouseLeft; ++key)
 				{
 					bool isCtrl = key == ImGuiKey_LeftCtrl || key == ImGuiKey_RightCtrl ||
-					              key == ImGuiKey_ModCtrl;
+						key == ImGuiKey_ModCtrl;
 					bool isShift = key == ImGuiKey_LeftShift || key == ImGuiKey_RightShift ||
-					               key == ImGuiKey_ModShift;
+						key == ImGuiKey_ModShift;
 					bool isAlt = key == ImGuiKey_LeftAlt || key == ImGuiKey_RightAlt ||
-					             key == ImGuiKey_ModAlt;
+						key == ImGuiKey_ModAlt;
 					bool isSuper = key == ImGuiKey_LeftSuper || key == ImGuiKey_RightSuper ||
-					               key == ImGuiKey_ModSuper;
+						key == ImGuiKey_ModSuper;
 
 					// execute if a non-modifier key is tapped
 					if (ImGui::IsKeyPressed((ImGuiKey)key) && !isCtrl && !isShift && !isAlt &&
-					    !isSuper)
+						!isSuper)
 					{
 						bindings[selectedBindingIndex]->bindings[editBindingIndex] =
-						    InputBinding((ImGuiKey)key, (ImGuiModFlags_)ImGui::GetIO().KeyMods);
+							InputBinding((ImGuiKey)key, (ImGuiModFlags_)ImGui::GetIO().KeyMods);
 						listeningForInput = false;
 						editBindingIndex = -1;
 					}
@@ -623,7 +754,7 @@ namespace MikuMikuWorld
 		}
 
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always,
-		                        ImVec2(0.5f, 0.5f));
+			ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(ImVec2(750, 600), ImGuiCond_Always);
 		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 10));
@@ -633,16 +764,16 @@ namespace MikuMikuWorld
 			ImVec2 padding = ImGui::GetStyle().WindowPadding;
 			ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
 			ImVec2 confirmBtnPos =
-			    ImGui::GetWindowSize() + ImVec2(-100, -UI::btnNormal.y) - padding;
+				ImGui::GetWindowSize() + ImVec2(-100, -UI::btnNormal.y) - padding;
 			ImGui::BeginChild("##settings_panel", ImGui::GetContentRegionAvail() -
-			                                          ImVec2(0, UI::btnNormal.y + padding.y));
+				ImVec2(0, UI::btnNormal.y + padding.y));
 
 			if (ImGui::BeginTabBar("##settings_tabs"))
 			{
 				if (ImGui::BeginTabItem(IMGUI_TITLE("", "general")))
 				{
 					if (ImGui::CollapsingHeader(getString("language"),
-					                            ImGuiTreeNodeFlags_DefaultOpen))
+						ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
 						UI::propertyLabel(getString("language"));
@@ -673,13 +804,13 @@ namespace MikuMikuWorld
 					}
 
 					if (ImGui::CollapsingHeader(getString("auto_save"),
-					                            ImGuiTreeNodeFlags_DefaultOpen))
+						ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
 						UI::addCheckboxProperty(getString("auto_save_enable"),
-						                        config.autoSaveEnabled);
+							config.autoSaveEnabled);
 						UI::addIntProperty(getString("auto_save_interval"),
-						                   config.autoSaveInterval);
+							config.autoSaveInterval);
 						UI::addIntProperty(getString("auto_save_count"), config.autoSaveMaxCount);
 						UI::endPropertyColumns();
 					}
@@ -688,20 +819,20 @@ namespace MikuMikuWorld
 					{
 						UI::beginPropertyColumns();
 						UI::addSelectProperty(getString("base_theme"), config.baseTheme, baseThemes,
-						                      (int)BaseTheme::BASE_THEME_MAX);
+							(int)BaseTheme::BASE_THEME_MAX);
 						UI::endPropertyColumns();
 
 						ImGui::TextWrapped(getString("accent_color_help"));
 						ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,
-						                    ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
+							ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
 						ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.5f);
 
 						for (int i = 0; i < UI::accentColors.size(); ++i)
 						{
 							bool apply = false;
 							std::string id = i == config.accentColor ? ICON_FA_CHECK
-							                 : i == 0                ? "C"
-							                                         : "##" + std::to_string(i);
+								: i == 0 ? "C"
+								: "##" + std::to_string(i);
 							ImGui::PushStyleColor(ImGuiCol_Button, UI::accentColors[i]);
 							ImGui::PushStyleColor(ImGuiCol_ButtonHovered, UI::accentColors[i]);
 							ImGui::PushStyleColor(ImGuiCol_ButtonActive, UI::accentColors[i]);
@@ -711,8 +842,8 @@ namespace MikuMikuWorld
 							ImGui::PopStyleColor(3);
 
 							if ((i < UI::accentColors.size() - 1) &&
-							    ImGui::GetCursorPosX() <
-							        ImGui::GetWindowSize().x - UI::btnNormal.x - 50.0f)
+								ImGui::GetCursorPosX() <
+								ImGui::GetWindowSize().x - UI::btnNormal.x - 50.0f)
 								ImGui::SameLine();
 
 							if (apply)
@@ -729,7 +860,7 @@ namespace MikuMikuWorld
 						UI::beginPropertyColumns();
 						UI::propertyLabel(getString("display_mode"));
 						if (ImGui::BeginCombo("##color_display_mode",
-						                      colorDisplayStr[(int)displayMode]))
+							colorDisplayStr[(int)displayMode]))
 						{
 							for (int i = 0; i < 3; ++i)
 							{
@@ -744,7 +875,7 @@ namespace MikuMikuWorld
 						UI::propertyLabel(getString("custom_color"));
 
 						ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,
-						                    ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
+							ImVec2(ImGui::GetStyle().ItemSpacing.x + 3, 15));
 						ImGuiColorEditFlags flags = 1 << (20 + (int)displayMode);
 						if (ImGui::ColorEdit3("##custom_accent_color", col, flags))
 							customColor.x = col[0];
@@ -772,61 +903,67 @@ namespace MikuMikuWorld
 				if (ImGui::BeginTabItem(IMGUI_TITLE("", "timeline")))
 				{
 					if (ImGui::CollapsingHeader(getString("timeline"),
-					                            ImGuiTreeNodeFlags_DefaultOpen))
+						ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
 						UI::addCheckboxProperty(getString("match_notes_size_to_timeline"),
-						                        config.matchNotesSizeToTimeline);
+							config.matchNotesSizeToTimeline);
 						UI::addIntProperty(getString("lane_width"), config.timelineWidth, "%dpx",
-						                   MIN_LANE_WIDTH, MAX_LANE_WIDTH);
+							MIN_LANE_WIDTH, MAX_LANE_WIDTH);
 
 						if (config.matchNotesSizeToTimeline)
 							UI::beginNextItemDisabled();
 						UI::addIntProperty(getString("notes_height"), config.notesHeight, "%dpx",
-						                   MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT);
+							MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT);
 						if (config.matchNotesSizeToTimeline)
 							UI::endNextItemDisabled();
 						ImGui::Separator();
 
 						UI::addCheckboxProperty(getString("draw_waveform"), config.drawWaveform);
 						UI::addCheckboxProperty(getString("return_to_last_tick"),
-						                        config.returnToLastSelectedTickOnPause);
+							config.returnToLastSelectedTickOnPause);
 						UI::addCheckboxProperty(getString("cursor_auto_scroll"),
-						                        config.followCursorInPlayback);
+							config.followCursorInPlayback);
 						UI::addPercentSliderProperty(getString("cursor_auto_scroll_amount"),
-						                             config.cursorPositionThreshold);
+							config.cursorPositionThreshold);
 						UI::endPropertyColumns();
 					}
 
 					if (ImGui::CollapsingHeader(getString("scrolling"),
-					                            ImGuiTreeNodeFlags_DefaultOpen))
+						ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
 						UI::addFloatProperty(getString("scroll_speed_normal"),
-						                     config.scrollSpeedNormal, "%.1fx");
+							config.scrollSpeedNormal, "%.1fx");
 						UI::addFloatProperty(getString("scroll_speed_shift"),
-						                     config.scrollSpeedShift, "%.1fx");
+							config.scrollSpeedShift, "%.1fx");
 						config.scrollSpeedNormal = std::max(0.1f, config.scrollSpeedNormal);
 						config.scrollSpeedShift = std::max(0.1f, config.scrollSpeedShift);
 						ImGui::Separator();
 
 						UI::addCheckboxProperty(getString("use_smooth_scroll"),
-						                        config.useSmoothScrolling);
+							config.useSmoothScrolling);
 						UI::addSliderProperty(getString("smooth_scroll_time"),
-						                      config.smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
+							config.smoothScrollingTime, 10.0f, 150.0f, "%.2fms");
 						UI::endPropertyColumns();
 					}
 
-					if (ImGui::CollapsingHeader(getString("background"),
-					                            ImGuiTreeNodeFlags_DefaultOpen))
+					if (ImGui::CollapsingHeader(getString("audio"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						UI::beginPropertyColumns();
+						UI::addSelectProperty(getString("notes_se"), config.seProfileIndex, Audio::soundEffectsProfileNames, Audio::soundEffectsProfileCount);
+						UI::endPropertyColumns();
+					}
+
+					if (ImGui::CollapsingHeader(getString("background"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
 						UI::addCheckboxProperty(getString("draw_background"),
-						                        config.drawBackground);
+							config.drawBackground);
 
 						std::string backgroundFile = config.backgroundImage;
 						int result =
-						    UI::addFileProperty(getString("background_image"), backgroundFile);
+							UI::addFileProperty(getString("background_image"), backgroundFile);
 						if (result == 1)
 						{
 							config.backgroundImage = backgroundFile;
@@ -837,7 +974,7 @@ namespace MikuMikuWorld
 							IO::FileDialog fileDialog{};
 							fileDialog.title = "Open Image File";
 							fileDialog.filters = { { "Image Files", "*.jpg;*.jpeg;*.png" },
-								                   { IO::allFilesName, IO::allFilesFilter } };
+												   { IO::allFilesName, IO::allFilesFilter } };
 							fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 
 							if (fileDialog.openFile() == IO::FileDialogResult::OK)
@@ -848,11 +985,11 @@ namespace MikuMikuWorld
 						}
 
 						UI::addPercentSliderProperty(getString("background_brightnes"),
-						                             config.backgroundBrightness);
+							config.backgroundBrightness);
 						ImGui::Separator();
 
 						UI::addPercentSliderProperty(getString("lanes_opacity"),
-						                             config.laneOpacity);
+							config.laneOpacity);
 						UI::endPropertyColumns();
 					}
 
@@ -890,16 +1027,16 @@ namespace MikuMikuWorld
 			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
 			float layersButtonHeight = ImGui::GetFrameHeight();
 			float windowHeight = ImGui::GetContentRegionAvail().y - layersButtonHeight * 2 -
-			                     ImGui::GetStyle().WindowPadding.y * 2;
+				ImGui::GetStyle().WindowPadding.y * 2;
 
 			bool showAllLayers = context.showAllLayers;
 
 			if (showAllLayers)
 			{
 				ImGui::PushStyleColor(ImGuiCol_Button,
-				                      ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+					ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
 				ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
-				                      ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+					ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
 			}
 			if (ImGui::Button(getString("show_all_layers"), ImVec2(-1, layersButtonHeight)))
 			{
@@ -921,20 +1058,20 @@ namespace MikuMikuWorld
 					if (isSelected)
 					{
 						ImGui::PushStyleColor(ImGuiCol_Button,
-						                      ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+							ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
 						ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
-						                      ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+							ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
 					}
 					if (ImGui::Button(layer.name.c_str(), ImVec2(ImGui::GetContentRegionAvail().x -
-					                                                 UI::btnSmall.x * 4 - 2.0f * 5,
-					                                             layersButtonHeight)))
+						UI::btnSmall.x * 4 - 2.0f * 5,
+						layersButtonHeight)))
 						context.selectedLayer = index;
 					if (isSelected)
 						ImGui::PopStyleColor(2);
 
 					ImGui::SameLine();
 					if (UI::transparentButton(ICON_FA_PENCIL_ALT,
-					                          ImVec2(UI::btnSmall.x, layersButtonHeight), false))
+						ImVec2(UI::btnSmall.x, layersButtonHeight), false))
 					{
 						renameIndex = index;
 						layerName = layer.name;
@@ -945,23 +1082,23 @@ namespace MikuMikuWorld
 					bool isFirst = index == 0;
 					ImGui::SameLine();
 					if (UI::transparentButton(ICON_FA_CHEVRON_UP,
-					                          ImVec2(UI::btnSmall.x, layersButtonHeight), false,
-					                          !isFirst))
+						ImVec2(UI::btnSmall.x, layersButtonHeight), false,
+						!isFirst))
 						moveUpPattern = index;
 					UI::tooltip(getString("layer_up"));
 
 					int isLast = index == context.score.layers.size() - 1;
 					ImGui::SameLine();
 					if (UI::transparentButton(ICON_FA_CHEVRON_DOWN,
-					                          ImVec2(UI::btnSmall.x, layersButtonHeight), false,
-					                          !isLast))
+						ImVec2(UI::btnSmall.x, layersButtonHeight), false,
+						!isLast))
 						moveDownPattern = index;
 					UI::tooltip(getString("layer_down"));
 
 					ImGui::SameLine();
 					if (UI::transparentButton(ICON_FA_LEVEL_DOWN_ALT,
-					                          ImVec2(UI::btnSmall.x, layersButtonHeight), false,
-					                          !isLast))
+						ImVec2(UI::btnSmall.x, layersButtonHeight), false,
+						!isLast))
 						mergePattern = index;
 					UI::tooltip(getString("layer_merge"));
 
@@ -984,7 +1121,7 @@ namespace MikuMikuWorld
 			{
 				Score prev = context.score;
 				std::swap(context.score.layers[moveUpPattern],
-				          context.score.layers[moveUpPattern - 1]);
+					context.score.layers[moveUpPattern - 1]);
 				for (auto& [_, note] : context.score.notes)
 				{
 					if (note.layer == moveUpPattern)
@@ -1006,7 +1143,7 @@ namespace MikuMikuWorld
 			{
 				Score prev = context.score;
 				std::swap(context.score.layers[moveDownPattern],
-				          context.score.layers[moveDownPattern + 1]);
+					context.score.layers[moveDownPattern + 1]);
 				for (auto& [_, note] : context.score.notes)
 				{
 					if (note.layer == moveDownPattern)
@@ -1049,7 +1186,7 @@ namespace MikuMikuWorld
 		if (dialogOpen)
 		{
 			ImGui::OpenPopup(renameIndex >= 0 ? MODAL_TITLE("layer_rename")
-			                                  : MODAL_TITLE("create_layer"));
+				: MODAL_TITLE("create_layer"));
 			dialogOpen = false;
 		}
 
@@ -1078,12 +1215,12 @@ namespace MikuMikuWorld
 		DialogResult result = DialogResult::None;
 
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always,
-		                        ImVec2(0.5f, 0.5f));
+			ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_Always);
 		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
 		if (ImGui::BeginPopupModal(renameIndex >= 0 ? MODAL_TITLE("layer_rename")
-		                                            : MODAL_TITLE("create_layer"),
-		                           NULL, ImGuiWindowFlags_NoResize))
+			: MODAL_TITLE("create_layer"),
+			NULL, ImGuiWindowFlags_NoResize))
 		{
 			ImVec2 padding = ImGui::GetStyle().WindowPadding;
 			ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
@@ -1096,8 +1233,8 @@ namespace MikuMikuWorld
 			ImGui::InputText("##layer_name", &layerName);
 
 			ImVec2 btnSz{ (ImGui::GetContentRegionAvail().x - spacing.x - (padding.x * 0.5f)) /
-				              2.0f,
-				          ImGui::GetFrameHeight() };
+							  2.0f,
+						  ImGui::GetFrameHeight() };
 			ImGui::SetCursorPos(ImVec2(xPos, yPos));
 			if (ImGui::Button(getString("cancel"), btnSz))
 			{
@@ -1129,7 +1266,7 @@ namespace MikuMikuWorld
 			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
 			float waypointButtonHeight = ImGui::GetFrameHeight();
 			float windowHeight = ImGui::GetContentRegionAvail().y - waypointButtonHeight * 1 -
-			                     ImGui::GetStyle().WindowPadding.y * 2;
+				ImGui::GetStyle().WindowPadding.y * 2;
 
 			if (ImGui::BeginChild("waypoints_child_window", ImVec2(-1, windowHeight), true))
 			{
@@ -1140,8 +1277,8 @@ namespace MikuMikuWorld
 					ImGui::PushID(index);
 
 					if (ImGui::Button(
-					        waypoint.name.c_str(),
-					        ImVec2(ImGui::GetContentRegionAvail().x, waypointButtonHeight)))
+						waypoint.name.c_str(),
+						ImVec2(ImGui::GetContentRegionAvail().x, waypointButtonHeight)))
 					{
 						context.currentTick = waypoint.tick;
 						scrollTimeline(context, waypoint.tick);
@@ -1156,7 +1293,7 @@ namespace MikuMikuWorld
 			{
 				context.score.waypoints.push_back(Waypoint{ "New Waypoint", context.currentTick });
 				std::sort(context.score.waypoints.begin(), context.score.waypoints.end(),
-				          [](const Waypoint& a, const Waypoint& b) { return a.tick < b.tick; });
+					[](const Waypoint& a, const Waypoint& b) { return a.tick < b.tick; });
 			}
 
 			ImGui::PopStyleColor();

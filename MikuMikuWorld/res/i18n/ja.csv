@@ -79,6 +79,7 @@ background_brightnes, 背景の明るさ
 lanes_opacity, レーンの不透明度
 video, 画面
 vsync_enable, VSync（垂直同期）
+notes_se, ノーツのSE
 
 # score editor
 options, オプション
@@ -172,6 +173,10 @@ guide_yellow, 黄
 guide_purple, 紫
 guide_cyan, 水
 layer, レイヤー
+edit_skill, スキル発動を編集
+edit_fever,　FEVER発動を編集
+edit_none,　編集
+edit_event,　イベントを編集
 
 # preset manager
 presets, プリセット

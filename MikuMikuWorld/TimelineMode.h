@@ -40,8 +40,16 @@ namespace MikuMikuWorld
 		EventTypeMax
 	};
 
-	constexpr const char* eventTypes[]{ "",      "bpm",   "time_signature", "hi_speed",
-		                                "skill", "fever", "waypoint" };
+	constexpr const char* eventTypes[]
+	{
+		"none",
+		"bpm",
+		"time_signature",
+		"hi_speed",
+		"skill",
+		"fever"
+		"waypoint"
+	};
 
 	enum class Direction : uint8_t
 	{

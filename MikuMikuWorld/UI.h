@@ -112,6 +112,18 @@ namespace MikuMikuWorld
 			ImGui::NextColumn();
 		}
 
+		static void addReadOnlyProperty(const char* label, const char* val)
+		{
+			propertyLabel(label);
+			ImGui::Text(val);
+			ImGui::NextColumn();
+		}
+
+		inline static void addReadOnlyProperty(const char* label, const std::string& val)
+		{
+			addReadOnlyProperty(label, val.c_str());
+		}
+
 		/// <summary>
 		/// For use with sequential enums only
 		/// </summary>

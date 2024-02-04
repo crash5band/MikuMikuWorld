@@ -134,7 +134,7 @@ namespace Audio
 			return mip.averageNormalizedSampleInTimeRange(seconds, seconds + secondsPerPixel);
 		}
 
-		void generateMipChainsFromSampleBuffer(const Sound& audioData, uint32_t channelIndex)
+		void generateMipChainsFromSampleBuffer(const SoundBuffer& audioData, uint32_t channelIndex)
 		{
 			if (!audioData.isValid())
 			{

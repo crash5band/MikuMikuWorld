@@ -41,4 +41,23 @@ namespace MikuMikuWorld
 
 		return lerp;
 	}
+
+	uint32_t gcf(uint32_t a, uint32_t b)
+	{
+		for (;;)
+		{
+			if (b == 0)
+			{
+				break;
+			}
+			else
+			{
+				uint32_t t = a;
+				a = b;
+				b = t % a;
+			}
+		}
+
+		return a;
+	}
 }

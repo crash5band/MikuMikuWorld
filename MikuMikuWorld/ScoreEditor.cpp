@@ -38,6 +38,7 @@ namespace MikuMikuWorld
 		context.audio.setMusicVolume(config.bgmVolume);
 		context.audio.setSoundEffectsVolume(config.seVolume);
 		context.audio.loadSoundEffects();
+		context.audio.setSoundEffectsProfileIndex(config.seProfileIndex);
 
 		timeline.setDivision(config.division);
 		timeline.setZoom(config.zoom);
@@ -153,6 +154,12 @@ namespace MikuMikuWorld
 			settingsWindow.isBackgroundChangePending = false;
 		}
 
+		if (config.seProfileIndex != context.audio.getSoundEffectsProfileIndex())
+		{
+			context.audio.stopSoundEffects(false);
+			context.audio.setSoundEffectsProfileIndex(config.seProfileIndex);
+		}
+
 		if (propertiesWindow.isPendingLoadMusic)
 		{
 			loadMusic(propertiesWindow.pendingLoadMusicFilename);
@@ -184,11 +191,7 @@ namespace MikuMikuWorld
 
 		if (config.debugEnabled)
 		{
-			if (ImGui::Begin(IMGUI_TITLE(ICON_FA_BUG, "debug"), NULL))
-			{
-				timeline.debug();
-			}
-			ImGui::End();
+			debugWindow.update(context, timeline);
 		}
 
 		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_ALIGN_LEFT, "chart_properties"), NULL,
@@ -232,14 +235,15 @@ namespace MikuMikuWorld
 
 	size_t ScoreEditor::updateRecentFilesList(const std::string& entry)
 	{
-		if (std::find(config.recentFiles.begin(), config.recentFiles.end(), entry) ==
-		    config.recentFiles.end())
-		{
-			while (config.recentFiles.size() >= maxRecentFilesEntries)
-				config.recentFiles.pop_back();
+		while (config.recentFiles.size() >= maxRecentFilesEntries)
+			config.recentFiles.pop_back();
 
-			config.recentFiles.insert(config.recentFiles.begin(), entry);
-		}
+		// Remove the entry (if found) to the beginning of the vector
+		auto it = std::find(config.recentFiles.begin(), config.recentFiles.end(), entry);
+		if (it != config.recentFiles.end())
+			config.recentFiles.erase(it);
+
+		config.recentFiles.insert(config.recentFiles.begin(), entry);
 		return config.recentFiles.size();
 	}
 
@@ -346,8 +350,8 @@ namespace MikuMikuWorld
 			               IO::MessageBoxIcon::Error);
 		}
 
-		context.waveformL.generateMipChainsFromSampleBuffer(context.audio.musicAudioData, 0);
-		context.waveformR.generateMipChainsFromSampleBuffer(context.audio.musicAudioData, 1);
+		context.waveformL.generateMipChainsFromSampleBuffer(context.audio.musicBuffer, 0);
+		context.waveformR.generateMipChainsFromSampleBuffer(context.audio.musicBuffer, 1);
 		timeline.setPlaying(context, false);
 	}
 
@@ -626,6 +630,16 @@ namespace MikuMikuWorld
 
 				if (ImGui::MenuItem("Delete Old Auto Save (Max)"))
 					deleteOldAutoSave(config.autoSaveMaxCount);
+
+				bool audioRunning = context.audio.isEngineStarted();
+				if (ImGui::MenuItem(audioRunning ? "Stop Audio" : "Start Audio",
+					audioRunning ? ICON_FA_VOLUME_UP : ICON_FA_VOLUME_MUTE))
+				{
+					if (audioRunning)
+						context.audio.stopEngine();
+					else
+						context.audio.startEngine();
+				}
 
 				ImGui::EndMenu();
 			}
