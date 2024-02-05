@@ -78,12 +78,12 @@ BEGIN
         BLOCK "200004b0"
         BEGIN
             VALUE "FileDescription", "MikuMikuWorld for Chart Cyanvas"
-            VALUE "FileVersion", "3.2.0.11"
+            VALUE "FileVersion", "3.2.0.12"
             VALUE "InternalName", "MikuMikuWorld.exe"
             VALUE "LegalCopyright", "Copyright (C) 2022"
             VALUE "OriginalFilename", "MikuMikuWorld.exe"
             VALUE "ProductName", "MikuMikuWorld for Chart Cyanvas"
-            VALUE "ProductVersion", "3.2.0.11"
+            VALUE "ProductVersion", "3.2.0.12"
         END
     END
     BLOCK "VarFileInfo"
