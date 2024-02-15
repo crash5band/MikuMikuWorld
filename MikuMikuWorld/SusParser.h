@@ -1,21 +1,22 @@
 #pragma once
 #include <string>
-#include <regex>
 #include "SUS.h"
 
 namespace MikuMikuWorld
 {
-	struct SusLineData
+	class SusDataLine
 	{
-		int lineIndex;
-		int measureOffset;
-		std::string line;
-	};
+	private:
+		int measureOffset{};
+		int measure{};
 
-	struct SusLineArgs
-	{
-		std::string header;
-		std::string value;
+	public:
+		std::string header{};
+		std::string data{};
+
+		SusDataLine(int measureOffset, const std::string& line);
+
+		inline constexpr int getEffectiveMeasure() const { return measureOffset + measure; }
 	};
 
 	class SusParser
@@ -31,9 +32,13 @@ namespace MikuMikuWorld
 		std::vector<Bar> bars;
 
 		bool isCommand(const std::string& line);
-		int toTicks(int measure, int i, int total);
-		SUSNoteStream toSlides(const std::vector<SUSNote>& stream);
-		std::vector<SUSNote> toNotes(const std::string& header, const std::string& data, int measureBase);
+		int getTicks(int measure, int i, int total);
+
+		SUSNoteStream getNoteStream(const std::vector<SUSNote>& stream);
+		std::vector<SUSNote> getNotes(const SusDataLine& line);
+		std::vector<BPM> getBpms(const std::vector<SusDataLine>& bpmLines);
+		std::vector<Bar> getBars(const std::vector<BarLength>& barLengths);
+		std::vector<HiSpeed> getHiSpeeds(const std::vector<SusDataLine>& hiSpeeds);
 
 	public:
 		SusParser();
