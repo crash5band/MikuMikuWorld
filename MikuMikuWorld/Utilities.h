@@ -26,12 +26,6 @@ namespace MikuMikuWorld
 		static float centerImGuiItem(const float width);
 		static void ImGuiCenteredText(const std::string& str);
 		static void ImGuiCenteredText(const char* str);
-
-		template<typename T>
-		static void sort(std::vector<T>& list, bool (*func)(const T& a, const T& b))
-		{
-			std::sort(list.begin(), list.end(), func);
-		}
 	};
 
 	enum class ResultStatus

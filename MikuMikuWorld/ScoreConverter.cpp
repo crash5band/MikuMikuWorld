@@ -304,6 +304,9 @@ namespace MikuMikuWorld
 		for (const auto& speed : sus.hiSpeeds)
 			hiSpeedChanges.push_back({ speed.tick, speed.speed });
 
+		std::sort(hiSpeedChanges.begin(), hiSpeedChanges.end(),
+			[](const auto& a, const auto& b) { return a.tick < b.tick; });
+
 		Score score;
 		score.metadata = metadata;
 		score.notes = notes;

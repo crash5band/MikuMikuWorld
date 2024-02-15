@@ -854,8 +854,8 @@ namespace MikuMikuWorld
 
 			Score prev = context.score;
 			context.score.tempoChanges.push_back({ hoverTick, edit.bpm });
-			Utilities::sort<Tempo>(context.score.tempoChanges, [](const Tempo& a, const Tempo& b) { return a.tick < b.tick; });
-
+			std::sort(context.score.tempoChanges.begin(), context.score.tempoChanges.end(),
+				[](const auto& a, const auto& b) { return a.tick < b.tick; });
 			context.pushHistory("Insert BPM change", prev, context.score);
 		}
 		else if (currentMode == TimelineMode::InsertTimeSign)
@@ -876,6 +876,8 @@ namespace MikuMikuWorld
 
 			Score prev = context.score;
 			context.score.hiSpeedChanges.push_back({ hoverTick, edit.hiSpeed });
+			std::sort(context.score.hiSpeedChanges.begin(), context.score.hiSpeedChanges.end(),
+				[](const auto& a, const auto& b) { return a.tick < b.tick; });
 			context.pushHistory("Insert hi-speed changes", prev, context.score);
 		}
 	}
