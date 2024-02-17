@@ -593,21 +593,6 @@ namespace MikuMikuWorld
 
 		drawList->PopClipRect();
 
-		int currentMeasure = accumulateMeasures(context.currentTick, TICKS_PER_BEAT, context.score.timeSignatures);
-		const TimeSignature& ts = context.score.timeSignatures[findTimeSignature(currentMeasure, context.score.timeSignatures)];
-		const Tempo& tempo = getTempoAt(context.currentTick, context.score.tempoChanges);
-
-		int hiSpeed = findHighSpeedChange(context.currentTick, context.score.hiSpeedChanges);
-		float speed = (hiSpeed == -1 ? 1.0f : context.score.hiSpeedChanges[hiSpeed].speed);
-
-		std::string rhythmString = IO::formatString(
-			"  %02d:%02d:%02d  |  %d/%d  |  %g BPM  |  %gx",
-			(int)time / 60, (int)time % 60, (int)((time - (int)time) * 100),
-			ts.numerator, ts.denominator,
-			tempo.bpm,
-			speed
-		);
-
 		// Status bar: playback controls, division, zoom, current time and rhythm
 		ImGui::SetCursorPos(ImVec2{ ImGui::GetStyle().WindowPadding.x, size.y + UI::toolbarBtnSize.y + 4 + ImGui::GetStyle().WindowPadding.y });
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
@@ -669,15 +654,30 @@ namespace MikuMikuWorld
 		ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
 		ImGui::SameLine();
 
+		int currentMeasure = accumulateMeasures(context.currentTick, TICKS_PER_BEAT, context.score.timeSignatures);
+		const TimeSignature& ts = context.score.timeSignatures[findTimeSignature(currentMeasure, context.score.timeSignatures)];
+		const Tempo& tempo = getTempoAt(context.currentTick, context.score.tempoChanges);
+
+		int hiSpeed = findHighSpeedChange(context.currentTick, context.score.hiSpeedChanges);
+		float speed = (hiSpeed == -1 ? 1.0f : context.score.hiSpeedChanges[hiSpeed].speed);
+
+		static char rhythmString[256];
+		snprintf(rhythmString, 256, "  %02d:%02d:%02d  |  %d/%d  |  %g BPM  |  %gx",
+			(int)time / 60, (int)time % 60, (int)((time - (int)time) * 100),
+			ts.numerator, ts.denominator,
+			tempo.bpm,
+			speed
+		);
+
 		float _zoom = zoom;
-		int controlWidth = ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(rhythmString.c_str()).x - (UI::btnSmall.x * 3);
+		int controlWidth = ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(rhythmString).x - (UI::btnSmall.x * 3);
 		if (UI::zoomControl("zoom", _zoom, minZoom, 10, std::clamp(controlWidth, 120, 320)))
 			setZoom(_zoom);
 
 		ImGui::SameLine();
 		ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
 		ImGui::SameLine();
-		ImGui::Text(rhythmString.c_str());
+		ImGui::Text(rhythmString);
 
 		updateScrollbar();
 
