@@ -17,8 +17,8 @@ namespace MikuMikuWorld
 {
 	constexpr const char* windowUntitled = "Untitled";
 
-	constexpr float primaryLineThickness = 0.200f;
-	constexpr float secondaryLineThickness = 0.100f;
+	constexpr float primaryLineThickness = 0.250f;
+	constexpr float secondaryLineThickness = 0.150f;
 	constexpr float toolTipDelay = 0.5f;
 
 	constexpr ImGuiWindowFlags ImGuiWindowFlags_Static = ImGuiWindowFlags_NoCollapse;
