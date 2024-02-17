@@ -562,7 +562,7 @@ namespace MikuMikuWorld
 
 		if (config.showFPS)
 		{
-			std::string fps = IO::formatString("%.3fms (%.1fFPS)", ImGui::GetIO().DeltaTime * 1000, ImGui::GetIO().Framerate);
+			std::string fps = IO::formatString("%.3fms (%.1fFPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - ImGui::CalcTextSize(fps.c_str()).x - ImGui::GetStyle().WindowPadding.x);
 			ImGui::Text(fps.c_str());
 		}
