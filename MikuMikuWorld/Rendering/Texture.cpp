@@ -11,11 +11,16 @@ using namespace IO;
 
 namespace MikuMikuWorld
 {
-	Texture::Texture(const std::string& filename)
+	Texture::Texture(const std::string& filename) :
+		Texture(filename, TextureFilterMode::Linear, TextureFilterMode::Linear)
+	{
+	}
+
+	Texture::Texture(const std::string& filename, TextureFilterMode min, TextureFilterMode mag)
 	{
 		this->filename = filename;
 		name = File::getFilenameWithoutExtension(filename);
-		read(filename);
+		read(filename, min, mag);
 
 		std::string sprSheet = File::getFilepath(filename) + "spr/" + name + ".txt";
 		if (File::exists(sprSheet))
@@ -28,7 +33,8 @@ namespace MikuMikuWorld
 		}
 	}
 
-	Texture::Texture()
+	Texture::Texture(const std::string& filename, TextureFilterMode filter) :
+		Texture(filename, filter, filter)
 	{
 
 	}
@@ -38,7 +44,7 @@ namespace MikuMikuWorld
 		glBindTexture(GL_TEXTURE_2D, glID);
 	}
 
-	void Texture::dispose()
+	void Texture::dispose() const
 	{
 		glDeleteTextures(1, &glID);
 	}
@@ -69,7 +75,7 @@ namespace MikuMikuWorld
 		return Sprite(name, x, y, w, h);
 	}
 
-	void Texture::read(const std::string& filename)
+	void Texture::read(const std::string& filename, TextureFilterMode minFilter, TextureFilterMode magFilter)
 	{
 		glGenTextures(1, &glID);
 		glBindTexture(GL_TEXTURE_2D, glID);
@@ -82,8 +88,8 @@ namespace MikuMikuWorld
 		glGenerateMipmap(GL_TEXTURE_2D);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLint)minFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLint)magFilter);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		free(data);

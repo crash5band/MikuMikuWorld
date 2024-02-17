@@ -313,25 +313,30 @@ namespace MikuMikuWorld
 	void Application::loadResources()
 	{
 		ResourceManager::loadShader(appDir + "res\\shaders\\basic2d");
-		ResourceManager::loadTexture(appDir + "res\\textures\\notes1.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\longNoteLine.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\touchLine_eff.png");
 
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_select.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_tap.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_hold.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_hold_step_normal.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_hold_step_hidden.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_hold_step_skip.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_flick_default.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_flick_left.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_flick_right.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_critical.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_trace.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_guide.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_bpm.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_time_signature.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_hi_speed.png");
+		std::string texturesDir = appDir + "res\\textures\\";
+
+		ResourceManager::loadTexture(texturesDir + "notes1.png",
+			TextureFilterMode::LinearMipMapNearest, TextureFilterMode::LinearMipMapLinear);
+
+		ResourceManager::loadTexture(texturesDir + "longNoteLine.png");
+		ResourceManager::loadTexture(texturesDir + "touchLine_eff.png");
+
+		ResourceManager::loadTexture(texturesDir + "timeline_select.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_tap.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_hold.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_hold_step_normal.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_hold_step_hidden.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_hold_step_skip.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_flick_default.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_flick_left.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_flick_right.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_critical.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_trace.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_guide.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_bpm.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_time_signature.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_hi_speed.png");
 
 		// cache note textures indices
 		noteTextures.notes = ResourceManager::getTexture(NOTES_TEX);

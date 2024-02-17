@@ -11,7 +11,7 @@ namespace MikuMikuWorld
 		static std::vector<Texture> textures;
 		static std::vector<Shader*> shaders;
 
-		static void loadTexture(const std::string filename);
+		static void loadTexture(const std::string& filename, TextureFilterMode minFilter = TextureFilterMode::Linear, TextureFilterMode magFilter = TextureFilterMode::Linear);
 		static int getTexture(const std::string& name);
 		static int getTextureByFilename(const std::string& filename);
 
