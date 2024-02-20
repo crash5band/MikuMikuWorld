@@ -314,10 +314,10 @@ namespace MikuMikuWorld
 	{
 		ResourceManager::loadShader(appDir + "res\\shaders\\basic2d");
 
-		std::string texturesDir = appDir + "res\\textures\\";
+		const std::string texturesDir = appDir + "res\\textures\\";
 
 		ResourceManager::loadTexture(texturesDir + "notes1.png",
-			TextureFilterMode::LinearMipMapNearest, TextureFilterMode::LinearMipMapLinear);
+			TextureFilterMode::LinearMipMapLinear, TextureFilterMode::Linear);
 
 		ResourceManager::loadTexture(texturesDir + "longNoteLine.png");
 		ResourceManager::loadTexture(texturesDir + "touchLine_eff.png");
@@ -338,12 +338,12 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(texturesDir + "timeline_time_signature.png");
 		ResourceManager::loadTexture(texturesDir + "timeline_hi_speed.png");
 
-		// cache note textures indices
+		// Cache note textures indices
 		noteTextures.notes = ResourceManager::getTexture(NOTES_TEX);
 		noteTextures.holdPath = ResourceManager::getTexture(HOLD_PATH_TEX);
 		noteTextures.touchLine = ResourceManager::getTexture(TOUCH_LINE_TEX);
 
-		// load more languages here
+		// Load more languages here
 		Localization::loadDefault();
 		Localization::load("ja", u8"日本語", appDir + "res\\i18n\\ja.csv");
 	}
