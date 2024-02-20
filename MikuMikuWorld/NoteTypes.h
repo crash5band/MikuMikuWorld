@@ -9,7 +9,7 @@ namespace MikuMikuWorld
 		Hold,
 		HoldMid,
 		HoldEnd,
-    Damage,
+		Damage,
 	};
 
 	enum class FlickType : uint8_t
@@ -21,13 +21,7 @@ namespace MikuMikuWorld
 		FlickTypeCount
 	};
 
-	constexpr const char* flickTypes[]
-	{
-		"none",
-		"default",
-		"left",
-		"right"
-	};
+	constexpr const char* flickTypes[]{ "none", "default", "left", "right" };
 
 	enum class HoldStepType : uint8_t
 	{
@@ -37,12 +31,7 @@ namespace MikuMikuWorld
 		HoldStepTypeCount
 	};
 
-	constexpr const char* stepTypes[]
-	{
-		"normal",
-		"hidden",
-		"skip"
-	};
+	constexpr const char* stepTypes[]{ "normal", "hidden", "skip" };
 
 	enum class EaseType : uint8_t
 	{
@@ -52,12 +41,7 @@ namespace MikuMikuWorld
 		EaseTypeCount
 	};
 
-	constexpr const char* easeTypes[]
-	{
-		"linear",
-		"ease_in",
-		"ease_out"
-	};
+	constexpr const char* easeTypes[]{ "linear", "ease_in", "ease_out" };
 
 	enum class HoldNoteType : uint8_t
 	{
@@ -66,57 +50,33 @@ namespace MikuMikuWorld
 		Guide
 	};
 
-	constexpr const char* holdTypes[]
-	{
-		"normal",
-		"hidden",
-		"guide"
-	};
+	constexpr const char* holdTypes[]{ "normal", "hidden", "guide" };
 
 	enum class GuideColor : uint8_t
 	{
-    Neutral,
-    Red,
-    Green,
-    Blue,
-    Yellow,
-    Purple,
-    Cyan,
-    GuideColorCount
+		Neutral,
+		Red,
+		Green,
+		Blue,
+		Yellow,
+		Purple,
+		Cyan,
+		Black,
+		GuideColorCount
 	};
 
-  constexpr const char* guideColors[]
-  {
-    "neutral",
-    "red",
-    "green",
-    "blue",
-    "yellow",
-    "purple",
-    "cyan"
-  };
-  constexpr const char* guideColorsForString[]
-  {
-    "guide_neutral",
-    "guide_red",
-    "guide_green",
-    "guide_blue",
-    "guide_yellow",
-    "guide_purple",
-    "guide_cyan"
-  };
+	constexpr const char* guideColors[]{ "neutral", "red",    "green", "blue",
+		                                 "yellow",  "purple", "cyan",  "black" };
+	constexpr const char* guideColorsForString[]{ "guide_neutral", "guide_red",    "guide_green",
+		                                          "guide_blue",    "guide_yellow", "guide_purple",
+		                                          "guide_cyan",    "guide_black" };
 
 	enum class FadeType : uint8_t
 	{
-    Out,
-    None,
-    In
+		Out,
+		None,
+		In
 	};
 
-	constexpr const char* fadeTypes[]
-	{
-		"fade_out",
-		"fade_none",
-		"fade_in"
-	};
+	constexpr const char* fadeTypes[]{ "fade_out", "fade_none", "fade_in" };
 }

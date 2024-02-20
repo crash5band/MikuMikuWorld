@@ -917,6 +917,10 @@ namespace MikuMikuWorld
 				{
 					hold.guideColor = GuideColor::Cyan;
 				}
+				else if (color == "black")
+				{
+					hold.guideColor = GuideColor::Black;
+				}
 				hold.fadeType = obj["fade"].get<std::string>() == "none" ? FadeType::None
 				                : obj["fade"].get<std::string>() == "in" ? FadeType::In
 				                                                         : FadeType::Out;

@@ -178,6 +178,7 @@ namespace MikuMikuWorld
 		{ "guide_yellow", "Yellow" },
 		{ "guide_purple", "Purple" },
 		{ "guide_cyan", "Cyan" },
+		{ "guide_black", "Black" },
 		{ "edit_skill", "Edit Skill Trigger" },
 		{ "edit_fever", "Edit FEVER Trigger" },
 		{ "edit_none", "Edit" },

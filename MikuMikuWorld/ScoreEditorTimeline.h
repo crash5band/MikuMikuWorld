@@ -23,17 +23,18 @@ namespace MikuMikuWorld
 		GuideYellow,
 		GuidePurple,
 		GuideCyan,
+		GuideBlack,
 		StepDrawTypeMax
 	};
 
 	constexpr std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawOutlineColors[] = {
 		0xFFAAFFAA, 0xFFFFFFAA, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC,
-		0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC
+		0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFCCCCCC
 	};
 
 	constexpr std::array<ImU32, (int)StepDrawType::StepDrawTypeMax> stepDrawFillColors[] = {
 		0x00FFFFFF, 0x00FFFFFF, 0xFF66B622, 0xFF15A0C9, 0xFFEDEDED, 0xFF7B73D6,
-		0xFF9DD673, 0xFFD67B73, 0xFF73CED6, 0xFFCD73D6, 0xFFD6AC73
+		0xFF9DD673, 0xFFD67B73, 0xFF73CED6, 0xFFCD73D6, 0xFFD6AC73, 0xFF000000
 	};
 
 	class StepDrawData
