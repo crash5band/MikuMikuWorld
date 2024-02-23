@@ -376,11 +376,15 @@ namespace MikuMikuWorld
 				pasteData.notes[end.ID] = end;
 
 				std::string startEase = jsonIO::tryGetValue<std::string>(entry["start"], "ease", "linear");
+				int startEaseTypeIndex = findArrayItem(startEase.c_str(), easeTypes, arrayLength(easeTypes));
+				if (startEaseTypeIndex == -1)
+				{
+					startEaseTypeIndex = 0;
+					if (startEase == "in") startEaseTypeIndex = 1;
+					if (startEase == "out") startEaseTypeIndex = 2;
+				}
 
-				HoldNote hold;
-				hold.start = { start.ID, HoldStepType::Normal, (EaseType)findArrayItem(startEase.c_str(), easeTypes, arrayLength(easeTypes)) };
-				hold.end = end.ID;
-
+				HoldNote hold{ { start.ID, HoldStepType::Normal, (EaseType)startEaseTypeIndex }, {}, end.ID };
 				if (jsonIO::keyExists(entry, "steps"))
 				{
 					hold.steps.reserve(entry["steps"].size());
@@ -397,7 +401,7 @@ namespace MikuMikuWorld
 						int stepTypeIndex = findArrayItem(midType.c_str(), stepTypes, arrayLength(stepTypes));
 						int easeTypeIndex = findArrayItem(midEase.c_str(), easeTypes, arrayLength(stepTypes));
 
-						// maintain compatibility with old step type names
+						// Maintain compatibility with old step type names
 						if (stepTypeIndex == -1)
 						{
 							stepTypeIndex = 0;
@@ -405,7 +409,7 @@ namespace MikuMikuWorld
 							if (midType == "ignored") stepTypeIndex = 2;
 						}
 
-						// maintain compatibility with old ease type names
+						// Maintain compatibility with old ease type names
 						if (easeTypeIndex == -1)
 						{
 							easeTypeIndex = 0;
