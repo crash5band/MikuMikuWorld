@@ -8,9 +8,9 @@ namespace jsonIO
 	{
 		mmw::Note note(type);
 
-		note.tick = tryGetValue<int>(data, "tick", 0);
-		note.lane = tryGetValue<int>(data, "lane", 0);
-		note.width = tryGetValue<int>(data, "width", 3);
+		note.tick = std::max(tryGetValue<int>(data, "tick", 0), 0);
+		note.lane = std::clamp(tryGetValue<int>(data, "lane", 0), mmw::MIN_LANE, mmw::MAX_LANE);
+		note.width = std::clamp(tryGetValue<int>(data, "width", 3), mmw::MIN_NOTE_WIDTH, mmw::MAX_NOTE_WIDTH);
 		
 		if (note.getType() != mmw::NoteType::HoldMid)
 		{
@@ -69,14 +69,21 @@ namespace jsonIO
 			const mmw::Note& note = score.notes.at(id);
 			switch (note.getType())
 			{
-			case mmw::NoteType::Tap: selectedNotes.insert(note.ID); break;
-			case mmw::NoteType::Hold: selectedHolds.insert(note.ID); break;
+			case mmw::NoteType::Tap:
+				selectedNotes.insert(note.ID);
+				break;
+
+			case mmw::NoteType::Hold:
+				selectedHolds.insert(note.ID);
+				break;
+
 			case mmw::NoteType::HoldMid:
 			case mmw::NoteType::HoldEnd:
 				selectedHolds.insert(note.parentID);
 				break;
 
-			default: break;
+			default:
+				break;
 			}
 		}
 
