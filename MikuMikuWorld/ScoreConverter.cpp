@@ -828,6 +828,8 @@ namespace MikuMikuWorld
 		}
 		json usc = vusc["usc"];
 		score.layers.clear();
+		score.hiSpeedChanges.clear();
+		score.tempoChanges.clear();
 
 		score.metadata.musicOffset = usc["offset"].get<float>() * -1000.0f;
 
