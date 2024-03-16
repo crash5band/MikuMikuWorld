@@ -641,7 +641,7 @@ namespace MikuMikuWorld
 		{
 			json obj;
 			obj["type"] = "bpm";
-			obj["beat"] = bpm.tick / (float)TICKS_PER_BEAT;
+			obj["beat"] = bpm.tick / (double)TICKS_PER_BEAT;
 			obj["bpm"] = bpm.bpm;
 			objects.push_back(obj);
 		}
@@ -658,7 +658,7 @@ namespace MikuMikuWorld
 					continue;
 				}
 				json obj;
-				obj["beat"] = hs.tick / (float)TICKS_PER_BEAT;
+				obj["beat"] = hs.tick / (double)TICKS_PER_BEAT;
 				obj["timeScale"] = hs.speed;
 				timeScaleObjects.push_back(obj);
 			}
@@ -672,7 +672,7 @@ namespace MikuMikuWorld
 			{
 				json obj;
 				obj["type"] = "single";
-				obj["beat"] = note.tick / (float)TICKS_PER_BEAT;
+				obj["beat"] = note.tick / (double)TICKS_PER_BEAT;
 				obj["size"] = note.width / 2.0;
 				obj["lane"] = note.lane - 6 + (note.width / 2.0);
 				obj["critical"] = note.critical;
@@ -690,7 +690,7 @@ namespace MikuMikuWorld
 			{
 				json obj;
 				obj["type"] = "damage";
-				obj["beat"] = note.tick / (float)TICKS_PER_BEAT;
+				obj["beat"] = note.tick / (double)TICKS_PER_BEAT;
 				obj["size"] = note.width / 2.0;
 				obj["lane"] = note.lane - 6 + (note.width / 2.0);
 				obj["timeScaleGroup"] = note.layer;
@@ -713,7 +713,7 @@ namespace MikuMikuWorld
 				steps.reserve(note.steps.size() + 1);
 
 				json startStep;
-				startStep["beat"] = start.tick / (float)TICKS_PER_BEAT;
+				startStep["beat"] = start.tick / (double)TICKS_PER_BEAT;
 				startStep["size"] = start.width / 2.0;
 				startStep["lane"] = start.lane - 6 + (start.width / 2.0);
 				startStep["ease"] = note.start.ease == EaseType::EaseIn    ? "in"
@@ -726,7 +726,7 @@ namespace MikuMikuWorld
 				{
 					json stepObj;
 					auto& stepNote = score.notes.at(step.ID);
-					stepObj["beat"] = stepNote.tick / (float)TICKS_PER_BEAT;
+					stepObj["beat"] = stepNote.tick / (double)TICKS_PER_BEAT;
 					stepObj["size"] = stepNote.width / 2.0;
 					stepObj["lane"] = stepNote.lane - 6 + (stepNote.width / 2.0);
 					stepObj["ease"] = step.ease == EaseType::EaseIn    ? "in"
@@ -738,7 +738,7 @@ namespace MikuMikuWorld
 
 				json endStep;
 				auto& end = score.notes.at(note.end);
-				endStep["beat"] = end.tick / (float)TICKS_PER_BEAT;
+				endStep["beat"] = end.tick / (double)TICKS_PER_BEAT;
 				endStep["size"] = end.width / 2.0;
 				endStep["lane"] = end.lane - 6 + (end.width / 2.0);
 				endStep["ease"] = "linear";
@@ -757,7 +757,7 @@ namespace MikuMikuWorld
 			steps.reserve(note.steps.size() + 1);
 			json startStep;
 			startStep["type"] = "start";
-			startStep["beat"] = start.tick / (float)TICKS_PER_BEAT;
+			startStep["beat"] = start.tick / (double)TICKS_PER_BEAT;
 			startStep["size"] = start.width / 2.0;
 			startStep["lane"] = start.lane - 6 + (start.width / 2.0);
 			startStep["critical"] = start.critical;
@@ -775,7 +775,7 @@ namespace MikuMikuWorld
 				json stepObj;
 				auto& stepNote = score.notes.at(step.ID);
 				stepObj["type"] = step.type == HoldStepType::Skip ? "attach" : "tick";
-				stepObj["beat"] = stepNote.tick / (float)TICKS_PER_BEAT;
+				stepObj["beat"] = stepNote.tick / (double)TICKS_PER_BEAT;
 				stepObj["size"] = stepNote.width / 2.0;
 				stepObj["lane"] = stepNote.lane - 6 + (stepNote.width / 2.0);
 				if (step.type != HoldStepType::Hidden)
@@ -792,7 +792,7 @@ namespace MikuMikuWorld
 			json endStep;
 			auto& end = score.notes.at(note.end);
 			endStep["type"] = "end";
-			endStep["beat"] = end.tick / (float)TICKS_PER_BEAT;
+			endStep["beat"] = end.tick / (double)TICKS_PER_BEAT;
 			endStep["size"] = end.width / 2.0;
 			endStep["lane"] = end.lane - 6 + (end.width / 2.0);
 			endStep["critical"] = end.critical;
@@ -838,7 +838,7 @@ namespace MikuMikuWorld
 			if (obj["type"] == "bpm")
 			{
 				score.tempoChanges.push_back(Tempo{
-				    (int)(obj["beat"].get<float>() * TICKS_PER_BEAT), obj["bpm"].get<float>() });
+				    (int)(obj["beat"].get<double>() * TICKS_PER_BEAT), obj["bpm"].get<float>() });
 			}
 			else if (obj["type"] == "timeScaleGroup")
 			{
@@ -848,14 +848,14 @@ namespace MikuMikuWorld
 				{
 					int id = nextID++;
 					score.hiSpeedChanges[id] =
-					    HiSpeedChange{ id, (int)(change["beat"].get<float>() * TICKS_PER_BEAT),
+					    HiSpeedChange{ id, (int)(change["beat"].get<double>() * TICKS_PER_BEAT),
 						               change["timeScale"].get<float>(), index };
 				}
 			}
 			else if (obj["type"] == "single")
 			{
 				Note note(NoteType::Tap);
-				note.tick = obj["beat"].get<float>() * TICKS_PER_BEAT;
+				note.tick = obj["beat"].get<double>() * TICKS_PER_BEAT;
 				note.width = obj["size"].get<float>() * 2;
 				note.lane = obj["lane"].get<float>() + 6 - obj["size"].get<float>();
 				note.critical = obj["critical"].get<bool>();
@@ -878,7 +878,7 @@ namespace MikuMikuWorld
 			else if (obj["type"] == "damage")
 			{
 				Note note(NoteType::Damage);
-				note.tick = obj["beat"].get<float>() * TICKS_PER_BEAT;
+				note.tick = obj["beat"].get<double>() * TICKS_PER_BEAT;
 				note.width = obj["size"].get<float>() * 2;
 				note.lane = obj["lane"].get<float>() + 6 - obj["size"].get<float>();
 				note.layer = obj["timeScaleGroup"].get<int>();
@@ -933,7 +933,7 @@ namespace MikuMikuWorld
 					if (i == 0)
 					{
 						Note startNote(NoteType::Hold);
-						startNote.tick = step["beat"].get<float>() * TICKS_PER_BEAT;
+						startNote.tick = step["beat"].get<double>() * TICKS_PER_BEAT;
 						startNote.lane = step["lane"].get<float>() + 6 - step["size"].get<float>();
 						startNote.layer = step["timeScaleGroup"].get<int>();
 						startNote.ID = nextID++;
@@ -949,7 +949,7 @@ namespace MikuMikuWorld
 					else if (i == obj["midpoints"].size() - 1)
 					{
 						Note endNote(NoteType::HoldEnd);
-						endNote.tick = step["beat"].get<float>() * TICKS_PER_BEAT;
+						endNote.tick = step["beat"].get<double>() * TICKS_PER_BEAT;
 						endNote.lane = step["lane"].get<float>() + 6 - step["size"].get<float>();
 						endNote.layer = step["timeScaleGroup"].get<int>();
 						endNote.ID = nextID++;
@@ -963,7 +963,7 @@ namespace MikuMikuWorld
 					{
 						HoldStep s;
 						Note mid(NoteType::HoldMid);
-						mid.tick = step["beat"].get<float>() * TICKS_PER_BEAT;
+						mid.tick = step["beat"].get<double>() * TICKS_PER_BEAT;
 						mid.lane = step["lane"].get<float>() + 6 - step["size"].get<float>();
 						mid.layer = step["timeScaleGroup"].get<int>();
 						mid.ID = nextID++;
@@ -1005,7 +1005,7 @@ namespace MikuMikuWorld
 					                 {
 						                 return true;
 					                 }
-					                 return a["beat"].get<float>() < b["beat"].get<float>();
+					                 return a["beat"].get<double>() < b["beat"].get<float>();
 				                 });
 
 				bool isCritical;
@@ -1015,7 +1015,7 @@ namespace MikuMikuWorld
 					if (type == "start")
 					{
 						Note startNote(NoteType::Hold);
-						startNote.tick = step["beat"].get<float>() * TICKS_PER_BEAT;
+						startNote.tick = step["beat"].get<double>() * TICKS_PER_BEAT;
 						startNote.lane = step["lane"].get<float>() + 6 - step["size"].get<float>();
 						startNote.layer = step["timeScaleGroup"].get<int>();
 						startNote.critical = step["critical"].get<bool>();
@@ -1045,7 +1045,7 @@ namespace MikuMikuWorld
 					else if (type == "end")
 					{
 						Note endNote(NoteType::HoldEnd);
-						endNote.tick = step["beat"].get<float>() * TICKS_PER_BEAT;
+						endNote.tick = step["beat"].get<double>() * TICKS_PER_BEAT;
 						endNote.lane = step["lane"].get<float>() + 6 - step["size"].get<float>();
 						endNote.layer = step["timeScaleGroup"].get<int>();
 						endNote.width = step["size"].get<float>() * 2;
@@ -1080,7 +1080,7 @@ namespace MikuMikuWorld
 					{
 						HoldStep s;
 						Note mid(NoteType::HoldMid);
-						mid.tick = step["beat"].get<float>() * TICKS_PER_BEAT;
+						mid.tick = step["beat"].get<double>() * TICKS_PER_BEAT;
 						mid.lane = step["lane"].get<float>() + 6 - step["size"].get<float>();
 						mid.width = step["size"].get<float>() * 2;
 						mid.layer = step["timeScaleGroup"].get<int>();
