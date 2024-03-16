@@ -564,7 +564,6 @@ namespace MikuMikuWorld
 						break;
 					}
 				}
-
 				if (jsonIO::keyExists(entry, "steps"))
 				{
 					hold.steps.reserve(entry["steps"].size());
@@ -586,7 +585,7 @@ namespace MikuMikuWorld
 						int easeTypeIndex =
 						    findArrayItem(midEase.c_str(), easeTypes, arrayLength(stepTypes));
 
-						// maintain compatibility with old step type names
+						// Maintain compatibility with old step type names
 						if (stepTypeIndex == -1)
 						{
 							stepTypeIndex = 0;
@@ -596,7 +595,7 @@ namespace MikuMikuWorld
 								stepTypeIndex = 2;
 						}
 
-						// maintain compatibility with old ease type names
+						// Maintain compatibility with old ease type names
 						if (easeTypeIndex == -1)
 						{
 							easeTypeIndex = 0;

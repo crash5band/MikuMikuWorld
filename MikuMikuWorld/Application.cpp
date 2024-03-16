@@ -311,41 +311,43 @@ namespace MikuMikuWorld
 	void Application::loadResources()
 	{
 		ResourceManager::loadShader(appDir + "res\\shaders\\basic2d");
-		ResourceManager::loadTexture(appDir + "res\\textures\\notes1.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\notes2.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\longNoteLine.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\touchLine_eff.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\guideColors.png");
+		const std::string texturesDir = appDir + "res\\textures\\";
+		ResourceManager::loadTexture(texturesDir + "notes1.png",
+		                             TextureFilterMode::LinearMipMapLinear,
+		                             TextureFilterMode::Linear);
+		ResourceManager::loadTexture(texturesDir + "notes2.png");
+		ResourceManager::loadTexture(texturesDir + "longNoteLine.png");
+		ResourceManager::loadTexture(texturesDir + "touchLine_eff.png");
+		ResourceManager::loadTexture(texturesDir + "guideColors.png");
 
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_select.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_tap.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_hold.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_hold_step_normal.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_hold_step_hidden.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_hold_step_skip.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_flick_default.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_flick_left.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_flick_right.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_critical.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_trace.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_select.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_tap.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_hold.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_hold_step_normal.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_hold_step_hidden.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_hold_step_skip.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_flick_default.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_flick_left.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_flick_right.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_critical.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_trace.png");
 		for (auto color : guideColors)
 			for (auto fade : fadeTypes)
 				ResourceManager::loadTexture(
 				    appDir + IO::formatString("res\\textures\\timeline_guide_%s_%s.png", color,
 				                              std::string(fade).substr(5).c_str()));
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_damage.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_bpm.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_time_signature.png");
-		ResourceManager::loadTexture(appDir + "res\\textures\\timeline_hi_speed.png");
-
-		// cache note textures indices
+		ResourceManager::loadTexture(texturesDir + "timeline_damage.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_bpm.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_time_signature.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_hi_speed.png");
+		// Cache note textures indices
 		noteTextures.notes = ResourceManager::getTexture(NOTES_TEX);
 		noteTextures.holdPath = ResourceManager::getTexture(HOLD_PATH_TEX);
 		noteTextures.touchLine = ResourceManager::getTexture(TOUCH_LINE_TEX);
 		noteTextures.ccNotes = ResourceManager::getTexture(CC_NOTES_TEX);
 		noteTextures.guideColors = ResourceManager::getTexture(GUIDE_COLORS_TEX);
 
-		// load more languages here
+		// Load more languages here
 		Localization::loadDefault();
 		Localization::load("ja", u8"日本語", appDir + "res\\i18n\\ja.csv");
 	}

@@ -343,8 +343,8 @@ namespace MikuMikuWorld
 		else
 		{
 			std::string errorMessage = IO::formatString(
-			    "%s\n%s: %s\n%s: %s", getString("error_load_music_file"), getString("music_file"),
-			    filename.c_str(), result.getMessage().c_str());
+			    "%s\n%s: %s\n%ls: %s", getString("error_load_music_file"), getString("music_file"),
+			    IO::mbToWideStr(filename.c_str()), result.getMessage().c_str());
 
 			IO::messageBox(APP_NAME, errorMessage, IO::MessageBoxButtons::Ok,
 			               IO::MessageBoxIcon::Error);
@@ -633,7 +633,7 @@ namespace MikuMikuWorld
 
 				bool audioRunning = context.audio.isEngineStarted();
 				if (ImGui::MenuItem(audioRunning ? "Stop Audio" : "Start Audio",
-					audioRunning ? ICON_FA_VOLUME_UP : ICON_FA_VOLUME_MUTE))
+				                    audioRunning ? ICON_FA_VOLUME_UP : ICON_FA_VOLUME_MUTE))
 				{
 					if (audioRunning)
 						context.audio.stopEngine();

@@ -1,18 +1,13 @@
 #include "Tempo.h"
-#include "Score.h"
 #include "Constants.h"
+#include "Score.h"
+#include <algorithm>
 
 namespace MikuMikuWorld
 {
-	Tempo::Tempo()
-		: tick{ 0 }, bpm{ 160 }
-	{
-	}
+	Tempo::Tempo() : tick{ 0 }, bpm{ 160 } {}
 
-	Tempo::Tempo(int _tick, float _bpm)
-		: tick{ _tick }, bpm{ _bpm }
-	{
-	}
+	Tempo::Tempo(int _tick, float _bpm) : tick{ _tick }, bpm{ _bpm } {}
 
 	float beatsPerMeasure(const TimeSignature& t)
 	{
@@ -123,9 +118,10 @@ namespace MikuMikuWorld
 			lastSignature = std::next(t);
 		}
 
-		total += (measure - lastSignature->first) * (beatsPerMeasure(lastSignature->second) * beatTicks);
+		total +=
+		    (measure - lastSignature->first) * (beatsPerMeasure(lastSignature->second) * beatTicks);
 		return total;
- 	}
+	}
 
 	int findTimeSignature(int measure, const std::map<int, TimeSignature>& ts)
 	{
@@ -138,7 +134,8 @@ namespace MikuMikuWorld
 		return 0;
 	}
 
-	int findHighSpeedChange(int tick, const std::unordered_map<int, HiSpeedChange>& hiSpeeds, int selectedLayer)
+	int findHighSpeedChange(int tick, const std::unordered_map<int, HiSpeedChange>& hiSpeeds,
+	                        int selectedLayer)
 	{
 		std::vector<std::pair<int, HiSpeedChange>> currentLayersHiSpeeds;
 		for (auto& [i, h] : hiSpeeds)
@@ -147,6 +144,8 @@ namespace MikuMikuWorld
 				continue;
 			currentLayersHiSpeeds.push_back(std::pair(i, h));
 		}
+		std::sort(currentLayersHiSpeeds.begin(), currentLayersHiSpeeds.end(),
+		          [](const auto& a, const auto& b) { return a.second.tick < b.second.tick; });
 		for (auto it = currentLayersHiSpeeds.rbegin(); it != currentLayersHiSpeeds.rend(); ++it)
 		{
 			if (it->second.tick <= tick)

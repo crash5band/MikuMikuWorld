@@ -1,5 +1,6 @@
 #include "IO.h"
 #include <Windows.h>
+#include <algorithm>
 
 namespace IO
 {
@@ -86,12 +87,12 @@ namespace IO
 
 	bool startsWith(const std::string_view& line, const std::string_view& key)
 	{
-		return line.find_first_of(key) == 0;
+		return std::equal(key.begin(), key.end(), line.begin());
 	}
 
 	bool endsWith(const std::string_view& line, const std::string_view& key)
 	{
-		return line.substr(line.length() - key.length()) == key;
+		return std::equal(key.rbegin(), key.rend(), line.rbegin());
 	}
 
 	bool isDigit(const std::string_view& str)
@@ -99,20 +100,10 @@ namespace IO
 		if (str.empty())
 			return false;
 
-		int index = 0;
-		if (str.at(index) == '-')
-			index = 1;
-
-		for (; index < str.length(); ++index)
-		{
-			if (!isdigit(str[index]))
-				return false;
-		}
-
-		return true;
+		return std::all_of(str.begin() + (str.at(0) == '-' ? 1 : 0), str.end(), std::isdigit);
 	}
 
-	std::string trim(std::string& line)
+	std::string trim(const std::string& line)
 	{
 		if (line.empty())
 			return line;

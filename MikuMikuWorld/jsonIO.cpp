@@ -77,6 +77,7 @@ namespace jsonIO
 			case mmw::NoteType::Hold:
 				selectedHolds.insert(note.ID);
 				break;
+
 			case mmw::NoteType::HoldMid:
 			case mmw::NoteType::HoldEnd:
 				selectedHolds.insert(note.parentID);

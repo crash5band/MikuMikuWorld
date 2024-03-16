@@ -767,21 +767,6 @@ namespace MikuMikuWorld
 
 		drawList->PopClipRect();
 
-		int currentMeasure =
-		    accumulateMeasures(context.currentTick, TICKS_PER_BEAT, context.score.timeSignatures);
-		const TimeSignature& ts =
-		    context.score
-		        .timeSignatures[findTimeSignature(currentMeasure, context.score.timeSignatures)];
-		const Tempo& tempo = getTempoAt(context.currentTick, context.score.tempoChanges);
-
-		int hiSpeed = findHighSpeedChange(context.currentTick, context.score.hiSpeedChanges,
-		                                  context.selectedLayer);
-		float speed = (hiSpeed == -1 ? 1.0f : context.score.hiSpeedChanges[hiSpeed].speed);
-
-		std::string rhythmString = IO::formatString(
-		    "  %02d:%02d:%02d  |  %d/%d  |  %g BPM  |  %gx", (int)time / 60, (int)time % 60,
-		    (int)((time - (int)time) * 100), ts.numerator, ts.denominator, tempo.bpm, speed);
-
 		// Status bar: playback controls, division, zoom, current time and rhythm
 		ImGui::SetCursorPos(
 		    ImVec2{ ImGui::GetStyle().WindowPadding.x,
@@ -850,6 +835,20 @@ namespace MikuMikuWorld
 		ImGui::SameLine();
 		ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
 		ImGui::SameLine();
+
+		int currentMeasure =
+		    accumulateMeasures(context.currentTick, TICKS_PER_BEAT, context.score.timeSignatures);
+		const TimeSignature& ts =
+		    context.score
+		        .timeSignatures[findTimeSignature(currentMeasure, context.score.timeSignatures)];
+		const Tempo& tempo = getTempoAt(context.currentTick, context.score.tempoChanges);
+		int hiSpeed = findHighSpeedChange(context.currentTick, context.score.hiSpeedChanges,
+		                                  context.selectedLayer);
+		float speed = (hiSpeed == -1 ? 1.0f : context.score.hiSpeedChanges[hiSpeed].speed);
+
+		std::string rhythmString = IO::formatString(
+		    "  %02d:%02d:%02d  |  %d/%d  |  %g BPM  |  %gx", (int)time / 60, (int)time % 60,
+		    (int)((time - (int)time) * 100), ts.numerator, ts.denominator, tempo.bpm, speed);
 
 		float _zoom = zoom;
 		int controlWidth = ImGui::GetContentRegionAvail().x -
@@ -1078,9 +1077,8 @@ namespace MikuMikuWorld
 
 			Score prev = context.score;
 			context.score.tempoChanges.push_back({ hoverTick, edit.bpm });
-			Utilities::sort<Tempo>(context.score.tempoChanges,
-			                       [](const Tempo& a, const Tempo& b) { return a.tick < b.tick; });
-
+			std::sort(context.score.tempoChanges.begin(), context.score.tempoChanges.end(),
+			          [](const auto& a, const auto& b) { return a.tick < b.tick; });
 			context.pushHistory("Insert BPM change", prev, context.score);
 		}
 		else if (currentMode == TimelineMode::InsertTimeSign)
@@ -1355,9 +1353,6 @@ namespace MikuMikuWorld
 			ctrlMousePos = mousePos;
 			holdLane = hoverLane;
 			holdTick = hoverTick;
-
-			holdingNote = note.ID;
-			noteTransformOrigin = NoteTransform::fromNote(note);
 		}
 
 		// Holding note
@@ -1473,6 +1468,12 @@ namespace MikuMikuWorld
 
 					if (io.KeyAlt && context.isNoteSelected(note))
 						context.selectedNotes.erase(note.ID);
+
+					if (context.isNoteSelected(note))
+					{
+						holdingNote = note.ID;
+						noteTransformOrigin = NoteTransform::fromNote(note);
+					}
 				}
 			}
 		}
@@ -2106,9 +2107,11 @@ namespace MikuMikuWorld
 		                     s.getY() + s.getHeight(), tint, 1);
 		pos.x += sliceSz.x;
 
-		// middle
+		// Middle
 		renderer->drawSprite(pos, 0.0f, midSz, anchor, tex, left + noteSliceWidth,
-		                     right - noteSliceWidth, s.getY(), s.getY() + s.getHeight(), tint, 1);
+		                     left + noteSliceWidth + 1, s.getY(), s.getY() + s.getHeight(), tint,
+		                     (int)ZIndex::Note);
+
 		pos.x += midLen;
 
 		// right slice
@@ -2627,11 +2630,14 @@ namespace MikuMikuWorld
 			ImGui::TextDisabled("Hover lane: --\nHover tick: --");
 		}
 
-		ImGui::Text("Last selected tick : % d", lastSelectedTick);
+		ImGui::Text("Last selected tick : %d", lastSelectedTick);
 		ImGui::Separator();
 
 		if (ImGui::CollapsingHeader("Hover Note", ImGuiTreeNodeFlags_DefaultOpen))
 		{
+			ImGui::Text("Hovering note ID: %d", hoveringNote);
+			ImGui::Text("Holding note ID: %d", holdingNote);
+
 			auto it = context.score.notes.find(hoveringNote);
 			if (it != context.score.notes.end())
 			{

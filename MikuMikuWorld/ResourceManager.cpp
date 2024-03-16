@@ -7,7 +7,7 @@ namespace MikuMikuWorld
 	std::vector<Texture> ResourceManager::textures;
 	std::vector<Shader*> ResourceManager::shaders;
 
-	void ResourceManager::loadTexture(const std::string filename)
+	void ResourceManager::loadTexture(const std::string& filename, TextureFilterMode minFilter, TextureFilterMode magFilter)
 	{
 		if (!IO::File::exists(filename))
 		{
@@ -21,7 +21,7 @@ namespace MikuMikuWorld
 				return;
 		}
 
-		Texture tex(filename);
+		Texture tex(filename, minFilter, magFilter);
 		textures.push_back(tex);
 	}
 
