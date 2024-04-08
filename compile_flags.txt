@@ -1,0 +1,8 @@
+-xc++
+-std=c++17
+-IDepends
+-IDepends/glad/include
+-IDepends/stb_vorbis
+-IDepends/miniaudio
+-IDepends/json
+-IDepends/GLFW/include

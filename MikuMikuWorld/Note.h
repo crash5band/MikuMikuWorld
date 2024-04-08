@@ -35,8 +35,10 @@ namespace MikuMikuWorld
 	{
 		HoldLine,
 		Guide,
+		HoldTick,
 		Note,
-		FlickArrow
+		FrictionTick,
+		zCount
 	};
 
 	struct NoteTextures
