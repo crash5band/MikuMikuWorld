@@ -716,9 +716,7 @@ namespace MikuMikuWorld
 				startStep["beat"] = start.tick / (double)TICKS_PER_BEAT;
 				startStep["size"] = start.width / 2.0;
 				startStep["lane"] = start.lane - 6 + (start.width / 2.0);
-				startStep["ease"] = note.start.ease == EaseType::EaseIn    ? "in"
-				                    : note.start.ease == EaseType::EaseOut ? "out"
-				                                                           : "linear";
+				startStep["ease"] = easeNames[(int)note.start.ease];
 				startStep["timeScaleGroup"] = start.layer;
 				steps.push_back(startStep);
 
@@ -729,9 +727,7 @@ namespace MikuMikuWorld
 					stepObj["beat"] = stepNote.tick / (double)TICKS_PER_BEAT;
 					stepObj["size"] = stepNote.width / 2.0;
 					stepObj["lane"] = stepNote.lane - 6 + (stepNote.width / 2.0);
-					stepObj["ease"] = step.ease == EaseType::EaseIn    ? "in"
-					                  : step.ease == EaseType::EaseOut ? "out"
-					                                                   : "linear";
+					stepObj["ease"] = easeNames[(int)step.ease];
 					stepObj["timeScaleGroup"] = stepNote.layer;
 					steps.push_back(stepObj);
 				}
@@ -761,9 +757,7 @@ namespace MikuMikuWorld
 			startStep["size"] = start.width / 2.0;
 			startStep["lane"] = start.lane - 6 + (start.width / 2.0);
 			startStep["critical"] = start.critical;
-			startStep["ease"] = note.start.ease == EaseType::EaseIn    ? "in"
-			                    : note.start.ease == EaseType::EaseOut ? "out"
-			                                                           : "linear";
+			startStep["ease"] = easeNames[(int)note.start.ease];
 			startStep["judgeType"] = note.startType == HoldNoteType::Hidden ? "none"
 			                         : start.friction                       ? "trace"
 			                                                                : "normal";
@@ -782,9 +776,7 @@ namespace MikuMikuWorld
 				{
 					stepObj["critical"] = stepNote.critical;
 				}
-				stepObj["ease"] = step.ease == EaseType::EaseIn    ? "in"
-				                  : step.ease == EaseType::EaseOut ? "out"
-				                                                   : "linear";
+				stepObj["ease"] = easeNames[(int)step.ease];
 				stepObj["timeScaleGroup"] = stepNote.layer;
 				steps.push_back(stepObj);
 			}
@@ -940,10 +932,25 @@ namespace MikuMikuWorld
 						startNote.width = step["size"].get<float>() * 2;
 						score.notes[startNote.ID] = startNote;
 						hold.start.ID = startNote.ID;
-						hold.start.ease = step["ease"].get<std::string>() == "in" ? EaseType::EaseIn
-						                  : step["ease"].get<std::string>() == "out"
-						                      ? EaseType::EaseOut
-						                      : EaseType::Linear;
+						if (step["ease"].get<std::string>() == "in") {
+							hold.start.ease = EaseType::EaseIn;
+						}
+						else if (step["ease"].get<std::string>() == "out")
+						{
+							hold.start.ease = EaseType::EaseOut;
+						}
+						else if (step["ease"].get<std::string>() == "inout")
+						{
+							hold.start.ease = EaseType::EaseInOut;
+						}
+						else if (step["ease"].get<std::string>() == "outin")
+						{
+							hold.start.ease = EaseType::EaseOutIn;
+						}
+						else
+						{
+							hold.start.ease = EaseType::Linear;
+						}
 						hold.startType = HoldNoteType::Guide;
 					}
 					else if (i == obj["midpoints"].size() - 1)
@@ -971,9 +978,26 @@ namespace MikuMikuWorld
 						mid.width = step["size"].get<float>() * 2;
 						score.notes[mid.ID] = mid;
 						s.ID = mid.ID;
-						s.ease = step["ease"].get<std::string>() == "in"    ? EaseType::EaseIn
-						         : step["ease"].get<std::string>() == "out" ? EaseType::EaseOut
-						                                                    : EaseType::Linear;
+						if (step["ease"].get<std::string>() == "in")
+						{
+							s.ease = EaseType::EaseIn;
+						}
+						else if (step["ease"].get<std::string>() == "out")
+						{
+							s.ease = EaseType::EaseOut;
+						}
+						else if (step["ease"].get<std::string>() == "inout")
+						{
+							s.ease = EaseType::EaseInOut;
+						}
+						else if (step["ease"].get<std::string>() == "outin")
+						{
+							s.ease = EaseType::EaseOutIn;
+						}
+						else
+						{
+							s.ease = EaseType::Linear;
+						}
 						s.type = HoldStepType::Hidden;
 						hold.steps.push_back(s);
 					}
@@ -1037,10 +1061,26 @@ namespace MikuMikuWorld
 						startNote.ID = nextID++;
 						score.notes[startNote.ID] = startNote;
 						hold.start.ID = startNote.ID;
-						hold.start.ease = step["ease"].get<std::string>() == "in" ? EaseType::EaseIn
-						                  : step["ease"].get<std::string>() == "out"
-						                      ? EaseType::EaseOut
-						                      : EaseType::Linear;
+						if (step["ease"].get<std::string>() == "in")
+						{
+							hold.start.ease = EaseType::EaseIn;
+						}
+						else if (step["ease"].get<std::string>() == "out")
+						{
+							hold.start.ease = EaseType::EaseOut;
+						}
+						else if (step["ease"].get<std::string>() == "inout")
+						{
+							hold.start.ease = EaseType::EaseInOut;
+						}
+						else if (step["ease"].get<std::string>() == "outin")
+						{
+							hold.start.ease = EaseType::EaseOutIn;
+						}
+						else
+						{
+							hold.start.ease = EaseType::Linear;
+						}
 					}
 					else if (type == "end")
 					{
@@ -1089,9 +1129,27 @@ namespace MikuMikuWorld
 						mid.parentID = hold.start.ID;
 						score.notes[mid.ID] = mid;
 						s.ID = mid.ID;
-						s.ease = step["ease"].get<std::string>() == "in"    ? EaseType::EaseIn
-						         : step["ease"].get<std::string>() == "out" ? EaseType::EaseOut
-						                                                    : EaseType::Linear;
+						if (step["ease"].get<std::string>() == "in")
+						{
+							s.ease = EaseType::EaseIn;
+						}
+						else if (step["ease"].get<std::string>() == "out")
+						{
+							s.ease = EaseType::EaseOut;
+						}
+						else if (step["ease"].get<std::string>() == "inout")
+						{
+							s.ease = EaseType::EaseInOut;
+						}
+						else if (step["ease"].get<std::string>() == "outin")
+						{
+							s.ease = EaseType::EaseOutIn;
+						}
+						else
+						{
+							s.ease = EaseType::Linear;
+						}
+
 						if (type == "tick")
 						{
 							if (step.contains("critical"))

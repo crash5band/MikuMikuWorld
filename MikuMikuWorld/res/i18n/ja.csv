@@ -106,6 +106,8 @@ skip, 無視
 linear, 直線
 ease_in, 加速
 ease_out, 減速
+ease_in_out, 加速+減速
+ease_out_in, 減速+加速
 delete, 削除
 copy, コピー
 cut, 切り取り

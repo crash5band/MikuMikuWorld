@@ -112,6 +112,8 @@ namespace MikuMikuWorld
 		{ "linear", "Linear" },
 		{ "ease_in", "Ease In" },
 		{ "ease_out", "Ease Out" },
+		{ "ease_in_out", "Ease In Out" },
+		{ "ease_out_in", "Ease Out In" },
 		{ "delete", "Delete" },
 		{ "copy", "Copy" },
 		{ "cut", "Cut" },

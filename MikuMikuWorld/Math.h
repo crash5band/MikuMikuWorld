@@ -76,6 +76,8 @@ namespace MikuMikuWorld
 	float lerp(float start, float end, float ratio);
 	float easeIn(float start, float end, float ratio);
 	float easeOut(float start, float end, float ratio);
+	float easeInOut(float start, float end, float ratio);
+	float easeOutIn(float start, float end, float ratio);
 	float midpoint(float x1, float x2);
 	bool isWithinRange(float x, float left, float right);
 
