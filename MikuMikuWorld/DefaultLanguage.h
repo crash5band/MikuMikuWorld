@@ -125,6 +125,7 @@ namespace MikuMikuWorld
 		{ "shrink_up", "Shrink Up" },
 		{ "connect_holds", "Connect Holds" },
 		{ "split_hold", "Split Hold" },
+		{ "lerp_hispeeds", "Interpolate Hi-Speeds" },
 		{ "step_type", "Step Type" },
 		{ "ease_type", "Ease Type" },
 		{ "flick_type", "Flick Type" },

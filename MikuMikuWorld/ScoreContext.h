@@ -148,6 +148,8 @@ namespace MikuMikuWorld
 		void connectHoldsInSelection();
 		void splitHoldInSelection();
 
+		void lerpHiSpeeds(int division);
+
 		void undo();
 		void redo();
 		void pushHistory(std::string description, const Score& prev, const Score& current);

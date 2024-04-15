@@ -583,7 +583,7 @@ namespace MikuMikuWorld
 						int stepTypeIndex =
 						    findArrayItem(midType.c_str(), stepTypes, arrayLength(stepTypes));
 						int easeTypeIndex =
-						    findArrayItem(midEase.c_str(), easeTypes, arrayLength(stepTypes));
+						    findArrayItem(midEase.c_str(), easeTypes, arrayLength(easeTypes));
 
 						// Maintain compatibility with old step type names
 						if (stepTypeIndex == -1)
@@ -985,6 +985,45 @@ namespace MikuMikuWorld
 		score.notes[newSlideStart.ID] = newSlideStart;
 		score.holdNotes[newSlideStart.ID] = newHold;
 		pushHistory("Split hold", prev, score);
+	}
+
+	void ScoreContext::lerpHiSpeeds(int division) 
+	{
+		if (selectedHiSpeedChanges.size() < 2)
+			return;
+
+		Score prev = score;
+
+		std::vector<int> sortedSelection;
+		sortedSelection.insert(sortedSelection.end(), selectedHiSpeedChanges.begin(), selectedHiSpeedChanges.end());
+		std::sort(sortedSelection.begin(), sortedSelection.end(),
+		          [this](int a, int b)
+		          { 
+					return score.hiSpeedChanges[a].tick < score.hiSpeedChanges[b].tick;
+		          });
+
+		for (int i = 0; i < sortedSelection.size() - 1; i++)
+		{
+			auto &first = score.hiSpeedChanges[sortedSelection[i]];
+			auto &second = score.hiSpeedChanges[sortedSelection[i+1]];
+
+			int currentDivision = TICKS_PER_BEAT / (division / 4);
+
+			int firstDivisionTick = first.tick - first.tick % currentDivision + currentDivision;
+			for (int tick = firstDivisionTick; tick < second.tick; tick += currentDivision)
+			{
+				float t = ((float)tick - (float)first.tick) /
+				          ((float)second.tick - (float)first.tick);						 // inverse lerp
+				float speed =
+				    (float)first.speed + t * ((float)second.speed - (float)first.speed); // lerp
+				// remapping the current tick to the speed
+
+				int id = nextHiSpeedID++;
+				score.hiSpeedChanges[id] = { id, tick, speed, selectedLayer };
+			}
+		}
+
+		pushHistory("Lerp hispeeds", prev, score);
 	}
 
 	void ScoreContext::undo()

@@ -119,6 +119,7 @@ shrink_down, 縮める（最初に合わせる）
 shrink_up, 縮める（最後に合わせる）
 connect_holds, 連結
 split_hold, 切断
+lerp_hispeeds, ハイスピードを補間
 step_type, 中継点の種類
 ease_type, 曲線の種類
 flick_type, フリックの方向
