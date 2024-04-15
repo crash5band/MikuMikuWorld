@@ -2839,12 +2839,13 @@ namespace MikuMikuWorld
 				    std::max(waveform.getAmplitudeAt(mip, secondsAtPixel, secondsPerPixel), 0.0f);
 				float barValue = outOfBounds ? 0.0f : (amplitude * std::min(laneWidth * 6, 180.0f));
 				float rectYPosition = floorf(position.y + visualOffset - y);
+				// WARNING: A thickness of 0.5 or less does not draw with integrated graphics (optimization? limitation?)
 
 				float timelineMidPosition = midpoint(getTimelineStartX(), getTimelineEndX());
 				ImVec2 rect1(timelineMidPosition, rectYPosition);
 				ImVec2 rect2(timelineMidPosition +
-				                 (std::max(0.5f, barValue) * (rightChannel ? 1 : -1)),
-				             rectYPosition + 0.5f);
+				                 (std::max(0.75f, barValue) * (rightChannel ? 1 : -1)),
+				             rectYPosition + 0.75f);
 				drawList->AddRectFilled(rect1, rect2, waveformColor);
 			}
 		}
