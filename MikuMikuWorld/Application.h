@@ -38,7 +38,7 @@ namespace MikuMikuWorld
 
 	class Application
 	{
-	private:
+	  private:
 		GLFWwindow* window;
 		std::unique_ptr<ScoreEditor> editor;
 		std::unique_ptr<ImGuiManager> imgui;
@@ -56,7 +56,7 @@ namespace MikuMikuWorld
 		Result initOpenGL();
 		std::string getVersion();
 
-	public:
+	  public:
 		static WindowState windowState;
 		static std::string pendingLoadScoreFile;
 

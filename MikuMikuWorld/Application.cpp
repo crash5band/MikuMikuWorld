@@ -6,6 +6,9 @@
 #include "ResourceManager.h"
 #include "Utilities.h"
 #include <filesystem>
+#include <json.hpp>
+#include <stdexcept>
+#include <thread>
 
 namespace MikuMikuWorld
 {

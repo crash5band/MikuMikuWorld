@@ -38,6 +38,8 @@ ask_save, 譜面を保存しますか？
 warn_unsaved, 保存されていない変更は失われます。
 save_changes, 保存する
 discard_changes, 保存しない
+update_available, 新しいバージョンがリリースされました！
+update_available_description, %s がリリースされました。ブラウザで開きますか？
 score_file, 譜面ファイル
 error, エラー
 error_load_score_file, 譜面ファイルの読み込み中にエラーが発生しました

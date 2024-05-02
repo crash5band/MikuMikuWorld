@@ -46,7 +46,7 @@ namespace MikuMikuWorld
 
 	class DebugWindow
 	{
-	public:
+	  public:
 		void update(ScoreContext& context, ScoreEditorTimeline& timeline);
 	};
 
@@ -82,6 +82,20 @@ namespace MikuMikuWorld
 	{
 	  public:
 		bool open = false;
+		inline void close()
+		{
+			ImGui::CloseCurrentPopup();
+			open = false;
+		}
+
+		DialogResult update();
+	};
+
+	class UpdateAvailableDialog
+	{
+	  public:
+		bool open = false;
+		std::string latestVersion;
 		inline void close()
 		{
 			ImGui::CloseCurrentPopup();

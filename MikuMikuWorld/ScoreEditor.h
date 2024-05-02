@@ -21,6 +21,7 @@ namespace MikuMikuWorld
 		SettingsWindow settingsWindow{};
 		RecentFileNotFoundDialog recentFileNotFoundDialog{};
 		AboutDialog aboutDialog{};
+		UpdateAvailableDialog updateAvailableDialog{};
 
 		Stopwatch autoSaveTimer;
 		std::string autoSavePath;
@@ -28,6 +29,8 @@ namespace MikuMikuWorld
 
 		bool save(std::string filename);
 		size_t updateRecentFilesList(const std::string& entry);
+
+		void fetchUpdate();
 
 	  public:
 		ScoreEditor();

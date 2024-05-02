@@ -9,3 +9,4 @@ ReferenceAlignment: Left
 PointerAlignment: Left
 FixNamespaceComments: false
 BreakArrays: true
+SortIncludes: Never

@@ -1,6 +1,7 @@
 -xc++
 -std=c++17
 -IDepends
+-IDepends/openssl/include
 -IDepends/glad/include
 -IDepends/stb_vorbis
 -IDepends/miniaudio

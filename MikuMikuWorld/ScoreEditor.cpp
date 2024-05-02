@@ -1,3 +1,7 @@
+// Put httplib first otherwise the compiler will throw an error
+#define CPPHTTPLIB_OPENSSL_SUPPORT 1
+#include <cpp-httplib/httplib.h>
+
 #include "Application.h"
 #include "ApplicationConfiguration.h"
 #include "Constants.h"
@@ -45,6 +49,61 @@ namespace MikuMikuWorld
 
 		autoSavePath = Application::getAppDir() + "auto_save";
 		autoSaveTimer.reset();
+
+		std::thread fetchUpdateThread(
+		    [this]
+		    {
+			    try
+			    {
+				    ScoreEditor::fetchUpdate();
+			    }
+			    catch (const std::exception& e)
+			    {
+				    std::cout << "Failed to fetch latest update: " << e.what() << std::endl;
+			    }
+		    });
+
+		fetchUpdateThread.detach();
+	}
+
+	void ScoreEditor::fetchUpdate()
+	{
+		httplib::Client client("https://api.github.com");
+
+		std::cout << "Fetching new update" << std::endl;
+		auto res = client.Get("/repos/sevenc-nanashi/MikuMikuWorld4cc/releases/latest");
+		std::cout << "Status: " << res->status << std::endl;
+		if (res && res->status == 200)
+		{
+			auto parsed = nlohmann::json::parse(res->body);
+			std::string tagName = parsed["tag_name"];
+
+			auto currentVersion = Utilities::splitString(Application::getAppVersion(), '.');
+			auto latestVersion = Utilities::splitString(tagName.substr(1), // Remove "v"
+			                                            '.');
+
+			if (currentVersion.size() != latestVersion.size())
+			{
+				std::cout << "Assertion failed: number of version part don't match" << std::endl;
+			}
+
+			updateAvailableDialog.latestVersion = tagName.substr(1);
+
+			for (int i = 0; i < currentVersion.size(); i++)
+			{
+				auto currentVersionPart = std::stoi(currentVersion[i]);
+				auto latestVersionPart = std::stoi(latestVersion[i]);
+
+				if (latestVersionPart > currentVersionPart)
+				{
+					std::cout << "Update available" << std::endl;
+					updateAvailableDialog.open = true;
+					return;
+				}
+			}
+
+			std::cout << "No update" << std::endl;
+		}
 	}
 
 	void ScoreEditor::writeSettings()
@@ -182,6 +241,7 @@ namespace MikuMikuWorld
 
 		settingsWindow.update();
 		aboutDialog.update();
+		updateAvailableDialog.update();
 
 		ImGui::Begin(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"), NULL,
 		             ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar |
