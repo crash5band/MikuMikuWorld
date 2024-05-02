@@ -29,6 +29,7 @@ namespace MikuMikuWorld
 		{ "create_auto_save", "Create Auto Save" },
 		{ "help", "Help" },
 		{ "about", "About" },
+		{ "layer", "Layer" },
 
 		// Dialogs
 		{"file_not_found", "File not found"},
@@ -126,6 +127,7 @@ namespace MikuMikuWorld
 		{ "connect_holds", "Connect Holds" },
 		{ "split_hold", "Split Hold" },
 		{ "lerp_hispeeds", "Interpolate Hi-Speeds" },
+		{ "repeat_hold_mids", "Repeat Hold Mids" },
 		{ "step_type", "Step Type" },
 		{ "ease_type", "Ease Type" },
 		{ "flick_type", "Flick Type" },

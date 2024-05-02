@@ -987,7 +987,121 @@ namespace MikuMikuWorld
 		pushHistory("Split hold", prev, score);
 	}
 
-	void ScoreContext::lerpHiSpeeds(int division) 
+	void ScoreContext::repeatMidsInSelection(ScoreContext& context)
+	{
+
+		if (selectedNotes.size() < 3)
+			return;
+
+		Score prev = score;
+
+		Note& note = score.notes[*selectedNotes.begin()];
+		if (!(note.getType() == NoteType::HoldMid || note.getType() == NoteType::Hold))
+			return;
+
+		int holdIndex;
+
+		if (note.getType() == NoteType::HoldMid)
+		{
+			holdIndex = note.parentID;
+		}
+		else
+		{
+			holdIndex = *selectedNotes.begin();
+		}
+
+		HoldNote& hold = score.holdNotes[holdIndex];
+
+		std::vector<int> sortedSelection;
+		sortedSelection.insert(sortedSelection.end(), selectedNotes.begin(), selectedNotes.end());
+		std::sort(sortedSelection.begin(), sortedSelection.end(),
+		          [this](int a, int b) { return score.notes[a].tick < score.notes[b].tick; });
+
+		Note& patternStart = score.notes.at(*sortedSelection.begin());
+		std::reverse(sortedSelection.begin(), sortedSelection.end());
+		Note& patternEnd = score.notes.at(*sortedSelection.begin());
+		std::reverse(sortedSelection.begin(), sortedSelection.end());
+
+		// TODO: Check this in ScoreEditorTimeline too (Otherwise it will become so unfriendly)
+		/* if (patternStart.width != patternEnd.width) */
+		/* 	return; */
+
+		Note& holdStart = score.notes.at(hold.start.ID);
+		Note& holdEnd = score.notes.at(hold.end);
+
+		// score.notes.at(hold.start.ID).tick = 0;
+		// score.notes.at(hold.end).flick = FlickType::Default;
+
+		int patternHeight = patternEnd.tick - patternStart.tick;
+
+		int itterations = std::floor((holdEnd.tick - holdStart.tick) / patternHeight);
+
+		int startPos = findHoldStep(hold, patternStart.ID);
+		int endPos = findHoldStep(hold, patternEnd.ID);
+
+		if (startPos == -1)
+		{
+			hold.steps[endPos].ease = hold.start.ease;
+		}
+		else
+		{
+			hold.steps[endPos].ease = hold.steps[startPos].ease;
+		}
+
+		int minLane = MIN_LANE - context.score.metadata.laneExtension;
+		int maxLane = MAX_LANE + context.score.metadata.laneExtension + 1;
+
+		for (int j = 1; j < sortedSelection.size(); j++)
+		{
+			Note& currentRep = score.notes.at(sortedSelection[j]);
+			int jPos = findHoldStep(hold, currentRep.ID);
+
+			for (int i = 1; i < itterations; i++)
+			{
+				int lane = std::clamp(currentRep.lane + i * (patternEnd.lane - patternStart.lane),
+				                      minLane, maxLane - currentRep.width);
+
+				if (j == sortedSelection.size() - 1 && i == itterations - 1)
+				{
+					holdEnd.tick = currentRep.tick + patternHeight * i;
+					holdEnd.lane = lane;
+					holdEnd.width = currentRep.width;
+					continue;
+				}
+
+				Note nextMid = Note(NoteType::HoldMid, currentRep.tick + patternHeight * i, lane,
+				                    currentRep.width);
+
+				nextMid.critical = patternStart.critical;
+
+				nextMid.parentID = hold.start.ID;
+
+				nextMid.ID = nextID++;
+				score.notes[nextMid.ID] = nextMid;
+
+				HoldStepType type = jPos == -1 ? hold.steps[0].type : hold.steps[jPos].type;
+
+				int temp = jPos;
+
+				if (j == sortedSelection.size() - 1)
+				{
+					jPos = findHoldStep(hold, score.notes.at(sortedSelection[0]).ID);
+				}
+
+				EaseType ease = jPos == -1 ? hold.start.ease : hold.steps[jPos].ease;
+
+				jPos = temp;
+
+				hold.steps.push_back({ nextMid.ID, type, ease });
+			}
+		}
+
+		sortHoldSteps(score, hold);
+
+		pushHistory("Repeat hold mids", prev, score);
+	}
+
+	void ScoreContext::lerpHiSpeeds(int division)
 	{
 		if (selectedHiSpeedChanges.size() < 2)
 			return;
@@ -995,17 +1109,16 @@ namespace MikuMikuWorld
 		Score prev = score;
 
 		std::vector<int> sortedSelection;
-		sortedSelection.insert(sortedSelection.end(), selectedHiSpeedChanges.begin(), selectedHiSpeedChanges.end());
+		sortedSelection.insert(sortedSelection.end(), selectedHiSpeedChanges.begin(),
+		                       selectedHiSpeedChanges.end());
 		std::sort(sortedSelection.begin(), sortedSelection.end(),
 		          [this](int a, int b)
-		          { 
-					return score.hiSpeedChanges[a].tick < score.hiSpeedChanges[b].tick;
-		          });
+		          { return score.hiSpeedChanges[a].tick < score.hiSpeedChanges[b].tick; });
 
 		for (int i = 0; i < sortedSelection.size() - 1; i++)
 		{
-			auto &first = score.hiSpeedChanges[sortedSelection[i]];
-			auto &second = score.hiSpeedChanges[sortedSelection[i+1]];
+			auto& first = score.hiSpeedChanges[sortedSelection[i]];
+			auto& second = score.hiSpeedChanges[sortedSelection[i + 1]];
 
 			int currentDivision = TICKS_PER_BEAT / (division / 4);
 
@@ -1013,7 +1126,7 @@ namespace MikuMikuWorld
 			for (int tick = firstDivisionTick; tick < second.tick; tick += currentDivision)
 			{
 				float t = ((float)tick - (float)first.tick) /
-				          ((float)second.tick - (float)first.tick);						 // inverse lerp
+				          ((float)second.tick - (float)first.tick); // inverse lerp
 				float speed =
 				    (float)first.speed + t * ((float)second.speed - (float)first.speed); // lerp
 				// remapping the current tick to the speed

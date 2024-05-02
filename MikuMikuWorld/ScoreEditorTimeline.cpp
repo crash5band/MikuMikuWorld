@@ -333,11 +333,14 @@ namespace MikuMikuWorld
 			                    context.selectionHasStep() && context.selectedNotes.size() == 1))
 				context.splitHoldInSelection();
 
+			if (ImGui::MenuItem(getString("repeat_hold_mids"), NULL, false,
+			                    context.selectionHasStep() && context.selectedNotes.size() >= 3))
+				context.repeatMidsInSelection(context);
+
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("lerp_hispeeds"), NULL, false,
 			                    context.selectedHiSpeedChanges.size() >= 2))
 				context.lerpHiSpeeds(division);
-
 			ImGui::EndPopup();
 		}
 	}
