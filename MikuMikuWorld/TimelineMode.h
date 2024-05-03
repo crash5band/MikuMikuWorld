@@ -47,7 +47,7 @@ namespace MikuMikuWorld
 		"time_signature",
 		"hi_speed",
 		"skill",
-		"fever"
+		"fever",
 		"waypoint"
 	};
 
