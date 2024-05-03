@@ -33,7 +33,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            if (context.github.ref.split("/").pop().includes("rc")) {
+            if ("${{ github.ref }}".split("/").pop().includes("rc")) {
               core.setOutput('prerelease', true)
             } else {
               core.setOutput('prerelease', false)
