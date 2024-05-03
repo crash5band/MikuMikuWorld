@@ -23,8 +23,7 @@ jobs:
           mkdir build
           cd build
           mkdir MikuMikuWorld
-          cp ../x64/Release/MikuMikuWorld.exe MikuMikuWorld
-          cp -r ../x64/Release/res MikuMikuWorld
+          cp ../x64/Release/* MikuMikuWorld
 
           7z a MikuMikuWorld.zip MikuMikuWorld
 
