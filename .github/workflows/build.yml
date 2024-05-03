@@ -3,7 +3,7 @@ name: Build on push with tag
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   build:
@@ -26,7 +26,19 @@ jobs:
 
           7z a MikuMikuWorld.zip MikuMikuWorld
 
+      - name: Check version
+        id: version
+        uses: actions/github-script@v7
+        with:
+          script: |
+            if (context.github.ref.split("/").pop().includes("rc")) {
+              core.setOutput('prerelease', true)
+            } else {
+              core.setOutput('prerelease', false)
+            }
+
       - name: Upload
         uses: softprops/action-gh-release@v1
         with:
+          prerelease: ${{ steps.version.outputs.prerelease }}
           files: build/MikuMikuWorld.zip
