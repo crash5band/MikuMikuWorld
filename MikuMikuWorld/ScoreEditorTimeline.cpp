@@ -250,8 +250,9 @@ namespace MikuMikuWorld
 			                    false, !context.selectedNotes.empty()))
 				context.duplicateSelection(false);
 
-			if (ImGui::MenuItem(getString("flip_duplicate"), ToShortcutString(config.input.flipDuplicate),
-			                    false, !context.selectedNotes.empty()))
+			if (ImGui::MenuItem(getString("flip_duplicate"),
+			                    ToShortcutString(config.input.flipDuplicate), false,
+			                    !context.selectedNotes.empty()))
 				context.duplicateSelection(true);
 
 			if (ImGui::MenuItem(getString("flip"), ToShortcutString(config.input.flip), false,
@@ -341,8 +342,17 @@ namespace MikuMikuWorld
 			                    context.selectionHasStep() && context.selectedNotes.size() == 1))
 				context.splitHoldInSelection();
 
-			if (ImGui::MenuItem(getString("repeat_hold_mids"), NULL, false,
-			                    context.selectionHasStep() && context.selectedNotes.size() >= 3))
+			int selectedTickNum = 0;
+			for (const auto& noteId : context.selectedNotes)
+			{
+				auto& note = context.score.notes.at(noteId);
+				if (note.hasEase())
+				{
+					selectedTickNum += 1;
+				}
+			}
+
+			if (ImGui::MenuItem(getString("repeat_hold_mids"), NULL, false, selectedTickNum >= 3))
 				context.repeatMidsInSelection(context);
 
 			ImGui::Separator();
@@ -2850,7 +2860,8 @@ namespace MikuMikuWorld
 				    std::max(waveform.getAmplitudeAt(mip, secondsAtPixel, secondsPerPixel), 0.0f);
 				float barValue = outOfBounds ? 0.0f : (amplitude * std::min(laneWidth * 6, 180.0f));
 				float rectYPosition = floorf(position.y + visualOffset - y);
-				// WARNING: A thickness of 0.5 or less does not draw with integrated graphics (optimization? limitation?)
+				// WARNING: A thickness of 0.5 or less does not draw with integrated graphics
+				// (optimization? limitation?)
 
 				float timelineMidPosition = midpoint(getTimelineStartX(), getTimelineEndX());
 				ImVec2 rect1(timelineMidPosition, rectYPosition);
