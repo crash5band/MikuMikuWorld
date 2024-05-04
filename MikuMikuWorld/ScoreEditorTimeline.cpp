@@ -246,6 +246,14 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(getString("flip_paste"), ToShortcutString(config.input.flipPaste)))
 				context.paste(true);
 
+			if (ImGui::MenuItem(getString("duplicate"), ToShortcutString(config.input.duplicate),
+			                    false, !context.selectedNotes.empty()))
+				context.duplicateSelection(false);
+
+			if (ImGui::MenuItem(getString("flip_duplicate"), ToShortcutString(config.input.flipDuplicate),
+			                    false, !context.selectedNotes.empty()))
+				context.duplicateSelection(true);
+
 			if (ImGui::MenuItem(getString("flip"), ToShortcutString(config.input.flip), false,
 			                    !context.selectedNotes.empty()))
 				context.flipSelection();

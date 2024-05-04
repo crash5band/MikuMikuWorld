@@ -140,6 +140,7 @@ namespace MikuMikuWorld
 		void cutSelection();
 		void copySelection();
 		void paste(bool flip);
+		void duplicateSelection(bool flip);
 		void doPasteData(const nlohmann::json& data, bool flip);
 		void cancelPaste();
 		void confirmPaste();

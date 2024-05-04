@@ -770,6 +770,19 @@ namespace MikuMikuWorld
 		doPasteData(json::parse(clipboardData.substr(strlen(clipboardSignature))), flip);
 	}
 
+	void ScoreContext::duplicateSelection(bool flip) {
+		const char* clipboardDataPtr = ImGui::GetClipboardText();
+		if (clipboardDataPtr == nullptr)
+			return;
+
+		std::string clipboardData(clipboardDataPtr);
+
+		copySelection();
+		paste(flip);
+
+		ImGui::SetClipboardText(clipboardData.c_str());
+	}
+
 	void ScoreContext::shrinkSelection(Direction direction)
 	{
 		if ((selectedNotes.size() + selectedHiSpeedChanges.size()) < 2)

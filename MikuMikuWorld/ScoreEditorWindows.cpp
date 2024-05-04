@@ -215,8 +215,10 @@ namespace MikuMikuWorld
 			ImGui::EndChild();
 			ImGui::Separator();
 
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !context.selectedNotes.size());
-			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * !context.selectedNotes.size()));
+			const bool disable =
+			    !(context.selectedNotes.size() + context.selectedHiSpeedChanges.size());
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, disable);
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * disable));
 			if (ImGui::Button(getString("create_preset"), ImVec2(-1, presetButtonHeight)))
 				dialogOpen = true;
 

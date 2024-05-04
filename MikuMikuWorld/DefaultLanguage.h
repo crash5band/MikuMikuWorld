@@ -124,6 +124,8 @@ namespace MikuMikuWorld
 		{ "cut", "Cut" },
 		{ "paste", "Paste" },
 		{ "flip_paste", "Flip Paste" },
+		{ "duplicate", "Duplicate" },
+		{ "flip_duplicate", "Flip Duplicate" },
 		{ "flip", "Flip" },
 		{ "note_width", "Note Width" },
 		{ "shrink_down", "Shrink Down" },

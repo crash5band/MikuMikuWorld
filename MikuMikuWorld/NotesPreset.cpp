@@ -164,7 +164,7 @@ namespace MikuMikuWorld
 	                                 const std::unordered_set<int>& selectedHiSpeedChanges,
 	                                 const std::string& name, const std::string& desc)
 	{
-		if (!selectedNotes.size() || !name.size())
+		if (!(selectedNotes.size() + selectedHiSpeedChanges.size()) || !name.size())
 			return;
 
 		NotesPreset preset(nextPresetID++, name);

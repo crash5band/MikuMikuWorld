@@ -16,6 +16,7 @@ namespace MikuMikuWorld
 		MultiInputBinding shrinkUp = { "shrink_up", {} };
 		MultiInputBinding connectHolds = { "connect_holds", {} };
 		MultiInputBinding splitHold = { "split_hold", {} };
+		MultiInputBinding lerpHiSpeeds = { "lerp_hispeeds", {} };
 		MultiInputBinding openHelp = { "help", {ImGuiKey_F1} };
 		MultiInputBinding openSettings = { "settings", {ImGuiKey_Comma, ImGuiModFlags_Ctrl} };
 		MultiInputBinding deleteSelection = { "delete", {ImGuiKey_Delete} };
@@ -23,6 +24,8 @@ namespace MikuMikuWorld
 		MultiInputBinding cutSelection = { "cut", {ImGuiKey_X, ImGuiModFlags_Ctrl} };
 		MultiInputBinding paste = { "paste", {ImGuiKey_V, ImGuiModFlags_Ctrl} };
 		MultiInputBinding flipPaste = { "flip_paste", {ImGuiKey_V, ImGuiModFlags_Ctrl | ImGuiModFlags_Shift} };
+		MultiInputBinding duplicate = { "duplicate", { ImGuiKey_D, ImGuiModFlags_Ctrl} };
+		MultiInputBinding flipDuplicate = { "flip_duplicate", { ImGuiKey_D, ImGuiModFlags_Ctrl | ImGuiModFlags_Shift } };
 		MultiInputBinding flip = { "flip", {ImGuiKey_F, ImGuiModFlags_Ctrl} };
 		MultiInputBinding cancelPaste = { "cancel_paste", {ImGuiKey_Escape} };
 		MultiInputBinding previousTick = { "previous_tick", {ImGuiKey_DownArrow} };
@@ -125,6 +128,8 @@ namespace MikuMikuWorld
 		&config.input.copySelection,
 		&config.input.paste,
 		&config.input.flipPaste,
+		&config.input.duplicate,
+		&config.input.flipDuplicate,
 		&config.input.flip,
 		&config.input.cancelPaste,
 		&config.input.deleteSelection,
@@ -132,6 +137,7 @@ namespace MikuMikuWorld
 		&config.input.shrinkUp,
 		&config.input.connectHolds,
 		&config.input.splitHold,
+		&config.input.lerpHiSpeeds,
 		&config.input.selectAll,
 
 		&config.input.togglePlayback,
