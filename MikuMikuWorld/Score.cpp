@@ -46,24 +46,24 @@ namespace MikuMikuWorld
 
 		if (cyanvasVersion <= 5)
 		{
-			note.tick = reader->readInt32();
+			note.tick = reader->readUInt32();
 			note.lane = (float)reader->readInt32();
-			note.width = (float)reader->readInt32();
+			note.width = (float)reader->readUInt32();
 		}
 		else
 		{
-			note.tick = reader->readInt32();
+			note.tick = reader->readUInt32();
 			note.lane = reader->readSingle();
 			note.width = reader->readSingle();
 		}
 
 		if (cyanvasVersion >= 4)
-			note.layer = reader->readInt32();
+			note.layer = reader->readUInt32();
 
 		if (!note.hasEase())
-			note.flick = (FlickType)reader->readInt32();
+			note.flick = (FlickType)reader->readUInt32();
 
-		unsigned int flags = reader->readInt32();
+		unsigned int flags = reader->readUInt32();
 		note.critical = (bool)(flags & NOTE_CRITICAL);
 		note.friction = (bool)(flags & NOTE_FRICTION);
 		return note;
@@ -100,7 +100,7 @@ namespace MikuMikuWorld
 			metadata.jacketFile = reader->readString();
 
 		if (cyanvasVersion >= 1)
-			metadata.laneExtension = reader->readInt32();
+			metadata.laneExtension = reader->readUInt32();
 
 		return metadata;
 	}
@@ -119,26 +119,26 @@ namespace MikuMikuWorld
 	void readScoreEvents(Score& score, int version, int cyanvasVersion, BinaryReader* reader)
 	{
 		// time signature
-		int timeSignatureCount = reader->readInt32();
+		int timeSignatureCount = reader->readUInt32();
 		if (timeSignatureCount)
 			score.timeSignatures.clear();
 
 		for (int i = 0; i < timeSignatureCount; ++i)
 		{
-			int measure = reader->readInt32();
-			int numerator = reader->readInt32();
-			int denominator = reader->readInt32();
+			int measure = reader->readUInt32();
+			int numerator = reader->readUInt32();
+			int denominator = reader->readUInt32();
 			score.timeSignatures[measure] = { measure, numerator, denominator };
 		}
 
 		// bpm
-		int tempoCount = reader->readInt32();
+		int tempoCount = reader->readUInt32();
 		if (tempoCount)
 			score.tempoChanges.clear();
 
 		for (int i = 0; i < tempoCount; ++i)
 		{
-			int tick = reader->readInt32();
+			int tick = reader->readUInt32();
 			float bpm = reader->readSingle();
 			score.tempoChanges.push_back({ tick, bpm });
 		}
@@ -146,14 +146,14 @@ namespace MikuMikuWorld
 		// hi-speed
 		if (version > 2)
 		{
-			int hiSpeedCount = reader->readInt32();
+			int hiSpeedCount = reader->readUInt32();
 			for (int i = 0; i < hiSpeedCount; ++i)
 			{
-				int tick = reader->readInt32();
+				int tick = reader->readUInt32();
 				float speed = reader->readSingle();
 				int layer = 0;
 				if (cyanvasVersion >= 4)
-					layer = reader->readInt32();
+					layer = reader->readUInt32();
 				int id = nextHiSpeedID++;
 				score.hiSpeedChanges[id] = HiSpeedChange{ id, tick, speed, layer };
 			}
@@ -162,15 +162,15 @@ namespace MikuMikuWorld
 		// skills and fever
 		if (version > 1)
 		{
-			int skillCount = reader->readInt32();
+			int skillCount = reader->readUInt32();
 			for (int i = 0; i < skillCount; ++i)
 			{
-				int tick = reader->readInt32();
+				int tick = reader->readUInt32();
 				score.skills.push_back({ nextSkillID++, tick });
 			}
 
-			score.fever.startTick = reader->readInt32();
-			score.fever.endTick = reader->readInt32();
+			score.fever.startTick = reader->readUInt32();
+			score.fever.endTick = reader->readUInt32();
 		}
 	}
 
@@ -222,8 +222,8 @@ namespace MikuMikuWorld
 
 		bool isCyanvas = signature == "CCMMWS";
 
-		int version = reader.readInt16();
-		int cyanvasVersion = reader.readInt16();
+		int version = reader.readUInt16();
+		int cyanvasVersion = reader.readUInt16();
 		if (isCyanvas && cyanvasVersion == 0)
 		{
 			cyanvasVersion = 1;
@@ -238,16 +238,16 @@ namespace MikuMikuWorld
 		uint32_t waypointsAddress{};
 		if (version > 2)
 		{
-			metadataAddress = reader.readInt32();
-			eventsAddress = reader.readInt32();
-			tapsAddress = reader.readInt32();
-			holdsAddress = reader.readInt32();
+			metadataAddress = reader.readUInt32();
+			eventsAddress = reader.readUInt32();
+			tapsAddress = reader.readUInt32();
+			holdsAddress = reader.readUInt32();
 			if (isCyanvas)
-				damagesAddress = reader.readInt32();
+				damagesAddress = reader.readUInt32();
 			if (cyanvasVersion >= 4)
-				layersAddress = reader.readInt32();
+				layersAddress = reader.readUInt32();
 			if (cyanvasVersion >= 5)
-				waypointsAddress = reader.readInt32();
+				waypointsAddress = reader.readUInt32();
 
 			reader.seek(metadataAddress);
 		}
@@ -262,7 +262,7 @@ namespace MikuMikuWorld
 		if (version > 2)
 			reader.seek(tapsAddress);
 
-		int noteCount = reader.readInt32();
+		int noteCount = reader.readUInt32();
 		score.notes.reserve(noteCount);
 		for (int i = 0; i < noteCount; ++i)
 		{
@@ -274,7 +274,7 @@ namespace MikuMikuWorld
 		if (version > 2)
 			reader.seek(holdsAddress);
 
-		int holdCount = reader.readInt32();
+		int holdCount = reader.readUInt32();
 		score.holdNotes.reserve(holdCount);
 		for (int i = 0; i < holdCount; ++i)
 		{
@@ -282,7 +282,7 @@ namespace MikuMikuWorld
 
 			unsigned int flags{};
 			if (version > 3)
-				flags = reader.readInt32();
+				flags = reader.readUInt32();
 
 			if (flags & HOLD_START_HIDDEN)
 				hold.startType = HoldNoteType::Hidden;
@@ -295,15 +295,15 @@ namespace MikuMikuWorld
 
 			Note start = readNote(NoteType::Hold, &reader, cyanvasVersion);
 			start.ID = nextID++;
-			hold.start.ease = (EaseType)reader.readInt32();
+			hold.start.ease = (EaseType)reader.readUInt32();
 			hold.start.ID = start.ID;
 			if (cyanvasVersion >= 2)
 			{
-				hold.fadeType = (FadeType)reader.readInt32();
+				hold.fadeType = (FadeType)reader.readUInt32();
 			}
 			if (cyanvasVersion >= 3)
 			{
-				hold.guideColor = (GuideColor)reader.readInt32();
+				hold.guideColor = (GuideColor)reader.readUInt32();
 			}
 			else
 			{
@@ -311,7 +311,7 @@ namespace MikuMikuWorld
 			}
 			score.notes[start.ID] = start;
 
-			int stepCount = reader.readInt32();
+			int stepCount = reader.readUInt32();
 			hold.steps.reserve(stepCount);
 			for (int i = 0; i < stepCount; ++i)
 			{
@@ -321,8 +321,8 @@ namespace MikuMikuWorld
 				score.notes[mid.ID] = mid;
 
 				HoldStep step{};
-				step.type = (HoldStepType)reader.readInt32();
-				step.ease = (EaseType)reader.readInt32();
+				step.type = (HoldStepType)reader.readUInt32();
+				step.ease = (EaseType)reader.readUInt32();
 				step.ID = mid.ID;
 				hold.steps.push_back(step);
 			}
@@ -340,7 +340,7 @@ namespace MikuMikuWorld
 		{
 			reader.seek(damagesAddress);
 
-			int damageCount = reader.readInt32();
+			int damageCount = reader.readUInt32();
 			score.notes.reserve(damageCount);
 			for (int i = 0; i < damageCount; ++i)
 			{
@@ -355,7 +355,7 @@ namespace MikuMikuWorld
 			score.layers.clear();
 			reader.seek(layersAddress);
 
-			int layerCount = reader.readInt32();
+			int layerCount = reader.readUInt32();
 			score.layers.reserve(layerCount);
 			for (int i = 0; i < layerCount; ++i)
 			{
@@ -369,12 +369,12 @@ namespace MikuMikuWorld
 			score.waypoints.clear();
 			reader.seek(waypointsAddress);
 
-			int waypointCount = reader.readInt32();
+			int waypointCount = reader.readUInt32();
 			score.waypoints.reserve(waypointCount);
 			for (int i = 0; i < waypointCount; ++i)
 			{
 				std::string name = reader.readString();
-				int tick = reader.readInt32();
+				int tick = reader.readUInt32();
 				score.waypoints.push_back({ name, tick });
 			}
 		}

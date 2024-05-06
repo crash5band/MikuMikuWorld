@@ -10,15 +10,9 @@ namespace IO
 		stream = _wfopen(wFilename.c_str(), L"rb");
 	}
 
-	BinaryReader::~BinaryReader()
-	{
-		close();
-	}
+	BinaryReader::~BinaryReader() { close(); }
 
-	bool BinaryReader::isStreamValid()
-	{
-		return stream;
-	}
+	bool BinaryReader::isStreamValid() { return stream; }
 
 	void BinaryReader::close()
 	{
@@ -39,25 +33,40 @@ namespace IO
 		return size;
 	}
 
-	size_t BinaryReader::getStreamPosition()
-	{
-		return ftell(stream);
-	}
+	size_t BinaryReader::getStreamPosition() { return ftell(stream); }
 
-	uint16_t BinaryReader::readInt16()
+	uint16_t BinaryReader::readUInt16()
 	{
-    uint16_t data = 0;
+		uint16_t data = 0;
 		if (stream)
 			fread(&data, sizeof(uint16_t), 1, stream);
 
 		return data;
 	}
 
-	uint32_t BinaryReader::readInt32()
+	uint32_t BinaryReader::readUInt32()
 	{
 		uint32_t data = 0;
 		if (stream)
 			fread(&data, sizeof(uint32_t), 1, stream);
+
+		return data;
+	}
+
+	int16_t BinaryReader::readInt16()
+	{
+		int16_t data = 0;
+		if (stream)
+			fread(&data, sizeof(int16_t), 1, stream);
+
+		return data;
+	}
+
+	int32_t BinaryReader::readInt32()
+	{
+		int32_t data = 0;
+		if (stream)
+			fread(&data, sizeof(int32_t), 1, stream);
 
 		return data;
 	}
@@ -83,7 +92,6 @@ namespace IO
 				if (c)
 					data += c;
 			}
-
 		}
 		return data;
 	}

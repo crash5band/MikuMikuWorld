@@ -20,8 +20,10 @@ namespace IO
 		size_t getStreamPosition();
 		void seek(size_t pos);
 
-		uint16_t readInt16();
-		uint32_t readInt32();
+		int16_t readInt16();
+		int32_t readInt32();
+		uint16_t readUInt16();
+		uint32_t readUInt32();
 		float readSingle();
 		std::string readString();
 	};
