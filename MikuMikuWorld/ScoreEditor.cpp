@@ -72,8 +72,13 @@ namespace MikuMikuWorld
 
 		std::cout << "Fetching new update" << std::endl;
 		auto res = client.Get("/repos/sevenc-nanashi/MikuMikuWorld4cc/releases/latest");
+		if (!res)
+		{
+			std::cout << "Failed to fetch latest update: client.Get failed" << std::endl;
+			return;
+		}
 		std::cout << "Status: " << res->status << std::endl;
-		if (res && res->status == 200)
+		if (res->status == 200)
 		{
 			auto parsed = nlohmann::json::parse(res->body);
 			std::string tagName = parsed["tag_name"];
