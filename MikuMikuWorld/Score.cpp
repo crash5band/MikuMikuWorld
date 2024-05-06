@@ -40,10 +40,22 @@ namespace MikuMikuWorld
 
 	Note readNote(NoteType type, BinaryReader* reader, int cyanvasVersion)
 	{
+		// printf("%d\n", cyanvasVersion);
+
 		Note note(type);
-		note.tick = reader->readInt32();
-		note.lane = reader->readInt32();
-		note.width = reader->readInt32();
+
+		if (cyanvasVersion <= 5)
+		{
+			note.tick = reader->readInt32();
+			note.lane = (float)reader->readInt32();
+			note.width = (float)reader->readInt32();
+		}
+		else
+		{
+			note.tick = reader->readInt32();
+			note.lane = reader->readSingle();
+			note.width = reader->readSingle();
+		}
 
 		if (cyanvasVersion >= 4)
 			note.layer = reader->readInt32();
@@ -60,8 +72,8 @@ namespace MikuMikuWorld
 	void writeNote(const Note& note, BinaryWriter* writer)
 	{
 		writer->writeInt32(note.tick);
-		writer->writeInt32(note.lane);
-		writer->writeInt32(note.width);
+		writer->writeSingle(note.lane);
+		writer->writeSingle(note.width);
 		writer->writeInt32(note.layer);
 
 		if (!note.hasEase())
@@ -383,7 +395,7 @@ namespace MikuMikuWorld
 		// verison
 		writer.writeInt16(4);
 		// cyanvas version
-		writer.writeInt16(5);
+		writer.writeInt16(6);
 
 		// offsets address in order: metadata -> events -> taps -> holds
 		// Cyanvas extension: -> damages -> layers -> waypoints

@@ -53,9 +53,9 @@ namespace MikuMikuWorld
 
 	float ScoreEditorTimeline::tickToPosition(int tick) const { return tick * unitHeight * zoom; }
 
-	int ScoreEditorTimeline::positionToLane(float pos) const
+	float ScoreEditorTimeline::positionToLane(float pos) const
 	{
-		return floor((pos - laneOffset) / laneWidth);
+		return (pos - laneOffset) / laneWidth;
 	}
 
 	float ScoreEditorTimeline::laneToPosition(float lane) const
@@ -1355,8 +1355,8 @@ namespace MikuMikuWorld
 	                                      const ImVec2& pos, const ImVec2& sz, const char* id,
 	                                      ImGuiMouseCursor cursor)
 	{
-		int minLane = MIN_LANE - context.score.metadata.laneExtension;
-		int maxLane = MAX_LANE + context.score.metadata.laneExtension;
+		float minLane = MIN_LANE - context.score.metadata.laneExtension;
+		float maxLane = MAX_LANE + context.score.metadata.laneExtension;
 		// Do not process notes if the cursor is outside of the timeline
 		// This fixes ui buttons conflicting with note "buttons"
 		if (!mouseInTimeline && !isHoldingNote)
@@ -1457,9 +1457,9 @@ namespace MikuMikuWorld
 	{
 		if (!(context.showAllLayers || context.selectedLayer == note.layer))
 			return;
-		const int minLane = MIN_LANE - context.score.metadata.laneExtension;
-		const int maxLane = MAX_LANE + context.score.metadata.laneExtension;
-		const int maxNoteWidth = MAX_NOTE_WIDTH + context.score.metadata.laneExtension * 2;
+		const float minLane = MIN_LANE - context.score.metadata.laneExtension;
+		const float maxLane = MAX_LANE + context.score.metadata.laneExtension;
+		const float maxNoteWidth = MAX_NOTE_WIDTH + context.score.metadata.laneExtension * 2;
 
 		const float btnPosY =
 		    position.y - tickToPosition(note.tick) + visualOffset - (notesHeight * 0.5f);
@@ -1530,7 +1530,7 @@ namespace MikuMikuWorld
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
-						n.width = std::clamp(n.width - diff, MIN_NOTE_WIDTH, maxNoteWidth);
+						n.width = std::clamp(n.width - diff, (float)MIN_NOTE_WIDTH, maxNoteWidth);
 						n.lane = std::clamp(n.lane + diff, minLane, maxLane - n.width + 1);
 					}
 				}
@@ -1659,7 +1659,7 @@ namespace MikuMikuWorld
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
-						n.width = std::clamp(n.width + diff, MIN_NOTE_WIDTH, maxNoteWidth - n.lane);
+						n.width = std::clamp(n.width + diff, (float)MIN_NOTE_WIDTH, maxNoteWidth - n.lane);
 					}
 				}
 			}
@@ -1875,7 +1875,7 @@ namespace MikuMikuWorld
 				{
 					if (drawHoldStepOutlines)
 						drawSteps.emplace_back(StepDrawData{
-						    n3.tick + offsetTicks, n3.lane + offsetLane, n3.width,
+						    n3.tick + offsetTicks, n3.lane + (float)offsetLane, n3.width,
 						    note.steps[i].type == HoldStepType::Skip ? StepDrawType::SkipStep
 						                                             : StepDrawType::NormalStep,
 						    n3.layer });
@@ -1982,7 +1982,7 @@ namespace MikuMikuWorld
 					drawType = start.critical ? StepDrawType::InvisibleHoldCritical
 					                          : StepDrawType::InvisibleHold;
 				}
-				drawSteps.push_back({ start.tick + offsetTicks, start.lane + offsetLane,
+				drawSteps.push_back({ start.tick + offsetTicks, start.lane + (float)offsetLane,
 				                      start.width, drawType, start.layer });
 			}
 		}
@@ -2010,7 +2010,7 @@ namespace MikuMikuWorld
 					drawType = start.critical ? StepDrawType::InvisibleHoldCritical
 					                          : StepDrawType::InvisibleHold;
 				}
-				drawSteps.push_back({ end.tick + offsetTicks, end.lane + offsetLane, end.width,
+				drawSteps.push_back({ end.tick + offsetTicks, end.lane + (float)offsetLane, end.width,
 				                      drawType, end.layer });
 			}
 		}
@@ -2083,7 +2083,7 @@ namespace MikuMikuWorld
 		pos.y += notesHeight * 0.7f; // Move the arrow up a bit
 
 		// Notes wider than 6 lanes also use flick arrow size 6
-		int sizeIndex = std::min(note.width - 1, 5);
+		int sizeIndex = std::min((int)floor(note.width) - 1, 5);
 		Vector2 size{ laneWidth * flickArrowWidths[sizeIndex],
 			          notesHeight * flickArrowHeights[sizeIndex] };
 

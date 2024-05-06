@@ -13,6 +13,7 @@ namespace MikuMikuWorld
 
 		ScoreEditorTimeline timeline{};
 		ScorePropertiesWindow propertiesWindow{};
+		ScoreNotePropertiesWindow notePropertiesWindow{};
 		ScoreOptionsWindow optionsWindow{};
 		PresetsWindow presetsWindow{};
 		DebugWindow debugWindow{};

@@ -15,7 +15,7 @@ namespace MikuMikuWorld
 	{
 	}
 
-	Note::Note(NoteType _type, int _tick, int _lane, int _width)
+	Note::Note(NoteType _type, int _tick, float _lane, float _width)
 	    : type{ _type }, parentID{ -1 }, tick{ _tick }, lane{ _lane }, width{ _width },
 	      critical{ false }, friction{ false }
 	{
@@ -70,7 +70,7 @@ namespace MikuMikuWorld
 	int getFlickArrowSpriteIndex(const Note& note)
 	{
 		int startIndex = note.critical ? 24 : 12;
-		return startIndex + ((std::min(note.width, 6) - 1) * 2) +
+		return startIndex + ((std::min(note.width, 6.f) - 1) * 2) +
 		       (note.flick != FlickType::Default ? 1 : 0);
 	}
 

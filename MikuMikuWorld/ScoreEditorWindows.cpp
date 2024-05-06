@@ -116,6 +116,244 @@ namespace MikuMikuWorld
 		}
 	}
 
+	void ScoreNotePropertiesWindow::update(ScoreContext& context)
+	{
+		auto numSelected = context.selectedNotes.size() + context.selectedHiSpeedChanges.size();
+		if (numSelected == 0)
+		{
+			ImGui::Text("%s", getString("note_properties_not_selected"));
+			return;
+		}
+		else if (numSelected > 1)
+		{
+			ImGui::Text("%s", getString("note_properties_many_selected"));
+			return;
+		}
+
+		Score prev = context.score;
+		bool edited = false;
+
+		if (context.selectedNotes.size() == 1)
+		{
+			Note prev_note = context.score.notes.at(*context.selectedNotes.begin());
+
+			Note& note = context.score.notes.at(*context.selectedNotes.begin());
+			if (ImGui::CollapsingHeader(IO::concat(ICON_FA_COG, getString("general"), " ").c_str(),
+			                            ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				UI::beginPropertyColumns();
+
+				float beat = note.tick / static_cast<float>(TICKS_PER_BEAT);
+				UI::addFloatProperty(getString("beat"), beat, "%.3f");
+				note.tick = std::floor(beat * TICKS_PER_BEAT);
+
+				if (config.showTickInProperties)
+				{
+					UI::addIntProperty(getString("tick"), note.tick);
+				}
+				edited = edited || (note.tick != prev_note.tick);
+
+				UI::propertyLabel(getString("layer"));
+				const std::string layer_name = context.score.layers[note.layer].name;
+				if (ImGui::BeginCombo(IO::concat("##", getString("layer")).c_str(),
+				                      layer_name.c_str()))
+				{
+					for (int i = 0; i < context.score.layers.size(); i++)
+					{
+						auto& layer = context.score.layers[i];
+						bool selected = note.layer == i;
+						if (ImGui::Selectable(layer.name.c_str(), selected))
+						{
+							note.layer = i;
+						}
+					}
+					ImGui::EndCombo();
+				}
+				edited = edited || (note.layer != prev_note.layer);
+
+				UI::endPropertyColumns();
+			}
+			if (ImGui::CollapsingHeader(
+			        IO::concat(ICON_FA_COG, getString("note_properties_note"), " ").c_str(),
+			        ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				UI::beginPropertyColumns();
+
+				UI::addFloatProperty(getString("lane"), note.lane, "%.2f");
+				edited = edited || (note.lane != prev_note.lane);
+
+				float newWidth = note.width;
+				UI::addFloatProperty(getString("width"), newWidth, "%.2f");
+
+				UI::addCheckboxProperty(getString("trace"), note.friction);
+				edited = edited || (note.friction != prev_note.friction);
+
+				if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldMid ||
+				    note.getType() == NoteType::HoldEnd)
+				{
+					int holdIndex;
+					if (note.getType() == NoteType::Hold)
+					{
+						holdIndex = *context.selectedNotes.begin();
+					}
+					else
+					{
+						holdIndex = note.parentID;
+					}
+
+					auto& holdStart = context.score.holdNotes.at(holdIndex);
+					auto& hold = context.score.holdNotes.at(holdStart.start.ID);
+
+					bool isGuide = hold.isGuide();
+					if (!isGuide)
+						newWidth = std::max(0.5f, newWidth);
+					else
+						newWidth = std::abs(newWidth);
+
+					if (note.getType() == NoteType::HoldEnd)
+					{
+						UI::addCheckboxProperty(getString("critical"), note.critical);
+						UI::addFlickSelectPropertyWithNone(getString("flick"), note.flick,
+						                                   flickTypes, arrayLength(flickTypes));
+					}
+				}
+				else
+				{
+					newWidth = std::max(0.5f, newWidth);
+					UI::addCheckboxProperty(getString("critical"), note.critical);
+					UI::addFlickSelectPropertyWithNone(getString("flick"), note.flick, flickTypes,
+					                                   arrayLength(flickTypes));
+				}
+				note.width = newWidth;
+
+				edited = edited || (note.width != prev_note.width);
+				edited = edited || (note.critical != prev_note.critical);
+				edited = edited || (note.flick != prev_note.flick);
+
+				UI::endPropertyColumns();
+			}
+			if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldMid ||
+			    note.getType() == NoteType::HoldEnd)
+			{
+				if (ImGui::CollapsingHeader(
+				        IO::concat(ICON_FA_COG, getString("note_properties_hold_note"), " ")
+				            .c_str(),
+				        ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					int holdIndex;
+					if (note.getType() == NoteType::Hold)
+					{
+						holdIndex = *context.selectedNotes.begin();
+					}
+					else
+					{
+						holdIndex = note.parentID;
+					}
+
+					auto& holdStart = context.score.holdNotes.at(holdIndex);
+					auto& hold = context.score.holdNotes.at(holdStart.start.ID);
+					HoldNote prev_hold = context.score.holdNotes.at(holdStart.start.ID);
+
+					int stepIndex = findHoldStep(hold, note.ID);
+
+					UI::beginPropertyColumns();
+
+					if (note.getType() != NoteType::HoldEnd)
+					{
+						if (stepIndex == -1)
+						{
+							HoldStep& step = hold.start;
+							HoldStep prev_step = hold.start;
+							UI::addSelectProperty(getString("ease_type"), step.ease, easeTypes,
+							                      arrayLength(easeTypes));
+							UI::addSelectProperty(getString("hold_type"), hold.startType, holdTypes,
+							                      2);
+
+							edited = edited || (step.ease != prev_step.ease);
+							edited = edited || (hold.startType != prev_hold.startType);
+						}
+						else
+						{
+							HoldStep& step = hold.steps.at(stepIndex);
+							HoldStep prev_step = hold.steps.at(stepIndex);
+							UI::addSelectProperty(getString("ease_type"), step.ease, easeTypes,
+							                      arrayLength(easeTypes));
+
+							UI::addSelectProperty(getString("step_type"), step.type, stepTypes,
+							                      arrayLength(stepTypes));
+
+							edited = edited || (step.ease != prev_step.ease);
+							edited = edited || (step.type != prev_step.type);
+						}
+					}
+					else
+					{
+						UI::addSelectProperty(getString("hold_type"), hold.endType, holdTypes, 2);
+						edited = edited || (hold.endType != prev_hold.endType);
+					}
+
+					UI::endPropertyColumns();
+				}
+			}
+		}
+		else
+		{
+			HiSpeedChange& hiSpeed =
+			    context.score.hiSpeedChanges.at(*context.selectedHiSpeedChanges.begin());
+			HiSpeedChange prev_hiSpeed =
+			    context.score.hiSpeedChanges.at(*context.selectedHiSpeedChanges.begin());
+			if (ImGui::CollapsingHeader(IO::concat(ICON_FA_COG, getString("general"), " ").c_str(),
+			                            ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				UI::beginPropertyColumns();
+
+				float beat = hiSpeed.tick / static_cast<float>(TICKS_PER_BEAT);
+				UI::addFloatProperty(getString("beat"), beat, "%.3f");
+				hiSpeed.tick = std::floor(beat * TICKS_PER_BEAT);
+				if (config.showTickInProperties)
+				{
+					UI::addIntProperty(getString("tick"), hiSpeed.tick);
+				}
+				edited = edited || (hiSpeed.tick != prev_hiSpeed.tick);
+
+				UI::propertyLabel(getString("layer"));
+				const std::string layer_name = context.score.layers[hiSpeed.layer].name;
+				if (ImGui::BeginCombo(IO::concat("##", getString("layer")).c_str(),
+				                      layer_name.c_str()))
+				{
+					for (int i = 0; i < context.score.layers.size(); i++)
+					{
+						auto& layer = context.score.layers[i];
+						bool selected = hiSpeed.layer == i;
+						if (ImGui::Selectable(layer.name.c_str(), selected))
+						{
+							hiSpeed.layer = i;
+						}
+					}
+					ImGui::EndCombo();
+				}
+				edited = edited || (hiSpeed.layer != prev_hiSpeed.layer);
+
+				UI::endPropertyColumns();
+			}
+			if (ImGui::CollapsingHeader(
+			        IO::concat(ICON_FA_FAST_FORWARD, getString("note_properties_hi_speed"), " ")
+			            .c_str(),
+			        ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				UI::beginPropertyColumns();
+
+				UI::addFloatProperty(getString("hi_speed"), hiSpeed.speed, "%.3f");
+				edited = edited || (hiSpeed.speed != prev_hiSpeed.speed);
+
+				UI::endPropertyColumns();
+			}
+		}
+
+		if (edited)
+			context.pushHistory("Edited object", prev, context.score);
+	}
+
 	void ScoreOptionsWindow::update(ScoreContext& context, EditArgs& edit, TimelineMode currentMode)
 	{
 		UI::beginPropertyColumns();
@@ -1065,6 +1303,13 @@ namespace MikuMikuWorld
 						UI::addPercentSliderProperty(getString("lanes_opacity"),
 						                             config.laneOpacity);
 						UI::endPropertyColumns();
+					}
+
+					if (ImGui::CollapsingHeader(getString("advanced"),
+					                            ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						UI::addCheckboxProperty(getString("show_tick_in_properties"),
+						                        config.showTickInProperties);
 					}
 
 					ImGui::EndTabItem();

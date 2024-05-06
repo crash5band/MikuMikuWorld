@@ -44,8 +44,7 @@ namespace MikuMikuWorld
 		{ "save_changes", "Save Changes" },
 		{ "discard_changes", "Discard Changes" },
 		{ "update_available", "New version available!" },
-		{ "update_available_description",
-		  "%s is available. Do you want to open in the browser?" },
+		{ "update_available_description", "%s is available. Do you want to open in the browser?" },
 		{ "score_file", "Score file" },
 		{ "error", "Error" },
 		{ "error_load_score_file", "An error occurred while reading the score file" },
@@ -92,6 +91,7 @@ namespace MikuMikuWorld
 
 		// Score editor
 		{ "chart_properties", "Chart Properties" },
+		{ "note_properties", "Note Properties" },
 		{ "notes_timeline", "Notes Timeline" },
 		{ "options", "Options" },
 		{ "select", "Select" },
@@ -194,6 +194,15 @@ namespace MikuMikuWorld
 		{ "edit_fever", "Edit FEVER Trigger" },
 		{ "edit_none", "Edit" },
 		{ "edit_event", "Edit Event" },
+		{ "beat", "Beat" },
+		{ "lane", "Lane" },
+		{ "width", "Width" },
+		{ "advanced", "Advanced" },
+		{ "note_properties_note", "Note Properties" },
+		{ "note_properties_hi_speed", "Hi-Speed Properties" },
+		{ "note_properties_hold_note", "Hold Note Properties" },
+		{ "note_properties_not_selected", "No notes or hi-speeds are selected" },
+		{ "note_properties_many_selected", "Multiple notes or hi-speeds are selected" },
 
 		// Presets
 		{ "presets", "Presets" },

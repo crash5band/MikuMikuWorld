@@ -86,6 +86,7 @@ notes_se, ノーツのSE
 # score editor
 options, オプション
 chart_properties, 譜面プロパティ
+note_properties, ノーツプロパティ
 notes_timeline, タイムライン
 select, 選択
 tap, タップ
@@ -159,7 +160,7 @@ zoom, ズーム
 show_step_outlines, 中継点に枠線を表示
 draw_waveform, 波形を表示
 edit_bpm, BPMを編集
-tick, 拍子
+tick, Tick
 remove, 削除
 edit_time_signature, 拍子を編集
 measure, 小節
@@ -186,6 +187,15 @@ edit_skill, スキル発動を編集
 edit_fever,　FEVER発動を編集
 edit_none,　編集
 edit_event,　イベントを編集
+beat, 拍
+lane, レーン
+width, 幅
+advanced, 高度
+note_properties_note, ノーツ
+note_properties_hi_speed, ハイスピード
+note_properties_hold_note, スライド
+note_properties_not_selected, ノーツ、またはハイスピードを選択してください。
+note_properties_many_selected, 複数のノーツまたはハイスピードが選択されています。
 
 # preset manager
 presets, プリセット

@@ -447,15 +447,16 @@ namespace MikuMikuWorld
 					type++;
 					criticalKeys.insert(noteKey(note));
 				}
-				taps.push_back(SUSNote{ note.tick, note.lane + offset, note.width, type,
+				taps.push_back(SUSNote{ note.tick, (int)note.lane + offset, (int)note.width, type,
 				                        hiSpeedGroupNames[note.layer] });
 
 				if (note.isFlick())
-					directionals.push_back(SUSNote{ note.tick, note.lane + offset, note.width,
+					directionals.push_back(SUSNote{ note.tick, (int)note.lane + offset,
+					                                (int)note.width,
 					                                flickToType[static_cast<int>(note.flick)] });
 			}
 			if (note.getType() == NoteType::Damage)
-				taps.push_back(SUSNote{ note.tick, note.lane + offset, note.width, 4,
+				taps.push_back(SUSNote{ note.tick, (int)note.lane + offset, (int)note.width, 4,
 				                        hiSpeedGroupNames[note.layer] });
 		}
 
@@ -481,7 +482,7 @@ namespace MikuMikuWorld
 
 			const Note& start = score.notes.at(hold.start.ID);
 
-			slide.push_back(SUSNote{ start.tick, start.lane + offset, start.width, 1,
+			slide.push_back(SUSNote{ start.tick, (int)start.lane + offset, (int)start.width, 1,
 			                         hiSpeedGroupNames[start.layer] });
 
 			bool hasEase = hold.start.ease != EaseType::Linear;
@@ -490,7 +491,8 @@ namespace MikuMikuWorld
 			                         hold.startType != HoldNoteType::Normal && start.critical;
 
 			if (hasEase)
-				directionals.push_back(SUSNote{ start.tick, start.lane + offset, start.width,
+				directionals.push_back(SUSNote{ start.tick, (int)start.lane + offset,
+				                                (int)start.width,
 				                                hold.start.ease == EaseType::EaseIn ? 2 : 6 });
 
 			bool guideAlreadyOnCritical =
@@ -506,43 +508,45 @@ namespace MikuMikuWorld
 			}
 
 			if (type > 1 && !((type == 7 || type == 8) && guideAlreadyOnCritical))
-				taps.push_back({ start.tick, start.lane + offset, start.width, type });
+				taps.push_back({ start.tick, (int)start.lane + offset, (int)start.width, type });
 
 			for (const auto& step : hold.steps)
 			{
 				const Note& midNote = score.notes.at(step.ID);
 
-				slide.push_back(SUSNote{ midNote.tick, midNote.lane + offset, midNote.width,
+				slide.push_back(SUSNote{
+				    midNote.tick, (int)midNote.lane + offset, (int)midNote.width,
 				                         step.type == HoldStepType::Hidden ? 5 : 3,
 				                         hiSpeedGroupNames[midNote.layer] });
 				if (step.type == HoldStepType::Skip)
 				{
 					taps.push_back(
-					    SUSNote{ midNote.tick, midNote.lane + offset, midNote.width, 3 });
+					    SUSNote{ midNote.tick, (int)midNote.lane + offset, (int)midNote.width, 3 });
 				}
 				else if (step.ease != EaseType::Linear)
 				{
 					int stepTapType = hold.isGuide() ? start.critical ? 8 : 7 : 1;
-					taps.push_back(
-					    SUSNote{ midNote.tick, midNote.lane + offset, midNote.width, stepTapType });
+					taps.push_back(SUSNote{ midNote.tick, (int)midNote.lane + offset,
+					                        (int)midNote.width,
+					                        stepTapType });
 					directionals.push_back(SUSNote{
-					    midNote.tick, midNote.lane + offset, midNote.width,
+					    midNote.tick, (int)midNote.lane + offset, (int)midNote.width,
 					    step.ease == EaseType::EaseIn ? 2 : 6, hiSpeedGroupNames[midNote.layer] });
 				}
 			}
 
 			const Note& end = score.notes.at(hold.end);
 
-			slide.push_back(SUSNote{ end.tick, end.lane + offset, end.width, 2 });
+			slide.push_back(SUSNote{ end.tick, (int)end.lane + offset, (int)end.width, 2 });
 
 			// Hidden and guide slides do not have flicks
 			if (end.isFlick() && hold.endType == HoldNoteType::Normal)
 			{
-				directionals.push_back(SUSNote{ end.tick, end.lane + offset, end.width,
+				directionals.push_back(SUSNote{ end.tick, (int)end.lane + offset, (int)end.width,
 				                                flickToType[static_cast<int>(end.flick)] });
 				// Critical friction notes use type 6 not 2
 				if (end.critical && !start.critical && !end.friction)
-					taps.push_back(SUSNote{ end.tick, end.lane + offset, end.width, 2 });
+					taps.push_back(SUSNote{ end.tick, (int)end.lane + offset, (int)end.width, 2 });
 			}
 
 			int endType = hold.endType == HoldNoteType::Hidden ? 7 : end.friction ? 5 : 1;
@@ -555,7 +559,8 @@ namespace MikuMikuWorld
 				endType = 4;
 
 			if (endType != 1 && endType != 2)
-				taps.push_back(SUSNote{ end.tick, end.lane + offset, end.width, endType });
+				taps.push_back(
+				    SUSNote{ end.tick, (int)end.lane + offset, (int)end.width, endType });
 
 			if (hold.isGuide())
 			{

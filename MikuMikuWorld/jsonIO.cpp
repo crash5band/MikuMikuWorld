@@ -9,8 +9,8 @@ namespace jsonIO
 		mmw::Note note(type);
 
 		note.tick = tryGetValue<int>(data, "tick", 0);
-		note.lane = tryGetValue<int>(data, "lane", 0);
-		note.width = tryGetValue<int>(data, "width", 3);
+		note.lane = tryGetValue<float>(data, "lane", 0);
+		note.width = tryGetValue<float>(data, "width", 3);
 
 		if (note.getType() != mmw::NoteType::HoldMid)
 		{

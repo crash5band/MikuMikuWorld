@@ -91,6 +91,7 @@ namespace MikuMikuWorld
 		bool returnToLastSelectedTickOnPause;
 		bool followCursorInPlayback;
 		bool drawWaveform;
+		bool showTickInProperties;
 		bool autoSaveEnabled;
 		int autoSaveInterval;
 		int autoSaveMaxCount;

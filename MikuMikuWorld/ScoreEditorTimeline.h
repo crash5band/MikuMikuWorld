@@ -41,14 +41,14 @@ namespace MikuMikuWorld
 	{
 	  public:
 		int tick{};
-		int lane{};
-		int width{};
+		float lane{};
+		float width{};
 		StepDrawType type{};
 
 		int layer = -1;
 
 		StepDrawData() {}
-		StepDrawData(int _tick, int _lane, int _width, StepDrawType _type, int layer = -1)
+		StepDrawData(int _tick, float _lane, float _width, StepDrawType _type, int layer = -1)
 		    : tick{ _tick }, lane{ _lane }, width{ _width }, type{ _type }, layer{ layer }
 		{
 		}
@@ -147,7 +147,9 @@ namespace MikuMikuWorld
 
 		struct NoteTransform
 		{
-			int tick{}, lane{}, width{};
+			int tick{};
+			
+			float lane{}, width{};
 
 			static NoteTransform fromNote(const Note& note)
 			{
@@ -250,7 +252,7 @@ namespace MikuMikuWorld
 		float getNoteYPosFromTick(int tick) const;
 
 		int laneFromCenterPosition(const Score& score, int lane, int width);
-		int positionToLane(float pos) const;
+		float positionToLane(float pos) const;
 		float laneToPosition(float lane) const;
 
 		const inline float getTimelineStartX() const { return position.x + laneOffset; }

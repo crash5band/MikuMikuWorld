@@ -62,8 +62,8 @@ namespace MikuMikuWorld
 		int ID;
 		int parentID;
 		int tick;
-		int lane;
-		int width;
+		float lane;
+		float width;
 		bool critical{ false };
 		bool friction{ false };
 		FlickType flick{ FlickType::None };
@@ -71,7 +71,7 @@ namespace MikuMikuWorld
 		int layer{ 0 };
 
 		explicit Note(NoteType _type);
-		explicit Note(NoteType _type, int tick, int lane, int width);
+		explicit Note(NoteType _type, int tick, float lane, float width);
 		Note();
 
 		constexpr NoteType getType() const { return type; }

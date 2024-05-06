@@ -674,16 +674,16 @@ namespace MikuMikuWorld
 		if (pasteData.pasting)
 		{
 			// find the lane in which the cursor is in the middle of pasted notes
-			int left = MAX_LANE + score.metadata.laneExtension;
-			int right = MIN_LANE - score.metadata.laneExtension;
-			int leftmostLane = MAX_LANE + score.metadata.laneExtension;
-			int rightmostLane = MIN_LANE - score.metadata.laneExtension;
+			float left = MAX_LANE + score.metadata.laneExtension;
+			float right = MIN_LANE - score.metadata.laneExtension;
+			float leftmostLane = MAX_LANE + score.metadata.laneExtension;
+			float rightmostLane = MIN_LANE - score.metadata.laneExtension;
 			for (const auto& [_, note] : pasteData.notes)
 			{
-				leftmostLane = std::min(leftmostLane, note.lane);
-				rightmostLane = std::max(rightmostLane, note.lane + note.width - 1);
-				left = std::min(left, note.lane + note.width);
-				right = std::max(right, note.lane);
+				leftmostLane = std::min((float)leftmostLane, note.lane);
+				rightmostLane = std::max((float)rightmostLane, note.lane + note.width - 1);
+				left = std::min((float)left, note.lane + note.width);
+				right = std::max((float)right, note.lane);
 			}
 
 			pasteData.minLaneOffset = MIN_LANE - score.metadata.laneExtension - leftmostLane;
@@ -1081,8 +1081,8 @@ namespace MikuMikuWorld
 			hold.steps[endPos].ease = hold.steps[startPos].ease;
 		}
 
-		int minLane = MIN_LANE - context.score.metadata.laneExtension;
-		int maxLane = MAX_LANE + context.score.metadata.laneExtension + 1;
+		float minLane = MIN_LANE - context.score.metadata.laneExtension;
+		float maxLane = MAX_LANE + context.score.metadata.laneExtension + 1;
 
 		for (int j = 1; j < sortedSelection.size(); j++)
 		{
@@ -1091,7 +1091,7 @@ namespace MikuMikuWorld
 
 			for (int i = 1; i < itterations; i++)
 			{
-				int lane = std::clamp(currentRep.lane + i * (patternEnd.lane - patternStart.lane),
+				float lane = std::clamp(currentRep.lane + i * (patternEnd.lane - patternStart.lane),
 				                      minLane, maxLane - currentRep.width);
 
 				if (j == sortedSelection.size() - 1 && i == itterations - 1)

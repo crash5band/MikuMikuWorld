@@ -254,6 +254,7 @@ namespace MikuMikuWorld
 
 			ImGui::DockBuilderDockWindow("###notes_timeline", dockMainId);
 			ImGui::DockBuilderDockWindow("###chart_properties", midRightId);
+			ImGui::DockBuilderDockWindow("###note_properties", midRightId);
 			ImGui::DockBuilderDockWindow("###options", bottomRightId);
 			ImGui::DockBuilderDockWindow("###presets", bottomRightId);
 			ImGui::DockBuilderDockWindow("###layers", bottomRightId);

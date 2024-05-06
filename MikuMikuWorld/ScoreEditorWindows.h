@@ -24,6 +24,12 @@ namespace MikuMikuWorld
 		void update(ScoreContext& context);
 	};
 
+	class ScoreNotePropertiesWindow
+	{
+	  public:
+		void update(ScoreContext& context);
+	};
+
 	class ScoreOptionsWindow
 	{
 	  public:

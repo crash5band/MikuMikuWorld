@@ -189,5 +189,35 @@ namespace MikuMikuWorld
 
 			ImGui::NextColumn();
 		}
+
+		static void addFlickSelectPropertyWithNone(const char* label, FlickType& value,
+		                                         const char* const* items, int count)
+		{
+			propertyLabel(label);
+
+			std::string id("##");
+			id.append(label);
+
+			std::string curr = getString(items[(int)value]);
+			if (!curr.size())
+				curr = items[(int)value];
+			if (ImGui::BeginCombo(id.c_str(), curr.c_str()))
+			{
+				for (int i = (int)FlickType::None; i < count; ++i)
+				{
+					const bool selected = (int)value == i;
+					std::string str = getString(items[i]);
+					if (!str.size())
+						str = items[i];
+
+					if (ImGui::Selectable(str.c_str(), selected))
+						value = (FlickType)i;
+				}
+
+				ImGui::EndCombo();
+			}
+
+			ImGui::NextColumn();
+		}
 	};
 }
