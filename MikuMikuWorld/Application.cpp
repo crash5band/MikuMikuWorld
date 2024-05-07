@@ -353,6 +353,7 @@ namespace MikuMikuWorld
 		// Load more languages here
 		Localization::loadDefault();
 		Localization::load("ja", u8"日本語", appDir + "res\\i18n\\ja.csv");
+		Localization::load("es", u8"Español", appDir + "res\\i18n\\es.csv");
 	}
 
 	void Application::run()

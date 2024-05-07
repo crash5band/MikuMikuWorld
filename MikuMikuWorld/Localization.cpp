@@ -39,6 +39,9 @@ namespace MikuMikuWorld
 		if (!Localization::currentLanguage)
 			return key.c_str();
 
+		if (!Localization::currentLanguage->containsString(key))
+			return Localization::languages["en"]->getString(key);
+
         return Localization::currentLanguage->getString(key);
 	}
 }

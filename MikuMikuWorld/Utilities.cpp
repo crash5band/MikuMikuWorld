@@ -57,7 +57,7 @@ namespace MikuMikuWorld
 
 	std::string Utilities::getDivisionString(int div)
 	{
-		return std::to_string(div) + getString("division_suffix");
+		return IO::formatString(getString("division"), div);
 	}
 
 	float Utilities::centerImGuiItem(const float width)
