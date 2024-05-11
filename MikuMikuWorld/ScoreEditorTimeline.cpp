@@ -1538,26 +1538,28 @@ namespace MikuMikuWorld
 		}
 
 		pos.x += noteControlWidth;
-		sz.x = (laneWidth * note.width) + 4.0f - (noteControlWidth * 2.0f);
+		// account for <1 width by always having this be positive
+		sz.x = std::max((laneWidth * note.width) + 4.0f - (noteControlWidth * 2.0f),
+		                (noteControlWidth * 2.0f));
 
 		// Move
-		if (noteControl(context, note, pos, sz, "M", ImGuiMouseCursor_ResizeAll))
+		if (noteControl(context, note, pos, sz, "M", ImGuiMouseCursor_Hand))
 		{
-			int curLane = positionToLane(mousePos.x);
-			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), minLane, maxLane);
+			float curLane = truncf(positionToLane(mousePos.x));
+			float grabLane = truncf(std::clamp(positionToLane(ctrlMousePos.x), minLane, maxLane));
 			int grabTick = snapTickFromPos(-ctrlMousePos.y);
 
-			int diff = curLane - grabLane;
-			if (abs(diff) > 0)
+			int laneDiff = curLane - grabLane;
+			if (abs(laneDiff) > 0)
 			{
 				isMovingNote = true;
 				ctrlMousePos.x = mousePos.x;
 				bool canMove =
 				    !std::any_of(context.selectedNotes.begin(), context.selectedNotes.end(),
-				                 [&context, diff, minLane, maxLane](int id)
+				                 [&context, laneDiff, minLane, maxLane](int id)
 				                 {
 					                 Note& n = context.score.notes.at(id);
-					                 int newLane = n.lane + diff;
+					                 int newLane = n.lane + laneDiff;
 					                 return (newLane < minLane || newLane + n.width - 1 > maxLane);
 				                 });
 
@@ -1566,28 +1568,28 @@ namespace MikuMikuWorld
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
-						n.lane = std::clamp(n.lane + diff, minLane, maxLane - n.width + 1);
+						n.lane = std::clamp(n.lane + laneDiff, minLane, maxLane - n.width + 1);
 					}
 				}
 			}
 
-			diff = hoverTick - grabTick;
-			if (abs(diff) > 0)
+			int tickDiff = hoverTick - grabTick;
+			if (abs(tickDiff) > 0)
 			{
 				isMovingNote = true;
 				ctrlMousePos.y = mousePos.y;
 
 				bool canMove =
 				    !std::any_of(context.selectedNotes.begin(), context.selectedNotes.end(),
-				                 [&context, diff](int id)
-				                 { return context.score.notes.at(id).tick + diff < 0; });
+				                 [&context, tickDiff](int id)
+				                 { return context.score.notes.at(id).tick + tickDiff < 0; });
 
 				if (canMove)
 				{
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
-						n.tick = std::max(n.tick + diff, 0);
+						n.tick = std::max(n.tick + tickDiff, 0);
 					}
 				}
 			}
