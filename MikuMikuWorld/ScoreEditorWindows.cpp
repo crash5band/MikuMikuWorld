@@ -203,10 +203,17 @@ namespace MikuMikuWorld
 					auto& hold = context.score.holdNotes.at(holdStart.start.ID);
 
 					isGuide = hold.isGuide();
-					if (!isGuide)
-						newWidth = std::max(0.5f, newWidth);
-					else
-						newWidth = std::abs(newWidth);
+					if (note.width == 0 && !isGuide)
+					{
+						if (note.getType() == NoteType::Hold) {
+							hold.startType = HoldNoteType::Hidden;
+						}
+						else if (note.getType() == NoteType::HoldEnd)
+						{
+							hold.endType = HoldNoteType::Hidden;
+						}
+					}
+					newWidth = abs(newWidth);
 
 					if ((note.getType() == NoteType::HoldEnd || note.getType() == NoteType::Hold) &&
 					    !isGuide)

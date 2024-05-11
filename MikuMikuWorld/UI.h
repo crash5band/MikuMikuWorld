@@ -171,7 +171,7 @@ namespace MikuMikuWorld
 			std::string curr = getString(items[(int)value]);
 			if (!curr.size())
 				curr = items[(int)value];
-			const std::string translated_str = IO::concat("guide_", curr.c_str());
+			const std::string translated_str = getString(IO::concat("guide_", curr.c_str()));
 			if (ImGui::BeginCombo(id.c_str(), translated_str.c_str()))
 			{
 				for (int i = (int)GuideColor::Neutral; i < count; ++i)
