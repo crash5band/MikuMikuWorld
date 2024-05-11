@@ -135,8 +135,9 @@ namespace MikuMikuWorld
 
 		if (context.selectedNotes.size() == 1)
 		{
-			Note prev_note = context.score.notes.at(*context.selectedNotes.begin());
+			bool isGuide = false;
 
+			Note prev_note = context.score.notes.at(*context.selectedNotes.begin());
 			Note& note = context.score.notes.at(*context.selectedNotes.begin());
 			if (ImGui::CollapsingHeader(IO::concat(ICON_FA_COG, getString("general"), " ").c_str(),
 			                            ImGuiTreeNodeFlags_DefaultOpen))
@@ -185,9 +186,6 @@ namespace MikuMikuWorld
 				float newWidth = note.width;
 				UI::addFloatProperty(getString("width"), newWidth, "%.2f");
 
-				UI::addCheckboxProperty(getString("trace"), note.friction);
-				edited = edited || (note.friction != prev_note.friction);
-
 				if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldMid ||
 				    note.getType() == NoteType::HoldEnd)
 				{
@@ -204,22 +202,27 @@ namespace MikuMikuWorld
 					auto& holdStart = context.score.holdNotes.at(holdIndex);
 					auto& hold = context.score.holdNotes.at(holdStart.start.ID);
 
-					bool isGuide = hold.isGuide();
+					isGuide = hold.isGuide();
 					if (!isGuide)
 						newWidth = std::max(0.5f, newWidth);
 					else
 						newWidth = std::abs(newWidth);
 
-					if (note.getType() == NoteType::HoldEnd)
+					if ((note.getType() == NoteType::HoldEnd || note.getType() == NoteType::Hold) &&
+					    !isGuide)
 					{
+						UI::addCheckboxProperty(getString("trace"), note.friction);
 						UI::addCheckboxProperty(getString("critical"), note.critical);
+					}
+
+					if (note.getType() == NoteType::HoldEnd && !isGuide)
 						UI::addFlickSelectPropertyWithNone(getString("flick"), note.flick,
 						                                   flickTypes, arrayLength(flickTypes));
-					}
 				}
 				else
 				{
 					newWidth = std::max(0.5f, newWidth);
+					UI::addCheckboxProperty(getString("trace"), note.friction);
 					UI::addCheckboxProperty(getString("critical"), note.critical);
 					UI::addFlickSelectPropertyWithNone(getString("flick"), note.flick, flickTypes,
 					                                   arrayLength(flickTypes));
@@ -227,13 +230,14 @@ namespace MikuMikuWorld
 				note.width = newWidth;
 
 				edited = edited || (note.width != prev_note.width);
+				edited = edited || (note.friction != prev_note.friction);
 				edited = edited || (note.critical != prev_note.critical);
 				edited = edited || (note.flick != prev_note.flick);
-
 				UI::endPropertyColumns();
 			}
-			if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldMid ||
-			    note.getType() == NoteType::HoldEnd)
+
+			if ((note.getType() == NoteType::Hold || note.getType() == NoteType::HoldMid ||
+			    note.getType() == NoteType::HoldEnd) && !isGuide)
 			{
 				if (ImGui::CollapsingHeader(
 				        IO::concat(ICON_FA_COG, getString("note_properties_hold_note"), " ")
@@ -266,8 +270,11 @@ namespace MikuMikuWorld
 							HoldStep prev_step = hold.start;
 							UI::addSelectProperty(getString("ease_type"), step.ease, easeTypes,
 							                      arrayLength(easeTypes));
-							UI::addSelectProperty(getString("hold_type"), hold.startType, holdTypes,
-							                      2);
+							if (!hold.isGuide())
+							{
+								UI::addSelectProperty(getString("hold_type"), hold.startType,
+								                      holdTypes, 2);
+							}
 
 							edited = edited || (step.ease != prev_step.ease);
 							edited = edited || (hold.startType != prev_hold.startType);
@@ -294,6 +301,66 @@ namespace MikuMikuWorld
 
 					UI::endPropertyColumns();
 				}
+			}
+
+			if ((note.getType() == NoteType::Hold || note.getType() == NoteType::HoldMid ||
+			     note.getType() == NoteType::HoldEnd) &&
+			    isGuide)
+			{
+				if (ImGui::CollapsingHeader(
+				        IO::concat(ICON_FA_COG, getString("note_properties_guide"), " ")
+				            .c_str(),
+				        ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					int holdIndex;
+					if (note.getType() == NoteType::Hold)
+					{
+						holdIndex = *context.selectedNotes.begin();
+					}
+					else
+					{
+						holdIndex = note.parentID;
+					}
+
+					auto& holdStart = context.score.holdNotes.at(holdIndex);
+					auto& hold = context.score.holdNotes.at(holdStart.start.ID);
+					HoldNote prev_hold = context.score.holdNotes.at(holdStart.start.ID);
+
+					int stepIndex = findHoldStep(hold, note.ID);
+
+					UI::beginPropertyColumns();
+
+					if (note.getType() != NoteType::HoldEnd)
+					{
+						if (stepIndex == -1)
+						{
+							HoldStep& step = hold.start;
+							HoldStep prev_step = hold.start;
+							UI::addSelectProperty(getString("ease_type"), step.ease, easeTypes,
+							                      arrayLength(easeTypes));
+							edited = edited || (step.ease != prev_step.ease);
+						}
+						else
+						{
+							HoldStep& step = hold.steps.at(stepIndex);
+							HoldStep prev_step = hold.steps.at(stepIndex);
+							UI::addSelectProperty(getString("ease_type"), step.ease, easeTypes,
+							                      arrayLength(easeTypes));
+							edited = edited || (step.ease != prev_step.ease);
+						}
+					}
+
+					if (note.getType() != NoteType::HoldMid)
+					{
+						UI::addSelectProperty(getString("fade_type"), hold.fadeType, fadeTypes,
+						                      arrayLength(fadeTypes));
+						UI::addSelectProperty(getString("guide_color"), hold.guideColor,
+						                      guideColors, arrayLength(guideColors));
+						edited = edited || (hold.fadeType != prev_hold.fadeType);
+						edited = edited || (hold.guideColor != prev_hold.guideColor);
+					}
+				}
+			
 			}
 		}
 		else
