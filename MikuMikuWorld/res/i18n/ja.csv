@@ -152,7 +152,7 @@ traces, トレース
 total, 合計
 combo, コンボ
 goto_measure, 小節に移動
-division, %d小節の分割
+division, %d分音符
 division_affix, %d分音符
 custom, カスタム：
 custom_division, カスタム分割
