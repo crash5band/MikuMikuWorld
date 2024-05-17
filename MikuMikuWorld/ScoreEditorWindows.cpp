@@ -362,7 +362,7 @@ namespace MikuMikuWorld
 						UI::addSelectProperty(getString("fade_type"), hold.fadeType, fadeTypes,
 						                      arrayLength(fadeTypes));
 						UI::addSelectProperty(getString("guide_color"), hold.guideColor,
-						                      guideColors, arrayLength(guideColors));
+						                      guideColorsForString, arrayLength(guideColors));
 						edited = edited || (hold.fadeType != prev_hold.fadeType);
 						edited = edited || (hold.guideColor != prev_hold.guideColor);
 					}

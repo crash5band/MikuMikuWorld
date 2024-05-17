@@ -168,16 +168,16 @@ namespace MikuMikuWorld
 			std::string id("##");
 			id.append(label);
 
-			std::string curr = getString(items[(int)value]);
+			std::string curr = items[(int)value];
 			if (!curr.size())
 				curr = items[(int)value];
-			const std::string translated_str = getString(IO::concat("guide_", curr.c_str()));
+			const std::string translated_str = getString(curr.c_str());
 			if (ImGui::BeginCombo(id.c_str(), translated_str.c_str()))
 			{
 				for (int i = (int)GuideColor::Neutral; i < count; ++i)
 				{
 					const bool selected = (int)value == i;
-					std::string str = getString(IO::concat("guide_", items[i]));
+					std::string str = getString(items[i]);
 					if (!str.size())
 						str = items[i];
 
