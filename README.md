@@ -3,10 +3,17 @@
 # MikuMikuWorld for Chart Cyanvas
 Fork of [MikuMikuWorld](https://github.com/crash5band/MikuMikuWorld) for [Chart Cyanvas](https://github.com/sevenc-nanashi/chart_cyanvas).
 
-## Features:
+## Added Features:
 In addition to the original features of MikuMikuWorld, the following features are added:
 - Damage notes
 - Extended lanes
+- Colored guides
+- New ease types
+- Interpolate Hi-Speeds feature
+- Repeat Hold Mids feature
+- Note Properties panel
+- Support for decimal note lane and width
+- Spanish translation (credits to @mi.honesta.reaccion)
 
 ## Requirements:
 - 64-bit Windows 10 or higher*.
