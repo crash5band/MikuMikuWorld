@@ -32,7 +32,7 @@ jobs:
               uses: actions/github-script@v7
               with:
                   script: |
-                      if ("${{ github.ref }}".split("/").pop().match(/^v\d+\.\d+\.\d+$/)) {
+                      if ("${{ github.ref }}".split("/").pop().match(/^v\d+\.\d+\.\d+.\d+$/)) {
                           core.setOutput("prerelease", false);
                       } else {
                           core.setOutput("prerelease", true);
