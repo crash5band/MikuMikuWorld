@@ -342,17 +342,20 @@ namespace MikuMikuWorld
 			                    context.selectionHasStep() && context.selectedNotes.size() == 1))
 				context.splitHoldInSelection();
 
-			int selectedTickNum = 0;
+			int selectedMidNum = 0;
+			int selectedStartNum = 0;
 			for (const auto& noteId : context.selectedNotes)
 			{
-				auto& note = context.score.notes.at(noteId);
-				if (note.hasEase())
-				{
-					selectedTickNum += 1;
-				}
+				auto noteType = context.score.notes.at(noteId).getType();
+				if (noteType == NoteType::HoldMid)
+					selectedMidNum += 1;
+				if (noteType == NoteType::Hold)
+					selectedStartNum += 1;
 			}
+			int selectedTickNum = selectedMidNum + selectedStartNum;
 
-			if (ImGui::MenuItem(getString("repeat_hold_mids"), NULL, false, selectedTickNum >= 3))
+			if (ImGui::MenuItem(getString("repeat_hold_mids"), NULL, false,
+			                    selectedTickNum >= 3 and selectedStartNum < 2))
 				context.repeatMidsInSelection(context);
 
 			ImGui::Separator();
