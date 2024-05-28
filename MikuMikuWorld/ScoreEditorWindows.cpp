@@ -1164,7 +1164,7 @@ namespace MikuMikuWorld
 						std::string curr = getString("auto");
 						auto langIt = Localization::languages.find(config.language);
 						if (langIt != Localization::languages.end())
-							curr = langIt->second->getDisplayName();
+							curr = langIt->second->getString("language_name");
 
 						if (ImGui::BeginCombo("##language", curr.c_str()))
 						{
@@ -1174,7 +1174,7 @@ namespace MikuMikuWorld
 							for (const auto& [code, language] : Localization::languages)
 							{
 								const bool selected = curr == code;
-								std::string str = language->getDisplayName();
+								std::string str = language->getString("language_name");
 
 								if (ImGui::Selectable(str.c_str(), selected))
 									config.language = code;
@@ -1461,6 +1461,14 @@ namespace MikuMikuWorld
 						context.selectedLayer = index;
 					if (isSelected)
 						ImGui::PopStyleColor(2);
+
+					ImGui::SameLine();
+					if (UI::transparentButton(ICON_FA_EYE,
+					                          ImVec2(UI::btnSmall.x, layersButtonHeight), false))
+					{
+						
+					}
+					UI::tooltip(getString("layer_hide"));
 
 					ImGui::SameLine();
 					if (UI::transparentButton(ICON_FA_PENCIL_ALT,

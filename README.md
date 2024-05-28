@@ -13,7 +13,11 @@ In addition to the original features of MikuMikuWorld, the following features ar
 - Repeat Hold Mids feature
 - Note Properties panel
 - Support for decimal note lane and width
-- Spanish translation (credits to @mi.honesta.reaccion)
+
+## Translations
+If you want to contribute a translation, please see [the guide](./TRANSLATION.md).
+- Español (Spanish) by @mi.honesta.reaccion
+- Русский (Russian) by @\_notfallen\_
 
 ## Requirements:
 - 64-bit Windows 10 or higher*.

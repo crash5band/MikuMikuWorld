@@ -350,10 +350,7 @@ namespace MikuMikuWorld
 		noteTextures.ccNotes = ResourceManager::getTexture(CC_NOTES_TEX);
 		noteTextures.guideColors = ResourceManager::getTexture(GUIDE_COLORS_TEX);
 
-		// Load more languages here
-		Localization::loadDefault();
-		Localization::load("ja", u8"日本語", appDir + "res\\i18n\\ja.csv");
-		Localization::load("es", u8"Español", appDir + "res\\i18n\\es.csv");
+		Localization::loadLanguages(appDir + "res\\i18n");
 	}
 
 	void Application::run()

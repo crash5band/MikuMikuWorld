@@ -5,6 +5,7 @@
 namespace MikuMikuWorld
 {
 	extern std::unordered_map<std::string, std::string> en{
+		{ "language_name", "English" },
 		// Menu bar
 		{ "file", "File" },
 		{ "new", "New" },

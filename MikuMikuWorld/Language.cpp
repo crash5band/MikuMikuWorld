@@ -8,18 +8,16 @@ namespace MikuMikuWorld
 {
 	static std::string empty;
 
-	Language::Language(const char* code, std::string name, const std::string& filename)
+	Language::Language(const char* code, const std::string& filename)
 	{
 		this->code = code;
-		displayName = name;
 		read(filename);
 	}
 
-	Language::Language(const char* code, std::string name,
+	Language::Language(const char* code,
 	                   const std::unordered_map<std::string, std::string>& strings)
 	{
 		this->code = code;
-		displayName = name;
 		this->strings = strings;
 	}
 
@@ -46,8 +44,6 @@ namespace MikuMikuWorld
 	}
 
 	const char* Language::getCode() const { return code.c_str(); }
-
-	const char* Language::getDisplayName() const { return displayName.c_str(); }
 
 	const bool Language::containsString(const std::string& key)
 	{
