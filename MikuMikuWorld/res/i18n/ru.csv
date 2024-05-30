@@ -1,0 +1,261 @@
+# code: ru
+# key, value
+
+# translation by Nobody (@_notfallen_)
+
+language_name, Русский
+
+# menu bar / бар меню
+file, Файл
+new, Новый
+open, Открыть
+open_recent, Открыть недавний
+clear, Очистить
+save, Сохранить
+save_as, Сохранить как
+export_sus, Экспортировать .sus
+export_usc, Экспортировать .usc
+export, Экспортировать
+exit, Выйти
+edit, Изменить
+undo, Отменить
+redo, Переделать
+select_all, Выбрать всё
+view, Вид
+settings, Настройки
+window, Окно
+vsync, VSync
+show_fps, Показывать FPS
+debug, Отладка
+create_auto_save, Создать авто-сохранение
+help, Помощь
+about, О приложении
+
+# dialogs
+file_not_found, Файл не найден
+file_not_found_msg1, Файл
+file_not_found_msg2, Он не был найден
+remove_recent_file_not_found, Вы хотите удалить его из недавних файлов?
+yes, Да
+no, Нет
+unsaved_changes, Несохранённые изменения
+ask_save, Сохранить несохранённые изменения?
+warn_unsaved, Любые несохранённые изменения исчезнут.
+save_changes, Сохранить изменения
+discard_changes, Сбросить изменения
+update_available, Обновление приложения доступно!
+update_available_description, Версия %s доступна. Хотите открыть его в браузере?
+score_file, Файл нот
+error, Ошибка
+error_load_score_file, Произошла ошибка при попытке прочитать ноты.
+error_load_music_file, Не удалось открыть файл музыки.
+cancel, Отмена
+general, Общий
+key_config, Конфигурация клавиш
+language, Язык
+auto, Авто
+auto_save, Авто-сохранение
+auto_save_enable, Авто-сохранение включено
+auto_save_interval, Интервал авто-сохранения (мин)
+auto_save_count, Максимальное количество авто-сохранений
+display_mode, Режим интерфейса
+theme, Тема
+base_theme, Базовая тема
+theme_light, Светлая
+theme_dark, Тёмная
+accent_color, Акцентный цвет
+accent_color_help, Выберите акцентный цвет чтобы применить
+select_accent_color, Выберите акцентный цвет
+custom_color, Кастомный цвет
+timeline, Таймлайн
+match_notes_size_to_timeline, Сопоставить размер нот с шириной таймлайна
+lane_width, Ширина полосы
+notes_height, Высота нот
+scrolling, Прокручивание
+scroll_speed_normal, Скорость прокрутки
+scroll_speed_shift, Скорость прокрутки (Шифт)
+use_smooth_scroll, Использовать плавную прокрутку
+smooth_scroll_time, Время плавной прокрутки
+return_to_last_tick, Вернуться к последнему тику на паузе
+cursor_auto_scroll, Авто-прокрутка курсора
+cursor_auto_scroll_amount, Процент авто-прокрутки курсора с таймлайна
+background, Задний фон
+background_image, Фотография заднего фона
+draw_background, Нарисовать фотографию заднего фона
+background_brightnes, Яркость заднего фона
+lanes_opacity, Непрозрачность полосы
+video, Видео
+vsync_enable, VSync
+notes_se, Звуковой эффект нот
+advanced, Продвинутое
+show_tick_in_properties, Показывать тик в характеристиках
+
+# score editor / Редактор уровня
+chart_properties, Характеристики чарта
+note_properties, Характеристики нот
+notes_timeline, Таймлайн нот
+options, Настройки
+select, Выбрать
+tap, Нота
+hold, Холд
+hold_step, Тик холда
+flick, Флик
+critical, Критикал
+trace, След
+guide, Гайд
+damage, Дамаг
+bpm, BPM
+time_signature, Отметка времени
+none, Ничего
+follow_cursor, Следовать за курсором
+up, Вверх
+default, По умолчанию
+left, Влево
+right, Вправо
+normal, Обычный
+hidden, Скрытый
+skip, Пропустить
+linear, Линейно
+ease_in, Ease In
+ease_out, Ease Out
+ease_in_out, Ease In Out
+ease_out_in, Ease Out In
+delete, Удалить
+copy, Скопировать
+cut, Вырезать
+paste, Вставить
+flip_paste, Вставить и повернуть
+flip, Повернуть
+duplicate, Дублировать
+flip_duplicate, Дублировать и повернуть
+note_width, Ширина нот
+shrink_down, Уменьшить
+shrink_up, Увеличить
+connect_holds, Соединить холды
+split_hold, Разделить холды
+lerp_hispeeds, Интерполяция Hi-Speeds
+repeat_hold_mids, Повторить Тик Холдов
+step_type, Тип шага
+ease_type, Тип изгиба
+flick_type, Тип флика
+hold_type, Тип холда
+fade_type, Тип исчезновения
+metadata, Метадата
+title, Название
+designer, Дизайнер
+artist, Певец
+jacket, Обложка
+lane_extension, Расширение полос
+audio, Аудио
+music_file, Файл музыки
+music_offset, Смещение музыки
+volume_master, Общая громкость
+volume_bgm, Громкость песни
+volume_se, Громкость звуковых эффектов
+statistics, Статистика
+taps, Ноты
+flicks, Флики
+holds, Холды
+steps, Тик холдов
+traces, Следы
+total, Общий
+combo, Комбо
+goto_measure, Перейти к измерению
+division, Деление %d
+division_affix, %d Делений
+custom, Кастом
+custom_division, Кастомное деление
+zoom, Приблизить
+show_step_outlines, Показать контуры шагов
+draw_waveform, Показать форму волны
+edit_bpm, Изменить BPM
+tick, Тик
+remove, Удалить
+edit_time_signature, Изменить отметку времени
+measure, Такт
+skill, Скилл
+increase_note_size, Увеличить размер ноты
+decrease_note_size, Уменьшить размер ноты
+hi_speed, Hi-speed
+edit_hi_speed, Изменить Hi-speed
+hi_speed_speed, Скорость
+fade_none, Без исчезновения
+fade_in, Исчезновение (в начале)
+fade_out, Исчезновение (в конце)
+guide_color, Цвет гайда
+guide_neutral, Нейтрально
+guide_red, Красный
+guide_blue, Синий
+guide_green, Зелёный
+guide_yellow, Жёлтый
+guide_purple, Фиолетовый
+guide_cyan, Голубой
+guide_black, Чёрный
+layer, Слой
+edit_skill, Изменить Skill триггер
+edit_fever,　Изменить FEVER триггер
+edit_none,　Изменить
+edit_event,　Изменить событие
+beat, Бит
+lane, Полоса
+width, Ширина
+advanced, Продвинутое
+note_properties_note, Характеристики ноты
+note_properties_hi_speed, Характеристики Hi-Speed
+note_properties_hold_note, Характеристики холд ноты
+note_properties_guide, Характеристики гайд ноты
+note_properties_not_selected, Никаких нот или Hi-Speed не было выбрано
+note_properties_many_selected, Много нот или Hi-Speed было выбрано
+
+# preset manager / менеджер пресетов
+presets, Пресеты
+no_presets, Нет доступных пресетов
+name, Имя
+description, Описание
+create_preset, Создать пресет
+search, Поиск...
+confirm, Подтвердить
+
+# layer manager / менеджер слоёв
+layers, Слой
+name, Имя
+create_layer, Создать слой
+confirm, Подтвердить
+show_all_layers, Показать все слои
+layer_rename, Переименовать слой
+layer_up, Передвинуть вверх
+layer_down, Передвинуть вниз
+layer_merge, Соединить слой
+layer_delete, Удалить слой
+
+# waypoint manager / менеджер меток
+waypoints, Метки
+create_waypoint, Создать метку
+edit_waypoint, Изменить метку
+waypoint_name, Имя
+
+# commands / команды
+action, Действие
+keys, Иконки
+add, Добавить
+cmd_key_listen, Ожидание ввода...
+new_chart, Новый чарт
+cancel_paste, Отменить вставку
+toggle_playback, Начать/Остановить
+stop, Стоп
+previous_tick, Прошлый тик
+next_tick, Следующий тик
+timeline_select, Таймлайн - Выбрать
+timeline_tap, Таймлайн - Вставьте ноту
+timeline_hold, Таймлайн - Вставьте холд
+timeline_hold_step, Таймлайн - Вставьте холд тик
+timeline_flick, Таймлайн - Вставьте флик
+timeline_critical, Таймлайн - Вставьте критикал
+timeline_trace, Таймлайн - Вставьте след
+timeline_guide, Таймлайн - Вставьте гайд
+timeline_damage, Таймлайн - Вставьте дамаг
+timeline_bpm, Таймлайн - Вставьте BPM
+timeline_time_signature, Таймлайн - Вставьте отметку времени
+timeline_hi_speed, Таймлайн - Вставьте Hi-Speed
+zoom_in, Приблизить
+zoom_out, Отдалить
