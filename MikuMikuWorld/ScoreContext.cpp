@@ -1,9 +1,8 @@
 #include "ScoreContext.h"
-#include "Constants.h"
+#include "AggregateNotesFilter.h"
 #include "IO.h"
 #include "Utilities.h"
 #include "UI.h"
-#include <stdio.h>
 #include <vector>
 
 using json = nlohmann::json;
@@ -13,37 +12,42 @@ namespace MikuMikuWorld
 {
 	constexpr const char* clipboardSignature = "MikuMikuWorld clipboard\n";
 
+	static InverseNotesFilter inverseGuideFilter(CommonNoteFilters::guideFilter());
+
+	bool noteExists(const int id, const Score& score)
+	{
+		return score.notes.find(id) != score.notes.end();
+	}
+
 	void ScoreContext::setStep(HoldStepType type)
 	{
-		if (selectedNotes.empty())
+		AggregateNotesFilter filterBuilder;
+		const NoteSelection filteredNotes = filterBuilder
+			.add(CommonNoteFilters::stepFilter())
+			.add(&inverseGuideFilter)
+			.filter(selectedNotes, score);
+		
+		if (filteredNotes.empty())
 			return;
 
 		bool edit = false;
-		Score prev = score;
-		for (int id : selectedNotes)
+		const Score prev = score;
+		
+		for (int id : filteredNotes)
 		{
-			const Note& note = score.notes.at(id);
-			if (note.getType() != NoteType::HoldMid)
-				continue;
+			HoldNote& hold = score.holdNotes.at(score.notes.at(id).parentID);
 
-			HoldNote& hold = score.holdNotes.at(note.parentID);
-			if (hold.isGuide())
-				continue;
-
-			int pos = findHoldStep(hold, id);
-			if (pos != -1)
+			// The filter already verifies the step belongs to the hold
+			const int pos = findHoldStep(hold, id);
+			if (type == HoldStepType::HoldStepTypeCount)
 			{
-				if (type == HoldStepType::HoldStepTypeCount)
-				{
-					cycleStepType(hold.steps[pos]);
-					edit = true;
-				}
-				else
-				{
-					// don't record history if the type did not change
-					edit |= hold.steps[pos].type != type;
-					hold.steps[pos].type = type;
-				}
+				cycleStepType(hold.steps[pos]);
+				edit = true;
+			}
+			else
+			{
+				edit |= hold.steps[pos].type != type;
+				hold.steps[pos].type = type;
 			}
 		}
 
@@ -53,33 +57,26 @@ namespace MikuMikuWorld
 
 	void ScoreContext::setFlick(FlickType flick)
 	{
-		if (selectedNotes.empty())
+		const NoteSelection filteredNotes = CommonNoteFilters::flickableFilter()->filter(selectedNotes, score);
+		if (filteredNotes.empty())
 			return;
 
 		bool edit = false;
-		Score prev = score;
-		for (int id : selectedNotes)
+		const Score prev = score;
+
+		if (flick == FlickType::FlickTypeCount)
 		{
-			Note& note = score.notes.at(id);
-			bool canFlick = !note.hasEase();
-
-			if (note.getType() == NoteType::HoldEnd)
+			edit = true;
+			for (int id : filteredNotes)
+				cycleFlick(score.notes.at(id));
+		}
+		else
+		{
+			for (int id : filteredNotes)
 			{
-				canFlick = score.holdNotes.at(note.parentID).endType == HoldNoteType::Normal;
-			}
-
-			if (canFlick)
-			{
-				if (flick == FlickType::FlickTypeCount)
-				{
-					cycleFlick(note);
-					edit = true;
-				}
-				else
-				{
-					edit |= note.flick != flick;
-					note.flick = flick;
-				}
+				Note& note = score.notes.at(id);
+				edit |= note.flick != flick;
+				note.flick = flick;
 			}
 		}
 
@@ -89,45 +86,27 @@ namespace MikuMikuWorld
 
 	void ScoreContext::setEase(EaseType ease)
 	{
-		if (selectedNotes.empty())
+		const NoteSelection filteredNotes = CommonNoteFilters::easeFilter()->filter(selectedNotes, score);
+		if (filteredNotes.empty())
 			return;
 
 		bool edit = false;
 		Score prev = score;
-		for (int id : selectedNotes)
+		for (int id : filteredNotes)
 		{
 			Note& note = score.notes.at(id);
-			if (note.getType() == NoteType::Hold)
+			HoldNote& hold = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
+			HoldStep& step = note.getType() == NoteType::Hold ? hold.start : hold.steps[findHoldStep(hold, note.ID)];
+
+			if (ease == EaseType::EaseTypeCount)
 			{
-				if (ease == EaseType::EaseTypeCount)
-				{
-					cycleStepEase(score.holdNotes.at(note.ID).start);
-					edit = true;
-				}
-				else
-				{
-					edit |= score.holdNotes.at(note.ID).start.ease != ease;
-					score.holdNotes.at(note.ID).start.ease = ease;
-				}
+				cycleStepEase(step);
+				edit = true;
 			}
-			else if (note.getType() == NoteType::HoldMid)
+			else
 			{
-				HoldNote& hold = score.holdNotes.at(note.parentID);
-				int pos = findHoldStep(hold, id);
-				if (pos != -1)
-				{
-					if (ease == EaseType::EaseTypeCount)
-					{
-						cycleStepEase(hold.steps[pos]);
-						edit = true;
-					}
-					else
-					{
-						// don't record history if the type did not change
-						edit |= hold.steps[pos].ease != ease;
-						hold.steps[pos].ease = ease;
-					}
-				}
+				edit |= step.ease != ease;
+				step.ease = ease;
 			}
 		}
 
@@ -140,27 +119,29 @@ namespace MikuMikuWorld
 		if (selectedNotes.empty())
 			return;
 
-		Score prev = score;
 		bool edit = false;
+		Score prev = score;
 		for (int id : selectedNotes)
 		{
-			// Invisible hold points cannot be trace notes!
+			if (!noteExists(id, score))
+				continue;
+			
 			Note& note = score.notes.at(id);
-			if (note.getType() == NoteType::Tap || note.getType() == NoteType::HoldMid)
-				continue;
-
-			HoldNote& holdNote = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
-
-			// For now do not allow changing guides to normal holds or vice versa
-			if (holdNote.isGuide())
-				continue;
-
-			note.getType() == NoteType::Hold ? holdNote.startType = hold : holdNote.endType = hold;
-			edit = true;
+			if (note.getType() == NoteType::Hold)
+			{
+				HoldNote& holdNote = score.holdNotes.at(id);
+				edit |= holdNote.startType != hold;
+				holdNote.startType = hold;
+			}
+			else if (note.getType() == NoteType::HoldEnd)
+			{
+				HoldNote& holdNote = score.holdNotes.at(note.parentID);
+				edit |= holdNote.endType != hold;
+				holdNote.endType = hold;
+			}
 		}
 
-		if (edit)
-			pushHistory("Change hold", prev, score);
+		pushHistory("Change hold", prev, score);
 	}
 
 	void ScoreContext::toggleCriticals()
@@ -172,8 +153,10 @@ namespace MikuMikuWorld
 		std::unordered_set<int> critHolds;
 		for (int id : selectedNotes)
 		{
-			Note& note = score.notes.at(id);
-			if (note.getType() == NoteType::Tap)
+			if (!noteExists(id, score))
+				continue;
+			
+			if (Note& note = score.notes.at(id); note.getType() == NoteType::Tap)
 			{
 				note.critical ^= true;
 			}
@@ -206,45 +189,32 @@ namespace MikuMikuWorld
 
 	void ScoreContext::toggleFriction()
 	{
-		if (selectedNotes.empty())
+		const NoteSelection filteredNotes = CommonNoteFilters::frictionableFilter()->filter(selectedNotes, score);
+		if (filteredNotes.empty())
 			return;
 
 		Score prev = score;
-		bool edit = false;
-		for (int id : selectedNotes)
+		for (int id : filteredNotes)
 		{
-			// Hold steps and invisible hold points cannot be trace notes
 			Note& note = score.notes.at(id);
-			if (note.getType() == NoteType::HoldMid)
-				continue;
-
-			if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd)
+			if (note.getType() == NoteType::Hold)
 			{
-				HoldNote& holdNote = score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID);
-				if (holdNote.isGuide())
-					continue;
-				
-				if (note.getType() == NoteType::Hold)
+				score.holdNotes.at(id).startType = HoldNoteType::Normal;
+			}
+			else if (note.getType() == NoteType::HoldEnd)
+			{
+				score.holdNotes.at(note.parentID).endType = HoldNoteType::Normal;
+				if (!note.isFlick() && note.friction && !score.notes.at(note.parentID).critical)
 				{
-					holdNote.startType = HoldNoteType::Normal;
-				}
-				else
-				{
-					holdNote.endType = HoldNoteType::Normal;
-					if (!note.isFlick() && note.friction && !score.notes.at(note.parentID).critical)
-					{
-						// Prevent critical hold end if the hold start is not critical
-						note.critical = false;
-					}
+					// Prevent critical hold end if the hold start is not critical
+					note.critical = false;
 				}
 			}
-
+			
 			note.friction = !note.friction;
-			edit = true;
 		}
 
-		if (edit)
-			pushHistory("Change trace notes", prev, score);
+		pushHistory("Change trace notes", prev, score);
 	}
 
 	void ScoreContext::deleteSelection()
@@ -255,12 +225,10 @@ namespace MikuMikuWorld
 		Score prev = score;
 		for (auto& id : selectedNotes)
 		{
-			auto notePos = score.notes.find(id);
-			if (notePos == score.notes.end())
+			if (!noteExists(id, score))
 				continue;
 
-			Note& note = notePos->second;
-			if (note.getType() != NoteType::Hold && note.getType() != NoteType::HoldEnd)
+			if (Note& note = score.notes.at(id); note.getType() != NoteType::Hold && note.getType() != NoteType::HoldEnd)
 			{
 				if (note.getType() == NoteType::HoldMid)
 				{
@@ -300,6 +268,9 @@ namespace MikuMikuWorld
 		Score prev = score;
 		for (int id : selectedNotes)
 		{
+			if (!noteExists(id, score))
+				continue;
+			
 			Note& note = score.notes.at(id);
 			note.lane = MAX_LANE - note.lane - note.width + 1;
 
@@ -324,8 +295,8 @@ namespace MikuMikuWorld
 			return;
 
 		int minTick = score.notes.at(*std::min_element(selectedNotes.begin(), selectedNotes.end(), [this](int id1, int id2)
-		{
-			return score.notes.at(id1).tick < score.notes.at(id2).tick;
+		{	return noteExists(id1, score) && noteExists(id2, score) &&
+				score.notes.at(id1).tick < score.notes.at(id2).tick;
 		})).tick;
 
 		json data = jsonIO::noteSelectionToJson(score, selectedNotes, minTick);
@@ -564,7 +535,9 @@ namespace MikuMikuWorld
 
 		const std::unordered_set<int> holds = getHoldsFromSelection();
 		for (const auto& hold : holds)
+		{
 			sortHoldSteps(score, score.holdNotes.at(hold));
+		}
 
 		pushHistory("Shrink notes", prev, score);
 	}
@@ -740,20 +713,23 @@ namespace MikuMikuWorld
 
 	bool ScoreContext::selectionHasEase() const
 	{
-		return std::any_of(selectedNotes.begin(), selectedNotes.end(),
-			[this](const int id) { return score.notes.at(id).hasEase(); });
+		return std::any_of(selectedNotes.begin(), selectedNotes.end(), [this](int id)
+			{ return noteExists(id, score) && score.notes.at(id).hasEase(); });
 	}
 
 	bool ScoreContext::selectionHasStep() const
 	{
-		return std::any_of(selectedNotes.begin(), selectedNotes.end(),
-			[this](const int id) { return score.notes.at(id).getType() == NoteType::HoldMid; });
+		return std::any_of(selectedNotes.begin(), selectedNotes.end(), [this](int id)
+		{
+			return !CommonNoteFilters::guideFilter()->isGuideHold(id, score) &&
+				score.notes.at(id).getType() == NoteType::HoldMid;
+		});
 	}
 
 	bool ScoreContext::selectionHasFlickable() const
 	{
 		return std::any_of(selectedNotes.begin(), selectedNotes.end(),
-			[this](const int id) { return !score.notes.at(id).hasEase(); });
+			[this](int id) { return CommonNoteFilters::flickableFilter()->canFlick(id, score); });
 	}
 
 	bool ScoreContext::selectionCanConnect() const
@@ -766,23 +742,30 @@ namespace MikuMikuWorld
 		if (note1.tick == note2.tick)
 			return (note1.getType() == NoteType::Hold && note2.getType() == NoteType::HoldEnd) ||
 						 (note1.getType() == NoteType::HoldEnd && note2.getType() == NoteType::Hold);
-
+		
 		auto noteTickCompareFunc = [](const Note& n1, const Note& n2) { return n1.tick < n2.tick; };
 		Note earlierNote = std::min(note1, note2, noteTickCompareFunc);
 		Note laterNote = std::max(note1, note2, noteTickCompareFunc);
 
 		return (earlierNote.getType() == NoteType::HoldEnd && laterNote.getType() == NoteType::Hold);
 	}
-
+	
 	bool ScoreContext::selectionCanChangeHoldType() const
 	{
-		return std::any_of(selectedNotes.begin(), selectedNotes.end(), [this](const int id)
+		static auto pred = [this](int id)
 		{
-			const Note& note = score.notes.at(id);
-			if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd)
-				return !score.holdNotes.at(note.getType() == NoteType::Hold ? note.ID : note.parentID).isGuide();
+			const auto it = score.notes.find(id);
+			if (it == score.notes.end())
+				return false;
 
-			return false;
-		});
+			return it->second.getType() == NoteType::Hold || it->second.getType() == NoteType::HoldEnd;
+		};
+		static CustomFilter holdsFilter(pred);
+		
+		return !AggregateNotesFilter()
+			.add(&holdsFilter)
+			.add(&inverseGuideFilter)
+			.filter(selectedNotes, score)
+			.empty();
 	}
 }
