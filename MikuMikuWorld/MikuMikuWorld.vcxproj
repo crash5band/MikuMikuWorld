@@ -190,6 +190,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="Note.cpp" />
+    <ClCompile Include="NotesFilter.cpp" />
+    <ClCompile Include="AggregateNotesFilter.cpp" />
     <ClCompile Include="OpenGlLoader.cpp" />
     <ClCompile Include="NotesPreset.cpp" />
     <ClCompile Include="Rendering\Camera.cpp" />
@@ -247,6 +249,8 @@
     <ClInclude Include="Math.h" />
     <ClInclude Include="Audio\miniaudio.h" />
     <ClInclude Include="Note.h" />
+    <ClInclude Include="NotesFilter.h" />
+    <ClInclude Include="AggregateNotesFilter.h" />
     <ClInclude Include="NoteTypes.h" />
     <ClInclude Include="NotesPreset.h" />
     <ClInclude Include="Rendering\AnchorType.h" />
