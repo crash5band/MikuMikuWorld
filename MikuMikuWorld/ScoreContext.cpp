@@ -565,7 +565,8 @@ namespace MikuMikuWorld
 		// We need to determine whether the new end will be critical
 		Note& earlierHoldStart = score.notes.at(earlierHold.start.ID);
 		Note& laterHoldEnd = score.notes.at(score.holdNotes.at(laterNote.ID).end);
-		laterHoldEnd.critical = earlierHoldStart.critical ? true : laterHoldEnd.isFlick() && laterHoldEnd.critical;
+		if (earlierHoldStart.critical)
+			laterHoldEnd.critical = true;
 		
 		// Update later note's end parent ID
 		laterHoldEnd.parentID = earlierHold.start.ID;
