@@ -120,6 +120,7 @@ namespace MikuMikuWorld
 	void cycleFlick(Note& note);
 	void cycleStepEase(HoldStep& note);
 	void cycleStepType(HoldStep& note);
+	void sortHold(Score& score, HoldNote& note);
 	void sortHoldSteps(const Score& score, HoldNote& note);
 	int findHoldStep(const HoldNote& note, int stepID);
 

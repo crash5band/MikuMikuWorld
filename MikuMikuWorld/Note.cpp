@@ -59,6 +59,42 @@ namespace MikuMikuWorld
 		note.type = (HoldStepType)(((int)note.type + 1) % (int)HoldStepType::HoldStepTypeCount);
 	}
 
+	void swapNotesPosition(Note& n1, Note& n2)
+	{
+		std::swap(n1.tick, n2.tick);
+		std::swap(n1.lane, n2.lane);
+		n1.lane = std::clamp(n1.lane, MIN_LANE, MAX_LANE - n1.width + 1);
+		n2.lane = std::clamp(n2.lane, MIN_LANE, MAX_LANE - n2.width + 1);
+	}
+
+	void sortHold(Score& score, HoldNote& hold)
+	{
+		Note& start = score.notes.at(hold.start.ID);
+		Note& end = score.notes.at(hold.end);
+
+		if (start.tick > end.tick)
+		{
+			std::swap(start.tick, end.tick);
+			std::swap(start.lane, end.lane);
+			std::swap(start.width, end.width);
+		}
+		
+		if (!hold.steps.empty())
+		{
+			sortHoldSteps(score, hold);
+			
+			Note& firstMid = score.notes.at(hold.steps[0].ID);
+			if (start.tick > firstMid.tick)
+				swapNotesPosition(start, firstMid);
+
+			Note& lastMid = score.notes.at(hold.steps[hold.steps.size() - 1].ID);
+			if (end.tick < lastMid.tick)
+				swapNotesPosition(end, lastMid);
+
+			sortHoldSteps(score, hold);
+		}
+	}
+
 	void sortHoldSteps(const Score& score, HoldNote& note)
 	{
 		std::stable_sort(note.steps.begin(), note.steps.end(),

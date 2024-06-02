@@ -1090,52 +1090,16 @@ namespace MikuMikuWorld
 			isHoldingNote = false;
 			holdingNote = 0;
 
-			if (!noChange)
+			if (noChange)
+				return false;
+
+			for (int id : context.getHoldsFromSelection())
 			{
-				std::unordered_set<int> sortHolds = context.getHoldsFromSelection();
-				for (int id : sortHolds)
-				{
-					HoldNote& hold = context.score.holdNotes.at(id);
-					Note& start = context.score.notes.at(id);
-					Note& end = context.score.notes.at(hold.end);
-
-					if (start.tick > end.tick)
-					{
-						std::swap(start.tick, end.tick);
-						std::swap(start.lane, end.lane);
-						std::swap(start.width, end.width);
-					}
-
-					if (hold.steps.size())
-					{
-						sortHoldSteps(context.score, hold);
-
-						// Ensure hold steps are between the start and end
-						Note& firstMid = context.score.notes.at(hold.steps[0].ID);
-						if (start.tick > firstMid.tick)
-						{
-							std::swap(start.tick, firstMid.tick);
-							std::swap(start.lane, firstMid.lane);
-							start.lane = std::clamp(start.lane, MIN_LANE, MAX_LANE - start.width + 1);
-							firstMid.lane = std::clamp(firstMid.lane, MIN_LANE, MAX_LANE - firstMid.width + 1);
-						}
-
-						Note& lastMid = context.score.notes.at(hold.steps[hold.steps.size() - 1].ID);
-						if (end.tick < lastMid.tick)
-						{
-							std::swap(end.tick, lastMid.tick);
-							std::swap(end.lane, lastMid.lane);
-							lastMid.lane = std::clamp(lastMid.lane, MIN_LANE, MAX_LANE - lastMid.width + 1);
-							end.lane = std::clamp(end.lane, MIN_LANE, MAX_LANE - end.width + 1);
-						}
-					}
-
-					sortHoldSteps(context.score, hold);
-					skipUpdateAfterSortingSteps = true;
-				}
-
-				context.pushHistory("Update notes", prevUpdateScore, context.score);
+				sortHold(context.score, context.score.holdNotes.at(id));
+				skipUpdateAfterSortingSteps = true;
 			}
+
+			context.pushHistory("Update notes", prevUpdateScore, context.score);
 		}
 
 		return false;

@@ -532,12 +532,9 @@ namespace MikuMikuWorld
 		int firstTick = score.notes.at(*sortedSelection.begin()).tick;
 		for (int i = 0; i < sortedSelection.size(); ++i)
 			score.notes[sortedSelection[i]].tick = firstTick + (i * factor);
-
-		const std::unordered_set<int> holds = getHoldsFromSelection();
-		for (const auto& hold : holds)
-		{
-			sortHoldSteps(score, score.holdNotes.at(hold));
-		}
+		
+		for (int id : getHoldsFromSelection())
+			sortHold(score, score.holdNotes.at(id));
 
 		pushHistory("Shrink notes", prev, score);
 	}
@@ -550,15 +547,13 @@ namespace MikuMikuWorld
 		Score prev = score;
 		Note& note1 = score.notes[*selectedNotes.begin()];
 		Note& note2 = score.notes[*std::next(selectedNotes.begin())];
-
-		// Determine correct order of notes
+		
 		Note& earlierNote = note1.getType() == NoteType::HoldEnd ? note1 : note2;
 		Note& laterNote = note1.getType() == NoteType::HoldEnd ? note2 : note1;
 
 		HoldNote& earlierHold = score.holdNotes[earlierNote.parentID];
 		HoldNote& laterHold = score.holdNotes[laterNote.ID];
-
-		// Connect both ends
+		
 		earlierHold.end = laterHold.end;
 		laterNote.parentID = earlierHold.start.ID;
 
@@ -568,10 +563,35 @@ namespace MikuMikuWorld
 		if (earlierHoldStart.critical)
 			laterHoldEnd.critical = true;
 		
-		// Update later note's end parent ID
 		laterHoldEnd.parentID = earlierHold.start.ID;
 
-		// Copy over later note's steps
+		selectedNotes.clear();
+		
+		// The later note has ease data so we'll always create it
+		if (earlierNote.tick != laterNote.tick)
+		{
+			Note earlierNoteAsMid = Note(NoteType::HoldMid, earlierNote.tick, earlierNote.lane, earlierNote.width);
+			earlierNoteAsMid.ID = nextID++;
+			earlierNoteAsMid.critical = earlierHoldStart.critical;
+			earlierNoteAsMid.parentID = earlierHold.start.ID;
+
+			score.notes[earlierNoteAsMid.ID] = earlierNoteAsMid;
+			earlierHold.steps.push_back({ earlierNoteAsMid.ID, HoldStepType::Normal, EaseType::Linear });
+
+			selectedNotes.insert(earlierNoteAsMid.ID);
+		}
+		
+		Note laterNoteAsMid = Note(NoteType::HoldMid, laterNote.tick, laterNote.lane, laterNote.width);
+		laterNoteAsMid.ID = nextID++;
+		laterNoteAsMid.critical = earlierHoldStart.critical;
+		laterNoteAsMid.parentID = earlierHold.start.ID;
+		
+		score.notes[laterNoteAsMid.ID] = laterNoteAsMid;
+		earlierHold.steps.push_back({ laterNoteAsMid.ID, laterHold.start.type, laterHold.start.ease });
+
+		selectedNotes.insert(laterNoteAsMid.ID);
+
+		// Copying the steps last will save us a sort
 		for (auto& step : laterHold.steps)
 		{
 			earlierHold.steps.push_back(step);
@@ -580,35 +600,10 @@ namespace MikuMikuWorld
 			note.critical = earlierHoldStart.critical;
 			note.parentID = earlierHold.start.ID;
 		}
-
-		// Create new steps to connect both ends
-		Note earlierNoteAsMid = Note(NoteType::HoldMid, earlierNote.tick, earlierNote.lane, earlierNote.width);
-		earlierNoteAsMid.ID = nextID++;
-		earlierNoteAsMid.critical = earlierHoldStart.critical;
-		earlierNoteAsMid.parentID = earlierHold.start.ID;
-
-		Note laterNoteAsMid = Note(NoteType::HoldMid, laterNote.tick, laterNote.lane, laterNote.width);
-		laterNoteAsMid.ID = nextID++;
-		laterNoteAsMid.critical = earlierHoldStart.critical;
-		laterNoteAsMid.parentID = earlierHold.start.ID;
-
-		// Insert new steps to their appropriate containers
-		score.notes[earlierNoteAsMid.ID] = earlierNoteAsMid;
-		score.notes[laterNoteAsMid.ID] = laterNoteAsMid;
-		earlierHold.steps.push_back({ earlierNoteAsMid.ID, HoldStepType::Normal, EaseType::Linear });
-		earlierHold.steps.push_back({ laterNoteAsMid.ID, laterHold.start.type, laterHold.start.ease });
-
-		// Remove old notes
+		
 		score.notes.erase(earlierNote.ID);
 		score.notes.erase(laterNote.ID);
 		score.holdNotes.erase(laterHold.start.ID);
-
-		sortHoldSteps(score, earlierHold);
-
-		selectedNotes.clear();
-		selectedNotes.insert(earlierNoteAsMid.ID);
-		selectedNotes.insert(laterNoteAsMid.ID);
-
 		pushHistory("Connect holds", prev, score);
 	}
 
@@ -648,25 +643,22 @@ namespace MikuMikuWorld
 
 		hold.end = newSlideEnd.ID;
 		newHold.start = { newSlideStart.ID, HoldStepType::Normal, hold.steps[pos].ease };
+		newHold.steps.resize(hold.steps.size() - pos - 1);
 		
 		// Backwards loop to avoid incorrect indices after removal
-		for (int i = hold.steps.size() - 1; i > pos; i--)
+		for (size_t i = hold.steps.size() - 1; i > static_cast<size_t>(pos); i--)
 		{
-			HoldStep& step = hold.steps[i];
-			Note& stepNote = score.notes.at(step.ID);
-			stepNote.parentID = newSlideStart.ID;
-			newHold.steps.push_back(step);
+			const HoldStep& step = hold.steps[i];
+			score.notes.at(step.ID).parentID = newSlideStart.ID;
+			newHold.steps[i - pos - 1] = step;
 			hold.steps.erase(hold.steps.begin() + i);
 		}
 
 		hold.steps.pop_back();
 		score.notes.erase(note.ID);
-
-		sortHoldSteps(score, hold);
-		sortHoldSteps(score, newHold);
+		
 		selectedNotes.clear();
 		selectedNotes.insert(newSlideStart.ID);
-		selectedNotes.insert(newSlideEnd.ID);
 
 		score.notes[newSlideEnd.ID] = newSlideEnd;
 		score.notes[newSlideStart.ID] = newSlideStart;
