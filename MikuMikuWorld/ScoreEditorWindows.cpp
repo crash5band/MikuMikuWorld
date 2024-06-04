@@ -18,7 +18,11 @@ namespace MikuMikuWorld
 			UI::addStringProperty(getString("artist"), context.workingData.artist);
 
 			std::string jacketFile = context.workingData.jacket.getFilename();
-			int result = UI::addFileProperty(getString("jacket"), jacketFile);
+
+			ImGui::BeginDisabled(isLoadingJacket);
+			int result = UI::addFileProperty(getString("jacket"), isLoadingJacket ? loadingText : jacketFile);
+			ImGui::EndDisabled();
+			
 			if (result == 1)
 			{
 				context.workingData.jacket.load(jacketFile);
@@ -33,6 +37,7 @@ namespace MikuMikuWorld
 				if (fileDialog.openFile() == IO::FileDialogResult::OK)
 					context.workingData.jacket.load(fileDialog.outputFilename);
 			}
+			 
 			context.workingData.jacket.draw();
 			UI::endPropertyColumns();
 		}
@@ -42,12 +47,16 @@ namespace MikuMikuWorld
 			UI::beginPropertyColumns();
 
 			bool changeMusic = false;
-			std::string filename = context.workingData.musicFilename;
-			int filePickResult = UI::addFileProperty(getString("music_file"), filename);
-			if (filePickResult == 1 && filename != context.workingData.musicFilename)
+			std::string musicFilename = context.workingData.musicFilename;
+
+			ImGui::BeginDisabled(isLoadingMusic);
+			int filePickResult = UI::addFileProperty(getString("music_file"), isLoadingMusic ? loadingText : musicFilename);
+			ImGui::EndDisabled();
+
+			if (filePickResult == 1 && musicFilename != context.workingData.musicFilename)
 			{
 				isPendingLoadMusic = true;
-				pendingLoadMusicFilename = filename;
+				pendingLoadMusicFilename = musicFilename;
 			}
 			else if (filePickResult == 2)
 			{

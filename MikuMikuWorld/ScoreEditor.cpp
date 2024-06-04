@@ -139,9 +139,9 @@ namespace MikuMikuWorld
 
 		if (propertiesWindow.isPendingLoadMusic)
 		{
-			loadMusic(propertiesWindow.pendingLoadMusicFilename);
-			propertiesWindow.pendingLoadMusicFilename.clear();
+			asyncLoadMusic(propertiesWindow.pendingLoadMusicFilename);
 			propertiesWindow.isPendingLoadMusic = false;
+			propertiesWindow.pendingLoadMusicFilename.clear();
 		}
 
 		if (config.autoSaveEnabled && autoSaveTimer.elapsedMinutes() >= config.autoSaveInterval)
@@ -241,6 +241,7 @@ namespace MikuMikuWorld
 			std::string workingFilename;
 			Score newScore;
 
+			timeline.setPlaying(context, false);
 			if (extension == SUS_EXTENSION)
 			{
 				SusParser susParser;
@@ -257,7 +258,7 @@ namespace MikuMikuWorld
 			context.score = std::move(newScore);
 			context.workingData = EditorScoreData(context.score.metadata, workingFilename);
 
-			loadMusic(context.workingData.musicFilename);
+			asyncLoadMusic(context.workingData.musicFilename);
 			context.audio.setMusicOffset(0, context.workingData.musicOffset);
 
 			context.scoreStats.calculateStats(context.score);
@@ -283,8 +284,18 @@ namespace MikuMikuWorld
 		updateRecentFilesList(filename);
 	}
 
+	void ScoreEditor::asyncLoadScore(std::string filename)
+	{
+		if (loadScoreFuture.valid())
+			loadScoreFuture.get();
+
+		loadScoreFuture = std::async(std::launch::async, &ScoreEditor::loadScore, this, filename);
+	}
+
 	void ScoreEditor::loadMusic(std::string filename)
 	{
+		propertiesWindow.isLoadingMusic = true;
+		
 		Result result = context.audio.loadMusic(filename);
 		if (result.isOk() || filename.empty())
 		{
@@ -301,10 +312,29 @@ namespace MikuMikuWorld
 
 			IO::messageBox(APP_NAME, errorMessage, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 		}
-
+		
 		context.waveformL.generateMipChainsFromSampleBuffer(context.audio.musicBuffer, 0);
 		context.waveformR.generateMipChainsFromSampleBuffer(context.audio.musicBuffer, 1);
-		timeline.setPlaying(context, false);
+
+		if (timeline.isPlaying())
+		{
+			bool prevPauseBehaviour = config.returnToLastSelectedTickOnPause;
+			config.returnToLastSelectedTickOnPause = false;
+			timeline.setPlaying(context, false);
+			timeline.setPlaying(context, true);
+
+			config.returnToLastSelectedTickOnPause = prevPauseBehaviour;
+		}
+
+		propertiesWindow.isLoadingMusic = false;
+	}
+
+	void ScoreEditor::asyncLoadMusic(std::string filename)
+	{
+		if (loadMusicFuture.valid())
+			loadMusicFuture.get();
+		
+		loadMusicFuture = std::async(&ScoreEditor::loadMusic, this, filename);
 	}
 
 	void ScoreEditor::open()
@@ -320,12 +350,7 @@ namespace MikuMikuWorld
 
 	bool ScoreEditor::trySave(std::string filename)
 	{
-		if (filename.empty())
-			return saveAs();
-		else
-			return save(filename);
-
-		return false;
+		return filename.empty() ? saveAs() : save(filename);
 	}
 
 	bool ScoreEditor::save(std::string filename)

@@ -21,7 +21,12 @@ namespace MikuMikuWorld
 	public:
 		std::string pendingLoadMusicFilename{};
 		bool isPendingLoadMusic{ false };
+		bool isLoadingMusic{ false };
+		bool isLoadingJacket{ false };
 		void update(ScoreContext& context);
+
+	private:
+		std::string loadingText = "Loading...";
 	};
 
 	class ScoreOptionsWindow

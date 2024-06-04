@@ -169,7 +169,7 @@ namespace MikuMikuWorld
 		}
 
 		if (!musicFile.empty())
-			editor->loadMusic(musicFile);
+			editor->asyncLoadMusic(musicFile);
 
 		pendingOpenFiles.clear();
 		windowState.dragDropHandled = true;

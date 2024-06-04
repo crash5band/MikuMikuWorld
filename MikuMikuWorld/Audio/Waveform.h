@@ -85,6 +85,9 @@ namespace Audio
 
 	class WaveformMipChain
 	{
+	private:
+		bool doneProcessing{ true };
+		
 	public:
 		static constexpr size_t maxMipLevels{ 24 };
 		static constexpr size_t minMipSamples{ 256 };
@@ -95,6 +98,11 @@ namespace Audio
 		bool isEmpty() const
 		{
 			return mips[0].powerOfTwoSampleCount == 0;
+		}
+
+		bool isDoneProcessing() const
+		{
+			return doneProcessing;
 		}
 
 		void clear()
@@ -136,11 +144,13 @@ namespace Audio
 
 		void generateMipChainsFromSampleBuffer(const SoundBuffer& audioData, uint32_t channelIndex)
 		{
+			doneProcessing = false;
 			if (!audioData.isValid())
 			{
 				durationInSeconds = 0;
 				clear();
 
+				doneProcessing = true;
 				return;
 			}
 
@@ -202,6 +212,8 @@ namespace Audio
 					parentSamples += 2;
 				}
 			}
+
+			doneProcessing = true;
 		}
 	};
 }

@@ -2127,7 +2127,7 @@ namespace MikuMikuWorld
 		{
 			const bool rightChannel = index == 1;
 			const Audio::WaveformMipChain& waveform = rightChannel ? context.waveformR : context.waveformL;
-			if (waveform.isEmpty())
+			if (waveform.isEmpty() || !waveform.isDoneProcessing())
 				continue;
 
 			const ImU32 waveformColor = rightChannel ? waveformColorR : waveformColorL;

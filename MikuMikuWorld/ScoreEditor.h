@@ -1,3 +1,4 @@
+#pragma once
 #include "ScoreEditorWindows.h"
 #include <future>
 
@@ -22,7 +23,10 @@ namespace MikuMikuWorld
 
 		Stopwatch autoSaveTimer;
 		std::string autoSavePath;
-		bool showImGuiDemoWindow;
+		bool showImGuiDemoWindow{false};
+
+		std::future<void> loadScoreFuture;
+		std::future<void> loadMusicFuture;
 
 		bool save(std::string filename);
 		size_t updateRecentFilesList(const std::string& entry);
@@ -35,7 +39,9 @@ namespace MikuMikuWorld
 		void create();
 		void open();
 		void loadScore(std::string filename);
+		void asyncLoadScore(std::string filename);
 		void loadMusic(std::string filename);
+		void asyncLoadMusic(std::string filename);
 		void exportSus();
 		bool saveAs();
 		bool trySave(std::string);
