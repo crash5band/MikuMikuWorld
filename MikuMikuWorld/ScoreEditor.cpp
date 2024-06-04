@@ -541,8 +541,8 @@ namespace MikuMikuWorld
 
 		if (ImGui::BeginMenu(getString("window")))
 		{
-			if (ImGui::MenuItem(getString("vsync"), NULL, &config.vsync))
-				glfwSwapInterval(config.vsync);
+			if (ImGui::MenuItem(getString("vsync"), NULL, &Application::windowState.vsync))
+				glfwSwapInterval(Application::windowState.vsync);
 
 			ImGui::MenuItem(getString("show_fps"), NULL, &config.showFPS);
 
