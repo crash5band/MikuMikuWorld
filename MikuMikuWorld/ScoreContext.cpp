@@ -293,16 +293,9 @@ namespace MikuMikuWorld
 	{
 		if (selectedNotes.empty())
 			return;
-
-		int minTick = score.notes.at(*std::min_element(selectedNotes.begin(), selectedNotes.end(), [this](int id1, int id2)
-		{	return noteExists(id1, score) && noteExists(id2, score) &&
-				score.notes.at(id1).tick < score.notes.at(id2).tick;
-		})).tick;
-
-		json data = jsonIO::noteSelectionToJson(score, selectedNotes, minTick);
-
+		
 		std::string clipboard{ clipboardSignature };
-		clipboard.append(data.dump());
+		clipboard.append(jsonIO::noteSelectionToJson(score, selectedNotes, minTickFromSelection()).dump());
 
 		ImGui::SetClipboardText(clipboard.c_str());
 	}
@@ -442,14 +435,17 @@ namespace MikuMikuWorld
 			int right = MIN_LANE;
 			int leftmostLane = MAX_LANE;
 			int rightmostLane = MIN_LANE;
+			int minTick = std::numeric_limits<int>::max();
 			for (const auto& [_, note] : pasteData.notes)
 			{
 				leftmostLane = std::min(leftmostLane, note.lane);
 				rightmostLane = std::max(rightmostLane, note.lane + note.width - 1);
 				left = std::min(left, note.lane + note.width);
 				right = std::max(right, note.lane);
+				minTick = std::min(minTick, note.tick);
 			}
 
+			pasteData.minTick = std::abs(minTick);
 			pasteData.minLaneOffset = MIN_LANE - leftmostLane;
 			pasteData.maxLaneOffset = MAX_LANE - rightmostLane;
 			pasteData.midLane = (left + right) / 2;
@@ -702,6 +698,22 @@ namespace MikuMikuWorld
 		scoreStats.calculateStats(score);
 
 		upToDate = false;
+	}
+
+	int ScoreContext::minTickFromSelection() const
+	{
+		int minTick = score.notes.at(*std::min_element(selectedNotes.begin(), selectedNotes.end(),
+			[this](int id1, int id2)
+		{	return noteExists(id1, score) && noteExists(id2, score) &&
+				score.notes.at(id1).tick < score.notes.at(id2).tick;
+		})).tick;
+
+		std::unordered_set<int> selectedHolds = getHoldsFromSelection();
+		return std::min(minTick, score.notes.at(*std::min_element(selectedHolds.begin(), selectedHolds.end(),
+			[this](int id1, int id2)
+		{	return noteExists(id1, score) && noteExists(id2, score) &&
+				score.notes.at(id1).tick < score.notes.at(id2).tick;
+		})).tick);
 	}
 
 	bool ScoreContext::selectionHasEase() const
