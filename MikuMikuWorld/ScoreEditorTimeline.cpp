@@ -756,8 +756,11 @@ namespace MikuMikuWorld
 		const bool pasting = context.pasteData.pasting;
 		if (pasting && mouseInTimeline && !playing)
 		{
-			context.pasteData.offsetTicks = hoverTick;
-			context.pasteData.offsetLane = hoverLane;
+			context.pasteData.offsetLane = std::clamp(hoverLane - context.pasteData.midLane,
+				context.pasteData.minLaneOffset,
+				context.pasteData.maxLaneOffset);
+
+			context.pasteData.offsetTicks = hoverTick + context.pasteData.minTick;
 			previewPaste(context, renderer);
 			if (ImGui::IsMouseClicked(0))
 				context.confirmPaste();
@@ -801,16 +804,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::previewPaste(ScoreContext& context, Renderer* renderer)
 	{
-		context.pasteData.offsetLane = std::clamp(hoverLane - context.pasteData.midLane,
-			context.pasteData.minLaneOffset,
-			context.pasteData.maxLaneOffset);
-
 		for (const auto& [_, note] : context.pasteData.notes)
 			if (note.getType() == NoteType::Tap && isNoteVisible(note, hoverTick))
-				drawNote(note, renderer, hoverTint, hoverTick, context.pasteData.offsetLane);
+				drawNote(note, renderer, hoverTint, context.pasteData.offsetTicks, context.pasteData.offsetLane);
 
 		for (const auto& [_, hold] : context.pasteData.holds)
-			drawHoldNote(context.pasteData.notes, hold, renderer, hoverTint, hoverTick, context.pasteData.offsetLane);
+			drawHoldNote(context.pasteData.notes, hold, renderer, hoverTint, context.pasteData.offsetTicks, context.pasteData.offsetLane);
 	}
 
 	void ScoreEditorTimeline::updateInputNotes(EditArgs& edit)

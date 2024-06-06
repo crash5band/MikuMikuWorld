@@ -56,6 +56,7 @@ namespace MikuMikuWorld
 		std::unordered_map<int, Note> notes;
 		std::unordered_map<int, HoldNote> holds;
 		bool pasting{ false };
+		int minTick{};
 		int offsetTicks{};
 		int offsetLane{};
 		int midLane{};
@@ -79,7 +80,7 @@ namespace MikuMikuWorld
 		int currentTick{};
 		bool upToDate{ true };
 
-		std::unordered_set<int> getHoldsFromSelection()
+		std::unordered_set<int> getHoldsFromSelection() const
 		{
 			std::unordered_set<int> holds;
 			for (int id : selectedNotes)
@@ -99,6 +100,7 @@ namespace MikuMikuWorld
 			return accumulateDuration(currentTick, TICKS_PER_BEAT, score.tempoChanges);
 		}
 
+		int minTickFromSelection() const;
 		bool selectionHasEase() const;
 		bool selectionHasStep() const;
 		bool selectionHasFlickable() const;

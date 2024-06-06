@@ -155,19 +155,15 @@ namespace MikuMikuWorld
 		});
 	}
 
-	void PresetManager::createPreset(const Score& score, const std::unordered_set<int>& selectedNotes,
-		const std::string &name, const std::string& desc)
+	void PresetManager::createPreset(const ScoreContext& context, const std::string &name, const std::string& desc)
 	{
-		if (!selectedNotes.size() || !name.size())
+		if (context.selectedNotes.empty() || name.empty())
 			return;
 
 		NotesPreset preset(nextPresetID++, name);
 		preset.name = name;
 		preset.description = desc;
-
-		int baseTick = score.notes.at(*std::min_element(selectedNotes.begin(), selectedNotes.end(),
-			[&score](int id1, int id2) { return score.notes.at(id1).tick < score.notes.at(id2).tick; })).tick;
-		preset.data = jsonIO::noteSelectionToJson(score, selectedNotes, baseTick);
+		preset.data = jsonIO::noteSelectionToJson(context.score, context.selectedNotes, context.minTickFromSelection());
 
 		presets[preset.getID()] = preset;
 		createPresets.push_back(preset.getID());

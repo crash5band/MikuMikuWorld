@@ -46,9 +46,7 @@ namespace MikuMikuWorld
 		void loadPresets(const std::string& path);
 		void savePresets(const std::string& path);
 
-		void createPreset(const Score& score, const std::unordered_set<int>& selectedNotes,
-			const std::string& name, const std::string& desc);
-
+		void createPreset(const ScoreContext& context, const std::string& name, const std::string& desc);
 		void removePreset(int id);
 
 		// Replaces illegal filesystem characters with '_'

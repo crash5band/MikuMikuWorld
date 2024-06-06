@@ -34,7 +34,7 @@ namespace jsonIO
 		return note;
 	}
 
-	static json noteToJson(const mmw::Note& note)
+	json noteToJson(const mmw::Note& note)
 	{
 		json data;
 		data["tick"] = note.tick;
