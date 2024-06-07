@@ -295,6 +295,8 @@ namespace MikuMikuWorld
 	void ScoreEditor::loadMusic(std::string filename)
 	{
 		propertiesWindow.isLoadingMusic = true;
+		context.waveformL.clear();
+		context.waveformR.clear();
 		
 		Result result = context.audio.loadMusic(filename);
 		if (result.isOk() || filename.empty())
@@ -733,5 +735,23 @@ namespace MikuMikuWorld
 		}
 
 		return deleteCount;
+	}
+
+	void ScoreEditor::loadPresets(std::string path)
+	{
+		if (loadPresetsFuture.valid())
+			loadPresetsFuture.get();
+		
+		loadPresetsFuture = std::async(std::launch::async, [this, path]()
+		{
+			presetsWindow.loadingPresets = true;
+			presetManager.loadPresets(path);
+			presetsWindow.loadingPresets = false;
+		});
+	}
+
+	void ScoreEditor::savePresets(std::string path)
+	{
+		presetManager.savePresets(path);
 	}
 }

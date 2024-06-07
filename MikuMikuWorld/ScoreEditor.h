@@ -27,6 +27,7 @@ namespace MikuMikuWorld
 
 		std::future<void> loadScoreFuture;
 		std::future<void> loadMusicFuture;
+		std::future<void> loadPresetsFuture;
 
 		bool save(std::string filename);
 		size_t updateRecentFilesList(const std::string& entry);
@@ -52,8 +53,8 @@ namespace MikuMikuWorld
 		void drawToolbar();
 		void help();
 
-		inline void loadPresets(std::string path) { presetManager.loadPresets(path); }
-		inline void savePresets(std::string path) { presetManager.savePresets(path); }
+		void loadPresets(std::string path);
+		void savePresets(std::string path);
 
 		void writeSettings();
 		void uninitialize();

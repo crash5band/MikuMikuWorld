@@ -45,8 +45,7 @@ namespace MikuMikuWorld
 		if (ImGui::CollapsingHeader(IO::concat(ICON_FA_VOLUME_UP, getString("audio"), " ").c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			UI::beginPropertyColumns();
-
-			bool changeMusic = false;
+			
 			std::string musicFilename = context.workingData.musicFilename;
 
 			ImGui::BeginDisabled(isLoadingMusic);
@@ -164,7 +163,11 @@ namespace MikuMikuWorld
 			float windowHeight = ImGui::GetContentRegionAvail().y - presetButtonHeight - ImGui::GetStyle().WindowPadding.y;
 			if (ImGui::BeginChild("presets_child_window", ImVec2(-1, windowHeight), true))
 			{
-				if (!presetManager.presets.size())
+				if (loadingPresets)
+				{
+					Utilities::ImGuiCenteredText("Loading...");
+				}
+				else if (!presetManager.presets.size())
 				{
 					ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
 					ImGui::TextWrapped(getString("no_presets"));
@@ -196,13 +199,13 @@ namespace MikuMikuWorld
 			ImGui::EndChild();
 			ImGui::Separator();
 
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !context.selectedNotes.size());
-			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * !context.selectedNotes.size()));
+			ImGui::BeginDisabled(context.selectedNotes.empty() || loadingPresets);
+			// ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !context.selectedNotes.size());
+			// ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * !context.selectedNotes.size()));
 			if (ImGui::Button(getString("create_preset"), ImVec2(-1, presetButtonHeight)))
 				dialogOpen = true;
 
-			ImGui::PopStyleVar();
-			ImGui::PopItemFlag();
+			ImGui::EndDisabled();
 
 			if (removePattern != -1)
 				presetManager.removePreset(removePattern);

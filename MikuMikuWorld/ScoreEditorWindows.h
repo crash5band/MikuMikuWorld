@@ -38,14 +38,15 @@ namespace MikuMikuWorld
 	class PresetsWindow
 	{
 	private:
-		ImGuiTextFilter presetFilter;
+		ImGuiTextFilter presetFilter{};
 		std::string presetName{};
 		std::string presetDesc{};
-		bool dialogOpen = false;
+		bool dialogOpen{false};
 
 		DialogResult updateCreationDialog();
 
 	public:
+		bool loadingPresets{false};
 		void update(ScoreContext& context, PresetManager& presetManager);
 	};
 
