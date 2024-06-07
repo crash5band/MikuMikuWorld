@@ -709,7 +709,8 @@ namespace MikuMikuWorld
 		})).tick;
 
 		std::unordered_set<int> selectedHolds = getHoldsFromSelection();
-		return std::min(minTick, score.notes.at(*std::min_element(selectedHolds.begin(), selectedHolds.end(),
+		return selectedHolds.empty() ?
+			minTick : std::min(minTick, score.notes.at(*std::min_element(selectedHolds.begin(), selectedHolds.end(),
 			[this](int id1, int id2)
 		{	return noteExists(id1, score) && noteExists(id2, score) &&
 				score.notes.at(id1).tick < score.notes.at(id2).tick;
