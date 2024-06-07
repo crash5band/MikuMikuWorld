@@ -795,7 +795,7 @@ namespace MikuMikuWorld
 		if (UI::toolbarButton(ICON_FA_SAVE, getString("save"), ToShortcutString(config.input.save)))
 			trySave(context.workingData.filename);
 
-		if (UI::toolbarButton(ICON_FA_FILE_EXPORT, getString("export"),
+		if (UI::toolbarButton(ICON_FA_FILE_EXPORT, getString("export_usc"),
 		                      ToShortcutString(config.input.exportUsc)))
 			exportUsc();
 

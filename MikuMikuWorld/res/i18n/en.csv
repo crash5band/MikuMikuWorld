@@ -9,7 +9,7 @@ new,New
 open,Open
 open_recent,Open Recent
 clear,Clear
-save, Save
+save,Save
 save_as,Save As
 export_sus,Export SUS
 export_usc,Export USC
@@ -205,13 +205,13 @@ no_presets,No presets available
 name,Name
 description,Description
 create_preset,Create Preset
-search,Search…
+search,Search...
 confirm,Confirm
 
 # layer manager
 layers,Layers
 name,Name
-create_layer,
+create_layer,Create Layer
 confirm,Confirm
 show_all_layers,Show All Layers
 layer_rename,Layer Rename
