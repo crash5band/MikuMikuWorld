@@ -12,6 +12,8 @@ using nlohmann::json;
 
 namespace MikuMikuWorld
 {
+	namespace fs = std::filesystem;
+	
 	NotesPreset::NotesPreset(int _id, std::string _name) :
 		ID{ _id }, name{ _name }
 	{
@@ -21,6 +23,32 @@ namespace MikuMikuWorld
 	{
 	}
 
+	bool isValidHoldJson(const json& hold)
+	{
+		bool anyEndMissing =  !hold.contains("start") || !hold.contains("end");
+		if (anyEndMissing)
+			return false;
+
+		int startTick = jsonIO::tryGetValue<int>(hold["start"], "tick", 0);
+		int endTick = jsonIO::tryGetValue<int>(hold["end"], "tick", 0);
+		if (endTick <= startTick)
+			return false;
+
+		if (hold.contains("steps"))
+		{
+			const json& stepData = hold["steps"];
+			bool anyStepHasInvalidTick = std::any_of(stepData.cbegin(), stepData.cend(), [startTick](const json& step)
+			{
+				int stepTick = jsonIO::tryGetValue<int>(step, "tick", 0);
+				return stepTick <= startTick;
+			});
+
+			return !anyStepHasInvalidTick;
+		}
+
+		return true;
+	}
+
 	Result NotesPreset::read(const std::string& filepath)
 	{
 		std::wstring wFilename = IO::mbToWideStr(filepath);
@@ -28,20 +56,32 @@ namespace MikuMikuWorld
 			return Result(ResultStatus::Error, "The preset file " + filepath + " does not exist.");
 
 		std::ifstream file(wFilename);
-
 		file >> data;
 		file.close();
 
 		filename = IO::File::getFilenameWithoutExtension(filepath);
-		if (data.find("name") != data.end())
-			name = data["name"];
+		name = jsonIO::tryGetValue<std::string>(data, "name", "");
 
 		if (data.find("description") != data.end())
 			description = data["description"];
 
 		if (data.find("notes") == data.end() && data.find("holds") == data.end())
-			return Result(ResultStatus::Warning, "The preset " + name + " does not contain any notes data. Skipping...");
+			return Result(ResultStatus::Warning, "The preset " + filename + " does not contain any notes data. Skipping...");
 
+		if (data.find("holds") != data.end())
+		{
+			const json& holdData = data["holds"];
+			bool hasAnyInvalidHold = std::any_of(holdData.cbegin(), holdData.cend(), std::not_fn(isValidHoldJson));
+			if (hasAnyInvalidHold)
+				return Result(ResultStatus::Error, "The preset " + filename + " contains invalid hold data. Skipping...");
+		}
+
+		if (name.empty())
+		{
+			name = filename;
+			return Result(ResultStatus::Warning, "The preset " + filename + " does not have a name. Using filename instead.");
+		}
+		
 		return Result::Ok();
 	}
 
@@ -78,7 +118,7 @@ namespace MikuMikuWorld
 		std::vector<std::string> filenames;
 		for (const auto& file : std::filesystem::directory_iterator(wPath))
 		{
-			// look only for json files and ignore any dot files present
+			// Ignore dot files
 			std::wstring wFilename = file.path().filename().wstring();
 			if (file.path().extension().wstring() == L".json" && wFilename[0] != L'.')
 				filenames.push_back(IO::wideStringToMb(file.path().wstring()));
@@ -99,11 +139,18 @@ namespace MikuMikuWorld
 				std::lock_guard<std::mutex> lock{ m2 };
 
 				if (result.getStatus() == ResultStatus::Success)
+				{
 					presets.emplace(id, std::move(preset));
+				}
 				else if (result.getStatus() == ResultStatus::Warning)
+				{
+					presets.emplace(id, std::move(preset));
 					warnings.push_back(result);
+				}
 				else if (result.getStatus() == ResultStatus::Error)
+				{
 					errors.push_back(result);
+				}
 			}
 		});
 
