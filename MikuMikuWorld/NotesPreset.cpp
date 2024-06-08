@@ -8,12 +8,11 @@
 #include <execution>
 #include "JsonIO.h"
 
-using nlohmann::json;
+using namespace nlohmann;
+namespace fs = std::filesystem;
 
 namespace MikuMikuWorld
 {
-	namespace fs = std::filesystem;
-	
 	NotesPreset::NotesPreset(int _id, std::string _name) :
 		ID{ _id }, name{ _name }
 	{
@@ -53,7 +52,7 @@ namespace MikuMikuWorld
 	{
 		std::wstring wFilename = IO::mbToWideStr(filepath);
 		if (!std::filesystem::exists(wFilename))
-			return Result(ResultStatus::Error, "The preset file " + filepath + " does not exist.");
+			return Result(ResultStatus::Error, "The preset file \"" + filepath + "\" does not exist.");
 
 		std::ifstream file(wFilename);
 		file >> data;
@@ -62,24 +61,24 @@ namespace MikuMikuWorld
 		filename = IO::File::getFilenameWithoutExtension(filepath);
 		name = jsonIO::tryGetValue<std::string>(data, "name", "");
 
-		if (data.find("description") != data.end())
+		if (data.contains("description"))
 			description = data["description"];
 
-		if (data.find("notes") == data.end() && data.find("holds") == data.end())
-			return Result(ResultStatus::Warning, "The preset " + filename + " does not contain any notes data. Skipping...");
+		if (!data.contains("notes") && !data.contains("holds"))
+			return Result(ResultStatus::Warning, "The preset \"" + filename + "\" does not contain any notes data. Skipping...");
 
-		if (data.find("holds") != data.end())
+		if (data.contains("holds"))
 		{
 			const json& holdData = data["holds"];
 			bool hasAnyInvalidHold = std::any_of(holdData.cbegin(), holdData.cend(), std::not_fn(isValidHoldJson));
 			if (hasAnyInvalidHold)
-				return Result(ResultStatus::Error, "The preset " + filename + " contains invalid hold data. Skipping...");
+				return Result(ResultStatus::Error, "The preset \"" + filename + "\" contains invalid hold data. Skipping...");
 		}
 
 		if (name.empty())
 		{
 			name = filename;
-			return Result(ResultStatus::Warning, "The preset " + filename + " does not have a name. Using filename instead.");
+			return Result(ResultStatus::Warning, "The preset \"" + filename + "\" does not have a name. Using filename instead.");
 		}
 		
 		return Result::Ok();
@@ -160,7 +159,7 @@ namespace MikuMikuWorld
 			for (auto& error : errors)
 				message += "- " + error.getMessage() + "\n";
 
-			IO::messageBox(APP_NAME, message, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
+			IO::messageBox(APP_NAME, message, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error, Application::windowState.windowHandle);
 		}
 
 		if (warnings.size())
@@ -169,7 +168,7 @@ namespace MikuMikuWorld
 			for (auto& warning : warnings)
 				message += "- " + warning.getMessage() + "\n";
 
-			IO::messageBox(APP_NAME, message, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Warning);
+			IO::messageBox(APP_NAME, message, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Warning, Application::windowState.windowHandle);
 		}
 	}
 
