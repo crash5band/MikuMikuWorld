@@ -372,8 +372,7 @@ namespace MikuMikuWorld
 			glfwPollEvents();
 			update();
 		}
-
-		editor->savePresets(appDir + "library");
+		
 		writeSettings();
 	}
 }

@@ -38,7 +38,7 @@ namespace MikuMikuWorld
 		"normal", "hidden", "skip"
 	};
 
-	ScoreEditor::ScoreEditor()
+	ScoreEditor::ScoreEditor() : presetManager(Application::getAppDir() + "library")
 	{
 		renderer = std::make_unique<Renderer>();
 
@@ -748,10 +748,5 @@ namespace MikuMikuWorld
 			presetManager.loadPresets(path);
 			presetsWindow.loadingPresets = false;
 		});
-	}
-
-	void ScoreEditor::savePresets(std::string path)
-	{
-		presetManager.savePresets(path);
 	}
 }

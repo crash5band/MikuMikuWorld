@@ -50,11 +50,11 @@ namespace MikuMikuWorld
 
 	Result NotesPreset::read(const std::string& filepath)
 	{
-		std::wstring wFilename = IO::mbToWideStr(filepath);
-		if (!std::filesystem::exists(wFilename))
+		fs::path path{filepath};
+		if (!fs::exists(path))
 			return Result(ResultStatus::Error, "The preset file \"" + filepath + "\" does not exist.");
 
-		std::ifstream file(wFilename);
+		std::ifstream file(path);
 		file >> data;
 		file.close();
 
@@ -92,7 +92,7 @@ namespace MikuMikuWorld
 			int count = 1;
 			std::wstring suffix = L".json";
 
-			while (std::filesystem::exists(wFilename + suffix))
+			while (fs::exists(wFilename + suffix))
 				suffix = L"(" + std::to_wstring(count++) + L").json";
 
 			wFilename += suffix;
@@ -106,6 +106,13 @@ namespace MikuMikuWorld
 		file << std::setw(2) << data;
 		file.flush();
 		file.close();
+
+		filename = IO::wideStringToMb(wFilename);
+	}
+
+	PresetManager::PresetManager(const std::string& path) : presetsPath{ path }
+	{
+		
 	}
 
 	void PresetManager::loadPresets(const std::string& path)
@@ -172,33 +179,16 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void PresetManager::savePresets(const std::string& path)
+	Result PresetManager::loadPreset(const std::string& path)
 	{
-		namespace fs = std::filesystem;
-		fs::path libPath{ path };
+		int id = nextPresetID++;
+		NotesPreset preset(id, "");
+		
+		Result result = preset.read(path);
+		if (result.getStatus() == ResultStatus::Success || result.getStatus() == ResultStatus::Warning)
+			presets.emplace(id, std::move(preset));
 
-		std::wstring wPath = IO::mbToWideStr(path);
-		if (!std::filesystem::exists(wPath))
-			std::filesystem::create_directory(wPath);
-
-		for (const std::string& filename : deletePresets)
-		{
-			std::wstring wFullPath = IO::mbToWideStr((libPath / filename).string()) + L".json";
-			if (std::filesystem::exists(wFullPath))
-				std::filesystem::remove(wFullPath);
-		}
-
-		std::for_each(std::execution::par, createPresets.begin(), createPresets.end(), [this, &libPath](int id) {
-			if (presets.find(id) != presets.end())
-			{
-				NotesPreset& preset = presets.at(id);
-
-				// filename without extension
-				// we will add the extension later after determining what the final filename should be
-				std::string filename = (libPath / fixFilename(preset.getName())).string();
-				preset.write(filename, false);
-			}
-		});
+		return result;
 	}
 
 	void PresetManager::createPreset(const ScoreContext& context, const std::string &name, const std::string& desc)
@@ -207,12 +197,21 @@ namespace MikuMikuWorld
 			return;
 
 		NotesPreset preset(nextPresetID++, name);
-		preset.name = name;
 		preset.description = desc;
 		preset.data = jsonIO::noteSelectionToJson(context.score, context.selectedNotes, context.minTickFromSelection());
 
 		presets[preset.getID()] = preset;
-		createPresets.push_back(preset.getID());
+		if (createPresetFuture.valid())
+			createPresetFuture.get();
+
+		createPresetFuture = std::async(std::launch::async, &PresetManager::savePreset, this, preset);
+	}
+
+	void PresetManager::savePreset(NotesPreset preset)
+	{
+		fs::create_directory(presetsPath);
+		preset.write((presetsPath / fixFilename(preset.getName())).string(), false);
+		presets.insert_or_assign(preset.getID(), preset);
 	}
 
 	void PresetManager::removePreset(int id)
@@ -220,13 +219,22 @@ namespace MikuMikuWorld
 		if (presets.find(id) == presets.end())
 			return;
 
-		const auto& preset = presets.at(id);
-		if (preset.getFilename().size())
-			deletePresets.push_back(preset.getFilename());
+		const auto preset = presets[id];
+		if (!preset.getFilename().empty())
+		{
+			if (createPresetFuture.valid())
+				createPresetFuture.get();
+
+			if (deletePresetFuture.valid())
+				deletePresetFuture.get();
+
+			deletePresetFuture = std::async(std::launch::async, [this, preset]() -> bool
+				{ return fs::remove((presetsPath / preset.getFilename()).replace_extension(".json")); });
+		}
 
 		presets.erase(id);
 	}
-
+	
 	std::string PresetManager::fixFilename(const std::string& name)
 	{
 		std::string result = name;

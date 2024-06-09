@@ -54,8 +54,6 @@ namespace MikuMikuWorld
 		void help();
 
 		void loadPresets(std::string path);
-		void savePresets(std::string path);
-
 		void writeSettings();
 		void uninitialize();
 		inline std::string_view getWorkingFilename() const { return context.workingData.filename; }
