@@ -1,6 +1,7 @@
 #include "Language.h"
 #include "IO.h"
 #include "File.h"
+#include <iostream>
 
 using namespace IO;
 
@@ -26,7 +27,7 @@ namespace MikuMikuWorld
 		if (!File::exists(filename))
 			return;
 
-		File f(mbToWideStr(filename), L"r");
+		File f(filename, "r, ccs=UNICODE");
 		std::vector<std::string> lines = f.readAllLines();
 
 		f.close();

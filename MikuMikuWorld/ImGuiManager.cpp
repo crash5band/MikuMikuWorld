@@ -1,4 +1,4 @@
-#include "Application.h"
+﻿#include "Application.h"
 #include "ApplicationConfiguration.h"
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.h"
@@ -190,7 +190,17 @@ namespace MikuMikuWorld
 		fontConfig.PixelSnapH = true;
 		fontConfig.OversampleH = 1;
 		fontConfig.RasterizerMultiply = 1.05f;
-		ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), (int)size, &fontConfig, ImGui::GetIO().Fonts->GetGlyphRangesChineseFull());
+
+		ImFontGlyphRangesBuilder rangeBuilder;
+		static ImVector<ImWchar> ranges;
+		rangeBuilder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesDefault());
+		rangeBuilder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesJapanese());
+		rangeBuilder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesKorean());
+		rangeBuilder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesCyrillic());
+		rangeBuilder.BuildRanges(&ranges);
+		auto font = ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), (int)size, &fontConfig, ranges.Data);
+		font->FallbackChar = '�'; 
+		ImGui::GetIO().Fonts->Build();
 	}
 
 	void ImGuiManager::loadIconFont(const std::string& filename, int start, int end, float size)
