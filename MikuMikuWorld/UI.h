@@ -97,8 +97,6 @@ namespace MikuMikuWorld
 		static bool toolbarButton(const char* icon, const char* label, const char* shortcut, bool enabled = true, bool selected = false);
 		static bool toolbarImageButton(const char* img, const char* label, const char* shortcut, bool enabled = true, bool selected = false);
 		static void toolbarSeparator();
-		static void beginNextItemDisabled();
-		static void endNextItemDisabled();
 
 		static void setWindowTitle(std::string title);
 		static void updateBtnSizesDpiScaling(float scale);

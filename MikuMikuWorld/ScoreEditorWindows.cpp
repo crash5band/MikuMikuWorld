@@ -619,14 +619,10 @@ namespace MikuMikuWorld
 			ImGui::Text(getString(bindings[selectedBindingIndex]->name));
 			ImGui::NextColumn();
 
-			if (!canAdd)
-				UI::beginNextItemDisabled();
-
+			ImGui::BeginDisabled(!canAdd);
 			if (ImGui::Button(getString("add"), {-1, btnHeight}))
 				bindings[selectedBindingIndex]->addBinding(InputBinding{});
-
-			if (!canAdd)
-				UI::endNextItemDisabled();
+			ImGui::EndDisabled();
 
 			UI::endPropertyColumns();
 
@@ -656,22 +652,22 @@ namespace MikuMikuWorld
 				}
 
 				ImGui::SameLine();
-				if (!canMoveUp) UI::beginNextItemDisabled();
+				ImGui::BeginDisabled(!canMoveUp);
 				if (ImGui::Button(ICON_FA_CARET_UP, { btnHeight, btnHeight }))
 				{
 					moveIndex = b;
 					moveDirection = -1;
 				}
-				if (!canMoveUp) UI::endNextItemDisabled();
+				ImGui::EndDisabled();
 
 				ImGui::SameLine();
-				if (!canMoveDown) UI::beginNextItemDisabled();
+				ImGui::BeginDisabled(!canMoveDown);
 				if (ImGui::Button(ICON_FA_CARET_DOWN, { btnHeight, btnHeight }))
 				{
 					moveIndex = b;
 					moveDirection = 1;
 				}
-				if (!canMoveDown) UI::endNextItemDisabled();
+				ImGui::EndDisabled();
 
 				ImGui::SameLine();
 				if (ImGui::Button(getString("remove"), { -1, btnHeight }))
@@ -871,11 +867,9 @@ namespace MikuMikuWorld
 						UI::addCheckboxProperty(getString("match_notes_size_to_timeline"), config.matchNotesSizeToTimeline);
 						UI::addIntProperty(getString("lane_width"), config.timelineWidth, "%dpx", MIN_LANE_WIDTH, MAX_LANE_WIDTH);
 						
-						if (config.matchNotesSizeToTimeline)
-							UI::beginNextItemDisabled();
+						ImGui::BeginDisabled(config.matchNotesSizeToTimeline);
 						UI::addIntProperty(getString("notes_height"), config.notesHeight, "%dpx", MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT);
-						if (config.matchNotesSizeToTimeline)
-							UI::endNextItemDisabled();
+						ImGui::EndDisabled();
 						ImGui::Separator();
 
 						UI::addCheckboxProperty(getString("draw_waveform"), config.drawWaveform);

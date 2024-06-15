@@ -41,15 +41,13 @@ namespace MikuMikuWorld
 
 	bool UI::transparentButton(const char* txt, ImVec2 size, bool repeat, bool enabled)
 	{
-		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !enabled);
-		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * !enabled));
+		ImGui::BeginDisabled(!enabled);
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 
 		bool pressed = ImGui::ButtonEx(txt, size, (repeat ? ImGuiButtonFlags_Repeat : 0));
 
 		ImGui::PopStyleColor();
-		ImGui::PopStyleVar();
-		ImGui::PopItemFlag();
+		ImGui::EndDisabled();
 
 		return pressed;
 	}
@@ -73,7 +71,7 @@ namespace MikuMikuWorld
 	{
 		ImVec4 col4 = ImGui::ColorConvertU32ToFloat4(col);
 		ImVec4 colh = generateHighlightColor(col4);
-		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !enabled);
+		ImGui::BeginDisabled(!enabled);
 		ImGui::PushStyleColor(ImGuiCol_Button, col4);
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colh);
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, colh);
@@ -94,7 +92,7 @@ namespace MikuMikuWorld
 
 		ImGui::PopStyleColor(4);
 		ImGui::PopStyleVar(1);
-		ImGui::PopItemFlag();
+		ImGui::EndDisabled();
 		return pressed;
 	}
 
@@ -406,12 +404,7 @@ namespace MikuMikuWorld
 
 	bool UI::toolbarButton(const char* icon, const char* label, const char* shortcut, bool enabled, bool selected)
 	{
-		if (!enabled)
-		{
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * true));
-		}
-
+		ImGui::BeginDisabled(!enabled);
 		if (selected)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_TabActive]);
@@ -430,12 +423,7 @@ namespace MikuMikuWorld
 		if (selected)
 			ImGui::PopStyleColor(2);
 
-		if (!enabled)
-		{
-			ImGui::PopItemFlag();
-			ImGui::PopStyleVar();
-		}
-
+		ImGui::EndDisabled();
 		ImGui::SameLine();
 
 		return activated;
@@ -454,11 +442,7 @@ namespace MikuMikuWorld
 		}
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 2, 2 });
-		if (!enabled)
-		{
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * true));
-		}
+		ImGui::BeginDisabled(!enabled);
 
 		if (selected)
 		{
@@ -478,12 +462,7 @@ namespace MikuMikuWorld
 		if (selected)
 			ImGui::PopStyleColor(2);
 
-		if (!enabled)
-		{
-			ImGui::PopItemFlag();
-			ImGui::PopStyleVar();
-		}
-
+		ImGui::EndDisabled();
 		ImGui::PopStyleVar();
 		ImGui::SameLine();
 
@@ -495,17 +474,5 @@ namespace MikuMikuWorld
 		ImGui::SameLine();
 		ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
 		ImGui::SameLine();
-	}
-
-	void UI::beginNextItemDisabled()
-	{
-		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
-	}
-
-	void UI::endNextItemDisabled()
-	{
-		ImGui::PopStyleVar();
-		ImGui::PopItemFlag();
 	}
 }
