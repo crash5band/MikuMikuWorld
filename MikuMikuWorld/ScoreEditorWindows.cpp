@@ -159,6 +159,32 @@ namespace MikuMikuWorld
 			ImGui::PopStyleVar();
 			ImGui::PopStyleColor();
 
+			const int deletePresetId{presetManager.deletedPreset.getID()};
+			if (deletePresetId > -1)
+			{
+				const float itemSpacingX = ImGui::GetStyle().ItemSpacing.x * 2;
+				float availableWidth = ImGui::GetContentRegionAvail().x + (UI::btnSmall.x * 2) + itemSpacingX;
+				ImGui::SetNextItemWidth(availableWidth);
+				ImGui::Text(getString("preset_deleted"));
+				ImGui::SameLine();
+
+				// Shift undo and close to the right end of the window
+				ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (UI::btnSmall.x * 2) - itemSpacingX - ImGui::GetStyle().WindowPadding.x);
+				if (UI::transparentButton(ICON_FA_UNDO, UI::btnSmall, false))
+					presetManager.undoDeletePreset();
+
+				UI::tooltip(getString("undo"));
+				ImGui::SameLine();
+
+				// Conflict with preset filter clear button
+				ImGui::PushID("undo_preset_delete");
+				if (UI::transparentButton(ICON_FA_TIMES, UI::btnSmall, false))
+					presetManager.deletedPreset = {};
+
+				UI::tooltip(getString("close"));
+				ImGui::PopID();
+			}
+
 			float presetButtonHeight = ImGui::GetFrameHeight();
 			float windowHeight = ImGui::GetContentRegionAvail().y - presetButtonHeight - ImGui::GetStyle().WindowPadding.y;
 			if (ImGui::BeginChild("presets_child_window", ImVec2(-1, windowHeight), true))
@@ -169,8 +195,8 @@ namespace MikuMikuWorld
 				}
 				else if (!presetManager.presets.size())
 				{
-					ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
-					ImGui::TextWrapped(getString("no_presets"));
+					ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().DisabledAlpha);
+					Utilities::ImGuiCenteredText(getString("no_presets"));
 					ImGui::PopStyleVar();
 				}
 				else
@@ -200,8 +226,6 @@ namespace MikuMikuWorld
 			ImGui::Separator();
 
 			ImGui::BeginDisabled(context.selectedNotes.empty() || loadingPresets);
-			// ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !context.selectedNotes.size());
-			// ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * !context.selectedNotes.size()));
 			if (ImGui::Button(getString("create_preset"), ImVec2(-1, presetButtonHeight)))
 				dialogOpen = true;
 
@@ -259,16 +283,14 @@ namespace MikuMikuWorld
 			}
 
 			ImGui::SameLine();
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !presetName.size());
-			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1 - (0.5f * !presetName.size()));
+			ImGui::BeginDisabled(presetName.empty());
 			if (ImGui::Button(getString("confirm"), btnSz))
 			{
 				result = DialogResult::Ok;
 				ImGui::CloseCurrentPopup();
 			}
 
-			ImGui::PopItemFlag();
-			ImGui::PopStyleVar();
+			ImGui::EndDisabled();
 			ImGui::EndPopup();
 		}
 

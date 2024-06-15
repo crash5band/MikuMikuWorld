@@ -1,6 +1,5 @@
 #pragma once
 #include "ScoreContext.h"
-#include <unordered_set>
 #include <atomic>
 #include <filesystem>
 #include <future>
@@ -10,17 +9,17 @@ namespace MikuMikuWorld
 	class NotesPreset
 	{
 	private:
-		int ID;
-		std::string filename;
+		int ID{};
+		std::string filename{};
 
 	public:
 		NotesPreset(int id, std::string name);
 		NotesPreset();
 
-		std::string name;
-		std::string description;
+		std::string name{};
+		std::string description{};
 
-		nlohmann::json data;
+		nlohmann::json data{};
 
 		inline std::string getName() const { return name; }
 		inline std::string getFilename() const { return filename; }
@@ -30,16 +29,11 @@ namespace MikuMikuWorld
 		void write(std::string filepath, bool overwrite);
 	};
 
-	enum class UpdateMode
-	{
-		Create, Delete
-	};
-
 	class PresetManager
 	{
 	private:
 		std::filesystem::path presetsPath;
-		std::atomic<int> nextPresetID{};
+		std::atomic<int> nextPresetID{1};
 		std::future<void> createPresetFuture{};
 		std::future<bool> deletePresetFuture{};
 
@@ -47,6 +41,7 @@ namespace MikuMikuWorld
 		PresetManager(const std::string& path);
 		
 		std::unordered_map<int, NotesPreset> presets;
+		NotesPreset deletedPreset{};
 
 		void loadPresets(const std::string& path);
 
@@ -55,6 +50,7 @@ namespace MikuMikuWorld
 
 		void createPreset(const ScoreContext& context, const std::string& name, const std::string& desc);	
 		void removePreset(int id);
+		bool undoDeletePreset();
 
 		// Replaces illegal filesystem characters with '_'
 		std::string fixFilename(const std::string& name);

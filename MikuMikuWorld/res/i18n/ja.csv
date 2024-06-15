@@ -170,6 +170,8 @@ description, 説明
 create_preset, プリセットを登録
 search, 検索
 confirm, 決定
+preset_deleted, プリセットを削除しました
+close, 閉じる
 
 # commands
 action, コマンド

@@ -90,24 +90,24 @@ namespace MikuMikuWorld
 		if (!overwrite)
 		{
 			int count = 1;
-			std::wstring suffix = L".json";
+			std::wstring suffix = L"";
 
 			while (fs::exists(wFilename + suffix))
-				suffix = L"(" + std::to_wstring(count++) + L").json";
+				suffix = L"(" + std::to_wstring(count++) + L")";
 
 			wFilename += suffix;
 		}
 
 		data["name"] = name;
 		data["description"] = description;
-
-		std::ofstream file(wFilename);
+		
+		std::ofstream file(fs::path{wFilename}.replace_extension(".json"));
 
 		file << std::setw(2) << data;
 		file.flush();
 		file.close();
 
-		filename = IO::wideStringToMb(wFilename);
+		filename = IO::File::getFilenameWithoutExtension(IO::wideStringToMb(wFilename));
 	}
 
 	PresetManager::PresetManager(const std::string& path) : presetsPath{ path }
@@ -136,9 +136,10 @@ namespace MikuMikuWorld
 		std::vector<Result> warnings;
 		std::vector<Result> errors;
 
-		std::for_each(std::execution::par, filenames.begin(), filenames.end(), [this, &warnings, &errors, &m2](const auto& filename) {
-			int id = nextPresetID++;
+		std::for_each(std::execution::par, filenames.begin(), filenames.end(),
+			[this, &warnings, &errors, &m2](const auto& filename) {
 
+			int id = nextPresetID++;
 			NotesPreset preset(id, "");
 			Result result = preset.read(filename);
 			{
@@ -166,7 +167,8 @@ namespace MikuMikuWorld
 			for (auto& error : errors)
 				message += "- " + error.getMessage() + "\n";
 
-			IO::messageBox(APP_NAME, message, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error, Application::windowState.windowHandle);
+			IO::messageBox(APP_NAME, message, IO::MessageBoxButtons::Ok,
+				IO::MessageBoxIcon::Error, Application::windowState.windowHandle);
 		}
 
 		if (warnings.size())
@@ -175,7 +177,8 @@ namespace MikuMikuWorld
 			for (auto& warning : warnings)
 				message += "- " + warning.getMessage() + "\n";
 
-			IO::messageBox(APP_NAME, message, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Warning, Application::windowState.windowHandle);
+			IO::messageBox(APP_NAME, message, IO::MessageBoxButtons::Ok,
+				IO::MessageBoxIcon::Warning, Application::windowState.windowHandle);
 		}
 	}
 
@@ -211,7 +214,7 @@ namespace MikuMikuWorld
 	{
 		fs::create_directory(presetsPath);
 		preset.write((presetsPath / fixFilename(preset.getName())).string(), false);
-		presets.insert_or_assign(preset.getID(), preset);
+		presets.insert_or_assign(preset.getID(), std::move(preset));
 	}
 
 	void PresetManager::removePreset(int id)
@@ -219,20 +222,31 @@ namespace MikuMikuWorld
 		if (presets.find(id) == presets.end())
 			return;
 
-		const auto preset = presets[id];
-		if (!preset.getFilename().empty())
+		const auto& preset = presets[id];
+		if (preset.getFilename().empty())
+			return;
+		
+		if (createPresetFuture.valid())
+			createPresetFuture.get();
+
+		if (deletePresetFuture.valid())
+			deletePresetFuture.get();
+
+		deletePresetFuture = std::async(std::launch::async, [this, preset]() -> bool
 		{
-			if (createPresetFuture.valid())
-				createPresetFuture.get();
-
-			if (deletePresetFuture.valid())
-				deletePresetFuture.get();
-
-			deletePresetFuture = std::async(std::launch::async, [this, preset]() -> bool
-				{ return fs::remove((presetsPath / preset.getFilename()).replace_extension(".json")); });
-		}
+			deletedPreset = std::move(preset);
+			return fs::remove((presetsPath / deletedPreset.getFilename()).replace_extension(".json"));
+		});
 
 		presets.erase(id);
+	}
+
+	bool PresetManager::undoDeletePreset()
+	{
+		deletedPreset.write((presetsPath / deletedPreset.getFilename()).string(), false);
+		presets.insert_or_assign(deletedPreset.getID(), std::move(deletedPreset));
+		deletedPreset = {};
+		return true;
 	}
 	
 	std::string PresetManager::fixFilename(const std::string& name)
@@ -252,7 +266,7 @@ namespace MikuMikuWorld
 		if (presets.find(presetId) == presets.end())
 			return;
 
-		const json data = presets.at(presetId).data;
+		const json& data = presets.at(presetId).data;
 		if (jsonIO::arrayHasData(data, "notes") || jsonIO::arrayHasData(data, "holds"))
 			context.doPasteData(data, false);
 	}

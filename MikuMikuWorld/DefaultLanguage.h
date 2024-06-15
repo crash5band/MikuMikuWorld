@@ -177,6 +177,8 @@ namespace MikuMikuWorld
 		{"create_preset", "Create Preset"},
 		{"search", "Search..."},
 		{"confirm", "Confirm"},
+		{"preset_deleted", "Preset deleted"},
+		{"close", "Close"},
 
 		// Shortcuts
 		{"action", "Action"},
