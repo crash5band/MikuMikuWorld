@@ -9,14 +9,14 @@ namespace MikuMikuWorld
     {
     public:
         static FlickableNotesFilter* flickableFilter() { return &cmnflickFilter; }
-        static StepNotesFilter* stepFilter() { return &cmnStepFilter; }
-        static AdjustableFrictionNotesFilter* frictionableFilter() { return &cmnFrictionFilter; }
+        static HoldStepNotesFilter* stepFilter() { return &cmnStepFilter; }
+        static FrictionableNotesFilter* frictionableFilter() { return &cmnFrictionFilter; }
         static GuideNotesFilter* guideFilter() { return &cmnGuideFilter; }
         static EaseNotesFilter* easeFilter() { return &cmnEaseFilter; }
     private:
         static FlickableNotesFilter cmnflickFilter;
-        static StepNotesFilter cmnStepFilter;
-        static AdjustableFrictionNotesFilter cmnFrictionFilter;
+        static HoldStepNotesFilter cmnStepFilter;
+        static FrictionableNotesFilter cmnFrictionFilter;
         static GuideNotesFilter cmnGuideFilter;
         static EaseNotesFilter cmnEaseFilter;
     };

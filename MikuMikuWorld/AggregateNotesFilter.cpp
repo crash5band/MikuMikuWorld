@@ -5,8 +5,8 @@
 namespace MikuMikuWorld
 {
     FlickableNotesFilter CommonNoteFilters::cmnflickFilter{};
-    StepNotesFilter CommonNoteFilters::cmnStepFilter{};
-    AdjustableFrictionNotesFilter CommonNoteFilters::cmnFrictionFilter{};
+    HoldStepNotesFilter CommonNoteFilters::cmnStepFilter{};
+    FrictionableNotesFilter CommonNoteFilters::cmnFrictionFilter{};
     GuideNotesFilter CommonNoteFilters::cmnGuideFilter{};
     EaseNotesFilter CommonNoteFilters::cmnEaseFilter{};
     

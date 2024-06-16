@@ -20,13 +20,13 @@ namespace MikuMikuWorld
         NoteSelection filter(NoteSelection selection, const Score& score) const override;
     };
 
-    class StepNotesFilter : public NotesFilter
+    class HoldStepNotesFilter : public NotesFilter
     {
     public:
         NoteSelection filter(NoteSelection selection, const Score& score) const override;
     };
 
-    class AdjustableFrictionNotesFilter : public NotesFilter
+    class FrictionableNotesFilter : public NotesFilter
     {
     public:
         bool canToggleFriction(int noteId, const Score& score) const;

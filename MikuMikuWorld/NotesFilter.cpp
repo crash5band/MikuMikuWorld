@@ -32,7 +32,7 @@ namespace MikuMikuWorld
         return newSelection;
     }
     
-    NoteSelection StepNotesFilter::filter(NoteSelection selection, const Score& score) const
+    NoteSelection HoldStepNotesFilter::filter(NoteSelection selection, const Score& score) const
     {
         NoteSelection newSelection;
         std::copy_if(selection.begin(), selection.end(), std::inserter(newSelection, newSelection.begin()),
@@ -49,7 +49,7 @@ namespace MikuMikuWorld
         return newSelection;
     }
 
-    bool AdjustableFrictionNotesFilter::canToggleFriction(int noteId, const Score& score) const
+    bool FrictionableNotesFilter::canToggleFriction(int noteId, const Score& score) const
     {
         const auto it = score.notes.find(noteId);
         if (it == score.notes.end())
@@ -69,7 +69,7 @@ namespace MikuMikuWorld
         }
     }
     
-    NoteSelection AdjustableFrictionNotesFilter::filter(NoteSelection selection, const Score& score) const
+    NoteSelection FrictionableNotesFilter::filter(NoteSelection selection, const Score& score) const
     {
         NoteSelection newSelection;
         std::copy_if(selection.begin(), selection.end(), std::inserter(newSelection, newSelection.begin()),
