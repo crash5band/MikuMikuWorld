@@ -1089,16 +1089,14 @@ namespace MikuMikuWorld
 			isHoldingNote = false;
 			holdingNote = 0;
 
-			if (noChange)
-				return false;
-
-			for (int id : context.getHoldsFromSelection())
+			if (!noChange)
 			{
-				sortHold(context.score, context.score.holdNotes.at(id));
+				for (int holdId : context.getHoldsFromSelection())
+					sortHold(context.score, context.score.holdNotes.at(holdId));
+			
 				skipUpdateAfterSortingSteps = true;
+				context.pushHistory("Update notes", prevUpdateScore, context.score);
 			}
-
-			context.pushHistory("Update notes", prevUpdateScore, context.score);
 		}
 
 		return false;

@@ -28,16 +28,6 @@ namespace MikuMikuWorld
 		&config.input.timelineHiSpeed,
 	};
 
-	constexpr const char* toolbarFlickNames[] =
-	{
-		"none", "default", "left", "right"
-	};
-
-	constexpr const char* toolbarStepNames[] =
-	{
-		"normal", "hidden", "skip"
-	};
-
 	ScoreEditor::ScoreEditor() : presetManager(Application::getAppDir() + "library")
 	{
 		renderer = std::make_unique<Renderer>();
@@ -683,9 +673,9 @@ namespace MikuMikuWorld
 		{
 			std::string img{ IO::concat("timeline", timelineModes[i], "_") };
 			if (i == (int)TimelineMode::InsertFlick)
-				img.append(IO::concat("", toolbarFlickNames[(int)edit.flickType], "_"));
+				img.append(IO::concat("", flickTypes[(int)edit.flickType], "_"));
 			else if (i == (int)TimelineMode::InsertLongMid)
-				img.append(IO::concat("", toolbarStepNames[(int)edit.stepType], "_"));
+				img.append(IO::concat("", stepTypes[(int)edit.stepType], "_"));
 
 			if (UI::toolbarImageButton(img.c_str(), getString(timelineModes[i]), ToShortcutString(*timelineModeBindings[i]), true, (int)timeline.getMode() == i))
 				timeline.changeMode((TimelineMode)i, edit);
@@ -704,23 +694,19 @@ namespace MikuMikuWorld
 	void ScoreEditor::autoSave()
 	{
 		std::wstring wAutoSaveDir = IO::mbToWideStr(autoSavePath);
-
-		// create auto save directory if none exists
 		std::filesystem::create_directory(wAutoSaveDir);
 
 		context.score.metadata = context.workingData.toScoreMetadata();
 		serializeScore(context.score, autoSavePath + "\\mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION);
-
-		// get mmws files
+		
 		int mmwsCount = 0;
 		for (const auto& file : std::filesystem::directory_iterator(wAutoSaveDir))
 		{
 			std::string extension = file.path().extension().string();
 			std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-			mmwsCount += extension == MMWS_EXTENSION;
+			mmwsCount += static_cast<int>(extension == MMWS_EXTENSION);
 		}
-
-		// delete older files
+		
 		if (mmwsCount > config.autoSaveMaxCount)
 			deleteOldAutoSave(mmwsCount - config.autoSaveMaxCount);
 	}
@@ -747,17 +733,10 @@ namespace MikuMikuWorld
 			return f1.last_write_time() < f2.last_write_time();
 		});
 
-		int deleteCount = 0;
-		int remainingCount = count;
-		while (remainingCount && deleteFiles.size())
-		{
-			std::filesystem::remove(deleteFiles.begin()->path());
-			deleteFiles.erase(deleteFiles.begin());
-
-			--remainingCount;
-			++deleteCount;
-		}
-
+		int deleteCount = std::min(static_cast<int>(deleteFiles.size()), count);
+		for (int i = 0; i < deleteCount; i++)
+			std::filesystem::remove(deleteFiles[i]);
+		
 		return deleteCount;
 	}
 

@@ -19,12 +19,12 @@ namespace jsonIO
 	}
 
 	template<typename T>
-	T tryGetValue(const nlohmann::json& js, const char* key, T def = {})
+	T tryGetValue(const nlohmann::json& js, const char* key, const T& def = {})
 	{
 		return keyExists(js, key) ? (T)js[key] : def;
 	}
 
-	static mmw::Vector2 tryGetValue(const nlohmann::json& js, const char* key, mmw::Vector2 def)
+	static mmw::Vector2 tryGetValue(const nlohmann::json& js, const char* key, const mmw::Vector2& def)
 	{
 		mmw::Vector2 v = def;
 		if (keyExists(js, key))
@@ -36,7 +36,7 @@ namespace jsonIO
 		return v;
 	}
 
-	static mmw::Color tryGetValue(const nlohmann::json& js, const char* key, mmw::Color def)
+	static mmw::Color tryGetValue(const nlohmann::json& js, const char* key, const mmw::Color& def)
 	{
 		mmw::Color c = def;
 		if (keyExists(js, key))
