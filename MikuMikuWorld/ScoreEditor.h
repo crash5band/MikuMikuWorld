@@ -25,9 +25,10 @@ namespace MikuMikuWorld
 		std::string autoSavePath;
 		bool showImGuiDemoWindow{false};
 
-		std::future<void> loadScoreFuture;
-		std::future<void> loadMusicFuture;
-		std::future<void> loadPresetsFuture;
+		std::future<void> loadScoreFuture{};
+		std::future<void> loadMusicFuture{};
+		std::future<void> loadPresetsFuture{};
+		std::future<void> importPresetFuture{};
 
 		bool save(std::string filename);
 		size_t updateRecentFilesList(const std::string& entry);
@@ -53,7 +54,9 @@ namespace MikuMikuWorld
 		void drawToolbar();
 		void help();
 
-		void loadPresets(std::string path);
+		void loadPresets();
+		void openImportPresetDialog();
+		void importPreset(const std::string& path);
 		void writeSettings();
 		void uninitialize();
 		inline std::string_view getWorkingFilename() const { return context.workingData.filename; }

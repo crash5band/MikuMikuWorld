@@ -43,9 +43,10 @@ namespace MikuMikuWorld
 		std::unordered_map<int, NotesPreset> presets;
 		NotesPreset deletedPreset{};
 
-		void loadPresets(const std::string& path);
-
-		Result loadPreset(const std::string& path);
+		inline const std::wstring_view getPresetsPath() const { return presetsPath.c_str(); }
+		
+		void loadPresets();
+		Result importPreset(const std::string& path);
 		void savePreset(NotesPreset preset);
 
 		void createPreset(const ScoreContext& context, const std::string& name, const std::string& desc);	

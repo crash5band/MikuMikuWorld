@@ -524,7 +524,7 @@ namespace MikuMikuWorld
 
 			ImGui::EndMenu();
 		}
-
+		
 		if (ImGui::BeginMenu(getString("view")))
 		{
 			ImGui::MenuItem(getString("show_step_outlines"), NULL, &timeline.drawHoldStepOutlines);
@@ -535,6 +535,31 @@ namespace MikuMikuWorld
 			ImGui::EndMenu();
 		}
 
+		if (ImGui::BeginMenu("Presets"))
+		{
+			if (ImGui::MenuItem("Create", NULL, false, !context.selectedNotes.empty()))
+				presetsWindow.openCreatePresetDialog();
+			
+			if (ImGui::MenuItem("Import", NULL, false, true))
+				openImportPresetDialog();
+			
+			if (ImGui::MenuItem("Reload", NULL, false, true))
+			{
+				presetManager.presets.clear();
+				loadPresets();
+			}
+			
+			ImGui::Separator();
+			if (ImGui::MenuItem("Open Presets Folder", NULL, false, true))
+			{
+				if (!std::filesystem::exists(presetManager.getPresetsPath()))
+					std::filesystem::create_directory(presetManager.getPresetsPath());
+				ShellExecuteW(0, 0, presetManager.getPresetsPath().data(), 0, 0, SW_SHOW);
+			}
+			
+			ImGui::EndMenu();
+		}
+		
 		if (config.debugEnabled)
 		{
 			if (ImGui::BeginMenu(getString("debug")))
@@ -681,8 +706,7 @@ namespace MikuMikuWorld
 		std::wstring wAutoSaveDir = IO::mbToWideStr(autoSavePath);
 
 		// create auto save directory if none exists
-		if (!std::filesystem::exists(wAutoSaveDir))
-			std::filesystem::create_directory(wAutoSaveDir);
+		std::filesystem::create_directory(wAutoSaveDir);
 
 		context.score.metadata = context.workingData.toScoreMetadata();
 		serializeScore(context.score, autoSavePath + "\\mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION);
@@ -737,16 +761,45 @@ namespace MikuMikuWorld
 		return deleteCount;
 	}
 
-	void ScoreEditor::loadPresets(std::string path)
+	void ScoreEditor::loadPresets()
 	{
 		if (loadPresetsFuture.valid())
 			loadPresetsFuture.get();
 		
-		loadPresetsFuture = std::async(std::launch::async, [this, path]()
+		loadPresetsFuture = std::async(std::launch::async, [this]()
 		{
 			presetsWindow.loadingPresets = true;
-			presetManager.loadPresets(path);
+			presetManager.loadPresets();
 			presetsWindow.loadingPresets = false;
 		});
+	}
+
+	void ScoreEditor::importPreset(const std::string& path)
+	{
+		if (importPresetFuture.valid())
+			importPresetFuture.get();
+
+		presetsWindow.loadingPresets = true;
+		importPresetFuture = std::async(std::launch::async, [this, path]()
+		{
+			Result result = presetManager.importPreset(path);
+			presetsWindow.loadingPresets = false;
+
+			if (result.getStatus() != ResultStatus::Success)
+			{
+				IO::MessageBoxIcon icon = result.getStatus() == ResultStatus::Error ?
+					IO::MessageBoxIcon::Error :
+					IO::MessageBoxIcon::Warning;
+			
+				IO::messageBox(APP_NAME, result.getMessage(), IO::MessageBoxButtons::Ok, icon, Application::windowState.windowHandle);
+			}
+		});
+	}
+
+	void ScoreEditor::openImportPresetDialog()
+	{
+		IO::FileDialog fileDialog{"Import Preset", {{"Notes Preset", "*.json"}}, "", "", ".json", 0, Application::windowState.windowHandle};
+		if (fileDialog.openFile() == IO::FileDialogResult::OK)
+			importPreset(fileDialog.outputFilename);
 	}
 }

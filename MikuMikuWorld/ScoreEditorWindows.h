@@ -48,6 +48,7 @@ namespace MikuMikuWorld
 	public:
 		bool loadingPresets{false};
 		void update(ScoreContext& context, PresetManager& presetManager);
+		inline void openCreatePresetDialog() { dialogOpen = true; }
 	};
 
 	class DebugWindow

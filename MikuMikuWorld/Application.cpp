@@ -51,7 +51,7 @@ namespace MikuMikuWorld
 		loadResources();
 
 		editor = std::make_unique<ScoreEditor>();
-		editor->loadPresets(appDir + "library");
+		editor->loadPresets();
 
 		initialized = true;
 		return Result::Ok();
