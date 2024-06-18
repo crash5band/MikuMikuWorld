@@ -71,12 +71,13 @@ namespace MikuMikuWorld
 	{
 		ImVec4 col4 = ImGui::ColorConvertU32ToFloat4(col);
 		ImVec4 colh = generateHighlightColor(col4);
-		ImGui::BeginDisabled(!enabled);
 		ImGui::PushStyleColor(ImGuiCol_Button, col4);
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colh);
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, colh);
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.15f, 0.15f, 0.15f, 1.0));
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 2.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_DisabledAlpha, 1.0f);
+		ImGui::BeginDisabled(!enabled);
 
 		ImGui::SetCursorScreenPos(pos);
 		ImVec2 sz = size;
@@ -90,9 +91,9 @@ namespace MikuMikuWorld
 
 		bool pressed = ImGui::Button(txt, sz);
 
-		ImGui::PopStyleColor(4);
-		ImGui::PopStyleVar(1);
 		ImGui::EndDisabled();
+		ImGui::PopStyleColor(4);
+		ImGui::PopStyleVar(2);
 		return pressed;
 	}
 
