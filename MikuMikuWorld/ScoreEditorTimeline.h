@@ -225,7 +225,7 @@ namespace MikuMikuWorld
 		constexpr inline bool isMouseInTimeline() const { return mouseInTimeline; }
 		bool isNoteVisible(const Note& note, int offsetTicks = 0) const;
 
-		int findClosestHold(ScoreContext& context, int lane, int tick);
+		int findClosestHold(const ScoreContext& context, int lane, int tick);
 		bool isMouseInHoldPath(const Note& n1, const Note& n2, EaseType ease, float x, float y);
 		constexpr inline bool isPlaying() const { return playing; }
 		void setPlaying(ScoreContext& context, bool state);
@@ -241,7 +241,7 @@ namespace MikuMikuWorld
 		void previousTick(ScoreContext& context);
 		void nextTick(ScoreContext& context);
 		int roundTickDown(int tick, int division);
-		void focusCursor(ScoreContext& context, Direction direction);
+		void focusCursor(int cursorTick, Direction direction);
 
 		constexpr inline TimelineMode getMode() const { return currentMode; }
 		void changeMode(TimelineMode mode, EditArgs& edit);

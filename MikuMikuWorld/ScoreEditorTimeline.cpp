@@ -83,9 +83,9 @@ namespace MikuMikuWorld
 		return std::clamp(lane - (width / 2), MIN_LANE, MAX_LANE - width + 1);
 	}
 
-	void ScoreEditorTimeline::focusCursor(ScoreContext& context, Direction direction)
+	void ScoreEditorTimeline::focusCursor(int cursorTick, Direction direction)
 	{
-		float cursorY = tickToPosition(context.currentTick);
+		float cursorY = tickToPosition(cursorTick);
 		if (direction == Direction::Down)
 		{
 			float timelineOffset = size.y * (1.0f - config.cursorPositionThreshold);
@@ -344,7 +344,7 @@ namespace MikuMikuWorld
 				}
 
 				// Clicked and dragging inside the timeline
-				if (clickedOnTimeline && ImGui::IsMouseDown(0) && ImGui::IsMouseDragPastThreshold(0, 10.0f))
+				if (clickedOnTimeline && ImGui::IsMouseDown(0) && ImGui::IsMouseDragPastThreshold(0, 10.0f) && !playing)
 					dragging = true;
 			}
 		}
@@ -356,7 +356,6 @@ namespace MikuMikuWorld
 		// Draw selection rectangle after notes are rendered
 		if (dragging && ImGui::IsMouseReleased(0) && !pasting)
 		{
-			// Calculate drag selection
 			float left = std::min(dragStart.x, mousePos.x);
 			float right = std::max(dragStart.x, mousePos.x);
 			float top = std::min(dragStart.y, mousePos.y);
@@ -989,7 +988,7 @@ namespace MikuMikuWorld
 		currentMode = mode;
 	}
 
-	int ScoreEditorTimeline::findClosestHold(ScoreContext& context, int lane, int tick)
+	int ScoreEditorTimeline::findClosestHold(const ScoreContext& context, int lane, int tick)
 	{
 		float xt = laneToPosition(lane);
 		float yt = getNoteYPosFromTick(tick);
@@ -1429,7 +1428,8 @@ namespace MikuMikuWorld
 
 				if (isNoteVisible(n3, offsetTicks))
 				{
-					if (drawHoldStepOutlines)
+					const bool isDrawSteps = playing ? !config.hideHoldStepsInPlayback : drawHoldStepOutlines;
+					if (isDrawSteps)
 						drawSteps.emplace_back(StepDrawData
 							{
 								n3.tick + offsetTicks,
@@ -1840,12 +1840,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::previousTick(ScoreContext& context)
 	{
-		if (playing || context.currentTick == 0)
+		if (playing)
 			return;
 
 		context.currentTick = std::max(roundTickDown(context.currentTick, division) - (TICKS_PER_BEAT / (division / 4)), 0);
 		lastSelectedTick = context.currentTick;
-		focusCursor(context, Direction::Down);
+		focusCursor(context.currentTick, Direction::Down);
 	}
 
 	void ScoreEditorTimeline::nextTick(ScoreContext& context)
@@ -1855,7 +1855,7 @@ namespace MikuMikuWorld
 
 		context.currentTick = roundTickDown(context.currentTick, division) + (TICKS_PER_BEAT / (division / 4));
 		lastSelectedTick = context.currentTick;
-		focusCursor(context, Direction::Up);
+		focusCursor(context.currentTick, Direction::Up);
 	}
 
 	int ScoreEditorTimeline::roundTickDown(int tick, int division)
@@ -2006,6 +2006,7 @@ namespace MikuMikuWorld
 		playing = state;
 		if (playing)
 		{
+			dragging = false;
 			playStartTime = time;
 			context.audio.seekMusic(time);
 			context.audio.playMusic(time);
