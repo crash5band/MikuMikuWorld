@@ -5,9 +5,30 @@
 #include "Utilities.h"
 #include "Application.h"
 #include "ApplicationConfiguration.h"
+#include "ResourceManager.h"
 
 namespace MikuMikuWorld
 {
+	void ScorePropertiesWindow::statsTableRow(size_t row)
+	{
+		if (row >= scoreStatsImages.size())
+			return;
+
+		ImGui::TableSetColumnIndex(0);
+
+		int index = ResourceManager::getTexture(scoreStatsImages[row]);
+		if (isArrayIndexInBounds(index, ResourceManager::textures))
+		{
+			ImGui::Image((void*)ResourceManager::textures[index].getID(), { 20, 20 });
+		}
+		else
+		{
+			ImGui::Text(getString(scoreStatsImages[row]));
+		}
+
+		ImGui::TableSetColumnIndex(1);
+	}
+
 	void ScorePropertiesWindow::update(ScoreContext& context)
 	{
 		if (ImGui::CollapsingHeader(IO::concat(ICON_FA_ALIGN_LEFT, getString("metadata"), " ").c_str(), ImGuiTreeNodeFlags_DefaultOpen))
@@ -101,15 +122,50 @@ namespace MikuMikuWorld
 
 		if (ImGui::CollapsingHeader(IO::concat(ICON_FA_CHART_BAR, getString("statistics"), " ").c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			UI::beginPropertyColumns();
-			UI::addReadOnlyProperty(getString("taps"), context.scoreStats.getTaps());
-			UI::addReadOnlyProperty(getString("flicks"), context.scoreStats.getFlicks());
-			UI::addReadOnlyProperty(getString("holds"), context.scoreStats.getHolds());
-			UI::addReadOnlyProperty(getString("steps"), context.scoreStats.getSteps());
-			UI::addReadOnlyProperty(getString("traces"), context.scoreStats.getTraces());
-			UI::addReadOnlyProperty(getString("total"), context.scoreStats.getTotal());
-			UI::addReadOnlyProperty(getString("combo"), context.scoreStats.getCombo());
-			UI::endPropertyColumns();
+			constexpr ImGuiTableFlags tableFlags
+			{	ImGuiTableFlags_BordersInner |
+				ImGuiTableFlags_ScrollY |
+				ImGuiTableFlags_SizingStretchSame |
+				ImGuiTableFlags_PadOuterX |
+				ImGuiTableFlags_RowBg
+			};
+
+			float tableHeight{ std::min(ImGui::GetFrameHeight() * scoreStatsImages.size(), ImGui::GetContentRegionAvail().y) };
+			if (ImGui::BeginTable("stats_table", 2, tableFlags, { 0, tableHeight }))
+			{
+				ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, { 10, 1 });
+
+				ImGui::TableNextRow();
+				statsTableRow(0);
+				ImGui::Text("%d", context.scoreStats.getTaps());
+
+				ImGui::TableNextRow();
+				statsTableRow(1);
+				ImGui::Text("%d", context.scoreStats.getFlicks());
+
+				ImGui::TableNextRow();
+				statsTableRow(2);
+				ImGui::Text("%d", context.scoreStats.getHolds());
+
+				ImGui::TableNextRow();
+				statsTableRow(3);
+				ImGui::Text("%d", context.scoreStats.getSteps());
+
+				ImGui::TableNextRow();
+				statsTableRow(4);
+				ImGui::Text("%d", context.scoreStats.getTraces());
+
+				ImGui::TableNextRow();
+				statsTableRow(5);
+				ImGui::Text("%d", context.scoreStats.getTotal());
+
+				ImGui::TableNextRow();
+				statsTableRow(6);
+				ImGui::Text("%d", context.scoreStats.getCombo());
+
+				ImGui::PopStyleVar();
+				ImGui::EndTable();
+			}
 		}
 	}
 
