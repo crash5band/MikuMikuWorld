@@ -1,0 +1,253 @@
+# code: vi
+# key, value
+
+language_name, Tiếng Việt
+
+# menu bar
+file,File
+new,Mới
+open,Mở
+open_recent,Mở tệp gần đây
+clear,Xóa
+save,Lưu
+save_as,Lưu như
+export_sus,Xuất SUS
+export_usc,Xuất USC
+exit,Thoát
+edit,Sửa
+undo,Hoàn tác
+redo,Làm lại
+select_all,Chọn tất cả
+view,Xem
+settings,Cài đặt
+window,Cửa sổ
+vsync,VSync
+show_fps,Hiện FPS
+debug,Debug
+create_auto_save,Tạo tự động sao lưu
+help,Trợ giúp
+about,About
+
+# dialogs
+file_not_found,File không được tìm thấy
+file_not_found_msg1,File
+file_not_found_msg2,không được tìm thấy
+remove_recent_file_not_found,Bạn có muốn xóa khỏi danh sách file gần đây không?
+yes,Có
+no,Không
+unsaved_changes,Thay đổi chưa được lưu
+ask_save,Bạn có muốn thay đổi gần đây không?
+warn_unsaved,Bất kì thay đổi chưa lưu sẽ bị mất.
+save_changes,Lưu thay đổi
+discard_changes,Hủy bỏ thay đổi
+update_available,Phiên bản mới đang có sẵn!
+update_available_description,%s đang có sẵn. Bạn có muốn mở ở trình duyệt không?
+score_file,Score file
+error,Lỗi
+error_load_score_file,Một lỗi đã xuất hiện khi đang đọc score file
+error_load_music_file,Không thể mở file nhạc
+cancel,Hủy
+general,Chung
+key_config,Key Config
+language,Ngôn ngữ
+auto,Tự động
+auto_save,Tự động lưu
+auto_save_enable,Tự động lưu được bật
+auto_save_interval,Tự động lưu sau (phút)
+auto_save_count,Số lần lưu tối đa
+accent_color,Màu chủ đạo
+accent_color_help,Chọn một màu chủ đạo để áp dụng. Ô đầu tiên có thể chỉnh sửa từ bảng màu phía dưới
+select_accent_color,Chọn một màu chủ đạo.
+display_mode,Chế độ hiển thị
+theme,Chủ đề
+base_theme,Cơ bản
+theme_light,Sáng
+theme_dark,Tối
+custom_color,Màu tự chọn
+timeline,Timeline
+match_notes_size_to_timeline,Kết hợp kích thước note với độ rộng của timeline
+lane_width,Độ rộng lane
+notes_height,Độ cao của note
+scrolling,Cuộn
+scroll_speed_normal,Tốc độ cuộn
+scroll_speed_shift,Tốc độ cuộn (Shift)
+use_smooth_scroll,Sử dụng Smooth Scrolling
+smooth_scroll_time,Thời gian Smooth Scrolling
+return_to_last_tick,Quay lại tick cuối khi dừng
+cursor_auto_scroll,Cursor Auto Scroll
+cursor_auto_scroll_amount,Cursor Auto Scroll Percentage From Timeline
+background,Hình nền
+background_image,Ảnh hình nền
+draw_background,Vẽ ảnh hình nền
+background_brightnes,Độ sáng hình nền
+lanes_opacity,Độ mờ đục của lane
+video,Video
+notes_se,Notes SE
+
+# score editor
+options,Cài đặt
+chart_properties,Thông tin Chart
+note_properties,Thông tin Note
+notes_timeline,Notes Timeline
+select,Chọn
+tap,Tap
+hold,Hold
+hold_step,Hold Mid
+flick,Flick
+critical,Critical
+trace,Trace
+guide,Guide
+damage,Damage
+bpm,BPM
+time_signature,Time Signature
+none,Không
+default,Theo con trỏ chuột
+left,Trái
+right,Phải
+normal,Bình thường
+hidden,Hidden
+skip,Skip
+linear,Linear
+ease_in,Ease In
+ease_out,Ease Out
+ease_in_out,Ease In Out
+ease_out_in,Ease Out In
+delete,Xóa
+copy,Sao chép
+cut,Cắt
+paste,Dán
+flip_paste,Dán và lật ngược
+duplicate,Nhân bản
+flip_duplicate,Nhân bản và lật ngược
+flip,Lật ngược
+note_width,Độ rộng Note
+shrink_down,Co xuống
+shrink_up,Co lên
+connect_holds,Nối Holds
+split_hold,Tách Hold
+lerp_hispeeds,Thêm Hi-Speeds
+repeat_hold_mids,Lặp Hold Mids
+step_type,Loại Step
+ease_type,Loại Ease
+flick_type,Loại Flick
+hold_type,Loại Hold
+fade_type,Loại Fade
+metadata,Metadata
+title,Tiêu đề
+designer,Designer
+artist,Nghệ sĩ
+jacket,Jacket
+lane_extension, Độ mở rộng Lane
+audio,Audio
+music_file,File nhạc
+music_offset,Offset nhạc
+volume_master,Âm thanh tổng
+volume_bgm,Nhạc
+volume_se,Hiệu ứng
+statistics,Thông số
+taps,Taps
+flicks,Flicks
+holds,Holds
+steps,Steps
+traces,Traces
+total,Tổng
+combo,Combo
+goto_measure,Đi đến Measure
+division,%d Division
+division_affix,%d Division
+custom,Tự chỉnh 
+custom_division,Tự chỉnh Division
+zoom,Zoom
+show_step_outlines,Hiện Step Outlines
+draw_waveform,Hiện Waveform
+edit_bpm,Chỉnh sử Tempo
+tick,Tick
+remove,Xóa
+edit_time_signature,Sửa Time Signature
+measure,Measure
+skill,Kĩ năng
+increase_note_size,Tăng kích cỡ note
+decrease_note_size,Giảm kích cỡ note
+hi_speed,Hi-Speed
+edit_hi_speed,Chỉnh sửa Hi-Speed
+hi_speed_speed,Tốc độ
+fade_none,No Fade
+fade_in,Fade In
+fade_out,Fade Out
+guide_color,Màu Guide
+guide_neutral,Trung tính (Trắng)
+guide_red,Đỏ
+guide_blue,Xanh nước biển
+guide_green,Xanh lá
+guide_yellow,Vàng
+guide_purple,Tím
+guide_cyan, Lục lam
+guide_black,Đen
+layer,Layer
+edit_skill,Chỉnh sửa Skill Trigger
+edit_fever,Chỉnh sửa FEVER Trigger
+edit_none,Sửa
+edit_event,Chỉnh sửa Event
+beat,Nhịp
+lane,Lane
+width,Độ rộng
+advanced,Nâng cao
+note_properties_note,Thông tin note
+note_properties_hi_speed,Thông tin hi-speed
+note_properties_hold_note,Thông tin Hold Notes
+note_properties_guide,Thông tin Guide
+note_properties_not_selected,Không có note hoặc hi-speed nào được chọn
+note_properties_many_selected,Nhiều note hoặc hi-speed được chọn
+
+# preset manager
+presets,Presets
+no_presets,Không có Preset nào có sẵn
+name,Tên
+description,Mô tả
+create_preset,Tạo Preset
+search,Tìm kiếm...
+confirm,Xác nhận
+
+# layer manager
+layers,Layers
+name,Tên
+create_layer,Tạo Layer
+confirm,Xác nhận
+show_all_layers,Hiện tất cả Layer
+layer_rename,Sửa tên Layer
+layer_up,Chuyển lên trên
+layer_down,Chuyển xuống dưới
+layer_merge,Hợp lại Layer
+layer_delete,Xóa Layer
+
+# waypoint manager
+waypoints,Waypoints
+create_waypoint,Tạo Waypoint
+edit_waypoint,Sửa Waypoint
+waypoint_name,Tên
+
+# commands
+action,Hành động
+keys,Phím
+add,Tạo
+cmd_key_listen,Đang chờ tín hiệu đầu vào...
+new_chart,Chart mới
+toggle_playback,Phát / Dừng
+cancel_paste,Hủy dán
+stop,Dừng
+previous_tick,Tick trước
+next_tick,Tick tiếp theo
+timeline_select,Timeline - Chọn
+timeline_tap,Timeline - Chèn Tap
+timeline_hold,Timeline - Chèn Hold
+timeline_hold_step,Timeline - Chèn Hold Mid
+timeline_flick,Timeline - Chèn Flick
+timeline_critical,Timeline - Chèn Critical
+timeline_trace,Timeline - Chèn Trace
+timeline_guide,Timeline - Chèn Guide
+timeline_damage,Timeline - Chèn Damage
+timeline_bpm,Timeline - Chèn BPM
+timeline_time_signature,Timeline - Chèn Time Signature
+timeline_hi_speed,Timeline - Chèn Hi-Speed Change
+zoom_in,Phóng to
+zoom_out,Thu nhỏ

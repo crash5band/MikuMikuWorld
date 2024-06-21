@@ -36,11 +36,12 @@ namespace MikuMikuWorld
 		for (auto& line : lines)
 		{
 			line = trim(line);
-			if (!line.size() || startsWith(line, "#"))
+			if (!line.size() || startsWith(line, "#") || startsWith(line, ","))
 				continue;
 
 			std::vector<std::string> values = split(line, ",");
-			strings[trim(values[0])] = trim(values[1]);
+			if (values.size() >= 2)
+				strings[trim(values[0])] = trim(values[1]);
 		}
 	}
 

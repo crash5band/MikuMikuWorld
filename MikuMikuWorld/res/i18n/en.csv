@@ -83,6 +83,7 @@ background_brightnes,Background Brightness
 lanes_opacity,Lanes Opacity
 video,Video
 notes_se,Notes SE
+show_tick_in_properties, Show Tick in Note Properties Window
 
 # score editor
 options,Options

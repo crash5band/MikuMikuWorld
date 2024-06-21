@@ -1382,8 +1382,10 @@ namespace MikuMikuWorld
 					if (ImGui::CollapsingHeader(getString("advanced"),
 					                            ImGuiTreeNodeFlags_DefaultOpen))
 					{
+						UI::beginPropertyColumns();
 						UI::addCheckboxProperty(getString("show_tick_in_properties"),
 						                        config.showTickInProperties);
+						UI::endPropertyColumns();
 					}
 
 					ImGui::EndTabItem();
