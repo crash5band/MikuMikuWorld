@@ -18,6 +18,7 @@ In addition to the original features of MikuMikuWorld, the following features ar
 If you want to contribute a translation, please see [the guide](./TRANSLATION.md).
 - Español (Spanish) by @mi.honesta.reaccion
 - Русский (Russian) by @\_notfallen\_
+- Tiếng Việt (Vietnamese) by @uwulovecrosshand
 
 ## Requirements:
 - 64-bit Windows 10 or higher*.
