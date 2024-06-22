@@ -128,7 +128,7 @@ connect_holds,Connect Holds
 split_hold,Split Hold
 lerp_hispeeds,Interpolate Hi-Speeds
 repeat_hold_mids,Repeat Hold Mids
-step_type,Step Type
+step_type,Hold Mid Type
 ease_type,Ease Type
 flick_type,Flick Type
 hold_type,Hold Type
@@ -149,7 +149,7 @@ statistics,Statistics
 taps,Taps
 flicks,Flicks
 holds,Holds
-steps,Steps
+steps,Hold Mids
 traces,Traces
 total,Total
 combo,Combo
@@ -159,7 +159,7 @@ division_affix,%d Division
 custom,Custom 
 custom_division,Custom Division
 zoom,Zoom
-show_step_outlines,Show Step Outlines
+show_step_outlines,Show Hold Mid Outlines
 draw_waveform,Show Waveform
 edit_bpm,Edit Tempo
 tick,Tick
