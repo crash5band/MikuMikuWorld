@@ -37,7 +37,7 @@ int main()
 			.append("\n\nApplication Version: ")
 			.append(mmw::Application::getAppVersion());
 			
-		IO::messageBox(APP_NAME, msg, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
+		IO::messageBox(APP_NAME, msg, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error, mmw::Application::windowState.windowHandle);
 	}
 
 	app.dispose();

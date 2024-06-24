@@ -47,7 +47,7 @@ namespace Audio
 		catch (ma_result)
 		{
 			err.append(ma_result_description(result));
-			IO::messageBox(APP_NAME, err, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
+			IO::messageBox(APP_NAME, err, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error, mmw::Application::windowState.windowHandle);
 
 			exit(result);
 		}
