@@ -30,7 +30,7 @@ namespace MikuMikuWorld
 		bool dragDropHandled = true;
 		bool windowDragging = false;
 		float lastDpiScale = 0.0f;
-		void* windowHandle;
+		void* windowHandle{ 0 };
 		Vector2 position{};
 		Vector2 size{};
 		UINT_PTR windowTimerId{};
@@ -39,13 +39,13 @@ namespace MikuMikuWorld
 	class Application
 	{
 	private:
-		GLFWwindow* window;
+		GLFWwindow* window{ nullptr };
 		std::unique_ptr<ScoreEditor> editor;
 		std::unique_ptr<ImGuiManager> imgui;
 		UnsavedChangesDialog unsavedChangesDialog;
 
-		bool initialized;
-		bool shouldPickScore;
+		bool initialized{ false };
+		bool shouldPickScore{ false };
 		std::string language;
 
 		std::vector<std::string> pendingOpenFiles;

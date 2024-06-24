@@ -9,19 +9,16 @@
 
 namespace MikuMikuWorld
 {
-	std::string Application::version;
-	std::string Application::appDir;
-	std::string Application::pendingLoadScoreFile;
-	WindowState Application::windowState;
+	std::string Application::version{ "1.0.0" };
+	std::string Application::appDir{ "" };
+	std::string Application::pendingLoadScoreFile{ "" };
+	WindowState Application::windowState{};
 
 	NoteTextures noteTextures{ -1, -1, -1 };
 
 	Application::Application() : 
-		initialized{ false }
+		initialized{ false }, language{ "" }
 	{
-		appDir = "";
-		version = "";
-		language = "";
 	}
 
 	Result Application::initialize(const std::string& root)
