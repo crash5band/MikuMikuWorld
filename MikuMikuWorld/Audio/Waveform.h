@@ -48,6 +48,9 @@ namespace Audio
 			const size_t sampleIndexLo = std::max(0ull, static_cast<size_t>(sampleIndexAsFloat));
 			const size_t sampleIndexHi = sampleIndexLo + 1;
 
+			if (sampleIndexLo >= absoluteSamples.size())
+				return 0;
+
 			const float normalizedSampleLo = getSampleAtIndex(sampleIndexLo) / static_cast<float>(int16_t_max);
 			const float normalizedSampleHi = getSampleAtIndex(sampleIndexHi) / static_cast<float>(int16_t_max);
 			const float normalizedSample = MikuMikuWorld::lerp(normalizedSampleLo, normalizedSampleHi, sampleIndexFraction);
