@@ -268,7 +268,7 @@ namespace MikuMikuWorld
 				error.what()
 			);
 
-			IO::messageBox(APP_NAME, errorMessage, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
+			IO::messageBox(APP_NAME, errorMessage, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error, Application::windowState.windowHandle);
 		}
 
 		updateRecentFilesList(filename);
@@ -295,14 +295,14 @@ namespace MikuMikuWorld
 		}
 		else
 		{
-			std::string errorMessage = IO::formatString("%s\n%s: %s\n%s: %s",
+			std::string errorMessage = IO::formatString("%s\n%s: %s\n%s",
 				getString("error_load_music_file"),
 				getString("music_file"),
 				filename.c_str(),
 				result.getMessage().c_str()
 			);
 
-			IO::messageBox(APP_NAME, errorMessage, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
+			IO::messageBox(APP_NAME, errorMessage, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error, Application::windowState.windowHandle);
 		}
 		
 		context.waveformL.generateMipChainsFromSampleBuffer(context.audio.musicBuffer, 0);
@@ -518,6 +518,7 @@ namespace MikuMikuWorld
 		if (ImGui::BeginMenu(getString("view")))
 		{
 			ImGui::MenuItem(getString("show_step_outlines"), NULL, &timeline.drawHoldStepOutlines);
+			ImGui::MenuItem(getString("hide_hold_steps_in_playback"), NULL, &config.hideHoldStepsInPlayback);
 			ImGui::MenuItem(getString("cursor_auto_scroll"), NULL, &config.followCursorInPlayback);
 			ImGui::MenuItem(getString("return_to_last_tick"), NULL, &config.returnToLastSelectedTickOnPause);
 			ImGui::MenuItem(getString("draw_waveform"), NULL, &config.drawWaveform);
