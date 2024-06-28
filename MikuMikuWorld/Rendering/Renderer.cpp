@@ -168,10 +168,11 @@ namespace MikuMikuWorld
 
 	void Renderer::endBatch()
 	{
+		assert(batchStarted && "Render batch not started. Forgot to call beginBatch()?");
+
 		numBatchVertices = numVertices;
 		numBatchQuads = numQuads;
 
-		batchStarted = false;
 		if (!quads.size())
 			return;
 

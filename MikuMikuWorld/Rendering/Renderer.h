@@ -14,20 +14,20 @@ namespace MikuMikuWorld
 	class Renderer
 	{
 	private:
-		size_t numVertices;
-		size_t numBatchVertices;
-		size_t numIndices;
-		size_t numQuads;
-		size_t numBatchQuads;
+		size_t numVertices{};
+		size_t numBatchVertices{};
+		size_t numIndices{};
+		size_t numQuads{};
+		size_t numBatchQuads{};
 
 		VertexBuffer vBuffer;
 		std::vector<Quad> quads;
 		std::array<DirectX::XMVECTOR, 4> vPos;
 		std::array<DirectX::XMVECTOR, 4> uvCoords;
 
-		unsigned int vao, vbo, ebo;
-		int texID;
-		bool batchStarted;
+		unsigned int vao{}, vbo{}, ebo{};
+		int texID{};
+		bool batchStarted{ false };
 
 		void init();
 		void resetRenderStats();
