@@ -42,14 +42,14 @@ namespace MikuMikuWorld
 	public:
 		float r, g, b, a;
 
-		Color(float _r = 0.0f, float _g = 0.0f, float _b = 0.0f, float _a = 1.0f)
+		explicit Color(float _r = 0.0f, float _g = 0.0f, float _b = 0.0f, float _a = 1.0f)
 			: r{ _r }, g{ _g }, b{ _b }, a{ _a }
 		{
 
 		}
 
-		inline bool operator==(const Color& c) { return r == c.r && g == c.g && b == c.b && a == c.a; }
-		inline bool operator!=(const Color& c) { return !(*this == c); }
+		inline bool operator==(const Color& c) const { return r == c.r && g == c.g && b == c.b && a == c.a; }
+		inline bool operator!=(const Color& c) const { return !(*this == c); }
 
 		static inline int rgbaToInt(int r, int g, int b, int a) { return r << 24 | g << 16 | b << 8 | a; }
 		static inline int abgrToInt(int a, int b, int g, int r) { return a << 24 | b << 16 | g << 8 | r; }
