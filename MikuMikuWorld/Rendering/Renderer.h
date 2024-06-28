@@ -37,10 +37,10 @@ namespace MikuMikuWorld
 
 		void drawSprite(const Vector2& pos, float rot, const Vector2& sz, AnchorType anchor, const Texture& tex, int spr, const Color& tint, int z = 0);
 		void drawSprite(const Vector2& pos, float rot, const Vector2& sz, AnchorType anchor, const Texture& tex,
-			float x1, float x2, float y1, float y2, const Color& tint = {1.0f, 1.0f, 1.0f, 1.0f}, int z = 0);
+			float x1, float x2, float y1, float y2, const Color& tint = Color(1.0f, 1.0f, 1.0f, 1.0f), int z = 0);
 		
 		void drawQuad(const Vector2& p1, const Vector2& p2, const Vector2& p3, const Vector2& p4, const Texture& tex, float x1, float x2, float y1, float y2,
-			const Color& tint = { 1.0f, 1.0f, 1.0f, 1.0f }, int z = 0);
+			const Color& tint = Color(1.0f, 1.0f, 1.0f, 1.0f), int z = 0);
 
 		void drawRectangle(Vector2 position, Vector2 size, const Texture& tex, float x1, float x2, float y1, float y2, Color tint, int z);
 
