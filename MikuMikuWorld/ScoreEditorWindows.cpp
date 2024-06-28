@@ -11,10 +11,14 @@ namespace MikuMikuWorld
 {
 	void ScorePropertiesWindow::statsTableRow(size_t row)
 	{
-		if (row >= scoreStatsImages.size())
-			return;
-
 		ImGui::TableSetColumnIndex(0);
+
+		if (row >= scoreStatsImages.size())
+		{
+			ImGui::Text("--");
+			ImGui::TableSetColumnIndex(1);
+			return;
+		}
 
 		int index = ResourceManager::getTexture(scoreStatsImages[row]);
 		if (isArrayIndexInBounds(index, ResourceManager::textures))
