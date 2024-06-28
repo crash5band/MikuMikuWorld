@@ -16,6 +16,11 @@ undo, 元に戻す
 redo, やり直す
 select_all, 全て選択
 view, 表示
+show_step_outlines, 中継点に枠線を表示
+draw_waveform, 波形を表示
+import_preset, プリセットをインポートする
+reload_presets, プリセット再読み込み
+open_presets_folder, プリセットのフォルダを開く
 settings, 設定
 window, ウィンドウ
 vsync, VSync（垂直同期）
@@ -144,8 +149,6 @@ division_suffix, 分音符
 custom, カスタム：
 custom_division, カスタム分割
 zoom, ズーム
-show_step_outlines, 中継点に枠線を表示
-draw_waveform, 波形を表示
 edit_bpm, 編集
 tick, 拍子
 remove, 削除

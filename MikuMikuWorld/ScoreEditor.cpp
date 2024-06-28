@@ -528,22 +528,22 @@ namespace MikuMikuWorld
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("Presets"))
+		if (ImGui::BeginMenu(getString("presets")))
 		{
-			if (ImGui::MenuItem("Create", NULL, false, !context.selectedNotes.empty()))
+			if (ImGui::MenuItem(getString("create_preset"), NULL, false, !context.selectedNotes.empty()))
 				presetsWindow.openCreatePresetDialog();
 			
-			if (ImGui::MenuItem("Import", NULL, false, true))
+			if (ImGui::MenuItem(getString("import_preset"), NULL, false, true))
 				openImportPresetDialog();
 			
-			if (ImGui::MenuItem("Reload", NULL, false, true))
+			if (ImGui::MenuItem(getString("reload_presets"), NULL, false, true))
 			{
 				presetManager.presets.clear();
 				loadPresets();
 			}
 			
 			ImGui::Separator();
-			if (ImGui::MenuItem("Open Presets Folder", NULL, false, true))
+			if (ImGui::MenuItem(getString("open_presets_folder"), NULL, false, true))
 			{
 				if (!std::filesystem::exists(presetManager.getPresetsPath()))
 					std::filesystem::create_directory(presetManager.getPresetsPath());
