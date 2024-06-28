@@ -17,6 +17,7 @@ redo, やり直す
 select_all, 全て選択
 view, 表示
 show_step_outlines, 中継点に枠線を表示
+hide_step_outlines_in_playback, 再生中に中継点を隠す
 draw_waveform, 波形を表示
 import_preset, プリセットをインポートする
 reload_presets, プリセット再読み込み

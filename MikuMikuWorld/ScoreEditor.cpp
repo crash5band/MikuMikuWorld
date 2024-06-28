@@ -520,7 +520,7 @@ namespace MikuMikuWorld
 		if (ImGui::BeginMenu(getString("view")))
 		{
 			ImGui::MenuItem(getString("show_step_outlines"), NULL, &timeline.drawHoldStepOutlines);
-			ImGui::MenuItem(getString("hide_hold_steps_in_playback"), NULL, &config.hideHoldStepsInPlayback);
+			ImGui::MenuItem(getString("hide_step_outlines_in_playback"), NULL, &config.hideStepOutlinesInPlayback);
 			ImGui::MenuItem(getString("cursor_auto_scroll"), NULL, &config.followCursorInPlayback);
 			ImGui::MenuItem(getString("return_to_last_tick"), NULL, &config.returnToLastSelectedTickOnPause);
 			ImGui::MenuItem(getString("draw_waveform"), NULL, &config.drawWaveform);

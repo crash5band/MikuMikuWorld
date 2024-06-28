@@ -1386,6 +1386,8 @@ namespace MikuMikuWorld
 	{
 		const Note& start = notes.at(note.start.ID);
 		const Note& end = notes.at(note.end);
+		const bool isDrawSteps = playing ? !config.hideStepOutlinesInPlayback : drawHoldStepOutlines;
+
 		if (note.steps.size())
 		{
 			static constexpr auto isSkipStep = [](const HoldStep& step) { return step.type == HoldStepType::Skip; };
@@ -1428,7 +1430,6 @@ namespace MikuMikuWorld
 
 				if (isNoteVisible(n3, offsetTicks))
 				{
-					const bool isDrawSteps = playing ? !config.hideHoldStepsInPlayback : drawHoldStepOutlines;
 					if (isDrawSteps)
 						drawSteps.emplace_back(StepDrawData
 							{
@@ -1486,7 +1487,7 @@ namespace MikuMikuWorld
 			{
 				drawNote(start, renderer, tint, offsetTicks, offsetLane);
 			}
-			else if (drawHoldStepOutlines)
+			else if (isDrawSteps)
 			{
 				drawSteps.push_back({
 					start.tick + offsetTicks,
@@ -1503,7 +1504,7 @@ namespace MikuMikuWorld
 			{
 				drawNote(end, renderer, tint, offsetTicks, offsetLane);
 			}
-			else if (drawHoldStepOutlines)
+			else if (isDrawSteps)
 			{
 				drawSteps.push_back({
 					end.tick + offsetTicks,
@@ -1702,7 +1703,7 @@ namespace MikuMikuWorld
 		std::string txt = IO::formatString("%.2fx", speed);
 		float dpiScale = ImGui::GetMainViewport()->DpiScale;
 		Vector2 pos{ getTimelineEndX() + (115 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
-		return eventControl(getTimelineEndX(), pos, speedColor, txt.c_str(), true);
+		return eventControl(getTimelineEndX(), pos, speedColor, txt.c_str(), !playing);
 	}
 
 	void ScoreEditorTimeline::eventEditor(ScoreContext& context)

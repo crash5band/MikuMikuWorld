@@ -22,6 +22,7 @@ namespace MikuMikuWorld
 		{"select_all", "Select All"},
 		{"view", "View"},
 		{"show_step_outlines", "Show Step Outlines"},
+		{"hide_step_outlines_in_playback", "Hide Step Outlines During Playback"},
 		{"draw_waveform", "Show Waveform"},
 		{"import_preset", "Import Preset"},
 		{"reload_presets", "Reload Presets"},
