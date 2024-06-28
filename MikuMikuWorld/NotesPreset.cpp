@@ -65,7 +65,7 @@ namespace MikuMikuWorld
 			description = data["description"];
 
 		if (!data.contains("notes") && !data.contains("holds"))
-			return Result(ResultStatus::Warning, "The preset \"" + filename + "\" does not contain any notes data. Skipping...");
+			return Result(ResultStatus::Error, "The preset \"" + filename + "\" does not contain any notes data. Skipping...");
 
 		if (data.contains("holds"))
 		{
