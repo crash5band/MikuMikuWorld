@@ -147,6 +147,12 @@
     <ClCompile Include="IO.cpp">
       <Filter>IO</Filter>
     </ClCompile>
+    <ClCompile Include="AggregateNotesFilter.cpp">
+      <Filter>ScoreEditor\NotesFilters</Filter>
+    </ClCompile>
+    <ClCompile Include="NotesFilter.cpp">
+      <Filter>ScoreEditor\NotesFilters</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -329,6 +335,12 @@
     <ClInclude Include="Audio\Waveform.h">
       <Filter>Audio</Filter>
     </ClInclude>
+    <ClInclude Include="AggregateNotesFilter.h">
+      <Filter>ScoreEditor\NotesFilters</Filter>
+    </ClInclude>
+    <ClInclude Include="NotesFilter.h">
+      <Filter>ScoreEditor\NotesFilters</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">
@@ -384,6 +396,9 @@
     </Filter>
     <Filter Include="ScoreEditor">
       <UniqueIdentifier>{9b7e5692-fc35-4f4c-9b06-172b56eed59d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ScoreEditor\NotesFilters">
+      <UniqueIdentifier>{1c89fb75-1c6f-4c10-96c6-af5f2809f225}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
