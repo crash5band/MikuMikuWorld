@@ -715,22 +715,52 @@ namespace MikuMikuWorld
 		shader->use();
 		shader->setMatrix4("projection", camera.getOffCenterOrthographicProjection(0, size.x, position.y, position.y + size.y));
 
-		glEnable(GL_FRAMEBUFFER_SRGB);
 		framebuffer->bind();
 		framebuffer->clear();
+
+		std::vector<HoldNote> updateHolds;
+		std::vector<int> updateNoteIDs;
+		int startTick = positionToTick(visualOffset - size.y);
+		int endTick = positionToTick(visualOffset);
+		std::for_each(context.score.notes.begin(), context.score.notes.end(), [&](const std::pair<int, Note>& pair)
+		{
+			const Note& note = pair.second;
+			if (note.getType() == NoteType::HoldEnd)
+			{
+				const Note& start = context.score.notes.at(note.parentID);
+				if (start.tick <= endTick && note.tick >= startTick)
+					updateHolds.push_back(context.score.holdNotes.at(start.ID));
+			}
+			else if (note.getType() == NoteType::Tap && note.tick <= endTick && note.tick >= startTick)
+			{
+				updateNoteIDs.push_back(note.ID);
+			}
+		});
+
+		std::sort(updateHolds.begin(), updateHolds.end(), [&context](const HoldNote& a, const HoldNote& b)
+		{
+			return context.score.notes.at(a.start.ID).tick < context.score.notes.at(b.start.ID).tick;
+		});
+
+		std::sort(updateNoteIDs.begin(), updateNoteIDs.end(), [&context](int a, int b)
+		{
+			return context.score.notes.at(a).tick > context.score.notes.at(b).tick;
+		});
+
+		renderer->beginBatch();
+		for (const auto& hold : updateHolds)
+		{
+			drawHoldCurve(hold, context.score.notes, renderer, noteTint);
+		}
+		renderer->endBatch();
+		ImGui::GetWindowDrawList()->AddImage((void*)framebuffer->getTexture(), position, position + size);
+
+		framebuffer1->bind();
+		framebuffer1->clear();
 		renderer->beginBatch();
 
 		minNoteYDistance = INT_MAX;
-		for (auto& [id, note] : context.score.notes)
-		{
-			if (isNoteVisible(note) && note.getType() == NoteType::Tap)
-			{
-				updateNote(context, edit, note);
-				drawNote(note, renderer, noteTint);
-			}
-		}
-
-		for (auto& [id, hold] : context.score.holdNotes)
+		for (auto& hold : updateHolds)
 		{
 			Note& start = context.score.notes.at(hold.start.ID);
 			Note& end = context.score.notes.at(hold.end);
@@ -747,10 +777,20 @@ namespace MikuMikuWorld
 
 			drawHoldNote(context.score.notes, hold, renderer, noteTint);
 		}
-		skipUpdateAfterSortingSteps = false;
+
+		for (const auto& data : drawSteps)
+			drawOutline(data);
+
+		drawSteps.clear();
+
+		for (auto id : updateNoteIDs)
+		{
+			Note& note = context.score.notes.at(id);
+			updateNote(context, edit, note);
+			drawNote(note, renderer, noteTint);
+		}
 
 		renderer->endBatch();
-		renderer->beginBatch();
 
 		const bool pasting = context.pasteData.pasting;
 		if (pasting && mouseInTimeline && !playing)
@@ -770,6 +810,7 @@ namespace MikuMikuWorld
 		if (mouseInTimeline && !isHoldingNote && currentMode != TimelineMode::Select &&
 			!pasting && !playing && !UI::isAnyPopupOpen())
 		{
+			renderer->beginBatch();
 			previewInput(edit, renderer);
 			if (ImGui::IsMouseClicked(0) && hoverTick >= 0 && !isHoveringNote)
 				executeInput(context, edit);
@@ -779,36 +820,62 @@ namespace MikuMikuWorld
 				insertHold(context, edit);
 				insertingHold = false;
 			}
+
+			renderer->endBatch();
 		}
 		else
 		{
 			insertingHold = false;
 		}
 
-		renderer->endBatch();
+		ImGui::GetWindowDrawList()->AddImage((void*)framebuffer1->getTexture(), position, position + size);
 
-		glDisable(GL_FRAMEBUFFER_SRGB);
-		glDisable(GL_DEPTH_TEST);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		drawList->AddImage((void*)framebuffer->getTexture(), position, position + size);
-
-		// draw hold step outlines
-		for (const auto& data : drawSteps)
-			drawOutline(data);
-
-		drawSteps.clear();
+		glDisable(GL_DEPTH_TEST);
 	}
 
 	void ScoreEditorTimeline::previewPaste(ScoreContext& context, Renderer* renderer)
 	{
+		std::vector<HoldNote> updateHolds;
+		int startTick = positionToTick(visualOffset - size.y);
+		int endTick = positionToTick(visualOffset);
+		std::for_each(context.pasteData.holds.begin(), context.pasteData.holds.end(), [&](const std::pair<int, HoldNote>& pair)
+			{
+				const HoldNote& hold = pair.second;
+				const Note& start = context.pasteData.notes.at(hold.start.ID);
+				const Note& end = context.pasteData.notes.at(hold.end);
+
+				if (start.tick <= endTick && end.tick >= startTick)
+					updateHolds.push_back(hold);
+			});
+
+		std::sort(updateHolds.begin(), updateHolds.end(), [&context](const HoldNote& a, const HoldNote& b)
+			{
+				return context.pasteData.notes.at(a.start.ID).tick < context.pasteData.notes.at(b.start.ID).tick;
+			});
+
+		renderer->beginBatch();
+		for (const auto& hold : updateHolds)
+		{
+			drawHoldCurve(hold, context.pasteData.notes, renderer, hoverTint, context.pasteData.offsetTicks, context.pasteData.offsetLane);
+		}
+		renderer->endBatch();
+
+		for (const auto& step : drawSteps)
+			drawOutline(step);
+
+		drawSteps.clear();
+
+		renderer->beginBatch();
+		for (const auto& hold : updateHolds)
+			drawHoldNote(context.pasteData.notes, hold, renderer, hoverTint, context.pasteData.offsetTicks, context.pasteData.offsetLane);
+
 		for (const auto& [_, note] : context.pasteData.notes)
+		{
 			if (note.getType() == NoteType::Tap && isNoteVisible(note, hoverTick))
 				drawNote(note, renderer, hoverTint, context.pasteData.offsetTicks, context.pasteData.offsetLane);
-
-		for (const auto& [_, hold] : context.pasteData.holds)
-			drawHoldNote(context.pasteData.notes, hold, renderer, hoverTint, context.pasteData.offsetTicks, context.pasteData.offsetLane);
+		}
+		renderer->endBatch();
 	}
 
 	void ScoreEditorTimeline::updateInputNotes(EditArgs& edit)
@@ -888,7 +955,7 @@ namespace MikuMikuWorld
 		case TimelineMode::InsertLong:
 			if (insertingHold)
 			{
-				drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, edit.easeType, false, renderer, hoverTint);
+				drawHoldCurvePart(inputNotes.holdStart, inputNotes.holdEnd, edit.easeType, false, renderer, hoverTint);
 				drawNote(inputNotes.holdStart, renderer, hoverTint);
 				drawNote(inputNotes.holdEnd, renderer, hoverTint);
 			}
@@ -906,7 +973,7 @@ namespace MikuMikuWorld
 		case TimelineMode::InsertGuide:
 			if (insertingHold)
 			{
-				drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, edit.easeType, true, renderer, hoverTint);
+				drawHoldCurvePart(inputNotes.holdStart, inputNotes.holdEnd, edit.easeType, true, renderer, hoverTint);
 				drawOutline(StepDrawData(inputNotes.holdStart, StepDrawType::InvisibleHold));
 				drawOutline(StepDrawData(inputNotes.holdEnd, StepDrawType::InvisibleHold));
 			}
@@ -1291,7 +1358,37 @@ namespace MikuMikuWorld
 		ImGui::PopID();
 	}
 
-	void ScoreEditorTimeline::drawHoldCurve(const Note& n1, const Note& n2, EaseType ease, bool isGuide, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
+	void ScoreEditorTimeline::drawHoldCurve(const HoldNote& hold, const std::unordered_map<int, Note>& notes, Renderer* renderer, const Color& tint, const int offsetTicks, const int offsetLane)
+	{
+		const Note& start = notes.at(hold.start.ID);
+		const Note& end = notes.at(hold.end);
+		if (hold.steps.empty())
+		{
+			drawHoldCurvePart(start, end, hold.start.ease, hold.isGuide(), renderer, tint, offsetTicks, offsetLane);
+			return;
+		}
+
+		int s1{ -1 }, s2{ -1 };
+		for (int i = 0; i < hold.steps.size(); ++i)
+		{
+			if (hold.steps[i].type == HoldStepType::Skip)
+				continue;
+
+			s2 = i;
+			const Note& n1 = s1 == -1 ? start : notes.at(hold.steps[s1].ID);
+			const Note& n2 = s2 == -1 ? end : notes.at(hold.steps[s2].ID);
+			const EaseType ease = s1 == -1 ? hold.start.ease : hold.steps[s1].ease;
+			drawHoldCurvePart(n1, n2, ease, hold.isGuide(), renderer, tint, offsetTicks, offsetLane);
+
+			s1 = s2;
+		}
+
+		const Note& n1 = s1 == -1 ? start : notes.at(hold.steps[s1].ID);
+		const EaseType ease = s1 == -1 ? hold.start.ease : hold.steps[s1].ease;
+		drawHoldCurvePart(n1, end, ease, hold.isGuide(), renderer, tint, offsetTicks, offsetLane);
+	}
+
+	void ScoreEditorTimeline::drawHoldCurvePart(const Note& n1, const Note& n2, EaseType ease, bool isGuide, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
 	{
 		int texIndex{ noteTextures.holdPath };
 		ZIndex zIndex{ ZIndex::HoldLine };
@@ -1371,7 +1468,7 @@ namespace MikuMikuWorld
 	{
 		if (insertingHold)
 		{
-			drawHoldCurve(inputNotes.holdStart, inputNotes.holdEnd, EaseType::Linear, false, renderer, noteTint);
+			drawHoldCurvePart(inputNotes.holdStart, inputNotes.holdEnd, EaseType::Linear, false, renderer, noteTint);
 			drawNote(inputNotes.holdStart, renderer, noteTint);
 			drawNote(inputNotes.holdEnd, renderer, noteTint);
 		}
@@ -1390,33 +1487,13 @@ namespace MikuMikuWorld
 
 		if (note.steps.size())
 		{
-			static constexpr auto isSkipStep = [](const HoldStep& step) { return step.type == HoldStepType::Skip; };
 			int s1 = -1;
-			int s2 = -1;
-
-			for (int i = 0; i < note.steps.size(); ++i)
-			{
-				if (isSkipStep(note.steps[i]))
-					continue;
-
-				s2 = i;
-				const Note& n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
-				const Note& n2 = s2 == -1 ? end : notes.at(note.steps[s2].ID);
-				const EaseType ease = s1 == -1 ? note.start.ease : note.steps[s1].ease;
-				drawHoldCurve(n1, n2, ease, note.isGuide(), renderer, tint, offsetTicks, offsetLane);
-
-				s1 = s2;
-			}
-
-			const Note& n1 = s1 == -1 ? start : notes.at(note.steps[s1].ID);
-			const EaseType ease = s1 == -1 ? note.start.ease : note.steps[s1].ease;
-			drawHoldCurve(n1, end, ease, note.isGuide(), renderer, tint, offsetTicks, offsetLane);
-
-			s1 = -1;
-			s2 = 1;
+			int s2 = 1;
 
 			if (noteTextures.notes == -1)
 				return;
+
+			static constexpr auto isSkipStep = [](const HoldStep& step) { return step.type == HoldStepType::Skip; };
 
 			const Texture& tex = ResourceManager::textures[noteTextures.notes];
 			const Vector2 nodeSz{ notesHeight - 5, notesHeight - 5 };
@@ -1436,7 +1513,7 @@ namespace MikuMikuWorld
 								n3.tick + offsetTicks,
 								n3.lane + offsetLane,
 								n3.width,
-								note.steps[i].type == HoldStepType::Skip ? StepDrawType::SkipStep : StepDrawType::NormalStep
+								isSkipStep(note.steps[i]) ? StepDrawType::SkipStep : StepDrawType::NormalStep
 							});
 
 					if (note.steps[i].type != HoldStepType::Hidden)
@@ -1476,43 +1553,33 @@ namespace MikuMikuWorld
 					s1 = i;
 			}
 		}
-		else
+
+		if (note.startType == HoldNoteType::Normal)
 		{
-			drawHoldCurve(start, end, note.start.ease, note.isGuide(), renderer, tint, offsetTicks, offsetLane);
+			drawNote(start, renderer, tint, offsetTicks, offsetLane);
+		}
+		else if (isDrawSteps)
+		{
+			drawSteps.push_back({
+				start.tick + offsetTicks,
+				start.lane + offsetLane,
+				start.width,
+				start.critical ? StepDrawType::InvisibleHoldCritical : StepDrawType::InvisibleHold
+			});
 		}
 
-		if (isNoteVisible(start, offsetTicks))
+		if (note.endType == HoldNoteType::Normal)
 		{
-			if (note.startType == HoldNoteType::Normal)
-			{
-				drawNote(start, renderer, tint, offsetTicks, offsetLane);
-			}
-			else if (isDrawSteps)
-			{
-				drawSteps.push_back({
-					start.tick + offsetTicks,
-					start.lane + offsetLane,
-					start.width,
-					start.critical ? StepDrawType::InvisibleHoldCritical : StepDrawType::InvisibleHold
-				});
-			}
+			drawNote(end, renderer, tint, offsetTicks, offsetLane);
 		}
-
-		if (isNoteVisible(end, offsetTicks))
+		else if (isDrawSteps)
 		{
-			if (note.endType == HoldNoteType::Normal)
-			{
-				drawNote(end, renderer, tint, offsetTicks, offsetLane);
-			}
-			else if (isDrawSteps)
-			{
-				drawSteps.push_back({
-					end.tick + offsetTicks,
-					end.lane + offsetLane,
-					end.width,
-					start.critical ? StepDrawType::InvisibleHoldCritical : StepDrawType::InvisibleHold
-				});
-			}
+			drawSteps.push_back({
+				end.tick + offsetTicks,
+				end.lane + offsetLane,
+				end.width,
+				start.critical ? StepDrawType::InvisibleHoldCritical : StepDrawType::InvisibleHold
+			});
 		}
 	}
 
@@ -1987,6 +2054,7 @@ namespace MikuMikuWorld
 	ScoreEditorTimeline::ScoreEditorTimeline()
 	{
 		framebuffer = std::make_unique<Framebuffer>(1920, 1080);
+		framebuffer1 = std::make_unique<Framebuffer>(1920, 1080);
 		playbackSpeed = 1.0f;
 
 		background.load(config.backgroundImage.empty() ? (Application::getAppDir() + "res\\textures\\default.png") : config.backgroundImage);
