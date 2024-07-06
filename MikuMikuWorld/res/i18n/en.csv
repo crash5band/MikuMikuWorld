@@ -104,7 +104,7 @@ damage,Damage
 bpm,BPM
 time_signature,Time Signature
 none,None
-default,Follow Cursor
+default,Default
 left,Left
 right,Right
 normal,Normal
