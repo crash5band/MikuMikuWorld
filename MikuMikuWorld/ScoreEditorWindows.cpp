@@ -146,7 +146,7 @@ namespace MikuMikuWorld
 
 				double beat = note.tick / static_cast<float>(TICKS_PER_BEAT);
 				UI::addDoubleProperty(getString("beat"), beat, "%.3f");
-				note.tick = std::floor(beat * TICKS_PER_BEAT);
+				note.tick = std::round(beat * TICKS_PER_BEAT);
 
 				if (config.showTickInProperties)
 				{
