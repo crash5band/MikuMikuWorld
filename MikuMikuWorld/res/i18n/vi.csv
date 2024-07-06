@@ -197,7 +197,6 @@ note_properties_hi_speed,Thông tin hi-speed
 note_properties_hold_note,Thông tin Hold Notes
 note_properties_guide,Thông tin Guide
 note_properties_not_selected,Không có note hoặc hi-speed nào được chọn
-note_properties_many_selected,Nhiều note hoặc hi-speed được chọn
 
 # preset manager
 presets,Presets

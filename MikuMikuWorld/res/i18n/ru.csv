@@ -206,7 +206,6 @@ note_properties_hi_speed, Характеристики Hi-Speed
 note_properties_hold_note, Характеристики холд ноты
 note_properties_guide, Характеристики гайд ноты
 note_properties_not_selected, Никаких нот или Hi-Speed не было выбрано
-note_properties_many_selected, Много нот или Hi-Speed было выбрано
 
 # preset manager / менеджер пресетов
 presets, Пресеты

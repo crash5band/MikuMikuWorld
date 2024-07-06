@@ -124,82 +124,153 @@ namespace MikuMikuWorld
 			ImGui::Text("%s", getString("note_properties_not_selected"));
 			return;
 		}
-		else if (numSelected > 1)
-		{
-			ImGui::Text("%s", getString("note_properties_many_selected"));
-			return;
-		}
 
 		Score prev = context.score;
 		bool edited = false;
 
-		if (context.selectedNotes.size() == 1)
+		auto selectedTick =
+		    context.selectedNotes.size() >= 1
+		        ? context.score.notes.at(*context.selectedNotes.begin()).tick
+		        : context.score.hiSpeedChanges.at(*context.selectedHiSpeedChanges.begin()).tick;
+		auto selectedLayer =
+		    context.selectedNotes.size() >= 1
+		        ? context.score.notes.at(*context.selectedNotes.begin()).layer
+		        : context.score.hiSpeedChanges.at(*context.selectedHiSpeedChanges.begin()).layer;
+
+		if (ImGui::CollapsingHeader(IO::concat(ICON_FA_COG, getString("general"), " ").c_str(),
+		                            ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			UI::beginPropertyColumns();
+
+			double beat = selectedTick / static_cast<float>(TICKS_PER_BEAT);
+			if (UI::addDoubleProperty(getString("beat"), beat, "%.3f"))
+			{
+				auto newTick = std::floor(beat * TICKS_PER_BEAT);
+				for (auto& id : context.selectedNotes)
+				{
+					context.score.notes.at(id).tick = newTick;
+				}
+				for (auto& id : context.selectedHiSpeedChanges)
+				{
+					context.score.hiSpeedChanges.at(id).tick = newTick;
+				}
+				edited = true;
+			}
+
+			if (config.showTickInProperties)
+			{
+				if (UI::addIntProperty(getString("tick"), selectedTick))
+				{
+					for (auto& id : context.selectedNotes)
+					{
+						context.score.notes.at(id).tick = selectedTick;
+					}
+					for (auto& id : context.selectedHiSpeedChanges)
+					{
+						context.score.hiSpeedChanges.at(id).tick = selectedTick;
+					}
+					edited = true;
+				}
+			}
+
+			UI::propertyLabel(getString("layer"));
+			const std::string layer_name = context.score.layers[selectedLayer].name;
+			if (ImGui::BeginCombo(IO::concat("##", getString("layer")).c_str(), layer_name.c_str()))
+			{
+				for (int i = 0; i < context.score.layers.size(); i++)
+				{
+					auto& layer = context.score.layers[i];
+					bool selected = selectedLayer == i;
+					if (ImGui::Selectable(layer.name.c_str(), selected))
+					{
+						for (auto& id : context.selectedNotes)
+						{
+							context.score.notes.at(id).layer = i;
+						}
+						for (auto& id : context.selectedHiSpeedChanges)
+						{
+							context.score.hiSpeedChanges.at(id).layer = i;
+						}
+						edited = true;
+					}
+				}
+				ImGui::EndCombo();
+			}
+
+			UI::endPropertyColumns();
+		}
+
+		if (context.selectedNotes.size() >= 1)
 		{
 			bool isGuide = false;
 
-			Note& note = context.score.notes.at(*context.selectedNotes.begin());
-			if (ImGui::CollapsingHeader(IO::concat(ICON_FA_COG, getString("general"), " ").c_str(),
-			                            ImGuiTreeNodeFlags_DefaultOpen))
+			bool multipleHold = false;
+			int holdIndex = -1;
+			for (int id : context.selectedNotes)
 			{
-				UI::beginPropertyColumns();
-
-				double beat = note.tick / static_cast<float>(TICKS_PER_BEAT);
-				if (UI::addDoubleProperty(getString("beat"), beat, "%.3f"))
+				const Note& n = context.score.notes.at(id);
+				if (n.isHold())
 				{
-					note.tick = std::floor(beat * TICKS_PER_BEAT);
-					edited = true;
-				}
-
-				if (config.showTickInProperties)
-				{
-					edited |= UI::addIntProperty(getString("tick"), note.tick);
-				}
-
-				UI::propertyLabel(getString("layer"));
-				const std::string layer_name = context.score.layers[note.layer].name;
-				if (ImGui::BeginCombo(IO::concat("##", getString("layer")).c_str(),
-				                      layer_name.c_str()))
-				{
-					for (int i = 0; i < context.score.layers.size(); i++)
+					auto prevHoldIndex = holdIndex;
+					if (n.getType() == NoteType::Hold)
 					{
-						auto& layer = context.score.layers[i];
-						bool selected = note.layer == i;
-						if (ImGui::Selectable(layer.name.c_str(), selected))
-						{
-							note.layer = i;
-							edited = true;
-						}
+						holdIndex = id;
 					}
-					ImGui::EndCombo();
+					else
+					{
+						holdIndex = n.parentID;
+					}
+					if (prevHoldIndex != -1 && prevHoldIndex != holdIndex)
+					{
+						multipleHold = true;
+						break;
+					}
 				}
-
-				UI::endPropertyColumns();
 			}
+
+			Note& note = context.score.notes.at(*context.selectedNotes.begin());
 			if (ImGui::CollapsingHeader(
 			        IO::concat(ICON_FA_COG, getString("note_properties_note"), " ").c_str(),
 			        ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				UI::beginPropertyColumns();
 
-				edited |= UI::addFloatProperty(getString("lane"), note.lane, "%.2f");
-
-				edited |= UI::addFloatProperty(getString("width"), note.width, "%.2f");
-
-				if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldMid ||
-				    note.getType() == NoteType::HoldEnd)
+				if (UI::addFloatProperty(getString("lane"), note.lane, "%.2f"))
 				{
-					int holdIndex;
-					if (note.getType() == NoteType::Hold)
+					for (auto& id : context.selectedNotes)
 					{
-						holdIndex = *context.selectedNotes.begin();
+						context.score.notes.at(id).lane = note.lane;
 					}
-					else
-					{
-						holdIndex = note.parentID;
-					}
+					edited = true;
+				}
 
-					auto& holdStart = context.score.holdNotes.at(holdIndex);
-					auto& hold = context.score.holdNotes.at(holdStart.start.ID);
+				if (UI::addFloatProperty(getString("width"), note.width, "%.2f"))
+				{
+					for (auto& id : context.selectedNotes)
+					{
+						auto& localNote = context.score.notes.at(id);
+						if (note.isHold())
+						{
+							auto& hold = context.score.holdNotes.at(note.parentID);
+							if (hold.isGuide())
+							{
+								localNote.width = std::max(0.0f, note.width);
+								continue;
+							}
+						}
+
+						localNote.width = std::max(0.5f, note.width);
+					}
+					edited = true;
+				}
+			}
+
+			if (context.hasHoldInSelection())
+			{
+				if (!multipleHold)
+				{
+					auto& hold = context.score.holdNotes.at(holdIndex);
+					auto& holdStart = context.score.notes.at(hold.start.ID);
 
 					isGuide = hold.isGuide();
 					if (note.width == 0 && !isGuide)
@@ -214,192 +285,215 @@ namespace MikuMikuWorld
 						}
 					}
 
-					if ((note.getType() == NoteType::HoldEnd || note.getType() == NoteType::Hold) &&
-					    !isGuide)
+					if (!isGuide)
 					{
-						edited |= UI::addCheckboxProperty(getString("trace"), note.friction);
-						edited |= UI::addCheckboxProperty(getString("critical"), note.critical);
+						if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd)
+						{
+							if (UI::addCheckboxProperty(getString("trace"), note.friction))
+							{
+								for (auto& id : context.selectedNotes)
+								{
+									auto& n = context.score.notes.at(id);
+									if (n.canTrace())
+									{
+										n.friction = note.friction;
+									}
+								}
+								edited = true;
+							}
+						}
+						if (UI::addCheckboxProperty(getString("critical"), note.critical))
+						{
+							context.score.notes.at(hold.start.ID).critical = note.critical;
+							for (auto& step : hold.steps)
+							{
+								context.score.notes.at(step.ID).critical = note.critical;
+							}
+							context.score.notes.at(hold.end).critical = note.critical;
+							for (auto& id : context.selectedNotes)
+							{
+								context.score.notes.at(id).critical = note.critical;
+							}
+							edited = true;
+						}
 					}
 
 					if (note.getType() == NoteType::HoldEnd && !isGuide)
 					{
-						edited |= UI::addFlickSelectPropertyWithNone(
-						    getString("flick"), note.flick, flickTypes, arrayLength(flickTypes));
+						if (UI::addFlickSelectPropertyWithNone(getString("flick"), note.flick,
+						                                       flickTypes, arrayLength(flickTypes)))
+						{
+							context.score.notes.at(hold.start.ID).flick = note.flick;
+							for (auto& id : context.selectedNotes)
+							{
+								auto& n = context.score.notes.at(id);
+								if (!n.isHold())
+								{
+									n.flick = note.flick;
+								}
+							}
+						}
 					}
 				}
-				else
+			}
+			else
+			{
+				if (UI::addCheckboxProperty(getString("trace"), note.friction))
 				{
-					edited |= UI::addCheckboxProperty(getString("trace"), note.friction);
-					edited |= UI::addCheckboxProperty(getString("critical"), note.critical);
-					edited |= UI::addFlickSelectPropertyWithNone(
-					    getString("flick"), note.flick, flickTypes, arrayLength(flickTypes));
+					for (auto& id : context.selectedNotes)
+					{
+						auto& n = context.score.notes.at(id);
+						if (n.canTrace())
+						{
+							n.friction = note.friction;
+						}
+					}
+					edited = true;
+				}
+				if (UI::addCheckboxProperty(getString("critical"), note.critical))
+				{
+					for (auto& id : context.selectedNotes)
+					{
+						context.score.notes.at(id).critical = note.critical;
+					}
+					edited = true;
+				}
+				if (UI::addFlickSelectPropertyWithNone(getString("flick"), note.flick, flickTypes,
+				                                       arrayLength(flickTypes)))
+				{
+					for (auto& id : context.selectedNotes)
+					{
+						context.score.notes.at(id).flick = note.flick;
+					}
+					edited = true;
+				}
+			}
+
+			UI::endPropertyColumns();
+			if (context.hasHoldInSelection())
+			{
+				if (ImGui::CollapsingHeader(IO::concat(ICON_FA_COG,
+				                                       isGuide
+				                                           ? getString("note_properties_guide")
+				                                           : getString("note_properties_hold_note"),
+				                                       " ")
+				                                .c_str(),
+				                            ImGuiTreeNodeFlags_DefaultOpen))
+				{
+
+					if (multipleHold)
+					{
+						ImGui::Text("%s", getString("note_properties_many_hold_notes"));
+					}
+					else
+					{
+						auto& hold = context.score.holdNotes.at(holdIndex);
+						auto& holdStart = context.score.notes.at(hold.start.ID);
+
+						int stepIndex = findHoldStep(hold, note.ID);
+
+						UI::beginPropertyColumns();
+
+						bool hasEaseable = false;
+						bool hasStepType = false;
+						for (auto id : context.selectedNotes)
+						{
+							if (context.score.notes.at(id).hasEase())
+							{
+								hasEaseable = true;
+							}
+							if (context.score.notes.at(id).getType() == NoteType::HoldMid)
+							{
+								hasStepType = true;
+							}
+						}
+
+						if (hasEaseable)
+						{
+							auto ease = note.getType() == NoteType::Hold
+							                ? hold.start.ease
+							                : hold.steps.at(stepIndex == -1 ? 0 : stepIndex).ease;
+							if (UI::addSelectProperty(getString("ease_type"), ease, easeTypes,
+							                          arrayLength(easeTypes)))
+							{
+								for (auto id : context.selectedNotes)
+								{
+									auto& note = context.score.notes.at(id);
+									if (note.hasEase())
+									{
+										if (note.getType() == NoteType::Hold)
+										{
+											hold.start.ease = ease;
+										}
+										else
+										{
+											auto& step = hold.steps.at(findHoldStep(hold, note.ID));
+											step.ease = ease;
+										}
+									}
+								}
+							}
+						}
+
+						if (hasStepType)
+						{
+							auto stepType = hold.steps.at(stepIndex == -1 ? 0 : stepIndex).type;
+
+							if (UI::addSelectProperty(getString("step_type"), stepType, stepTypes,
+							                          arrayLength(stepTypes)))
+							{
+								for (auto id : context.selectedNotes)
+								{
+									auto& note = context.score.notes.at(id);
+									if (note.getType() == NoteType::HoldMid)
+									{
+										auto& step = hold.steps.at(findHoldStep(hold, note.ID));
+										step.type = stepType;
+									}
+								}
+							}
+						}
+
+						if (isGuide)
+						{
+							edited |= UI::addSelectProperty(getString("guide_color"),
+							                                hold.guideColor, guideColorsForString,
+							                                arrayLength(guideColors));
+							edited |= UI::addSelectProperty(getString("fade_type"), hold.fadeType,
+							                                fadeTypes, arrayLength(fadeTypes));
+						}
+						else
+						{
+							auto holdType =
+							    note.getType() == NoteType::Hold ? hold.startType : hold.endType;
+							if (UI::addSelectProperty(getString("hold_type"), holdType, holdTypes,
+							                          2))
+							{
+								for (auto id : context.selectedNotes)
+								{
+									auto& note = context.score.notes.at(id);
+									if (note.getType() == NoteType::Hold)
+									{
+										hold.startType = holdType;
+									}
+									else
+									{
+										hold.endType = holdType;
+									}
+								}
+								edited = true;
+							}
+						}
+					}
 				}
 
 				UI::endPropertyColumns();
 			}
-
-			if ((note.getType() == NoteType::Hold || note.getType() == NoteType::HoldMid ||
-			     note.getType() == NoteType::HoldEnd) &&
-			    !isGuide)
-			{
-				if (ImGui::CollapsingHeader(
-				        IO::concat(ICON_FA_COG, getString("note_properties_hold_note"), " ")
-				            .c_str(),
-				        ImGuiTreeNodeFlags_DefaultOpen))
-				{
-					int holdIndex;
-					if (note.getType() == NoteType::Hold)
-					{
-						holdIndex = *context.selectedNotes.begin();
-					}
-					else
-					{
-						holdIndex = note.parentID;
-					}
-
-					auto& holdStart = context.score.holdNotes.at(holdIndex);
-					auto& hold = context.score.holdNotes.at(holdStart.start.ID);
-					HoldNote prev_hold = context.score.holdNotes.at(holdStart.start.ID);
-
-					int stepIndex = findHoldStep(hold, note.ID);
-
-					UI::beginPropertyColumns();
-
-					if (note.getType() != NoteType::HoldEnd)
-					{
-						if (stepIndex == -1)
-						{
-							HoldStep& step = hold.start;
-							HoldStep prev_step = hold.start;
-							edited |= UI::addSelectProperty(getString("ease_type"), step.ease,
-							                                easeTypes, arrayLength(easeTypes));
-							if (!hold.isGuide())
-							{
-								edited |= UI::addSelectProperty(getString("hold_type"),
-								                                hold.startType, holdTypes, 2);
-							}
-
-							edited = edited || (step.ease != prev_step.ease);
-							edited = edited || (hold.startType != prev_hold.startType);
-						}
-						else
-						{
-							HoldStep& step = hold.steps.at(stepIndex);
-							HoldStep prev_step = hold.steps.at(stepIndex);
-							edited |= UI::addSelectProperty(getString("ease_type"), step.ease,
-							                                easeTypes, arrayLength(easeTypes));
-
-							edited |= UI::addSelectProperty(getString("step_type"), step.type,
-							                                stepTypes, arrayLength(stepTypes));
-
-							edited = edited || (step.ease != prev_step.ease);
-							edited = edited || (step.type != prev_step.type);
-						}
-					}
-					else
-					{
-						edited |= UI::addSelectProperty(getString("hold_type"), hold.endType,
-						                                holdTypes, 2);
-						edited = edited || (hold.endType != prev_hold.endType);
-					}
-
-					UI::endPropertyColumns();
-				}
-			}
-
-			if ((note.getType() == NoteType::Hold || note.getType() == NoteType::HoldMid ||
-			     note.getType() == NoteType::HoldEnd) &&
-			    isGuide)
-			{
-				if (ImGui::CollapsingHeader(
-				        IO::concat(ICON_FA_COG, getString("note_properties_guide"), " ").c_str(),
-				        ImGuiTreeNodeFlags_DefaultOpen))
-				{
-					int holdIndex;
-					if (note.getType() == NoteType::Hold)
-					{
-						holdIndex = *context.selectedNotes.begin();
-					}
-					else
-					{
-						holdIndex = note.parentID;
-					}
-
-					auto& holdStart = context.score.holdNotes.at(holdIndex);
-					auto& hold = context.score.holdNotes.at(holdStart.start.ID);
-					HoldNote prev_hold = context.score.holdNotes.at(holdStart.start.ID);
-
-					int stepIndex = findHoldStep(hold, note.ID);
-
-					UI::beginPropertyColumns();
-
-					if (note.getType() != NoteType::HoldEnd)
-					{
-						if (stepIndex == -1)
-						{
-							HoldStep& step = hold.start;
-							edited |= UI::addSelectProperty(getString("ease_type"), step.ease,
-							                                easeTypes, arrayLength(easeTypes));
-						}
-						else
-						{
-							HoldStep& step = hold.steps.at(stepIndex);
-							edited |= UI::addSelectProperty(getString("ease_type"), step.ease,
-							                                easeTypes, arrayLength(easeTypes));
-						}
-					}
-
-					if (note.getType() != NoteType::HoldMid)
-					{
-						edited |= UI::addSelectProperty(getString("fade_type"), hold.fadeType,
-						                                fadeTypes, arrayLength(fadeTypes));
-						edited |=
-						    UI::addSelectProperty(getString("guide_color"), hold.guideColor,
-						                          guideColorsForString, arrayLength(guideColors));
-					}
-				}
-			}
 		}
-		else
+		if (context.selectedHiSpeedChanges.size() >= 1)
 		{
 			HiSpeedChange& hiSpeed =
 			    context.score.hiSpeedChanges.at(*context.selectedHiSpeedChanges.begin());
-			if (ImGui::CollapsingHeader(IO::concat(ICON_FA_COG, getString("general"), " ").c_str(),
-			                            ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				UI::beginPropertyColumns();
-
-				double beat = hiSpeed.tick / static_cast<float>(TICKS_PER_BEAT);
-				if (UI::addDoubleProperty(getString("beat"), beat, "%.3f"))
-				{
-					hiSpeed.tick = std::floor(beat * TICKS_PER_BEAT);
-					edited = true;
-				}
-				if (config.showTickInProperties)
-				{
-					edited |= UI::addIntProperty(getString("tick"), hiSpeed.tick);
-				}
-
-				UI::propertyLabel(getString("layer"));
-				const std::string layer_name = context.score.layers[hiSpeed.layer].name;
-				if (ImGui::BeginCombo(IO::concat("##", getString("layer")).c_str(),
-				                      layer_name.c_str()))
-				{
-					for (int i = 0; i < context.score.layers.size(); i++)
-					{
-						auto& layer = context.score.layers[i];
-						bool selected = hiSpeed.layer == i;
-						if (ImGui::Selectable(layer.name.c_str(), selected))
-						{
-							hiSpeed.layer = i;
-							edited = true;
-						}
-					}
-					ImGui::EndCombo();
-				}
-
-				UI::endPropertyColumns();
-			}
 			if (ImGui::CollapsingHeader(
 			        IO::concat(ICON_FA_FAST_FORWARD, getString("note_properties_hi_speed"), " ")
 			            .c_str(),
@@ -1710,5 +1804,4 @@ namespace MikuMikuWorld
 
 		ImGui::End();
 	}
-
 }

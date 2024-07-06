@@ -14,7 +14,7 @@ In addition to the original features of MikuMikuWorld, the following features ar
 - Note Properties panel
 - Support for decimal note lane and width
 
-## Translations
+## Translations:
 If you want to contribute a translation, please see [the guide](./TRANSLATION.md).
 - Español (Spanish) by @mi.honesta.reaccion
 - Русский (Russian) by @\_notfallen\_

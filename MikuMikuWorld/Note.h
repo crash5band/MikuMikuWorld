@@ -75,10 +75,15 @@ namespace MikuMikuWorld
 		Note();
 
 		constexpr NoteType getType() const { return type; }
+		constexpr bool isHold() const
+		{
+			return type == NoteType::Hold || type == NoteType::HoldMid || type == NoteType::HoldEnd;
+		}
 
 		bool isFlick() const;
 		bool hasEase() const;
 		bool canFlick() const;
+		bool canTrace() const;
 	};
 
 	struct HoldStep

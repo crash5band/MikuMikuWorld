@@ -35,6 +35,10 @@ namespace MikuMikuWorld
 	bool Note::hasEase() const { return type == NoteType::Hold || type == NoteType::HoldMid; }
 
 	bool Note::canFlick() const { return type == NoteType::Tap || type == NoteType::HoldEnd; }
+	bool Note::canTrace() const
+	{
+		return type == NoteType::Hold || type == NoteType::HoldEnd || type == NoteType::Tap;
+	}
 
 	void resetNextID() { nextID = 1; }
 

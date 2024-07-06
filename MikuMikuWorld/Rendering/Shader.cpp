@@ -37,16 +37,16 @@ namespace MikuMikuWorld
 			vertexFile.open(wSource + L".vert");
 			fragmentFile.open(wSource + L".frag");
 
-			std::stringstream vertexStream, fragmnetStream;
+			std::stringstream vertexStream, fragmentStream;
 
 			vertexStream << vertexFile.rdbuf();
-			fragmnetStream << fragmentFile.rdbuf();
+			fragmentStream << fragmentFile.rdbuf();
 
 			vertexFile.close();
 			fragmentFile.close();
 
 			vertexCode = vertexStream.str();
-			fragmentCode = fragmnetStream.str();
+			fragmentCode = fragmentStream.str();
 		}
 		catch (std::ifstream::failure e)
 		{
