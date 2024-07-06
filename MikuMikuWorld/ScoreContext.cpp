@@ -772,16 +772,8 @@ namespace MikuMikuWorld
 
 	void ScoreContext::duplicateSelection(bool flip)
 	{
-		const char* clipboardDataPtr = ImGui::GetClipboardText();
-		if (clipboardDataPtr == nullptr)
-			return;
-
-		std::string clipboardData(clipboardDataPtr);
-
 		copySelection();
 		paste(flip);
-
-		ImGui::SetClipboardText(clipboardData.c_str());
 	}
 
 	void ScoreContext::shrinkSelection(Direction direction)
