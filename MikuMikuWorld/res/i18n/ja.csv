@@ -2,6 +2,7 @@
 # key, value
 
 language_name, 日本語
+translator, 名無し｡（@sevenc_nanashi@voskey.icalo.net）
 # menu bar
 file, ファイル
 new, 新規
@@ -198,6 +199,7 @@ note_properties_hold_note, スライド
 note_properties_guide, ガイド
 note_properties_not_selected, ノーツ、またはハイスピードを選択してください。
 note_properties_many_selected, 複数のノーツまたはハイスピードが選択されています。
+translated_by, 翻訳：%s
 
 # preset manager
 presets, プリセット

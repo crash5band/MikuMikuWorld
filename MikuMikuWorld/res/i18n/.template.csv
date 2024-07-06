@@ -2,6 +2,7 @@
 # key, value
 
 language_name, 
+translator, 
 
 # menu bar,
 file, 
@@ -199,6 +200,7 @@ note_properties_hold_note,
 note_properties_guide,
 note_properties_not_selected,
 note_properties_many_selected,
+translated_by,
 
 # preset manager,
 presets,

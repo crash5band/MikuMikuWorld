@@ -144,8 +144,8 @@ namespace MikuMikuWorld
 			{
 				UI::beginPropertyColumns();
 
-				float beat = note.tick / static_cast<float>(TICKS_PER_BEAT);
-				UI::addFloatProperty(getString("beat"), beat, "%.3f");
+				double beat = note.tick / static_cast<float>(TICKS_PER_BEAT);
+				UI::addDoubleProperty(getString("beat"), beat, "%.3f");
 				note.tick = std::floor(beat * TICKS_PER_BEAT);
 
 				if (config.showTickInProperties)
@@ -381,8 +381,8 @@ namespace MikuMikuWorld
 			{
 				UI::beginPropertyColumns();
 
-				float beat = hiSpeed.tick / static_cast<float>(TICKS_PER_BEAT);
-				UI::addFloatProperty(getString("beat"), beat, "%.3f");
+				double beat = hiSpeed.tick / static_cast<float>(TICKS_PER_BEAT);
+				UI::addDoubleProperty(getString("beat"), beat, "%.3f");
 				hiSpeed.tick = std::floor(beat * TICKS_PER_BEAT);
 				if (config.showTickInProperties)
 				{
@@ -793,6 +793,9 @@ namespace MikuMikuWorld
 			float okButtonHeight = ImGui::GetFrameHeight();
 
 			ImGui::Text("Version %s", Application::getAppVersion().c_str());
+
+			ImGui::Text(getString("translated_by"), getString("translator"));
+
 			ImGui::SetCursorPos(
 			    { ImGui::GetStyle().WindowPadding.x,
 			      ImGui::GetWindowSize().y - okButtonHeight - ImGui::GetStyle().WindowPadding.y });

@@ -246,8 +246,8 @@ namespace MikuMikuWorld
 			std::string editName = "";
 		} eventEdit{};
 
-		int snapTickFromPos(float posY) const;
-		int positionToTick(float pos) const;
+		int snapTickFromPos(double posY) const;
+		int positionToTick(double pos) const;
 		float tickToPosition(int tick) const;
 		float getNoteYPosFromTick(int tick) const;
 

@@ -78,6 +78,7 @@ namespace MikuMikuWorld
 		static void addIntProperty(const char* label, int& val, const char* format,
 		                           int lowerBound = 0, int higherBound = 0);
 		static void addFloatProperty(const char* label, float& val, const char* format);
+		static void addDoubleProperty(const char* label, double& val, const char* format);
 		static void addStringProperty(const char* label, std::string& val);
 		static void addSliderProperty(const char* label, int& val, int min, int max,
 		                              const char* format);

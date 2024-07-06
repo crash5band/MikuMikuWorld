@@ -46,7 +46,7 @@ namespace MikuMikuWorld
 		return position.y + tickToPosition(tick) - visualOffset + size.y;
 	}
 
-	int ScoreEditorTimeline::positionToTick(float pos) const
+	int ScoreEditorTimeline::positionToTick(double pos) const
 	{
 		return roundf(pos / (unitHeight * zoom));
 	}
@@ -81,7 +81,7 @@ namespace MikuMikuWorld
 		visualOffset = offset = std::max(offset + x1 - x2, minOffset);
 	}
 
-	int ScoreEditorTimeline::snapTickFromPos(float posY) const
+	int ScoreEditorTimeline::snapTickFromPos(double posY) const
 	{
 		return snapTick(positionToTick(posY), division);
 	}

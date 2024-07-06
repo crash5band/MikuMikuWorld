@@ -153,6 +153,14 @@ namespace MikuMikuWorld
 		ImGui::NextColumn();
 	}
 
+	void UI::addDoubleProperty(const char* label, double& val, const char* format)
+	{
+		propertyLabel(label);
+
+		ImGui::InputDouble(labelID(label), &val, 1.0, 10.0, format);
+		ImGui::NextColumn();
+	}
+
 	void UI::addDragFloatProperty(const char* label, float& val, const char* format)
 	{
 		propertyLabel(label);
