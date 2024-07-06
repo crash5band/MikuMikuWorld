@@ -94,6 +94,9 @@ namespace MikuMikuWorld
 
 			updateAvailableDialog.latestVersion = tagName.substr(1);
 
+			std::cout << "Current version: " << Application::getAppVersion() << std::endl;
+			std::cout << "Latest version: " << tagName << std::endl;
+
 			for (int i = 0; i < currentVersion.size(); i++)
 			{
 				auto currentVersionPart = std::stoi(currentVersion[i]);

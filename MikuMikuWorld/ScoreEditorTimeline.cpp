@@ -1631,13 +1631,15 @@ namespace MikuMikuWorld
 							                 context.score.notes.at(b).tick;
 						          });
 
-						int firstTick = context.score.notes.at(*sortedSelectedNotes.begin()).tick;
-						int firstTickSnapped = roundTickDown(firstTick + tickDiff, division);
+						int grabbingNoteTick = note.tick;
+						int grabbingNoteTickSnapped =
+						    roundTickDown(grabbingNoteTick + tickDiff, division);
+						int actualDiff = grabbingNoteTickSnapped - grabbingNoteTick;
 
 						for (int id : sortedSelectedNotes)
 						{
 							Note& n = context.score.notes.at(id);
-							n.tick = std::max(firstTickSnapped + (n.tick - firstTick), 0);
+							n.tick = std::max(n.tick + actualDiff, 0);
 						}
 					}
 				}

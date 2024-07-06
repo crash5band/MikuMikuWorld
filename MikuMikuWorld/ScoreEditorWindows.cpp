@@ -137,7 +137,6 @@ namespace MikuMikuWorld
 		{
 			bool isGuide = false;
 
-			Note prev_note = context.score.notes.at(*context.selectedNotes.begin());
 			Note& note = context.score.notes.at(*context.selectedNotes.begin());
 			if (ImGui::CollapsingHeader(IO::concat(ICON_FA_COG, getString("general"), " ").c_str(),
 			                            ImGuiTreeNodeFlags_DefaultOpen))
@@ -145,14 +144,16 @@ namespace MikuMikuWorld
 				UI::beginPropertyColumns();
 
 				double beat = note.tick / static_cast<float>(TICKS_PER_BEAT);
-				UI::addDoubleProperty(getString("beat"), beat, "%.3f");
-				note.tick = std::round(beat * TICKS_PER_BEAT);
+				if (UI::addDoubleProperty(getString("beat"), beat, "%.3f"))
+				{
+					note.tick = std::floor(beat * TICKS_PER_BEAT);
+					edited = true;
+				}
 
 				if (config.showTickInProperties)
 				{
-					UI::addIntProperty(getString("tick"), note.tick);
+					edited |= UI::addIntProperty(getString("tick"), note.tick);
 				}
-				edited = edited || (note.tick != prev_note.tick);
 
 				UI::propertyLabel(getString("layer"));
 				const std::string layer_name = context.score.layers[note.layer].name;
@@ -166,11 +167,11 @@ namespace MikuMikuWorld
 						if (ImGui::Selectable(layer.name.c_str(), selected))
 						{
 							note.layer = i;
+							edited = true;
 						}
 					}
 					ImGui::EndCombo();
 				}
-				edited = edited || (note.layer != prev_note.layer);
 
 				UI::endPropertyColumns();
 			}
@@ -180,11 +181,9 @@ namespace MikuMikuWorld
 			{
 				UI::beginPropertyColumns();
 
-				UI::addFloatProperty(getString("lane"), note.lane, "%.2f");
-				edited = edited || (note.lane != prev_note.lane);
+				edited |= UI::addFloatProperty(getString("lane"), note.lane, "%.2f");
 
-				float newWidth = note.width;
-				UI::addFloatProperty(getString("width"), newWidth, "%.2f");
+				edited |= UI::addFloatProperty(getString("width"), note.width, "%.2f");
 
 				if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldMid ||
 				    note.getType() == NoteType::HoldEnd)
@@ -205,7 +204,8 @@ namespace MikuMikuWorld
 					isGuide = hold.isGuide();
 					if (note.width == 0 && !isGuide)
 					{
-						if (note.getType() == NoteType::Hold) {
+						if (note.getType() == NoteType::Hold)
+						{
 							hold.startType = HoldNoteType::Hidden;
 						}
 						else if (note.getType() == NoteType::HoldEnd)
@@ -213,38 +213,34 @@ namespace MikuMikuWorld
 							hold.endType = HoldNoteType::Hidden;
 						}
 					}
-					newWidth = abs(newWidth);
 
 					if ((note.getType() == NoteType::HoldEnd || note.getType() == NoteType::Hold) &&
 					    !isGuide)
 					{
-						UI::addCheckboxProperty(getString("trace"), note.friction);
-						UI::addCheckboxProperty(getString("critical"), note.critical);
+						edited |= UI::addCheckboxProperty(getString("trace"), note.friction);
+						edited |= UI::addCheckboxProperty(getString("critical"), note.critical);
 					}
 
 					if (note.getType() == NoteType::HoldEnd && !isGuide)
-						UI::addFlickSelectPropertyWithNone(getString("flick"), note.flick,
-						                                   flickTypes, arrayLength(flickTypes));
+					{
+						edited |= UI::addFlickSelectPropertyWithNone(
+						    getString("flick"), note.flick, flickTypes, arrayLength(flickTypes));
+					}
 				}
 				else
 				{
-					newWidth = std::max(0.5f, newWidth);
-					UI::addCheckboxProperty(getString("trace"), note.friction);
-					UI::addCheckboxProperty(getString("critical"), note.critical);
-					UI::addFlickSelectPropertyWithNone(getString("flick"), note.flick, flickTypes,
-					                                   arrayLength(flickTypes));
+					edited |= UI::addCheckboxProperty(getString("trace"), note.friction);
+					edited |= UI::addCheckboxProperty(getString("critical"), note.critical);
+					edited |= UI::addFlickSelectPropertyWithNone(
+					    getString("flick"), note.flick, flickTypes, arrayLength(flickTypes));
 				}
-				note.width = newWidth;
 
-				edited = edited || (note.width != prev_note.width);
-				edited = edited || (note.friction != prev_note.friction);
-				edited = edited || (note.critical != prev_note.critical);
-				edited = edited || (note.flick != prev_note.flick);
 				UI::endPropertyColumns();
 			}
 
 			if ((note.getType() == NoteType::Hold || note.getType() == NoteType::HoldMid ||
-			    note.getType() == NoteType::HoldEnd) && !isGuide)
+			     note.getType() == NoteType::HoldEnd) &&
+			    !isGuide)
 			{
 				if (ImGui::CollapsingHeader(
 				        IO::concat(ICON_FA_COG, getString("note_properties_hold_note"), " ")
@@ -275,12 +271,12 @@ namespace MikuMikuWorld
 						{
 							HoldStep& step = hold.start;
 							HoldStep prev_step = hold.start;
-							UI::addSelectProperty(getString("ease_type"), step.ease, easeTypes,
-							                      arrayLength(easeTypes));
+							edited |= UI::addSelectProperty(getString("ease_type"), step.ease,
+							                                easeTypes, arrayLength(easeTypes));
 							if (!hold.isGuide())
 							{
-								UI::addSelectProperty(getString("hold_type"), hold.startType,
-								                      holdTypes, 2);
+								edited |= UI::addSelectProperty(getString("hold_type"),
+								                                hold.startType, holdTypes, 2);
 							}
 
 							edited = edited || (step.ease != prev_step.ease);
@@ -290,11 +286,11 @@ namespace MikuMikuWorld
 						{
 							HoldStep& step = hold.steps.at(stepIndex);
 							HoldStep prev_step = hold.steps.at(stepIndex);
-							UI::addSelectProperty(getString("ease_type"), step.ease, easeTypes,
-							                      arrayLength(easeTypes));
+							edited |= UI::addSelectProperty(getString("ease_type"), step.ease,
+							                                easeTypes, arrayLength(easeTypes));
 
-							UI::addSelectProperty(getString("step_type"), step.type, stepTypes,
-							                      arrayLength(stepTypes));
+							edited |= UI::addSelectProperty(getString("step_type"), step.type,
+							                                stepTypes, arrayLength(stepTypes));
 
 							edited = edited || (step.ease != prev_step.ease);
 							edited = edited || (step.type != prev_step.type);
@@ -302,7 +298,8 @@ namespace MikuMikuWorld
 					}
 					else
 					{
-						UI::addSelectProperty(getString("hold_type"), hold.endType, holdTypes, 2);
+						edited |= UI::addSelectProperty(getString("hold_type"), hold.endType,
+						                                holdTypes, 2);
 						edited = edited || (hold.endType != prev_hold.endType);
 					}
 
@@ -315,8 +312,7 @@ namespace MikuMikuWorld
 			    isGuide)
 			{
 				if (ImGui::CollapsingHeader(
-				        IO::concat(ICON_FA_COG, getString("note_properties_guide"), " ")
-				            .c_str(),
+				        IO::concat(ICON_FA_COG, getString("note_properties_guide"), " ").c_str(),
 				        ImGuiTreeNodeFlags_DefaultOpen))
 				{
 					int holdIndex;
@@ -342,39 +338,31 @@ namespace MikuMikuWorld
 						if (stepIndex == -1)
 						{
 							HoldStep& step = hold.start;
-							HoldStep prev_step = hold.start;
-							UI::addSelectProperty(getString("ease_type"), step.ease, easeTypes,
-							                      arrayLength(easeTypes));
-							edited = edited || (step.ease != prev_step.ease);
+							edited |= UI::addSelectProperty(getString("ease_type"), step.ease,
+							                                easeTypes, arrayLength(easeTypes));
 						}
 						else
 						{
 							HoldStep& step = hold.steps.at(stepIndex);
-							HoldStep prev_step = hold.steps.at(stepIndex);
-							UI::addSelectProperty(getString("ease_type"), step.ease, easeTypes,
-							                      arrayLength(easeTypes));
-							edited = edited || (step.ease != prev_step.ease);
+							edited |= UI::addSelectProperty(getString("ease_type"), step.ease,
+							                                easeTypes, arrayLength(easeTypes));
 						}
 					}
 
 					if (note.getType() != NoteType::HoldMid)
 					{
-						UI::addSelectProperty(getString("fade_type"), hold.fadeType, fadeTypes,
-						                      arrayLength(fadeTypes));
-						UI::addSelectProperty(getString("guide_color"), hold.guideColor,
-						                      guideColorsForString, arrayLength(guideColors));
-						edited = edited || (hold.fadeType != prev_hold.fadeType);
-						edited = edited || (hold.guideColor != prev_hold.guideColor);
+						edited |= UI::addSelectProperty(getString("fade_type"), hold.fadeType,
+						                                fadeTypes, arrayLength(fadeTypes));
+						edited |=
+						    UI::addSelectProperty(getString("guide_color"), hold.guideColor,
+						                          guideColorsForString, arrayLength(guideColors));
 					}
 				}
-			
 			}
 		}
 		else
 		{
 			HiSpeedChange& hiSpeed =
-			    context.score.hiSpeedChanges.at(*context.selectedHiSpeedChanges.begin());
-			HiSpeedChange prev_hiSpeed =
 			    context.score.hiSpeedChanges.at(*context.selectedHiSpeedChanges.begin());
 			if (ImGui::CollapsingHeader(IO::concat(ICON_FA_COG, getString("general"), " ").c_str(),
 			                            ImGuiTreeNodeFlags_DefaultOpen))
@@ -382,13 +370,15 @@ namespace MikuMikuWorld
 				UI::beginPropertyColumns();
 
 				double beat = hiSpeed.tick / static_cast<float>(TICKS_PER_BEAT);
-				UI::addDoubleProperty(getString("beat"), beat, "%.3f");
-				hiSpeed.tick = std::floor(beat * TICKS_PER_BEAT);
+				if (UI::addDoubleProperty(getString("beat"), beat, "%.3f"))
+				{
+					hiSpeed.tick = std::floor(beat * TICKS_PER_BEAT);
+					edited = true;
+				}
 				if (config.showTickInProperties)
 				{
-					UI::addIntProperty(getString("tick"), hiSpeed.tick);
+					edited |= UI::addIntProperty(getString("tick"), hiSpeed.tick);
 				}
-				edited = edited || (hiSpeed.tick != prev_hiSpeed.tick);
 
 				UI::propertyLabel(getString("layer"));
 				const std::string layer_name = context.score.layers[hiSpeed.layer].name;
@@ -402,11 +392,11 @@ namespace MikuMikuWorld
 						if (ImGui::Selectable(layer.name.c_str(), selected))
 						{
 							hiSpeed.layer = i;
+							edited = true;
 						}
 					}
 					ImGui::EndCombo();
 				}
-				edited = edited || (hiSpeed.layer != prev_hiSpeed.layer);
 
 				UI::endPropertyColumns();
 			}
@@ -417,8 +407,11 @@ namespace MikuMikuWorld
 			{
 				UI::beginPropertyColumns();
 
-				UI::addFloatProperty(getString("hi_speed"), hiSpeed.speed, "%.3f");
-				edited = edited || (hiSpeed.speed != prev_hiSpeed.speed);
+				if (UI::addFloatProperty(getString("hi_speed"), hiSpeed.speed, "%.3f"))
+				{
+					hiSpeed.speed = hiSpeed.speed;
+					edited = true;
+				}
 
 				UI::endPropertyColumns();
 			}

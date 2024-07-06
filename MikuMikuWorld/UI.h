@@ -73,12 +73,14 @@ namespace MikuMikuWorld
 		static void beginPropertyColumns();
 		static void endPropertyColumns();
 		static void propertyLabel(const char* label);
-		static void addIntProperty(const char* label, int& val, int lowerBound = 0,
+		static bool addIntProperty(const char* label, int& val, int lowerBound = 0,
 		                           int higherBound = 0);
-		static void addIntProperty(const char* label, int& val, const char* format,
+		static bool addIntProperty(const char* label, int& val, const char* format,
 		                           int lowerBound = 0, int higherBound = 0);
-		static void addFloatProperty(const char* label, float& val, const char* format);
-		static void addDoubleProperty(const char* label, double& val, const char* format);
+		static bool addFloatProperty(const char* label, float& val, const char* format,
+		                             float lowerBound = 0.0f, float higherBound = 0.0f);
+		static bool addDoubleProperty(const char* label, double& val, const char* format,
+		                              double lowerBound = 0.0, double higherBound = 0.0);
 		static void addStringProperty(const char* label, std::string& val);
 		static void addSliderProperty(const char* label, int& val, int min, int max,
 		                              const char* format);
@@ -87,7 +89,7 @@ namespace MikuMikuWorld
 		static void addDragFloatProperty(const char* label, float& val, const char* format);
 		static void addPercentSliderProperty(const char* label, float& val);
 		static bool addFractionProperty(const char* label, int& numerator, int& denominator);
-		static void addCheckboxProperty(const char* label, bool& val);
+		static bool addCheckboxProperty(const char* label, bool& val);
 		static int addFileProperty(const char* label, std::string& val);
 		static void addMultilineString(const char* label, std::string& val);
 		static void tooltip(const char* label);
@@ -131,13 +133,15 @@ namespace MikuMikuWorld
 		/// For use with sequential enums only
 		/// </summary>
 		template <typename T>
-		static void addSelectProperty(const char* label, T& value, const char* const* items,
+		static bool addSelectProperty(const char* label, T& value, const char* const* items,
 		                              int count)
 		{
 			propertyLabel(label);
 
 			std::string id("##");
 			id.append(label);
+
+			bool edited = false;
 
 			std::string curr = getString(items[(int)value]);
 			if (!curr.size())
@@ -152,24 +156,31 @@ namespace MikuMikuWorld
 						str = items[i];
 
 					if (ImGui::Selectable(str.c_str(), selected))
+					{
 						value = (T)i;
+						edited = true;
+					}
 				}
 
 				ImGui::EndCombo();
 			}
 
 			ImGui::NextColumn();
+
+			return edited;
 		}
 
 		// we need to get proper translated names for the colors
 		template <>
-		static void addSelectProperty<GuideColor>(const char* label, GuideColor& value,
+		static bool addSelectProperty<GuideColor>(const char* label, GuideColor& value,
 		                                          const char* const* items, int count)
 		{
 			propertyLabel(label);
 
 			std::string id("##");
 			id.append(label);
+
+			bool edited = false;
 
 			std::string curr = items[(int)value];
 			if (!curr.size())
@@ -185,24 +196,31 @@ namespace MikuMikuWorld
 						str = items[i];
 
 					if (ImGui::Selectable(str.c_str(), selected))
+					{
 						value = (GuideColor)i;
+						edited = true;
+					}
 				}
 
 				ImGui::EndCombo();
 			}
 
 			ImGui::NextColumn();
+
+			return edited;
 		}
 
 		// we don't want FlickType::None to appear in the selection
 		template <>
-		static void addSelectProperty<FlickType>(const char* label, FlickType& value,
+		static bool addSelectProperty<FlickType>(const char* label, FlickType& value,
 		                                         const char* const* items, int count)
 		{
 			propertyLabel(label);
 
 			std::string id("##");
 			id.append(label);
+
+			bool edited = false;
 
 			std::string curr = getString(items[(int)value]);
 			if (!curr.size())
@@ -217,22 +235,30 @@ namespace MikuMikuWorld
 						str = items[i];
 
 					if (ImGui::Selectable(str.c_str(), selected))
+					{
+
 						value = (FlickType)i;
+						edited = true;
+					}
 				}
 
 				ImGui::EndCombo();
 			}
 
 			ImGui::NextColumn();
+
+			return edited;
 		}
 
-		static void addFlickSelectPropertyWithNone(const char* label, FlickType& value,
+		static bool addFlickSelectPropertyWithNone(const char* label, FlickType& value,
 		                                           const char* const* items, int count)
 		{
 			propertyLabel(label);
 
 			std::string id("##");
 			id.append(label);
+
+			bool edited = false;
 
 			std::string curr = getString(items[(int)value]);
 			if (!curr.size())
@@ -247,13 +273,18 @@ namespace MikuMikuWorld
 						str = items[i];
 
 					if (ImGui::Selectable(str.c_str(), selected))
+					{
 						value = (FlickType)i;
+						edited = true;
+					}
 				}
 
 				ImGui::EndCombo();
 			}
 
 			ImGui::NextColumn();
+
+			return edited;
 		}
 	};
 }
