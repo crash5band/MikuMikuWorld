@@ -1,4 +1,5 @@
 #pragma once
+#include <chrono>
 #include <string>
 #include <vector>
 
@@ -9,10 +10,10 @@ namespace IO
 
 	class File
 	{
-	private:
+	  private:
 		FILE* stream;
 
-	public:
+	  public:
 		File(const std::wstring& filename, const wchar_t* mode);
 		File(const std::string& filename, const char* mode);
 		File();
@@ -27,6 +28,7 @@ namespace IO
 
 		void open(const std::wstring& filename, const wchar_t* mode);
 		void open(const std::string& filename, const char* mode);
+		std::chrono::time_point<std::chrono::system_clock> getLastWriteTime() const;
 		void close();
 		void flush();
 
@@ -67,10 +69,10 @@ namespace IO
 
 	class FileDialog
 	{
-	private:
+	  private:
 		FileDialogResult showFileDialog(DialogType type, DialogSelectType selectType);
 
-	public:
+	  public:
 		std::string title;
 		std::vector<FileDialogFilter> filters;
 		std::string inputFilename;

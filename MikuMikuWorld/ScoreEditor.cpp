@@ -68,50 +68,78 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::fetchUpdate()
 	{
-		httplib::Client client("https://api.github.com");
 
-		std::cout << "Fetching new update" << std::endl;
-		auto res = client.Get("/repos/sevenc-nanashi/MikuMikuWorld4cc/releases/latest");
-		if (!res)
+		std::string updateFlagPath = Application::getAppDir() + "latest_version.txt";
+		bool shouldFetchUpdate = true;
+		std::string latestVersionString;
+		if (IO::File::exists(updateFlagPath))
 		{
-			std::cout << "Failed to fetch latest update: client.Get failed" << std::endl;
-			return;
-		}
-		std::cout << "Status: " << res->status << std::endl;
-		if (res->status == 200)
-		{
-			auto parsed = nlohmann::json::parse(res->body);
-			std::string tagName = parsed["tag_name"];
-
-			auto currentVersion = Utilities::splitString(Application::getAppVersion(), '.');
-			auto latestVersion = Utilities::splitString(tagName.substr(1), // Remove "v"
-			                                            '.');
-
-			if (currentVersion.size() != latestVersion.size())
+			auto file = IO::File(updateFlagPath, "r");
+			auto lastWriteTime = file.getLastWriteTime();
+			auto now = std::chrono::system_clock::now();
+			auto diff =
+			    std::chrono::duration_cast<std::chrono::minutes>(now - lastWriteTime).count();
+			std::cout << "Last update check: " << diff << " minutes ago" << std::endl;
+			if (diff < 60)
 			{
-				std::cout << "Assertion failed: number of version part don't match" << std::endl;
+				std::ifstream file(updateFlagPath);
+				std::getline(file, latestVersionString);
+				file.close();
+				std::cout << "Loading cached latest version" << std::endl;
+				shouldFetchUpdate = false;
+			}
+		}
+		if (shouldFetchUpdate)
+		{
+
+			httplib::Client client("https://api.github.com");
+
+			std::cout << "Fetching new update" << std::endl;
+			auto res = client.Get("/repos/sevenc-nanashi/MikuMikuWorld4cc/releases/latest");
+			if (!res)
+			{
+				std::cout << "Failed to fetch latest update: client.Get failed" << std::endl;
+				return;
+			}
+			std::cout << "Status: " << res->status << std::endl;
+			if (res->status == 200)
+			{
+				auto parsed = nlohmann::json::parse(res->body);
+				std::string tagName = parsed["tag_name"];
+				latestVersionString = tagName.substr(1);
 			}
 
-			updateAvailableDialog.latestVersion = tagName.substr(1);
-
-			std::cout << "Current version: " << Application::getAppVersion() << std::endl;
-			std::cout << "Latest version: " << tagName << std::endl;
-
-			for (int i = 0; i < currentVersion.size(); i++)
-			{
-				auto currentVersionPart = std::stoi(currentVersion[i]);
-				auto latestVersionPart = std::stoi(latestVersion[i]);
-
-				if (latestVersionPart > currentVersionPart)
-				{
-					std::cout << "Update available" << std::endl;
-					updateAvailableDialog.open = true;
-					return;
-				}
-			}
-
-			std::cout << "No update" << std::endl;
+			auto file = IO::File(updateFlagPath, "w");
+			file.write(latestVersionString);
+			file.flush();
+			file.close();
 		}
+
+		auto currentVersion = Utilities::splitString(Application::getAppVersion(), '.');
+		auto latestVersion = Utilities::splitString(latestVersionString, '.');
+
+		if (currentVersion.size() != latestVersion.size())
+		{
+			std::cout << "Assertion failed: number of version part don't match" << std::endl;
+		}
+
+		std::cout << "Current version: " << Application::getAppVersion() << std::endl;
+		std::cout << "Latest version: " << latestVersionString << std::endl;
+
+		for (int i = 0; i < currentVersion.size(); i++)
+		{
+			auto currentVersionPart = std::stoi(currentVersion[i]);
+			auto latestVersionPart = std::stoi(latestVersion[i]);
+
+			if (latestVersionPart > currentVersionPart)
+			{
+				std::cout << "Update available" << std::endl;
+				updateAvailableDialog.open = true;
+				return;
+			}
+		}
+
+		std::cout << "No update" << std::endl;
 	}
 
 	void ScoreEditor::writeSettings()
