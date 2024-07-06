@@ -272,7 +272,8 @@ namespace MikuMikuWorld
 		}
 		ImGui::End();
 
-		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_WRENCH, "note_properties"), NULL, ImGuiWindowFlags_Static))
+		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_WRENCH, "note_properties"), NULL,
+		                 ImGuiWindowFlags_Static))
 		{
 			notePropertiesWindow.update(context);
 		}
@@ -655,22 +656,22 @@ namespace MikuMikuWorld
 
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("delete"), ToShortcutString(config.input.deleteSelection),
-			                    false, context.selectedNotes.size()))
+			                    false, context.hasSelection()))
 				context.deleteSelection();
 
 			if (ImGui::MenuItem(getString("cut"), ToShortcutString(config.input.cutSelection),
-			                    false, context.selectedNotes.size()))
+			                    false, context.hasSelection()))
 				context.cutSelection();
 
 			if (ImGui::MenuItem(getString("copy"), ToShortcutString(config.input.copySelection),
-			                    false, context.selectedNotes.size()))
+			                    false, context.hasSelection()))
 				context.copySelection();
 
 			if (ImGui::MenuItem(getString("paste"), ToShortcutString(config.input.paste)))
 				context.paste(false);
 
-			if (ImGui::MenuItem(getString("duplicate"), ToShortcutString(config.input.duplicate), 
-								false, context.selectedNotes.size()))
+			if (ImGui::MenuItem(getString("duplicate"), ToShortcutString(config.input.duplicate),
+			                    false, context.hasSelection()))
 				context.duplicateSelection(false);
 
 			ImGui::Separator();
@@ -817,7 +818,7 @@ namespace MikuMikuWorld
 
 		if (UI::toolbarButton(ICON_FA_CLONE, getString("duplicate"),
 		                      ToShortcutString(config.input.duplicate),
-							  context.selectedNotes.size() > 0))
+		                      context.selectedNotes.size() > 0))
 			context.duplicateSelection(false);
 
 		UI::toolbarSeparator();

@@ -87,6 +87,11 @@ namespace MikuMikuWorld
 		int selectedLayer = 0;
 		bool showAllLayers = false;
 
+		bool hasSelection() const
+		{
+			return selectedNotes.size() > 0 || selectedHiSpeedChanges.size() > 0;
+		}
+
 		std::unordered_set<int> getHoldsFromSelection()
 		{
 			std::unordered_set<int> holds;
