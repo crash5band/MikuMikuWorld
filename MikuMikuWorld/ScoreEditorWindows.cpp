@@ -249,9 +249,9 @@ namespace MikuMikuWorld
 					for (auto& id : context.selectedNotes)
 					{
 						auto& localNote = context.score.notes.at(id);
-						if (note.isHold())
+						if (localNote.isHold())
 						{
-							auto& hold = context.score.holdNotes.at(note.parentID);
+							auto& hold = context.score.holdNotes.at(localNote.parentID == -1 ? id : localNote.parentID);
 							if (hold.isGuide())
 							{
 								localNote.width = std::max(0.0f, note.width);
@@ -363,7 +363,11 @@ namespace MikuMikuWorld
 				{
 					for (auto& id : context.selectedNotes)
 					{
-						context.score.notes.at(id).flick = note.flick;
+						auto& n = context.score.notes.at(id);
+						if (n.canFlick())
+						{
+							n.flick = note.flick;
+						}
 					}
 					edited = true;
 				}
