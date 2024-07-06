@@ -472,7 +472,8 @@ namespace MikuMikuWorld
 			float yThreshold = (notesHeight * 0.5f) + 2.0f;
 			for (const auto& [id, note] : context.score.notes)
 			{
-				if (note.layer != context.selectedLayer && !context.showAllLayers)
+				const bool layerHidden = context.score.layers.at(note.layer).hidden;
+				if ((layerHidden || note.layer != context.selectedLayer) && !context.showAllLayers)
 					continue;
 				float x1 = laneToPosition(note.lane);
 				float x2 = laneToPosition(note.lane + note.width);
@@ -946,8 +947,10 @@ namespace MikuMikuWorld
 		minNoteYDistance = INT_MAX;
 		for (auto& [id, note] : context.score.notes)
 		{
-			if (!isNoteVisible(note))
+			const bool layerHidden = context.score.layers.at(note.layer).hidden;
+			if (!isNoteVisible(note) || (layerHidden && !context.showAllLayers))
 				continue;
+
 			if (note.getType() == NoteType::Tap)
 			{
 				updateNote(context, edit, note);
@@ -972,6 +975,11 @@ namespace MikuMikuWorld
 		{
 			Note& start = context.score.notes.at(hold.start.ID);
 			Note& end = context.score.notes.at(hold.end);
+
+			const bool startLayerHidden = context.score.layers.at(start.layer).hidden;
+			const bool endLayerHidden = context.score.layers.at(end.layer).hidden;
+			if ((startLayerHidden || endLayerHidden) && !context.showAllLayers)
+				continue;
 
 			if (isNoteVisible(start))
 				updateNote(context, edit, start);
@@ -1036,7 +1044,13 @@ namespace MikuMikuWorld
 
 		// draw hold step outlines
 		for (const auto& data : drawSteps)
+		{
+			const bool layerHidden = context.score.layers.at(data.layer).hidden;
+			if (layerHidden && !context.showAllLayers)
+				continue;
+
 			drawOutline(data, context.showAllLayers ? -1 : context.selectedLayer);
+		}
 
 		drawSteps.clear();
 	}

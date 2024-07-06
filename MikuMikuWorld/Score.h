@@ -26,6 +26,7 @@ namespace MikuMikuWorld
 	struct Layer
 	{
 		std::string name;
+		bool hidden = false;
 	};
 
 	struct Waypoint

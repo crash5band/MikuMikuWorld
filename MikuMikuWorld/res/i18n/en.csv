@@ -226,6 +226,8 @@ layer_up,Move Up
 layer_down,Move Down
 layer_merge,Merge Layer
 layer_delete,Delete Layer
+layer_hide,Hide Layer
+layer_show,Show Layer
 
 # waypoint manager
 waypoints,Waypoints

@@ -1421,6 +1421,7 @@ namespace MikuMikuWorld
 			int moveUpPattern = -1;
 			int moveDownPattern = -1;
 			int mergePattern = -1;
+			int toggleHideIndex = -1;
 
 			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
 			float layersButtonHeight = ImGui::GetFrameHeight();
@@ -1468,12 +1469,13 @@ namespace MikuMikuWorld
 						ImGui::PopStyleColor(2);
 
 					ImGui::SameLine();
-					if (UI::transparentButton(ICON_FA_EYE,
+
+					if (UI::transparentButton(layer.hidden ? ICON_FA_EYE_SLASH : ICON_FA_EYE,
 					                          ImVec2(UI::btnSmall.x, layersButtonHeight), false))
 					{
-						
+						toggleHideIndex = index;
 					}
-					UI::tooltip(getString("layer_hide"));
+					UI::tooltip(layer.hidden ? getString("layer_show") : getString("layer_hide"));
 
 					ImGui::SameLine();
 					if (UI::transparentButton(ICON_FA_PENCIL_ALT,
@@ -1584,6 +1586,14 @@ namespace MikuMikuWorld
 				if (context.selectedLayer > mergePattern)
 					context.selectedLayer -= 1;
 				context.pushHistory("Merge Layer", prev, context.score);
+			}
+
+			if (toggleHideIndex != -1)
+			{
+				Score prev = context.score;
+				auto& layer = context.score.layers.at(toggleHideIndex);
+				layer.hidden = !layer.hidden;
+				context.pushHistory("Toggle Hide Layer", prev, context.score);
 			}
 		}
 
