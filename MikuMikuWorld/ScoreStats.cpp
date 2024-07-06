@@ -77,20 +77,20 @@ namespace MikuMikuWorld
 
 			int startTick = score.notes.at(id).tick;
 			int endTick = score.notes.at(hold.end).tick;
-			int eigthTick = startTick;
+			int eighthTick = startTick;
 
-			eigthTick += halfBeat;
-			if (eigthTick % halfBeat)
-				eigthTick -= (eigthTick % halfBeat);
+			eighthTick += halfBeat;
+			if (eighthTick % halfBeat)
+				eighthTick -= (eighthTick % halfBeat);
 
 			// hold <= 1/8th long
-			if (eigthTick == startTick || eigthTick == endTick)
+			if (eighthTick == startTick || eighthTick == endTick)
 				continue;
 
 			if (endTick % halfBeat)
 				endTick += halfBeat - (endTick % halfBeat);
 
-			combo += (endTick - eigthTick) / halfBeat;
+			combo += (endTick - eighthTick) / halfBeat;
 		}
 	}
 }

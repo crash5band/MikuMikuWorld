@@ -392,7 +392,7 @@ namespace MikuMikuWorld
 		// signature
 		writer.writeString("CCMMWS");
 
-		// verison
+		// version
 		writer.writeInt16(4);
 		// cyanvas version
 		writer.writeInt16(6);

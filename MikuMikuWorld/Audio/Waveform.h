@@ -182,7 +182,7 @@ namespace Audio
 				newMip.samplesPerSecond = parentMip.samplesPerSecond / 2.0;
 			}
 
-			// Second loop to generate the acutal mip sample buffers
+			// Second loop to generate the actual mip sample buffers
 			for (size_t i = 1; i < maxMipLevels; i++)
 			{
 				const WaveformMip& parentMip = mips[i - 1];

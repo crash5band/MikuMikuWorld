@@ -1059,7 +1059,7 @@ namespace MikuMikuWorld
 
 		int patternHeight = patternEnd.tick - patternStart.tick;
 
-		int itterations = std::floor((holdEnd.tick - holdStart.tick) / patternHeight);
+		int iterations = std::floor((holdEnd.tick - holdStart.tick) / patternHeight);
 
 		int startPos = findHoldStep(hold, patternStart.ID);
 		int endPos = findHoldStep(hold, patternEnd.ID);
@@ -1081,12 +1081,12 @@ namespace MikuMikuWorld
 			Note& currentRep = score.notes.at(sortedSelection[j]);
 			int jPos = findHoldStep(hold, currentRep.ID);
 
-			for (int i = 1; i < itterations; i++)
+			for (int i = 1; i < iterations; i++)
 			{
 				float lane = std::clamp(currentRep.lane + i * (patternEnd.lane - patternStart.lane),
 				                      minLane, maxLane - currentRep.width);
 
-				if (j == sortedSelection.size() - 1 && i == itterations - 1)
+				if (j == sortedSelection.size() - 1 && i == iterations - 1)
 				{
 					holdEnd.tick = currentRep.tick + patternHeight * i;
 					holdEnd.lane = lane;

@@ -501,7 +501,7 @@ namespace MikuMikuWorld
 		{
 			IO::messageBox(
 			    APP_NAME,
-			    IO::formatString("An error occured while saving the score file\n%s", err.what()),
+			    IO::formatString("An error occurred while saving the score file\n%s", err.what()),
 			    IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 
 			return false;
@@ -558,7 +558,7 @@ namespace MikuMikuWorld
 			{
 				IO::messageBox(
 				    APP_NAME,
-				    IO::formatString("An error occured while exporting the score file\n%s",
+				    IO::formatString("An error occurred while exporting the score file\n%s",
 				                     err.what()),
 				    IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 			}
@@ -594,7 +594,7 @@ namespace MikuMikuWorld
 			{
 				IO::messageBox(
 				    APP_NAME,
-				    IO::formatString("An error occured while exporting the score file\n%s",
+				    IO::formatString("An error occurred while exporting the score file\n%s",
 				                     err.what()),
 				    IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 			}

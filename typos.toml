@@ -1,3 +1,6 @@
 [files]
 
-extend-exclude = ["Depends/**/*", "MikuMikuWorld/ImGui/**/*"]
+extend-exclude = ["Depends/**/*", "MikuMikuWorld/ImGui/**/*", "MikuMikuWorld/res/i18n/*"]
+
+[default.extend-words]
+inout = "inout"

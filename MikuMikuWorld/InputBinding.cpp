@@ -240,7 +240,7 @@ InputBinding FromSerializedString(std::string string)
 			std::string keyName{ infoKey.name };
 			if (std::equal(key.begin(), key.end(), keyName.begin(), keyName.end(), stringCompare))
 			{
-				// The key code is identical to the modifer key code
+				// The key code is identical to the modifier key code
 				modifiers |= infoKey.key;
 				break;
 			}
