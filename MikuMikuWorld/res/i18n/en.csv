@@ -160,6 +160,9 @@ division,%d Division
 division_affix,%d Division
 custom,Custom 
 custom_division,Custom Division
+snap_mode,Snapping
+snap_mode_relative,Relative Snap
+snap_mode_absolute,Absolute Snap
 zoom,Zoom
 show_step_outlines,Show Hold Mid Outlines
 draw_waveform,Show Waveform

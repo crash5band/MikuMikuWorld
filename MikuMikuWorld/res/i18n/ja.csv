@@ -158,6 +158,9 @@ division, %d分音符
 division_affix, %d分音符
 custom, カスタム：
 custom_division, カスタム分割
+snap_mode, スナップ
+snap_mode_relative, 相対スナップ
+snap_mode_absolute, 絶対スナップ
 zoom, ズーム
 show_step_outlines, 中継点に枠線を表示
 draw_waveform, 波形を表示

@@ -324,6 +324,42 @@ namespace MikuMikuWorld
 		return act;
 	}
 
+	bool UI::inlineSelect(const char* label, int& value, const char* const* items, size_t count)
+	{
+		const char* id = labelID(label);
+		ImGui::PushID(id);
+
+		std::string curr = getString(items[value]);
+		if (!curr.size())
+			curr = items[value];
+		if (ImGui::BeginCombo(id, curr.c_str()))
+		{
+			bool act = false;
+			for (int i = 0; i < count; ++i)
+			{
+				const bool selected = value == i;
+				std::string str = getString(items[i]);
+				if (!str.size())
+					str = items[i];
+
+				if (ImGui::Selectable(str.c_str(), selected))
+				{
+					value = i;
+					act = true;
+				}
+			}
+
+			ImGui::EndCombo();
+			ImGui::NextColumn();
+			ImGui::PopID();
+			return act;
+		}
+
+		ImGui::NextColumn();
+		ImGui::PopID();
+		return false;
+	}
+
 	bool UI::zoomControl(const char* label, float& value, float min, float max, float width)
 	{
 		ImGui::PushButtonRepeat(true);

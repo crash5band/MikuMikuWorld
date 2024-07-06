@@ -93,6 +93,8 @@ namespace MikuMikuWorld
 		static void tooltip(const char* label);
 		static const char* labelID(const char* label);
 		static bool divisionSelect(const char* label, int& value, const int* items, size_t count);
+		static bool inlineSelect(const char* label, int& value, const char* const* items,
+		                         size_t count);
 		static bool zoomControl(const char* label, float& value, float min, float max, float width);
 		static bool timeSignatureSelect(int& numerator, int& denominator);
 		static bool toolbarButton(const char* icon, const char* label, const char* shortcut,
@@ -162,7 +164,7 @@ namespace MikuMikuWorld
 		// we need to get proper translated names for the colors
 		template <>
 		static void addSelectProperty<GuideColor>(const char* label, GuideColor& value,
-		                                         const char* const* items, int count)
+		                                          const char* const* items, int count)
 		{
 			propertyLabel(label);
 
@@ -225,7 +227,7 @@ namespace MikuMikuWorld
 		}
 
 		static void addFlickSelectPropertyWithNone(const char* label, FlickType& value,
-		                                         const char* const* items, int count)
+		                                           const char* const* items, int count)
 		{
 			propertyLabel(label);
 

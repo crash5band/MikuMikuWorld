@@ -824,6 +824,15 @@ namespace MikuMikuWorld
 		UI::divisionSelect(getString("division"), division, divisions,
 		                   sizeof(divisions) / sizeof(int));
 
+		ImGui::SameLine();
+		int snapModeInt = (uint8_t)snapMode;
+		ImGui::SetNextItemWidth(125);
+		if (UI::inlineSelect(getString("snap_mode"), snapModeInt, snapModes,
+		                     (size_t)SnapMode::SnapModeMax))
+		{
+			snapMode = (SnapMode)snapModeInt;
+		}
+
 		static int gotoMeasure = 0;
 		bool activated = false;
 
@@ -1589,10 +1598,33 @@ namespace MikuMikuWorld
 
 				if (canMove)
 				{
-					for (int id : context.selectedNotes)
+					if (snapMode == SnapMode::Relative)
 					{
-						Note& n = context.score.notes.at(id);
-						n.tick = std::max(n.tick + tickDiff, 0);
+						for (int id : context.selectedNotes)
+						{
+							Note& n = context.score.notes.at(id);
+							n.tick = std::max(n.tick + tickDiff, 0);
+						}
+					}
+					else
+					{
+						std::vector<int> sortedSelectedNotes(context.selectedNotes.size());
+						std::copy(context.selectedNotes.begin(), context.selectedNotes.end(),
+						          sortedSelectedNotes.begin());
+						std::sort(sortedSelectedNotes.begin(), sortedSelectedNotes.end(),
+						          [&context](int a, int b) {
+							          return context.score.notes.at(a).tick <
+							                 context.score.notes.at(b).tick;
+						          });
+
+						int firstTick = context.score.notes.at(*sortedSelectedNotes.begin()).tick;
+						int firstTickSnapped = roundTickDown(firstTick + tickDiff, division);
+
+						for (int id : sortedSelectedNotes)
+						{
+							Note& n = context.score.notes.at(id);
+							n.tick = std::max(firstTickSnapped + (n.tick - firstTick), 0);
+						}
 					}
 				}
 			}
@@ -1664,7 +1696,8 @@ namespace MikuMikuWorld
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
-						n.width = std::clamp(n.width + diff, (float)MIN_NOTE_WIDTH, maxNoteWidth - n.lane);
+						n.width = std::clamp(n.width + diff, (float)MIN_NOTE_WIDTH,
+						                     maxNoteWidth - n.lane);
 					}
 				}
 			}
@@ -2015,8 +2048,8 @@ namespace MikuMikuWorld
 					drawType = start.critical ? StepDrawType::InvisibleHoldCritical
 					                          : StepDrawType::InvisibleHold;
 				}
-				drawSteps.push_back({ end.tick + offsetTicks, end.lane + (float)offsetLane, end.width,
-				                      drawType, end.layer });
+				drawSteps.push_back({ end.tick + offsetTicks, end.lane + (float)offsetLane,
+				                      end.width, drawType, end.layer });
 			}
 		}
 	}
