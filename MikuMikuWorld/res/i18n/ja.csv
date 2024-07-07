@@ -203,6 +203,7 @@ note_properties_guide, ガイド
 note_properties_not_selected, ノーツ、またはハイスピードを選択してください。
 note_properties_many_hold_notes, 複数のスライドが選択されています。
 translated_by, 翻訳：%s
+zoom_tooltip,Ctrl+クリックで値を編集
 
 # preset manager
 presets, プリセット
