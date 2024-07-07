@@ -1,5 +1,4 @@
 #include "Localization.h"
-#include "DefaultLanguage.h"
 #include "IO.h"
 #include "File.h"
 #include <filesystem>
@@ -28,8 +27,6 @@ namespace MikuMikuWorld
 		Localization::currentLanguage = it->second.get();
 		return true;
 	}
-
-	void Localization::loadDefault() { languages["en"] = std::make_unique<Language>("en", en); }
 
 	const char* getString(const std::string& key)
 	{
