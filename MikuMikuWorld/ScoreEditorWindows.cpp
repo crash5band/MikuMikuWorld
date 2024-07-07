@@ -128,14 +128,25 @@ namespace MikuMikuWorld
 		Score prev = context.score;
 		bool edited = false;
 
-		auto selectedTick =
-		    context.selectedNotes.size() >= 1
-		        ? context.score.notes.at(*context.selectedNotes.begin()).tick
-		        : context.score.hiSpeedChanges.at(*context.selectedHiSpeedChanges.begin()).tick;
-		auto selectedLayer =
-		    context.selectedNotes.size() >= 1
-		        ? context.score.notes.at(*context.selectedNotes.begin()).layer
-		        : context.score.hiSpeedChanges.at(*context.selectedHiSpeedChanges.begin()).layer;
+		int selectedTick;
+		int selectedLayer;
+		try
+		{
+			selectedTick =
+			    context.selectedNotes.size() >= 1
+			        ? context.score.notes.at(*context.selectedNotes.begin()).tick
+			        : context.score.hiSpeedChanges.at(*context.selectedHiSpeedChanges.begin()).tick;
+			selectedLayer =
+			    context.selectedNotes.size() >= 1
+			        ? context.score.notes.at(*context.selectedNotes.begin()).layer
+			        : context.score.hiSpeedChanges.at(*context.selectedHiSpeedChanges.begin())
+			              .layer;
+		}
+		catch (const std::out_of_range& e)
+		{
+			ImGui::Text("%s", getString("note_properties_not_selected"));
+			return;
+		}
 
 		if (ImGui::CollapsingHeader(IO::concat(ICON_FA_COG, getString("general"), " ").c_str(),
 		                            ImGuiTreeNodeFlags_DefaultOpen))
@@ -251,7 +262,8 @@ namespace MikuMikuWorld
 						auto& localNote = context.score.notes.at(id);
 						if (localNote.isHold())
 						{
-							auto& hold = context.score.holdNotes.at(localNote.parentID == -1 ? id : localNote.parentID);
+							auto& hold = context.score.holdNotes.at(
+							    localNote.parentID == -1 ? id : localNote.parentID);
 							if (hold.isGuide())
 							{
 								localNote.width = std::max(0.0f, note.width);
