@@ -16,27 +16,22 @@ namespace Audio
 {
 	constexpr size_t soundEffectsProfileCount = 2;
 
-	constexpr const char* soundEffectsProfileNames[]
-	{
-		"SE 01",
-		"SE 02"
-	};
+	constexpr const char* soundEffectsProfileNames[]{ "SE 01", "SE 02" };
 
 	enum SoundFlags : uint8_t
 	{
-		NONE		= 0,
-		LOOP		= 1 << 0,
-		EXTENDABLE	= 1 << 1
+		NONE = 0,
+		LOOP = 1 << 0,
+		EXTENDABLE = 1 << 1
 	};
 
 	DECLARE_ENUM_FLAG_OPERATORS(SoundFlags)
 
-	constexpr ma_uint32 maSoundFlagsDefault = MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION;
-	constexpr ma_uint32 maSoundFlagsDecodeAsync =
-		MA_SOUND_FLAG_NO_PITCH |
-		MA_SOUND_FLAG_NO_SPATIALIZATION |
-		MA_SOUND_FLAG_DECODE |
-		MA_SOUND_FLAG_ASYNC;
+	constexpr ma_uint32 maSoundFlagsDefault =
+	    MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION;
+	constexpr ma_uint32 maSoundFlagsDecodeAsync = MA_SOUND_FLAG_NO_PITCH |
+	                                              MA_SOUND_FLAG_NO_SPATIALIZATION |
+	                                              MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC;
 
 	struct SoundBuffer
 	{
@@ -50,16 +45,18 @@ namespace Audio
 
 		ma_uint32 effectiveSampleRate;
 
-		void initialize(const std::string &name, ma_uint32 sampleRate, ma_uint32 channelCount, ma_uint64 frameCount, int16_t* samples);
+		void initialize(const std::string& name, ma_uint32 sampleRate, ma_uint32 channelCount,
+		                ma_uint64 frameCount, int16_t* samples);
 		void dispose();
 
-		bool isValid() const { return samples.get() != nullptr && sampleRate > 0 && frameCount > 0; }
+		bool isValid() const
+		{
+			return samples.get() != nullptr && sampleRate > 0 && frameCount > 0;
+		}
 	};
 
-	constexpr std::array<std::string_view, 4> supportedFileFormats =
-	{
-		".mp3", ".wav", ".flac", ".ogg"
-	};
+	constexpr std::array<std::string_view, 4> supportedFileFormats = { ".mp3", ".wav", ".flac",
+		                                                               ".ogg" };
 
 	MikuMikuWorld::Result decodeAudioFile(std::string filename, SoundBuffer& sound);
 	bool isSupportedFileFormat(const std::string_view& fileExtension);
@@ -81,7 +78,7 @@ namespace Audio
 		inline void stop() { ma_sound_stop(&source); }
 		inline void seek(uint64_t frame) { ma_sound_seek_to_pcm_frame(&source, frame); }
 		inline bool isPlaying() const { return ma_sound_is_playing(&source); }
-		
+
 		uint64_t getCurrentFrame()
 		{
 			uint64_t frame{};
@@ -112,7 +109,9 @@ namespace Audio
 
 		void extendDuration(float currentTime, float newAbsoluteEnd, float timeScale)
 		{
-			const float engineTime = static_cast<float>(ma_engine_get_time_in_milliseconds(source.engineNode.pEngine)) / 1000.0f;
+			const float engineTime =
+			    static_cast<float>(ma_engine_get_time_in_milliseconds(source.engineNode.pEngine)) /
+			    1000.0f;
 			const float duration = newAbsoluteEnd - absoluteStart;
 			const float instanceTime = currentTime - absoluteStart;
 			const float newEndTime = ((duration - instanceTime) / timeScale) + engineTime;
@@ -125,11 +124,11 @@ namespace Audio
 
 	class SoundPool
 	{
-	public:
+	  public:
 		static constexpr int poolSize{ 24 };
 		std::array<SoundInstance, poolSize> pool;
 		SoundFlags flags{};
-	
+
 		ma_uint64 getDurationInFrames() const;
 		float getDurationInSeconds() const;
 
@@ -138,23 +137,26 @@ namespace Audio
 
 		void setVolume(float volume);
 		float getVolume() const;
-		
+
 		void extendInstanceDuration(SoundInstance& instance, float newEndTime);
 		void play(float start, float end);
 		void stopAll();
 
 		bool isPlaying(const SoundInstance& soundInstance) const;
 		bool isAnyPlaying() const;
-		
-		void initialize(const std::string& name, const std::string& path, ma_engine* engine, ma_sound_group* group, SoundFlags flags);
-		void initialize(const std::string& path, ma_engine* engine, ma_sound_group* group, SoundFlags flags);
-		void initialize(SoundBuffer& sound, ma_engine* engine, ma_sound_group* group, SoundFlags flags);
+
+		void initialize(const std::string& name, const std::string& path, ma_engine* engine,
+		                ma_sound_group* group, SoundFlags flags);
+		void initialize(const std::string& path, ma_engine* engine, ma_sound_group* group,
+		                SoundFlags flags);
+		void initialize(SoundBuffer& sound, ma_engine* engine, ma_sound_group* group,
+		                SoundFlags flags);
 		void dispose();
 
 		std::string getName() const { return name; }
 		int getCurrentIndex() const { return currentIndex; }
 
-	private:
+	  private:
 		float volume{ 1.0f };
 		int currentIndex{ 0 };
 

@@ -14,15 +14,9 @@ namespace MikuMikuWorld
 		compile(source);
 	}
 
-	Shader::~Shader()
-	{
-		glDeleteProgram(ID);
-	}
+	Shader::~Shader() { glDeleteProgram(ID); }
 
-	std::string Shader::getName() const
-	{
-		return name;
-	}
+	std::string Shader::getName() const { return name; }
 
 	void Shader::compile(const std::string& source)
 	{
@@ -116,10 +110,7 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void Shader::use()
-	{
-		glUseProgram(ID);
-	}
+	void Shader::use() { glUseProgram(ID); }
 
 	void Shader::setBool(const std::string& name, bool value)
 	{

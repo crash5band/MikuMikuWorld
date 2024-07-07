@@ -5,7 +5,7 @@ namespace MikuMikuWorld
 {
 	class VertexBuffer
 	{
-	private:
+	  private:
 		Vertex* buffer;
 		int* indices;
 		int indexCapacity;
@@ -16,7 +16,7 @@ namespace MikuMikuWorld
 		unsigned int vbo;
 		unsigned int ebo;
 
-	public:
+	  public:
 		VertexBuffer(int _capacity);
 		~VertexBuffer();
 

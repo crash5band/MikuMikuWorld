@@ -1084,7 +1084,7 @@ namespace MikuMikuWorld
 			for (int i = 1; i < iterations; i++)
 			{
 				float lane = std::clamp(currentRep.lane + i * (patternEnd.lane - patternStart.lane),
-				                      minLane, maxLane - currentRep.width);
+				                        minLane, maxLane - currentRep.width);
 
 				if (j == sortedSelection.size() - 1 && i == iterations - 1)
 				{

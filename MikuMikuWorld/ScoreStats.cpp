@@ -5,10 +5,7 @@
 
 namespace MikuMikuWorld
 {
-	ScoreStats::ScoreStats()
-	{
-		reset();
-	}
+	ScoreStats::ScoreStats() { reset(); }
 
 	void ScoreStats::reset()
 	{
@@ -16,35 +13,32 @@ namespace MikuMikuWorld
 		resetCombo();
 	}
 
-	void ScoreStats::resetCounts()
-	{
-		taps = flicks = holds = steps = traces = total = 0;
-	}
+	void ScoreStats::resetCounts() { taps = flicks = holds = steps = traces = total = 0; }
 
-	void ScoreStats::resetCombo()
-	{
-		combo = 0;
-	}
+	void ScoreStats::resetCombo() { combo = 0; }
 
 	void ScoreStats::calculateStats(const Score& score)
 	{
-		taps = std::count_if(score.notes.begin(), score.notes.end(), [](const auto& n)
-			{
-				const Note& note = n.second;
-				return note.getType() == NoteType::Tap && !note.isFlick() && !note.friction;
-			});
+		taps = std::count_if(score.notes.begin(), score.notes.end(),
+		                     [](const auto& n)
+		                     {
+			                     const Note& note = n.second;
+			                     return note.getType() == NoteType::Tap && !note.isFlick() &&
+			                            !note.friction;
+		                     });
 
 		holds = std::count_if(score.notes.begin(), score.notes.end(),
-			[](const auto& n) { return n.second.getType() == NoteType::Hold; });
+		                      [](const auto& n) { return n.second.getType() == NoteType::Hold; });
 
-		steps = std::count_if(score.notes.begin(), score.notes.end(),
-			[](const auto& n) { return n.second.getType() == NoteType::HoldMid; });
+		steps =
+		    std::count_if(score.notes.begin(), score.notes.end(),
+		                  [](const auto& n) { return n.second.getType() == NoteType::HoldMid; });
 
 		flicks = std::count_if(score.notes.begin(), score.notes.end(),
-			[](const auto& n) { return n.second.isFlick(); });
+		                       [](const auto& n) { return n.second.isFlick(); });
 
 		traces = std::count_if(score.notes.begin(), score.notes.end(),
-			[](const auto& n) { return n.second.friction; });
+		                       [](const auto& n) { return n.second.friction; });
 
 		total = score.notes.size();
 		calculateCombo(score);
@@ -73,7 +67,8 @@ namespace MikuMikuWorld
 				combo--;
 
 			combo -= std::count_if(hold.steps.begin(), hold.steps.end(),
-				[](const HoldStep& step) { return step.type == HoldStepType::Hidden; });
+			                       [](const HoldStep& step)
+			                       { return step.type == HoldStepType::Hidden; });
 
 			int startTick = score.notes.at(id).tick;
 			int endTick = score.notes.at(hold.end).tick;

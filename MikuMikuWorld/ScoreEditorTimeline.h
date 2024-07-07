@@ -149,7 +149,7 @@ namespace MikuMikuWorld
 		struct NoteTransform
 		{
 			int tick{};
-			
+
 			float lane{}, width{};
 
 			static NoteTransform fromNote(const Note& note)

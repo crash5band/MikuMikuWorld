@@ -32,10 +32,7 @@ namespace MikuMikuWorld
 			channels[i] = TickRange{ 0, 0 };
 	}
 
-	SusExporter::SusExporter() : ticksPerBeat{ 480 }
-	{
-
-	}
+	SusExporter::SusExporter() : ticksPerBeat{ 480 } {}
 
 	int SusExporter::getTicksFromMeasure(int measure)
 	{
@@ -57,7 +54,8 @@ namespace MikuMikuWorld
 		for (const auto& [barLength, barTicks] : barLengthTicks)
 		{
 			if (ticks >= barTicks)
-				return barLength.bar + ((float)(ticks - barTicks) / (float)ticksPerBeat / barLength.length);
+				return barLength.bar +
+				       ((float)(ticks - barTicks) / (float)ticksPerBeat / barLength.length);
 		}
 
 		// no time signatures
@@ -80,13 +78,15 @@ namespace MikuMikuWorld
 		}
 	};
 
-	void SusExporter::appendData(int tick, std::string info, std::string data, std::string hiSpeedGroup)
+	void SusExporter::appendData(int tick, std::string info, std::string data,
+	                             std::string hiSpeedGroup)
 	{
 		for (const auto& [barLength, barTicks] : barLengthTicks)
 		{
 			if (tick >= barTicks)
 			{
-				int currentMeasure = barLength.bar + ((float)(tick - barTicks) / (float)ticksPerBeat / barLength.length);
+				int currentMeasure = barLength.bar + ((float)(tick - barTicks) /
+				                                      (float)ticksPerBeat / barLength.length);
 				MeasureMap& measureMap = measuresMap[currentMeasure];
 				measureMap.measure = currentMeasure;
 
@@ -98,7 +98,8 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void SusExporter::appendNoteData(const SUSNote& note, const std::string infoPrefix, const std::string channel)
+	void SusExporter::appendNoteData(const SUSNote& note, const std::string infoPrefix,
+	                                 const std::string channel)
 	{
 		char buff1[10];
 		std::string info = infoPrefix + tostringBaseN(buff1, note.lane, 36);
@@ -106,7 +107,9 @@ namespace MikuMikuWorld
 			info.append(channel);
 
 		char buff2[10];
-		appendData(note.tick, info, std::to_string(note.type) + tostringBaseN(buff2, note.width, 36), note.hiSpeedGroup);
+		appendData(note.tick, info,
+		           std::to_string(note.type) + tostringBaseN(buff2, note.width, 36),
+		           note.hiSpeedGroup);
 	}
 
 	std::vector<std::string> SusExporter::getNoteLines(int baseMeasure)
@@ -131,72 +134,79 @@ namespace MikuMikuWorld
 				baseMeasure = base;
 			}
 
-      std::unordered_set<std::string> hiSpeedGroups;
-			for (const auto& [_, notes] : map.notesMap) {
-        for (const auto& note : notes.data) {
-          if (std::find(hiSpeedGroups.begin(), hiSpeedGroups.end(), note.hiSpeedGroup) == hiSpeedGroups.end())
-            hiSpeedGroups.insert(note.hiSpeedGroup);
-        }
-      }
-      for (const auto& hiSpeedGroup : hiSpeedGroups) {
-        if (hiSpeedGroup.size() > 0)
-          lines.push_back(formatString("#HISPEED %s", hiSpeedGroup.c_str()));
-        for (const auto& [info, notes] : map.notesMap)
-        {
-          conflicts.clear();
+			std::unordered_set<std::string> hiSpeedGroups;
+			for (const auto& [_, notes] : map.notesMap)
+			{
+				for (const auto& note : notes.data)
+				{
+					if (std::find(hiSpeedGroups.begin(), hiSpeedGroups.end(), note.hiSpeedGroup) ==
+					    hiSpeedGroups.end())
+						hiSpeedGroups.insert(note.hiSpeedGroup);
+				}
+			}
+			for (const auto& hiSpeedGroup : hiSpeedGroups)
+			{
+				if (hiSpeedGroup.size() > 0)
+					lines.push_back(formatString("#HISPEED %s", hiSpeedGroup.c_str()));
+				for (const auto& [info, notes] : map.notesMap)
+				{
+					conflicts.clear();
 
-          int gcd = notes.ticksPerMeasure;
-          for (const auto& raw : notes.data) {
-            if (raw.hiSpeedGroup != hiSpeedGroup)
-              continue;
-            gcd = std::gcd(raw.tick, gcd);
-          }
+					int gcd = notes.ticksPerMeasure;
+					for (const auto& raw : notes.data)
+					{
+						if (raw.hiSpeedGroup != hiSpeedGroup)
+							continue;
+						gcd = std::gcd(raw.tick, gcd);
+					}
 
-          // Number of notes including empty ones in a line
-          int dataCount = notes.ticksPerMeasure / gcd;
-          std::string data(dataCount * 2, '0');
-          for (const auto& raw : notes.data)
-          {
-            if (raw.hiSpeedGroup != hiSpeedGroup)
-              continue;
-            int index = (raw.tick % notes.ticksPerMeasure) / gcd * 2;
-            if (data.substr(index, 2) != "00")
-            {
-              conflicts.push_back(raw);
-            }
-            else
-            {
-              data[index + 0] = raw.data[0];
-              data[index + 1] = raw.data[1];
-            }
-          }
+					// Number of notes including empty ones in a line
+					int dataCount = notes.ticksPerMeasure / gcd;
+					std::string data(dataCount * 2, '0');
+					for (const auto& raw : notes.data)
+					{
+						if (raw.hiSpeedGroup != hiSpeedGroup)
+							continue;
+						int index = (raw.tick % notes.ticksPerMeasure) / gcd * 2;
+						if (data.substr(index, 2) != "00")
+						{
+							conflicts.push_back(raw);
+						}
+						else
+						{
+							data[index + 0] = raw.data[0];
+							data[index + 1] = raw.data[1];
+						}
+					}
 
-          lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) + data);
+					lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) +
+					                data);
 
-          while (conflicts.size())
-          {
-            temp.clear();
-            std::string data2(dataCount * 2, '0');
-            for (const auto& item : conflicts)
-            {
-              int index = (item.tick % notes.ticksPerMeasure) / gcd * 2;
-              if (data2.substr(index, 2) != "00")
-              {
-                temp.push_back(item);
-              }
-              else
-              {
-                data2[index + 0] = item.data[0];
-                data2[index + 1] = item.data[1];
-              }
-            }
+					while (conflicts.size())
+					{
+						temp.clear();
+						std::string data2(dataCount * 2, '0');
+						for (const auto& item : conflicts)
+						{
+							int index = (item.tick % notes.ticksPerMeasure) / gcd * 2;
+							if (data2.substr(index, 2) != "00")
+							{
+								temp.push_back(item);
+							}
+							else
+							{
+								data2[index + 0] = item.data[0];
+								data2[index + 1] = item.data[1];
+							}
+						}
 
-            lines.push_back(formatString("#%03d%s:", measure - baseMeasure, info.c_str()) + data2);
-            conflicts = temp;
-          }
-        }
-      }
-    }
+						lines.push_back(
+						    formatString("#%03d%s:", measure - baseMeasure, info.c_str()) + data2);
+						conflicts = temp;
+					}
+				}
+			}
+		}
 
 		return lines;
 	}
@@ -211,7 +221,7 @@ namespace MikuMikuWorld
 		}
 
 		// Write metadata
-		for (const auto&[attrKey, attrValue] : sus.metadata.data)
+		for (const auto& [attrKey, attrValue] : sus.metadata.data)
 		{
 			std::string key = attrKey;
 			std::transform(key.begin(), key.end(), key.begin(), ::toupper);
@@ -221,34 +231,34 @@ namespace MikuMikuWorld
 
 		lines.push_back(IO::formatString("#WAVEOFFSET %g", sus.metadata.waveOffset));
 		lines.push_back("");
-    for (const auto& request : sus.metadata.requests)
-      lines.push_back(IO::formatString("#REQUEST \"%s\"", request.c_str()));
+		for (const auto& request : sus.metadata.requests)
+			lines.push_back(IO::formatString("#REQUEST \"%s\"", request.c_str()));
 		lines.push_back("");
 
 		// Do we really need a copy of each here?
 		auto barLengths = sus.barlengths;
 		std::stable_sort(barLengths.begin(), barLengths.end(),
-			[](const BarLength& a, const BarLength& b) { return a.bar < b.bar; });
+		                 [](const BarLength& a, const BarLength& b) { return a.bar < b.bar; });
 
 		auto bpms = sus.bpms;
 		std::stable_sort(bpms.begin(), bpms.end(),
-			[](const BPM& a, const BPM& b) { return a.tick < b.tick; });
+		                 [](const BPM& a, const BPM& b) { return a.tick < b.tick; });
 
 		auto taps = sus.taps;
 		std::stable_sort(taps.begin(), taps.end(),
-			[](const SUSNote& a, const SUSNote& b) { return a.tick < b.tick; });
+		                 [](const SUSNote& a, const SUSNote& b) { return a.tick < b.tick; });
 
 		auto directionals = sus.directionals;
 		std::stable_sort(directionals.begin(), directionals.end(),
-			[](const SUSNote& a, const SUSNote& b) { return a.tick < b.tick; });
+		                 [](const SUSNote& a, const SUSNote& b) { return a.tick < b.tick; });
 
 		auto slides = sus.slides;
 		std::stable_sort(slides.begin(), slides.end(),
-			[](const auto& a, const auto& b) { return a[0].tick < b[0].tick; });
+		                 [](const auto& a, const auto& b) { return a[0].tick < b[0].tick; });
 
 		auto guides = sus.guides;
 		std::stable_sort(guides.begin(), guides.end(),
-			[](const auto& a, const auto& b) { return a[0].tick < b[0].tick; });
+		                 [](const auto& a, const auto& b) { return a[0].tick < b[0].tick; });
 
 		measuresMap.clear();
 		barLengthTicks.clear();
@@ -303,7 +313,9 @@ namespace MikuMikuWorld
 		constexpr size_t maxBpmIdentifiers = (36ll * 36ll) - 1;
 		if (bpmIdentifiers.size() >= maxBpmIdentifiers)
 		{
-			std::string errorMessage = IO::formatString("Too many BPM changes!\nNumber of unique identifiers (%l) exceeded limit (%l)", bpmIdentifiers.size(), maxBpmIdentifiers);
+			std::string errorMessage = IO::formatString(
+			    "Too many BPM changes!\nNumber of unique identifiers (%l) exceeded limit (%l)",
+			    bpmIdentifiers.size(), maxBpmIdentifiers);
 			printf("%s", errorMessage.c_str());
 
 			throw std::exception(errorMessage.c_str());
@@ -352,27 +364,28 @@ namespace MikuMikuWorld
 
 		for (int i = 0; i < sus.hiSpeedGroups.size(); ++i)
 		{
-      std::string speedLine = "\"";
-      for (int j = 0; j < sus.hiSpeedGroups[i].hiSpeeds.size(); ++j)
-      {
-        const auto& hiSpeed = sus.hiSpeedGroups[i].hiSpeeds[j];
-        int measure = getMeasureFromTicks(hiSpeed.tick);
-        int offsetTicks = hiSpeed.tick - getTicksFromMeasure(measure);
-        float speed = hiSpeed.speed;
+			std::string speedLine = "\"";
+			for (int j = 0; j < sus.hiSpeedGroups[i].hiSpeeds.size(); ++j)
+			{
+				const auto& hiSpeed = sus.hiSpeedGroups[i].hiSpeeds[j];
+				int measure = getMeasureFromTicks(hiSpeed.tick);
+				int offsetTicks = hiSpeed.tick - getTicksFromMeasure(measure);
+				float speed = hiSpeed.speed;
 
-        speedLine.append(formatString("%d'%d:%g", measure, offsetTicks, speed));
+				speedLine.append(formatString("%d'%d:%g", measure, offsetTicks, speed));
 
-        if (i < sus.hiSpeedGroups.size() - 1 || j < sus.hiSpeedGroups[i].hiSpeeds.size() - 1)
-          speedLine.append(", ");
-      }
-      speedLine.append("\"");
+				if (i < sus.hiSpeedGroups.size() - 1 ||
+				    j < sus.hiSpeedGroups[i].hiSpeeds.size() - 1)
+					speedLine.append(", ");
+			}
+			speedLine.append("\"");
 
-      char buff1[10];
-      std::string info = tostringBaseN(buff1, i, 36);
-      if (info.size() < 2)
-        info = "0" + info;
+			char buff1[10];
+			std::string info = tostringBaseN(buff1, i, 36);
+			if (info.size() < 2)
+				info = "0" + info;
 
-      lines.push_back(formatString("#TIL%s: %s", info.c_str(), speedLine.c_str()));
+			lines.push_back(formatString("#TIL%s: %s", info.c_str(), speedLine.c_str()));
 		}
 
 		lines.push_back("#MEASUREHS 00");

@@ -8,11 +8,11 @@ namespace MikuMikuWorld
 {
 	class Jacket
 	{
-	private:
+	  private:
 		std::string filename;
 		std::unique_ptr<Texture> texture;
 
-	public:
+	  public:
 		Jacket();
 
 		void load(const std::string& filename);

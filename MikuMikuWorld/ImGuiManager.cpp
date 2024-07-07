@@ -12,10 +12,7 @@
 
 namespace MikuMikuWorld
 {
-	ImGuiManager::ImGuiManager()
-	{
-
-	}
+	ImGuiManager::ImGuiManager() {}
 
 	Result ImGuiManager::initialize(GLFWwindow* window)
 	{
@@ -25,10 +22,8 @@ namespace MikuMikuWorld
 		configFilename = Application::getAppDir() + IMGUI_CONFIG_FILENAME;
 
 		ImGuiIO& io = ImGui::GetIO();
-		io.ConfigFlags |= 
-			ImGuiConfigFlags_DockingEnable |
-			ImGuiConfigFlags_ViewportsEnable |
-			ImGuiConfigFlags_DpiEnableScaleViewports;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable |
+		                  ImGuiConfigFlags_DpiEnableScaleViewports;
 
 		io.ConfigWindowsMoveFromTitleBarOnly = true;
 		io.ConfigViewportsNoDefaultParent = false;
@@ -49,22 +44,22 @@ namespace MikuMikuWorld
 	void ImGuiManager::setBaseTheme(BaseTheme theme)
 	{
 		ImGuiStyle* style = &ImGui::GetStyle();
-		style->FramePadding.x		= 4;
-		style->FramePadding.y		= 2;
-		style->ItemSpacing.x		= 2;
-		style->ItemSpacing.y		= 4;
-		style->WindowPadding.x		= 6;
-		style->WindowRounding		= 4;
-		style->WindowBorderSize		= 1;
-		style->FrameBorderSize		= 0;
-		style->FrameRounding		= 1;
-		style->ScrollbarRounding	= 6;
-		style->ChildRounding		= 2;
-		style->PopupRounding		= 2;
-		style->GrabRounding			= 1;
-		style->TabRounding			= 1;
-		style->ScrollbarSize		= 12;
-		style->GrabMinSize			= 8;
+		style->FramePadding.x = 4;
+		style->FramePadding.y = 2;
+		style->ItemSpacing.x = 2;
+		style->ItemSpacing.y = 4;
+		style->WindowPadding.x = 6;
+		style->WindowRounding = 4;
+		style->WindowBorderSize = 1;
+		style->FrameBorderSize = 0;
+		style->FrameRounding = 1;
+		style->ScrollbarRounding = 6;
+		style->ChildRounding = 2;
+		style->PopupRounding = 2;
+		style->GrabRounding = 1;
+		style->TabRounding = 1;
+		style->ScrollbarSize = 12;
+		style->GrabMinSize = 8;
 
 		ImVec4* colors = style->Colors;
 
@@ -198,12 +193,13 @@ namespace MikuMikuWorld
 		rangeBuilder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesKorean());
 		rangeBuilder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesCyrillic());
 		rangeBuilder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesVietnamese());
-		//rangeBuilder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesChineseFull());
-		//rangeBuilder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesThai());
-		//rangeBuilder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesGreek());
+		// rangeBuilder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesChineseFull());
+		// rangeBuilder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesThai());
+		// rangeBuilder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesGreek());
 		rangeBuilder.BuildRanges(&ranges);
 
-		auto font = ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), (int)size, &fontConfig, ranges.Data);
+		auto font = ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), (int)size,
+		                                                     &fontConfig, ranges.Data);
 		ImGui::GetIO().Fonts->Build();
 	}
 
@@ -218,7 +214,8 @@ namespace MikuMikuWorld
 		fontConfig.PixelSnapH = false;
 		fontConfig.OversampleH = 1;
 		static const ImWchar iconRanges[] = { start, end, 0 };
-		ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), (int)size, &fontConfig, iconRanges);
+		ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), (int)size, &fontConfig,
+		                                         iconRanges);
 	}
 
 	void ImGuiManager::buildFonts(float dpiScale)
@@ -231,16 +228,18 @@ namespace MikuMikuWorld
 		io.FontDefault = nullptr;
 
 		loadFont(Application::getAppDir() + "res/fonts/NotoSansCJK-Regular.ttc", 16 * dpiScale);
-		loadIconFont(Application::getAppDir() + "res/fonts/fa-solid-900.ttf", ICON_MIN_FA, ICON_MAX_FA, 12 * dpiScale);
+		loadIconFont(Application::getAppDir() + "res/fonts/fa-solid-900.ttf", ICON_MIN_FA,
+		             ICON_MAX_FA, 12 * dpiScale);
 		ImGui_ImplOpenGL3_CreateFontsTexture();
 	}
 
 	void ImGuiManager::initializeLayout()
 	{
 		ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
-			ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
-			ImGuiWindowFlags_NoBackground;
+		                               ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+		                               ImGuiWindowFlags_NoMove |
+		                               ImGuiWindowFlags_NoBringToFrontOnFocus |
+		                               ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
 
 		ImGuiViewport* viewport = ImGui::GetMainViewport();
 		ImVec2 viewportOffset{ 0, UI::toolbarBtnSize.y + ImGui::GetStyle().WindowPadding.y + 5 };
@@ -251,7 +250,9 @@ namespace MikuMikuWorld
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::Begin("InvisibleWindow", nullptr, windowFlags); // This is basically the background window that contains all the dockable windows
+		ImGui::Begin("InvisibleWindow", nullptr,
+		             windowFlags); // This is basically the background window that contains all the
+		                           // dockable windows
 		ImGui::PopStyleVar(3);
 
 		std::string dockStrId{ "InvisibleWindowDockSpace" };
@@ -263,8 +264,10 @@ namespace MikuMikuWorld
 			ImGui::DockBuilderSetNodeSize(dockSpaceId, viewport->WorkSize - viewportOffset);
 
 			ImGuiID dockMainId = dockSpaceId;
-			ImGuiID midRightId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Right, 0.25f, nullptr, &dockMainId);
-			ImGuiID bottomRightId = ImGui::DockBuilderSplitNode(midRightId, ImGuiDir_Down, 0.3f, nullptr, &midRightId);
+			ImGuiID midRightId = ImGui::DockBuilderSplitNode(dockMainId, ImGuiDir_Right, 0.25f,
+			                                                 nullptr, &dockMainId);
+			ImGuiID bottomRightId =
+			    ImGui::DockBuilderSplitNode(midRightId, ImGuiDir_Down, 0.3f, nullptr, &midRightId);
 
 			ImGui::DockBuilderDockWindow("###notes_timeline", dockMainId);
 			ImGui::DockBuilderDockWindow("###chart_properties", midRightId);

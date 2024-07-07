@@ -45,7 +45,8 @@ namespace MikuMikuWorld
 
 	constexpr const char* easeNames[]{ "linear", "in", "out", "inout", "outin" };
 
-	constexpr const char* easeTypes[]{ "linear", "ease_in", "ease_out", "ease_in_out", "ease_out_in" };
+	constexpr const char* easeTypes[]{ "linear", "ease_in", "ease_out", "ease_in_out",
+		                               "ease_out_in" };
 
 	enum class HoldNoteType : uint8_t
 	{

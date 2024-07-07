@@ -69,14 +69,20 @@ namespace MikuMikuWorld
 			backgroundImage =
 			    jsonIO::tryGetValue<std::string>(config["timeline"], "background_image", "");
 
-			useSmoothScrolling = jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
-			smoothScrollingTime = jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 48.0f);
-			scrollSpeedNormal = jsonIO::tryGetValue<float>(config["timeline"], "scroll_speed_normal", 2.0f);
-			scrollSpeedShift = jsonIO::tryGetValue<float>(config["timleine"], "scroll_speed_fast", 5.0f);
+			useSmoothScrolling =
+			    jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
+			smoothScrollingTime =
+			    jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 48.0f);
+			scrollSpeedNormal =
+			    jsonIO::tryGetValue<float>(config["timeline"], "scroll_speed_normal", 2.0f);
+			scrollSpeedShift =
+			    jsonIO::tryGetValue<float>(config["timleine"], "scroll_speed_fast", 5.0f);
 
 			drawWaveform = jsonIO::tryGetValue<bool>(config["timeline"], "draw_waveform", true);
-			returnToLastSelectedTickOnPause = jsonIO::tryGetValue<bool>(config["timeline"], "return_to_last_tick_on_pause", false);
-			cursorPositionThreshold = jsonIO::tryGetValue<float>(config["timeline"], "cursor_position_threshold", 0.5f);
+			returnToLastSelectedTickOnPause = jsonIO::tryGetValue<bool>(
+			    config["timeline"], "return_to_last_tick_on_pause", false);
+			cursorPositionThreshold =
+			    jsonIO::tryGetValue<float>(config["timeline"], "cursor_position_threshold", 0.5f);
 
 			showTickInProperties =
 			    jsonIO::tryGetValue<bool>(config["timeline"], "show_tick_in_properties", true);
@@ -99,9 +105,12 @@ namespace MikuMikuWorld
 		if (jsonIO::keyExists(config, "audio"))
 		{
 			seProfileIndex = jsonIO::tryGetValue<int>(config["audio"], "se_profile", 0);
-			masterVolume	= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "master_volume", 1.0f), 0.0f, 1.0f);
-			bgmVolume		= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "bgm_volume", 1.0f), 0.0f, 1.0f);
-			seVolume		= std::clamp(jsonIO::tryGetValue<float>(config["audio"], "se_volume", 1.0f), 0.0f, 1.0f);
+			masterVolume = std::clamp(
+			    jsonIO::tryGetValue<float>(config["audio"], "master_volume", 1.0f), 0.0f, 1.0f);
+			bgmVolume = std::clamp(jsonIO::tryGetValue<float>(config["audio"], "bgm_volume", 1.0f),
+			                       0.0f, 1.0f);
+			seVolume = std::clamp(jsonIO::tryGetValue<float>(config["audio"], "se_volume", 1.0f),
+			                      0.0f, 1.0f);
 		}
 
 		if (jsonIO::keyExists(config, "input") && jsonIO::keyExists(config["input"], "bindings"))
@@ -126,7 +135,8 @@ namespace MikuMikuWorld
 		{
 			const json& recentFilesJson = config["recent_files"];
 			const size_t count = std::min(recentFilesJson.size(), maxRecentFilesEntries);
-			recentFiles.insert(recentFiles.end(), recentFilesJson.begin(), recentFilesJson.begin() + count);
+			recentFiles.insert(recentFiles.end(), recentFilesJson.begin(),
+			                   recentFilesJson.begin() + count);
 		}
 	}
 
@@ -146,49 +156,40 @@ namespace MikuMikuWorld
 		config["window"]["vsync"] = vsync;
 		config["window"]["show_fps"] = showFPS;
 
-		config["timeline"] = {
-			{"lane_width", timelineWidth},
-			{"notes_height", notesHeight},
-			{"match_notes_size_to_timeline", matchNotesSizeToTimeline},
-			{"division", division},
-			{"zoom", zoom},
-			{"lane_opacity", laneOpacity},
-			{"background_brightness", backgroundBrightness},
-			{"draw_background", drawBackground},
-			{"background_image", backgroundImage},
-			{"smooth_scrolling_enable", useSmoothScrolling},
-			{"smooth_scrolling_time", smoothScrollingTime},
-			{"scroll_speed_normal", scrollSpeedNormal},
-			{"scroll_speed_fast", scrollSpeedShift},
-			{"draw_waveform", drawWaveform},
-			{"return_to_last_tick_on_pause", returnToLastSelectedTickOnPause},
-			{"cursor_position_threshold", cursorPositionThreshold},
-			{"show_tick_in_properties", showTickInProperties}
-		};
+		config["timeline"] = { { "lane_width", timelineWidth },
+			                   { "notes_height", notesHeight },
+			                   { "match_notes_size_to_timeline", matchNotesSizeToTimeline },
+			                   { "division", division },
+			                   { "zoom", zoom },
+			                   { "lane_opacity", laneOpacity },
+			                   { "background_brightness", backgroundBrightness },
+			                   { "draw_background", drawBackground },
+			                   { "background_image", backgroundImage },
+			                   { "smooth_scrolling_enable", useSmoothScrolling },
+			                   { "smooth_scrolling_time", smoothScrollingTime },
+			                   { "scroll_speed_normal", scrollSpeedNormal },
+			                   { "scroll_speed_fast", scrollSpeedShift },
+			                   { "draw_waveform", drawWaveform },
+			                   { "return_to_last_tick_on_pause", returnToLastSelectedTickOnPause },
+			                   { "cursor_position_threshold", cursorPositionThreshold },
+			                   { "show_tick_in_properties", showTickInProperties } };
 
-		config["theme"] = {
-			{"accent_color", accentColor},
-			{"user_color",
-				{
-					{"r", userColor.r},
-					{"g", userColor.g},
-					{"b", userColor.b},
-					{"a", userColor.a}
-				}
-			},
-			{ "base_theme", static_cast<int>(baseTheme) }
-		};
+		config["theme"] = { { "accent_color", accentColor },
+			                { "user_color",
+			                  { { "r", userColor.r },
+			                    { "g", userColor.g },
+			                    { "b", userColor.b },
+			                    { "a", userColor.a } } },
+			                { "base_theme", static_cast<int>(baseTheme) } };
 
 		config["save"] = { { "auto_save_enabled", autoSaveEnabled },
 			               { "auto_save_interval", autoSaveInterval },
 			               { "auto_save_max_count", autoSaveMaxCount } };
 
-		config["audio"] = {
-			{"se_profile", seProfileIndex},
-			{"master_volume", masterVolume},
-			{"bgm_volume", bgmVolume},
-			{"se_volume", seVolume}
-		};
+		config["audio"] = { { "se_profile", seProfileIndex },
+			                { "master_volume", masterVolume },
+			                { "bgm_volume", bgmVolume },
+			                { "se_volume", seVolume } };
 
 		json keyBindings;
 		for (const auto& binding : bindings)

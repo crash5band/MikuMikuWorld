@@ -11,15 +11,15 @@ namespace MikuMikuWorld
 
 	class ScoreConverter
 	{
-	private:
+	  private:
 		static std::pair<int, int> barLengthToFraction(float length, float fractionDenom);
 		static std::string noteKey(const SUSNote& note);
 		static std::string noteKey(const Note& note);
 
-	public:
+	  public:
 		static Score susToScore(const SUS& sus);
 		static SUS scoreToSus(const Score& score);
-    static nlohmann::json scoreToUsc(const Score& score);
-    static Score uscToScore(const nlohmann::json& usc);
+		static nlohmann::json scoreToUsc(const Score& score);
+		static Score uscToScore(const nlohmann::json& usc);
 	};
 }

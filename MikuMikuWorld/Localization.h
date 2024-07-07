@@ -6,9 +6,8 @@ namespace MikuMikuWorld
 {
 	class Localization
 	{
-    private:
-
-	public:
+	  private:
+	  public:
 		static std::unordered_map<std::string, std::unique_ptr<Language>> languages;
 		static Language* currentLanguage;
 

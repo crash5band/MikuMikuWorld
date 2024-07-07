@@ -7,11 +7,13 @@ namespace MikuMikuWorld
 	std::vector<Texture> ResourceManager::textures;
 	std::vector<Shader*> ResourceManager::shaders;
 
-	void ResourceManager::loadTexture(const std::string& filename, TextureFilterMode minFilter, TextureFilterMode magFilter)
+	void ResourceManager::loadTexture(const std::string& filename, TextureFilterMode minFilter,
+	                                  TextureFilterMode magFilter)
 	{
 		if (!IO::File::exists(filename))
 		{
-			printf("ERROR: ResourceManager::loadTexture() Could not find texture file %s\n", filename.c_str());
+			printf("ERROR: ResourceManager::loadTexture() Could not find texture file %s\n",
+			       filename.c_str());
 			return;
 		}
 

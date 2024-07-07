@@ -9,14 +9,14 @@ namespace MikuMikuWorld
 
 	class ImGuiManager
 	{
-	private:
+	  private:
 		std::string configFilename{};
-		
+
 		BaseTheme theme{};
 		int accentColor{ 1 };
 		float styleScale{ 1.0f };
 
-	public:
+	  public:
 		ImGuiManager();
 
 		Result initialize(GLFWwindow* window);

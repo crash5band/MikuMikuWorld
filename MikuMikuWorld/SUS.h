@@ -11,7 +11,7 @@ namespace MikuMikuWorld
 		int lane;
 		int width;
 		int type;
-    std::string hiSpeedGroup;
+		std::string hiSpeedGroup;
 	};
 
 	struct BPM
@@ -41,8 +41,8 @@ namespace MikuMikuWorld
 
 	struct HiSpeedGroup
 	{
-    std::string name;
-    std::vector<HiSpeed> hiSpeeds;
+		std::string name;
+		std::vector<HiSpeed> hiSpeeds;
 	};
 
 	struct SUSMetadata
@@ -53,8 +53,7 @@ namespace MikuMikuWorld
 		float movieOffset;
 		float baseBPM;
 
-		SUSMetadata() :
-			waveOffset{ 0 }, movieOffset{ 0 }, baseBPM{ 0 } {}
+		SUSMetadata() : waveOffset{ 0 }, movieOffset{ 0 }, baseBPM{ 0 } {}
 	};
 
 	typedef std::vector<std::vector<SUSNote>> SUSNoteStream;
@@ -68,8 +67,8 @@ namespace MikuMikuWorld
 		SUSNoteStream guides;
 		std::vector<BPM> bpms;
 		std::vector<BarLength> barlengths;
-    std::vector<HiSpeedGroup> hiSpeedGroups;
-    int laneOffset;
-    bool sideLane;
+		std::vector<HiSpeedGroup> hiSpeedGroups;
+		int laneOffset;
+		bool sideLane;
 	};
 }

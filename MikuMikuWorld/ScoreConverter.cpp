@@ -516,8 +516,7 @@ namespace MikuMikuWorld
 
 				slide.push_back(SUSNote{
 				    midNote.tick, (int)midNote.lane + offset, (int)midNote.width,
-				                         step.type == HoldStepType::Hidden ? 5 : 3,
-				                         hiSpeedGroupNames[midNote.layer] });
+				    step.type == HoldStepType::Hidden ? 5 : 3, hiSpeedGroupNames[midNote.layer] });
 				if (step.type == HoldStepType::Skip)
 				{
 					taps.push_back(
@@ -527,8 +526,7 @@ namespace MikuMikuWorld
 				{
 					int stepTapType = hold.isGuide() ? start.critical ? 8 : 7 : 1;
 					taps.push_back(SUSNote{ midNote.tick, (int)midNote.lane + offset,
-					                        (int)midNote.width,
-					                        stepTapType });
+					                        (int)midNote.width, stepTapType });
 					directionals.push_back(SUSNote{
 					    midNote.tick, (int)midNote.lane + offset, (int)midNote.width,
 					    step.ease == EaseType::EaseIn ? 2 : 6, hiSpeedGroupNames[midNote.layer] });
@@ -937,7 +935,8 @@ namespace MikuMikuWorld
 						startNote.width = step["size"].get<float>() * 2;
 						score.notes[startNote.ID] = startNote;
 						hold.start.ID = startNote.ID;
-						if (step["ease"].get<std::string>() == "in") {
+						if (step["ease"].get<std::string>() == "in")
+						{
 							hold.start.ease = EaseType::EaseIn;
 						}
 						else if (step["ease"].get<std::string>() == "out")

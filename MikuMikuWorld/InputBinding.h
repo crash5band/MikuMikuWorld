@@ -11,9 +11,8 @@ struct InputBinding
 	int keyModifiers{};
 
 	InputBinding(ImGuiKey key = ImGuiKey_None, ImGuiModFlags_ mods = ImGuiModFlags_None)
-		: keyCode{ key }, keyModifiers{ mods }
+	    : keyCode{ key }, keyModifiers{ mods }
 	{
-
 	}
 
 	constexpr bool operator==(const InputBinding& other) const
@@ -21,10 +20,7 @@ struct InputBinding
 		return keyModifiers == other.keyModifiers && keyCode == other.keyCode;
 	}
 
-	constexpr bool operator!=(const InputBinding& other) const
-	{
-		return !(*this == other);
-	}
+	constexpr bool operator!=(const InputBinding& other) const { return !(*this == other); }
 };
 
 DECLARE_ENUM_FLAG_OPERATORS(ImGuiKey);

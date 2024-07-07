@@ -12,7 +12,7 @@ namespace MikuMikuWorld
 
 	class Background
 	{
-	private:
+	  private:
 		std::string filename;
 		std::unique_ptr<Texture> texture;
 		std::unique_ptr<Framebuffer> framebuffer;
@@ -28,14 +28,14 @@ namespace MikuMikuWorld
 
 		void resizeByRatio(float& w, float& h, const Vector2& tgt, bool vertical);
 
-	public:
+	  public:
 		Background();
 
 		void load(const std::string& filename);
 		void resize(Vector2 target);
 		void process(Renderer* renderer);
 		void dispose();
-		
+
 		std::string getFilename() const;
 
 		int getWidth() const;
@@ -51,5 +51,3 @@ namespace MikuMikuWorld
 		bool isDirty() const;
 	};
 }
-
-

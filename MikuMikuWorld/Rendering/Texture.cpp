@@ -11,8 +11,8 @@ using namespace IO;
 
 namespace MikuMikuWorld
 {
-	Texture::Texture(const std::string& filename) :
-		Texture(filename, TextureFilterMode::Linear, TextureFilterMode::Linear)
+	Texture::Texture(const std::string& filename)
+	    : Texture(filename, TextureFilterMode::Linear, TextureFilterMode::Linear)
 	{
 	}
 
@@ -33,21 +33,14 @@ namespace MikuMikuWorld
 		}
 	}
 
-	Texture::Texture(const std::string& filename, TextureFilterMode filter) :
-		Texture(filename, filter, filter)
+	Texture::Texture(const std::string& filename, TextureFilterMode filter)
+	    : Texture(filename, filter, filter)
 	{
-
 	}
 
-	void Texture::bind() const
-	{
-		glBindTexture(GL_TEXTURE_2D, glID);
-	}
+	void Texture::bind() const { glBindTexture(GL_TEXTURE_2D, glID); }
 
-	void Texture::dispose() const
-	{
-		glDeleteTextures(1, &glID);
-	}
+	void Texture::dispose() const { glDeleteTextures(1, &glID); }
 
 	void Texture::readSprites(const std::string& filename)
 	{
@@ -75,7 +68,8 @@ namespace MikuMikuWorld
 		return Sprite(name, x, y, w, h);
 	}
 
-	void Texture::read(const std::string& filename, TextureFilterMode minFilter, TextureFilterMode magFilter)
+	void Texture::read(const std::string& filename, TextureFilterMode minFilter,
+	                   TextureFilterMode magFilter)
 	{
 		glGenTextures(1, &glID);
 		glBindTexture(GL_TEXTURE_2D, glID);

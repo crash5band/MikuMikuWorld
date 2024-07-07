@@ -8,15 +8,16 @@ namespace MikuMikuWorld
 {
 	class ChannelProvider
 	{
-	private:
-		struct TickRange { int start; int end; };
+	  private:
+		struct TickRange
+		{
+			int start;
+			int end;
+		};
 		std::unordered_map<int, TickRange> channels;
 
-	public:
-		ChannelProvider()
-		{
-			clear();
-		}
+	  public:
+		ChannelProvider() { clear(); }
 
 		int generateChannel(int startTick, int endTick);
 		void clear();
@@ -30,7 +31,7 @@ namespace MikuMikuWorld
 		{
 			int tick;
 			std::string data;
-      std::string hiSpeedGroup;
+			std::string hiSpeedGroup;
 		};
 
 		std::vector<RawData> data;
@@ -51,7 +52,7 @@ namespace MikuMikuWorld
 
 	class SusExporter
 	{
-	private:
+	  private:
 		int ticksPerBeat;
 		std::map<int, MeasureMap> measuresMap;
 		std::vector<BarLengthTicks> barLengthTicks;
@@ -61,11 +62,12 @@ namespace MikuMikuWorld
 		void appendSlideData(const SUSNoteStream& slides, const std::string& infoPrefix);
 		std::vector<std::string> getNoteLines(int baseMeasure);
 
-	public:
+	  public:
 		SusExporter();
 
 		void appendData(int tick, std::string info, std::string data, std::string hiSpeedGroup);
-		void appendNoteData(const SUSNote& note, const std::string infoPrefix, const std::string channel);
+		void appendNoteData(const SUSNote& note, const std::string infoPrefix,
+		                    const std::string channel);
 		void dump(const SUS& sus, const std::string& filename, std::string comment = "");
 	};
 }

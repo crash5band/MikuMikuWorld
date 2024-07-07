@@ -12,7 +12,8 @@ int main()
 	args = CommandLineToArgvW(GetCommandLineW(), &argc);
 	if (!args)
 	{
-		IO::messageBox(APP_NAME, "CommandLineToArgvW failed...", IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
+		IO::messageBox(APP_NAME, "CommandLineToArgvW failed...", IO::MessageBoxButtons::Ok,
+		               IO::MessageBoxIcon::Error);
 		return 1;
 	}
 
@@ -24,7 +25,7 @@ int main()
 		mmw::Result result = app.initialize(dir);
 
 		if (!result.isOk())
-			throw (std::exception(result.getMessage().c_str()));
+			throw(std::exception(result.getMessage().c_str()));
 
 		for (int i = 1; i < argc; ++i)
 			app.appendOpenFile(IO::wideStringToMb(args[i]));
@@ -35,12 +36,14 @@ int main()
 	}
 	catch (const std::exception& ex)
 	{
-	  std::string msg = std::string("An unhandled exception has occurred and the application will now close.\n\n")
-	  	.append(ex.what())
-	  	.append("\n\nApplication Version: ")
-	  	.append(mmw::Application::getAppVersion());
+		std::string msg =
+		    std::string(
+		        "An unhandled exception has occurred and the application will now close.\n\n")
+		        .append(ex.what())
+		        .append("\n\nApplication Version: ")
+		        .append(mmw::Application::getAppVersion());
 
-	  IO::messageBox(APP_NAME, msg, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
+		IO::messageBox(APP_NAME, msg, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
 	}
 #endif
 
@@ -53,10 +56,11 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch (uMsg)
 	{
 	case WM_TIMER:
-		if (mmw::Application::windowState.windowDragging && wParam == mmw::Application::windowState.windowTimerId)
+		if (mmw::Application::windowState.windowDragging &&
+		    wParam == mmw::Application::windowState.windowTimerId)
 		{
-			// grabbing the glfw window blocks the message queue causing the application to stop rendering
-			// so we handle the message ourselves and update the UI explicitly
+			// grabbing the glfw window blocks the message queue causing the application to stop
+			// rendering so we handle the message ourselves and update the UI explicitly
 			if (app.getGlfwWindow())
 				app.update();
 
@@ -82,7 +86,8 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				if (bufferSize > 0)
 				{
 					std::wstring wFilename(bufferSize + 1, 0);
-					if (::DragQueryFileW(dropHandle, i, wFilename.data(), static_cast<UINT>(wFilename.size())) != 0)
+					if (::DragQueryFileW(dropHandle, i, wFilename.data(),
+					                     static_cast<UINT>(wFilename.size())) != 0)
 						app.appendOpenFile(IO::wideStringToMb(wFilename.data()));
 				}
 			}
@@ -93,7 +98,8 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	default:
 		// we don't handle this message ourselves so delegate it to the original glfw window's proc
-		return CallWindowProcW((WNDPROC)glfwGetWindowUserPointer(app.getGlfwWindow()), hwnd, uMsg, wParam, lParam);
+		return CallWindowProcW((WNDPROC)glfwGetWindowUserPointer(app.getGlfwWindow()), hwnd, uMsg,
+		                       wParam, lParam);
 	}
 
 	return ::DefWindowProcW(hwnd, uMsg, wParam, lParam);

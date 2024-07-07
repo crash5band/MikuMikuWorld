@@ -5,11 +5,11 @@ namespace MikuMikuWorld
 {
 	class Sprite
 	{
-	private:
+	  private:
 		float x, y, width, height;
 		std::string texture;
 
-	public:
+	  public:
 		Sprite(const std::string& tex, float _x, float _y, float _w, float _h);
 
 		float getX() const;
@@ -18,4 +18,3 @@ namespace MikuMikuWorld
 		float getHeight() const;
 	};
 }
-

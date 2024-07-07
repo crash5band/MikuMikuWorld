@@ -7,11 +7,13 @@ namespace MikuMikuWorld
 {
 	class ResourceManager
 	{
-	public:
+	  public:
 		static std::vector<Texture> textures;
 		static std::vector<Shader*> shaders;
 
-		static void loadTexture(const std::string& filename, TextureFilterMode minFilter = TextureFilterMode::Linear, TextureFilterMode magFilter = TextureFilterMode::Linear);
+		static void loadTexture(const std::string& filename,
+		                        TextureFilterMode minFilter = TextureFilterMode::Linear,
+		                        TextureFilterMode magFilter = TextureFilterMode::Linear);
 		static int getTexture(const std::string& name);
 		static int getTextureByFilename(const std::string& filename);
 
@@ -21,4 +23,3 @@ namespace MikuMikuWorld
 		static void disposeTexture(int texID);
 	};
 }
-

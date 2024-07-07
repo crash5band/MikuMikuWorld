@@ -6,13 +6,13 @@ namespace MikuMikuWorld
 
 	class ScoreStats
 	{
-	private:
+	  private:
 		int taps, flicks, holds, steps, traces, total, combo;
 
 		void resetCounts();
 		void resetCombo();
 
-	public:
+	  public:
 		ScoreStats();
 
 		void calculateStats(const Score& score);

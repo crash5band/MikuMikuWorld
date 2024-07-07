@@ -16,11 +16,11 @@ namespace MikuMikuWorld
 
 	class HistoryManager
 	{
-	private:
+	  private:
 		std::stack<History> undoHistory;
 		std::stack<History> redoHistory;
 
-	public:
+	  public:
 		Score undo();
 		Score redo();
 

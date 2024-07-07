@@ -9,7 +9,7 @@ namespace Audio
 {
 	class AudioManager
 	{
-	private:
+	  private:
 		ma_engine engine;
 		ma_sound music;
 		ma_sound_group musicGroup;
@@ -28,7 +28,7 @@ namespace Audio
 
 		float lastPlaybackTime{};
 
-	public:
+	  public:
 		SoundBuffer musicBuffer;
 		std::vector<SoundInstance> debugSounds;
 

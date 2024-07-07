@@ -25,16 +25,16 @@ namespace MikuMikuWorld
 
 	class Texture
 	{
-	private:
+	  private:
 		std::string name;
 		std::string filename;
 		int width;
 		int height;
 		unsigned int glID;
 
-		Sprite parseSprite(const IO::File &f, const std::string& line);
+		Sprite parseSprite(const IO::File& f, const std::string& line);
 
-	public:
+	  public:
 		std::vector<Sprite> sprites;
 
 		Texture(const std::string& filename, TextureFilterMode min, TextureFilterMode mag);
@@ -49,7 +49,9 @@ namespace MikuMikuWorld
 
 		void bind() const;
 		void dispose() const;
-		void read(const std::string& filename, TextureFilterMode minFilter = TextureFilterMode::Linear, TextureFilterMode magFilter = TextureFilterMode::Linear);
+		void read(const std::string& filename,
+		          TextureFilterMode minFilter = TextureFilterMode::Linear,
+		          TextureFilterMode magFilter = TextureFilterMode::Linear);
 		void readSprites(const std::string& filename);
 	};
 }

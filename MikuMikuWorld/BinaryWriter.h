@@ -6,10 +6,10 @@ namespace IO
 {
 	class BinaryWriter
 	{
-	private:
+	  private:
 		FILE* stream;
 
-	public:
+	  public:
 		BinaryWriter(const std::string& filename);
 		~BinaryWriter();
 
