@@ -205,6 +205,7 @@ note_properties_guide,Guide Properties
 note_properties_not_selected,No notes or hi-speeds are selected
 note_properties_many_hold_notes,More than one hold note is selected
 translated_by,Translated by: %s
+zoom_tooltip,Ctrl-click to edit value
 
 # preset manager
 presets,Presets

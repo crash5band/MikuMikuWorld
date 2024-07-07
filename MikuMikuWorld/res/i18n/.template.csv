@@ -205,6 +205,7 @@ note_properties_guide,
 note_properties_not_selected,
 note_properties_many_hold_notes,
 translated_by,
+zoom_tooltip
 
 # preset manager
 presets,
