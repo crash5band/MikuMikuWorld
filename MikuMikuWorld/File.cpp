@@ -59,9 +59,6 @@ namespace IO
 
 	std::chrono::time_point<std::chrono::system_clock> File::getLastWriteTime() const
 	{
-		if (!File::exists("filename"))
-			return std::chrono::system_clock::now();
-
 		struct stat fileStat;
 		fstat(_fileno(stream), &fileStat);
 		auto time = fileStat.st_mtime;

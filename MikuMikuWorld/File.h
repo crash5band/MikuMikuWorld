@@ -12,6 +12,7 @@ namespace IO
 	{
 	  private:
 		FILE* stream;
+		std::string filename;
 
 	  public:
 		File(const std::wstring& filename, const wchar_t* mode);
