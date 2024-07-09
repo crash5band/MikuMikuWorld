@@ -411,22 +411,34 @@ namespace MikuMikuWorld
 						UI::beginPropertyColumns();
 
 						bool hasEaseable = false;
+						Note easeableNote;
 						bool hasStepType = false;
+						Note stepTypeNote;
 						for (auto id : context.selectedNotes)
 						{
-							if (context.score.notes.at(id).hasEase())
+							auto& n = context.score.notes.at(id);
+							if (n.hasEase())
 							{
+								if (!hasEaseable)
+								{
+									easeableNote = n;
+								}
 								hasEaseable = true;
 							}
 							if (context.score.notes.at(id).getType() == NoteType::HoldMid)
 							{
+								if (!hasStepType)
+								{
+									stepTypeNote = n;
+								}
 								hasStepType = true;
 							}
 						}
 
 						if (hasEaseable)
 						{
-							auto ease = note.getType() == NoteType::Hold
+							int stepIndex = findHoldStep(hold, easeableNote.ID);
+							auto ease = easeableNote.getType() == NoteType::Hold
 							                ? hold.start.ease
 							                : hold.steps.at(stepIndex == -1 ? 0 : stepIndex).ease;
 							if (UI::addSelectProperty(getString("ease_type"), ease, easeTypes,
@@ -453,7 +465,8 @@ namespace MikuMikuWorld
 
 						if (hasStepType)
 						{
-							auto stepType = hold.steps.at(stepIndex == -1 ? 0 : stepIndex).type;
+							int stepIndex = findHoldStep(hold, stepTypeNote.ID);
+							auto stepType = hold.steps.at(stepIndex).type;
 
 							if (UI::addSelectProperty(getString("step_type"), stepType, stepTypes,
 							                          arrayLength(stepTypes)))
