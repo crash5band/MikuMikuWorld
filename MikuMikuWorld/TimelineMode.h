@@ -30,10 +30,12 @@ namespace MikuMikuWorld
 	{
 		Relative,
 		Absolute,
+		IndividualAbsolute,
 		SnapModeMax
 	};
 
-	constexpr const char* snapModes[]{ "snap_mode_relative", "snap_mode_absolute" };
+	constexpr const char* snapModes[]{ "snap_mode_relative", "snap_mode_absolute",
+		                               "snap_mode_individual_absolute" };
 
 	constexpr int timeSignatureDenominators[]{ 2, 4, 8, 16, 32, 64 };
 
