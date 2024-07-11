@@ -191,6 +191,11 @@ namespace IO
 		return std::filesystem::exists(wPath);
 	}
 
+	bool File::exists(const std::wstring& path)
+	{
+		return std::filesystem::exists(path);
+	}
+
 	FileDialogResult FileDialog::showFileDialog(DialogType type, DialogSelectType selectType)
 	{
 		std::wstring wTitle = mbToWideStr(title);

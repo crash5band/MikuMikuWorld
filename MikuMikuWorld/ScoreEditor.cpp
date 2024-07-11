@@ -69,12 +69,12 @@ namespace MikuMikuWorld
 	void ScoreEditor::fetchUpdate()
 	{
 
-		std::string updateFlagPath = Application::getAppDir() + "latest_version.txt";
+		std::wstring updateFlagPath = IO::mbToWideStr(Application::getAppDir() + "latest_version.txt");
 		bool shouldFetchUpdate = true;
 		std::string latestVersionString;
 		if (IO::File::exists(updateFlagPath))
 		{
-			auto file = IO::File(updateFlagPath, "r");
+			auto file = IO::File(updateFlagPath, L"r");
 			auto lastWriteTime = file.getLastWriteTime();
 			auto now = std::chrono::system_clock::now();
 			auto diff =
@@ -109,7 +109,7 @@ namespace MikuMikuWorld
 				latestVersionString = tagName.substr(1);
 			}
 
-			auto file = IO::File(updateFlagPath, "w");
+			auto file = IO::File(updateFlagPath, L"w");
 			file.write(latestVersionString);
 			file.flush();
 			file.close();
