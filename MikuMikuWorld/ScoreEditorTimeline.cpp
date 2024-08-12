@@ -267,7 +267,7 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(getString("connect_holds"), NULL, false, context.selectionCanConnect()))
 				context.connectHoldsInSelection();
 
-			if (ImGui::MenuItem(getString("split_hold"), NULL, false, context.selectionHasStep() && context.selectedNotes.size() == 1))
+			if (ImGui::MenuItem(getString("split_hold"), NULL, false, context.selectionHasAnyStep() && context.selectedNotes.size() == 1))
 				context.splitHoldInSelection();
 
 			ImGui::EndPopup();
@@ -718,6 +718,8 @@ namespace MikuMikuWorld
 		framebuffer->bind();
 		framebuffer->clear();
 
+		glDisable(GL_DEPTH_TEST);
+
 		std::vector<HoldNote> updateHolds;
 		std::vector<int> updateNoteIDs;
 		int startTick = positionToTick(visualOffset - size.y);
@@ -739,9 +741,16 @@ namespace MikuMikuWorld
 
 		std::sort(updateHolds.begin(), updateHolds.end(), [&context](const HoldNote& a, const HoldNote& b)
 		{
-			const Note& n1 = context.score.notes.at(a.start.ID);
-			const Note& n2 = context.score.notes.at(b.start.ID);
-			return n1.tick == n2.tick ? n1.ID > n2.ID : n1.tick < n2.tick;
+			const Note& a1 = context.score.notes.at(a.start.ID);
+			const Note& a2 = context.score.notes.at(a.end);
+			const Note& b1 = context.score.notes.at(b.start.ID);
+			const Note& b2 = context.score.notes.at(b.end);
+			if (a1.tick == b1.tick)
+			{
+				return a2.tick == b2.tick ? a1.ID < b2.ID : a2.tick > b2.tick;
+			}
+
+			return a1.tick < b1.tick;
 		});
 
 		std::sort(updateNoteIDs.begin(), updateNoteIDs.end(), [&context](int a, int b)
@@ -842,19 +851,19 @@ namespace MikuMikuWorld
 		int startTick = positionToTick(visualOffset - size.y);
 		int endTick = positionToTick(visualOffset);
 		std::for_each(context.pasteData.holds.begin(), context.pasteData.holds.end(), [&](const std::pair<int, HoldNote>& pair)
-			{
-				const HoldNote& hold = pair.second;
-				const Note& start = context.pasteData.notes.at(hold.start.ID);
-				const Note& end = context.pasteData.notes.at(hold.end);
+		{
+			const HoldNote& hold = pair.second;
+			const Note& start = context.pasteData.notes.at(hold.start.ID);
+			const Note& end = context.pasteData.notes.at(hold.end);
 
-				if (start.tick <= endTick && end.tick >= startTick)
-					updateHolds.push_back(hold);
-			});
+			if (start.tick <= endTick && end.tick >= startTick)
+				updateHolds.push_back(hold);
+		});
 
 		std::sort(updateHolds.begin(), updateHolds.end(), [&context](const HoldNote& a, const HoldNote& b)
-			{
-				return context.pasteData.notes.at(a.start.ID).tick < context.pasteData.notes.at(b.start.ID).tick;
-			});
+		{
+			return context.pasteData.notes.at(a.start.ID).tick < context.pasteData.notes.at(b.start.ID).tick;
+		});
 
 		renderer->beginBatch();
 		for (const auto& hold : updateHolds)

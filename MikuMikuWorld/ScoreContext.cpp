@@ -572,7 +572,8 @@ namespace MikuMikuWorld
 			earlierNoteAsMid.parentID = earlierHold.start.ID;
 
 			score.notes[earlierNoteAsMid.ID] = earlierNoteAsMid;
-			earlierHold.steps.push_back({ earlierNoteAsMid.ID, HoldStepType::Normal, EaseType::Linear });
+			HoldStepType stepType = earlierHold.isGuide() ? HoldStepType::Hidden : HoldStepType::Normal;
+			earlierHold.steps.push_back({ earlierNoteAsMid.ID, stepType, EaseType::Linear });
 
 			selectedNotes.insert(earlierNoteAsMid.ID);
 		}
@@ -583,7 +584,8 @@ namespace MikuMikuWorld
 		laterNoteAsMid.parentID = earlierHold.start.ID;
 		
 		score.notes[laterNoteAsMid.ID] = laterNoteAsMid;
-		earlierHold.steps.push_back({ laterNoteAsMid.ID, laterHold.start.type, laterHold.start.ease });
+		HoldStepType stepType = earlierHold.isGuide() ? HoldStepType::Hidden : laterHold.start.type;
+		earlierHold.steps.push_back({ laterNoteAsMid.ID, stepType, laterHold.start.ease });
 
 		selectedNotes.insert(laterNoteAsMid.ID);
 
@@ -633,6 +635,8 @@ namespace MikuMikuWorld
 
 		HoldNote newHold;
 		newHold.end = hold.end;
+		newHold.startType = hold.startType;
+		newHold.endType = hold.endType;
 
 		Note& slideEnd = score.notes.at(hold.end);
 		slideEnd.parentID = newSlideStart.ID;
@@ -732,6 +736,12 @@ namespace MikuMikuWorld
 		});
 	}
 
+	bool ScoreContext::selectionHasAnyStep() const
+	{
+		return std::any_of(selectedNotes.begin(), selectedNotes.end(),
+			[this](int id) { return score.notes.at(id).getType() == NoteType::HoldMid; });
+	}
+
 	bool ScoreContext::selectionHasFlickable() const
 	{
 		return std::any_of(selectedNotes.begin(), selectedNotes.end(),
@@ -753,7 +763,10 @@ namespace MikuMikuWorld
 		Note earlierNote = std::min(note1, note2, noteTickCompareFunc);
 		Note laterNote = std::max(note1, note2, noteTickCompareFunc);
 
-		return (earlierNote.getType() == NoteType::HoldEnd && laterNote.getType() == NoteType::Hold);
+		if (earlierNote.getType() != NoteType::HoldEnd || laterNote.getType() != NoteType::Hold)
+			return false;
+
+		return (score.holdNotes.at(earlierNote.parentID).isGuide() == score.holdNotes.at(laterNote.ID).isGuide());
 	}
 	
 	bool ScoreContext::selectionCanChangeHoldType() const

@@ -103,6 +103,7 @@ namespace MikuMikuWorld
 		int minTickFromSelection() const;
 		bool selectionHasEase() const;
 		bool selectionHasStep() const;
+		bool selectionHasAnyStep() const;
 		bool selectionHasFlickable() const;
 		bool selectionCanConnect() const;
 		bool selectionCanChangeHoldType() const;
