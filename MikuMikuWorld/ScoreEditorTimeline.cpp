@@ -728,10 +728,10 @@ namespace MikuMikuWorld
 			if (note.getType() == NoteType::HoldEnd)
 			{
 				const Note& start = context.score.notes.at(note.parentID);
-				if (start.tick <= endTick && note.tick >= startTick)
+				if (start.tick <= endTick && (note.tick >= startTick || isNoteVisible(note)))
 					updateHolds.push_back(context.score.holdNotes.at(start.ID));
 			}
-			else if (note.getType() == NoteType::Tap && note.tick <= endTick && note.tick >= startTick)
+			else if (note.getType() == NoteType::Tap && isNoteVisible(note))
 			{
 				updateNoteIDs.push_back(note.ID);
 			}
@@ -739,7 +739,9 @@ namespace MikuMikuWorld
 
 		std::sort(updateHolds.begin(), updateHolds.end(), [&context](const HoldNote& a, const HoldNote& b)
 		{
-			return context.score.notes.at(a.start.ID).tick < context.score.notes.at(b.start.ID).tick;
+			const Note& n1 = context.score.notes.at(a.start.ID);
+			const Note& n2 = context.score.notes.at(b.start.ID);
+			return n1.tick == n2.tick ? n1.ID > n2.ID : n1.tick < n2.tick;
 		});
 
 		std::sort(updateNoteIDs.begin(), updateNoteIDs.end(), [&context](int a, int b)

@@ -361,7 +361,9 @@ namespace MikuMikuWorld
 
 		std::sort(exportHolds.begin(), exportHolds.end(), [&score](const HoldNote& a, const HoldNote& b)
 		{
-			return score.notes.at(a.start.ID).tick < score.notes.at(b.start.ID).tick;
+			const Note& n1 = score.notes.at(a.start.ID);
+			const Note& n2 = score.notes.at(b.start.ID);
+			return n1.tick == n2.tick ? n1.ID < n2.ID : n1.tick < n2.tick;
 		});
 
 		for (const auto& hold : exportHolds)

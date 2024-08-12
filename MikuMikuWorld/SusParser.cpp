@@ -2,6 +2,7 @@
 #include "IO.h"
 #include "File.h"
 #include <algorithm>
+#include <map>
 
 using namespace IO;
 
@@ -297,8 +298,8 @@ namespace MikuMikuWorld
 
 		std::vector<SUSNote> taps;
 		std::vector<SUSNote> directionals;
-		std::unordered_map<int, std::vector<SUSNote>> slideStreams;
-		std::unordered_map<int, std::vector<SUSNote>> guideStreams;
+		std::map<int, std::vector<SUSNote>> slideStreams;
+		std::map<int, std::vector<SUSNote>> guideStreams;
 		for (const auto& line : noteLines)
 		{
 			const std::string& header = line.header;
