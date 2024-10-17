@@ -89,12 +89,21 @@ namespace MikuMikuWorld
 
 	void VertexBuffer::pushBuffer(const Quad& q)
 	{
-		for (int offset = 0; offset < 4; ++offset)
-		{
-			buffer[bufferPos + offset].position = DirectX::XMVector2Transform(q.vertices[offset].position, q.matrix);
-			buffer[bufferPos + offset].color = q.vertices[offset].color;
-			buffer[bufferPos + offset].uv = q.vertices[offset].uv;
-		}
+		buffer[bufferPos + 0].position = q.vertices[0].position;
+		buffer[bufferPos + 0].color = q.vertices[0].color;
+		buffer[bufferPos + 0].uv = q.vertices[0].uv;
+
+		buffer[bufferPos + 1].position = q.vertices[1].position;
+		buffer[bufferPos + 1].color = q.vertices[1].color;
+		buffer[bufferPos + 1].uv = q.vertices[1].uv;
+
+		buffer[bufferPos + 2].position = q.vertices[2].position;
+		buffer[bufferPos + 2].color = q.vertices[2].color;
+		buffer[bufferPos + 2].uv = q.vertices[2].uv;
+
+		buffer[bufferPos + 3].position = q.vertices[3].position;
+		buffer[bufferPos + 3].color = q.vertices[3].color;
+		buffer[bufferPos + 3].uv = q.vertices[3].uv;
 
 		bufferPos += 4;
 	}

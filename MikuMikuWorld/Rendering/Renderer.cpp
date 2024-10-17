@@ -127,13 +127,10 @@ namespace MikuMikuWorld
 	void Renderer::pushQuad(const std::array<DirectX::XMVECTOR, 4>& pos, const std::array<DirectX::XMVECTOR, 4>& uv,
 		const DirectX::XMMATRIX& m, const DirectX::XMVECTOR& col, int tex, int z)
 	{
-		Quad q;
-		q.matrix = m;
-		q.texture = tex;
-		q.zIndex = z;
+		Quad q{ tex, z };
 		for (int i = 0; i < 4; ++i)
 		{
-			q.vertices[i].position = pos[i];
+			q.vertices[i].position = DirectX::XMVector2Transform(pos[i], m);
 			q.vertices[i].color = col;
 			q.vertices[i].uv = uvCoords[i];
 		}
@@ -168,7 +165,7 @@ namespace MikuMikuWorld
 
 	void Renderer::endBatch()
 	{
-		assert(batchStarted && "Render batch not started. Forgot to call beginBatch()?");
+		assert(batchStarted && "Render batch not started. Forgot to call beginBatch?");
 
 		numBatchVertices = numVertices;
 		numBatchQuads = numQuads;
