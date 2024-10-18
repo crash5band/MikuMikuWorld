@@ -716,8 +716,8 @@ namespace MikuMikuWorld
 		shader->use();
 		shader->setMatrix4("projection", camera.getOffCenterOrthographicProjection(0, size.x, position.y, position.y + size.y));
 
-		framebuffer->bind();
-		framebuffer->clear();
+		slidePathFramebuffer->bind();
+		slidePathFramebuffer->clear();
 
 		glDisable(GL_DEPTH_TEST);
 
@@ -765,10 +765,10 @@ namespace MikuMikuWorld
 			drawHoldCurve(hold, context.score.notes, renderer, noteTint);
 		}
 		renderer->endBatch();
-		ImGui::GetWindowDrawList()->AddImage((void*)framebuffer->getTexture(), position, position + size);
+		ImGui::GetWindowDrawList()->AddImage((void*)slidePathFramebuffer->getTexture(), position, position + size);
 
-		framebuffer1->bind();
-		framebuffer1->clear();
+		notesFramebuffer->bind();
+		notesFramebuffer->clear();
 		renderer->beginBatch();
 
 		minNoteYDistance = INT_MAX;
@@ -840,7 +840,7 @@ namespace MikuMikuWorld
 			insertingHold = false;
 		}
 
-		ImGui::GetWindowDrawList()->AddImage((void*)framebuffer1->getTexture(), position, position + size);
+		ImGui::GetWindowDrawList()->AddImage((void*)notesFramebuffer->getTexture(), position, position + size);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDisable(GL_DEPTH_TEST);
@@ -2064,8 +2064,8 @@ namespace MikuMikuWorld
 
 	ScoreEditorTimeline::ScoreEditorTimeline()
 	{
-		framebuffer = std::make_unique<Framebuffer>(1920, 1080);
-		framebuffer1 = std::make_unique<Framebuffer>(1920, 1080);
+		slidePathFramebuffer = std::make_unique<Framebuffer>(1920, 1080);
+		notesFramebuffer = std::make_unique<Framebuffer>(1920, 1080);
 		playbackSpeed = 1.0f;
 
 		background.load(config.backgroundImage.empty() ? (Application::getAppDir() + "res\\textures\\default.png") : config.backgroundImage);

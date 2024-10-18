@@ -108,8 +108,8 @@ namespace MikuMikuWorld
 		bool playing{ false };
 
 		Camera camera;
-		std::unique_ptr<Framebuffer> framebuffer;
-		std::unique_ptr<Framebuffer> framebuffer1;
+		std::unique_ptr<Framebuffer> slidePathFramebuffer;
+		std::unique_ptr<Framebuffer> notesFramebuffer;
 		ImVec2 size;
 		ImVec2 position;
 		ImVec2 prevPos;
