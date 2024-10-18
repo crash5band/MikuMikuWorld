@@ -14,7 +14,7 @@ namespace MikuMikuWorld
 
 	static InverseNotesFilter inverseGuideFilter(CommonNoteFilters::guideFilter());
 
-	bool noteExists(const int id, const Score& score)
+	static bool noteExists(const int id, const Score& score)
 	{
 		return score.notes.find(id) != score.notes.end();
 	}
