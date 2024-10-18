@@ -1,6 +1,7 @@
 #include "Note.h"
 #include "Constants.h"
 #include "Score.h"
+#include "ImageCrop.h"
 #include <algorithm>
 
 namespace MikuMikuWorld
@@ -109,51 +110,54 @@ namespace MikuMikuWorld
 
 	int getFlickArrowSpriteIndex(const Note& note)
 	{
-		int startIndex = note.critical ? 24 : 12;
+		int startIndex = note.critical ? (int)SPR_FLICK_ARROW_CRITICAL_01 : SPR_FLICK_ARROW_01;
 		return startIndex + ((std::min(note.width, 6) - 1) * 2) + (note.flick != FlickType::Default ? 1 : 0);
 	}
 
 	int getNoteSpriteIndex(const Note& note)
 	{
-		// default tap
-		int index = 3;
+		NoteSprite spr = SPR_NOTE_TAP;
 
 		if (note.friction)
 		{
-			index = note.critical ? 5 : note.flick != FlickType::None ? 6 : 4;
+			if (note.critical)
+			{
+				spr = SPR_NOTE_FRICTION_CRITICAL;
+			}
+			else
+			{
+				spr = note.flick != FlickType::None ? SPR_NOTE_FRICTION_FLICK : SPR_NOTE_FRICTION;
+			}
 		}
-		else if (note.critical && note.getType() != NoteType::HoldMid)
+		else if (note.getType() == NoteType::HoldMid)
 		{
-			index = 0;
-		}
-		else if (note.isFlick())
-		{
-			index = 1;
+			spr = note.critical ? SPR_NOTE_LONG_AMONG_CRITICAL : SPR_NOTE_LONG_AMONG;
 		}
 		else
 		{
-			switch (note.getType())
+			if (note.critical)
 			{
-			case NoteType::Hold:
-			case NoteType::HoldEnd:
-				index = 2;
-				break;
-
-			case NoteType::HoldMid:
-				index = note.critical ? 8 : 7;
-				break;
-
-			default:
-				break;
+				spr = SPR_NOTE_CRITICAL;
+			}
+			else if (note.isFlick())
+			{
+				spr = SPR_NOTE_FLICK;
+			}
+			else if (note.getType() == NoteType::Hold || note.getType() == NoteType::HoldEnd)
+			{
+				spr = SPR_NOTE_LONG;
 			}
 		}
 
-		return index;
+		return (int)spr;
 	}
 
 	int getFrictionSpriteIndex(const Note& note)
 	{
-		return note.critical ? 10 : note.flick != FlickType::None ? 11 : 9;
+		if (note.critical)
+			return SPR_NOTE_FRICTION_AMONG_CRITICAL;
+
+		return note.flick != FlickType::None ? SPR_NOTE_FRICTION_AMONG_FLICK : SPR_NOTE_FRICTION_AMONG;
 	}
 
 	int findHoldStep(const HoldNote& note, int stepID)

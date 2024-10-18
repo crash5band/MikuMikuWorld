@@ -313,27 +313,11 @@ namespace MikuMikuWorld
 
 		const std::string texturesDir = appDir + "res\\textures\\";
 
-		ResourceManager::loadTexture(texturesDir + "notes1.png",
-			TextureFilterMode::LinearMipMapLinear, TextureFilterMode::Linear);
-
+		ResourceManager::loadTexture(texturesDir + "notes1.png", TextureFilterMode::LinearMipMapLinear, TextureFilterMode::Linear);
 		ResourceManager::loadTexture(texturesDir + "longNoteLine.png");
 		ResourceManager::loadTexture(texturesDir + "touchLine_eff.png");
-
-		ResourceManager::loadTexture(texturesDir + "timeline_select.png");
-		ResourceManager::loadTexture(texturesDir + "timeline_tap.png");
-		ResourceManager::loadTexture(texturesDir + "timeline_hold.png");
-		ResourceManager::loadTexture(texturesDir + "timeline_hold_step_normal.png");
-		ResourceManager::loadTexture(texturesDir + "timeline_hold_step_hidden.png");
-		ResourceManager::loadTexture(texturesDir + "timeline_hold_step_skip.png");
-		ResourceManager::loadTexture(texturesDir + "timeline_flick_default.png");
-		ResourceManager::loadTexture(texturesDir + "timeline_flick_left.png");
-		ResourceManager::loadTexture(texturesDir + "timeline_flick_right.png");
-		ResourceManager::loadTexture(texturesDir + "timeline_critical.png");
-		ResourceManager::loadTexture(texturesDir + "timeline_trace.png");
-		ResourceManager::loadTexture(texturesDir + "timeline_guide.png");
-		ResourceManager::loadTexture(texturesDir + "timeline_bpm.png");
-		ResourceManager::loadTexture(texturesDir + "timeline_time_signature.png");
-		ResourceManager::loadTexture(texturesDir + "timeline_hi_speed.png");
+		ResourceManager::loadTexture(texturesDir + "timeline_tools.png");
+		ResourceManager::loadTexture(texturesDir + "note_stats.png");
 
 		// Cache note textures indices
 		noteTextures.notes = ResourceManager::getTexture(NOTES_TEX);

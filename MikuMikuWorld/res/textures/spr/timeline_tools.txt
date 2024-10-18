@@ -1,0 +1,30 @@
+# timeline_bpm
+0,0,64,64
+# timeline_critical
+64,0,64,64
+# timeline_flick_default
+128,0,64,64
+# timeline_flick_left
+192,0,64,64
+# timeline_flick_right
+256,0,64,64
+# timeline_guide
+320,0,64,64
+# timeline_hi_speed
+384,0,64,64
+# timeline_hold
+448,0,64,64
+# timeline_hold_step_hidden
+0,64,64,64
+# timeline_hold_step_normal
+64,64,64,64
+# timeline_hold_step_skip
+128,64,64,64
+# timeline_select
+192,64,64,64
+# timeline_tap
+256,64,64,64
+# timeline_time_signature
+320,64,64,64
+# timeline_trace
+384,64,64,64

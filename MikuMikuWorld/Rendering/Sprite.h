@@ -7,15 +7,20 @@ namespace MikuMikuWorld
 	{
 	private:
 		float x, y, width, height;
-		std::string texture;
 
 	public:
-		Sprite(const std::string& tex, float _x, float _y, float _w, float _h);
+		Sprite(float _x, float _y, float _w, float _h) :
+			x{ _x }, y{ _y }, width{ _w }, height{ _h }
+		{
 
-		float getX() const;
-		float getY() const;
-		float getWidth() const;
-		float getHeight() const;
+		}
+
+		inline float getX1() const { return x; }
+		inline float getY1() const { return y; }
+		inline float getX2() const { return x + width; }
+		inline float getY2() const { return y + height; }
+		inline float getWidth() const { return width; }
+		inline float getHeight() const { return height; }
 	};
 }
 

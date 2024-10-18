@@ -96,6 +96,7 @@ namespace MikuMikuWorld
 		static bool timeSignatureSelect(int& numerator, int& denominator);
 		static bool toolbarButton(const char* icon, const char* label, const char* shortcut, bool enabled = true, bool selected = false);
 		static bool toolbarImageButton(const char* img, const char* label, const char* shortcut, bool enabled = true, bool selected = false);
+		static bool toolbarImageButton(const char* img, int spr, const char* label, const char* shortcut, bool enabled = true, bool selected = false);
 		static void toolbarSeparator();
 
 		static void setWindowTitle(std::string title);

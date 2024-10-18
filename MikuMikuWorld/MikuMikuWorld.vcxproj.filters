@@ -99,9 +99,6 @@
     <ClCompile Include="Rendering\Texture.cpp">
       <Filter>Rendering\Texture</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Sprite.cpp">
-      <Filter>Rendering\Texture</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Framebuffer.cpp">
       <Filter>Rendering\Texture</Filter>
     </ClCompile>
@@ -340,6 +337,9 @@
     </ClInclude>
     <ClInclude Include="NotesFilter.h">
       <Filter>ScoreEditor\NotesFilters</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageCrop.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

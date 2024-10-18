@@ -29,7 +29,7 @@ namespace MikuMikuWorld
 		}
 		else
 		{
-			sprites.push_back(Sprite(name, 0, 0, width, height));
+			sprites.push_back(Sprite(0, 0, width, height));
 		}
 	}
 
@@ -59,12 +59,12 @@ namespace MikuMikuWorld
 		for (auto& line : lines)
 		{
 			line = trim(line);
-			if (!isComment(line, "#") && line.size())
-				sprites.push_back(parseSprite(f, line));
+			if (!isComment(line, "#") && !line.empty())
+				sprites.push_back(parseSprite(line));
 		}
 	}
 
-	Sprite Texture::parseSprite(const File& f, const std::string& line)
+	Sprite Texture::parseSprite(const std::string& line)
 	{
 		std::vector<std::string> values = split(line, ",");
 		int x = atoi(values[0].c_str());
@@ -72,7 +72,7 @@ namespace MikuMikuWorld
 		int w = atoi(values[2].c_str());
 		int h = atoi(values[3].c_str());
 
-		return Sprite(name, x, y, w, h);
+		return Sprite(x, y, w, h);
 	}
 
 	void Texture::read(const std::string& filename, TextureFilterMode minFilter, TextureFilterMode magFilter)

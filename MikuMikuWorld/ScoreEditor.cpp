@@ -8,6 +8,7 @@
 #include "UI.h"
 #include "Constants.h"
 #include "Utilities.h"
+#include "ImageCrop.h"
 #include <filesystem>
 #include <Windows.h>
 
@@ -672,15 +673,22 @@ namespace MikuMikuWorld
 
 		UI::toolbarSeparator();
 
-		for (int i = 0; i < arrayLength(timelineModes); ++i)
+		for (int i = 0; i < (int)TimelineMode::TimelineModeMax; ++i)
 		{
-			std::string img{ IO::concat("timeline", timelineModes[i], "_") };
+			std::string img{ IO::concat("timeline_tools", timelineModes[i], "_") };
+			int sprIndex = (int)timelineSprites[i];
 			if (i == (int)TimelineMode::InsertFlick)
+			{
 				img.append(IO::concat("", flickTypes[(int)edit.flickType], "_"));
+				sprIndex = (int)flickToolSprites[(int)edit.flickType - 1];
+			}
 			else if (i == (int)TimelineMode::InsertLongMid)
+			{
 				img.append(IO::concat("", stepTypes[(int)edit.stepType], "_"));
+				sprIndex = (int)stepToolSprites[(int)edit.stepType];
+			}
 
-			if (UI::toolbarImageButton(img.c_str(), getString(timelineModes[i]), ToShortcutString(*timelineModeBindings[i]), true, (int)timeline.getMode() == i))
+			if (UI::toolbarImageButton("timeline_tools", sprIndex, getString(timelineModes[i]), ToShortcutString(*timelineModeBindings[i]), true, (int)timeline.getMode() == i))
 				timeline.changeMode((TimelineMode)i, edit);
 		}
 

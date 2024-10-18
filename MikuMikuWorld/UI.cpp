@@ -430,9 +430,9 @@ namespace MikuMikuWorld
 		return activated;
 	}
 
-	bool UI::toolbarImageButton(const char* img, const char* label, const char* shortcut, bool enabled, bool selected)
+	bool UI::toolbarImageButton(const char* img, int sprIndex, const char* label, const char* shortcut, bool enabled, bool selected)
 	{
-		std::string lblId;
+		std::string lblId{};
 		lblId.append("##").append(img).append(label);
 
 		int texIndex = ResourceManager::getTexture(img);
@@ -451,8 +451,13 @@ namespace MikuMikuWorld
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_TabActive]);
 		}
 
-		bool activated = ImGui::ImageButton(lblId.c_str(), (void*)ResourceManager::textures[texIndex].getID(), UI::toolbarBtnImgSize);
-		
+		const Texture& tex = ResourceManager::textures[texIndex];
+		const Sprite& spr = tex.sprites[sprIndex];
+		const ImVec2 uv0{ spr.getX1() / tex.getWidth(), spr.getY1() / tex.getHeight() };
+		const ImVec2 uv1{ spr.getX2() / tex.getWidth(), spr.getY2() / tex.getHeight() };
+
+		bool activated = ImGui::ImageButton(lblId.c_str(), (void*)tex.getID(), UI::toolbarBtnImgSize, uv0, uv1);
+
 		std::string tooltipLabel = label;
 		if (shortcut && strlen(shortcut))
 			tooltipLabel.append(" (").append(shortcut).append(")");
@@ -468,6 +473,11 @@ namespace MikuMikuWorld
 		ImGui::SameLine();
 
 		return activated;
+	}
+
+	bool UI::toolbarImageButton(const char* img, const char* label, const char* shortcut, bool enabled, bool selected)
+	{
+		return toolbarImageButton(img, 0, label, shortcut, enabled, selected);
 	}
 
 	void UI::toolbarSeparator()

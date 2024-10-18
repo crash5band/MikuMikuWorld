@@ -27,18 +27,9 @@ namespace MikuMikuWorld
 
 	private:
 		std::string loadingText = "Loading...";
-		std::array<const char*, 7> scoreStatsImages
-		{
-			"timeline_tap",
-			"timeline_flick_default",
-			"timeline_hold",
-			"timeline_hold_step_normal",
-			"timeline_trace",
-			"total",
-			"combo"
-		};
+		std::array<uint8_t, 5> scoreStatsImages { 3, 1, 2, 0, 4 };
 
-		void statsTableRow(size_t row);
+		void statsTableRow(const char* lbl, size_t row);
 	};
 
 	class ScoreOptionsWindow

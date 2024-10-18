@@ -9,25 +9,29 @@
 
 namespace MikuMikuWorld
 {
-	void ScorePropertiesWindow::statsTableRow(size_t row)
+	void ScorePropertiesWindow::statsTableRow(const char* lbl, size_t row)
 	{
 		ImGui::TableSetColumnIndex(0);
 
-		if (row >= scoreStatsImages.size())
-		{
-			ImGui::Text("--");
-			ImGui::TableSetColumnIndex(1);
-			return;
-		}
-
-		int index = ResourceManager::getTexture(scoreStatsImages[row]);
+		int index = ResourceManager::getTexture("note_stats");
 		if (isArrayIndexInBounds(index, ResourceManager::textures))
 		{
-			ImGui::Image((void*)ResourceManager::textures[index].getID(), { 20, 20 });
+			const Texture& tex = ResourceManager::textures[index];
+			if (row < scoreStatsImages.size() && isArrayIndexInBounds(scoreStatsImages[row], tex.sprites))
+			{
+				const Sprite& spr = tex.sprites[scoreStatsImages[row]];
+				ImVec2 uv0{ spr.getX1() / tex.getWidth(), spr.getY1() / tex.getHeight() };
+				ImVec2 uv1{ spr.getX2() / tex.getWidth(), spr.getY2() / tex.getHeight() };
+				ImGui::Image((void*)tex.getID(), { 20, 20 }, uv0, uv1);
+			}
+			else
+			{
+				ImGui::Text(getString(lbl));
+			}
 		}
 		else
 		{
-			ImGui::Text(getString(scoreStatsImages[row]));
+			ImGui::Text(getString(lbl));
 		}
 
 		ImGui::TableSetColumnIndex(1);
@@ -134,37 +138,37 @@ namespace MikuMikuWorld
 				ImGuiTableFlags_RowBg
 			};
 
-			float tableHeight{ std::min(ImGui::GetFrameHeight() * scoreStatsImages.size(), ImGui::GetContentRegionAvail().y) };
+			float tableHeight{ std::min(ImGui::GetFrameHeight() * (scoreStatsImages.size() + 2), ImGui::GetContentRegionAvail().y) };
 			if (ImGui::BeginTable("stats_table", 2, tableFlags, { 0, tableHeight }))
 			{
 				ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, { 10, 1 });
 
 				ImGui::TableNextRow();
-				statsTableRow(0);
+				statsTableRow("tap", 0);
 				ImGui::Text("%d", context.scoreStats.getTaps());
 
 				ImGui::TableNextRow();
-				statsTableRow(1);
+				statsTableRow("flick", 1);
 				ImGui::Text("%d", context.scoreStats.getFlicks());
 
 				ImGui::TableNextRow();
-				statsTableRow(2);
+				statsTableRow("hold", 2);
 				ImGui::Text("%d", context.scoreStats.getHolds());
 
 				ImGui::TableNextRow();
-				statsTableRow(3);
+				statsTableRow("step", 3);
 				ImGui::Text("%d", context.scoreStats.getSteps());
 
 				ImGui::TableNextRow();
-				statsTableRow(4);
+				statsTableRow("trace", 4);
 				ImGui::Text("%d", context.scoreStats.getTraces());
 
 				ImGui::TableNextRow();
-				statsTableRow(5);
+				statsTableRow("total", 5);
 				ImGui::Text("%d", context.scoreStats.getTotal());
 
 				ImGui::TableNextRow();
-				statsTableRow(6);
+				statsTableRow("combo", 6);
 				ImGui::Text("%d", context.scoreStats.getCombo());
 
 				ImGui::PopStyleVar();

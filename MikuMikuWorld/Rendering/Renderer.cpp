@@ -87,7 +87,7 @@ namespace MikuMikuWorld
 		const Texture& tex, int spr, const Color& tint, int z)
 	{
 		const Sprite& s = tex.sprites[spr];
-		drawSprite(pos, rot, sz, anchor, tex, s.getX(), s.getX() + s.getWidth(), s.getY(), s.getY() + s.getHeight(), tint, z);
+		drawSprite(pos, rot, sz, anchor, tex, s.getX1(), s.getX2(), s.getY1(), s.getY2(), tint, z);
 	}
 
 	void Renderer::drawSprite(const Vector2& pos, float rot, const Vector2& sz, AnchorType anchor,

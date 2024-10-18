@@ -669,7 +669,7 @@ namespace MikuMikuWorld
 		);
 
 		float _zoom = zoom;
-		int controlWidth = ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(rhythmString).x - (UI::btnSmall.x * 3);
+		int controlWidth = ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("99:59:59  |  64/64  |  999 BPM  |  10000x").x - (UI::btnSmall.x * 3);
 		if (UI::zoomControl("zoom", _zoom, minZoom, 10, std::clamp(controlWidth, 120, 320)))
 			setZoom(_zoom);
 
@@ -677,6 +677,7 @@ namespace MikuMikuWorld
 		ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
 		ImGui::SameLine();
 		ImGui::Text(rhythmString);
+		
 
 		updateScrollbar();
 
@@ -1427,8 +1428,8 @@ namespace MikuMikuWorld
 		float endX2 = laneToPosition(n2.lane + n2.width + offsetLane);
 		float endY = getNoteYPosFromTick(n2.tick + offsetTick);
 
-		int left = spr.getX() + holdCutoffX;
-		int right = spr.getX() + spr.getWidth() - holdCutoffX;
+		int left = spr.getX1() + holdCutoffX;
+		int right = spr.getX1() + spr.getWidth() - holdCutoffX;
 
 		auto easeFunc = getEaseFunction(ease);
 		float steps = ease == EaseType::Linear ? 1 : std::max(5.0f, std::ceilf(abs((endY - startY)) / 10));
@@ -1457,21 +1458,21 @@ namespace MikuMikuWorld
 			Vector2 p3{ xl2, y2 };
 			Vector2 p4{ xl2 + holdSliceSize, y2 };
 			renderer->drawQuad(p1, p2, p3, p4, pathTex, left, left + holdSliceWidth,
-				spr.getY(), spr.getY() + spr.getHeight(), tint, (int)zIndex);
+				spr.getY1(), spr.getY1() + spr.getHeight(), tint, (int)zIndex);
 
 			p1.x = xl1 + holdSliceSize;
 			p2.x = xr1 - holdSliceSize;
 			p3.x = xl2 + holdSliceSize;
 			p4.x = xr2 - holdSliceSize;
 			renderer->drawQuad(p1, p2, p3, p4, pathTex, left + holdSliceWidth, right - holdSliceWidth,
-				spr.getY(), spr.getY() + spr.getHeight(), tint, (int)zIndex);
+				spr.getY1(), spr.getY1() + spr.getHeight(), tint, (int)zIndex);
 
 			p1.x = xr1 - holdSliceSize;
 			p2.x = xr1;
 			p3.x = xr2 - holdSliceSize;
 			p4.x = xr2;
 			renderer->drawQuad(p1, p2, p3, p4, pathTex, right - holdSliceWidth, right,
-				spr.getY(), spr.getY() + spr.getHeight(), tint, (int)zIndex);
+				spr.getY1(), spr.getY1() + spr.getHeight(), tint, (int)zIndex);
 		}
 	}
 
@@ -1553,8 +1554,8 @@ namespace MikuMikuWorld
 								pos.x = midpoint(x1, x2);
 							}
 
-							renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, s.getX(), s.getX() + s.getWidth(),
-								s.getY(), s.getY() + s.getHeight(), tint, 1);
+							renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, s.getX1(), s.getX1() + s.getWidth(),
+								s.getY1(), s.getY1() + s.getHeight(), tint, 1);
 						}
 					}
 				}
@@ -1611,7 +1612,7 @@ namespace MikuMikuWorld
 		Vector2 nodeSz{ notesHeight - 5, notesHeight - 5 };
 
 		renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter,
-			tex, s.getX(), s.getX() + s.getWidth(), s.getY(), s.getY() + s.getHeight(), tint, 1);
+			tex, s.getX1(), s.getX1() + s.getWidth(), s.getY1(), s.getY1() + s.getHeight(), tint, 1);
 	}
 
 	void ScoreEditorTimeline::drawOutline(const StepDrawData& data)
@@ -1647,17 +1648,16 @@ namespace MikuMikuWorld
 		int sizeIndex = std::min(note.width - 1, 5);
 		Vector2 size{ laneWidth * flickArrowWidths[sizeIndex], notesHeight * flickArrowHeights[sizeIndex] };
 
-		float sx1 = arrowS.getX();
-		float sx2 = arrowS.getX() + arrowS.getWidth();
+		float sx1 = arrowS.getX1();
+		float sx2 = arrowS.getX2();
 		if (note.flick == FlickType::Right)
 		{
 			// Flip arrow to point to the right
-			sx1 = arrowS.getX() + arrowS.getWidth();
-			sx2 = arrowS.getX();
+			std::swap(sx1, sx2);
 		}
 
 		renderer->drawSprite(pos, 0.0f, size, AnchorType::MiddleCenter, tex,
-			sx1, sx2, arrowS.getY(), arrowS.getY() + arrowS.getHeight(), tint, (int)ZIndex::FlickArrow);
+			sx1, sx2, arrowS.getY1(), arrowS.getY2(), tint, (int)ZIndex::FlickArrow);
 	}
 
 	void ScoreEditorTimeline::drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
@@ -1680,27 +1680,27 @@ namespace MikuMikuWorld
 		const Vector2 midSz{ midLen, notesHeight };
 
 		pos.x -= noteOffsetX;
-		const int left = s.getX() + noteCutoffX;
-		const int right = s.getX() + s.getWidth() - noteCutoffX;
+		const int left = s.getX1() + noteCutoffX;
+		const int right = s.getX2() - noteCutoffX;
 
 		// Left slice
 		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
 			left, left + noteSliceWidth,
-			s.getY(), s.getY() + s.getHeight(), tint, (int)ZIndex::Note
+			s.getY1(), s.getY2(), tint, (int)ZIndex::Note
 		);
 		pos.x += sliceSz.x;
 
 		// Middle
 		renderer->drawSprite(pos, 0.0f, midSz, anchor, tex,
 			left + noteSliceWidth, left + noteSliceWidth + 1,
-			s.getY(), s.getY() + s.getHeight(), tint, (int)ZIndex::Note
+			s.getY1(), s.getY2(), tint, (int)ZIndex::Note
 		);
 		pos.x += midLen;
 
 		// Right slice
 		renderer->drawSprite(pos, 0.0f, sliceSz, anchor, tex,
 			right - noteSliceWidth, right,
-			s.getY(), s.getY() + s.getHeight(), tint, (int)ZIndex::Note
+			s.getY1(), s.getY2(), tint, (int)ZIndex::Note
 		);
 
 		if (note.friction)
@@ -1714,8 +1714,8 @@ namespace MikuMikuWorld
 
 				// Diamond is always centered
 				pos.x = midpoint(laneToPosition(note.lane + offsetLane), laneToPosition(note.lane + offsetLane + note.width));
-				renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, frictionSpr.getX(), frictionSpr.getX() + frictionSpr.getWidth(),
-					frictionSpr.getY(), frictionSpr.getY() + frictionSpr.getHeight(), tint, (int)ZIndex::Note);
+				renderer->drawSprite(pos, 0.0f, nodeSz, AnchorType::MiddleCenter, tex, frictionSpr.getX1(), frictionSpr.getX2(),
+					frictionSpr.getY1(), frictionSpr.getY2(), tint, (int)ZIndex::Note);
 			}
 		}
 
