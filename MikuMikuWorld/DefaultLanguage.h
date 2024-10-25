@@ -49,6 +49,7 @@ namespace MikuMikuWorld
 		{"save_changes", "Save Changes"},
 		{"discard_changes", "Discard Changes"},
 		{"score_file", "Score file"},
+		{"export_successful", "The export completed successfully"},
 		{"error", "Error"},
 		{"error_load_score_file", "An error occurred while reading the score file"},
 		{"error_load_music_file", "Cannot open music file"},
