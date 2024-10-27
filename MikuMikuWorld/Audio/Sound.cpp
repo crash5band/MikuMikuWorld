@@ -53,7 +53,7 @@ namespace Audio
 		std::string nameWithoutExtension = IO::File::getFilenameWithoutExtension(filename);
 		std::wstring wFilename = IO::mbToWideStr(filename);
 
-		IO::File f(wFilename, L"rb");
+		IO::File f(filename, IO::FileMode::ReadBinary);
 		std::vector<uint8_t> bytes = f.readAllBytes();
 		f.close();
 

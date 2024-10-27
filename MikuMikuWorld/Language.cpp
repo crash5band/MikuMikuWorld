@@ -27,7 +27,7 @@ namespace MikuMikuWorld
 		if (!File::exists(filename))
 			return;
 
-		File f(mbToWideStr(filename), L"r");
+		File f(filename, FileMode::Read);
 		std::vector<std::string> lines = f.readAllLines();
 
 		f.close();

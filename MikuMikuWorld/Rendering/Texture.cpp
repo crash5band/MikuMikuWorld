@@ -51,8 +51,7 @@ namespace MikuMikuWorld
 
 	void Texture::readSprites(const std::string& filename)
 	{
-		std::wstring wFilename = mbToWideStr(filename);
-		File f(wFilename, L"r");
+		File f(filename, FileMode::Read);
 		std::vector<std::string> lines = f.readAllLines();
 		f.close();
 

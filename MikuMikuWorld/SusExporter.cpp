@@ -381,8 +381,7 @@ namespace MikuMikuWorld
 		std::vector<std::string> guideLines = getNoteLines(baseMeasure);
 		lines.insert(lines.end(), guideLines.begin(), guideLines.end());
 
-		std::wstring wFilename = mbToWideStr(filename);
-		File susfile(wFilename, L"w");
+		File susfile(filename, FileMode::Write);
 
 		susfile.writeAllLines(lines);
 		susfile.flush();
