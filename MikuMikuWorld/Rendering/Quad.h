@@ -19,7 +19,6 @@ namespace MikuMikuWorld
 
 		Quad() : zIndex{ 0 }, texture{ 0 }
 		{
-			
 		}
 
 		Quad(int texture, int zIndex) : zIndex{ zIndex }, texture{ texture }

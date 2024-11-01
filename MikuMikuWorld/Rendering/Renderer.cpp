@@ -128,14 +128,23 @@ namespace MikuMikuWorld
 		const DirectX::XMMATRIX& m, const DirectX::XMVECTOR& col, int tex, int z)
 	{
 		Quad q{ tex, z };
-		for (int i = 0; i < 4; ++i)
-		{
-			q.vertices[i].position = DirectX::XMVector2Transform(pos[i], m);
-			q.vertices[i].color = col;
-			q.vertices[i].uv = uvCoords[i];
-		}
+		q.vertices[0].position = DirectX::XMVector2Transform(pos[0], m);
+		q.vertices[0].color = col;
+		q.vertices[0].uv = uvCoords[0];
 
-		quads.push_back(q);
+		q.vertices[1].position = DirectX::XMVector2Transform(pos[1], m);
+		q.vertices[1].color = col;
+		q.vertices[1].uv = uvCoords[1];
+
+		q.vertices[2].position = DirectX::XMVector2Transform(pos[2], m);
+		q.vertices[2].color = col;
+		q.vertices[2].uv = uvCoords[2];
+
+		q.vertices[3].position = DirectX::XMVector2Transform(pos[3], m);
+		q.vertices[3].color = col;
+		q.vertices[3].uv = uvCoords[3];
+
+		quads.push_back(std::move(q));
 
 		++numQuads;
 		numVertices += 4;

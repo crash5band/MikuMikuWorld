@@ -253,6 +253,7 @@
     <ClInclude Include="AggregateNotesFilter.h" />
     <ClInclude Include="NoteTypes.h" />
     <ClInclude Include="NotesPreset.h" />
+    <ClInclude Include="RenderDebugStats.h" />
     <ClInclude Include="Rendering\AnchorType.h" />
     <ClInclude Include="Rendering\Camera.h" />
     <ClInclude Include="Rendering\Framebuffer.h" />
@@ -261,7 +262,6 @@
     <ClInclude Include="Rendering\Shader.h" />
     <ClInclude Include="Rendering\Sprite.h" />
     <ClInclude Include="Rendering\Texture.h" />
-    <ClInclude Include="Rendering\Vertex.h" />
     <ClInclude Include="Rendering\VertexBuffer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceManager.h" />

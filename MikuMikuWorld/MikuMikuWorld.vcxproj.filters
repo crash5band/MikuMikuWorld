@@ -278,9 +278,6 @@
     <ClInclude Include="Rendering\Framebuffer.h">
       <Filter>Rendering\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Vertex.h">
-      <Filter>Rendering\Primitives</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Quad.h">
       <Filter>Rendering\Primitives</Filter>
     </ClInclude>
@@ -341,6 +338,9 @@
     <ClInclude Include="ImageCrop.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="RenderDebugStats.h">
+      <Filter>Misc\Debug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">
@@ -399,6 +399,9 @@
     </Filter>
     <Filter Include="ScoreEditor\NotesFilters">
       <UniqueIdentifier>{1c89fb75-1c6f-4c10-96c6-af5f2809f225}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Misc\Debug">
+      <UniqueIdentifier>{6421cc98-39eb-4c5d-9f42-efa9cefbff16}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

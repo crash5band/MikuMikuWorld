@@ -25,7 +25,6 @@ namespace MikuMikuWorld
 		std::array<DirectX::XMVECTOR, 4> vPos;
 		std::array<DirectX::XMVECTOR, 4> uvCoords;
 
-		unsigned int vao{}, vbo{}, ebo{};
 		int texID{};
 		bool batchStarted{ false };
 

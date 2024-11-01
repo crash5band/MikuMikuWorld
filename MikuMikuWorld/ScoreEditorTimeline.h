@@ -6,6 +6,7 @@
 #include "Rendering/Renderer.h"
 #include "TimelineMode.h"
 #include "Background.h"
+#include "RenderDebugStats.h"
 
 namespace MikuMikuWorld
 {
@@ -150,6 +151,8 @@ namespace MikuMikuWorld
 		std::unordered_set<std::string> playingNoteSounds;
 		static constexpr float audioOffsetCorrection = 0.02f;
 		static constexpr float audioLookAhead = 0.05f;
+
+		Debug::DebugRenderStats renderStats;
 
 		void updateScrollbar();
 		void updateScrollingPosition();

@@ -725,6 +725,11 @@ namespace MikuMikuWorld
 		std::vector<int> updateNoteIDs;
 		int startTick = positionToTick(visualOffset - size.y);
 		int endTick = positionToTick(visualOffset);
+
+		renderStats.clear();
+		Stopwatch renderTimer{};
+		renderTimer.reset();
+
 		std::for_each(context.score.notes.begin(), context.score.notes.end(), [&](const std::pair<int, Note>& pair)
 		{
 			const Note& note = pair.second;
@@ -759,12 +764,15 @@ namespace MikuMikuWorld
 			return context.score.notes.at(a).tick > context.score.notes.at(b).tick;
 		});
 
+
 		renderer->beginBatch();
 		for (const auto& hold : updateHolds)
 		{
 			drawHoldCurve(hold, context.score.notes, renderer, noteTint);
 		}
 		renderer->endBatch();
+		renderStats.addStats(renderer);
+
 		ImGui::GetWindowDrawList()->AddImage((void*)slidePathFramebuffer->getTexture(), position, position + size);
 
 		notesFramebuffer->bind();
@@ -803,6 +811,7 @@ namespace MikuMikuWorld
 		}
 
 		renderer->endBatch();
+		renderStats.addStats(renderer);
 
 		const bool pasting = context.pasteData.pasting;
 		if (pasting && mouseInTimeline && !playing)
@@ -834,6 +843,7 @@ namespace MikuMikuWorld
 			}
 
 			renderer->endBatch();
+			renderStats.addStats(renderer);
 		}
 		else
 		{
@@ -841,6 +851,7 @@ namespace MikuMikuWorld
 		}
 
 		ImGui::GetWindowDrawList()->AddImage((void*)notesFramebuffer->getTexture(), position, position + size);
+		renderStats.renderCpuTime = renderTimer.elapsed();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDisable(GL_DEPTH_TEST);
@@ -1457,22 +1468,19 @@ namespace MikuMikuWorld
 			Vector2 p2{ xl1 + holdSliceSize, y1 };
 			Vector2 p3{ xl2, y2 };
 			Vector2 p4{ xl2 + holdSliceSize, y2 };
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, left, left + holdSliceWidth,
-				spr.getY1(), spr.getY1() + spr.getHeight(), tint, (int)zIndex);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, left, left + holdSliceWidth, spr.getY1(), spr.getY2(), tint, (int)zIndex);
 
 			p1.x = xl1 + holdSliceSize;
 			p2.x = xr1 - holdSliceSize;
 			p3.x = xl2 + holdSliceSize;
 			p4.x = xr2 - holdSliceSize;
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, left + holdSliceWidth, right - holdSliceWidth,
-				spr.getY1(), spr.getY1() + spr.getHeight(), tint, (int)zIndex);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, left + holdSliceWidth, right - holdSliceWidth, spr.getY1(), spr.getY2(), tint, (int)zIndex);
 
 			p1.x = xr1 - holdSliceSize;
 			p2.x = xr1;
 			p3.x = xr2 - holdSliceSize;
 			p4.x = xr2;
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, right - holdSliceWidth, right,
-				spr.getY1(), spr.getY1() + spr.getHeight(), tint, (int)zIndex);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, right - holdSliceWidth, right, spr.getY1(), spr.getY2(), tint, (int)zIndex);
 		}
 	}
 
@@ -2033,6 +2041,13 @@ namespace MikuMikuWorld
 
 		ImGui::Text("Last selected tick : %d", lastSelectedTick);
 		ImGui::Separator();
+
+		if (ImGui::CollapsingHeader("Rendering"), ImGuiTreeNodeFlags_DefaultOpen)
+		{
+			ImGui::Text("Render Quads: %d", renderStats.getQuads());
+			ImGui::Text("Render Vertices: %d", renderStats.getVerticies());
+			ImGui::Text("Render Time: %.3fms", renderStats.getRenderCpuTime() * 1000.0f);
+		}
 
 		if (ImGui::CollapsingHeader("Hover Note", ImGuiTreeNodeFlags_DefaultOpen))
 		{
