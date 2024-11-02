@@ -27,7 +27,7 @@ namespace MikuMikuWorld
 
 	private:
 		std::string loadingText = "Loading...";
-		std::array<uint8_t, 5> scoreStatsImages { 3, 1, 2, 0, 4 };
+		std::array<uint8_t, 5> scoreStatsImages { 3, 0, 1, 2, 4 };
 
 		void statsTableRow(const char* lbl, size_t row);
 	};
