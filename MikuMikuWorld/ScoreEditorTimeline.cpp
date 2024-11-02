@@ -2042,7 +2042,7 @@ namespace MikuMikuWorld
 		ImGui::Text("Last selected tick : %d", lastSelectedTick);
 		ImGui::Separator();
 
-		if (ImGui::CollapsingHeader("Rendering"), ImGuiTreeNodeFlags_DefaultOpen)
+		if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Text("Render Quads: %d", renderStats.getQuads());
 			ImGui::Text("Render Vertices: %d", renderStats.getVerticies());
