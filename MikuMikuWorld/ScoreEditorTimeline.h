@@ -96,7 +96,6 @@ namespace MikuMikuWorld
 		bool isHoveringNote{ false };
 		bool isHoldingNote{ false };
 		bool isMovingNote{ false };
-		bool skipUpdateAfterSortingSteps{ false };
 		bool dragging{ false };
 		bool insertingHold{ false };
 

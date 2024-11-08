@@ -792,7 +792,6 @@ namespace MikuMikuWorld
 			{
 				Note& mid = context.score.notes.at(step.ID);
 				if (isNoteVisible(mid)) updateNote(context, edit, mid);
-				if (skipUpdateAfterSortingSteps) break;
 			}
 
 			drawHoldNote(context.score.notes, hold, renderer, noteTint);
@@ -1182,8 +1181,7 @@ namespace MikuMikuWorld
 			{
 				for (int holdId : context.getHoldsFromSelection())
 					sortHold(context.score, context.score.holdNotes.at(holdId));
-			
-				skipUpdateAfterSortingSteps = true;
+
 				context.pushHistory("Update notes", prevUpdateScore, context.score);
 			}
 		}
