@@ -859,15 +859,16 @@ namespace MikuMikuWorld
 	void ScoreEditorTimeline::previewPaste(ScoreContext& context, Renderer* renderer)
 	{
 		std::vector<HoldNote> updateHolds;
-		int startTick = positionToTick(visualOffset - size.y);
-		int endTick = positionToTick(visualOffset);
+		const int startTick = positionToTick(visualOffset - size.y);
+		const int endTick = positionToTick(visualOffset);
+		const int offsetTicks = context.pasteData.offsetTicks;
 		std::for_each(context.pasteData.holds.begin(), context.pasteData.holds.end(), [&](const std::pair<int, HoldNote>& pair)
 		{
 			const HoldNote& hold = pair.second;
 			const Note& start = context.pasteData.notes.at(hold.start.ID);
 			const Note& end = context.pasteData.notes.at(hold.end);
 
-			if (start.tick <= endTick && end.tick >= startTick)
+			if (start.tick + offsetTicks <= endTick && end.tick + offsetTicks >= startTick)
 				updateHolds.push_back(hold);
 		});
 
