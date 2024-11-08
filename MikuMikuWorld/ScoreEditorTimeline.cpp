@@ -1440,6 +1440,9 @@ namespace MikuMikuWorld
 		int left = spr.getX1() + holdCutoffX;
 		int right = spr.getX1() + spr.getWidth() - holdCutoffX;
 
+		const float limitY2 = getNoteYPosFromTick(positionToTick(visualOffset - size.y));
+		const float limitY1 = getNoteYPosFromTick(positionToTick(visualOffset));
+
 		auto easeFunc = getEaseFunction(ease);
 		float steps = ease == EaseType::Linear ? 1 : std::max(5.0f, std::ceilf(abs((endY - startY)) / 10));
 
@@ -1455,12 +1458,16 @@ namespace MikuMikuWorld
 			float xl2 = easeFunc(startX1, endX1, percent2) - 2;
 			float xr2 = easeFunc(startX2, endX2, percent2) + 2;
 
-			if (y2 <= 0)
+			if (y2 < limitY2)
+			{
+				// Below bottom boundary
 				continue;
-
-			// rest of hold no longer visible
-			if (y1 > size.y + size.y + position.y + 100)
+			}
+			else if (y1 > limitY1)
+			{
+				// Above top boundary
 				break;
+			}
 
 			Vector2 p1{ xl1, y1 };
 			Vector2 p2{ xl1 + holdSliceSize, y1 };
