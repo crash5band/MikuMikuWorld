@@ -138,8 +138,12 @@ namespace IO
 	{
 		if (stream->is_open())
 		{
+			std::stringstream ss{};
 			for (const auto& line : lines)
-				stream->write(line.c_str(), line.length());
+				ss << line + '\n';
+
+			std::string allLines{ ss.str() };
+			stream->write(allLines.c_str(), allLines.size());
 		}
 	}
 
