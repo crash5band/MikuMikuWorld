@@ -32,12 +32,27 @@ int main()
 	}
 	catch (const std::exception& ex)
 	{
-		std::string msg = std::string("An unhandled exception has occured and the application will now close.\n\n")
+		IO::MessageBoxButtons actions = IO::MessageBoxButtons::Ok;
+		std::string msg = "An unhandled exception has occured and the application will now close.";
+		if (!app.isEditorUpToDate())
+		{
+			msg.append("\nDo you want to save the current score?");
+			actions = IO::MessageBoxButtons::YesNo;
+		}
+
+		msg
+			.append("\n\nError: ")
 			.append(ex.what())
-			.append("\n\nApplication Version: ")
+			.append("\nApplication Version: ")
 			.append(mmw::Application::getAppVersion());
 			
-		IO::messageBox(APP_NAME, msg, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error, mmw::Application::windowState.windowHandle);
+		IO::MessageBoxResult result = IO::messageBox(APP_NAME, msg, actions, IO::MessageBoxIcon::Error, mmw::Application::windowState.windowHandle);
+		if (!app.isEditorUpToDate() && result == IO::MessageBoxResult::Yes && app.attemptSave())
+		{
+			IO::messageBox(APP_NAME, "Save successful", IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Information, mmw::Application::windowState.windowHandle);
+		}
+
+		app.writeSettings();
 	}
 
 	app.dispose();

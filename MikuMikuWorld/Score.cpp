@@ -345,7 +345,11 @@ namespace MikuMikuWorld
 			writer.writeInt32(stepCount);
 			for (const auto& step : hold.steps)
 			{
-				const Note& mid = score.notes.at(step.ID);
+				const auto it = score.notes.find(step.ID);
+				if (it == score.notes.end())
+					continue;
+
+				const Note& mid = it->second;
 				writeNote(mid, &writer);
 				writer.writeInt32((int)step.type);
 				writer.writeInt32((int)step.ease);

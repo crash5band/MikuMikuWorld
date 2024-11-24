@@ -356,4 +356,14 @@ namespace MikuMikuWorld
 		
 		writeSettings();
 	}
+
+	bool Application::attemptSave()
+	{
+		return editor && editor->trySave(editor->getWorkingFilename().data());
+	}
+
+	bool Application::isEditorUpToDate() const
+	{
+		return editor->isUpToDate();
+	}
 }

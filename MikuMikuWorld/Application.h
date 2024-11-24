@@ -71,6 +71,8 @@ namespace MikuMikuWorld
 		void writeSettings();
 		void loadResources();
 		void dispose();
+		bool attemptSave();
+		bool isEditorUpToDate() const;
 
 		GLFWwindow* getGlfwWindow() { return window; }
 
