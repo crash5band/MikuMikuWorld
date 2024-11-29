@@ -179,8 +179,31 @@ namespace MikuMikuWorld
 		for (const auto& [id, note] : score.notes)
 			maxTick = std::max(maxTick, note.tick);
 
+		constexpr int extraOffset{ TICKS_PER_BEAT * 4 * 1 };
 		// Current offset maybe greater than calculated offset from score
-		maxOffset = std::max(offset / zoom, std::max(10000.0f, (maxTick * unitHeight) + 1000));
+		maxOffset = std::max(offset, std::max(10000.0f, (maxTick + extraOffset) * unitHeight));
+	}
+
+	int ScoreEditorTimeline::getStopTick(const Score& score) const
+	{
+		int maxTick = 0;
+		for (const auto& [id, note] : score.notes)
+			maxTick = std::max(maxTick, note.tick);
+
+		int maxMeasure = accumulateMeasures(maxTick, TICKS_PER_BEAT, score.timeSignatures) + 1;
+		return measureToTicks(maxMeasure, TICKS_PER_BEAT, score.timeSignatures);
+	}
+
+	float ScoreEditorTimeline::getStopTime(const ScoreContext& context) const
+	{
+		if (context.audio.isMusicInitialized())
+		{
+			return context.audio.getMusicEndTime();
+		}
+		else
+		{
+			return accumulateDuration(getStopTick(context.score), TICKS_PER_BEAT, context.score.tempoChanges);
+		}
 	}
 
 	void ScoreEditorTimeline::updateScrollingPosition()
@@ -677,7 +700,6 @@ namespace MikuMikuWorld
 		ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
 		ImGui::SameLine();
 		ImGui::Text(rhythmString);
-		
 
 		updateScrollbar();
 
@@ -687,6 +709,17 @@ namespace MikuMikuWorld
 		if (playing)
 		{
 			time += ImGui::GetIO().DeltaTime * playbackSpeed;
+			const float stopTime = getStopTime(context);
+			const bool playbackStartedPastEnd = playStartTime > stopTime;
+			if (config.stopAtEnd && !playbackStartedPastEnd && time >= stopTime)
+			{
+				time = std::min(time, stopTime);
+				bool prevPauseBehaviour = config.returnToLastSelectedTickOnPause;
+				config.returnToLastSelectedTickOnPause = false;
+				setPlaying(context, false);
+				config.returnToLastSelectedTickOnPause = prevPauseBehaviour;
+			}
+
 			context.currentTick = accumulateTicks(time, TICKS_PER_BEAT, context.score.tempoChanges);
 
 			float cursorY = tickToPosition(context.currentTick);
@@ -763,7 +796,6 @@ namespace MikuMikuWorld
 		{
 			return context.score.notes.at(a).tick > context.score.notes.at(b).tick;
 		});
-
 
 		renderer->beginBatch();
 		for (const auto& hold : updateHolds)

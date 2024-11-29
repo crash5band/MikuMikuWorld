@@ -401,10 +401,13 @@ namespace Audio
 		return musicOffset;
 	}
 
-	float AudioManager::getMusicEndTime()
+	float AudioManager::getMusicEndTime() const
 	{
+		if (!isMusicInitialized())
+			return 0.0f;
+
 		float length = 0.0f;
-		ma_sound_get_length_in_seconds(&music, &length);
+		ma_data_source_get_length_in_seconds(music.pDataSource, &length);
 
 		return length + musicOffset;
 	}

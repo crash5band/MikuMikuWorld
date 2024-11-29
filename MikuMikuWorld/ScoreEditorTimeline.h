@@ -191,6 +191,9 @@ namespace MikuMikuWorld
 
 		void contextMenu(ScoreContext& context);
 
+		int getStopTick(const Score& score) const;
+		float getStopTime(const ScoreContext& context) const;
+
 	public:
 		float laneWidth = 26;
 		float notesHeight = 28;

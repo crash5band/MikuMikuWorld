@@ -533,6 +533,7 @@ namespace MikuMikuWorld
 			ImGui::MenuItem(getString("cursor_auto_scroll"), NULL, &config.followCursorInPlayback);
 			ImGui::MenuItem(getString("return_to_last_tick"), NULL, &config.returnToLastSelectedTickOnPause);
 			ImGui::MenuItem(getString("draw_waveform"), NULL, &config.drawWaveform);
+			ImGui::MenuItem(getString("stop_at_end"), NULL, &config.stopAtEnd);
 
 			ImGui::EndMenu();
 		}

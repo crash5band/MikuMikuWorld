@@ -66,7 +66,7 @@ namespace Audio
 		float getMusicPosition();
 		float getMusicLength();
 		float getMusicOffset() const;
-		float getMusicEndTime();
+		float getMusicEndTime() const;
 		bool isMusicInitialized() const;
 		bool isMusicAtEnd() const;
 		void disposeMusic();

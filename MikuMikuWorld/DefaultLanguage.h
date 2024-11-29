@@ -24,6 +24,7 @@ namespace MikuMikuWorld
 		{"show_step_outlines", "Show Step Outlines"},
 		{"hide_step_outlines_in_playback", "Hide Step Outlines During Playback"},
 		{"draw_waveform", "Show Waveform"},
+		{"stop_at_end", "Stop At The End"},
 		{"import_preset", "Import Preset"},
 		{"reload_presets", "Reload Presets"},
 		{"open_presets_folder", "Open Presets Folder"},

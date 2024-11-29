@@ -73,6 +73,7 @@ namespace MikuMikuWorld
 			drawWaveform = jsonIO::tryGetValue<bool>(config["timeline"], "draw_waveform", true);
 			returnToLastSelectedTickOnPause = jsonIO::tryGetValue<bool>(config["timeline"], "return_to_last_tick_on_pause", false);
 			cursorPositionThreshold = jsonIO::tryGetValue<float>(config["timeline"], "cursor_position_threshold", 0.5f);
+			stopAtEnd = jsonIO::tryGetValue<bool>(config["timeline"], "stop_at_end", true);
 		}
 
 		if (jsonIO::keyExists(config, "theme"))
@@ -162,7 +163,8 @@ namespace MikuMikuWorld
 			{"hide_step_outlines_in_playback", hideStepOutlinesInPlayback},
 			{"draw_waveform", drawWaveform},
 			{"return_to_last_tick_on_pause", returnToLastSelectedTickOnPause},
-			{"cursor_position_threshold", cursorPositionThreshold}
+			{"cursor_position_threshold", cursorPositionThreshold},
+			{"stop_at_end", stopAtEnd}
 		};
 
 		config["theme"] = {
@@ -245,6 +247,7 @@ namespace MikuMikuWorld
 		followCursorInPlayback = true;
 		returnToLastSelectedTickOnPause = false;
 		hideStepOutlinesInPlayback = true;
+		stopAtEnd = true;
 
 		autoSaveEnabled = true;
 		autoSaveInterval = 5;
