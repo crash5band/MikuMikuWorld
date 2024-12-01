@@ -610,8 +610,6 @@ namespace MikuMikuWorld
 		if (selectedNotes.size() != 1)
 			return;
 
-		Score prev = score;
-
 		Note& note = score.notes[*selectedNotes.begin()];
 		if (note.getType() != NoteType::HoldMid)
 			return;
@@ -621,6 +619,8 @@ namespace MikuMikuWorld
 		int pos = findHoldStep(hold, note.ID);
 		if (pos == -1)
 			return;
+
+		Score prev = score;
 
 		Note holdStart = score.notes.at(hold.start.ID);
 

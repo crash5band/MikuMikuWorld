@@ -335,7 +335,7 @@ namespace MikuMikuWorld
 
 		// Remember whether the last mouse click was in the timeline or not
 		static bool clickedOnTimeline = false;
-		if (ImGui::IsMouseClicked(0))
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 			clickedOnTimeline = mouseInTimeline;
 
 		const bool pasting = context.pasteData.pasting;
@@ -344,6 +344,9 @@ namespace MikuMikuWorld
 		// Get mouse position relative to timeline
 		mousePos = io.MousePos - position;
 		mousePos.y -= offset;
+		hoverTick = snapTickFromPos(-mousePos.y);
+		hoverLane = positionToLane(mousePos.x);
+
 		if (mouseInTimeline && !UI::isAnyPopupOpen())
 		{
 			if (io.KeyCtrl)
@@ -352,22 +355,28 @@ namespace MikuMikuWorld
 			}
 			else
 			{
-				float scrollAmount = io.MouseWheel * scrollUnit;
+				float scrollAmount = io.MouseWheel * scrollUnit * static_cast<int>(!ImGui::IsMouseDown(ImGuiMouseButton_Middle));
 				offset += scrollAmount * (io.KeyShift ? config.scrollSpeedShift : config.scrollSpeedNormal);
 			}
 
 			if (!isHoveringNote && !isHoldingNote && !insertingHold && !pasting && currentMode == TimelineMode::Select)
 			{
 				// Clicked inside timeline, the current mouse position is the first drag point
-				if (ImGui::IsMouseClicked(0))
+				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 				{
 					dragStart = mousePos;
 					if (!io.KeyCtrl && !io.KeyAlt && !ImGui::IsPopupOpen(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline")))
 						context.selectedNotes.clear();
 				}
 
+				if (ImGui::IsMouseDragging(ImGuiMouseButton_Middle))
+				{
+					ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+					offset += io.MouseDelta.y;
+				}
+
 				// Clicked and dragging inside the timeline
-				if (clickedOnTimeline && ImGui::IsMouseDown(0) && ImGui::IsMouseDragPastThreshold(0, 10.0f) && !playing)
+				if (clickedOnTimeline && ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::IsAnyItemHovered() && ImGui::IsMouseDragPastThreshold(0, 10.0f) && !playing)
 					dragging = true;
 			}
 		}
@@ -377,24 +386,23 @@ namespace MikuMikuWorld
 
 		// Selection rectangle
 		// Draw selection rectangle after notes are rendered
-		if (dragging && ImGui::IsMouseReleased(0) && !pasting)
+		if (dragging && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !pasting)
 		{
 			float left = std::min(dragStart.x, mousePos.x);
 			float right = std::max(dragStart.x, mousePos.x);
-			float top = std::min(dragStart.y, mousePos.y);
-			float bottom = std::max(dragStart.y, mousePos.y);
+
+			int startTick = positionToTick(-std::max(dragStart.y, mousePos.y));
+			int endTick = positionToTick(-std::min(dragStart.y, mousePos.y));
 
 			if (!io.KeyAlt && !io.KeyCtrl)
 				context.selectedNotes.clear();
 
-			float yThreshold = (notesHeight * 0.5f) + 2.0f;
 			for (const auto& [id, note] : context.score.notes)
 			{
 				float x1 = laneToPosition(note.lane);
 				float x2 = laneToPosition(note.lane + note.width);
-				float y = -tickToPosition(note.tick);
 
-				if (right > x1 && left < x2 && isWithinRange(y, top - yThreshold, bottom + yThreshold))
+				if (right > x1 && left < x2 && isWithinRange(note.tick, startTick, endTick))
 				{
 					if (io.KeyAlt)
 						context.selectedNotes.erase(id);
@@ -487,8 +495,6 @@ namespace MikuMikuWorld
 			++measure;
 		}
 
-		hoverTick = snapTickFromPos(-mousePos.y);
-		hoverLane = positionToLane(mousePos.x);
 		hoveringNote = -1;
 		isHoveringNote = false;
 
