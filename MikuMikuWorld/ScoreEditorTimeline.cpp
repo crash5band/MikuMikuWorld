@@ -499,11 +499,21 @@ namespace MikuMikuWorld
 		isHoveringNote = false;
 
 		// Draw cursor behind notes
+		constexpr int triPtOffset = 6;
+		constexpr ImVec2 cursorButtonSize{ triPtOffset * 2.55f, triPtOffset * 2.55f };
+
 		const float y = position.y - tickToPosition(context.currentTick) + visualOffset;
-		const int triPtOffset = 6;
 		const int triXPos = x1 - (triPtOffset * 2);
 		drawList->AddTriangleFilled(ImVec2(triXPos, y - triPtOffset), ImVec2(triXPos, y + triPtOffset), ImVec2(triXPos + (triPtOffset * 2), y), cursorColor);
 		drawList->AddLine(ImVec2(x1, y), ImVec2(x2, y), cursorColor, primaryLineThickness + 1.0f);
+		
+		ImGui::SetCursorScreenPos({ static_cast<float>(triXPos - 3), y - triPtOffset - 3 });
+		ImGui::InvisibleButton("cursor", cursorButtonSize);
+		if (ImGui::IsItemActive())
+		{
+			dragging = false;
+			lastSelectedTick = context.currentTick = std::max(0, positionToTick(-mousePos.y));
+		}
 
 		contextMenu(context);
 
