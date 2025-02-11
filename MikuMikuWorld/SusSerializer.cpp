@@ -1,25 +1,26 @@
+#include "SusSerializer.h"
+#include "SusExporter.h"
+#include "SusParser.h"
 #include "ScoreConverter.h"
 #include "SUS.h"
-#include "Score.h"
-#include "IO.h"
-#include "Constants.h"
-#include <array>
-#include <unordered_set>
-#include <algorithm>
 
 namespace MikuMikuWorld
-{
-	std::string ScoreConverter::noteKey(const SUSNote& note)
+{	
+	void SusSerializer::serialize(Score score, std::string filename)
 	{
-		return IO::formatString("%d-%d", note.tick, note.lane);
+		SUS sus = ScoreConverter::scoreToSus(score);
+
+		SusExporter exporter{};
+		exporter.dump(sus, filename, exportComment);
 	}
 
-	std::string ScoreConverter::noteKey(const Note& note)
+	Score SusSerializer::deserialize(std::string filename)
 	{
-		return IO::formatString("%d-%d", note.tick, note.lane);
+		SUS sus = SusParser().parse(filename);
+		return ScoreConverter::susToScore(sus);
 	}
 
-	std::pair<int, int> ScoreConverter::barLengthToFraction(float length, float fractionDenom)
+	std::pair<int, int> SusSerializer::barLengthToFraction(float length, float fractionDenom)
 	{
 		int factor = 1;
 		for (int i = 2; i < 10; ++i)
@@ -33,7 +34,17 @@ namespace MikuMikuWorld
 		return std::pair<int, int>(4, 4);
 	}
 
-	Score ScoreConverter::susToScore(const SUS& sus)
+	std::string SusSerializer::noteKey(const SUSNote& note)
+	{
+		return IO::formatString("%d-%d", note.tick, note.lane);
+	}
+
+	std::string SusSerializer::noteKey(const Note& note)
+	{
+		return IO::formatString("%d-%d", note.tick, note.lane);
+	}
+
+	Score SusSerializer::susToScore(const SUS& sus)
 	{
 		ScoreMetadata metadata
 		{
@@ -173,116 +184,115 @@ namespace MikuMikuWorld
 
 		// Not the best way to handle this but it will do the job
 		auto slideFillFunc = [&](const std::vector<std::vector<SUSNote>>& slides, bool isGuide)
-		{
-			for (const auto& slide : slides)
 			{
-				const std::string key = noteKey(slide[0]);
-
-				auto start = std::find_if(slide.begin(), slide.end(),
-					[](const SUSNote& a) { return a.type == 1 || a.type == 2; });
-
-				if (start == slide.end() || slide.size() < 2)
-					continue;
-
-				bool critical = criticals.find(key) != criticals.end();
-
-				HoldNote hold;
-				int startID = nextID++;
-				hold.steps.reserve(slide.size() - 2);
-
-				for (const auto& note : slide)
+				for (const auto& slide : slides)
 				{
-					const std::string key = noteKey(note);
+					const std::string key = noteKey(slide[0]);
 
-					EaseType ease = EaseType::Linear;
-					if (easeIns.find(key) != easeIns.end())
-					{
-						ease = EaseType::EaseIn;
-					}
-					else if (easeOuts.find(key) != easeOuts.end())
-					{
-						ease = EaseType::EaseOut;
-					}
+					auto start = std::find_if(slide.begin(), slide.end(),
+						[](const SUSNote& a) { return a.type == 1 || a.type == 2; });
 
-					switch (note.type)
+					if (start == slide.end() || slide.size() < 2)
+						continue;
+
+					bool critical = criticals.find(key) != criticals.end();
+
+					HoldNote hold;
+					int startID = nextID++;
+					hold.steps.reserve(slide.size() - 2);
+
+					for (const auto& note : slide)
 					{
-					// start
-					case 1:
-					{
-						Note n(NoteType::Hold, note.tick, note.lane - 2, note.width);
-						n.critical = critical;
-						n.ID = startID;
-						
-						if (isGuide)
+						const std::string key = noteKey(note);
+
+						EaseType ease = EaseType::Linear;
+						if (easeIns.find(key) != easeIns.end())
 						{
-							hold.startType = HoldNoteType::Guide;
+							ease = EaseType::EaseIn;
 						}
-						else
-						{	
-							n.friction = frictions.find(noteKey(note)) != frictions.end();
-							hold.startType = hiddenHolds.find(noteKey(note)) != hiddenHolds.end() ? HoldNoteType::Hidden : HoldNoteType::Normal;
-						}
-
-						notes[n.ID] = n;
-						hold.start = HoldStep{ n.ID, HoldStepType::Normal, ease };
-					}
-					break;
-					// end
-					case 2:
-					{
-						Note n(NoteType::HoldEnd, note.tick, note.lane - 2, note.width);
-						n.critical = (critical ? true : (criticals.find(key) != criticals.end()));
-						n.ID = nextID++;
-						n.parentID = startID;
-
-						if (isGuide)
+						else if (easeOuts.find(key) != easeOuts.end())
 						{
-							hold.endType = HoldNoteType::Guide;
+							ease = EaseType::EaseOut;
 						}
-						else
+
+						switch (note.type)
 						{
-							n.flick = flicks.find(key) != flicks.end() ? flicks[key] : FlickType::None;
-							n.friction = frictions.find(noteKey(note)) != frictions.end();
-							hold.endType = hiddenHolds.find(noteKey(note)) != hiddenHolds.end() ? HoldNoteType::Hidden : HoldNoteType::Normal;
+							// start
+						case 1:
+						{
+							Note n(NoteType::Hold, note.tick, note.lane - 2, note.width);
+							n.critical = critical;
+							n.ID = startID;
+
+							if (isGuide)
+							{
+								hold.startType = HoldNoteType::Guide;
+							}
+							else
+							{
+								n.friction = frictions.find(noteKey(note)) != frictions.end();
+								hold.startType = hiddenHolds.find(noteKey(note)) != hiddenHolds.end() ? HoldNoteType::Hidden : HoldNoteType::Normal;
+							}
+
+							notes[n.ID] = n;
+							hold.start = HoldStep{ n.ID, HoldStepType::Normal, ease };
 						}
-
-						notes[n.ID] = n;
-						hold.end = n.ID;
-					}
-					break;
-					// mid
-					case 3:
-					case 5:
-					{
-						Note n(NoteType::HoldMid, note.tick, note.lane - 2, note.width);
-						n.critical = critical;
-						n.friction = false;
-						n.ID = nextID++;
-						n.parentID = startID;
-
-						if (n.friction)
-							printf("Note at %d-%d is friction", n.tick, n.lane);
-
-						HoldStepType type = note.type == 3 ? HoldStepType::Normal : HoldStepType::Hidden;
-						if (stepIgnore.find(key) != stepIgnore.end())
-							type = HoldStepType::Skip;
-
-						notes[n.ID] = n;
-						hold.steps.push_back(HoldStep{ n.ID, type, ease });
-					}
-					break;
-					default:
 						break;
+						// end
+						case 2:
+						{
+							Note n(NoteType::HoldEnd, note.tick, note.lane - 2, note.width);
+							n.critical = (critical ? true : (criticals.find(key) != criticals.end()));
+							n.ID = nextID++;
+							n.parentID = startID;
+
+							if (isGuide)
+							{
+								hold.endType = HoldNoteType::Guide;
+							}
+							else
+							{
+								n.flick = flicks.find(key) != flicks.end() ? flicks[key] : FlickType::None;
+								n.friction = frictions.find(noteKey(note)) != frictions.end();
+								hold.endType = hiddenHolds.find(noteKey(note)) != hiddenHolds.end() ? HoldNoteType::Hidden : HoldNoteType::Normal;
+							}
+
+							notes[n.ID] = n;
+							hold.end = n.ID;
+						}
+						break;
+						// mid
+						case 3:
+						case 5:
+						{
+							Note n(NoteType::HoldMid, note.tick, note.lane - 2, note.width);
+							n.critical = critical;
+							n.friction = false;
+							n.ID = nextID++;
+							n.parentID = startID;
+
+							if (n.friction)
+								printf("Note at %d-%d is friction", n.tick, n.lane);
+
+							HoldStepType type = note.type == 3 ? HoldStepType::Normal : HoldStepType::Hidden;
+							if (stepIgnore.find(key) != stepIgnore.end())
+								type = HoldStepType::Skip;
+
+							notes[n.ID] = n;
+							hold.steps.push_back(HoldStep{ n.ID, type, ease });
+						}
+						break;
+						default:
+							break;
+						}
 					}
+
+					if (hold.start.ID == 0 || hold.end == 0)
+						throw std::runtime_error("Invalid hold note");
+
+					holds[startID] = hold;
 				}
-
-				// TODO: Wrap in try-catch block + how to notify caller of an error?
-				if (hold.start.ID == 0 || hold.end == 0)
-					throw std::runtime_error("Invalid hold note");
-
-				holds[startID] = hold;
-			}
-		};
+			};
 
 		slideFillFunc(sus.slides, false);
 		slideFillFunc(sus.guides, true);
@@ -321,9 +331,9 @@ namespace MikuMikuWorld
 		return score;
 	}
 
-	SUS ScoreConverter::scoreToSus(const Score& score)
+	SUS SusSerializer::scoreToSus(const Score& score)
 	{
-		constexpr std::array<int, static_cast<int>(FlickType::FlickTypeCount)> flickToType { 0, 1, 3, 4 };
+		constexpr std::array<int, static_cast<int>(FlickType::FlickTypeCount)> flickToType{ 0, 1, 3, 4 };
 
 		std::vector<SUSNote> taps, directionals;
 		std::vector<std::vector<SUSNote>> slides;
@@ -357,18 +367,15 @@ namespace MikuMikuWorld
 		std::vector<HoldNote> exportHolds;
 		exportHolds.reserve(score.holdNotes.size());
 
-		// TODO: TEST THIS!
-		//std::copy(score.holdNotes.begin(), score.holdNotes.end(), exportHolds.end());
-		
 		for (const auto& [_, hold] : score.holdNotes)
 			exportHolds.emplace_back(hold);
 
 		std::sort(exportHolds.begin(), exportHolds.end(), [&score](const HoldNote& a, const HoldNote& b)
-		{
-			const Note& n1 = score.notes.at(a.start.ID);
-			const Note& n2 = score.notes.at(b.start.ID);
-			return n1.tick == n2.tick ? n1.ID < n2.ID : n1.tick < n2.tick;
-		});
+			{
+				const Note& n1 = score.notes.at(a.start.ID);
+				const Note& n2 = score.notes.at(b.start.ID);
+				return n1.tick == n2.tick ? n1.ID < n2.ID : n1.tick < n2.tick;
+			});
 
 		for (const auto& hold : exportHolds)
 		{
@@ -426,12 +433,12 @@ namespace MikuMikuWorld
 			if (end.isFlick() && hold.endType == HoldNoteType::Normal)
 			{
 				directionals.push_back(SUSNote{ end.tick, end.lane + 2, end.width, flickToType[static_cast<int>(end.flick)] });
-				
+
 				// Critical friction notes use type 6 not 2
 				if (end.critical && !start.critical && !end.friction)
 					taps.push_back(SUSNote{ end.tick, end.lane + 2, end.width, 2 });
 			}
-			
+
 			int endType = hold.endType == HoldNoteType::Hidden ? 7 : end.friction ? 5 : 1;
 			if (end.critical)
 			{

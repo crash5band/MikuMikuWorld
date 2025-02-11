@@ -150,6 +150,18 @@
     <ClCompile Include="NotesFilter.cpp">
       <Filter>ScoreEditor\NotesFilters</Filter>
     </ClCompile>
+    <ClCompile Include="NativeScoreSerializer.cpp">
+      <Filter>Score\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="SonolusSerializer.cpp">
+      <Filter>Score\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="SusSerializer.cpp">
+      <Filter>Score\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="ScoreSerializer.cpp">
+      <Filter>Score\Serialization</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -341,6 +353,18 @@
     <ClInclude Include="RenderDebugStats.h">
       <Filter>Misc\Debug</Filter>
     </ClInclude>
+    <ClInclude Include="SusSerializer.h">
+      <Filter>Score\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeScoreSerializer.h">
+      <Filter>Score\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="SonolusSerializer.h">
+      <Filter>Score\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="ScoreSerializer.h">
+      <Filter>Score\Serialization</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">
@@ -402,6 +426,9 @@
     </Filter>
     <Filter Include="Misc\Debug">
       <UniqueIdentifier>{6421cc98-39eb-4c5d-9f42-efa9cefbff16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Score\Serialization">
+      <UniqueIdentifier>{299ab9ff-c0b1-4146-abb1-d4eb55442bff}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
