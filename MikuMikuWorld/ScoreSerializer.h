@@ -13,7 +13,7 @@ namespace MikuMikuWorld
 		virtual Score deserialize(std::string filename) = 0;
 
 		ScoreSerializer() {}
-		virtual ~ScoreSerializer() = 0;
+		virtual ~ScoreSerializer() {};
 	};
 
 	class ScoreSerializerFactory

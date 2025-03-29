@@ -30,7 +30,7 @@ namespace MikuMikuWorld
 		void writeScoreEvents(const Score& score, IO::BinaryWriter* writer);
 
 	public:
-		static const int SCORE_VERSION = 4;
+		static const int SCORE_VERSION;
 		void serialize(Score score, std::string filename) override;
 		Score deserialize(std::string filename) override;
 	};

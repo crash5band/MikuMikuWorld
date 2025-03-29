@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include <unordered_map>
+#include "SUS.h"
 
 namespace MikuMikuWorld
 {
@@ -21,8 +22,6 @@ namespace MikuMikuWorld
 		int generateChannel(int startTick, int endTick);
 		void clear();
 	};
-
-	struct SUS;
 
 	struct NoteMap
 	{

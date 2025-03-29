@@ -1,4 +1,3 @@
-#include "SUS.h"
 #include "SusExporter.h"
 #include "IO.h"
 #include "File.h"

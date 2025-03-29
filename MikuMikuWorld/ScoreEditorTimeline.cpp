@@ -794,7 +794,7 @@ namespace MikuMikuWorld
 			}
 		});
 
-		std::sort(updateHolds.begin(), updateHolds.end(), [&context](const HoldNote& a, const HoldNote& b)
+		std::sort(updateHolds.begin(), updateHolds.end(), [&context](const HoldNote& a, const HoldNote& b) -> bool
 		{
 			const Note& a1 = context.score.notes.at(a.start.ID);
 			const Note& a2 = context.score.notes.at(a.end);
@@ -802,7 +802,7 @@ namespace MikuMikuWorld
 			const Note& b2 = context.score.notes.at(b.end);
 			if (a1.tick == b1.tick)
 			{
-				return a2.tick == b2.tick ? a1.ID < b2.ID : a2.tick > b2.tick;
+				return a2.tick > b2.tick;
 			}
 
 			return a1.tick < b1.tick;
