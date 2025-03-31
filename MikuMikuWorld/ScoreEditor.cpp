@@ -9,6 +9,7 @@
 #include "Constants.h"
 #include "Utilities.h"
 #include "ImageCrop.h"
+#include "ScoreSerializer.h"
 #include <filesystem>
 #include <Windows.h>
 
@@ -333,7 +334,7 @@ namespace MikuMikuWorld
 		IO::FileDialog fileDialog{};
 		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 		fileDialog.title = "Open Score File";
-		fileDialog.filters = { { "Score Files", "*.mmws;*.sus"} };
+		fileDialog.filters = { { "Score Files", "*.mmws;*.sus;*.usc" } };
 		
 		if (fileDialog.openFile() == IO::FileDialogResult::OK)
 			loadScore(fileDialog.outputFilename);
@@ -396,7 +397,7 @@ namespace MikuMikuWorld
 	{
 		IO::FileDialog fileDialog{};
 		fileDialog.title = "Export Chart";
-		fileDialog.filters = { { "Sliding Universal Score", "*.sus" } };
+		fileDialog.filters = { { "Sliding Universal Score", "*.sus" }, {"Sonolus Level", "*.usc"} };
 		fileDialog.defaultExtension = "sus";
 		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 

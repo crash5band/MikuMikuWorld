@@ -162,6 +162,8 @@
     <ClCompile Include="ScoreSerializer.cpp">
       <Filter>Score\Serialization</Filter>
     </ClCompile>
+    <ClCompile Include="..\Depends\zlib\src\gzlib.c" />
+    <ClCompile Include="..\Depends\zlib\src\deflate.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />

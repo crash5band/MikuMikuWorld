@@ -1,6 +1,12 @@
 #include "IO.h"
 #include <Windows.h>
 #include <algorithm>
+#include <zlib.h>
+#include <sstream>
+#include <cassert>
+
+#undef min
+#undef max
 
 namespace IO
 {
@@ -158,5 +164,67 @@ namespace IO
 	std::string concat(const char* s1, const char* s2, const char* join)
 	{
 		return std::string(s1).append(join).append(s2);
+	}
+
+	static std::vector<uint8_t> processCompressionStream(const std::vector<uint8_t>& data, z_stream* stream, int flush, int (*process)(z_streamp, int))
+	{
+		stream->avail_in = data.size();
+		stream->next_in = (Byte*)data.data();
+
+		std::vector<uint8_t> dest;
+		std::unique_ptr<Byte[]> buf(new Byte[Z_CHUNK_SIZE]);
+		int result = Z_OK;
+
+		do
+		{
+			stream->next_out = buf.get();
+			stream->avail_out = Z_CHUNK_SIZE;
+
+			result = process(stream, flush);
+			if (dest.size() < stream->total_out)
+			{
+				size_t count = Z_CHUNK_SIZE - stream->avail_out;
+				for (size_t i = 0; i < count; i++)
+					dest.push_back(buf[i]);
+			}
+
+		} while (result == Z_OK);
+
+		return dest;
+	}
+
+	std::vector<uint8_t> inflateGzip(const std::vector<uint8_t>& data)
+	{
+		z_stream stream{};
+		memset(&stream, 0, sizeof(z_stream));
+
+		int result = inflateInit2(&stream, 15 | 16);
+		if (result != Z_OK)
+			return {};
+
+		std::vector<uint8_t> dest = processCompressionStream(data, &stream, Z_FULL_FLUSH, inflate);
+
+		inflateEnd(&stream);
+		return dest;
+	}
+
+	std::vector<uint8_t> deflateGzip(const std::vector<uint8_t>& data)
+	{
+		z_stream stream{};
+		memset(&stream, 0, sizeof(z_stream));
+
+		int result = deflateInit2(&stream, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 15 | 16, 8, Z_DEFAULT_STRATEGY);
+		if (result != Z_OK)
+			return {};
+
+		std::vector<uint8_t> dest = processCompressionStream(data, &stream, Z_FINISH, deflate);
+
+		deflateEnd(&stream);
+		return dest;
+	}
+
+	bool isGzipCompressed(const std::vector<uint8_t>& data)
+	{
+		return data.size() > 2 && data[0] == 0x1F && data[1] == 0x8B;
 	}
 }

@@ -38,6 +38,7 @@ namespace IO
 		void write(const std::string& str);
 		void writeLine(const std::string line);
 		void writeAllLines(const std::vector<std::string>& lines);
+		void writeAllBytes(const std::vector<uint8_t>& bytes);
 		bool isEndofFile();
 
 		std::string_view getOpenFilename() const { return openFilename; }

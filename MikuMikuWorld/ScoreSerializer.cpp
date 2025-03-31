@@ -2,6 +2,9 @@
 
 #include "NativeScoreSerializer.h"
 #include "SusSerializer.h"
+#include "SonolusSerializer.h"
+
+//#define USC_NO_GZIP
 
 namespace MikuMikuWorld
 {
@@ -17,6 +20,19 @@ namespace MikuMikuWorld
 		else if (ext == SUS_EXTENSION)
 		{
 			return std::make_unique<SusSerializer>();
+		}
+		else if (ext == USC_EXTENSION)
+		{
+			bool gzip = true;
+			bool prettyDump = false;
+#if _DEBUG
+			prettyDump = true;
+#endif
+
+#ifdef USC_NO_GZIP
+			gzip = false;
+#endif
+			return std::make_unique<SonolusSerializer>(prettyDump, gzip);
 		}
 		else
 		{

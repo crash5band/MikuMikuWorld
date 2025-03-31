@@ -147,6 +147,14 @@ namespace IO
 		}
 	}
 
+	void File::writeAllBytes(const std::vector<uint8_t>& bytes)
+	{
+		if (stream->is_open())
+		{
+			stream->write((char*)bytes.data(), bytes.size());
+		}
+	}
+
 	std::string File::getFilename(const std::string& filename)
 	{
 		size_t start = filename.find_last_of("\\/");
