@@ -3,6 +3,7 @@
 #include "Score.h"
 #include <memory>
 #include <stdexcept>
+#include <string>
 
 namespace MikuMikuWorld
 {
@@ -14,6 +15,8 @@ namespace MikuMikuWorld
 
 		ScoreSerializer() {}
 		virtual ~ScoreSerializer() {};
+
+		static bool isSupportedFileFormat(const std::string_view& extension);
 	};
 
 	class ScoreSerializerFactory

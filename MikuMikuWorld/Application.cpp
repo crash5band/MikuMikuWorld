@@ -5,6 +5,7 @@
 #include "Utilities.h"
 #include "Localization.h"
 #include "ApplicationConfiguration.h"
+#include "ScoreSerializer.h"
 #include <filesystem>
 
 namespace MikuMikuWorld
@@ -150,7 +151,7 @@ namespace MikuMikuWorld
 			std::string extension = IO::File::getFileExtension(*it);
 			std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
 
-			if (extension == SUS_EXTENSION || extension == MMWS_EXTENSION || USC_EXTENSION)
+			if (ScoreSerializer::isSupportedFileFormat(extension))
 				scoreFile = *it;
 			else if (Audio::isSupportedFileFormat(extension))
 				musicFile = *it;
