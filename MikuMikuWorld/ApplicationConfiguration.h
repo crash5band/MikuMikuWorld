@@ -97,6 +97,7 @@ namespace MikuMikuWorld
 		float bgmVolume;
 		float seVolume;
 		int seProfileIndex;
+		int lastSelectedExportIndex;
 		bool debugEnabled;
 
 		InputConfiguration input;

@@ -375,7 +375,7 @@ namespace MikuMikuWorld
 	{
 		IO::FileDialog fileDialog{};
 		fileDialog.title = "Save Chart";
-		fileDialog.filters = { { "MikuMikuWorld Score", "*.mmws"} };
+		fileDialog.filters = { IO::mmwsFilter };
 		fileDialog.defaultExtension = "mmws";
 		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 		fileDialog.inputFilename = IO::File::getFilenameWithoutExtension(context.workingData.filename);
@@ -395,10 +395,14 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::exportSus()
 	{
+		constexpr const char* exportExtensions[] = { "sus", "usc" };
+		int filterIndex = std::clamp(config.lastSelectedExportIndex, 0, static_cast<int>(arrayLength(exportExtensions)));
+
 		IO::FileDialog fileDialog{};
 		fileDialog.title = "Export Chart";
-		fileDialog.filters = { { "Sliding Universal Score", "*.sus" }, {"Sonolus Level", "*.usc"} };
-		fileDialog.defaultExtension = "sus";
+		fileDialog.filters = { IO::susFilter, IO::uscFilter };
+		fileDialog.filterIndex = filterIndex;
+		fileDialog.defaultExtension = exportExtensions[filterIndex];
 		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 
 		if (fileDialog.saveFile() == IO::FileDialogResult::OK)
@@ -431,6 +435,8 @@ namespace MikuMikuWorld
 					Application::windowState.windowHandle
 				);
 			}
+
+			config.lastSelectedExportIndex = fileDialog.filterIndex;
 		}
 	}
 

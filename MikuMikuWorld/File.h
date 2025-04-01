@@ -5,9 +5,6 @@
 
 namespace IO
 {
-	constexpr const char* allFilesName{ "All Files" };
-	constexpr const char* allFilesFilter{ "*.*" };
-
 	enum class FileMode : uint8_t
 	{
 		Read,
@@ -98,4 +95,11 @@ namespace IO
 		FileDialogResult openFile();
 		FileDialogResult saveFile();
 	};
+
+	extern FileDialogFilter mmwsFilter;
+	extern FileDialogFilter susFilter;
+	extern FileDialogFilter uscFilter;
+	extern FileDialogFilter imageFilter;
+	extern FileDialogFilter audioFilter;
+	extern FileDialogFilter allFilter;
 }

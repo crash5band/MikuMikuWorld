@@ -9,6 +9,13 @@
 
 namespace IO
 {
+	FileDialogFilter mmwsFilter{ "MikuMikuWorld Score", "*.mmws" };
+	FileDialogFilter susFilter{ "Sliding Universal Score", "*.sus" };
+	FileDialogFilter uscFilter{ "Sonolus Level", "*.usc" };
+	FileDialogFilter imageFilter{ "Image Files", "*.jpg;*.jpeg;*.png" };
+	FileDialogFilter audioFilter{ "Audio Files", "*.mp3;*.wav;*.flac;*.ogg" };
+	FileDialogFilter allFilter{ "All Files", "*.*" };
+
 	File::File(const std::string& filename, FileMode mode)
 	{
 		stream = std::make_unique<std::fstream>();
@@ -279,7 +286,11 @@ namespace IO
 			return FileDialogResult::Cancel;
 		}
 
-		return outputFilename.empty() ? FileDialogResult::Cancel : FileDialogResult::OK;
+		if (outputFilename.empty())
+			return FileDialogResult::Cancel;
+
+		filterIndex = ofn.nFilterIndex - 1;
+		return FileDialogResult::OK;
 	}
 
 	FileDialogResult FileDialog::openFile()

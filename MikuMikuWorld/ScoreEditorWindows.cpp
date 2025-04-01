@@ -60,7 +60,7 @@ namespace MikuMikuWorld
 			{
 				IO::FileDialog fileDialog{};
 				fileDialog.title = "Open Image File";
-				fileDialog.filters = { {"Image Files", "*.jpg;*.jpeg;*.png" }, { IO::allFilesName, IO::allFilesFilter } };
+				fileDialog.filters = { IO::imageFilter, IO::allFilter };
 				fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 
 				if (fileDialog.openFile() == IO::FileDialogResult::OK)
@@ -90,7 +90,7 @@ namespace MikuMikuWorld
 			{
 				IO::FileDialog fileDialog{};
 				fileDialog.title = "Open Audio File";
-				fileDialog.filters = { { "Audio Files", "*.mp3;*.wav;*.flac;*.ogg" }, { IO::allFilesName, IO::allFilesFilter } };
+				fileDialog.filters = { IO::audioFilter, IO::allFilter };	
 				fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 
 				if (fileDialog.openFile() == IO::FileDialogResult::OK)
@@ -980,7 +980,7 @@ namespace MikuMikuWorld
 						{
 							IO::FileDialog fileDialog{};
 							fileDialog.title = "Open Image File";
-							fileDialog.filters = { {"Image Files", "*.jpg;*.jpeg;*.png" }, { IO::allFilesName, IO::allFilesFilter } };
+							fileDialog.filters = { IO::imageFilter, IO::allFilter };
 							fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 
 							if (fileDialog.openFile() == IO::FileDialogResult::OK)

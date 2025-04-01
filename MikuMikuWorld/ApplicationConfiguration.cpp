@@ -88,6 +88,7 @@ namespace MikuMikuWorld
 			autoSaveEnabled	= jsonIO::tryGetValue<bool>(config["save"], "auto_save_enabled", true);
 			autoSaveInterval = jsonIO::tryGetValue<int>(config["save"], "auto_save_interval", 5);
 			autoSaveMaxCount = jsonIO::tryGetValue<int>(config["save"], "auto_save_max_count", 100);
+			lastSelectedExportIndex = jsonIO::tryGetValue<int>(config["save"], "last_export_option", 0);
 		}
 
 		if (jsonIO::keyExists(config, "audio"))
@@ -183,7 +184,8 @@ namespace MikuMikuWorld
 		config["save"] = {
 			{"auto_save_enabled", autoSaveEnabled},
 			{"auto_save_interval", autoSaveInterval},
-			{"auto_save_max_count", autoSaveMaxCount}
+			{"auto_save_max_count", autoSaveMaxCount},
+			{"last_export_option", lastSelectedExportIndex}
 		};
 
 		config["audio"] = {
@@ -252,6 +254,7 @@ namespace MikuMikuWorld
 		autoSaveEnabled = true;
 		autoSaveInterval = 5;
 		autoSaveMaxCount = 100;
+		lastSelectedExportIndex = 0;
 
 		seProfileIndex = 0;
 		masterVolume = 1.0f;
