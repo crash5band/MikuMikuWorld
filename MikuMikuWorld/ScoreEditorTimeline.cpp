@@ -194,7 +194,7 @@ namespace MikuMikuWorld
 		return measureToTicks(maxMeasure, TICKS_PER_BEAT, score.timeSignatures);
 	}
 
-	float ScoreEditorTimeline::getStopTime(const ScoreContext& context) const
+	float ScoreEditorTimeline::getStopTime(const ScoreContext& context)
 	{
 		if (context.audio.isMusicInitialized())
 		{
@@ -202,7 +202,10 @@ namespace MikuMikuWorld
 		}
 		else
 		{
-			return accumulateDuration(getStopTick(context.score), TICKS_PER_BEAT, context.score.tempoChanges);
+			if (stopTime < 0.0f)
+				stopTime = accumulateDuration(getStopTick(context.score), TICKS_PER_BEAT, context.score.tempoChanges);
+
+			return stopTime;
 		}
 	}
 
@@ -2170,6 +2173,7 @@ namespace MikuMikuWorld
 				offset = std::max(minOffset, tickToPosition(context.currentTick) + (size.y * (1.0f - config.cursorPositionThreshold)));
 			}
 
+			stopTime = -1;
 			context.audio.stopSoundEffects(false);
 			context.audio.stopMusic();
 		}
