@@ -105,6 +105,7 @@ namespace MikuMikuWorld
 		float songPos{};
 		float songPosLastFrame{};
 		float playbackSpeed{ 1.0f };
+		float stopTime{ -1.0f };
 		bool playing{ false };
 
 		Camera camera;
@@ -192,7 +193,7 @@ namespace MikuMikuWorld
 		void contextMenu(ScoreContext& context);
 
 		int getStopTick(const Score& score) const;
-		float getStopTime(const ScoreContext& context) const;
+		float getStopTime(const ScoreContext& context);
 
 	public:
 		float laneWidth = 26;
