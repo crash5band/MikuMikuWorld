@@ -1,5 +1,6 @@
 #pragma once
 #include "ScoreContext.h"
+#include "IO.h"
 #include <atomic>
 #include <filesystem>
 #include <future>
@@ -26,7 +27,7 @@ namespace MikuMikuWorld
 		inline int getID() const { return ID; }
 
 		Result read(const std::string& filepath);
-		void write(std::string filepath, bool overwrite);
+		void write(std::filesystem::path filePath, bool overwrite);
 	};
 
 	class PresetManager
@@ -34,8 +35,10 @@ namespace MikuMikuWorld
 	private:
 		std::filesystem::path presetsPath;
 		std::atomic<int> nextPresetID{1};
-		std::future<void> createPresetFuture{};
+		std::future<bool> createPresetFuture{};
 		std::future<bool> deletePresetFuture{};
+
+		IO::MessageBoxResult showErrorMessage(const std::string& message);
 
 	public:
 		PresetManager(const std::string& path);
@@ -47,7 +50,7 @@ namespace MikuMikuWorld
 		
 		void loadPresets();
 		Result importPreset(const std::string& path);
-		void savePreset(NotesPreset preset);
+		bool savePreset(NotesPreset preset);
 
 		void createPreset(const ScoreContext& context, const std::string& name, const std::string& desc);	
 		void removePreset(int id);
