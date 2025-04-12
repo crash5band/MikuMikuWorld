@@ -10,7 +10,7 @@ namespace MikuMikuWorld
 	class ScoreSerializer
 	{
 	public:
-		virtual void serialize(Score score, std::string filename) = 0;
+		virtual void serialize(const Score& score, std::string filename) = 0;
 		virtual Score deserialize(std::string filename) = 0;
 
 		ScoreSerializer() {}

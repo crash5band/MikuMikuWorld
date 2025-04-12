@@ -6,7 +6,7 @@
 
 namespace MikuMikuWorld
 {	
-	void SusSerializer::serialize(Score score, std::string filename)
+	void SusSerializer::serialize(const Score& score, std::string filename)
 	{
 		SUS sus = ScoreConverter::scoreToSus(score);
 
