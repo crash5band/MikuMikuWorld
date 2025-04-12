@@ -333,7 +333,7 @@ namespace MikuMikuWorld
 	{
 		IO::FileDialog fileDialog{};
 		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
-		fileDialog.title = "Open Score File";
+		fileDialog.title = "Open Chart";
 		fileDialog.filters = { { "Score Files", "*.mmws;*.sus;*.usc" } };
 		
 		if (fileDialog.openFile() == IO::FileDialogResult::OK)
@@ -396,7 +396,7 @@ namespace MikuMikuWorld
 	void ScoreEditor::exportSus()
 	{
 		constexpr const char* exportExtensions[] = { "sus", "usc" };
-		int filterIndex = std::clamp(config.lastSelectedExportIndex, 0, static_cast<int>(arrayLength(exportExtensions)));
+		int filterIndex = std::clamp(config.lastSelectedExportIndex, 0, static_cast<int>(arrayLength(exportExtensions) - 1));
 
 		IO::FileDialog fileDialog{};
 		fileDialog.title = "Export Chart";
