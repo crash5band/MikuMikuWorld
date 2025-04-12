@@ -307,7 +307,7 @@ namespace MikuMikuWorld
 			This is used to avoid created duplicate hidden slide steps
 		*/
 		std::unordered_set<std::string> skipNotes{};
-
+		std::vector<json> slideEndEntities;
 		for (const auto& entity : noteEntities)
 		{
 			const std::string& archetype = jsonIO::tryGetValue<std::string>(entity, "archetype", "");
@@ -321,14 +321,19 @@ namespace MikuMikuWorld
 				continue;
 
 			const NoteType noteType = getNoteTypeFromArchetype(archetype);
-			
 			// We already handled slide start notes
 			if (noteType == NoteType::Hold)
+			{
 				continue;
+			}
+			else if (noteType == NoteType::HoldEnd)
+			{
+				slideEndEntities.push_back(entity);
+				continue;
+			}
 
 			const json& dataArray = entity["data"];
 			Note note = createNote(entity, noteType);
-
 			if (noteType == NoteType::HoldMid)
 			{
 				std::string noteKey = IO::endsWith(archetype, "AttachedSlideTickNote") ?
@@ -434,28 +439,35 @@ namespace MikuMikuWorld
 
 				hold.steps.push_back(step);
 			}
-			else if (noteType == NoteType::HoldEnd)
-			{
-				std::string parentKey = getEntityDataOrDefault<std::string>(dataArray, "slide", "");
-				const auto& connectionIt = slideConnectionMapping.find(parentKey);
 
-				if (connectionIt == slideConnectionMapping.end())
-					continue;
+			score.notes[note.ID] = note;
+		}
 
-				std::string parentConnectionKey = getParentSlideConnector(tailToHeadMapping, connectionIt->second.head);
+		for (const auto& slideEndEntity : slideEndEntities)
+		{
+			const std::string& entityName = jsonIO::tryGetValue<std::string>(slideEndEntity, "name", "");
+			const json& dataArray = slideEndEntity["data"];
 
-				const auto& parentSlide = slideEntityMapping.find(parentConnectionKey);
-				if (parentSlide == slideEntityMapping.end())
-					throw ("A slide end without a connection?!");
+			std::string parentKey = getEntityDataOrDefault<std::string>(dataArray, "slide", "");
+			const auto& connectionIt = slideConnectionMapping.find(parentKey);
 
-				const auto& parentHoldIt = score.holdNotes.find(parentSlide->second);
-				if (parentHoldIt == score.holdNotes.end())
-					throw ("A slide end without a start?!");
+			if (connectionIt == slideConnectionMapping.end())
+				continue;
 
-				HoldNote& parentHold = parentHoldIt->second;
-				parentHold.end = note.ID;
-				note.parentID = parentHold.start.ID;
-			}
+			std::string parentConnectionKey = getParentSlideConnector(tailToHeadMapping, connectionIt->second.head);
+
+			const auto& parentSlide = slideEntityMapping.find(parentConnectionKey);
+			if (parentSlide == slideEntityMapping.end())
+				throw ("A slide end without a connection?!");
+
+			const auto& parentHoldIt = score.holdNotes.find(parentSlide->second);
+			if (parentHoldIt == score.holdNotes.end())
+				throw ("A slide end without a start?!");
+
+			Note note = createNote(slideEndEntity, NoteType::HoldEnd);
+			HoldNote& parentHold = parentHoldIt->second;
+			parentHold.end = note.ID;
+			note.parentID = parentHold.start.ID;
 
 			score.notes[note.ID] = note;
 		}
