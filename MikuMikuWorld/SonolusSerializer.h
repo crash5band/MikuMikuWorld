@@ -78,7 +78,7 @@ namespace MikuMikuWorld
     class SonolusSerializer : public ScoreSerializer
     {
     public:
-        void serialize(Score score, std::string filename) override;
+        void serialize(const Score& score, std::string filename) override;
         Score deserialize(std::string filename) override;
 
 		SonolusSerializer(bool prettyDump, bool gzip) : prettyDump{ prettyDump }, useGzip{ gzip }

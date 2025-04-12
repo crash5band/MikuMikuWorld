@@ -152,7 +152,7 @@ namespace MikuMikuWorld
 		writer->writeInt32(score.fever.endTick);
 	}
 
-	void NativeScoreSerializer::serialize(Score score, std::string filename)
+	void NativeScoreSerializer::serialize(const Score& score, std::string filename)
 	{
 		BinaryWriter writer(filename);
 		if (!writer.isStreamValid())

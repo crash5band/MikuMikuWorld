@@ -47,7 +47,7 @@ namespace MikuMikuWorld
 		return {};
 	}
 
-	void SonolusSerializer::serialize(Score score, std::string filename)
+	void SonolusSerializer::serialize(const Score& score, std::string filename)
 	{
 		json entities = json::array();
 		entities.push_back({ { "archetype", "Initialization" }, {"data", json::array()} });

@@ -31,7 +31,7 @@ namespace MikuMikuWorld
 
 	public:
 		static const int SCORE_VERSION;
-		void serialize(Score score, std::string filename) override;
+		void serialize(const Score& score, std::string filename) override;
 		Score deserialize(std::string filename) override;
 	};
 }
