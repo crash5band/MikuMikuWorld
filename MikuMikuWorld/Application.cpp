@@ -292,7 +292,7 @@ namespace MikuMikuWorld
 				}
 				else
 				{
-					editor->create();
+					editor->reset();
 				}
 
 				windowState.resetting = false;

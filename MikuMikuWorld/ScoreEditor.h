@@ -38,7 +38,7 @@ namespace MikuMikuWorld
 
 		void update();
 
-		void create();
+		void reset();
 		void open();
 		void loadScore(std::string filename);
 		void asyncLoadScore(std::string filename);
