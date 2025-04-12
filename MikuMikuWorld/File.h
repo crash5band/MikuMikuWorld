@@ -19,6 +19,8 @@ namespace IO
 		static std::string getFilename(const std::string& filename);
 		static std::string getFileExtension(const std::string& filename);
 		static std::string getFilenameWithoutExtension(const std::string& filename);
+		static std::string getFullFilenameWithoutExtension(const std::string& filename);
+		static std::wstring getFullFilenameWithoutExtension(const std::wstring& filename);
 		static std::string getFilepath(const std::string& filename);
 		static std::string fixPath(const std::string& path);
 		static bool exists(const std::string& path);

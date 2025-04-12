@@ -185,6 +185,18 @@ namespace IO
 		return str.substr(0, end);
 	}
 
+	std::string File::getFullFilenameWithoutExtension(const std::string& filename)
+	{
+		size_t end = filename.find_last_of(".");
+		return filename.substr(0, end);
+	}
+
+	std::wstring File::getFullFilenameWithoutExtension(const std::wstring& filename)
+	{
+		size_t end = filename.find_last_of(L".");
+		return filename.substr(0, end);
+	}
+
 	std::string File::getFilepath(const std::string& filename)
 	{
 		size_t start = 0;
