@@ -198,7 +198,7 @@ namespace MikuMikuWorld
 		return config.recentFiles.size();
 	}
 
-	void ScoreEditor::create()
+	void ScoreEditor::reset()
 	{
 		timeline.setPlaying(context, false);
 
