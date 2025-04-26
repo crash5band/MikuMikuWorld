@@ -265,7 +265,7 @@ namespace MikuMikuWorld
 
 		std::reverse(barLengthTicks.begin(), barLengthTicks.end());
 
-		std::unordered_map<float, std::string> bpmIdentifiers;
+		std::map<float, std::string> bpmIdentifiers;
 		for (const auto& bpm : bpms)
 		{
 			char buf[10]{};

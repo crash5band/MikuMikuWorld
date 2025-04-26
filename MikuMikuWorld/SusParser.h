@@ -28,7 +28,7 @@ namespace MikuMikuWorld
 		std::string title;
 		std::string artist;
 		std::string designer;
-		std::unordered_map<std::string, float> bpmDefinitions;
+		std::map<std::string, float> bpmDefinitions;
 		std::vector<Bar> bars;
 
 		bool isCommand(const std::string& line);
