@@ -15,7 +15,7 @@ namespace MikuMikuWorld
         read(filename);
     }
 
-	Language::Language(const char* code, std::string name, const std::unordered_map<std::string, std::string>& strings)
+	Language::Language(const char* code, std::string name, const std::map<std::string, std::string>& strings)
 	{
 		this->code = code;
 		displayName = name;
@@ -30,8 +30,7 @@ namespace MikuMikuWorld
 		File f(filename, FileMode::Read);
 		std::vector<std::string> lines = f.readAllLines();
 
-		f.close();
-        strings.reserve(lines.size());
+		f.close();        
 
 		for (auto& line : lines)
 		{

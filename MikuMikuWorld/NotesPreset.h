@@ -43,7 +43,7 @@ namespace MikuMikuWorld
 	public:
 		PresetManager(const std::string& path);
 		
-		std::unordered_map<int, NotesPreset> presets;
+		std::map<int, NotesPreset> presets;
 		NotesPreset deletedPreset{};
 
 		inline const std::wstring_view getPresetsPath() const { return presetsPath.c_str(); }

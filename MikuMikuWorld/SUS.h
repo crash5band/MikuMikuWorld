@@ -1,5 +1,5 @@
 #pragma once
-#include <unordered_map>
+#include <map>
 #include <vector>
 #include <string>
 
@@ -40,7 +40,7 @@ namespace MikuMikuWorld
 
 	struct SUSMetadata
 	{
-		std::unordered_map<std::string, std::string> data;
+		std::map<std::string, std::string> data;
 		std::vector<std::string> requests;
 		float waveOffset;
 		float movieOffset;

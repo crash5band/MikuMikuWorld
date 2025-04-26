@@ -53,8 +53,8 @@ namespace MikuMikuWorld
 
 	struct PasteData
 	{
-		std::unordered_map<int, Note> notes;
-		std::unordered_map<int, HoldNote> holds;
+		std::map<int, Note> notes;
+		std::map<int, HoldNote> holds;
 		bool pasting{ false };
 		int minTick{};
 		int offsetTicks{};
