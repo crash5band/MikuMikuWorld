@@ -2,7 +2,6 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <unordered_map>
 
 namespace MikuMikuWorld
 {
@@ -10,7 +9,7 @@ namespace MikuMikuWorld
 	{
 	private:
 		struct TickRange { int start; int end; };
-		std::unordered_map<int, TickRange> channels;
+		std::map<int, TickRange> channels;
 
 	public:
 		ChannelProvider()

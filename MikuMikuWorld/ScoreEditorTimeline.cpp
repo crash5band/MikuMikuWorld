@@ -1428,7 +1428,7 @@ namespace MikuMikuWorld
 		ImGui::PopID();
 	}
 
-	void ScoreEditorTimeline::drawHoldCurve(const HoldNote& hold, const std::unordered_map<int, Note>& notes, Renderer* renderer, const Color& tint, const int offsetTicks, const int offsetLane)
+	void ScoreEditorTimeline::drawHoldCurve(const HoldNote& hold, const std::map<int, Note>& notes, Renderer* renderer, const Color& tint, const int offsetTicks, const int offsetLane)
 	{
 		const Note& start = notes.at(hold.start.ID);
 		const Note& end = notes.at(hold.end);
@@ -1552,7 +1552,7 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void ScoreEditorTimeline::drawHoldNote(const std::unordered_map<int, Note>& notes, const HoldNote& note, Renderer* renderer,
+	void ScoreEditorTimeline::drawHoldNote(const std::map<int, Note>& notes, const HoldNote& note, Renderer* renderer,
 		const Color& tint, const int offsetTicks, const int offsetLane)
 	{
 		const Note& start = notes.at(note.start.ID);

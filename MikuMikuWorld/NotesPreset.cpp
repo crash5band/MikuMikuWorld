@@ -128,8 +128,7 @@ namespace MikuMikuWorld
 				filenames.push_back(IO::wideStringToMb(file.path().wstring()));
 		}
 
-		std::mutex m2;
-		presets.reserve(filenames.size());
+		std::mutex m2;		
 
 		std::vector<Result> warnings;
 		std::vector<Result> errors;

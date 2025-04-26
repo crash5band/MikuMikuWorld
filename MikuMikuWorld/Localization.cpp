@@ -8,7 +8,7 @@ namespace MikuMikuWorld
 {
 	static std::string empty;
 
-	std::unordered_map<std::string, std::unique_ptr<Language>> Localization::languages;
+	std::map<std::string, std::unique_ptr<Language>> Localization::languages;
 	Language* Localization::currentLanguage = nullptr;
 
 	void Localization::load(const char* code, std::string name, const std::string& filename)
