@@ -2,7 +2,7 @@
 #include <array>
 #include <string>
 #include <memory>
-#include <unordered_map>
+#include <map>
 #include <string_view>
 
 // Already defined somewhere else but Visual Studio gets confused
@@ -164,6 +164,6 @@ namespace Audio
 	struct SoundEffectProfile
 	{
 		std::string name;
-		std::unordered_map<std::string_view, std::unique_ptr<SoundPool>> pool;
+		std::map<std::string_view, std::unique_ptr<SoundPool>> pool;
 	};
 }

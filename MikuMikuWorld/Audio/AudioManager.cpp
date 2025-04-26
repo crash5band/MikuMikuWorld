@@ -85,8 +85,7 @@ namespace Audio
 		
 		for (size_t index = 0; index < soundEffectsProfileCount; index++)
 		{
-			std::string path = IO::formatString("%s%s%02d\\", mmw::Application::getAppDir().c_str(), "res\\sound\\", index + 1);
-			sounds[index].pool.reserve(soundEffectsCount);
+			std::string path = IO::formatString("%s%s%02d\\", mmw::Application::getAppDir().c_str(), "res\\sound\\", index + 1);			
 			for (size_t i = 0; i < soundEffectsCount; ++i)
 				sounds[index].pool.emplace(std::move(SoundPoolPair(mmw::SE_NAMES[i], std::make_unique<SoundPool>())));
 			

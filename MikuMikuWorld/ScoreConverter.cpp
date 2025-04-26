@@ -45,7 +45,7 @@ namespace MikuMikuWorld
 			sus.metadata.waveOffset * 1000 // seconds -> milliseconds
 		};
 
-		std::unordered_map<std::string, FlickType> flicks;
+		std::map<std::string, FlickType> flicks;
 		std::unordered_set<std::string> criticals;
 		std::unordered_set<std::string> stepIgnore;
 		std::unordered_set<std::string> easeIns;
@@ -125,11 +125,8 @@ namespace MikuMikuWorld
 			}
 		}
 
-		std::unordered_map<int, Note> notes;
-		notes.reserve(sus.taps.size());
-
-		std::unordered_map<int, HoldNote> holds;
-		holds.reserve(sus.slides.size());
+		std::map<int, Note> notes;		
+		std::map<int, HoldNote> holds;		
 
 		std::vector<SkillTrigger> skills;
 		Fever fever{ -1, -1 };

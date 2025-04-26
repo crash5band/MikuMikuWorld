@@ -9,7 +9,7 @@ namespace MikuMikuWorld
     private:
 
 	public:
-		static std::unordered_map<std::string, std::unique_ptr<Language>> languages;
+		static std::map<std::string, std::unique_ptr<Language>> languages;
 		static Language* currentLanguage;
 
 		static void load(const char* code, std::string name, const std::string& filename);

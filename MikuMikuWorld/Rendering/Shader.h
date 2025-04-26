@@ -2,7 +2,7 @@
 #include <glad/glad.h>
 #include "DirectXMath.h"
 #include <string>
-#include <unordered_map>
+#include <map>
 
 namespace MikuMikuWorld
 {
@@ -12,7 +12,7 @@ namespace MikuMikuWorld
 		unsigned int ID;
 		unsigned int uloc;
 		std::string name;
-		std::unordered_map<std::string, GLint> locMap;
+		std::map<std::string, GLint> locMap;
 
 		void compile(const std::string& source);
 		GLint getUniformLoc(const std::string& name);

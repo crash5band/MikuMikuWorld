@@ -3,7 +3,7 @@
 #include "Tempo.h"
 #include <string>
 #include <map>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 namespace MikuMikuWorld
@@ -41,8 +41,8 @@ namespace MikuMikuWorld
 	struct Score
 	{
 		ScoreMetadata metadata;
-		std::unordered_map<int, Note> notes;
-		std::unordered_map<int, HoldNote> holdNotes;
+		std::map<int, Note> notes;
+		std::map<int, HoldNote> holdNotes;
 		std::vector<Tempo> tempoChanges;
 		std::map<int, TimeSignature> timeSignatures;
 		std::vector<HiSpeedChange> hiSpeedChanges;
