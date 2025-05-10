@@ -144,7 +144,7 @@ namespace MikuMikuWorld
 		std::vector<Result> warnings;
 		std::vector<Result> errors;
 
-		std::for_each(std::execution::par, filenames.begin(), filenames.end(),
+		std::for_each(std::execution::seq, filenames.begin(), filenames.end(),
 			[this, &warnings, &errors, &m2](const auto& filename) {
 
 				int id = nextPresetID++;
@@ -155,11 +155,11 @@ namespace MikuMikuWorld
 
 					if (result.getStatus() == ResultStatus::Success)
 					{
-						presets.emplace(id, std::move(preset));
+						presets.emplace_back(std::move(preset));
 					}
 					else if (result.getStatus() == ResultStatus::Warning)
 					{
-						presets.emplace(id, std::move(preset));
+						presets.emplace_back(std::move(preset));
 						warnings.push_back(result);
 					}
 					else if (result.getStatus() == ResultStatus::Error)
@@ -217,7 +217,7 @@ namespace MikuMikuWorld
 			}
 		}
 		
-		presets.insert(std::pair<int, NotesPreset>(id, std::move(preset)));
+		presets.emplace_back(std::move(preset));
 		return result;
 	}
 
@@ -232,10 +232,10 @@ namespace MikuMikuWorld
 
 		try
 		{
-			presets[preset.getID()] = preset;
 			if (createPresetFuture.valid())
 				createPresetFuture.get();
 
+			presets.push_back(preset);
 			createPresetFuture = std::async(std::launch::async, &PresetManager::savePreset, this, preset);
 		}
 		catch (const std::exception& err)
@@ -253,21 +253,13 @@ namespace MikuMikuWorld
 			return true;
 		}
 
-		presets.insert_or_assign(preset.getID(), std::move(preset));
 		return false;
 	}
 
-	void PresetManager::removePreset(int id)
+	void PresetManager::removePreset(int index)
 	{
-		if (presets.find(id) == presets.end())
+		if (index < 0 || index >= presets.size())
 			return;
-
-		const auto& preset = presets[id];
-		if (preset.getFilename().empty())
-		{
-			presets.erase(id);
-			return;
-		}
 
 		try
 		{
@@ -277,13 +269,21 @@ namespace MikuMikuWorld
 			if (deletePresetFuture.valid())
 				deletePresetFuture.get();
 
+			const auto& preset = presets[index];
+			if (preset.getFilename().empty())
+			{
+				presets.erase(presets.begin() + index);
+				return;
+			}
+
+			deletedPresetIndex = index;
 			deletePresetFuture = std::async(std::launch::async, [this, preset]() -> bool
 			{
 				deletedPreset = std::move(preset);
 				return fs::remove(presetsPath / IO::mbToWideStr(deletedPreset.getFilename()));
 			});
 
-			presets.erase(id);
+			presets.erase(presets.begin() + index);
 		}
 		catch (const std::exception& err)
 		{
@@ -298,7 +298,7 @@ namespace MikuMikuWorld
 			try
 			{
 				deletedPreset.write(presetsPath / IO::mbToWideStr(deletedPreset.getFilename()), false);
-				presets.insert_or_assign(deletedPreset.getID(), std::move(deletedPreset));
+				presets.insert(presets.begin() + deletedPresetIndex, std::move(deletedPreset));
 
 				deletedPreset = {};
 				return true;
@@ -324,12 +324,17 @@ namespace MikuMikuWorld
 		return result;
 	}
 
-	void PresetManager::applyPreset(int presetId, ScoreContext& context)
+	void PresetManager::applyPreset(int index, ScoreContext& context)
 	{
-		if (presets.find(presetId) == presets.end())
+		if (index < 0 || index >= presets.size())
 			return;
 
-		const json& data = presets.at(presetId).data;
+		applyPreset(presets.at(index), context);
+	}
+
+	void PresetManager::applyPreset(const NotesPreset& preset, ScoreContext& context)
+	{
+		const json& data = preset.data;
 		if (jsonIO::arrayHasData(data, "notes") || jsonIO::arrayHasData(data, "holds"))
 			context.doPasteData(data, false);
 	}
