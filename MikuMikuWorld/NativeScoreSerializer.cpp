@@ -277,7 +277,6 @@ namespace MikuMikuWorld
 			reader.seek(tapsAddress);
 
 		int noteCount = reader.readInt32();
-		score.notes.reserve(noteCount);
 		for (int i = 0; i < noteCount; ++i)
 		{
 			Note note = readNote(NoteType::Tap, &reader);
@@ -289,7 +288,6 @@ namespace MikuMikuWorld
 			reader.seek(holdsAddress);
 
 		int holdCount = reader.readInt32();
-		score.holdNotes.reserve(holdCount);
 		for (int i = 0; i < holdCount; ++i)
 		{
 			HoldNote hold;

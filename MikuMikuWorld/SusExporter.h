@@ -2,6 +2,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include "SUS.h"
 
 namespace MikuMikuWorld
 {
