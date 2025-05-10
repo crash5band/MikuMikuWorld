@@ -257,6 +257,9 @@ namespace MikuMikuWorld
 		constexpr inline float getPlaybackSpeed() const { return playbackSpeed; }
 		void setPlaybackSpeed(ScoreContext& context, float speed);
 
+		float getWidth() const { return size.x; }
+		float getHeight() const { return size.y; }
+
 		ScoreEditorTimeline();
 	};
 }
