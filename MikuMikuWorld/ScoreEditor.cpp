@@ -110,8 +110,17 @@ namespace MikuMikuWorld
 				if (ImGui::IsAnyPressed(*timelineModeBindings[i])) timeline.changeMode((TimelineMode)i, edit);
 		}
 
-		timeline.laneWidth = config.timelineWidth;
-		timeline.notesHeight = config.matchNotesSizeToTimeline ? config.timelineWidth : config.notesHeight;
+		if (config.matchTimelineSizeToScreen)
+		{
+			int laneWidth = static_cast<int>(timeline.getWidth() * 0.45f / NUM_LANES);
+			timeline.laneWidth = std::clamp(laneWidth, MIN_LANE_WIDTH, MAX_LANE_WIDTH);
+		}
+		else
+		{
+			timeline.laneWidth = config.timelineWidth;
+		}
+
+		timeline.notesHeight = config.matchNotesSizeToTimeline ? std::clamp(config.timelineWidth, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT) : config.notesHeight;
 
 		if (config.backgroundBrightness != timeline.background.getBrightness())
 			timeline.background.setBrightness(config.backgroundBrightness);

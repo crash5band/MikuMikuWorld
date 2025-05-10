@@ -1,6 +1,7 @@
 #include "ApplicationConfiguration.h"
 #include "IO.h"
 #include "JsonIO.h"
+#include "Constants.h"
 #include <filesystem>
 #include <fstream>
 
@@ -53,8 +54,9 @@ namespace MikuMikuWorld
 
 		if (jsonIO::keyExists(config, "timeline"))
 		{
-			timelineWidth = jsonIO::tryGetValue<int>(config["timeline"], "lane_width", 26);
-			notesHeight = jsonIO::tryGetValue<int>(config["timeline"], "notes_height", 26);
+			timelineWidth = std::clamp(jsonIO::tryGetValue<int>(config["timeline"], "lane_width", 26), MIN_LANE_WIDTH, MAX_LANE_WIDTH);
+			notesHeight = std::clamp(jsonIO::tryGetValue<int>(config["timeline"], "notes_height", 26), MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT);
+			matchTimelineSizeToScreen = jsonIO::tryGetValue<bool>(config["timeline"], "match_timeline_size_to_window", false);
 			matchNotesSizeToTimeline = jsonIO::tryGetValue<bool>(config["timeline"], "match_notes_size_to_timeline", true);
 
 			division = jsonIO::tryGetValue<int>(config["timeline"], "division", 8);
@@ -67,7 +69,7 @@ namespace MikuMikuWorld
 			useSmoothScrolling = jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
 			smoothScrollingTime = jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 48.0f);
 			scrollSpeedNormal = jsonIO::tryGetValue<float>(config["timeline"], "scroll_speed_normal", 2.0f);
-			scrollSpeedShift = jsonIO::tryGetValue<float>(config["timleine"], "scroll_speed_fast", 5.0f);
+			scrollSpeedShift = jsonIO::tryGetValue<float>(config["timeline"], "scroll_speed_fast", 5.0f);
 
 			hideStepOutlinesInPlayback = jsonIO::tryGetValue<bool>(config["timeline"], "hide_step_outlines_in_playback", true);
 			drawWaveform = jsonIO::tryGetValue<bool>(config["timeline"], "draw_waveform", true);
