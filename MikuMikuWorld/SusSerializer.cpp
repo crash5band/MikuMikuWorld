@@ -136,12 +136,8 @@ namespace MikuMikuWorld
 			}
 		}
 
-		std::unordered_map<int, Note> notes;
-		notes.reserve(sus.taps.size());
-
-		std::unordered_map<int, HoldNote> holds;
-		holds.reserve(sus.slides.size());
-
+		std::map<int, Note> notes;
+		std::map<int, HoldNote> holds;
 		std::vector<SkillTrigger> skills;
 		Fever fever{ -1, -1 };
 
