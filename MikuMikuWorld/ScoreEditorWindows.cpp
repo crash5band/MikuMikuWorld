@@ -265,22 +265,23 @@ namespace MikuMikuWorld
 				}
 				else
 				{
-					for (const auto& [id, preset] : presetManager.presets)
+					for (size_t i = 0; i < presetManager.presets.size(); i++)
 					{
+						const auto& preset = presetManager.presets.at(i);
 						if (!presetFilter.PassFilter(preset.getName().c_str()))
 							continue;
 
-						ImGui::PushID(id);
+						ImGui::PushID(preset.getID());
 
 						if (ImGui::Button(preset.getName().c_str(), ImVec2(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2.0f, presetButtonHeight)))
-							presetManager.applyPreset(id, context);
+							presetManager.applyPreset(i, context);
 
-						if (preset.description.size())
+						if (!preset.description.empty())
 							UI::tooltip(preset.description.c_str());
 
 						ImGui::SameLine();
 						if (UI::transparentButton(ICON_FA_TRASH, ImVec2(UI::btnSmall.x, presetButtonHeight)))
-							removePattern = id;
+							removePattern = i;
 
 						ImGui::PopID();
 					}

@@ -43,8 +43,9 @@ namespace MikuMikuWorld
 	public:
 		PresetManager(const std::string& path);
 		
-		std::map<int, NotesPreset> presets;
+		std::vector<NotesPreset> presets;
 		NotesPreset deletedPreset{};
+		size_t deletedPresetIndex{};
 
 		inline const std::wstring_view getPresetsPath() const { return presetsPath.c_str(); }
 		
@@ -53,12 +54,13 @@ namespace MikuMikuWorld
 		bool savePreset(NotesPreset preset);
 
 		void createPreset(const ScoreContext& context, const std::string& name, const std::string& desc);	
-		void removePreset(int id);
+		void removePreset(int index);
 		bool undoDeletePreset();
 
 		// Replaces illegal filesystem characters with '_'
 		std::string fixFilename(const std::string& name);
 
-		void applyPreset(int presetId, ScoreContext& context);
+		void applyPreset(int index, ScoreContext& context);
+		void applyPreset(const NotesPreset& preset, ScoreContext& context);
 	};
 }
