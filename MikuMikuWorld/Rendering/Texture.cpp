@@ -1,7 +1,7 @@
 #include "../File.h"
 #include "../IO.h"
 #include "Texture.h"
-#include <glad/glad.h>
+#include <GLES3/gl3.h>
 #include "GLFW/glfw3.h"
 #include "stb_image.h"
 #include <filesystem>

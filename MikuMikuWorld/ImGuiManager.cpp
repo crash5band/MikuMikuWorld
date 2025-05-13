@@ -2,7 +2,7 @@
 #include "ApplicationConfiguration.h"
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.h"
-#include "../Depends/glad/include/glad/glad.h"
+#include "GLES3/gl3.h"
 #include "../Depends/GLFW/include/GLFW/glfw3.h"
 #include "File.h"
 #include "UI.h"
@@ -40,7 +40,7 @@ namespace MikuMikuWorld
 		if (!ImGui_ImplGlfw_InitForOpenGL(window, true))
 			return Result(ResultStatus::Error, "Failed to initialize ImGui GLFW implementation.");
 
-		if (!ImGui_ImplOpenGL3_Init("#version 150"))
+		if (!ImGui_ImplOpenGL3_Init("#version 300 es"))
 			return Result(ResultStatus::Error, "Failed to initialize ImGui OpenGL implementation.");
 
 		setBaseTheme(BaseTheme::DARK);

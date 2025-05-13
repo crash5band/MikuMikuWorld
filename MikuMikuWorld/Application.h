@@ -3,10 +3,11 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #define NOMINMAX
 
-#include <glad/glad.h>
+#include <GLES3/gl3.h>
 #include <GLFW/glfw3.h>
 
 #define GLFW_EXPOSE_NATIVE_WIN32
+#define GLFW_EXPOSE_NATIVE_EGL
 #include <GLFW/glfw3native.h>
 
 #include "ScoreEditor.h"
