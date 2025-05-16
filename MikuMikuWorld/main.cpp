@@ -33,7 +33,7 @@ int main()
 	catch (const std::exception& ex)
 	{
 		IO::MessageBoxButtons actions = IO::MessageBoxButtons::Ok;
-		std::string msg = "An unhandled exception has occured and the application will now close.";
+		std::string msg = "An unhandled exception has occurred and the application will now close.";
 		if (!app.isEditorUpToDate())
 		{
 			msg.append("\nDo you want to save the current score?");

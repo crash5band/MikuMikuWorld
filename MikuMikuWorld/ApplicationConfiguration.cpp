@@ -10,7 +10,7 @@ using namespace nlohmann;
 namespace MikuMikuWorld
 {
 	ApplicationConfiguration config{};
-	constexpr const char* CONFIG_VERSION{ "1.11.0" };
+	constexpr const char* CONFIG_VERSION{ "1.12.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -152,6 +152,7 @@ namespace MikuMikuWorld
 		config["timeline"] = {
 			{"lane_width", timelineWidth},
 			{"notes_height", notesHeight},
+			{"match_timeline_size_to_window", matchTimelineSizeToScreen},
 			{"match_notes_size_to_timeline", matchNotesSizeToTimeline},
 			{"division", division},
 			{"zoom", zoom},
