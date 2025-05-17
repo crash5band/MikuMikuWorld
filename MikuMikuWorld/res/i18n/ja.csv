@@ -77,8 +77,8 @@ scroll_speed_normal, スクロール速度
 scroll_speed_shift, スクロール速度　「Shift」
 use_smooth_scroll, スムーズスクロール
 smooth_scroll_time, スムーズスクロールの時間
-return_to_last_tick, 元の位置戻る,
-cursor_auto_scroll, 自動スクロール,
+return_to_last_tick, 元の位置戻る
+cursor_auto_scroll, 自動スクロール
 cursor_auto_scroll_amount, 自動スクロール量
 background, 背景
 background_image, 背景画像
