@@ -120,7 +120,7 @@ namespace MikuMikuWorld
 			timeline.laneWidth = config.timelineWidth;
 		}
 
-		timeline.notesHeight = config.matchNotesSizeToTimeline ? std::clamp(config.timelineWidth, MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT) : config.notesHeight;
+		timeline.notesHeight = config.matchNotesSizeToTimeline ? std::clamp(static_cast<int>(timeline.laneWidth), MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT) : config.notesHeight;
 
 		if (config.backgroundBrightness != timeline.background.getBrightness())
 			timeline.background.setBrightness(config.backgroundBrightness);
