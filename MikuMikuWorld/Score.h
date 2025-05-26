@@ -3,7 +3,6 @@
 #include "Tempo.h"
 #include <string>
 #include <map>
-#include <map>
 #include <vector>
 
 namespace MikuMikuWorld

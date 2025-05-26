@@ -38,8 +38,12 @@ namespace MikuMikuWorld
 			if (!line.size() || startsWith(line, "#"))
 				continue;
 
-			std::vector<std::string> values = split(line, ",");
-			strings[trim(values[0])] = trim(values[1]);
+			size_t start = 0, end = std::min(line.length() - 1, line.find_first_of(","));
+			
+			std::string key = line.substr(start, end - start);
+			std::string value = line.substr(end + 1);
+
+			strings[trim(key)] = trim(value);
 		}
 	}
 

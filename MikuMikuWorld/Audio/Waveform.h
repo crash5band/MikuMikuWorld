@@ -60,9 +60,12 @@ namespace Audio
 
 		float averageNormalizedSampleInTimeRange(double startTime, double endTime) const
 		{
+			if (absoluteSamples.empty())
+				return 0.0f;
+
 			if (secondsPerSample <= 0)
 			{
-				assert(false);
+				assert(false && "WaveformMip has samples but secondsPerSample <= 0?");
 				return 0.0f;
 			}
 
