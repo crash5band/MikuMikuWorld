@@ -20,13 +20,11 @@ namespace IO
 		static std::string getFileExtension(const std::string& filename);
 		static std::string getFilenameWithoutExtension(const std::string& filename);
 		static std::string getFullFilenameWithoutExtension(const std::string& filename);
-		static std::wstring getFullFilenameWithoutExtension(const std::wstring& filename);
 		static std::string getFilepath(const std::string& filename);
 		static std::string fixPath(const std::string& path);
 		static bool exists(const std::string& path);
 
 		void open(const std::string& filename, FileMode mode);
-		void open(const std::wstring& filename, FileMode mode);
 		void close();
 		void flush();
 
@@ -41,16 +39,13 @@ namespace IO
 		bool isEndofFile();
 
 		std::string_view getOpenFilename() const { return openFilename; }
-		std::wstring_view getOpenFilenameW() const { return openFilenameW; }
 
 		File(const std::string& filename, FileMode mode);
-		File(const std::wstring& filename, FileMode mode);
 		~File();
 
 	private:
 		std::unique_ptr<std::fstream> stream{};
 		std::string openFilename{};
-		std::wstring openFilenameW{};
 
 		int getStreamMode(FileMode) const;
 	};

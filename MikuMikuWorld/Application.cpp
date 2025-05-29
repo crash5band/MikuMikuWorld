@@ -11,7 +11,8 @@
 namespace MikuMikuWorld
 {
 	std::string Application::version{ "1.0.0" };
-	std::string Application::appDir{ "" };
+	std::filesystem::path Application::appDir{ "" };
+	std::filesystem::path Application::resDir{ "" };
 	std::string Application::pendingLoadScoreFile{ "" };
 	WindowState Application::windowState{};
 
@@ -22,16 +23,17 @@ namespace MikuMikuWorld
 	{
 	}
 
-	Result Application::initialize(const std::string& root)
+	Result Application::initialize(const std::string& root, const std::string& res)
 	{
 		if (initialized)
 			return Result(ResultStatus::Success, "App is already initialized");
 
 		appDir = root;
+		resDir = res;
 		version = getVersion();
 		language = "";
 
-		config.read(appDir + APP_CONFIG_FILENAME);
+		config.read(appDir.string() + APP_CONFIG_FILENAME);
 		readSettings();
 
 		Result result = initOpenGL();
@@ -55,15 +57,21 @@ namespace MikuMikuWorld
 		return Result::Ok();
 	}
 
-	const std::string& Application::getAppDir()
+	const std::filesystem::path& Application::getAppDir()
 	{
 		return appDir;
 	}
 
+	const std::filesystem::path& Application::getResDir()
+	{
+		return resDir;
+	}
+
 	std::string Application::getVersion()
 	{
+#if defined(_WIN32)
 		wchar_t filename[1024];
-		lstrcpyW(filename, IO::mbToWideStr(std::string(appDir + "MikuMikuWorld.exe")).c_str());
+		lstrcpyW(filename, IO::mbToWideStr(std::string(appDir.string() + "MikuMikuWorld.exe")).c_str());
 
 		DWORD  verHandle = 0;
 		UINT   size = 0;
@@ -95,6 +103,9 @@ namespace MikuMikuWorld
 		}
 
 		return IO::formatString("%d.%d.%d", major, minor, rev);
+#elif defined(__APPLE__)
+		return platform::getBuildVersion();
+#endif
 	}
 
 	const std::string& Application::getAppVersion()
@@ -132,7 +143,7 @@ namespace MikuMikuWorld
 		config.userColor = Color::fromImVec4(UI::accentColors[0]);
 
 		editor->writeSettings();
-		config.write(appDir + APP_CONFIG_FILENAME);
+		config.write(appDir.string() + APP_CONFIG_FILENAME);
 	}
 
 	void Application::appendOpenFile(const std::string& filename)
@@ -187,11 +198,13 @@ namespace MikuMikuWorld
 		}
 
 		float dpiX = 1.0f, dpiY = 1.0f;
+#if defined(_WIN32)
 		GLFWmonitor* mainMonitor = glfwGetPrimaryMonitor();
 		if (mainMonitor)
 		{
 			glfwGetMonitorContentScale(mainMonitor, &dpiX, &dpiY);
 		}
+#endif
 
 		float dpiScale = (dpiX + dpiY) * 0.5f;
 		if (dpiScale != windowState.lastDpiScale)
@@ -310,9 +323,9 @@ namespace MikuMikuWorld
 
 	void Application::loadResources()
 	{
-		ResourceManager::loadShader(appDir + "res\\shaders\\basic2d");
+		ResourceManager::loadShader((resDir / "shaders/basic2d").string());
 
-		const std::string texturesDir = appDir + "res\\textures\\";
+		const std::string texturesDir = (resDir / "textures/").string();
 
 		ResourceManager::loadTexture(texturesDir + "notes1.png", TextureFilterMode::LinearMipMapLinear, TextureFilterMode::Linear);
 		ResourceManager::loadTexture(texturesDir + "longNoteLine.png");
@@ -327,11 +340,12 @@ namespace MikuMikuWorld
 
 		// Load more languages here
 		Localization::loadDefault();
-		Localization::load("ja", u8"日本語", appDir + "res\\i18n\\ja.csv");
+		Localization::load("ja", "日本語", (resDir / "i18n/").string() + "ja.csv");
 	}
 
 	void Application::run()
 	{
+#if defined(_WIN32)
 		HWND hwnd = glfwGetWin32Window(window);
 
 		/*
@@ -348,6 +362,7 @@ namespace MikuMikuWorld
 			reinterpret_cast<UINT_PTR>(&windowState.windowTimerId), USER_TIMER_MINIMUM, nullptr);
 
 		::DragAcceptFiles(hwnd, TRUE);
+#endif
 
 		while (!glfwWindowShouldClose(window))
 		{

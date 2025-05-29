@@ -6,8 +6,7 @@ namespace IO
 	BinaryReader::BinaryReader(const std::string& filename)
 	{
 		stream = NULL;
-		std::wstring wFilename = mbToWideStr(filename);
-		stream = _wfopen(wFilename.c_str(), L"rb");
+		stream = fopen(filename.c_str(), "rb");
 	}
 
 	BinaryReader::~BinaryReader()

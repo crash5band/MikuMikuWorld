@@ -20,11 +20,10 @@ namespace MikuMikuWorld
 
 	void ApplicationConfiguration::read(const std::string& filename)
 	{
-		std::wstring wFilename = IO::mbToWideStr(filename);
-		if (!std::filesystem::exists(wFilename))
+		if (!std::filesystem::exists(filename))
 			return;
 
-		std::ifstream configFile(wFilename);
+		std::ifstream configFile(filename);
 		json config;
 		configFile >> config;
 		configFile.close();
@@ -217,8 +216,7 @@ namespace MikuMikuWorld
 
 		config["recent_files"] = recentFiles;
 
-		std::wstring wFilename = IO::mbToWideStr(filename);
-		std::ofstream configFile(wFilename);
+		std::ofstream configFile(filename);
 		configFile << std::setw(4) << config;
 		configFile.flush();
 		configFile.close();

@@ -1,5 +1,9 @@
 #include "IO.h"
+#if defined(_WIN32)
 #include <Windows.h>
+#elif defined(__APPLE__)
+#include "Mac.hh"
+#endif
 #include <algorithm>
 #include <zlib.h>
 #include <sstream>
@@ -12,6 +16,7 @@ namespace IO
 {
 	MessageBoxResult messageBox(std::string title, std::string message, MessageBoxButtons buttons, MessageBoxIcon icon, void* parentWindow)
 	{
+#if defined(_WIN32)
 		UINT flags = 0;
 		switch (icon)
 		{
@@ -42,6 +47,9 @@ namespace IO
 		case IDOK:		return MessageBoxResult::Ok;
 		default:		return MessageBoxResult::None;
 		}
+#elif defined(__APPLE__)
+		return platform::showMessageBox(title, message, buttons, icon);
+#endif
 	}
 
 	char* reverse(char* str)
@@ -112,7 +120,7 @@ namespace IO
 		if (str.empty())
 			return false;
 
-		return std::all_of(str.begin() + (str.at(0) == '-' ? 1 : 0), str.end(), std::isdigit);
+		return std::all_of(str.begin() + (str.at(0) == '-' ? 1 : 0), str.end(), [](auto c) { return std::isdigit(c); });
 	}
 
 	std::string trim(const std::string& line)
@@ -143,12 +151,13 @@ namespace IO
 		return values;
 	}
 
+#if defined(_WIN32)
 	std::string wideStringToMb(const std::wstring& str)
 	{
 		int size = WideCharToMultiByte(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0, NULL, NULL);
 		std::string result(size, 0);
 		WideCharToMultiByte(CP_UTF8, 0, &str[0], (int)str.size(), &result[0], size, NULL, NULL);
-
+		
 		return result;
 	}
 
@@ -160,6 +169,7 @@ namespace IO
 
 		return wResult;
 	}
+#endif
 
 	std::string concat(const char* s1, const char* s2, const char* join)
 	{

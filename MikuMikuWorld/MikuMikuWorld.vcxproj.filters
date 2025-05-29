@@ -29,7 +29,6 @@
     <ClCompile Include="ResourceManager.cpp">
       <Filter>IO</Filter>
     </ClCompile>
-    <ClCompile Include="..\Depends\glad\src\glad.c" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="OpenGlLoader.cpp" />
     <ClCompile Include="Utilities.cpp">
@@ -442,5 +441,10 @@
     <Image Include="mmw_icon.ico">
       <Filter>Resources</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="app.manifest">
+      <Filter>Resources</Filter>
+    </Manifest>
   </ItemGroup>
 </Project>

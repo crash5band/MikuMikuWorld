@@ -24,7 +24,7 @@ namespace MikuMikuWorld
 		void shutdown();
 		void begin();
 		void loadFont(const std::string& filename, float size);
-		void loadIconFont(const std::string& filename, int start, int end, float size);
+		void loadIconFont(const std::string& filename, unsigned int start, unsigned int end, float size);
 		void buildFonts(float dpiScale = 1.0f);
 		void draw(GLFWwindow* window);
 

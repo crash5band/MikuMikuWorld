@@ -47,7 +47,7 @@ namespace MikuMikuWorld
 		NotesPreset deletedPreset{};
 		size_t deletedPresetIndex{};
 
-		inline const std::wstring_view getPresetsPath() const { return presetsPath.c_str(); }
+		inline const std::filesystem::path getPresetsPath() const { return presetsPath; }
 		
 		void loadPresets();
 		Result importPreset(const std::string& path);

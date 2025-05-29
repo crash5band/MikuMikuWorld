@@ -116,20 +116,22 @@
     <ClCompile>
       <WarningLevel>Level1</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_ENABLE_EXTENDED_ALIGNED_STORAGE;_DEBUG</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_ENABLE_EXTENDED_ALIGNED_STORAGE;_DEBUG;IMGUI_IMPL_OPENGL_ES3;_XM_NO_INTRINSICS_;NOMINMAX</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>../Depends/DirectXMath-master;../Depends/glad/include;../Depends/GLFW/include;../Depends/stb_image;../Depends/miniaudio;../Depends/json;../Depends/stb_vorbis;../Depends/zlib/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Depends/DirectXMath-master;../Depends/ANGLE/include;../Depends/GLFW/include;../Depends/stb_image;../Depends/miniaudio;../Depends/json;../Depends/stb_vorbis;../Depends/zlib/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)</ObjectFileName>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;zlibstat.lib;opengl32.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../Depends/GLFW/lib;../Depends/zlib/lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;zlibstat.lib;libEGL.lib;libGLESv2.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../Depends/ANGLE/lib;../Depends/GLFW/lib;../Depends/zlib/lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)res\" "$(OutDir)res\" /E /Y</Command>
+      <Command>xcopy "$(SolutionDir)Depends\ANGLE\lib\*.dll" "$(OutDir)" /D /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -138,30 +140,31 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_ENABLE_EXTENDED_ALIGNED_STORAGE;</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_ENABLE_EXTENDED_ALIGNED_STORAGE;IMGUI_IMPL_OPENGL_ES3;_XM_NO_INTRINSICS_;NOMINMAX</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>../Depends/DirectXMath-master;../Depends/glad/include;../Depends/GLFW/include;../Depends/stb_image;../Depends/miniaudio;../Depends/json;../Depends/stb_vorbis;../Depends/zlib/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Depends/DirectXMath-master;../Depends/ANGLE/include;../Depends/GLFW/include;../Depends/stb_image;../Depends/miniaudio;../Depends/json;../Depends/stb_vorbis;../Depends/zlib/include</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../Depends/GLFW/lib;../Depends/zlib/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;zlibstat.lib;opengl32.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../Depends/ANGLE/lib;../Depends/GLFW/lib;../Depends/zlib/lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;zlibstat.lib;libEGL.lib;libGLESv2.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*'</AdditionalManifestDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)res\" "$(OutDir)res\" /E /Y</Command>
+      <Command>xcopy "$(SolutionDir)Depends\ANGLE\lib\*.dll" "$(OutDir)" /D /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Depends\glad\src\glad.c" />
     <ClCompile Include="..\Depends\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="..\Depends\zlib\src\deflate.c" />
     <ClCompile Include="..\Depends\zlib\src\gzlib.c" />
@@ -297,6 +300,9 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MikuMikuWorld.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="app.manifest" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

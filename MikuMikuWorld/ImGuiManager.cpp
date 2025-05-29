@@ -2,7 +2,7 @@
 #include "ApplicationConfiguration.h"
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.h"
-#include "../Depends/glad/include/glad/glad.h"
+#include <GLES3/gl3.h>
 #include "../Depends/GLFW/include/GLFW/glfw3.h"
 #include "File.h"
 #include "UI.h"
@@ -24,7 +24,7 @@ namespace MikuMikuWorld
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 
-		configFilename = Application::getAppDir() + IMGUI_CONFIG_FILENAME;
+		configFilename = Application::getAppDir().string() + IMGUI_CONFIG_FILENAME;
 
 		ImGuiIO& io = ImGui::GetIO();
 		io.ConfigFlags |= 
@@ -40,7 +40,7 @@ namespace MikuMikuWorld
 		if (!ImGui_ImplGlfw_InitForOpenGL(window, true))
 			return Result(ResultStatus::Error, "Failed to initialize ImGui GLFW implementation.");
 
-		if (!ImGui_ImplOpenGL3_Init("#version 150"))
+		if (!ImGui_ImplOpenGL3_Init("#version 300 es"))
 			return Result(ResultStatus::Error, "Failed to initialize ImGui OpenGL implementation.");
 
 		setBaseTheme(BaseTheme::DARK);
@@ -164,7 +164,9 @@ namespace MikuMikuWorld
 		float dpiScale = ImGui::GetMainViewport()->DpiScale;
 		if (dpiScale != styleScale)
 		{
+#if defined(_WIN32)
 			ImGui::GetStyle().ScaleAllSizes(dpiScale / styleScale);
+#endif
 			styleScale = dpiScale;
 		}
 	}
@@ -195,7 +197,7 @@ namespace MikuMikuWorld
 		ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), (int)size, &fontConfig, ImGui::GetIO().Fonts->GetGlyphRangesChineseFull());
 	}
 
-	void ImGuiManager::loadIconFont(const std::string& filename, int start, int end, float size)
+	void ImGuiManager::loadIconFont(const std::string& filename, unsigned int start, unsigned int end, float size)
 	{
 		if (!IO::File::exists(filename))
 			return;
@@ -218,8 +220,8 @@ namespace MikuMikuWorld
 
 		io.FontDefault = nullptr;
 
-		loadFont(Application::getAppDir() + "res/fonts/NotoSansCJK-Regular.ttc", 16 * dpiScale);
-		loadIconFont(Application::getAppDir() + "res/fonts/fa-solid-900.ttf", ICON_MIN_FA, ICON_MAX_FA, 12 * dpiScale);
+		loadFont((Application::getResDir() / "fonts/").string() + "NotoSansCJK-Regular.ttc", 16 * dpiScale);
+		loadIconFont((Application::getResDir() / "fonts/").string() + "fa-solid-900.ttf", ICON_MIN_FA, ICON_MAX_FA, 12 * dpiScale);
 		ImGui_ImplOpenGL3_CreateFontsTexture();
 	}
 
