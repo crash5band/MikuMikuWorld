@@ -1,8 +1,8 @@
 #pragma once
 
-#include <string>
-#include "IO.h"
-#include "File.h"
+#import <string>
+#import "IO.h"
+#import "File.h"
 
 namespace platform {
 

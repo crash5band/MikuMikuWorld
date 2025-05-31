@@ -121,7 +121,7 @@ namespace MikuMikuWorld
 		);
 	}
 
-	PresetManager::PresetManager(const std::string& path) : presetsPath{ path }
+	PresetManager::PresetManager(const std::filesystem::path& path) : presetsPath{ path }
 	{
 		fs::create_directory(presetsPath);
 	}

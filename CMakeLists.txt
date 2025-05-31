@@ -21,7 +21,6 @@ list(REMOVE_ITEM ALL_FILES
 )
 
 add_executable(MikuMikuWorld
-        MikuMikuWorld/main.mm
         ${ALL_FILES}
         Depends/stb_vorbis/stb_vorbis.c
 )
