@@ -85,7 +85,7 @@ namespace Audio
 		
 		for (size_t index = 0; index < soundEffectsProfileCount; index++)
 		{
-			std::filesystem::path path = mmw::Application::getResDir() / "sound/" / IO::formatString("%02d/", index + 1);
+			std::string path = (mmw::Application::getResDir() / "sound" / IO::formatString("%02d", index + 1) / "").string();
 			for (size_t i = 0; i < soundEffectsCount; ++i)
 				sounds[index].pool.emplace(std::move(SoundPoolPair(mmw::SE_NAMES[i], std::make_unique<SoundPool>())));
 
@@ -95,7 +95,7 @@ namespace Audio
 			std::for_each(sounds[index].pool.begin(), sounds[index].pool.end(), [&](auto& s)
 #endif
 			{
-				std::string filename = path.string() + s.first.data() + ".mp3";
+				std::string filename = path + s.first.data() + ".mp3";
 				size_t soundNameIndex = mmw::findArrayItem(s.first.data(), mmw::SE_NAMES, mmw::arrayLength(mmw::SE_NAMES));
 
 				std::string name{};

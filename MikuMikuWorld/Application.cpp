@@ -323,9 +323,9 @@ namespace MikuMikuWorld
 
 	void Application::loadResources()
 	{
-		ResourceManager::loadShader((resDir / "shaders/basic2d").string());
+		ResourceManager::loadShader((resDir / "shaders" / "basic2d").string());
 
-		const std::string texturesDir = (resDir / "textures/").string();
+		const std::string texturesDir = (resDir / "textures" / "").string();
 
 		ResourceManager::loadTexture(texturesDir + "notes1.png", TextureFilterMode::LinearMipMapLinear, TextureFilterMode::Linear);
 		ResourceManager::loadTexture(texturesDir + "longNoteLine.png");
@@ -340,7 +340,7 @@ namespace MikuMikuWorld
 
 		// Load more languages here
 		Localization::loadDefault();
-		Localization::load("ja", "日本語", (resDir / "i18n/").string() + "ja.csv");
+		Localization::load("ja", "日本語", (resDir / "i18n" / "").string() + "ja.csv");
 	}
 
 	void Application::run()

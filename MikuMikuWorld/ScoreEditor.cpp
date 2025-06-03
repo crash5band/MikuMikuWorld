@@ -34,7 +34,7 @@ namespace MikuMikuWorld
 		&config.input.timelineHiSpeed,
 	};
 
-	ScoreEditor::ScoreEditor() : presetManager(Application::getAppDir() / "library/")
+	ScoreEditor::ScoreEditor() : presetManager(Application::getAppDir() / "library")
 	{
 		renderer = std::make_unique<Renderer>();
 
@@ -48,7 +48,7 @@ namespace MikuMikuWorld
 		timeline.setDivision(config.division);
 		timeline.setZoom(config.zoom);
 
-		autoSavePath = Application::getAppDir() / "auto_save/";
+		autoSavePath = Application::getAppDir() / "auto_save" / "";
 		autoSaveTimer.reset();
 	}
 
@@ -131,7 +131,7 @@ namespace MikuMikuWorld
 
 		if (settingsWindow.isBackgroundChangePending)
 		{
-			static const std::string defaultBackgroundPath = (Application::getResDir() / "textures/").string() + "default.png";
+			static const std::string defaultBackgroundPath = (Application::getResDir() / "textures" / "default.png").string();
 			timeline.background.load(config.backgroundImage.empty() ? defaultBackgroundPath : config.backgroundImage);
 			settingsWindow.isBackgroundChangePending = false;
 		}

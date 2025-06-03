@@ -22,7 +22,7 @@ namespace MikuMikuWorld
 		name = File::getFilenameWithoutExtension(filename);
 		read(filename, min, mag);
 
-		std::string sprSheet = File::getFilepath(filename) + "spr/" + name + ".txt";
+		std::string sprSheet = (std::filesystem::path{File::getFilepath(filename)} / "spr" / (name + ".txt")).string();
 		if (File::exists(sprSheet))
 		{
 			readSprites(sprSheet);
