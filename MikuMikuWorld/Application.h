@@ -19,7 +19,7 @@
 #include <Windows.h>
 LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #elif defined(__APPLE__)
-#include "Mac.hh"
+#include "Mac.h"
 #endif
 
 namespace MikuMikuWorld

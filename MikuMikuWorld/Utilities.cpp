@@ -6,7 +6,7 @@
 #if defined(_WIN32)
 #include <Windows.h>
 #elif defined(__APPLE__)
-#include "Mac.hh"
+#include "Mac.h"
 #endif
 #include <ctime>
 

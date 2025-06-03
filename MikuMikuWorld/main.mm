@@ -1,6 +1,6 @@
-#include "Application.h"
-#include "IO.h"
-#include <iostream>
+#import "Application.h"
+#import "IO.h"
+#import <iostream>
 
 namespace mmw = MikuMikuWorld;
 mmw::Application app;

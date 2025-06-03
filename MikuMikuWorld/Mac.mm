@@ -1,4 +1,4 @@
-#import "Mac.hh"
+#import "Mac.h"
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
 
@@ -107,7 +107,7 @@ static NSArray<NSString*>* buildAllowedFileTypes(const std::vector<IO::FileDialo
     return [exts allObjects];
 }
 
-IO::FileDialogResult showFileDialog( const std::string& title, const std::string& inputFilename, const std::string& defaultExtension, std::vector<IO::FileDialogFilter> filters, IO::DialogType type, std::string& outputFilename) {
+IO::FileDialogResult showFileDialog(const std::string& title, const std::string& inputFilename, const std::string& defaultExtension, std::vector<IO::FileDialogFilter> filters, IO::DialogType type, std::string& outputFilename) {
     @autoreleasepool {
         NSSavePanel* savePanel = nil;
         NSOpenPanel* openPanel = nil;

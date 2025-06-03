@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30)
 
-project(MikuMikuWorld C CXX)
+project(MikuMikuWorld)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,7 +11,6 @@ file(GLOB_RECURSE ALL_FILES
         MikuMikuWorld/*.c
         MikuMikuWorld/*.hpp
         MikuMikuWorld/*.cpp
-        MikuMikuWorld/*.hh
         MikuMikuWorld/*.mm
 )
 
@@ -62,8 +61,12 @@ target_link_libraries(MikuMikuWorld
 
 set_target_properties(MikuMikuWorld PROPERTIES
         MACOSX_BUNDLE TRUE
-        MACOSX_BUNDLE_BUNDLE_NAME "MikuMikuWorld"
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/Info.plist"
+)
+
+add_custom_command(TARGET MikuMikuWorld POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/MikuMikuWorld/res/mmw_icon.icns" "${CMAKE_BINARY_DIR}/MikuMikuWorld.app/Contents/Resources/app.icns"
+        COMMENT "Copying app.icns"
 )
 
 add_custom_command(TARGET MikuMikuWorld POST_BUILD
