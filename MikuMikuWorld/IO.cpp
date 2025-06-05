@@ -9,9 +9,6 @@
 #include <sstream>
 #include <cassert>
 
-#undef min
-#undef max
-
 namespace IO
 {
 	MessageBoxResult messageBox(std::string title, std::string message, MessageBoxButtons buttons, MessageBoxIcon icon, void* parentWindow)

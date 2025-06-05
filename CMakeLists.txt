@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0")
+set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+
 file(GLOB_RECURSE ALL_FILES
         MikuMikuWorld/*.h
         MikuMikuWorld/*.c
@@ -38,19 +41,13 @@ target_include_directories(MikuMikuWorld PRIVATE
 target_compile_definitions(MikuMikuWorld PRIVATE
         "PAL_STDCPP_COMPAT"
         "IMGUI_IMPL_OPENGL_ES3"
-        "IMGUI_USE_WCHAR32"
         "_XM_NO_INTRINSICS_"
         "MA_NO_RUNTIME_LINKING"
 )
 
 target_link_libraries(MikuMikuWorld
-        "-framework Cocoa"
         "-framework IOKit"
-        "-framework CoreFoundation"
         "-framework AppKit"
-        "-framework CoreGraphics"
-        "-framework CoreServices"
-        "-framework Foundation"
         "-framework CoreAudio"
         "-framework AudioToolbox"
         "${CMAKE_SOURCE_DIR}/Depends/GLFW/lib/libglfw3.a"

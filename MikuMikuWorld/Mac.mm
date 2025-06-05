@@ -4,15 +4,7 @@
 
 namespace platform {
 
-void openFolderInFinder(const std::string& path) {
-    @autoreleasepool {
-        NSString *nsPath = [NSString stringWithUTF8String:path.c_str()];
-        NSURL *url = [NSURL fileURLWithPath:nsPath];
-        [[NSWorkspace sharedWorkspace] openURL:url];
-    }
-}
-
-void openURLInBrowser(const std::string& url) {
+void openURL(const std::string& url) {
     @autoreleasepool {
         NSString *nsUrlStr = [NSString stringWithUTF8String:url.c_str()];
         NSURL *nsUrl = [NSURL URLWithString:nsUrlStr];

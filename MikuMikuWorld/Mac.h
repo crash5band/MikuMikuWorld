@@ -4,9 +4,7 @@
 
 namespace platform {
 
-void openFolderInFinder(const std::string &path);
-
-void openURLInBrowser(const std::string &url);
+void openURL(const std::string &url);
 
 IO::MessageBoxResult showMessageBox(const std::string& title, const std::string& message, IO::MessageBoxButtons buttons, IO::MessageBoxIcon icon);
 

@@ -580,7 +580,7 @@ namespace MikuMikuWorld
 #if defined(_WIN32)
 				ShellExecuteW(0, 0, IO::mbToWideStr(presetManager.getPresetsPath().string()).c_str(), 0, 0, SW_SHOW);
 #elif defined(__APPLE__)
-				platform::openFolderInFinder(presetManager.getPresetsPath());
+				platform::openURL("file://" + presetManager.getPresetsPath().string());
 #endif
 			}
 			
@@ -735,7 +735,7 @@ namespace MikuMikuWorld
 #if defined(_WIN32)
 		ShellExecuteW(0, 0, L"https://github.com/crash5band/MikuMikuWorld/wiki", 0, 0, SW_SHOW);
 #elif defined(__APPLE__)
-		platform::openURLInBrowser("https://github.com/crash5band/MikuMikuWorld/wiki");
+		platform::openURL("https://github.com/crash5band/MikuMikuWorld/wiki");
 #endif
 	}
 
