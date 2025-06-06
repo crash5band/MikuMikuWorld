@@ -259,7 +259,7 @@ namespace MikuMikuWorld
 		{
 			float txtWidth = ImGui::CalcTextSize(label).x + (ImGui::GetStyle().WindowPadding.x * 2);
 			ImGui::SetNextWindowSize(ImVec2(std::min(txtWidth, 250.0f), -1));
-			ImGui::BeginTooltipEx(ImGuiTooltipFlags_OverridePreviousTooltip, ImGuiWindowFlags_NoResize);
+			ImGui::BeginTooltipEx(ImGuiTooltipFlags_OverridePrevious, ImGuiWindowFlags_NoResize);
 			ImGui::TextWrapped(label);
 			ImGui::EndTooltip();
 		}

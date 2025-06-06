@@ -198,13 +198,11 @@ namespace MikuMikuWorld
 		}
 
 		float dpiX = 1.0f, dpiY = 1.0f;
-#if defined(_WIN32)
 		GLFWmonitor* mainMonitor = glfwGetPrimaryMonitor();
 		if (mainMonitor)
 		{
 			glfwGetMonitorContentScale(mainMonitor, &dpiX, &dpiY);
 		}
-#endif
 
 		float dpiScale = (dpiX + dpiY) * 0.5f;
 		if (dpiScale != windowState.lastDpiScale)

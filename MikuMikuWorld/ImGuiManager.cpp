@@ -164,9 +164,7 @@ namespace MikuMikuWorld
 		float dpiScale = ImGui::GetMainViewport()->DpiScale;
 		if (dpiScale != styleScale)
 		{
-#if defined(_WIN32)
 			ImGui::GetStyle().ScaleAllSizes(dpiScale / styleScale);
-#endif
 			styleScale = dpiScale;
 		}
 	}
