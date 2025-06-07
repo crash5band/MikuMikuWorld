@@ -22,7 +22,7 @@ namespace MikuMikuWorld
 		AboutDialog aboutDialog{};
 
 		Stopwatch autoSaveTimer;
-		std::filesystem::path autoSavePath;
+		std::string autoSavePath;
 		bool showImGuiDemoWindow{false};
 
 		std::future<void> loadScoreFuture{};

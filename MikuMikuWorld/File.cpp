@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
-#include <filesystem>
 #include <sstream>
 
 namespace IO
@@ -216,23 +215,77 @@ namespace IO
 		return result;
 	}
 
+#if defined(_WIN32)
 	bool File::exists(const std::string& path)
 	{
-#if defined(_WIN32)
-		return std::filesystem::exists(IO::mbToWideStr(path));
-#else
-		return std::filesystem::exists(path);
-#endif
+		return fs::exists(IO::mbToWideStr(path));
 	}
 
 	bool File::createDirectory(const std::string& path)
 	{
-#if defined(_WIN32)
-		return std::filesystem::create_directory(IO::mbToWideStr(path));
-#else
-		return std::filesystem::create_directory(path);
-#endif
+		return fs::create_directory(IO::mbToWideStr(path));
 	}
+
+	bool File::copyFile(const std::string& from, const std::string& to)
+	{
+		return fs::copy_file(IO::mbToWideStr(from), IO::mbToWideStr(to));
+	}
+
+	bool File::remove(const std::string& path)
+	{
+		return fs::remove(IO::mbToWideStr(path));
+	}
+
+	fs::directory_iterator File::directoryIterator(const std::string& path)
+	{
+		return fs::directory_iterator{ IO::mbToWideStr(path) };
+	}
+
+	std::ifstream File::ifstream(const std::string& path)
+	{
+		return std::ifstream{ IO::mbToWideStr(path) };
+	}
+
+	std::ofstream File::ofstream(const std::string& path)
+	{
+		return std::ofstream{ IO::mbToWideStr(path) };
+	}
+#else
+	bool File::exists(const std::string& path)
+	{
+		return fs::exists(path);
+	}
+
+	bool File::createDirectory(const std::string& path)
+	{
+		return fs::create_directory(path);
+	}
+
+	bool File::copyFile(const std::string& from, const std::string& to)
+	{
+		return fs::copy_file(from, to);
+	}
+
+	bool File::remove(const std::string& path)
+	{
+		return fs::remove(path);
+	}
+
+	fs::directory_iterator File::directoryIterator(const std::string& path)
+	{
+		return fs::directory_iterator{ path };
+	}
+
+	std::ifstream File::ifstream(const std::string& path)
+	{
+		return std::ifstream{ path };
+	}
+
+	std::ofstream File::ofstream(const std::string& path)
+	{
+		return std::ofstream{ path };
+	}
+#endif
 
 	FileDialogResult FileDialog::showFileDialog(DialogType type, DialogSelectType selectType)
 	{

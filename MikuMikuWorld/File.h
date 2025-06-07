@@ -2,6 +2,9 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 namespace IO
 {
@@ -24,6 +27,11 @@ namespace IO
 		static std::string fixPath(const std::string& path);
 		static bool exists(const std::string& path);
 		static bool createDirectory(const std::string& path);
+		static bool copyFile(const std::string& from, const std::string& to);
+		static bool remove(const std::string& path);
+		static fs::directory_iterator directoryIterator(const std::string& path);
+		static std::ifstream ifstream(const std::string& path);
+		static std::ofstream ofstream(const std::string& path);
 
 		void open(const std::string& filename, FileMode mode);
 		void close();

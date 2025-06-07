@@ -34,7 +34,11 @@ namespace MikuMikuWorld
 		&config.input.timelineHiSpeed,
 	};
 
-	ScoreEditor::ScoreEditor() : presetManager(Application::getAppDir() / "library")
+#if defined(_WIN32)
+	ScoreEditor::ScoreEditor() : presetManager(Application::getAppDir() / "library\\")
+#else
+	ScoreEditor::ScoreEditor() : presetManager(Application::getAppDir() / "library/")
+#endif
 	{
 		renderer = std::make_unique<Renderer>();
 
@@ -48,7 +52,11 @@ namespace MikuMikuWorld
 		timeline.setDivision(config.division);
 		timeline.setZoom(config.zoom);
 
-		autoSavePath = Application::getAppDir() / "auto_save" / "";
+#if defined(_WIN32)
+		autoSavePath = (Application::getAppDir() / "auto_save\\").string();
+#else
+		autoSavePath = (Application::getAppDir() / "auto_save/").string();
+#endif
 		autoSaveTimer.reset();
 	}
 
@@ -575,12 +583,12 @@ namespace MikuMikuWorld
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("open_presets_folder"), NULL, false, true))
 			{
-				if (!IO::File::exists(presetManager.getPresetsPath().string()))
-					IO::File::createDirectory(presetManager.getPresetsPath().string());
+				if (!IO::File::exists(presetManager.getPresetsPath()))
+					IO::File::createDirectory(presetManager.getPresetsPath());
 #if defined(_WIN32)
-				ShellExecuteW(0, 0, IO::mbToWideStr(presetManager.getPresetsPath().string()).c_str(), 0, 0, SW_SHOW);
+				ShellExecuteW(0, 0, IO::mbToWideStr(presetManager.getPresetsPath()).c_str(), 0, 0, SW_SHOW);
 #elif defined(__APPLE__)
-				platform::openURL("file://" + presetManager.getPresetsPath().string());
+				platform::openURL("file://" + presetManager.getPresetsPath());
 #endif
 			}
 			
@@ -741,13 +749,13 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::autoSave()
 	{
-		IO::File::createDirectory(autoSavePath.string());
+		IO::File::createDirectory(autoSavePath);
 
 		context.score.metadata = context.workingData.toScoreMetadata();
-		serializeScore(context.score, autoSavePath.string() + ("mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION));
+		serializeScore(context.score, autoSavePath + ("mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION));
 		
 		int mmwsCount = 0;
-		for (const auto& file : std::filesystem::directory_iterator(autoSavePath))
+		for (const auto& file : IO::File::directoryIterator(autoSavePath))
 		{
 			std::string extension = file.path().extension().string();
 			std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
@@ -760,13 +768,13 @@ namespace MikuMikuWorld
 
 	int ScoreEditor::deleteOldAutoSave(int count)
 	{
-		if (!IO::File::exists(autoSavePath.string()))
+		if (!IO::File::exists(autoSavePath))
 			return 0;
 
 		// get mmws files
 		using entry = std::filesystem::directory_entry;
 		std::vector<entry> deleteFiles;
-		for (const auto& file : std::filesystem::directory_iterator(autoSavePath))
+		for (const auto& file : IO::File::directoryIterator(autoSavePath))
 		{
 			std::string extension = file.path().extension().string();
 			std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
@@ -781,7 +789,7 @@ namespace MikuMikuWorld
 
 		int deleteCount = std::min(static_cast<int>(deleteFiles.size()), count);
 		for (int i = 0; i < deleteCount; i++)
-			std::filesystem::remove(deleteFiles[i]);
+			IO::File::remove(deleteFiles[i].path().string());
 		
 		return deleteCount;
 	}

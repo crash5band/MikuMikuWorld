@@ -24,7 +24,7 @@ namespace MikuMikuWorld
 		if (!IO::File::exists(filename))
 			return;
 
-		std::ifstream configFile(filename);
+		auto configFile = IO::File::ifstream(filename);
 		json config;
 		configFile >> config;
 		configFile.close();
@@ -217,7 +217,7 @@ namespace MikuMikuWorld
 
 		config["recent_files"] = recentFiles;
 
-		std::ofstream configFile(filename);
+		auto configFile = IO::File::ofstream(filename);
 		configFile << std::setw(4) << config;
 		configFile.flush();
 		configFile.close();
