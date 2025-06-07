@@ -6,7 +6,11 @@ namespace IO
 	BinaryWriter::BinaryWriter(const std::string& filename)
 	{
 		stream = NULL;
+#if defined(_WIN32)
+		stream = _wfopen(IO::mbToWideStr(filename).c_str(), L"wb");
+#else
 		stream = fopen(filename.c_str(), "wb");
+#endif
 	}
 
 	BinaryWriter::~BinaryWriter()

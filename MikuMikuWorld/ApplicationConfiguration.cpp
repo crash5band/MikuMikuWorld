@@ -4,6 +4,7 @@
 #include "Constants.h"
 #include <filesystem>
 #include <fstream>
+#include "File.h"
 
 using namespace nlohmann;
 
@@ -20,7 +21,7 @@ namespace MikuMikuWorld
 
 	void ApplicationConfiguration::read(const std::string& filename)
 	{
-		if (!std::filesystem::exists(filename))
+		if (!IO::File::exists(filename))
 			return;
 
 		std::ifstream configFile(filename);

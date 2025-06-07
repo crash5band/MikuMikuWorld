@@ -52,7 +52,11 @@ namespace IO
 	void File::open(const std::string& filename, FileMode mode)
 	{
 		openFilename = filename;
+#if defined(_WIN32)
+		stream->open(IO::mbToWideStr(filename), getStreamMode(mode));
+#else
 		stream->open(filename, getStreamMode(mode));
+#endif
 	}
 
 	void File::close()
@@ -214,7 +218,20 @@ namespace IO
 
 	bool File::exists(const std::string& path)
 	{
+#if defined(_WIN32)
+		return std::filesystem::exists(IO::mbToWideStr(path));
+#else
 		return std::filesystem::exists(path);
+#endif
+	}
+
+	bool File::createDirectory(const std::string& path)
+	{
+#if defined(_WIN32)
+		return std::filesystem::create_directory(IO::mbToWideStr(path));
+#else
+		return std::filesystem::create_directory(path);
+#endif
 	}
 
 	FileDialogResult FileDialog::showFileDialog(DialogType type, DialogSelectType selectType)

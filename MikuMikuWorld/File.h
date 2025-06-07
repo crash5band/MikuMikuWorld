@@ -23,6 +23,7 @@ namespace IO
 		static std::string getFilepath(const std::string& filename);
 		static std::string fixPath(const std::string& path);
 		static bool exists(const std::string& path);
+		static bool createDirectory(const std::string& path);
 
 		void open(const std::string& filename, FileMode mode);
 		void close();

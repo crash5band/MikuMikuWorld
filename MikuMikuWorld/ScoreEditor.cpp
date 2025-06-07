@@ -575,8 +575,8 @@ namespace MikuMikuWorld
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("open_presets_folder"), NULL, false, true))
 			{
-				if (!std::filesystem::exists(presetManager.getPresetsPath()))
-					std::filesystem::create_directory(presetManager.getPresetsPath());
+				if (!IO::File::exists(presetManager.getPresetsPath().string()))
+					IO::File::createDirectory(presetManager.getPresetsPath().string());
 #if defined(_WIN32)
 				ShellExecuteW(0, 0, IO::mbToWideStr(presetManager.getPresetsPath().string()).c_str(), 0, 0, SW_SHOW);
 #elif defined(__APPLE__)
@@ -741,7 +741,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::autoSave()
 	{
-		std::filesystem::create_directory(autoSavePath);
+		IO::File::createDirectory(autoSavePath.string());
 
 		context.score.metadata = context.workingData.toScoreMetadata();
 		serializeScore(context.score, autoSavePath.string() + ("mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION));
@@ -760,7 +760,7 @@ namespace MikuMikuWorld
 
 	int ScoreEditor::deleteOldAutoSave(int count)
 	{
-		if (!std::filesystem::exists(autoSavePath))
+		if (!IO::File::exists(autoSavePath.string()))
 			return 0;
 
 		// get mmws files

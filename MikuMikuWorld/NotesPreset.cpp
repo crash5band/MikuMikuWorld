@@ -51,7 +51,7 @@ namespace MikuMikuWorld
 	Result NotesPreset::read(const std::string& filepath)
 	{
 		fs::path path{ filepath };
-		if (!fs::exists(path))
+		if (!IO::File::exists(filepath))
 			return Result(ResultStatus::Error, "The preset file \"" + filepath + "\" does not exist.");
 
 		std::ifstream file(path);
@@ -92,7 +92,7 @@ namespace MikuMikuWorld
 			int count = 1;
 			std::string suffix = "";
 
-			while (fs::exists(filename + suffix + ".json"))
+			while (IO::File::exists(filename + suffix + ".json"))
 				suffix = "(" + std::to_string(count++) + ")";
 
 			filename += suffix;
@@ -123,12 +123,12 @@ namespace MikuMikuWorld
 
 	PresetManager::PresetManager(const std::filesystem::path& path) : presetsPath{ path }
 	{
-		fs::create_directory(presetsPath);
+		IO::File::createDirectory(presetsPath.string());
 	}
 
 	void PresetManager::loadPresets()
 	{
-		if (!fs::exists(presetsPath))
+		if (!IO::File::exists(presetsPath.string()))
 			return;
 
 		std::vector<std::string> filenames;
@@ -197,7 +197,7 @@ namespace MikuMikuWorld
 	Result PresetManager::importPreset(const std::string& path)
 	{
 		fs::path importPath{ path };
-		if (!fs::exists(importPath))
+		if (!IO::File::exists(importPath.string()))
 			return Result(ResultStatus::Error, IO::formatString("Error: File '%s' not found", path.c_str()));
 		
 		int id = nextPresetID++;
@@ -250,7 +250,7 @@ namespace MikuMikuWorld
 
 	bool PresetManager::savePreset(NotesPreset preset)
 	{
-		if (fs::exists(presetsPath) || fs::create_directory(presetsPath))
+		if (IO::File::exists(presetsPath.string()) || IO::File::createDirectory(presetsPath.string()))
 		{
 			// Extension is added after determining final file name
 			preset.write(presetsPath / fixFilename(preset.getName()), false);
@@ -297,7 +297,7 @@ namespace MikuMikuWorld
 
 	bool PresetManager::undoDeletePreset()
 	{
-		if (fs::exists(presetsPath) || fs::create_directory(presetsPath))
+		if (IO::File::exists(presetsPath.string()) || IO::File::createDirectory(presetsPath.string()))
 		{
 			try
 			{

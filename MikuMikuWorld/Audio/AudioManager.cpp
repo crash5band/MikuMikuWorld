@@ -108,7 +108,11 @@ namespace Audio
 				SoundInstance& debugSound = debugSounds[soundNameIndex + (index * soundEffectsCount)];
 				debugSound.name = name;
 
+#if defined(_WIN32)
+				ma_sound_init_from_file_w(&engine, IO::mbToWideStr(filename).c_str(), maSoundFlagsDecodeAsync, &soundEffectsGroup, nullptr, &debugSound.source);
+#else
 				ma_sound_init_from_file(&engine, filename.c_str(), maSoundFlagsDecodeAsync, &soundEffectsGroup, nullptr, &debugSound.source);
+#endif
 			});
 
 			// Adjust hold SE loop times for gapless playback

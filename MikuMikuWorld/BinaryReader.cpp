@@ -6,7 +6,11 @@ namespace IO
 	BinaryReader::BinaryReader(const std::string& filename)
 	{
 		stream = NULL;
+#if defined(_WIN32)
+		stream = _wfopen(IO::mbToWideStr(filename).c_str(), L"rb");
+#else
 		stream = fopen(filename.c_str(), "rb");
+#endif
 	}
 
 	BinaryReader::~BinaryReader()

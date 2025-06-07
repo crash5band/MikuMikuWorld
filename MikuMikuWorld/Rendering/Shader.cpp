@@ -33,8 +33,13 @@ namespace MikuMikuWorld
 
 		try
 		{
+#if defined(_WIN32)
+			vertexFile.open(IO::mbToWideStr(source + ".vert"));
+			fragmentFile.open(IO::mbToWideStr(source + ".frag"));
+#else
 			vertexFile.open(source + ".vert");
 			fragmentFile.open(source + ".frag");
+#endif
 
 			std::stringstream vertexStream, fragmnetStream;
 
