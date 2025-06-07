@@ -34,11 +34,7 @@ namespace MikuMikuWorld
 		&config.input.timelineHiSpeed,
 	};
 
-#if defined(_WIN32)
-	ScoreEditor::ScoreEditor() : presetManager(Application::getAppDir() / "library\\")
-#else
-	ScoreEditor::ScoreEditor() : presetManager(Application::getAppDir() / "library/")
-#endif
+	ScoreEditor::ScoreEditor() : presetManager(Application::getAppDir() / "library" / "")
 	{
 		renderer = std::make_unique<Renderer>();
 
@@ -52,11 +48,7 @@ namespace MikuMikuWorld
 		timeline.setDivision(config.division);
 		timeline.setZoom(config.zoom);
 
-#if defined(_WIN32)
-		autoSavePath = (Application::getAppDir() / "auto_save\\").string();
-#else
-		autoSavePath = (Application::getAppDir() / "auto_save/").string();
-#endif
+		autoSavePath = (Application::getAppDir() / "auto_save" / "").string();
 		autoSaveTimer.reset();
 	}
 
