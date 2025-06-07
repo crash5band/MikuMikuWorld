@@ -757,7 +757,11 @@ namespace MikuMikuWorld
 		int mmwsCount = 0;
 		for (const auto& file : IO::File::directoryIterator(autoSavePath))
 		{
+#if defined(_WIN32)
+			std::string extension = IO::wideStringToMb(file.path().extension().wstring());
+#else
 			std::string extension = file.path().extension().string();
+#endif
 			std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 			mmwsCount += static_cast<int>(extension == MMWS_EXTENSION);
 		}
@@ -776,7 +780,11 @@ namespace MikuMikuWorld
 		std::vector<entry> deleteFiles;
 		for (const auto& file : IO::File::directoryIterator(autoSavePath))
 		{
+#if defined(_WIN32)
+			std::string extension = IO::wideStringToMb(file.path().extension().wstring());
+#else
 			std::string extension = file.path().extension().string();
+#endif
 			std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 			if (extension == MMWS_EXTENSION)
 				deleteFiles.push_back(file);
