@@ -11,7 +11,11 @@
 #include "ImageCrop.h"
 #include "ScoreSerializer.h"
 #include <filesystem>
+#if defined(_WIN32)
 #include <Windows.h>
+#elif defined(__APPLE__)
+#include "Mac.h"
+#endif
 
 namespace MikuMikuWorld
 {
@@ -30,7 +34,7 @@ namespace MikuMikuWorld
 		&config.input.timelineHiSpeed,
 	};
 
-	ScoreEditor::ScoreEditor() : presetManager(Application::getAppDir() + "library")
+	ScoreEditor::ScoreEditor() : presetManager(Application::getAppDir() / "library" / "")
 	{
 		renderer = std::make_unique<Renderer>();
 
@@ -44,7 +48,7 @@ namespace MikuMikuWorld
 		timeline.setDivision(config.division);
 		timeline.setZoom(config.zoom);
 
-		autoSavePath = Application::getAppDir() + "auto_save";
+		autoSavePath = (Application::getAppDir() / "auto_save" / "").string();
 		autoSaveTimer.reset();
 	}
 
@@ -127,7 +131,7 @@ namespace MikuMikuWorld
 
 		if (settingsWindow.isBackgroundChangePending)
 		{
-			static const std::string defaultBackgroundPath = Application::getAppDir() + "res\\textures\\default.png";
+			static const std::string defaultBackgroundPath = (Application::getResDir() / "textures" / "default.png").string();
 			timeline.background.load(config.backgroundImage.empty() ? defaultBackgroundPath : config.backgroundImage);
 			settingsWindow.isBackgroundChangePending = false;
 		}
@@ -571,9 +575,13 @@ namespace MikuMikuWorld
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("open_presets_folder"), NULL, false, true))
 			{
-				if (!std::filesystem::exists(presetManager.getPresetsPath()))
-					std::filesystem::create_directory(presetManager.getPresetsPath());
-				ShellExecuteW(0, 0, presetManager.getPresetsPath().data(), 0, 0, SW_SHOW);
+				if (!IO::File::exists(presetManager.getPresetsPath()))
+					IO::File::createDirectory(presetManager.getPresetsPath());
+#if defined(_WIN32)
+				ShellExecuteW(0, 0, IO::mbToWideStr(presetManager.getPresetsPath()).c_str(), 0, 0, SW_SHOW);
+#elif defined(__APPLE__)
+				platform::openURL("file://" + presetManager.getPresetsPath());
+#endif
 			}
 			
 			ImGui::EndMenu();
@@ -724,21 +732,28 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::help()
 	{
+#if defined(_WIN32)
 		ShellExecuteW(0, 0, L"https://github.com/crash5band/MikuMikuWorld/wiki", 0, 0, SW_SHOW);
+#elif defined(__APPLE__)
+		platform::openURL("https://github.com/crash5band/MikuMikuWorld/wiki");
+#endif
 	}
 
 	void ScoreEditor::autoSave()
 	{
-		std::wstring wAutoSaveDir = IO::mbToWideStr(autoSavePath);
-		std::filesystem::create_directory(wAutoSaveDir);
+		IO::File::createDirectory(autoSavePath);
 
 		context.score.metadata = context.workingData.toScoreMetadata();
-		serializeScore(context.score, autoSavePath + "\\mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION);
+		serializeScore(context.score, autoSavePath + ("mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION));
 		
 		int mmwsCount = 0;
-		for (const auto& file : std::filesystem::directory_iterator(wAutoSaveDir))
+		for (const auto& file : IO::File::directoryIterator(autoSavePath))
 		{
+#if defined(_WIN32)
+			std::string extension = IO::wideStringToMb(file.path().extension().wstring());
+#else
 			std::string extension = file.path().extension().string();
+#endif
 			std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 			mmwsCount += static_cast<int>(extension == MMWS_EXTENSION);
 		}
@@ -749,16 +764,19 @@ namespace MikuMikuWorld
 
 	int ScoreEditor::deleteOldAutoSave(int count)
 	{
-		std::wstring wAutoSaveDir = IO::mbToWideStr(autoSavePath);
-		if (!std::filesystem::exists(wAutoSaveDir))
+		if (!IO::File::exists(autoSavePath))
 			return 0;
 
 		// get mmws files
 		using entry = std::filesystem::directory_entry;
 		std::vector<entry> deleteFiles;
-		for (const auto& file : std::filesystem::directory_iterator(wAutoSaveDir))
+		for (const auto& file : IO::File::directoryIterator(autoSavePath))
 		{
+#if defined(_WIN32)
+			std::string extension = IO::wideStringToMb(file.path().extension().wstring());
+#else
 			std::string extension = file.path().extension().string();
+#endif
 			std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 			if (extension == MMWS_EXTENSION)
 				deleteFiles.push_back(file);
@@ -771,7 +789,7 @@ namespace MikuMikuWorld
 
 		int deleteCount = std::min(static_cast<int>(deleteFiles.size()), count);
 		for (int i = 0; i < deleteCount; i++)
-			std::filesystem::remove(deleteFiles[i]);
+			IO::File::remove(deleteFiles[i].path().string());
 		
 		return deleteCount;
 	}

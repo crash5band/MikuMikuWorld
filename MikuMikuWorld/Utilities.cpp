@@ -3,7 +3,11 @@
 #include "ImGui/imgui.h"
 #include "Localization.h"
 #include "IO.h"
+#if defined(_WIN32)
 #include <Windows.h>
+#elif defined(__APPLE__)
+#include "Mac.h"
+#endif
 #include <ctime>
 
 namespace MikuMikuWorld
@@ -21,6 +25,7 @@ namespace MikuMikuWorld
 
 	std::string Utilities::getSystemLocale()
 	{
+#if defined(_WIN32)
 		LPWSTR lpLocalName = new WCHAR[LOCALE_NAME_MAX_LENGTH];
 		int result = GetUserDefaultLocaleName(lpLocalName, LOCALE_NAME_MAX_LENGTH);
 
@@ -29,6 +34,9 @@ namespace MikuMikuWorld
 
 		delete[] lpLocalName;
 		return IO::wideStringToMb(wL);
+#elif defined(__APPLE__)
+		return platform::getUserLanguageCode();
+#endif
 	}
 
 	std::string Utilities::getDivisionString(int div)
