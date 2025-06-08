@@ -789,7 +789,11 @@ namespace MikuMikuWorld
 
 		int deleteCount = std::min(static_cast<int>(deleteFiles.size()), count);
 		for (int i = 0; i < deleteCount; i++)
+#if defined(_WIN32)
+			IO::File::remove(IO::wideStringToMb(deleteFiles[i].path().wstring()));
+#else
 			IO::File::remove(deleteFiles[i].path().string());
+#endif
 		
 		return deleteCount;
 	}

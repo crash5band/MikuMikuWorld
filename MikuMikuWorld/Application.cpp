@@ -71,7 +71,7 @@ namespace MikuMikuWorld
 	{
 #if defined(_WIN32)
 		wchar_t filename[1024];
-		lstrcpyW(filename, IO::mbToWideStr(std::string(appDir.string() + "MikuMikuWorld.exe")).c_str());
+		lstrcpyW(filename, IO::mbToWideStr(appDir.string() + "MikuMikuWorld.exe").c_str());
 
 		DWORD  verHandle = 0;
 		UINT   size = 0;
