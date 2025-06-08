@@ -11,8 +11,8 @@
 namespace MikuMikuWorld
 {
 	std::string Application::version{ "1.0.0" };
-	std::filesystem::path Application::appDir{ "" };
-	std::filesystem::path Application::resDir{ "" };
+	std::string Application::appDir{ "" };
+	std::string Application::resDir{ "" };
 	std::string Application::pendingLoadScoreFile{ "" };
 	WindowState Application::windowState{};
 
@@ -33,7 +33,7 @@ namespace MikuMikuWorld
 		version = getVersion();
 		language = "";
 
-		config.read(appDir.string() + APP_CONFIG_FILENAME);
+		config.read(IO::File::pathConcat(appDir, APP_CONFIG_FILENAME));
 		readSettings();
 
 		Result result = initOpenGL();
@@ -57,12 +57,12 @@ namespace MikuMikuWorld
 		return Result::Ok();
 	}
 
-	const std::filesystem::path& Application::getAppDir()
+	const std::string& Application::getAppDir()
 	{
 		return appDir;
 	}
 
-	const std::filesystem::path& Application::getResDir()
+	const std::string& Application::getResDir()
 	{
 		return resDir;
 	}
@@ -71,7 +71,7 @@ namespace MikuMikuWorld
 	{
 #if defined(_WIN32)
 		wchar_t filename[1024];
-		lstrcpyW(filename, IO::mbToWideStr(appDir.string() + "MikuMikuWorld.exe").c_str());
+		lstrcpyW(filename, IO::mbToWideStr(IO::File::pathConcat(appDir, "MikuMikuWorld.exe")).c_str());
 
 		DWORD  verHandle = 0;
 		UINT   size = 0;
@@ -143,7 +143,7 @@ namespace MikuMikuWorld
 		config.userColor = Color::fromImVec4(UI::accentColors[0]);
 
 		editor->writeSettings();
-		config.write(appDir.string() + APP_CONFIG_FILENAME);
+		config.write(IO::File::pathConcat(appDir, APP_CONFIG_FILENAME));
 	}
 
 	void Application::appendOpenFile(const std::string& filename)
@@ -321,9 +321,9 @@ namespace MikuMikuWorld
 
 	void Application::loadResources()
 	{
-		ResourceManager::loadShader((resDir / "shaders" / "basic2d").string());
+		ResourceManager::loadShader(IO::File::pathConcat(resDir, "shaders", "basic2d"));
 
-		const std::string texturesDir = (resDir / "textures" / "").string();
+		const std::string texturesDir = IO::File::pathConcat(resDir, "textures", "");
 
 		ResourceManager::loadTexture(texturesDir + "notes1.png", TextureFilterMode::LinearMipMapLinear, TextureFilterMode::Linear);
 		ResourceManager::loadTexture(texturesDir + "longNoteLine.png");
@@ -338,7 +338,7 @@ namespace MikuMikuWorld
 
 		// Load more languages here
 		Localization::loadDefault();
-		Localization::load("ja", "日本語", (resDir / "i18n" / "").string() + "ja.csv");
+		Localization::load("ja", "日本語", IO::File::pathConcat(resDir, "i18n", "ja.csv"));
 	}
 
 	void Application::run()

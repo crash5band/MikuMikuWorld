@@ -60,8 +60,8 @@ namespace MikuMikuWorld
 		std::vector<std::string> pendingOpenFiles;
 
 		static std::string version;
-		static std::filesystem::path appDir;
-		static std::filesystem::path resDir;
+		static std::string appDir;
+		static std::string resDir;
 
 		Result initOpenGL();
 		std::string getVersion();
@@ -86,8 +86,8 @@ namespace MikuMikuWorld
 
 		GLFWwindow* getGlfwWindow() { return window; }
 
-		static const std::filesystem::path& getAppDir();
-		static const std::filesystem::path& getResDir();
+		static const std::string& getAppDir();
+		static const std::string& getResDir();
 		static const std::string& getAppVersion();
 	};
 }

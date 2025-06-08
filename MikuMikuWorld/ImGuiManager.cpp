@@ -24,7 +24,7 @@ namespace MikuMikuWorld
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 
-		configFilename = Application::getAppDir().string() + IMGUI_CONFIG_FILENAME;
+		configFilename = IO::File::pathConcat(Application::getAppDir(), IMGUI_CONFIG_FILENAME);
 
 		ImGuiIO& io = ImGui::GetIO();
 		io.ConfigFlags |= 
@@ -218,8 +218,8 @@ namespace MikuMikuWorld
 
 		io.FontDefault = nullptr;
 
-		loadFont((Application::getResDir() / "fonts" / "NotoSansCJK-Regular.ttc").string(), 16 * dpiScale);
-		loadIconFont((Application::getResDir() / "fonts" / "fa-solid-900.ttf").string(), ICON_MIN_FA, ICON_MAX_FA, 12 * dpiScale);
+		loadFont(IO::File::pathConcat(Application::getResDir(), "fonts", "NotoSansCJK-Regular.ttc"), 16 * dpiScale);
+		loadIconFont(IO::File::pathConcat(Application::getResDir(), "fonts", "fa-solid-900.ttf"), ICON_MIN_FA, ICON_MAX_FA, 12 * dpiScale);
 		ImGui_ImplOpenGL3_CreateFontsTexture();
 	}
 

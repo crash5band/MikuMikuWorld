@@ -41,7 +41,7 @@ namespace MikuMikuWorld
 		IO::MessageBoxResult showErrorMessage(const std::string& message);
 
 	public:
-		PresetManager(const std::filesystem::path& path);
+		PresetManager(const std::string& path);
 		
 		std::vector<NotesPreset> presets;
 		NotesPreset deletedPreset{};

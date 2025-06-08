@@ -4,6 +4,12 @@
 #include <fstream>
 #include <filesystem>
 
+#if defined(_WIN32)
+const char PATH_SEPARATOR = '\\';
+#else
+const char PATH_SEPARATOR = '/';
+#endif
+
 namespace fs = std::filesystem;
 
 namespace IO
@@ -25,6 +31,20 @@ namespace IO
 		static std::string getFullFilenameWithoutExtension(const std::string& filename);
 		static std::string getFilepath(const std::string& filename);
 		static std::string fixPath(const std::string& path);
+		template<typename... Args>
+		static std::string pathConcat(const Args&... args)
+		{
+			std::vector<std::string> parts{ args... };
+			std::string result;
+			for (const auto& part : parts) {
+				if (!result.empty() && result.back() != PATH_SEPARATOR)
+				{
+					result += PATH_SEPARATOR;
+				}
+				result += part;
+			}
+			return result;
+		}
 		static bool exists(const std::string& path);
 		static bool createDirectory(const std::string& path);
 		static bool copyFile(const std::string& from, const std::string& to);

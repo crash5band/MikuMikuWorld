@@ -82,7 +82,7 @@ namespace MikuMikuWorld
 		glfwSetWindowCloseCallback(window, windowCloseCallback);
 		glfwSetWindowMaximizeCallback(window, windowMaximizeCallback);
 
-		std::string iconFilename = resDir.string() + "mmw_icon.png";
+		std::string iconFilename = IO::File::pathConcat(resDir, "mmw_icon.png");
 		if (IO::File::exists(iconFilename))
 		{
 			GLFWimage images[1]{};
