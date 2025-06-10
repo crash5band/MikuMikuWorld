@@ -31,7 +31,7 @@ namespace IO
 			stream->close();
 	}
 
-	int File::getStreamMode(FileMode mode) const
+	std::ios::openmode File::getStreamMode(FileMode mode) const
 	{
 		switch (mode)
 		{
@@ -44,7 +44,7 @@ namespace IO
 		case FileMode::WriteBinary:
 			return std::fstream::out | std::fstream::binary;
 		default:
-			return 0;
+			return std::ios::openmode(0);
 		}
 	}
 

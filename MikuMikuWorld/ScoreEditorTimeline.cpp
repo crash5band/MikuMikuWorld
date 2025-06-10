@@ -7,6 +7,7 @@
 #include "Utilities.h"
 #include "ApplicationConfiguration.h"
 #include "Application.h"
+#include <cmath>
 #include <algorithm>
 
 namespace MikuMikuWorld
@@ -1496,7 +1497,7 @@ namespace MikuMikuWorld
 		const float limitY1 = getNoteYPosFromTick(positionToTick(visualOffset));
 
 		auto easeFunc = getEaseFunction(ease);
-		float steps = ease == EaseType::Linear ? 1 : std::max(5.0f, std::ceilf(abs((endY - startY)) / 10));
+		float steps = ease == EaseType::Linear ? 1 : std::max(5.0f, ceilf(abs((endY - startY)) / 10));
 
 		for (int y = 0; y < steps; ++y)
 		{

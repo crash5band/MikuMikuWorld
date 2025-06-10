@@ -4,11 +4,7 @@
 #include <fstream>
 #include <filesystem>
 
-#if defined(_WIN32)
-const char PATH_SEPARATOR = '\\';
-#else
-const char PATH_SEPARATOR = '/';
-#endif
+const char PATH_SEPARATOR = std::filesystem::path::preferred_separator;
 
 namespace fs = std::filesystem;
 
@@ -76,7 +72,7 @@ namespace IO
 		std::unique_ptr<std::fstream> stream{};
 		std::string openFilename{};
 
-		int getStreamMode(FileMode) const;
+		std::ios::openmode getStreamMode(FileMode) const;
 	};
 
 	enum class FileDialogResult : uint8_t

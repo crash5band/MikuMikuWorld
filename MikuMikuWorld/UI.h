@@ -154,36 +154,36 @@ namespace MikuMikuWorld
 
 			ImGui::NextColumn();
 		}
+	};
+	// we don't want FlickType::None to appear in the selection
+	template <>
+	inline void UI::addSelectProperty<FlickType>(const char* label, FlickType& value, const char* const* items, int count)
+	{
+		propertyLabel(label);
 
-		// we don't want FlickType::None to appear in the selection
-		template <>
-		static void addSelectProperty<FlickType>(const char* label, FlickType& value, const char* const* items, int count)
+		std::string id("##");
+		id.append(label);
+
+		std::string curr = getString(items[(int)value]);
+		if (!curr.size())
+			curr = items[(int)value];
+		if (ImGui::BeginCombo(id.c_str(), curr.c_str()))
 		{
-			propertyLabel(label);
-
-			std::string id("##");
-			id.append(label);
-
-			std::string curr = getString(items[(int)value]);
-			if (!curr.size())
-				curr = items[(int)value];
-			if (ImGui::BeginCombo(id.c_str(), curr.c_str()))
+			for (int i = (int)FlickType::Default; i < count; ++i)
 			{
-				for (int i = (int)FlickType::Default; i < count; ++i)
-				{
-					const bool selected = (int)value == i;
-					std::string str = getString(items[i]);
-					if (!str.size())
-						str = items[i];
+				const bool selected = (int)value == i;
+				std::string str = getString(items[i]);
+				if (!str.size())
+					str = items[i];
 
-					if (ImGui::Selectable(str.c_str(), selected))
-						value = (FlickType)i;
-				}
-
-				ImGui::EndCombo();
+				if (ImGui::Selectable(str.c_str(), selected))
+					value = (FlickType)i;
 			}
 
-			ImGui::NextColumn();
+			ImGui::EndCombo();
 		}
-	};
+
+		ImGui::NextColumn();
+	}
+
 }

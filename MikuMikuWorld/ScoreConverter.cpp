@@ -3,6 +3,7 @@
 #include "Score.h"
 #include "IO.h"
 #include "Constants.h"
+#include <cmath>
 #include <array>
 #include <unordered_set>
 #include <algorithm>

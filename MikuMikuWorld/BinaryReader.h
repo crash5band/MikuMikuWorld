@@ -1,5 +1,6 @@
 #pragma once
 #include <stdio.h>
+#include <cstdint>
 #include <string>
 
 namespace IO

@@ -1,11 +1,12 @@
 #pragma once
-#include "Quad.h"
 #include "../Math.h"
 #include "Texture.h"
 #include "AnchorType.h"
 #include "VertexBuffer.h"
 #include <vector>
 #include <array>
+// Has <DirectXMath.h>, include last to avoid "sal.h" conflicts with GNU C++
+#include "Quad.h"
 
 namespace MikuMikuWorld
 {
