@@ -49,6 +49,9 @@ namespace MikuMikuWorld
 		const char* glfwErrorDescription = NULL;
 		int possibleError = GLFW_NO_ERROR;
 
+#if defined(__APPLE__)
+		glfwInitHint(GLFW_ANGLE_PLATFORM_TYPE, GLFW_ANGLE_PLATFORM_TYPE_METAL);
+#endif
 		glfwInit();
 		possibleError = glfwGetError(&glfwErrorDescription);
 		if (possibleError != GLFW_NO_ERROR)
@@ -58,9 +61,9 @@ namespace MikuMikuWorld
 		}
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+		glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
 
 		window = glfwCreateWindow(config.windowSize.x, config.windowSize.y, APP_NAME, NULL, NULL);
 		possibleError = glfwGetError(&glfwErrorDescription);
@@ -79,7 +82,7 @@ namespace MikuMikuWorld
 		glfwSetWindowCloseCallback(window, windowCloseCallback);
 		glfwSetWindowMaximizeCallback(window, windowMaximizeCallback);
 
-		std::string iconFilename = appDir + "res\\mmw_icon.png";
+		std::string iconFilename = IO::File::pathConcat(resDir, "mmw_icon.png");
 		if (IO::File::exists(iconFilename))
 		{
 			GLFWimage images[1]{};
@@ -88,20 +91,12 @@ namespace MikuMikuWorld
 			stbi_image_free(images[0].pixels);
 		}
 
-		// GLAD initializtion
-		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-		{
-			glfwTerminate();
-			return Result(ResultStatus::Error, "Failed to fetch OpenGL proc address.");
-		}
-
 		glfwSwapInterval(config.vsync);
 		if (config.maximized)
 			glfwMaximizeWindow(window);
 
 		glLineWidth(1.0f);
-		glPointSize(1.0f);
-		glEnablei(GL_BLEND, 0);
+		glEnable(GL_BLEND);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		glViewport(0, 0, config.windowSize.x, config.windowSize.y);

@@ -51,7 +51,6 @@ namespace Audio
 			return mmw::Result(mmw::ResultStatus::Error, "Unsupported file format");
 
 		std::string nameWithoutExtension = IO::File::getFilenameWithoutExtension(filename);
-		std::wstring wFilename = IO::mbToWideStr(filename);
 
 		IO::File f(filename, IO::FileMode::ReadBinary);
 		std::vector<uint8_t> bytes = f.readAllBytes();
@@ -154,10 +153,13 @@ namespace Audio
 
 	void SoundPool::initialize(const std::string& path, ma_engine* engine, ma_sound_group* group, SoundFlags flags)
 	{
-		std::wstring wPath = IO::mbToWideStr(path);
 		for (int i = 0; i < pool.size(); i++)
 		{
-			ma_result result = ma_sound_init_from_file_w(engine, wPath.c_str(), maSoundFlagsDecodeAsync, group, NULL, &pool[i].source);
+#if defined(_WIN32)
+			ma_result result = ma_sound_init_from_file_w(engine, IO::mbToWideStr(path).c_str(), maSoundFlagsDecodeAsync, group, NULL, &pool[i].source);
+#else
+			ma_result result = ma_sound_init_from_file(engine, path.c_str(), maSoundFlagsDecodeAsync, group, NULL, &pool[i].source);
+#endif
 			if (flags & SoundFlags::LOOP)
 				ma_sound_set_looping(&pool[i].source, true);
 		}

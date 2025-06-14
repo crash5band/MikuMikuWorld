@@ -4,6 +4,7 @@
 #include "Constants.h"
 #include <filesystem>
 #include <fstream>
+#include "File.h"
 
 using namespace nlohmann;
 
@@ -20,11 +21,10 @@ namespace MikuMikuWorld
 
 	void ApplicationConfiguration::read(const std::string& filename)
 	{
-		std::wstring wFilename = IO::mbToWideStr(filename);
-		if (!std::filesystem::exists(wFilename))
+		if (!IO::File::exists(filename))
 			return;
 
-		std::ifstream configFile(wFilename);
+		auto configFile = IO::File::ifstream(filename);
 		json config;
 		configFile >> config;
 		configFile.close();
@@ -217,8 +217,7 @@ namespace MikuMikuWorld
 
 		config["recent_files"] = recentFiles;
 
-		std::wstring wFilename = IO::mbToWideStr(filename);
-		std::ofstream configFile(wFilename);
+		auto configFile = IO::File::ofstream(filename);
 		configFile << std::setw(4) << config;
 		configFile.flush();
 		configFile.close();

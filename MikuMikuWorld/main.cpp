@@ -19,7 +19,8 @@ int main()
 	try
 	{
 		std::string dir = IO::File::getFilepath(IO::wideStringToMb(args[0]));
-		mmw::Result result = app.initialize(dir);
+		std::string resDir = dir + "res\\";
+		mmw::Result result = app.initialize(dir, resDir);
 		
 		if (!result.isOk())
 			throw (std::exception(result.getMessage().c_str()));

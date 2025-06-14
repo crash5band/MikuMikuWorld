@@ -155,7 +155,7 @@ namespace MikuMikuWorld
 			maxOffset += 2000;
 
 		ImGui::SetCursorScreenPos(windowEndTop);
-		ImGui::InvisibleButton("##scroll_background", ImVec2{ scrollbarWidth, scrollHeight + handleHeight }, ImGuiButtonFlags_AllowItemOverlap);
+		ImGui::InvisibleButton("##scroll_background", ImVec2{ scrollbarWidth, scrollHeight + handleHeight }, ImGuiButtonFlags_AllowOverlap);
 		if (ImGui::IsItemActivated())
 		{
 			float yPos = std::clamp(ImGui::GetMousePos().y, windowEndTop.y, windowEndBottom.y - handleHeight);
@@ -2140,7 +2140,7 @@ namespace MikuMikuWorld
 		notesFramebuffer = std::make_unique<Framebuffer>(1920, 1080);
 		playbackSpeed = 1.0f;
 
-		background.load(config.backgroundImage.empty() ? (Application::getAppDir() + "res\\textures\\default.png") : config.backgroundImage);
+		background.load(config.backgroundImage.empty() ? IO::File::pathConcat(Application::getResDir(), "textures", "default.png") : config.backgroundImage);
 		background.setBrightness(0.67);
 	}
 
