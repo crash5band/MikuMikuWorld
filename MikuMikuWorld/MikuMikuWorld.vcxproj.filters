@@ -440,9 +440,4 @@
       <Filter>Resources</Filter>
     </Image>
   </ItemGroup>
-  <ItemGroup>
-    <Manifest Include="app.manifest">
-      <Filter>Resources</Filter>
-    </Manifest>
-  </ItemGroup>
 </Project>
