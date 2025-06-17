@@ -1,16 +1,13 @@
 #include "BinaryReader.h"
 #include "IO.h"
+#include "Platform.h"
 
 namespace IO
 {
 	BinaryReader::BinaryReader(const std::string& filename)
 	{
 		stream = NULL;
-#if defined(_WIN32)
-		stream = _wfopen(IO::mbToWideStr(filename).c_str(), L"rb");
-#else
-		stream = fopen(filename.c_str(), "rb");
-#endif
+		stream = Platform::OpenFile(filename, "rb");
 	}
 
 	BinaryReader::~BinaryReader()

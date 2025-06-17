@@ -5,6 +5,7 @@
 #include <vector>
 #include <stdexcept>
 #include <memory>
+#include "Platform.h"
 
 #define Z_CHUNK_SIZE 32768ULL
 
@@ -49,7 +50,7 @@ namespace IO
 	std::string trim(const std::string& line);
 	std::vector<std::string> split(const std::string& line, const std::string& delim);
 
-#if defined(_WIN32)
+#ifdef MMW_WINDOWS
 	std::string wideStringToMb(const std::wstring& str);
 	std::wstring mbToWideStr(const std::string& str);
 #endif

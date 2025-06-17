@@ -5,7 +5,7 @@ project(MikuMikuWorld)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_COLOR_DIAGNOSTICS ON)
+# set(CMAKE_COLOR_DIAGNOSTICS ON)
 
 # Platform-specific configurations
 if (WIN32)
@@ -49,7 +49,8 @@ elseif(LINUX)
                 "IMGUI_IMPL_OPENGL_ES3"
         )
         set(PLATFORM_LINK_LIBRARIES
-                "glfw"
+                # GLFW 3.4 build
+                "${CMAKE_SOURCE_DIR}/Depends/GLFW/lib/unix/libglfw3.a"
                 "z"
                 "EGL"
                 "GLESv2"
@@ -87,6 +88,8 @@ target_include_directories(MikuMikuWorld PRIVATE
 )
 
 target_compile_definitions(MikuMikuWorld PRIVATE ${PLATFROM_COMPILE_DEFINITIONS})
+
+target_compile_options(MikuMikuWorld PRIVATE "-Wno-format-security")
 
 target_link_libraries(MikuMikuWorld ${PLATFORM_LINK_LIBRARIES})
 

@@ -36,6 +36,9 @@ namespace MikuMikuWorld
 		return IO::wideStringToMb(wL);
 #elif defined(__APPLE__)
 		return platform::getUserLanguageCode();
+#else
+		// FIXME
+		return "en";
 #endif
 	}
 

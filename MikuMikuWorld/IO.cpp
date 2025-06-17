@@ -1,9 +1,5 @@
+#include "Platform.h"
 #include "IO.h"
-#if defined(_WIN32)
-#include <Windows.h>
-#elif defined(__APPLE__)
-#include "Mac.h"
-#endif
 #include <algorithm>
 #include <zlib.h>
 #include <sstream>
@@ -13,39 +9,11 @@ namespace IO
 {
 	MessageBoxResult messageBox(std::string title, std::string message, MessageBoxButtons buttons, MessageBoxIcon icon, void* parentWindow)
 	{
-#if defined(_WIN32)
-		UINT flags = 0;
-		switch (icon)
-		{
-		case MessageBoxIcon::Information:	flags |= MB_ICONINFORMATION; break;
-		case MessageBoxIcon::Warning:		flags |= MB_ICONWARNING; break;
-		case MessageBoxIcon::Error:			flags |= MB_ICONERROR; break;
-		case MessageBoxIcon::Question:		flags |= MB_ICONQUESTION; break;
-		default: break;
-		}
-
-		switch (buttons)
-		{
-		case MessageBoxButtons::Ok:			flags |= MB_OK; break;
-		case MessageBoxButtons::OkCancel:	flags |= MB_OKCANCEL; break;
-		case MessageBoxButtons::YesNo:		flags |= MB_YESNO; break;
-		case MessageBoxButtons::YesNoCancel:flags |= MB_YESNOCANCEL; break;
-		default: break;
-		}
-
-		const int result = MessageBoxExW(reinterpret_cast<HWND>(parentWindow), mbToWideStr(message).c_str(), mbToWideStr(title).c_str(), flags, 0);
-		switch (result)
-		{
-		case IDABORT:	return MessageBoxResult::Abort;
-		case IDCANCEL:	return MessageBoxResult::Cancel;
-		case IDIGNORE:	return MessageBoxResult::Ignore;
-		case IDNO:		return MessageBoxResult::No;
-		case IDYES:		return MessageBoxResult::Yes;
-		case IDOK:		return MessageBoxResult::Ok;
-		default:		return MessageBoxResult::None;
-		}
-#elif defined(__APPLE__)
+	// FIXME		
+#if defined(__APPLE__)
 		return platform::showMessageBox(title, message, buttons, icon);
+#else
+		return Platform::OpenMessageBox(title, message, buttons, icon, parentWindow);
 #endif
 	}
 
@@ -148,7 +116,7 @@ namespace IO
 		return values;
 	}
 
-#if defined(_WIN32)
+#ifdef MMW_WINDOWS
 	std::string wideStringToMb(const std::wstring& str)
 	{
 		int size = WideCharToMultiByte(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0, NULL, NULL);

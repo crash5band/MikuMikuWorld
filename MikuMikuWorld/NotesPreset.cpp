@@ -84,28 +84,28 @@ namespace MikuMikuWorld
 
 	void NotesPreset::write(const std::string& filepath, bool overwrite)
 	{
-		std::string filename = IO::File::getFullFilenameWithoutExtension(filepath);
+		fs::path path = filepath;
 		if (!overwrite)
 		{
+			path.replace_extension(".json");
 			int count = 1;
 			std::string suffix = "";
 
-			while (IO::File::exists(filename + suffix + ".json"))
+			while (fs::exists(path.replace_filename(path.filename().append(suffix))))
 				suffix = "(" + std::to_string(count++) + ")";
 
-			filename += suffix;
 		}
 
 		data["name"] = name;
 		data["description"] = description;
 		
-		auto file = IO::File::ofstream(filename + ".json");
+		auto file = IO::File::ofstream(path.generic_string());
 		file.exceptions(std::ios::badbit | std::ios::failbit);
 		file << std::setw(2) << data;
 		file.flush();
 		file.close();
 
-		filename = IO::File::getFilename(filename);
+		filename = path.filename().generic_string();
 	}
 
 	IO::MessageBoxResult PresetManager::showErrorMessage(const std::string& message)
@@ -132,24 +132,19 @@ namespace MikuMikuWorld
 		std::vector<std::string> filenames;
 		for (const auto& file : IO::File::directoryIterator(presetsPath))
 		{
-			// Ignore dot files
-#if defined(_WIN32)
-			auto extStr = IO::wideStringToMb(file.path().extension().wstring());
-			auto pathStr = IO::wideStringToMb(file.path().wstring());
-#else
-			auto extStr = file.path().extension().string();
-			auto pathStr = file.path().string();
-#endif
-			if (extStr == ".json" && pathStr.at(0) != '.')
-				filenames.push_back(pathStr);
+			auto& path = file.path();
+
+			// ignore dot files
+			if (path.has_filename() && path.extension() == ".json")
+				filenames.push_back(path.generic_string());
 		}
 
-		std::mutex m2;		
+		std::mutex m2;
 
 		std::vector<Result> warnings;
 		std::vector<Result> errors;
 
-#if defined(_WIN32)
+#ifdef MMW_WINDOWS
 		std::for_each(std::execution::seq, filenames.begin(), filenames.end(),
 #else
 		std::for_each(filenames.begin(), filenames.end(),

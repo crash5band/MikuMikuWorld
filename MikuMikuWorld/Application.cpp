@@ -105,6 +105,9 @@ namespace MikuMikuWorld
 		return IO::formatString("%d.%d.%d", major, minor, rev);
 #elif defined(__APPLE__)
 		return platform::getBuildVersion();
+#else
+		// FIXME
+		return "1.0.0";
 #endif
 	}
 
@@ -142,8 +145,10 @@ namespace MikuMikuWorld
 		config.windowSize = windowState.size;
 		config.userColor = Color::fromImVec4(UI::accentColors[0]);
 
-		editor->writeSettings();
-		config.write(IO::File::pathConcat(appDir, APP_CONFIG_FILENAME));
+		if (editor) {
+			editor->writeSettings();
+			config.write(IO::File::pathConcat(appDir, APP_CONFIG_FILENAME));
+		}
 	}
 
 	void Application::appendOpenFile(const std::string& filename)
@@ -378,6 +383,6 @@ namespace MikuMikuWorld
 
 	bool Application::isEditorUpToDate() const
 	{
-		return editor->isUpToDate();
+		return editor ? editor->isUpToDate() : true;
 	}
 }

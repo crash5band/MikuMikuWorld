@@ -204,6 +204,7 @@ xcopy "$(SolutionDir)Depends\ANGLE\lib\*.dll" "$(OutDir)" /D /Y</Command>
     <ClCompile Include="AggregateNotesFilter.cpp" />
     <ClCompile Include="OpenGlLoader.cpp" />
     <ClCompile Include="NotesPreset.cpp" />
+    <ClCompile Include="Platform.cpp" />
     <ClCompile Include="Rendering\Camera.cpp" />
     <ClCompile Include="Rendering\Framebuffer.cpp" />
     <ClCompile Include="Rendering\Renderer.cpp" />
@@ -255,6 +256,7 @@ xcopy "$(SolutionDir)Depends\ANGLE\lib\*.dll" "$(OutDir)" /D /Y</Command>
     <ClInclude Include="ImGui\imstb_truetype.h" />
     <ClInclude Include="InputBinding.h" />
     <ClInclude Include="IO.h" />
+    <ClInclude Include="Platform.h" />
     <ClInclude Include="ScoreSerializer.h" />
     <ClInclude Include="Jacket.h" />
     <ClInclude Include="JsonIO.h" />
