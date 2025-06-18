@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 
-project(MikuMikuWorld)
+project(MikuMikuWorld VERSION 3.4.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -38,6 +38,10 @@ elseif(APPLE)
                 "${CMAKE_SOURCE_DIR}/Depends/ANGLE/lib/libGLESv2.dylib"
         )
 
+        configure_file(
+                ${CMAKE_SOURCE_DIR}/Info.plist.in
+                ${CMAKE_SOURCE_DIR}/Info.plist
+        )
         set_target_properties(MikuMikuWorld PROPERTIES
                 MACOSX_BUNDLE TRUE
                 MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/Info.plist"
@@ -47,6 +51,7 @@ elseif(LINUX)
                 "PAL_STDCPP_COMPAT"
                 "_XM_NO_INTRINSICS_"
                 "IMGUI_IMPL_OPENGL_ES3"
+                "MMW_APP_VERSION=\"${PROJECT_VERSION}\""
         )
         set(PLATFORM_LINK_LIBRARIES
                 # GLFW 3.4 build

@@ -6,16 +6,17 @@
 #elif defined(__APPLE__)
 
 #define MMW_MACOS
-#include "Mac.h"
+#import <string>
 #elif defined(__unix__) || defined(__unix)
 
 #define MMW_LINUX
 #include "unistd.h"
 
 #endif
-#include <string>
 #include <cstdio>
 #include <stdint.h>
+#include <string>
+#include <vector>
 
 namespace IO {
     enum class FileDialogResult : uint8_t;
@@ -30,7 +31,12 @@ namespace IO {
 }
 
 namespace Platform {
+    void OpenUrl(const std::string& url);
     FILE* OpenFile(const std::string& filename, const std::string& mode);
     IO::FileDialogResult OpenFileDialog(IO::DialogType type, IO::DialogSelectType selectType, IO::FileDialog& dialogOptions);
     IO::MessageBoxResult OpenMessageBox(const std::string& title, const std::string& message, IO::MessageBoxButtons buttons, IO::MessageBoxIcon icon, void* parentWindow);
+    std::string GetCurrentLanguageCode();
+    std::string GetBuildVersion();
+    std::vector<std::string> GetCommandLineArgs();
+    std::string GetResourcePath(const std::string& root);
 }

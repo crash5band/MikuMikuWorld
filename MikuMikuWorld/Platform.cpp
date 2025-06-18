@@ -4,6 +4,11 @@
 #include "IO.h"
 #include "File.h"
 
+void Platform::OpenUrl(const std::string &url)
+{
+    ShellExecuteW(0, 0, IO::mbToWideStr(url).c_str(), 0, 0, SW_SHOW);
+}
+
 FILE *Platform::OpenFile(const std::string &filename, const std::string &mode)
 {
     return _wfopen(IO::mbToWideStr(filename).c_str(), IO::mbToWideStr(mode).c_str());
@@ -145,6 +150,71 @@ IO::MessageBoxResult Platform::OpenMessageBox(const std::string &title, const st
     }
 }
 
+std::string Platform::GetCurrentLanguageCode()
+{
+    LPWSTR lpLocalName = new WCHAR[LOCALE_NAME_MAX_LENGTH];
+    int result = GetUserDefaultLocaleName(lpLocalName, LOCALE_NAME_MAX_LENGTH);
+
+    std::wstring wL = lpLocalName;
+    wL = wL.substr(0, wL.find_first_of(L"-"));
+
+    delete[] lpLocalName;
+    return IO::wideStringToMb(wL);
+}
+
+std::string Platform::GetBuildVersion()
+{
+    wchar_t filename[1024];
+    GetModuleFileNameW(NULL, filename, sizeof(filename) / sizeof(*filename));
+
+    DWORD  verHandle = 0;
+    UINT   size = 0;
+    LPBYTE lpBuffer = NULL;
+    DWORD  verSize = GetFileVersionInfoSizeW(filename, NULL);
+
+    int major = 0, minor = 0, build = 0, rev = 0;
+    if (verSize != NULL)
+    {
+        LPSTR verData = new char[verSize];
+
+        if (GetFileVersionInfoW(filename, verHandle, verSize, verData))
+        {
+            if (VerQueryValue(verData, "\\", (VOID FAR * FAR*) & lpBuffer, &size))
+            {
+                if (size)
+                {
+                    VS_FIXEDFILEINFO* verInfo = (VS_FIXEDFILEINFO*)lpBuffer;
+                    if (verInfo->dwSignature == 0xfeef04bd)
+                    {
+                        major = (verInfo->dwFileVersionMS >> 16) & 0xffff;
+                        minor = (verInfo->dwFileVersionMS >> 0) & 0xffff;
+                        rev = (verInfo->dwFileVersionLS >> 16) & 0xffff;
+                    }
+                }
+            }
+        }
+        delete[] verData;
+    }
+
+    return IO::formatString("%d.%d.%d", major, minor, rev);
+}
+
+std::vector<std::string> Platform::GetCommandLineArgs()
+{
+    int argc;
+    LPWSTR* args;
+    args = CommandLineToArgvW(GetCommandLineW(), &argc);
+    std::vector<std::string> cmdArgs;
+    cmdArgs.reserve((size_t)argc);
+    std::transform(args, args + argc, std::back_inserter(cmdArgs), IO::wideStringToMb);
+    return cmdArgs;
+}
+
+std::string Platform::GetResourcePath(const std::string& root)
+{
+    return IO::File::pathConcat(root, "res");
+}
+
 #endif
 
 #ifdef MMW_LINUX
@@ -157,19 +227,26 @@ IO::MessageBoxResult Platform::OpenMessageBox(const std::string &title, const st
 #include "IO.h"
 #include "File.h"
 
+void Platform::OpenUrl(const std::string &url)
+{
+    std::stringstream command;
+    command << "xdg-open " << std::quoted(url) << " 2> /dev/null";
+    system(command.str().c_str());
+}
+
 FILE *Platform::OpenFile(const std::string &filename, const std::string &mode)
 {
     return fopen(filename.c_str(), mode.c_str());
 }
 
 static int OpenProcess(const std::string& command, std::string& output) {
-    GLFWwindow* window = glfwGetCurrentContext();
-    bool glfwInitialized = glfwGetError(NULL) == GLFW_NO_ERROR;
+    // bool glfwInitialized = glfwGetError(NULL) == GLFW_NO_ERROR;
+    // GLFWwindow* window = glfwGetCurrentContext();
     char buffer[256];
     FILE *pipe = popen(command.c_str(), "r");
     if (!pipe) return -1;
     int pfd = fileno(pipe);
-    fcntl(pfd, F_SETFL, O_NONBLOCK);
+    // fcntl(pfd, F_SETFL, O_NONBLOCK);
     while (true)
     {
         ssize_t nread = read(pfd, buffer, sizeof(buffer));
@@ -178,8 +255,12 @@ static int OpenProcess(const std::string& command, std::string& output) {
             if (errno == EAGAIN)
             {
                 // To prevent window from freezing we need to let glfw process events
-                if (glfwInitialized)
-                    glfwPollEvents();
+                // 
+                // This currently doesn't work as the function can be called from any threads
+                // while glfwPollEvents only expected to be called from the main thread
+                //
+                // if (glfwInitialized)
+                //     glfwPollEvents();
             }
             else
             {
@@ -339,4 +420,80 @@ IO::MessageBoxResult Platform::OpenMessageBox(const std::string &title, const st
     }
     return IO::MessageBoxResult::None;
 }
+
+// Fallback of GetCurrentLanguageCode using C/C++ locale library to determine the language
+static std::string GetLocaleCode() {
+    // Locale string is either a locale name in XPG format; or a list of catergory=name seperate by ';'
+    std::string locale_string = std::locale("").name();
+    if (locale_string == "*")
+        // Unnamed locale
+        return {};
+    size_t pos = locale_string.find("LC_CTYPE=");
+    if (pos != std::string::npos) {
+        pos += 9;
+        size_t end_pos = locale_string.find(';', pos);
+        if (end_pos != std::string::npos)
+            locale_string = locale_string.substr(pos, end_pos - pos);
+        else
+            locale_string = locale_string.substr(pos);
+    }
+    // Extract the language code
+    // language[_territory[.codeset]][@modifier]
+    pos = locale_string.find_first_of("_.@");
+    if (pos != std::string::npos)
+        locale_string.erase(pos);
+    return locale_string;
+}
+
+// Using linux environment to retrieve the code
+static std::string GetLanguageCode() {
+    const char* lang_env = getenv("LANGUAGE");
+    if (!lang_env)
+        return {};
+    std::string languages = lang_env;
+    // Extract the language code
+    // language[_territory[.codeset]][@modifier]
+    size_t pos = languages.find_first_of("_.@");
+    while (pos != std::string::npos) {
+        size_t end_pos = languages.find(':', pos);
+        if (end_pos != std::string::npos)
+            languages.erase(pos, end_pos - pos);
+        else
+            languages.erase(pos);
+        pos = languages.find_first_of("_.@", pos);
+    }
+    return languages;
+}
+
+std::string Platform::GetCurrentLanguageCode()
+{
+    std::string code = GetLanguageCode();
+    return !code.empty() ? code : GetLocaleCode();
+}
+
+std::string Platform::GetBuildVersion()
+{
+#ifdef MMW_APP_VERSION
+    return MMW_APP_VERSION;
+#else
+#error "Missing version info. Check CMakeLists.txt if the definition is set."
+#endif
+}
+
+std::vector<std::string> Platform::GetCommandLineArgs()
+{
+    std::vector<std::string> cmdargs;
+    std::ifstream cmdline("/proc/self/cmdline", std::ios::binary | std::ios::in);
+    if (cmdline.is_open()) {
+        for (std::string arg; std::getline(cmdline, arg, '\0'); )
+            cmdargs.push_back(arg);
+    }
+    return cmdargs;
+}
+
+std::string Platform::GetResourcePath(const std::string& root)
+{
+    return IO::File::pathConcat(root, "res");
+}
+
 #endif

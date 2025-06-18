@@ -89,9 +89,10 @@ namespace MikuMikuWorld
 		{
 			path.replace_extension(".json");
 			int count = 1;
+			std::string base_filename = path.filename().string();
 			std::string suffix = "";
 
-			while (fs::exists(path.replace_filename(path.filename().append(suffix))))
+			while (fs::exists(path.replace_filename(base_filename + suffix)))
 				suffix = "(" + std::to_string(count++) + ")";
 
 		}
@@ -99,13 +100,13 @@ namespace MikuMikuWorld
 		data["name"] = name;
 		data["description"] = description;
 		
-		auto file = IO::File::ofstream(path.generic_string());
+		auto file = std::ofstream(path);
 		file.exceptions(std::ios::badbit | std::ios::failbit);
 		file << std::setw(2) << data;
 		file.flush();
 		file.close();
 
-		filename = path.filename().generic_string();
+		filename = path.filename().string();
 	}
 
 	IO::MessageBoxResult PresetManager::showErrorMessage(const std::string& message)
@@ -136,7 +137,7 @@ namespace MikuMikuWorld
 
 			// ignore dot files
 			if (path.has_filename() && path.extension() == ".json")
-				filenames.push_back(path.generic_string());
+				filenames.push_back(path.string());
 		}
 
 		std::mutex m2;

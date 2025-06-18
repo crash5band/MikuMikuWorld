@@ -7,28 +7,24 @@ mmw::Application app;
 
 int main()
 {
-	int argc;
-	// FIXME
-	// LPWSTR* args;
-	// args = CommandLineToArgvW(GetCommandLineW(), &argc);
-	// if (!args)
-	// {
-		// IO::messageBox(APP_NAME, "CommandLineToArgvW failed...", IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
-		// return 1;
-	// }
+	auto args = Platform::GetCommandLineArgs();
+	if (args.empty())
+	{
+		IO::messageBox(APP_NAME, "CommandLineToArgvW failed...", IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error);
+		return 1;
+	}
 
 	try
 	{
-		// std::string dir = IO::File::getFilepath(IO::wideStringToMb(args[0]));
-		std::string dir = "./";
-		std::string resDir = dir + "res/";
+		std::string dir = IO::File::getFilepath(args[0]);;
+		std::string resDir = Platform::GetResourcePath(dir);
 		mmw::Result result = app.initialize(dir, resDir);
 		
 		if (!result.isOk())
 			throw (std::runtime_error(result.getMessage().c_str()));
 
-		// for (int i = 1; i < argc; ++i)
-		// 	app.appendOpenFile(IO::wideStringToMb(args[i]));
+		for (int i = 1; i < args.size(); ++i)
+			app.appendOpenFile(args[i]);
 
 		app.handlePendingOpenFiles();
 		app.run();
@@ -62,7 +58,7 @@ int main()
 	return 0;
 }
 
-#ifdef _WIN32
+#ifdef MMW_WINDOWS
 LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
@@ -112,5 +108,17 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 
 	return ::DefWindowProcW(hwnd, uMsg, wParam, lParam);
+}
+#elif defined(MMW_LINUX)
+GLFWdropfun MikuMikuWorld::defaultDropFun = NULL;
+void MikuMikuWorld::windowDropCallback(GLFWwindow *window, int path_count, const char *paths[])
+{
+	for (int i = 0; i < path_count && path_count > 0; i++) {
+		std::string path = paths[i];
+		if (IO::File::exists(path))
+			app.appendOpenFile(path);
+	}
+	if (defaultDropFun)
+		defaultDropFun(window, path_count, paths);
 }
 #endif

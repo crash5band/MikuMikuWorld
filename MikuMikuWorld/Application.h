@@ -2,9 +2,10 @@
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
-#if defined(_WIN32)
+#include "Platform.h"
+#if defined (MMW_WINDOWS)
 #define GLFW_EXPOSE_NATIVE_WIN32
-#elif defined(__APPLE__)
+#elif defined(MMW_MACOS)
 #define GLFW_EXPOSE_NATIVE_COCOA
 #endif
 #define GLFW_EXPOSE_NATIVE_EGL
@@ -14,13 +15,6 @@
 
 #include "ScoreEditor.h"
 #include "ImGuiManager.h"
-
-#if defined(_WIN32)
-#include <Windows.h>
-LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-#elif defined(__APPLE__)
-#include "Mac.h"
-#endif
 
 namespace MikuMikuWorld
 {
@@ -91,3 +85,12 @@ namespace MikuMikuWorld
 		static const std::string& getAppVersion();
 	};
 }
+
+#ifdef MMW_WINDOWS
+LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+#elif defined(MMW_LINUX)
+namespace MikuMikuWorld {
+	extern GLFWdropfun defaultDropFun;
+	void windowDropCallback(GLFWwindow* window, int path_count, const char* paths[]);
+}
+#endif

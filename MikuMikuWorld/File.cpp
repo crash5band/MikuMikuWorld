@@ -1,4 +1,5 @@
-﻿#include "File.h"
+﻿#include "Platform.h"
+#include "File.h"
 #include "IO.h"
 #include <algorithm>
 #include <stdio.h>
@@ -154,27 +155,27 @@ namespace IO
 
 	std::string File::getFilename(const std::string& filename)
 	{
-		return fs::path(filename).filename().generic_string();
+		return fs::path(filename).filename().string();
 	}
 
 	std::string File::getFileExtension(const std::string& filename)
 	{
-		return fs::path(filename).extension().generic_string();
+		return fs::path(filename).extension().string();
 	}
 
 	std::string File::getFilenameWithoutExtension(const std::string& filename)
 	{
-		return fs::path(filename).stem().generic_string();
+		return fs::path(filename).stem().string();
 	}
 
 	std::string File::getFullFilenameWithoutExtension(const std::string& filename)
 	{
-		return fs::path(filename).replace_extension("").generic_string();
+		return fs::path(filename).replace_extension("").string();
 	}
 
 	std::string File::getFilepath(const std::string& filename)
 	{
-		return fs::path(filename).remove_filename().generic_string();
+		return fs::path(filename).remove_filename().string();
 	}
 
 	std::string File::fixPath(const std::string& path)

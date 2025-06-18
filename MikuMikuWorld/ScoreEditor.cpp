@@ -10,12 +10,8 @@
 #include "Utilities.h"
 #include "ImageCrop.h"
 #include "ScoreSerializer.h"
+#include "Platform.h"
 #include <filesystem>
-#if defined(_WIN32)
-#include <Windows.h>
-#elif defined(__APPLE__)
-#include "Mac.h"
-#endif
 
 namespace MikuMikuWorld
 {
@@ -339,7 +335,7 @@ namespace MikuMikuWorld
 		if (loadMusicFuture.valid())
 			loadMusicFuture.get();
 		
-		loadMusicFuture = std::async(&ScoreEditor::loadMusic, this, filename);
+		loadMusicFuture = std::async(std::launch::async, &ScoreEditor::loadMusic, this, filename);
 	}
 
 	void ScoreEditor::open()
@@ -575,12 +571,13 @@ namespace MikuMikuWorld
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("open_presets_folder"), NULL, false, true))
 			{
-				if (!IO::File::exists(presetManager.getPresetsPath()))
-					IO::File::createDirectory(presetManager.getPresetsPath());
-#if defined(_WIN32)
-				ShellExecuteW(0, 0, IO::mbToWideStr(presetManager.getPresetsPath()).c_str(), 0, 0, SW_SHOW);
-#elif defined(__APPLE__)
-				platform::openURL("file://" + presetManager.getPresetsPath());
+				std::string presetPath = presetManager.getPresetsPath();
+				if (!IO::File::exists(presetPath))
+					IO::File::createDirectory(presetPath);
+#if defined(__APPLE__)
+				platform::openURL("file://" + presetPath);
+#else
+				Platform::OpenUrl(presetPath);
 #endif
 			}
 			
@@ -732,10 +729,11 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::help()
 	{
-#if defined(_WIN32)
-		ShellExecuteW(0, 0, L"https://github.com/crash5band/MikuMikuWorld/wiki", 0, 0, SW_SHOW);
-#elif defined(__APPLE__)
+	// FIXME
+#if defined(__APPLE__)
 		platform::openURL("https://github.com/crash5band/MikuMikuWorld/wiki");
+#else
+		Platform::OpenUrl("https://github.com/crash5band/MikuMikuWorld/wiki");
 #endif
 	}
 
