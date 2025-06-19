@@ -1,4 +1,4 @@
-﻿#include "File.h"
+#include "File.h"
 #include "IO.h"
 #if defined(_WIN32)
 #include <Windows.h>

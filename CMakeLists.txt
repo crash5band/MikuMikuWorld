@@ -63,7 +63,7 @@ set_target_properties(MikuMikuWorld PROPERTIES
 )
 
 add_custom_command(TARGET MikuMikuWorld POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/MikuMikuWorld/res/mmw_icon.icns" "${CMAKE_BINARY_DIR}/MikuMikuWorld.app/Contents/Resources/app.icns"
+        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/MikuMikuWorld/mmw_icon.icns" "${CMAKE_BINARY_DIR}/MikuMikuWorld.app/Contents/Resources/app.icns"
         COMMENT "Copying app.icns"
 )
 

@@ -1,4 +1,4 @@
-﻿#include "Application.h"
+#include "Application.h"
 #include "ResourceManager.h"
 #include "IO.h"
 #include "Colors.h"
