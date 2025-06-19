@@ -3,7 +3,7 @@
 #include <vector>
 #include "Sprite.h"
 #include "../File.h"
-#include <glad/glad.h>
+#include <GLES3/gl3.h>
 
 namespace MikuMikuWorld
 {

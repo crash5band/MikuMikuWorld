@@ -1,10 +1,13 @@
 #include "File.h"
 #include "IO.h"
+#if defined(_WIN32)
 #include <Windows.h>
+#elif defined(__APPLE__)
+#include "Mac.h"
+#endif
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
-#include <filesystem>
 #include <sstream>
 
 namespace IO
@@ -17,12 +20,6 @@ namespace IO
 	FileDialogFilter allFilter{ "All Files", "*.*" };
 
 	File::File(const std::string& filename, FileMode mode)
-	{
-		stream = std::make_unique<std::fstream>();
-		open(filename, mode);
-	}
-
-	File::File(const std::wstring& filename, FileMode mode)
 	{
 		stream = std::make_unique<std::fstream>();
 		open(filename, mode);
@@ -54,19 +51,16 @@ namespace IO
 	void File::open(const std::string& filename, FileMode mode)
 	{
 		openFilename = filename;
-		open(IO::mbToWideStr(filename), mode);
-	}
-
-	void File::open(const std::wstring& filename, FileMode mode)
-	{
-		openFilenameW = filename;
+#if defined(_WIN32)
+		stream->open(IO::mbToWideStr(filename), getStreamMode(mode));
+#else
 		stream->open(filename, getStreamMode(mode));
+#endif
 	}
 
 	void File::close()
 	{
 		openFilename.clear();
-		openFilenameW.clear();
 		stream->close();
 	}
 
@@ -98,6 +92,11 @@ namespace IO
 
 		std::string line{};
 		std::getline(*stream, line);
+#if !defined(_WIN32)
+		if (const auto crPos = line.find('\r'); crPos != std::string::npos) {
+			line = line.substr(0, crPos);
+		}
+#endif
 		return line;
 	}
 
@@ -191,12 +190,6 @@ namespace IO
 		return filename.substr(0, end);
 	}
 
-	std::wstring File::getFullFilenameWithoutExtension(const std::wstring& filename)
-	{
-		size_t end = filename.find_last_of(L".");
-		return filename.substr(0, end);
-	}
-
 	std::string File::getFilepath(const std::string& filename)
 	{
 		size_t start = 0;
@@ -222,14 +215,81 @@ namespace IO
 		return result;
 	}
 
+#if defined(_WIN32)
 	bool File::exists(const std::string& path)
 	{
-		std::wstring wPath = mbToWideStr(path);
-		return std::filesystem::exists(wPath);
+		return fs::exists(IO::mbToWideStr(path));
 	}
+
+	bool File::createDirectory(const std::string& path)
+	{
+		return fs::create_directory(IO::mbToWideStr(path));
+	}
+
+	bool File::copyFile(const std::string& from, const std::string& to)
+	{
+		return fs::copy_file(IO::mbToWideStr(from), IO::mbToWideStr(to));
+	}
+
+	bool File::remove(const std::string& path)
+	{
+		return fs::remove(IO::mbToWideStr(path));
+	}
+
+	fs::directory_iterator File::directoryIterator(const std::string& path)
+	{
+		return fs::directory_iterator{ IO::mbToWideStr(path) };
+	}
+
+	std::ifstream File::ifstream(const std::string& path)
+	{
+		return std::ifstream{ IO::mbToWideStr(path) };
+	}
+
+	std::ofstream File::ofstream(const std::string& path)
+	{
+		return std::ofstream{ IO::mbToWideStr(path) };
+	}
+#else
+	bool File::exists(const std::string& path)
+	{
+		return fs::exists(path);
+	}
+
+	bool File::createDirectory(const std::string& path)
+	{
+		return fs::create_directory(path);
+	}
+
+	bool File::copyFile(const std::string& from, const std::string& to)
+	{
+		return fs::copy_file(from, to);
+	}
+
+	bool File::remove(const std::string& path)
+	{
+		return fs::remove(path);
+	}
+
+	fs::directory_iterator File::directoryIterator(const std::string& path)
+	{
+		return fs::directory_iterator{ path };
+	}
+
+	std::ifstream File::ifstream(const std::string& path)
+	{
+		return std::ifstream{ path };
+	}
+
+	std::ofstream File::ofstream(const std::string& path)
+	{
+		return std::ofstream{ path };
+	}
+#endif
 
 	FileDialogResult FileDialog::showFileDialog(DialogType type, DialogSelectType selectType)
 	{
+#if defined(_WIN32)
 		std::wstring wTitle = mbToWideStr(title);
 
 		OPENFILENAMEW ofn;
@@ -303,6 +363,9 @@ namespace IO
 
 		filterIndex = ofn.nFilterIndex - 1;
 		return FileDialogResult::OK;
+#elif defined(__APPLE__)
+		return platform::showFileDialog(title, inputFilename, defaultExtension, filters, type, outputFilename);
+#endif
 	}
 
 	FileDialogResult FileDialog::openFile()

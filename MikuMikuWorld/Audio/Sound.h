@@ -6,7 +6,6 @@
 #include <string_view>
 
 // Already defined somewhere else but Visual Studio gets confused
-#define NOMINMAX
 #define STB_VORBIS_HEADER_ONLY
 #include <stb_vorbis.c>
 #include <miniaudio.h>

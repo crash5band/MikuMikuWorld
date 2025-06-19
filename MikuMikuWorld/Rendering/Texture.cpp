@@ -1,7 +1,7 @@
 #include "../File.h"
 #include "../IO.h"
 #include "Texture.h"
-#include <glad/glad.h>
+#include <GLES3/gl3.h>
 #include "GLFW/glfw3.h"
 #include "stb_image.h"
 #include <filesystem>
@@ -22,7 +22,7 @@ namespace MikuMikuWorld
 		name = File::getFilenameWithoutExtension(filename);
 		read(filename, min, mag);
 
-		std::string sprSheet = File::getFilepath(filename) + "spr/" + name + ".txt";
+		std::string sprSheet = IO::File::pathConcat(File::getFilepath(filename), "spr", name + ".txt");
 		if (File::exists(sprSheet))
 		{
 			readSprites(sprSheet);

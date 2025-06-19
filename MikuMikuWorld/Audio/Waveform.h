@@ -45,7 +45,7 @@ namespace Audio
 			const float sampleIndexAsFloat = static_cast<float>(seconds * samplesPerSecond);
 			const float sampleIndexFraction = sampleIndexAsFloat - static_cast<int32_t>(sampleIndexAsFloat);
 
-			const size_t sampleIndexLo = std::max(0ull, static_cast<size_t>(sampleIndexAsFloat));
+			const size_t sampleIndexLo = std::max(static_cast<size_t>(0ull), static_cast<size_t>(sampleIndexAsFloat));
 			const size_t sampleIndexHi = sampleIndexLo + 1;
 
 			if (sampleIndexLo >= absoluteSamples.size())

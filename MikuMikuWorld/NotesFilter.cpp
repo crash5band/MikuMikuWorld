@@ -1,4 +1,4 @@
-﻿#include "NotesFilter.h"
+#include "NotesFilter.h"
 
 #include <algorithm>
 #include <iterator>
