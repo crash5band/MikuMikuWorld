@@ -1,10 +1,12 @@
-#import "Mac.h"
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
+#import "Platform.h"
+#import "IO.h"
+#import "File.h"
 
-namespace platform {
+namespace Platform {
 
-void openURL(const std::string& url) {
+void OpenUrl(const std::string& url) {
     @autoreleasepool {
         NSString *nsUrlStr = [NSString stringWithUTF8String:url.c_str()];
         NSURL *nsUrl = [NSURL URLWithString:nsUrlStr];
@@ -14,7 +16,7 @@ void openURL(const std::string& url) {
     }
 }
 
-IO::MessageBoxResult showMessageBox(const std::string& title, const std::string& message, IO::MessageBoxButtons buttons, IO::MessageBoxIcon icon) {
+IO::MessageBoxResult OpenMessageBox(const std::string& title, const std::string& message, IO::MessageBoxButtons buttons, IO::MessageBoxIcon icon, void* parentWindow) {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
         alert.messageText = [NSString stringWithUTF8String:title.c_str()];
@@ -73,7 +75,7 @@ IO::MessageBoxResult showMessageBox(const std::string& title, const std::string&
     }
 }
 
-std::string getUserLanguageCode() {
+std::string GetCurrentLanguageCode() {
     @autoreleasepool {
         NSString *localeID = [[NSLocale currentLocale] localeIdentifier];
         NSArray<NSString *> *parts = [localeID componentsSeparatedByString:@"_"];
@@ -99,7 +101,7 @@ static NSArray<NSString*>* buildAllowedFileTypes(const std::vector<IO::FileDialo
     return [exts allObjects];
 }
 
-IO::FileDialogResult showFileDialog(const std::string& title, const std::string& inputFilename, const std::string& defaultExtension, std::vector<IO::FileDialogFilter> filters, IO::DialogType type, std::string& outputFilename) {
+IO::FileDialogResult OpenFileDialog(IO::DialogType type, IO::DialogSelectType selectType, IO::FileDialog& dialogOptions) {
     @autoreleasepool {
         NSSavePanel* savePanel = nil;
         NSOpenPanel* openPanel = nil;
@@ -117,22 +119,22 @@ IO::FileDialogResult showFileDialog(const std::string& title, const std::string&
             panel = openPanel;
         }
 
-        panel.title = [NSString stringWithUTF8String:title.c_str()];
+        panel.title = [NSString stringWithUTF8String:dialogOptions.title.c_str()];
 
-        if (!inputFilename.empty()) {
-            panel.nameFieldStringValue = [NSString stringWithUTF8String:inputFilename.c_str()];
+        if (!dialogOptions.inputFilename.empty()) {
+            panel.nameFieldStringValue = [NSString stringWithUTF8String:dialogOptions.inputFilename.c_str()];
         }
 
-        if (!defaultExtension.empty()) {
-            panel.allowedFileTypes = @[ [NSString stringWithUTF8String:defaultExtension.c_str()] ];
-        } else if (!filters.empty()) {
-            panel.allowedFileTypes = buildAllowedFileTypes(filters);
+        if (!dialogOptions.defaultExtension.empty()) {
+            panel.allowedFileTypes = @[ [NSString stringWithUTF8String:dialogOptions.defaultExtension.c_str()] ];
+        } else if (!dialogOptions.filters.empty()) {
+            panel.allowedFileTypes = buildAllowedFileTypes(dialogOptions.filters);
         }
 
         NSInteger result = [panel runModal];
         if (result == NSModalResponseOK) {
             NSString* path = [[panel URL] path];
-            outputFilename = std::string([path UTF8String]);
+            dialogOptions.outputFilename = std::string([path UTF8String]);
             return IO::FileDialogResult::OK;
         }
 
@@ -140,7 +142,7 @@ IO::FileDialogResult showFileDialog(const std::string& title, const std::string&
     }
 }
 
-std::string getBuildVersion() {
+std::string GetBuildVersion() {
 	@autoreleasepool {
 		NSString* build = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
 		return [build UTF8String];

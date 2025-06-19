@@ -233,9 +233,6 @@ namespace IO
 	FileDialogResult FileDialog::showFileDialog(DialogType type, DialogSelectType selectType)
 	{
 		return Platform::OpenFileDialog(type, selectType, *this);
-		// FIXME
-		// return platform::showFileDialog(title, inputFilename, defaultExtension, filters, type, outputFilename);
-
 	}
 
 	FileDialogResult FileDialog::openFile()

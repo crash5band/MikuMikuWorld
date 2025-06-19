@@ -69,13 +69,7 @@ namespace MikuMikuWorld
 
 	std::string Application::getVersion()
 	{
-		
-#if defined(__APPLE__)
-		return platform::getBuildVersion();
-#else
-		// FIXME
 		return Platform::GetBuildVersion();
-#endif
 	}
 
 	const std::string& Application::getAppVersion()

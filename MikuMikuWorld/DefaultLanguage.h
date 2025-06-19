@@ -4,7 +4,7 @@
 
 namespace MikuMikuWorld
 {
-	extern std::map<std::string, std::string> en
+	inline std::map<std::string, std::string> en
 	{
 		// Menu bar
 		{"file", "File"},

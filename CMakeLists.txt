@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.26)
 
 project(MikuMikuWorld VERSION 3.4.0)
 
@@ -14,10 +14,10 @@ elseif(APPLE)
         set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0")
         set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
         
-        set(INCLUDE_FOR_SOURCE_DIR
+        set(PLATFORM_INCLUDE_SOURCE
                 MikuMikuWorld/*.mm
         )
-        set(REMOVE_FROM_SOURCE_DIR
+        set(PLATFORM_REMOVE_SOURCE
                 ${CMAKE_CURRENT_SOURCE_DIR}/MikuMikuWorld/main.cpp
                 ${CMAKE_CURRENT_SOURCE_DIR}/MikuMikuWorld/resource.h
         )
@@ -60,21 +60,28 @@ elseif(LINUX)
                 "EGL"
                 "GLESv2"
         )
-
 else()
         message(FATAL_ERROR "Unsupported platform.")
 endif()
 
+# Disable some warning for Release build
+if (CMAKE_BUILD_TYPE MATCHES "Rel")
+        list(APPEND PLATFORM_COMPILE_OPTIONS
+                "-Wno-format-security"
+                "-Wno-unused-result"
+                "-Wno-return-local-addr"
+        )
+endif()
 
 file(GLOB_RECURSE ALL_FILES
         MikuMikuWorld/*.h
         MikuMikuWorld/*.c
         MikuMikuWorld/*.hpp
         MikuMikuWorld/*.cpp
-        ${INCLUDE_FOR_SOURCE_DIR}
+        ${PLATFORM_INCLUDE_SOURCE}
 )
 
-list(REMOVE_ITEM ALL_FILES ${REMOVE_FROM_SOURCE_DIR})
+list(REMOVE_ITEM ALL_FILES ${PLATFORM_REMOVE_SOURCE})
 
 add_executable(MikuMikuWorld
         ${ALL_FILES}
@@ -94,7 +101,7 @@ target_include_directories(MikuMikuWorld PRIVATE
 
 target_compile_definitions(MikuMikuWorld PRIVATE ${PLATFROM_COMPILE_DEFINITIONS})
 
-target_compile_options(MikuMikuWorld PRIVATE "-Wno-format-security")
+target_compile_options(MikuMikuWorld PRIVATE ${PLATFORM_COMPILE_OPTIONS})
 
 target_link_libraries(MikuMikuWorld ${PLATFORM_LINK_LIBRARIES})
 
@@ -129,7 +136,7 @@ else()
                 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/MikuMikuWorld"
         )
         add_custom_command(TARGET MikuMikuWorld POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/MikuMikuWorld/res" "${CMAKE_BINARY_DIR}/MikuMikuWorld/res"
+                COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${CMAKE_SOURCE_DIR}/MikuMikuWorld/res" "${CMAKE_BINARY_DIR}/MikuMikuWorld/res"
                 COMMENT "Copying res"
         )
 endif()

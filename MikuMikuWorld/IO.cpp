@@ -9,12 +9,7 @@ namespace IO
 {
 	MessageBoxResult messageBox(std::string title, std::string message, MessageBoxButtons buttons, MessageBoxIcon icon, void* parentWindow)
 	{
-	// FIXME		
-#if defined(__APPLE__)
-		return platform::showMessageBox(title, message, buttons, icon);
-#else
 		return Platform::OpenMessageBox(title, message, buttons, icon, parentWindow);
-#endif
 	}
 
 	char* reverse(char* str)

@@ -187,7 +187,7 @@ namespace MikuMikuWorld
 		}
 		ImGui::End();
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 		if (showImGuiDemoWindow)
 			ImGui::ShowDemoWindow(&showImGuiDemoWindow);
 #endif
@@ -574,8 +574,8 @@ namespace MikuMikuWorld
 				std::string presetPath = presetManager.getPresetsPath();
 				if (!IO::File::exists(presetPath))
 					IO::File::createDirectory(presetPath);
-#if defined(__APPLE__)
-				platform::openURL("file://" + presetPath);
+#if defined(__APPLE__) // FIXME
+				Platform::OpenUrl("file://" + presetPath);
 #else
 				Platform::OpenUrl(presetPath);
 #endif
@@ -588,7 +588,7 @@ namespace MikuMikuWorld
 		{
 			if (ImGui::BeginMenu(getString("debug")))
 			{
-#ifdef _DEBUG
+#ifndef NDEBUG
 				ImGui::MenuItem("ImGui Demo Window", NULL, &showImGuiDemoWindow);
 #endif
 
@@ -729,12 +729,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::help()
 	{
-	// FIXME
-#if defined(__APPLE__)
-		platform::openURL("https://github.com/crash5band/MikuMikuWorld/wiki");
-#else
 		Platform::OpenUrl("https://github.com/crash5band/MikuMikuWorld/wiki");
-#endif
 	}
 
 	void ScoreEditor::autoSave()
@@ -747,11 +742,7 @@ namespace MikuMikuWorld
 		int mmwsCount = 0;
 		for (const auto& file : IO::File::directoryIterator(autoSavePath))
 		{
-#if defined(_WIN32)
-			std::string extension = IO::wideStringToMb(file.path().extension().wstring());
-#else
 			std::string extension = file.path().extension().string();
-#endif
 			std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 			mmwsCount += static_cast<int>(extension == MMWS_EXTENSION);
 		}
@@ -770,11 +761,7 @@ namespace MikuMikuWorld
 		std::vector<entry> deleteFiles;
 		for (const auto& file : IO::File::directoryIterator(autoSavePath))
 		{
-#if defined(_WIN32)
-			std::string extension = IO::wideStringToMb(file.path().extension().wstring());
-#else
 			std::string extension = file.path().extension().string();
-#endif
 			std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 			if (extension == MMWS_EXTENSION)
 				deleteFiles.push_back(file);
@@ -787,11 +774,7 @@ namespace MikuMikuWorld
 
 		int deleteCount = std::min(static_cast<int>(deleteFiles.size()), count);
 		for (int i = 0; i < deleteCount; i++)
-#if defined(_WIN32)
-			IO::File::remove(IO::wideStringToMb(deleteFiles[i].path().wstring()));
-#else
 			IO::File::remove(deleteFiles[i].path().string());
-#endif
 		
 		return deleteCount;
 	}

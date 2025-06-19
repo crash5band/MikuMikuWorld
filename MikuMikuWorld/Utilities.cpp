@@ -21,12 +21,7 @@ namespace MikuMikuWorld
 
 	std::string Utilities::getSystemLocale()
 	{
-#if defined(__APPLE__)
-		return platform::getUserLanguageCode();
-#else
-		// FIXME
 		return Platform::GetCurrentLanguageCode();
-#endif
 	}
 
 	std::string Utilities::getDivisionString(int div)

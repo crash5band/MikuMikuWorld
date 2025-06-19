@@ -89,7 +89,7 @@ namespace Audio
 			for (size_t i = 0; i < soundEffectsCount; ++i)
 				sounds[index].pool.emplace(std::move(SoundPoolPair(mmw::SE_NAMES[i], std::make_unique<SoundPool>())));
 
-#if defined(_WIN32)
+#if MMW_WINDOWS
 			std::for_each(std::execution::par, sounds[index].pool.begin(), sounds[index].pool.end(), [&](auto& s)
 #else
 			std::for_each(sounds[index].pool.begin(), sounds[index].pool.end(), [&](auto& s)
@@ -108,7 +108,7 @@ namespace Audio
 				SoundInstance& debugSound = debugSounds[soundNameIndex + (index * soundEffectsCount)];
 				debugSound.name = name;
 
-#if defined(_WIN32)
+#if MMW_WINDOWS
 				ma_sound_init_from_file_w(&engine, IO::mbToWideStr(filename).c_str(), maSoundFlagsDecodeAsync, &soundEffectsGroup, nullptr, &debugSound.source);
 #else
 				ma_sound_init_from_file(&engine, filename.c_str(), maSoundFlagsDecodeAsync, &soundEffectsGroup, nullptr, &debugSound.source);

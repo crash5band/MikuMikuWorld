@@ -22,7 +22,7 @@ namespace MikuMikuWorld
 				const Sprite& spr = tex.sprites[scoreStatsImages[row]];
 				ImVec2 uv0{ spr.getX1() / tex.getWidth(), spr.getY1() / tex.getHeight() };
 				ImVec2 uv1{ spr.getX2() / tex.getWidth(), spr.getY2() / tex.getHeight() };
-				ImGui::Image((void*)tex.getID(), { 20, 20 }, uv0, uv1);
+				ImGui::Image((ImTextureID)(size_t)tex.getID(), { 20, 20 }, uv0, uv1);
 			}
 			else
 			{

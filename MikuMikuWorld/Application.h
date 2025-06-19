@@ -34,7 +34,7 @@ namespace MikuMikuWorld
 		void* windowHandle{ 0 };
 		Vector2 position{};
 		Vector2 size{};
-#if defined(_WIN32)
+#ifdef MMW_WINDOWS
 		UINT_PTR windowTimerId{};
 #endif
 	};

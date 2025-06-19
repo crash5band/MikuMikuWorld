@@ -155,7 +155,7 @@ namespace Audio
 	{
 		for (int i = 0; i < pool.size(); i++)
 		{
-#if defined(_WIN32)
+#if MMW_WINDOWS
 			ma_result result = ma_sound_init_from_file_w(engine, IO::mbToWideStr(path).c_str(), maSoundFlagsDecodeAsync, group, NULL, &pool[i].source);
 #else
 			ma_result result = ma_sound_init_from_file(engine, path.c_str(), maSoundFlagsDecodeAsync, group, NULL, &pool[i].source);

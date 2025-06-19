@@ -49,7 +49,7 @@ namespace MikuMikuWorld
 		const char* glfwErrorDescription = NULL;
 		int possibleError = GLFW_NO_ERROR;
 
-#if defined(__APPLE__)
+#ifdef MMW_MACOS
 		glfwInitHint(GLFW_ANGLE_PLATFORM_TYPE, GLFW_ANGLE_PLATFORM_TYPE_METAL);
 #endif
 		glfwInit();
