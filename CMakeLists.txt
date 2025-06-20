@@ -42,16 +42,15 @@ elseif(APPLE)
                 ${CMAKE_SOURCE_DIR}/Info.plist.in
                 ${CMAKE_SOURCE_DIR}/Info.plist
         )
-        set_target_properties(MikuMikuWorld PROPERTIES
-                MACOSX_BUNDLE TRUE
-                MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/Info.plist"
-        )
+
 elseif(LINUX)
+        set(PROJECT_PACKAGE_NAME mikumikuworld)
         set(PLATFROM_COMPILE_DEFINITIONS
                 "PAL_STDCPP_COMPAT"
                 "_XM_NO_INTRINSICS_"
                 "IMGUI_IMPL_OPENGL_ES3"
                 "MMW_APP_VERSION=\"${PROJECT_VERSION}\""
+                "DEB_PACKAGE_NAME=\"${PROJECT_PACKAGE_NAME}\""
         )
         set(PLATFORM_LINK_LIBRARIES
                 # GLFW 3.4 build
@@ -60,6 +59,8 @@ elseif(LINUX)
                 "EGL"
                 "GLESv2"
         )
+        set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
 else()
         message(FATAL_ERROR "Unsupported platform.")
 endif()
@@ -106,6 +107,10 @@ target_compile_options(MikuMikuWorld PRIVATE ${PLATFORM_COMPILE_OPTIONS})
 target_link_libraries(MikuMikuWorld ${PLATFORM_LINK_LIBRARIES})
 
 if (APPLE)
+        set_target_properties(MikuMikuWorld PROPERTIES
+                MACOSX_BUNDLE TRUE
+                MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/Info.plist"
+        )
         add_custom_command(TARGET MikuMikuWorld POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/MikuMikuWorld/res/mmw_icon.icns" "${CMAKE_BINARY_DIR}/MikuMikuWorld.app/Contents/Resources/app.icns"
                 COMMENT "Copying app.icns"
@@ -139,4 +144,13 @@ else()
                 COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${CMAKE_SOURCE_DIR}/MikuMikuWorld/res" "${CMAKE_BINARY_DIR}/MikuMikuWorld/res"
                 COMMENT "Copying res"
         )
+
+        # TODO
+        # Changelog (Debian format)
+        # Copyright file
+        install(PROGRAMS "${CMAKE_BINARY_DIR}/MikuMikuWorld/MikuMikuWorld" DESTINATION "bin")
+        install(DIRECTORY "${CMAKE_SOURCE_DIR}/MikuMikuWorld/res/" DESTINATION "share/${PROJECT_PACKAGE_NAME}" FILES_MATCHING PATTERN "*")
+        install(FILES "${CMAKE_SOURCE_DIR}/MikuMikuWorld/res/mmw_icon.png" DESTINATION "share/pixmaps")
+        install(FILES "${CMAKE_SOURCE_DIR}/MikuMikuWorld/crash5band.mikumikuworld.desktop" DESTINATION "share/applications")
+        include(${CMAKE_SOURCE_DIR}/CPackInfo)
 endif()

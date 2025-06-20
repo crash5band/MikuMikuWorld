@@ -149,4 +149,9 @@ std::string GetBuildVersion() {
 	}
 }
 
+FILE *Platform::OpenFile(const std::string &filename, const std::string &mode)
+{
+    return fopen(filename.c_str(), mode.c_str());
+}
+
 }

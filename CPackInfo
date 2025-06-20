@@ -1,0 +1,15 @@
+include(InstallRequiredSystemLibraries)
+set(CPACK_GENERATOR "DEB")
+
+set(CPACK_PACKAGE_NAME ${PROJECT_PACKAGE_NAME})
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Chart editor and viewer for the mobile rhythm game Hatsune Miku: Colorful Stage.")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/crash5band/MikuMikuWorld")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "YarNix")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.38), libstdc++6 (>= 14), zlib1g (>= 1.3), libgles2 (>= 1.7), libegl1 (>= 1.7), zenity")
+set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
+
+
+include(CPack)

@@ -365,22 +365,25 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-#CMake build
+# CMake build
 build/
-MikuMikuWorld/imgui_config.ini
-
+.cmake/
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+*.cmake
+compile_commands.json
+CMakeUserPresets.json
 CMakeLists.txt.user
 CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Testing
-Makefile
-cmake_install.cmake
 install_manifest.txt
-compile_commands.json
-CTestTestfile.cmake
-_deps
-CMakeUserPresets.json
+cmake-build-*/
 
-/.idea/
-/cmake-build-*/
+# IntelliJ IDEA
+.idea/
+_deps
+
+# Debian package
+*.deb
+_CPack*/

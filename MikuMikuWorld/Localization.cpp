@@ -30,6 +30,8 @@ namespace MikuMikuWorld
 				Localization::currentLanguage = it->second.get();
 				return true;
 			}
+			if (end_pos == std::string::npos)
+				break;
 			pos = end_pos + 1;
 		}
 		return false;

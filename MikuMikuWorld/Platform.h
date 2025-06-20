@@ -3,6 +3,9 @@
 
 #define MMW_WINDOWS
 #include <Windows.h>
+#include <cstdio>
+#include <string>
+#include <vector>
 #elif defined(__APPLE__)
 
 #define MMW_MACOS
@@ -13,7 +16,7 @@
 #define MMW_LINUX
 #include "unistd.h"
 #include <cstdio>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -38,6 +41,8 @@ namespace Platform {
     std::string GetCurrentLanguageCode();
     std::string GetBuildVersion();
     FILE* OpenFile(const std::string& filename, const std::string& mode);
+
     std::vector<std::string> GetCommandLineArgs();
-    std::string GetResourcePath(const std::string& root);
+    std::string GetConfigPath(const std::string& app_root);
+    std::string GetResourcePath(const std::string& app_root);
 }

@@ -210,9 +210,14 @@ std::vector<std::string> Platform::GetCommandLineArgs()
     return cmdArgs;
 }
 
-std::string Platform::GetResourcePath(const std::string& root)
+std::string Platform::GetConfigPath(const std::string &app_root)
 {
-    return IO::File::pathConcat(root, "res");
+    return IO::File::getFilepath(app_root);
+}
+
+std::string Platform::GetResourcePath(const std::string& app_root)
+{
+    return IO::File::pathConcat(IO::File::getFilepath(app_root), "res", "");
 }
 
 #endif
@@ -226,6 +231,10 @@ std::string Platform::GetResourcePath(const std::string& root)
 #include <GLFW/glfw3.h>
 #include "IO.h"
 #include "File.h"
+
+#ifndef DEB_PACKAGE_NAME
+#error "Missing package name. Make sure your cmake configuration is correct"
+#endif
 
 void Platform::OpenUrl(const std::string &url)
 {
@@ -491,9 +500,47 @@ std::vector<std::string> Platform::GetCommandLineArgs()
     return cmdargs;
 }
 
-std::string Platform::GetResourcePath(const std::string& root)
+std::string Platform::GetConfigPath(const std::string &app_root)
 {
-    return IO::File::pathConcat(root, "res");
+    std::string config_dir;
+    const char* env_dir;;
+    // Optional override
+    if (env_dir = getenv("MMW_CONFIG_HOME"))
+        config_dir = IO::File::pathConcat(env_dir, "");
+    else
+    if (env_dir = getenv("XDG_CONFIG_HOME"))
+        config_dir = IO::File::pathConcat(env_dir, DEB_PACKAGE_NAME, "");
+    else
+    if (env_dir = getenv("HOME")) 
+        config_dir = IO::File::pathConcat(env_dir, ".config", DEB_PACKAGE_NAME, "");
+
+    if (!std::filesystem::exists(config_dir))
+        std::filesystem::create_directories(config_dir);
+    return config_dir;
+}
+
+std::string Platform::GetResourcePath(const std::string& app_root)
+{
+    std::string res_dir = IO::File::pathConcat(IO::File::getFilepath(app_root), "res", "");
+    if (IO::File::exists(res_dir))
+        return res_dir;
+
+    // Checking environment path
+    const char* env_dir = getenv("XDG_DATA_DIRS");
+    if (env_dir && *env_dir != '\0') {
+        std::string_view data_dir_str = env_dir;
+        for (size_t pos = 0, end_pos = 0; end_pos != std::string_view::npos; pos = end_pos + 1) {
+            end_pos = data_dir_str.find(':', pos + 1);
+            std::filesystem::path data_dir = data_dir_str.substr(pos, end_pos - pos);
+            data_dir /= DEB_PACKAGE_NAME;
+            data_dir /= "";
+            if (std::filesystem::exists(data_dir))
+                return data_dir.string();
+        }
+    }
+    
+    // Fallback to package path
+    return "/usr/share/" DEB_PACKAGE_NAME "/";
 }
 
 #endif

@@ -16,8 +16,8 @@ int main()
 
 	try
 	{
-		std::string dir = IO::File::getFilepath(args[0]);;
-		std::string resDir = Platform::GetResourcePath(dir);
+		std::string dir = Platform::GetConfigPath(args[0]);
+		std::string resDir = Platform::GetResourcePath(args[0]);
 		mmw::Result result = app.initialize(dir, resDir);
 		
 		if (!result.isOk())
