@@ -224,13 +224,19 @@ std::string Platform::GetResourcePath(const std::string& app_root)
 
 #ifdef MMW_LINUX
 #include <fcntl.h>
+#include <sys/wait.h>
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
 #include <memory>
-#include <GLFW/glfw3.h>
 #include "IO.h"
 #include "File.h"
+#include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_X11
+#include <GLFW/glfw3native.h>
+#include <X11/Xatom.h>
+
+#undef None // X11 macro
 
 #ifndef DEB_PACKAGE_NAME
 #error "Missing package name. Make sure your cmake configuration is correct"
@@ -248,56 +254,203 @@ FILE *Platform::OpenFile(const std::string &filename, const std::string &mode)
     return fopen(filename.c_str(), mode.c_str());
 }
 
-static int OpenProcess(const std::string& command, std::string& output) {
-    // bool glfwInitialized = glfwGetError(NULL) == GLFW_NO_ERROR;
-    // GLFWwindow* window = glfwGetCurrentContext();
-    char buffer[256];
-    FILE *pipe = popen(command.c_str(), "r");
-    if (!pipe) return -1;
-    int pfd = fileno(pipe);
-    // fcntl(pfd, F_SETFL, O_NONBLOCK);
-    while (true)
-    {
-        ssize_t nread = read(pfd, buffer, sizeof(buffer));
-        if (nread < 0)
-        {
-            if (errno == EAGAIN)
-            {
-                // To prevent window from freezing we need to let glfw process events
-                // 
-                // This currently doesn't work as the function can be called from any threads
-                // while glfwPollEvents only expected to be called from the main thread
-                //
-                // if (glfwInitialized)
-                //     glfwPollEvents();
-            }
-            else
-            {
-                pclose(pipe);
-                return -1;
-            }
-        }
-        else if (nread == 0)
-        {
-            return pclose(pipe);
-        }
-        else
-        {
-            output.append(buffer, nread);
-        }
+// Create a process with the specified arguments
+// Return true if successful
+// Optionally direct the child stdout to a pipe
+// Optionally return the id of the child process
+static bool StartProcess(const char* file, char* const* args, int* outfd = nullptr, pid_t* child = nullptr) {
+    union {
+        int fd[2];
+        struct { int read; int write; };
+    } channels;
+    if (pipe(channels.fd) != 0)
+        return false;
+
+    pid_t p = vfork();
+    if (p < 0) 
+        return false;
+    if (p == 0) {
+        // Child process
+        int null = open("/dev/null", O_WRONLY);
+        
+        dup2(channels.write, STDOUT_FILENO);
+        dup2(null,           STDERR_FILENO);
+
+        close(null);
+        close(channels.read);
+        close(channels.write);
+        
+        execvp(file, args);
+        _exit(-1);
     }
+    else {
+        // Parent process
+        close(channels.write);
+        if (outfd)
+            *outfd = channels.read;
+        else
+            close(channels.read);
+        if (child)
+            *child = p;
+        return true;
+    }
+}
+
+// Called by ZenityOpen to set the opened dialog window as child of the current window (if possible)
+// Note that this only works on X11. There is no way to do this on Wayland
+static void SetWindowTransient(pid_t target, int& stat) {
+    struct find_xwindow_with_pid
+    {
+        pid_t pid;
+        Display* display;
+        std::vector<Window> result;
+        Atom pid_atom;
+
+        find_xwindow_with_pid(pid_t pid, Display* display) : pid{pid}, display{display}, result{} {
+            pid_atom = XInternAtom(display, "_NET_WM_PID", True);
+            if (pid_atom == 0)
+                throw std::runtime_error("find_xwindow_with_pid: _NET_WM_PID atom not found!");
+        }
+
+        std::vector<Window>& operator()(Window current) {
+            Atom           type;
+            int            format;
+            unsigned long  nItems;
+            unsigned long  bytesAfter;
+            unsigned char *propPID = 0;
+            XGetWindowProperty(display, current, pid_atom, 0, 1, False, XA_CARDINAL, &type, &format, &nItems, &bytesAfter, &propPID);
+            if(propPID != 0 && type == XA_CARDINAL && pid == *reinterpret_cast<pid_t*>(propPID))
+                result.emplace_back(current);
+            
+            Window  wRoot;
+            Window  wParent;
+            Window* wChild;
+            unsigned  nChildren;
+            if (XQueryTree(display, current, &wRoot, &wParent, &wChild, &nChildren)) {
+                for (unsigned i = 0; i < nChildren; i++) {
+                    this->operator()(wChild[i]);
+                }
+            }
+
+            if (wChild)
+                XFree(wChild);
+
+            if (propPID)
+                XFree(propPID);
+            return this->result;
+        }
+    };
+    Display* display = glfwGetX11Display();
+    if (display == NULL) {
+        glfwGetError(nullptr); // clear the error
+        return;
+    }
+    GLFWwindow* gwindow = glfwGetCurrentContext();
+    if (gwindow == NULL) 
+        return;
+    Window parent_window = glfwGetX11Window(gwindow);
+    find_xwindow_with_pid window_finder(target, display);
+
+    Atom NET_WM_STATE = XInternAtom(display, "_NET_WM_STATE", False);
+    Atom STATE_NO_MODAL = XInternAtom(display, "_NET_WM_STATE_MODAL", False);
+
+    bool timer_started = false;
+    using timer_clock_t = std::chrono::steady_clock;
+    std::chrono::time_point<timer_clock_t> start;
+
+    while (waitpid(target, &stat, WNOHANG) == 0) {
+        std::vector<Window>& target_windows = window_finder(XDefaultRootWindow(display));
+        if (!target_windows.empty()) {
+            for (auto& window : target_windows) {
+                Atom           type;
+                int            format;
+                unsigned long  nItems;
+                unsigned long  bytesAfter;
+                Atom *         props = 0;
+                XGetWindowProperty(display, window, NET_WM_STATE, 0, 1, False, XA_ATOM, &type, &format, &nItems, &bytesAfter, (unsigned char**)&props);
+
+                bool has_modal_flag = false;
+                if(props && type == XA_ATOM) {
+                    for (unsigned long i = 0; i < nItems; i++)
+                        if (props[i] == STATE_NO_MODAL) {
+                            has_modal_flag = true;
+                            break;
+                        }
+                }
+                if (props)
+                    XFree(props);
+                
+                if (has_modal_flag) {
+                    XSetTransientForHint(display, window, parent_window);
+                    Atom NET_WM_WINDOW_TYPE = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
+                    Atom WINDOW_TYPE_DIALOG = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DIALOG", False);
+                    Atom STATE_NO_TASKBAR = XInternAtom(display, "_NET_WM_STATE_SKIP_TASKBAR", False);
+                    XChangeProperty(display, window, NET_WM_WINDOW_TYPE, XA_ATOM, 32, PropModeReplace, (unsigned char*)&WINDOW_TYPE_DIALOG, 1);
+                    XChangeProperty(display, window, NET_WM_STATE, XA_ATOM, 32, PropModeAppend, (unsigned char*)&STATE_NO_TASKBAR, 1);
+                    XMapWindow(display, window);
+                    XFlush(display);
+                    return;
+                }
+            }
+            // No modal window found? Maybe zenity is still initializing. Try waiting 10s
+            if (!timer_started) {
+                start = timer_clock_t::now();
+                timer_started = true;
+            }
+            else {
+                auto duration = std::chrono::duration_cast<std::chrono::seconds>(timer_clock_t::now() - start).count();
+                if (duration > 10)
+                    break;
+            }
+            target_windows.clear();
+        }  
+    }
+}
+
+static bool ZenityOpen(const std::vector<std::string>& arguments, std::string& output, int* exit_code = nullptr) {
+    char buffer[256];
+    char zenity[] = "zenity", modal[] = "--modal";
+    std::vector<char*> args = { zenity };
+    std::transform(arguments.begin(), arguments.end(), std::back_inserter(args), [](const std::string& s) { return const_cast<char*>(s.data()); });
+    args.push_back(modal);
+    args.push_back(NULL);
+    int outfd, stat = 0;
+    pid_t pid;
+    if(!StartProcess(args[0], args.data(), &outfd, &pid))
+        return false;
+
+    SetWindowTransient(pid, stat);
+
+    if (stat == 0)
+        waitpid(pid, &stat, 0);
+
+    ssize_t nread;
+    while((nread = read(outfd, buffer, sizeof(buffer))) > 0)
+        output.append(buffer, nread);
+    close(outfd);
+
+    if (nread < 0)
+        return false;
+    
+    if (exit_code) {
+        if (WIFEXITED(stat))
+            *exit_code = WEXITSTATUS(stat);
+        else
+            *exit_code = -1;
+    }
+    return true;
 }
 
 IO::FileDialogResult Platform::OpenFileDialog(IO::DialogType type, IO::DialogSelectType selectType, IO::FileDialog &dialogOptions)
 {
-    std::stringstream command;
-    command << "zenity --file-selection";
+    std::vector<std::string> arguments;
+    arguments.push_back("--file-selection");
     if (!dialogOptions.title.empty())
-        command << " --title=" << std::quoted(dialogOptions.title);
+        arguments.push_back("--title=" + dialogOptions.title);
     if (type == IO::DialogType::Save)
-        command << " --save";
+        arguments.push_back("--save");
     if (!dialogOptions.inputFilename.empty())
-        command << " --filename=" << std::quoted(dialogOptions.inputFilename);
+        arguments.push_back("--filename=" + dialogOptions.inputFilename);
     for (auto const &filter : dialogOptions.filters)
     {
         // Converting to the format "NAME | PATTERN1 PATTERN2 ..."
@@ -310,15 +463,14 @@ IO::FileDialogResult Platform::OpenFileDialog(IO::DialogType type, IO::DialogSel
             std::back_inserter(filterValue),
             [](const char &c) { return c == ';' ? ' ' : c; }
         );
-        command << " --file-filter=" << std::quoted(filterValue);
+        arguments.push_back("--file-filter=" + filterValue);
     }
     if (selectType == IO::DialogSelectType::Folder)
-        command << " --directory";
-    command << " 2>/dev/null";
+        arguments.push_back("--directory");
 
     std::string& outFile = dialogOptions.outputFilename;
     outFile.clear();
-    if (OpenProcess(command.str(), outFile) == -1)
+    if (!ZenityOpen(arguments, outFile))
         return IO::FileDialogResult::Error;
     if (outFile.empty())
         return IO::FileDialogResult::Cancel;
@@ -340,8 +492,7 @@ IO::FileDialogResult Platform::OpenFileDialog(IO::DialogType type, IO::DialogSel
 
 IO::MessageBoxResult Platform::OpenMessageBox(const std::string &title, const std::string &message, IO::MessageBoxButtons buttons, IO::MessageBoxIcon icon, void *parentWindow)
 {
-    std::stringstream command;
-    command << "zenity";
+    std::vector<std::string> arguments;
     bool has_custom_button = false;
     switch (icon)
     {
@@ -349,30 +500,33 @@ IO::MessageBoxResult Platform::OpenMessageBox(const std::string &title, const st
     case IO::MessageBoxIcon::None:
     case IO::MessageBoxIcon::Information:
         if (buttons == IO::MessageBoxButtons::Ok)
-            command << " --info";
+            arguments.push_back("--info");
         else {
-            command << " --question --icon=dialog-information";
+            arguments.push_back("--question");
+            arguments.push_back("--icon=dialog-information");
             has_custom_button = true;
         }
         break;
     case IO::MessageBoxIcon::Warning:
         if (buttons == IO::MessageBoxButtons::Ok)
-            command << " --warning";
+            arguments.push_back("--warning");
         else {
-            command << " --question --icon=dialog-warning";
+            arguments.push_back("--question");
+            arguments.push_back("--icon=dialog-warning");
             has_custom_button = true;
         }
         break;
     case IO::MessageBoxIcon::Error:
         if (buttons == IO::MessageBoxButtons::Ok)
-            command << " --error";
+            arguments.push_back("--error");
         else {
-            command << " --question --icon=dialog-error";
+            arguments.push_back("--question");
+            arguments.push_back("--icon=dialog-error");
             has_custom_button = true;
         }
         break;
     case IO::MessageBoxIcon::Question:
-        command << " --question";
+        arguments.push_back("--question");
         has_custom_button = buttons != IO::MessageBoxButtons::YesNo;
         break;
     }
@@ -400,32 +554,29 @@ IO::MessageBoxResult Platform::OpenMessageBox(const std::string &title, const st
     }
     if (has_custom_button) {
         if (labels[0] != None)
-            command << " --ok-label=" << MESSAGE_BOX_RESPONSES[labels[0]];
+            arguments.push_back(std::string("--ok-label=") + MESSAGE_BOX_RESPONSES[labels[0]]);
         if (labels[1] != None)
-            command << " --cancel-label=" << MESSAGE_BOX_RESPONSES[labels[1]];
+            arguments.push_back(std::string("--cancel-label=") + MESSAGE_BOX_RESPONSES[labels[1]]);
         if (labels[2] != None)
-            command << " --extra-button=" << MESSAGE_BOX_RESPONSES[labels[2]];
+            arguments.push_back(std::string("--extra-button=") + MESSAGE_BOX_RESPONSES[labels[2]]);
     }
     if (!title.empty())
-        command << " --title=" << std::quoted(title);
-    command << " --text=" << std::quoted(message);
-    command << " 2>/dev/null";
+        arguments.push_back("--title=" + title);
+    arguments.push_back("--text=" + message);
 
     std::string output;
-    int status = OpenProcess(command.str(), output);
-    if (status != -1 && WIFEXITED(status)) {
-        switch (WEXITSTATUS(status)) {
-            default: return IO::MessageBoxResult::None;
-            case 0: return MESSAGE_BOX_RESULT[labels[0]];
-            case 1:
-                auto pos = output.find('\n');
-                if (pos == std::string::npos)
-                    return MESSAGE_BOX_RESULT[labels[1]];
-                output.erase(pos);
-                ssize_t index = std::find_if(MESSAGE_BOX_RESPONSES + 0, MESSAGE_BOX_RESPONSES + 4, [&output](const char*& s) { return output == s; }) - MESSAGE_BOX_RESPONSES;
-                return MESSAGE_BOX_RESULT[index];
-                
-        }
+    int exit_code;
+    ZenityOpen(arguments, output, &exit_code);
+    switch (exit_code) {
+        default: return IO::MessageBoxResult::None;
+        case 0: return MESSAGE_BOX_RESULT[labels[0]];
+        case 1:
+            auto pos = output.find('\n');
+            if (pos == std::string::npos)
+                return MESSAGE_BOX_RESULT[labels[1]];
+            output.erase(pos);
+            ssize_t index = std::find_if(MESSAGE_BOX_RESPONSES + 0, MESSAGE_BOX_RESPONSES + 4, [&output](const char*& s) { return output == s; }) - MESSAGE_BOX_RESPONSES;
+            return MESSAGE_BOX_RESULT[index];
     }
     return IO::MessageBoxResult::None;
 }

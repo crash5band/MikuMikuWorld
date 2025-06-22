@@ -5,6 +5,7 @@ GenericName=Chart Editor
 Comment=A chart editor and viewer for the mobile rhythm game Project Sekai Colorful Stage feat. Hatsune Miku.
 Type=Application
 Exec=MikuMikuWorld %F
+StartupWMClass=MikuMikuWorld
 Terminal=false
 Icon=mmw_icon
 Keywords=Chart;Sekai;Editor;Viewer;sus;usc;mmws;

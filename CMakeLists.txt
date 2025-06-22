@@ -58,6 +58,7 @@ elseif(LINUX)
                 "z"
                 "EGL"
                 "GLESv2"
+                "X11"
         )
         set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
         set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
