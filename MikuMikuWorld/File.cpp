@@ -1,4 +1,4 @@
-﻿#include "Platform.h"
+#include "Platform.h"
 #include "File.h"
 #include "IO.h"
 #include <algorithm>
