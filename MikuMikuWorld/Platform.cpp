@@ -296,20 +296,59 @@ static bool StartProcess(const char* file, char* const* args, int* outfd = nullp
 	}
 }
 
+// RAII wrapper, override the X default error handler, restore when done
+struct XErrorTryCatch;
+static XErrorTryCatch* instance;
+static int Handler(Display *display, XErrorEvent *error);
+
+struct XErrorTryCatch {
+	bool has_error = false;
+	XErrorHandler previous_handler = NULL;
+
+	XErrorTryCatch() {
+		previous_handler = XSetErrorHandler(Handler);
+		instance = this;
+	}
+	~XErrorTryCatch() { XSetErrorHandler(previous_handler); };
+	XErrorTryCatch(XErrorTryCatch const&) = delete;
+};
+
+static int Handler(Display *display, XErrorEvent *error) {
+	instance->has_error = true;
+	switch(error->error_code) {
+		case BadAlloc:
+		case BadValue:
+		case BadWindow:
+		case BadMatch:
+			break; // Expected error occurred
+		default:
+			if (instance->previous_handler) 
+				return instance->previous_handler(display, error);
+	}
+	char buffer[2048];
+	XGetErrorText(display, error->error_code, buffer, sizeof(buffer));
+	fputs(buffer, stderr);
+	return 1;
+}
+
 // Called by ZenityOpen to set the opened dialog window as child of the current window (if possible)
 // Note that this only works on X11. There is no way to do this on Wayland
-static void SetWindowTransient(pid_t target, int& stat) {
+static void SetWindowTransient(pid_t target, int& stat) noexcept {
+	XErrorTryCatch tc;
 	struct find_xwindow_with_pid
 	{
 		pid_t pid;
 		Display* display;
 		std::vector<Window> result;
 		Atom pid_atom;
+		XErrorTryCatch& try_catch;
 
-		find_xwindow_with_pid(pid_t pid, Display* display) : pid{pid}, display{display}, result{} {
+		find_xwindow_with_pid(pid_t pid, Display* display, XErrorTryCatch& tc) : pid{pid}, display{display}, result{}, try_catch{tc} {
 			pid_atom = XInternAtom(display, "_NET_WM_PID", True);
-			if (pid_atom == 0)
-				throw std::runtime_error("find_xwindow_with_pid: _NET_WM_PID atom not found!");
+			if (pid_atom == 0) {
+				try_catch.has_error = true;
+				fputs("find_xwindow_with_pid: _NET_WM_PID atom not found!", stderr);
+			}
 		}
 
 		std::vector<Window>& operator()(Window current) {
@@ -319,6 +358,7 @@ static void SetWindowTransient(pid_t target, int& stat) {
 			unsigned long  bytesAfter;
 			unsigned char *propPID = 0;
 			XGetWindowProperty(display, current, pid_atom, 0, 1, False, XA_CARDINAL, &type, &format, &nItems, &bytesAfter, &propPID);
+			if(try_catch.has_error) return result;
 			if(propPID != 0 && type == XA_CARDINAL && pid == *reinterpret_cast<pid_t*>(propPID))
 				result.emplace_back(current);
 			
@@ -327,8 +367,10 @@ static void SetWindowTransient(pid_t target, int& stat) {
 			Window* wChild;
 			unsigned  nChildren;
 			if (XQueryTree(display, current, &wRoot, &wParent, &wChild, &nChildren)) {
+				if(try_catch.has_error) return result;
 				for (unsigned i = 0; i < nChildren; i++) {
 					this->operator()(wChild[i]);
+					if(try_catch.has_error) return result;
 				}
 			}
 
@@ -349,10 +391,12 @@ static void SetWindowTransient(pid_t target, int& stat) {
 	if (gwindow == NULL) 
 		return;
 	Window parent_window = glfwGetX11Window(gwindow);
-	find_xwindow_with_pid window_finder(target, display);
+	find_xwindow_with_pid window_finder(target, display, tc);
+	if (tc.has_error) return;
 
 	Atom NET_WM_STATE = XInternAtom(display, "_NET_WM_STATE", False);
 	Atom STATE_NO_MODAL = XInternAtom(display, "_NET_WM_STATE_MODAL", False);
+	if (tc.has_error) return;
 
 	bool timer_started = false;
 	using timer_clock_t = std::chrono::steady_clock;
@@ -368,6 +412,7 @@ static void SetWindowTransient(pid_t target, int& stat) {
 				unsigned long  bytesAfter;
 				Atom *         props = 0;
 				XGetWindowProperty(display, window, NET_WM_STATE, 0, 1, False, XA_ATOM, &type, &format, &nItems, &bytesAfter, (unsigned char**)&props);
+				if (tc.has_error) return;
 
 				bool has_modal_flag = false;
 				if(props && type == XA_ATOM) {
@@ -382,24 +427,29 @@ static void SetWindowTransient(pid_t target, int& stat) {
 				
 				if (has_modal_flag) {
 					XSetTransientForHint(display, window, parent_window);
+					if (tc.has_error) return;
 					Atom NET_WM_WINDOW_TYPE = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
 					Atom WINDOW_TYPE_DIALOG = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DIALOG", False);
 					Atom STATE_NO_TASKBAR = XInternAtom(display, "_NET_WM_STATE_SKIP_TASKBAR", False);
+					if (tc.has_error) return;
 					XChangeProperty(display, window, NET_WM_WINDOW_TYPE, XA_ATOM, 32, PropModeReplace, (unsigned char*)&WINDOW_TYPE_DIALOG, 1);
+					if (tc.has_error) return;
 					XChangeProperty(display, window, NET_WM_STATE, XA_ATOM, 32, PropModeAppend, (unsigned char*)&STATE_NO_TASKBAR, 1);
+					if (tc.has_error) return;
 					XMapWindow(display, window);
+					if (tc.has_error) return;
 					XFlush(display);
 					return;
 				}
 			}
-			// No modal window found? Maybe zenity is still initializing. Try waiting 10s
+			// No modal window found? Maybe zenity is still initializing. Try waiting 5s
 			if (!timer_started) {
 				start = timer_clock_t::now();
 				timer_started = true;
 			}
 			else {
 				auto duration = std::chrono::duration_cast<std::chrono::seconds>(timer_clock_t::now() - start).count();
-				if (duration > 10)
+				if (duration > 5)
 					break;
 			}
 			target_windows.clear();
