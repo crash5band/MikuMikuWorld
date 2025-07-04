@@ -319,6 +319,7 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(texturesDir + "touchLine_eff.png");
 		ResourceManager::loadTexture(texturesDir + "timeline_tools.png");
 		ResourceManager::loadTexture(texturesDir + "note_stats.png");
+		ResourceManager::loadTexture(texturesDir + "stage.png");
 
 		// Cache note textures indices
 		noteTextures.notes = ResourceManager::getTexture(NOTES_TEX);

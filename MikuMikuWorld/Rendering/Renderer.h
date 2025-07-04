@@ -38,7 +38,11 @@ namespace MikuMikuWorld
 		void drawSprite(const Vector2& pos, float rot, const Vector2& sz, AnchorType anchor, const Texture& tex,
 			float x1, float x2, float y1, float y2, const Color& tint = Color(1.0f, 1.0f, 1.0f, 1.0f), int z = 0);
 		
+		// Draw a quad using points, defines in the zigzag order top->bottom, left->right
 		void drawQuad(const Vector2& p1, const Vector2& p2, const Vector2& p3, const Vector2& p4, const Texture& tex, float x1, float x2, float y1, float y2,
+			const Color& tint = Color(1.0f, 1.0f, 1.0f, 1.0f), int z = 0);
+		// Draw a quad using vertex positions, defines in the order right->left, bottom->top
+		void drawQuad(const std::array<DirectX::XMVECTOR, 4>& pos, const DirectX::XMMATRIX& m, const Texture& tex, float x1, float x2, float y1, float y2,
 			const Color& tint = Color(1.0f, 1.0f, 1.0f, 1.0f), int z = 0);
 
 		void drawRectangle(Vector2 position, Vector2 size, const Texture& tex, float x1, float x2, float y1, float y2, Color tint, int z);

@@ -114,6 +114,15 @@ namespace MikuMikuWorld
 		pushQuad(vPos, uvCoords, DirectX::XMMatrixIdentity(), color, tex.getID(), z);
 	}
 
+	void Renderer::drawQuad(const std::array<DirectX::XMVECTOR, 4> &pos, const DirectX::XMMATRIX &m,
+		const Texture &tex, float x1, float x2, float y1, float y2, const Color &tint, int z)
+	{
+		setUVCoords(tex, x1, x2, y1, y2);
+		DirectX::XMVECTOR color{ tint.r, tint.g, tint.b, tint.a };
+
+		pushQuad(pos, uvCoords, m, color, tex.getID(), z);
+	}
+
 	void Renderer::drawRectangle(Vector2 position, Vector2 size, const Texture& tex, float x1, float x2, float y1, float y2, Color tint, int z)
 	{
 		Vector2 p1{ position.x, position.y };
@@ -128,21 +137,21 @@ namespace MikuMikuWorld
 		const DirectX::XMMATRIX& m, const DirectX::XMVECTOR& col, int tex, int z)
 	{
 		Quad q{ tex, z };
-		q.vertices[0].position = DirectX::XMVector2Transform(pos[0], m);
+		q.vertices[0].position = DirectX::XMVector3Transform(pos[0], m);
 		q.vertices[0].color = col;
-		q.vertices[0].uv = uvCoords[0];
+		q.vertices[0].uv = uv[0];
 
-		q.vertices[1].position = DirectX::XMVector2Transform(pos[1], m);
+		q.vertices[1].position = DirectX::XMVector3Transform(pos[1], m);
 		q.vertices[1].color = col;
-		q.vertices[1].uv = uvCoords[1];
+		q.vertices[1].uv = uv[1];
 
-		q.vertices[2].position = DirectX::XMVector2Transform(pos[2], m);
+		q.vertices[2].position = DirectX::XMVector3Transform(pos[2], m);
 		q.vertices[2].color = col;
-		q.vertices[2].uv = uvCoords[2];
+		q.vertices[2].uv = uv[2];
 
-		q.vertices[3].position = DirectX::XMVector2Transform(pos[3], m);
+		q.vertices[3].position = DirectX::XMVector3Transform(pos[3], m);
 		q.vertices[3].color = col;
-		q.vertices[3].uv = uvCoords[3];
+		q.vertices[3].uv = uv[3];
 
 		quads.push_back(std::move(q));
 
@@ -185,6 +194,7 @@ namespace MikuMikuWorld
 		std::stable_sort(quads.begin(), quads.end(),
 			[](const Quad& q1, const Quad& q2) {return q1.zIndex < q2.zIndex; });
 		
+		vBuffer.bind();
 		bindTexture(quads[0].texture);
 		int vertexCount = 0;
 

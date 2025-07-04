@@ -44,6 +44,11 @@ namespace MikuMikuWorld
 		glViewport(0, 0, width, height);
 	}
 
+    void Framebuffer::unblind()
+    {
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
 	void Framebuffer::dispose()
 	{
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);

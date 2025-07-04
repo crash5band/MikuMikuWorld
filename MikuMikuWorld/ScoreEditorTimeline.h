@@ -1,7 +1,6 @@
 #pragma once
 #include "ScoreContext.h"
 #include "ImGui/imgui_internal.h"
-#include "Rendering/Camera.h"
 #include "Rendering/Framebuffer.h"
 #include "Rendering/Renderer.h"
 #include "TimelineMode.h"
@@ -108,7 +107,6 @@ namespace MikuMikuWorld
 		float stopTime{ -1.0f };
 		bool playing{ false };
 
-		Camera camera;
 		std::unique_ptr<Framebuffer> slidePathFramebuffer;
 		std::unique_ptr<Framebuffer> notesFramebuffer;
 		ImVec2 size;
