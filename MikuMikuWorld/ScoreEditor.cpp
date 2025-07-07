@@ -161,9 +161,11 @@ namespace MikuMikuWorld
 		aboutDialog.update();
 
 		ImGui::Begin(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"), NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+		ImGuiID dockId = ImGui::GetWindowDockID();
 		timeline.update(context, edit, renderer.get());
 		ImGui::End();
 
+		ImGui::SetNextWindowDockID(dockId, ImGuiCond_FirstUseEver);
 		ImGui::Begin("Preview###score_preview", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 		preview.update(context, renderer.get());
 		ImGui::End();

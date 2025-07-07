@@ -9,7 +9,7 @@ namespace MikuMikuWorld
 
 	void Camera::setPositionY(float posY)
 	{
-		position.m128_f32[1] = posY;
+		DirectX::XMVectorSetY(position, posY);
 	}
 
     DirectX::XMMATRIX Camera::getOrthographicProjection(float width, float height)

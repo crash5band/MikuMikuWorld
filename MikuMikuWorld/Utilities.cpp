@@ -59,4 +59,16 @@ namespace MikuMikuWorld
 		drawList->AddText(ImGui::GetFont(), fontSize, textPos + ImVec2{ 0.75f, 1.0f }, 0xff111111, text);
 		drawList->AddText(ImGui::GetFont(), fontSize, textPos, fontColor, text);
 	}
+
+    void drawTextureUnscaled(unsigned int texId, float texWidth, float texHeight, ImVec2 const &pos, ImVec2 const &size, ImU32 const &col)
+    {
+		const float source_ratio = texWidth / texHeight;
+		const float target_ratio = size.x / size.y;
+		ImVec2 target_size = {
+			target_ratio >  source_ratio ? source_ratio * size.y : size.x,
+			target_ratio >= source_ratio ? size.y : size.x / source_ratio
+		};
+		ImVec2 target_pos = pos + (size - target_size) / 2;
+		ImGui::GetWindowDrawList()->AddImage((ImTextureID)(size_t)texId, target_pos, target_pos + target_size, {0, 0}, {1, 1}, col);
+    }
 }

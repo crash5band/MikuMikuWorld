@@ -22,8 +22,8 @@ namespace MikuMikuWorld
 
 		VertexBuffer vBuffer;
 		std::vector<Quad> quads;
-		std::array<DirectX::XMVECTOR, 4> vPos;
-		std::array<DirectX::XMVECTOR, 4> uvCoords;
+		std::array<DirectX::XMFLOAT4, 4> vPos;
+		std::array<DirectX::XMFLOAT4, 4> uvCoords;
 
 		int texID{};
 		bool batchStarted{ false };
@@ -42,7 +42,7 @@ namespace MikuMikuWorld
 		void drawQuad(const Vector2& p1, const Vector2& p2, const Vector2& p3, const Vector2& p4, const Texture& tex, float x1, float x2, float y1, float y2,
 			const Color& tint = Color(1.0f, 1.0f, 1.0f, 1.0f), int z = 0);
 		// Draw a quad using vertex positions, defines in the order right->left, bottom->top
-		void drawQuad(const std::array<DirectX::XMVECTOR, 4>& pos, const DirectX::XMMATRIX& m, const Texture& tex, float x1, float x2, float y1, float y2,
+		void drawQuad(const std::array<DirectX::XMFLOAT4, 4>& pos, const DirectX::XMMATRIX& m, const Texture& tex, float x1, float x2, float y1, float y2,
 			const Color& tint = Color(1.0f, 1.0f, 1.0f, 1.0f), int z = 0);
 
 		void drawRectangle(Vector2 position, Vector2 size, const Texture& tex, float x1, float x2, float y1, float y2, Color tint, int z);
@@ -51,8 +51,8 @@ namespace MikuMikuWorld
 		void setAnchor(AnchorType type);
 		DirectX::XMMATRIX getModelMatrix(const Vector2& pos, const float rot, const Vector2& sz);
 
-		void pushQuad(const std::array<DirectX::XMVECTOR, 4>& pos, const std::array<DirectX::XMVECTOR, 4>& uv,
-			const DirectX::XMMATRIX& m, const DirectX::XMVECTOR& col, int tex, int z);
+		void pushQuad(const std::array<DirectX::XMFLOAT4, 4>& pos, const std::array<DirectX::XMFLOAT4, 4>& uv,
+			const DirectX::XMMATRIX& m, const DirectX::XMFLOAT4& col, int tex, int z);
 
 		void bindTexture(int tex);
 		void beginBatch();
@@ -61,4 +61,7 @@ namespace MikuMikuWorld
 		inline int getNumVertices() const { return numBatchVertices; }
 		inline int getNumQuads() const { return numBatchQuads; }
 	};
+
+	std::array<DirectX::XMFLOAT4, 4> orthogQuadvPos(float left, float right, float top, float bottom);
+	std::array<DirectX::XMFLOAT4, 4> perspectiveQuadvPos(float left, float right, float top, float bottom);
 }

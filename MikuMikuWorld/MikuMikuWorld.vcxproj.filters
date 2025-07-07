@@ -164,6 +164,15 @@
     </ClCompile>
     <ClCompile Include="..\Depends\zlib\src\gzlib.c" />
     <ClCompile Include="..\Depends\zlib\src\deflate.c" />
+    <ClCompile Include="PreviewEngine.cpp">
+      <Filter>ScorePreview</Filter>
+    </ClCompile>
+    <ClCompile Include="ScorePreview.cpp">
+      <Filter>ScorePreview</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Transform.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -367,6 +376,18 @@
     <ClInclude Include="ScoreSerializer.h">
       <Filter>Score\Serialization</Filter>
     </ClInclude>
+    <ClInclude Include="Platform.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="PreviewEngine.h">
+      <Filter>ScorePreview</Filter>
+    </ClInclude>
+    <ClInclude Include="ScorePreview.h">
+      <Filter>ScorePreview</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Transform.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">
@@ -431,6 +452,9 @@
     </Filter>
     <Filter Include="Score\Serialization">
       <UniqueIdentifier>{299ab9ff-c0b1-4146-abb1-d4eb55442bff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ScorePreview">
+      <UniqueIdentifier>{b2e37fa4-b250-4e59-89d0-131b15a9423e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

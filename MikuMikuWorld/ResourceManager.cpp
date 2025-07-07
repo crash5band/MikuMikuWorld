@@ -1,11 +1,13 @@
 #include "ResourceManager.h"
 #include "IO.h"
 #include <filesystem>
+#include <sstream>
 
 namespace MikuMikuWorld
 {
 	std::vector<Texture> ResourceManager::textures;
 	std::vector<Shader*> ResourceManager::shaders;
+	std::vector<Transform> ResourceManager::spriteTransform;
 
 	void ResourceManager::loadTexture(const std::string& filename, TextureFilterMode minFilter, TextureFilterMode magFilter)
 	{
@@ -57,6 +59,49 @@ namespace MikuMikuWorld
 
 		return -1;
 	}
+
+    void ResourceManager::loadTransform(const std::string &filename)
+    {
+		int idx = 0;
+		float transform[8 * 8];
+		IO::File file(filename, IO::FileMode::Read);
+		
+		std::string txt = file.readAllText();
+		if (txt.empty())
+			return;
+		// Remove comments
+		for(size_t pos, end; (pos = txt.find('#')) != std::string::npos; ) {
+			end = txt.find('\n', pos);
+			if (end != std::string::npos)
+				txt.erase(pos, end - pos + 1);
+			else
+				txt.erase(pos);
+		}
+		std::stringstream ss(txt);
+		float value;
+		while(ss >> value) {
+			transform[idx++] = value;
+			if (idx >= std::size(transform)) {
+				idx = 0;
+				spriteTransform.push_back(transform);
+			}
+		}
+		if (!ss.eof()) {
+			ss.clear();
+			auto invalid_pos = ss.tellg();
+			char invalid = ss.get();
+			std::string msg = IO::formatString(
+				"ResourceManager::loadTransform.\n"
+				"Unexpected characters '%c' at position %ld while reading \"%s\"\n", invalid, (long)invalid_pos, filename.c_str());
+			throw std::runtime_error(msg);
+		}
+		if (idx != 0) {
+			throw std::runtime_error(
+				"ResourceManager::loadTransform.\n"
+				"Incompleted transform declaration!\n"
+			);
+		}
+    }
 
 	void ResourceManager::disposeTexture(int texID)
 	{

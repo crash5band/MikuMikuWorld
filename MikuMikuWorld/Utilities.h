@@ -100,4 +100,5 @@ namespace MikuMikuWorld
 	}
 
 	void drawShadedText(ImDrawList* drawList, ImVec2 textPos, float fontSize, ImU32 fontColor, const char* text);
+	void drawTextureUnscaled(unsigned int texId, float texWidth, float texHeight, ImVec2 const& pos, ImVec2 const& size, ImU32 const& col);
 }

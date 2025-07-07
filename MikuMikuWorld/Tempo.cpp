@@ -1,6 +1,7 @@
 #include "Tempo.h"
 #include "Score.h"
 #include "Constants.h"
+#include <algorithm>
 
 namespace MikuMikuWorld
 {
@@ -50,6 +51,30 @@ namespace MikuMikuWorld
 		total += ticksToSec(tick - bpms[lastBPM].tick, beatTicks, bpms[lastBPM].bpm);
 
 		return total;
+	}
+
+	float accumulateScaledDuration(int tick, int ticksPerBeat, const std::vector<Tempo>& bpms, const std::vector<HiSpeedChange>& hispeeds) {
+		int prvBpm = 0, prvSpd = -1;
+		int accTicks = 0;
+		float totalDuration = 0;
+
+		while (accTicks < tick) {
+			int nxtBpmTick = prvBpm + 1 < bpms.size() ? bpms[prvBpm + 1].tick : INT32_MAX;
+			int nxtSpdTick = prvSpd + 1 < hispeeds.size() ? hispeeds[prvSpd + 1].tick : INT32_MAX;
+			int nxtTick = std::min({nxtBpmTick, nxtSpdTick, tick});
+
+			float currentBpm = bpms.at(prvBpm).bpm;
+			float currentSpd = prvSpd >= 0 ? hispeeds[prvSpd].speed : 1.0f;
+
+			totalDuration += ticksToSec(nxtTick - accTicks, ticksPerBeat, currentBpm) * currentSpd;
+
+			if (nxtTick == nxtBpmTick)
+				prvBpm++;
+			if (nxtTick == nxtSpdTick)
+				prvSpd++;
+			accTicks = nxtTick;
+		}
+		return totalDuration;
 	}
 
 	int accumulateTicks(float sec, int beatTicks, const std::vector<Tempo>& bpms)

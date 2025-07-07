@@ -7,6 +7,8 @@
 #include "Utilities.h"
 #include "ApplicationConfiguration.h"
 #include "Application.h"
+#include "Rendering/Camera.h"
+#include <cmath>
 #include <algorithm>
 
 namespace MikuMikuWorld
