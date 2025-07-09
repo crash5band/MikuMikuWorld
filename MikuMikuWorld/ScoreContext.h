@@ -8,6 +8,7 @@
 #include "Jacket.h"
 #include "Constants.h"
 #include "TimelineMode.h"
+#include "PreviewEngine.h"
 #include <unordered_set>
 
 namespace MikuMikuWorld
@@ -74,7 +75,7 @@ namespace MikuMikuWorld
 		Audio::AudioManager audio;
 		PasteData pasteData{};
 		std::unordered_set<int> selectedNotes;
-
+		Engine::DrawData scorePreviewDrawData;
 		Audio::WaveformMipChain waveformL, waveformR;
 
 		int currentTick{};

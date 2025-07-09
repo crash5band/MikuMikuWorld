@@ -137,19 +137,19 @@ namespace MikuMikuWorld
 		const DirectX::XMMATRIX& m, const DirectX::XMFLOAT4& col, int tex, int z)
 	{
 		Quad q{ tex, z };
-		q.vertices[0].position = DirectX::XMVector3Transform(DirectX::XMLoadFloat4(&pos[0]), m);
+		q.vertices[0].position = DirectX::XMVector2Transform(DirectX::XMLoadFloat4(&pos[0]), m);
 		q.vertices[0].color = DirectX::XMLoadFloat4(&col);
 		q.vertices[0].uv = DirectX::XMLoadFloat4(&uv[0]);
 
-		q.vertices[1].position = DirectX::XMVector3Transform(DirectX::XMLoadFloat4(&pos[1]), m);
+		q.vertices[1].position = DirectX::XMVector2Transform(DirectX::XMLoadFloat4(&pos[1]), m);
 		q.vertices[1].color = DirectX::XMLoadFloat4(&col);
 		q.vertices[1].uv = DirectX::XMLoadFloat4(&uv[1]);
 
-		q.vertices[2].position = DirectX::XMVector3Transform(DirectX::XMLoadFloat4(&pos[2]), m);
+		q.vertices[2].position = DirectX::XMVector2Transform(DirectX::XMLoadFloat4(&pos[2]), m);
 		q.vertices[2].color = DirectX::XMLoadFloat4(&col);
 		q.vertices[2].uv = DirectX::XMLoadFloat4(&uv[2]);
 
-		q.vertices[3].position = DirectX::XMVector3Transform(DirectX::XMLoadFloat4(&pos[3]), m);
+		q.vertices[3].position = DirectX::XMVector2Transform(DirectX::XMLoadFloat4(&pos[3]), m);
 		q.vertices[3].color = DirectX::XMLoadFloat4(&col);
 		q.vertices[3].uv = DirectX::XMLoadFloat4(&uv[3]);
 

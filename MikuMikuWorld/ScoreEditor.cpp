@@ -221,6 +221,7 @@ namespace MikuMikuWorld
 		context.workingData = {};
 		context.history.clear();
 		context.scoreStats.reset();
+		context.scorePreviewDrawData.clear();
 		context.audio.disposeMusic();
 		context.waveformL.clear();
 		context.waveformR.clear();
@@ -267,6 +268,7 @@ namespace MikuMikuWorld
 			context.audio.setMusicOffset(0, context.workingData.musicOffset);
 
 			context.scoreStats.calculateStats(context.score);
+			context.scorePreviewDrawData.calculateDrawData(context.score);
 			timeline.calculateMaxOffsetFromScore(context.score);
 
 			UI::setWindowTitle((context.workingData.filename.size() ? IO::File::getFilename(context.workingData.filename) : windowUntitled));

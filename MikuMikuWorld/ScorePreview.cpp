@@ -3,6 +3,7 @@
 #include "Rendering/Camera.h"
 #include "ResourceManager.h"
 #include "Colors.h"
+#include "ImageCrop.h"
 
 namespace MikuMikuWorld
 {
@@ -10,18 +11,26 @@ namespace MikuMikuWorld
 		static bool lockAspectRatio = true;
 		static float noteSpeed = 1;
 		static bool markerAnimation = true;
-		float ref_alpha = 0.4f;
+		static bool drawSimLine = true;
+		float ref_alpha = 0.0f;
+		float bound[4] = { 0.f, 0.f, 0.f, 0.f };
 
-		static void drawMenu() {
+		static void drawMenu(ScoreContext& context) {
 			if(!ImGui::Begin("Config###config_window")) {
 				ImGui::End();
 				return;
 			}
 			ImGui::Checkbox("Lock Aspect Ratio", &lockAspectRatio);
 			ImGui::Checkbox("Flick Animation", &markerAnimation);
-			ImGui::SliderFloat("Note Speed", &noteSpeed, 1, 12, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+			ImGui::Checkbox("Simultaneous Line", &drawSimLine);
+			if (ImGui::SliderFloat("Note Speed", &noteSpeed, 1, 12, "%.2f", ImGuiSliderFlags_AlwaysClamp)) {
+				context.scorePreviewDrawData.config.noteSpeed = noteSpeed;
+				context.scorePreviewDrawData.calculateDrawData(context.score);
+			}
 			
+			ImGui::InputFloat4("Texture Bound", bound);
 			ImGui::SliderFloat("Reference", &ref_alpha, 0, 1.f);
+			ImGui::SliderInt("Current Tick", &context.currentTick, 0, TICKS_PER_BEAT * 20);
 			ImGui::End();
 		}
 		
@@ -46,14 +55,20 @@ namespace MikuMikuWorld
 		}
 	};
 
+
 	ScorePreviewWindow::ScorePreviewWindow() : previewBuffer{1920, 1080}, notesTex()
 	{
 
 	}
 
+    ScorePreviewWindow::~ScorePreviewWindow()
+    {
+		if(notesTex) notesTex->dispose();
+    }
+
 	void ScorePreviewWindow::update(ScoreContext& context, Renderer* renderer) {
 		
-		PrvConfig::drawMenu();
+		PrvConfig::drawMenu(context);
 		bool isWindowActive =  !ImGui::IsWindowDocked() || ImGui::GetCurrentWindow()->TabId == ImGui::GetWindowDockNode()->SelectedTabId;
 		if (!isWindowActive)
 			// Don't draw anything if the window is not active.
@@ -92,16 +107,13 @@ namespace MikuMikuWorld
 		previewBuffer.clear();
 
 		drawStage(renderer);
+		if (PrvConfig::drawSimLine)
+			drawLines(context, renderer);
 		drawNotes(context, renderer);
 
 		previewBuffer.unblind();
 		drawList->AddImage((ImTextureID)(size_t)previewBuffer.getTexture(), position, position + size);
 	}
-
-    ScorePreviewWindow::~ScorePreviewWindow()
-    {
-		if(notesTex) notesTex->dispose();
-    }
 
     const Texture &ScorePreviewWindow::getNoteTexture()
     {
@@ -133,37 +145,51 @@ namespace MikuMikuWorld
 
     void ScorePreviewWindow::drawNotes(ScoreContext& context, Renderer *renderer)
     {
-		const float TOP_CUTOFF = 0.f;
-		const float BOTTOM_CUTOFF = 1.f;
-		std::multimap<float, int> drawingNotes;
 		float current_tm = accumulateDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges);
 		float scaled_tm = accumulateScaledDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
-
-		ImGui::Begin("Config###config_window");
-		for (auto rit = context.score.notes.rbegin(), rend = context.score.notes.rend(); rit != rend; rit++) {
-			auto& [id, note] = *rit;
-			if (note.getType() == NoteType::Tap) {
-				auto visual_tm = Engine::getNoteVisualTime(note, context.score, PrvConfig::noteSpeed);
-				float y = INFINITY;
-				if (visual_tm.min <= scaled_tm && scaled_tm <= visual_tm.max) {
-					y = Engine::approach(visual_tm.min, visual_tm.max, scaled_tm);
-					drawingNotes.insert({y, id});
-				}
-				//ImGui::Text("Visual (%.4f, %.4f)\tY: %.4f", visual_tm.min, visual_tm.max, y);
-			}
-		}
+		const auto& drawData = context.scorePreviewDrawData;
+	
 		renderer->beginBatch();
-		ImGui::SliderInt("Current Tick", &context.currentTick, 0, TICKS_PER_BEAT * 20);
-		
-		for (auto& [y, id] : drawingNotes) {
-			const Note& note = context.score.notes[id];
-			drawNoteBase(note, y, noteTint, renderer);
-			if (note.isFlick()) 
-				drawFlickArrow(note, y, current_tm, context.score, noteTint, renderer);
+		for (auto& note : drawData.drawingNotes) {
+			if (scaled_tm < note.visualTime.min || scaled_tm > note.visualTime.max)
+				continue;
+			const Note& noteData = context.score.notes[note.refID];
+			float y = Engine::approach(note.visualTime.min, note.visualTime.max, scaled_tm);
+			
+			drawNoteBase(noteData, y, noteTint, renderer);
+			if (noteData.friction)
+				drawTraceDiamond(noteData, y, noteTint, renderer);
+			if (noteData.isFlick()) 
+				drawFlickArrow(noteData, y, current_tm, context.score, noteTint, renderer);
 		}
-		ImGui::End();
 		renderer->endBatch();
     }
+
+	void ScorePreviewWindow::drawLines(ScoreContext& context, Renderer* renderer)
+	{
+		float scaled_tm = accumulateScaledDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
+		const auto& drawData = context.scorePreviewDrawData;
+
+		const Texture& texture = getNoteTexture();
+		const int sprIndex = SPR_SIMULTANEOUS_CONNECTION;
+		if (!isArrayIndexInBounds(sprIndex, texture.sprites))
+			return;
+		const Sprite& sprite = texture.sprites[sprIndex];
+		const Transform& lineTransform = ResourceManager::spriteTransform.at((size_t)Engine::SpriteType::SimultaneousLine);
+		const Color color (1.f, 1.f, 1.f, 1.f);
+		const float noteTop = 1. + Engine::getNoteHeight(), noteBottom = 1. - Engine::getNoteHeight();
+
+		renderer->beginBatch();
+		for (auto& line : drawData.drawingLines) {
+			if (scaled_tm < line.visualTime.min || scaled_tm > line.visualTime.max)
+				continue;
+			float y = Engine::approach(line.visualTime.min, line.visualTime.max, scaled_tm);
+			auto vPos = lineTransform.apply(perspectiveQuadvPos(line.xPos.min, line.xPos.max, noteTop, noteBottom));
+			auto model = DirectX::XMMatrixScaling(y, y, 1.f);
+			renderer->drawQuad(vPos, model, texture, sprite.getX1(), sprite.getX2(), sprite.getY1(), sprite.getY2());
+		}
+		renderer->endBatch();
+	}
 
     void ScorePreviewWindow::drawNoteBase(const Note& note, float y, const Color& tint, Renderer* renderer)
     {
@@ -176,25 +202,61 @@ namespace MikuMikuWorld
 		if (!isArrayIndexInBounds(sprIndex, texture.sprites))
 			return;
 
-		const Sprite& s = texture.sprites[sprIndex];
+		const Sprite& sprite = texture.sprites[sprIndex];
 
-		const float noteHeight = 75. / 850. / 2.;
+		const float noteHeight = Engine::getNoteHeight();
 		float noteLeft = Engine::laneToLeft(note.lane), noteRight = Engine::laneToLeft(note.lane) + note.width;
 		const float noteTop = 1. - noteHeight, noteBottom = 1. + noteHeight;
+		int zIndex = Engine::getZIndex(
+			!note.friction ? Engine::Layer::BASE_NOTE : Engine::Layer::TICK_NOTE,
+			Engine::laneToLeft(note.lane) + note.width / 2.f, y
+		);
 
-		auto model = DirectX::XMMatrixScaling(y, y, y);
+		auto model = DirectX::XMMatrixScaling(y, y, 1.f);
 		std::array<DirectX::XMFLOAT4, 4> vPos;
 		// Middle
 		vPos = ResourceManager::spriteTransform.at((int)Engine::SpriteType::NoteMiddle).apply(perspectiveQuadvPos(noteLeft + 0.3f, noteRight - 0.3f, noteTop, noteBottom));
-		renderer->drawQuad(vPos, model, texture, s.getX1() + NOTE_SIDE_WIDTH, s.getX2() - NOTE_SIDE_WIDTH, s.getY1(), s.getY2(), tint, (int)ZIndex::Note);
+		renderer->drawQuad(vPos, model, texture,
+			sprite.getX1() + NOTE_SIDE_WIDTH, sprite.getX2() - NOTE_SIDE_WIDTH, sprite.getY1(), sprite.getY2(),
+			tint, zIndex
+		);
 
 		// Left slice
 		vPos = ResourceManager::spriteTransform.at((int)Engine::SpriteType::NoteLeft).apply(perspectiveQuadvPos(noteLeft, noteLeft + 0.3f, noteTop, noteBottom));
-		renderer->drawQuad(vPos, model, texture, s.getX1(), s.getX1() + NOTE_SIDE_WIDTH, s.getY1(), s.getY2(), tint, (int)ZIndex::Note);
+		renderer->drawQuad(vPos, model, texture,
+			sprite.getX1(), sprite.getX1() + NOTE_SIDE_WIDTH, sprite.getY1(), sprite.getY2(),
+			tint, zIndex
+		);
 		
 		// Right slice
 		vPos = ResourceManager::spriteTransform.at((int)Engine::SpriteType::NoteRight).apply(perspectiveQuadvPos(noteRight - 0.3f, noteRight, noteTop, noteBottom));
-		renderer->drawQuad(vPos, model, texture, s.getX2() - NOTE_SIDE_WIDTH, s.getX2(), s.getY1(), s.getY2(), tint, (int)ZIndex::Note);
+		renderer->drawQuad(vPos, model, texture,
+			sprite.getX2() - NOTE_SIDE_WIDTH, sprite.getX2(), sprite.getY1(), sprite.getY2(),
+			tint, zIndex
+		);
+    }
+
+    void ScorePreviewWindow::drawTraceDiamond(const Note &note, float y, const Color &tint, Renderer *renderer)
+    {
+		const Texture& texture = getNoteTexture();
+		int frictionSprIndex = getFrictionSpriteIndex(note);
+		if (!isArrayIndexInBounds(frictionSprIndex, texture.sprites))
+			return;
+		const Sprite& frictionSpr = texture.sprites[frictionSprIndex];
+
+		const float w = Engine::getNoteHeight() / scaledAspectRatio;
+		const float noteTop = 1. + Engine::getNoteHeight(), noteBottom = 1. - Engine::getNoteHeight();
+		int zIndex = Engine::getZIndex(Engine::Layer::DIAMOND, Engine::laneToLeft(note.lane) + note.width / 2.f, y);
+
+		const Transform& transform = ResourceManager::spriteTransform.at((int)Engine::SpriteType::TraceDiamond);
+		auto vPos = transform.apply(orthogQuadvPos(
+			Engine::laneToLeft(note.lane) + note.width / 2.f - w,
+			Engine::laneToLeft(note.lane) + note.width / 2.f + w,
+			noteTop, noteBottom)
+		);
+		auto model = DirectX::XMMatrixScaling(y, y, 1.f);
+		
+		renderer->drawQuad(vPos, model, texture, frictionSpr.getX1(), frictionSpr.getX2(), frictionSpr.getY1(), frictionSpr.getY2(), tint, zIndex);
     }
 
     void ScorePreviewWindow::drawFlickArrow(const Note &note, float y, float time, const Score &score, const Color &tint, Renderer *renderer)
@@ -221,25 +283,26 @@ namespace MikuMikuWorld
 				1, 1 - 2 * std::abs(w) * scaledAspectRatio
 			)
 		);
+		int zIndex = Engine::getZIndex(Engine::Layer::FLICK_ARROW, Engine::laneToLeft(note.lane) + note.width / 2.f, y);
 		
 		if (PrvConfig::markerAnimation) {
 			float t = std::fmod(time, 0.5f) / 0.5f;
 			const auto cubicEaseIn = [](float t) { return t * t * t; };
 			Color mixedTint = Color{ tint.r, tint.g, tint.b, tint.a * (1 - cubicEaseIn(t)) };
 			auto animationVector = DirectX::XMVectorScale(DirectX::XMVectorSet(flickDirection, -2 * scaledAspectRatio, 0.f, 0.f), t);
-			auto model = DirectX::XMMatrixTranslationFromVector(animationVector) * DirectX::XMMatrixScaling(y, y, y);
+			auto model = DirectX::XMMatrixTranslationFromVector(animationVector) * DirectX::XMMatrixScaling(y, y, 1.f);
 
 			
 			renderer->drawQuad(vPos, model, texture,
 				arrowSprite.getX1(), arrowSprite.getX2(), arrowSprite.getY1(), arrowSprite.getY2(),
-				mixedTint, (int)ZIndex::FlickArrow
+				mixedTint, zIndex
 			);
 		} else {
-			auto model = DirectX::XMMatrixScaling(y, y, y);
+			auto model = DirectX::XMMatrixScaling(y, y, 1.f);
 
 			renderer->drawQuad(vPos, model, texture,
 				arrowSprite.getX1(), arrowSprite.getX2(), arrowSprite.getY1(), arrowSprite.getY2(),
-				tint, (int)ZIndex::FlickArrow
+				tint, zIndex
 			);
 		}
     }
