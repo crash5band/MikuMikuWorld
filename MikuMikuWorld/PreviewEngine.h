@@ -15,6 +15,7 @@ namespace MikuMikuWorld::Engine
         FlickArrowLeft,
         FlickArrowUp = FlickArrowLeft + 6,
         SimultaneousLine = FlickArrowUp + 6,
+        HoldTick
     };
 
     enum class Layer : uint8_t {
@@ -42,14 +43,33 @@ namespace MikuMikuWorld::Engine
         Range visualTime;
     };
 
+    struct DrawingHoldTick {
+        int refID;
+        float center;
+        Range visualTime;
+    };
+
+    struct DrawingHoldSegment {
+        int endID;
+        int headID, tailID;
+        float headTime;
+        float tailTime;
+        float startTime;
+        EaseType ease;
+        bool isGuide;
+    };
+
     struct PreviewConfiguration {
         float noteSpeed = 6;
     };
 
     struct DrawData {
+        int maxTicks;
         PreviewConfiguration config;
         std::vector<DrawingNote> drawingNotes;
 		std::vector<DrawingLine> drawingLines;
+        std::vector<DrawingHoldTick> drawingHoldTicks;
+        std::vector<DrawingHoldSegment> drawingHoldSegments;
 
         void clear();
         void calculateDrawData(Score const& score);
@@ -58,6 +78,9 @@ namespace MikuMikuWorld::Engine
     Range getNoteVisualTime(Note const& note, Score const& score, float noteSpeed);
 
     /// General helper functions for fixed values in the engine
+    static inline float getNoteDuration(float noteSpeed) {
+        return lerp(0.35, 4.f, std::pow(unlerp(12, 1, noteSpeed), 1.31f));
+    }
     static inline float approach(float start_time, float end_time, float current_time) {
         return std::pow(1.06, 45 * lerp(-1, 0, unlerp(start_time, end_time, current_time)));
     }
@@ -72,6 +95,9 @@ namespace MikuMikuWorld::Engine
     }
     static inline float laneToLeft(float lane) {
         return lane - 6;
+    }
+    static inline float getNoteCenter(Note const& note) {
+        return laneToLeft(note.lane) + note.width / 2.f; 
     }
     static inline float getNoteHeight() {
         return 75. / 850. / 2.;

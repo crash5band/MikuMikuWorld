@@ -1,12 +1,13 @@
 #include "PreviewEngine.h"
 #include "Constants.h"
+#include <stack>
+#include <stdexcept>
 
 namespace MikuMikuWorld::Engine
 {
 	Range getNoteVisualTime(Note const& note, Score const& score, float noteSpeed) {
 		float targetTime = accumulateScaledDuration(note.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
-		float duration = lerp(0.35, 4.f, std::pow(unlerp(12, 1, noteSpeed), 1.31f));
-		return {targetTime - duration, targetTime};
+		return {targetTime - getNoteDuration(noteSpeed), targetTime};
 	}
 
 	struct TargetTimeComparer {
@@ -19,42 +20,114 @@ namespace MikuMikuWorld::Engine
 	void DrawData::calculateDrawData(Score const &score)
 	{
 		this->clear();
-		
-		std::map<Range, Range, TargetTimeComparer> simBuilder;
-		for (auto rit = score.notes.rbegin(), rend = score.notes.rend(); rit != rend; rit++) {
-			auto& [id, note] = *rit;
-			switch (note.getType()) {
-				case NoteType::Tap:
-				//case NoteType::Hold:
-				//case NoteType::HoldEnd:
-				{
+		try
+		{
+			std::map<Range, Range, TargetTimeComparer> simBuilder;
+			for (auto rit = score.notes.rbegin(), rend = score.notes.rend(); rit != rend; rit++) {
+				auto& [id, note] = *rit;
+				maxTicks = std::max(note.tick, maxTicks);
+				NoteType type = note.getType();
+				bool hidden = false;
+				if (type == NoteType::Hold)
+					hidden = score.holdNotes.at(id).startType != HoldNoteType::Normal;
+				else if (type == NoteType::HoldEnd)
+					hidden = score.holdNotes.at(note.parentID).endType != HoldNoteType::Normal;
+				if (!hidden && type != NoteType::HoldMid) {
 					auto visual_tm = getNoteVisualTime(note, score, config.noteSpeed);
 					drawingNotes.push_back(DrawingNote{note.ID, visual_tm});
 
 					// Find the max and min lane within the same height (visual_tm.max)
-					float center = laneToLeft(note.lane) + note.width / 2.f;
+					float center = getNoteCenter(note);
 					auto&& [it, has_emplaced] = simBuilder.try_emplace(visual_tm, Range{center, center});
 					auto& x_range = it->second;
 					if (has_emplaced)
-						break;
+						continue;
 					if (center < x_range.min)
 						x_range.min = center;
 					if (center > x_range.max)
 						x_range.max = center;
+					continue;
 				}
-			};
-		}
+			}
 
-		for (const auto& [visual_tm, x_range] : simBuilder) {
-			if (x_range.min == x_range.max)
-				continue;
-			drawingLines.push_back(DrawingLine{x_range, visual_tm});
+			for (const auto& [visual_tm, x_range] : simBuilder) {
+				if (x_range.min != x_range.max)
+					drawingLines.push_back(DrawingLine{x_range, visual_tm});
+			}
+
+			std::stack<HoldStep const*> skipStepIDs;
+			float noteDuration = getNoteDuration(config.noteSpeed);
+			for (auto rit = score.holdNotes.rbegin(), rend = score.holdNotes.rend(); rit != rend; rit++) {
+				auto& [id, holdNote] = *rit;
+				const Note& startNote = score.notes.at(holdNote.start.ID), endNote = score.notes.at(holdNote.end);
+				float start_tm = accumulateDuration(startNote.tick, TICKS_PER_BEAT, score.tempoChanges);
+				const HoldStep* head = &holdNote.start;
+				auto it = holdNote.steps.begin(), end = holdNote.steps.end();
+				for (const HoldStep* head = &holdNote.start, *tail; head != nullptr; head = tail, ++it) {
+					while (it != end && it->type == HoldStepType::Skip) {
+						skipStepIDs.push(&(*it));
+						++it;
+					}
+					tail = it != end ? &(*it) : nullptr;
+					const Note& headNote = score.notes.at(head->ID), tailNote = score.notes.at(tail ? tail->ID : holdNote.end);
+					if (headNote.tick == tailNote.tick)
+						continue;
+					float head_scaled_tm = accumulateScaledDuration(headNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
+					float tail_scaled_tm = accumulateScaledDuration(tailNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
+
+					drawingHoldSegments.push_back(DrawingHoldSegment {
+						.endID = holdNote.end,
+						.headID = headNote.ID,
+						.tailID = tailNote.ID,
+						.headTime = head_scaled_tm,
+						.tailTime = tail_scaled_tm,
+						.startTime = start_tm,
+						.ease = head->ease,
+						.isGuide = holdNote.isGuide(),
+					});
+
+					while(skipStepIDs.size()) {
+						const HoldStep& skipStep = *skipStepIDs.top();
+						const Note& skipNote = score.notes.at(skipStep.ID);
+						float step_scaled_tm = accumulateScaledDuration(skipNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
+						auto ease = getEaseFunction(head->ease);
+						float headLeft = Engine::laneToLeft(headNote.lane);
+						float headRight = Engine::laneToLeft(headNote.lane) + headNote.width;
+						float tailLeft = Engine::laneToLeft(tailNote.lane);
+						float tailRight = Engine::laneToLeft(tailNote.lane) + tailNote.width;
+						float stepT = unlerp(head_scaled_tm, tail_scaled_tm, step_scaled_tm);
+						float stepLeft = ease(headLeft, tailLeft, stepT);
+						float stepRight = ease(headRight, tailRight, stepT);
+						drawingHoldTicks.push_back(DrawingHoldTick{
+							.refID = skipStep.ID,
+							.center = stepLeft + (stepRight - stepLeft) / 2,
+							.visualTime = {step_scaled_tm - noteDuration, step_scaled_tm}
+						});
+						skipStepIDs.pop();
+					}
+					if (tail && tail->type != HoldStepType::Hidden) {
+						float tick_scaled_tm = accumulateScaledDuration(tailNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
+						drawingHoldTicks.push_back(DrawingHoldTick{
+							.refID = tailNote.ID,
+							.center = getNoteCenter(tailNote),
+							.visualTime = {tick_scaled_tm - noteDuration, tick_scaled_tm}
+						});
+					}
+				}
+			}
+		}
+		catch(const std::out_of_range& ex)
+		{
+			this->clear();
 		}
 	}
 
 	void DrawData::clear() {
 		drawingLines.clear();
 		drawingNotes.clear();
+		drawingHoldTicks.clear();
+		drawingHoldSegments.clear();
+		maxTicks = 1;
 	}
 }
 

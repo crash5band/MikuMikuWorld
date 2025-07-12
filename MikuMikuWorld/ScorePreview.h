@@ -5,8 +5,6 @@
 
 namespace MikuMikuWorld
 {
-	class Shader;
-
 	class ScorePreviewWindow {
 		Framebuffer previewBuffer;
 		float scaledAspectRatio;
@@ -14,9 +12,9 @@ namespace MikuMikuWorld
 
 		const Texture& getNoteTexture();
 		
-		void drawNoteBase(const Note& note, float y, const Color& tint, Renderer* renderer);
-		void drawTraceDiamond(const Note& note, float y, const Color& tint, Renderer* renderer);
-		void drawFlickArrow(const Note& note, float y, float cur_time, const Score& score, const Color& tint, Renderer* renderer);
+		void drawNoteBase(const Note& note, float y, Renderer* renderer);
+		void drawTraceDiamond(const Note& note, float y, Renderer* renderer);
+		void drawFlickArrow(const Note& note, float y, float cur_time, const Score& score, Renderer* renderer);
 	public:
 		ScorePreviewWindow(); 
 		~ScorePreviewWindow();
@@ -24,6 +22,8 @@ namespace MikuMikuWorld
 
 		void drawNotes(ScoreContext& context, Renderer* renderer);
 		void drawLines(ScoreContext& context, Renderer* renderer);
+		void drawHoldTicks(ScoreContext& context, Renderer* renderer);
+		void drawHoldCurves(ScoreContext& context, Renderer* renderer);
 		void drawStage(Renderer* renderer);
 	};
 }

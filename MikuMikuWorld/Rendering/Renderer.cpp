@@ -245,4 +245,19 @@ namespace MikuMikuWorld
 			{ x4, y4, 1.0f, 1.0f }
 		}};
 	}
+
+    std::array<DirectX::XMFLOAT4, 4> perspectiveQuadvPos(float leftStart, float leftStop, float rightStart, float rightStop, float top, float bottom)
+    {
+        float 
+			x1 = rightStart * top,   y1 = top,
+			x2 = rightStop * bottom, y2 = bottom,
+			x3 = leftStop * bottom,  y3 = bottom,
+			x4 = leftStart * top,    y4 = top;
+		return {{
+			{ x1, y1, 1.0f, 1.0f },
+			{ x2, y2, 1.0f, 1.0f },
+			{ x3, y3, 1.0f, 1.0f },
+			{ x4, y4, 1.0f, 1.0f }
+		}};
+    }
 }

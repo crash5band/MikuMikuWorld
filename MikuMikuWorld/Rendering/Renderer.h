@@ -64,4 +64,5 @@ namespace MikuMikuWorld
 
 	std::array<DirectX::XMFLOAT4, 4> orthogQuadvPos(float left, float right, float top, float bottom);
 	std::array<DirectX::XMFLOAT4, 4> perspectiveQuadvPos(float left, float right, float top, float bottom);
+	std::array<DirectX::XMFLOAT4, 4> perspectiveQuadvPos(float leftStart, float leftStop, float rightStart, float rightStop, float top, float bottom);
 }
