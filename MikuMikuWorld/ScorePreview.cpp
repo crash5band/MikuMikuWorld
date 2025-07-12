@@ -120,9 +120,6 @@ namespace MikuMikuWorld
 		if (PrvConfig::drawSimLine)
 			drawLines(context, renderer);
 		drawHoldCurves(context, renderer);
-		renderer->endBatch();
-
-		renderer->beginBatch();
 		drawHoldTicks(context, renderer);
 		drawNotes(context, renderer);
 		renderer->endBatch();
@@ -157,7 +154,7 @@ namespace MikuMikuWorld
 		renderer->drawRectangle({-left, top}, {width, height}, stage, 0, 2048, 0, 1176, defaultTint, 0);
     }
 
-    void ScorePreviewWindow::drawNotes(ScoreContext& context, Renderer *renderer)
+    void ScorePreviewWindow::drawNotes(const ScoreContext& context, Renderer *renderer)
     {
 		float current_tm = accumulateDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges);
 		float scaled_tm = accumulateScaledDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
@@ -166,18 +163,17 @@ namespace MikuMikuWorld
 		for (auto& note : drawData.drawingNotes) {
 			if (scaled_tm < note.visualTime.min || scaled_tm > note.visualTime.max)
 				continue;
-			const Note& noteData = context.score.notes[note.refID];
+			const Note& noteData = context.score.notes.at(note.refID);
 			float y = Engine::approach(note.visualTime.min, note.visualTime.max, scaled_tm);
-			
-			drawNoteBase(noteData, y, renderer);
+			drawNoteBase(renderer, noteData, Engine::laneToLeft(noteData.lane), Engine::laneToLeft(noteData.lane) + noteData.width, y);
 			if (noteData.friction)
-				drawTraceDiamond(noteData, y, renderer);
+				drawTraceDiamond(renderer, noteData, y);
 			if (noteData.isFlick()) 
-				drawFlickArrow(noteData, y, current_tm, context.score, renderer);
+				drawFlickArrow(renderer, noteData, y, current_tm);
 		}
     }
 
-	void ScorePreviewWindow::drawLines(ScoreContext& context, Renderer* renderer)
+	void ScorePreviewWindow::drawLines(const ScoreContext& context, Renderer* renderer)
 	{
 		if (noteTextures.notes == -1)
 			return;
@@ -206,7 +202,7 @@ namespace MikuMikuWorld
 		}
 	}
 
-    void ScorePreviewWindow::drawHoldTicks(ScoreContext &context, Renderer *renderer)
+    void ScorePreviewWindow::drawHoldTicks(const ScoreContext &context, Renderer *renderer)
     {
 		if (noteTextures.notes == -1)
 			return;
@@ -218,7 +214,7 @@ namespace MikuMikuWorld
 		for (auto& tick : context.scorePreviewDrawData.drawingHoldTicks) {
 			if (scaled_tm < tick.visualTime.min || scaled_tm > tick.visualTime.max)
 				continue;
-			const Note& note = context.score.notes[tick.refID];
+			const Note& note = context.score.notes.at(tick.refID);
 			int sprIndex = getNoteSpriteIndex(note);
 			if (!isArrayIndexInBounds(sprIndex, texture.sprites))
 				continue;
@@ -239,7 +235,7 @@ namespace MikuMikuWorld
 		}
     }
 
-    void ScorePreviewWindow::drawHoldCurves(ScoreContext &context, Renderer *renderer)
+    void ScorePreviewWindow::drawHoldCurves(const ScoreContext &context, Renderer *renderer)
     {
 		float total_tm = accumulateScaledDuration(context.scorePreviewDrawData.maxTicks, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
 		float curr_tm = accumulateDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges);
@@ -251,8 +247,8 @@ namespace MikuMikuWorld
 			if (scaled_tm < (segment.headTime - noteDuration) || scaled_tm > segment.tailTime)
 				continue;
 			
-			Note& holdEndNote = context.score.notes[segment.endID];
-			Note& holdStartNote = context.score.notes[holdEndNote.parentID];
+			Note const& holdEndNote = context.score.notes.at(segment.endID);
+			Note const& holdStartNote = context.score.notes.at(holdEndNote.parentID);
 			float holdStartCenter = Engine::getNoteCenter(holdStartNote);
 			bool isActivated = curr_tm >= segment.startTime;
 			int textureID = segment.isGuide ? noteTextures.touchLine : noteTextures.holdPath;
@@ -270,10 +266,10 @@ namespace MikuMikuWorld
 			
 			int steps = segment.ease == EaseType::Linear ? 10 : 15;
 			auto ease = getEaseFunction(segment.ease);
-			Note& startNote = context.score.notes[segment.headID];
+			Note const& startNote = context.score.notes.at(segment.headID);
 			float startLeft = Engine::laneToLeft(startNote.lane);
 			float startRight = Engine::laneToLeft(startNote.lane) + startNote.width;
-			Note& endNote = context.score.notes[segment.tailID];
+			Note const& endNote = context.score.notes.at(segment.tailID);
 			float endLeft = Engine::laneToLeft(endNote.lane);
 			float endRight = Engine::laneToLeft(endNote.lane) + endNote.width;
 
@@ -305,7 +301,7 @@ namespace MikuMikuWorld
 				auto vPos = perspectiveQuadvPos(stepStartLeft, stepEndLeft, stepStartRight, stepEndRight, stepTop, stepBottom);
 				auto model = DirectX::XMMatrixIdentity();
 				float alpha = PrvConfig::holdAlpha;
-				float zIndex = Engine::getZIndex(Engine::Layer::HOLD_PATH, holdStartCenter, segment.headTime / total_tm);
+				int zIndex = Engine::getZIndex(Engine::Layer::HOLD_PATH, holdStartCenter, segment.headTime / total_tm);
 
 				float spr_x1, spr_x2, spr_y1, spr_y2;
 				if (segment.isGuide) {
@@ -333,10 +329,17 @@ namespace MikuMikuWorld
 				else
 					renderer->drawQuad(vPos, model, pathTexture, spr_x1, spr_x2, spr_y1, spr_y2, defaultTint.scaleAlpha(alpha), zIndex);
 			}
+			
+			if (scaled_tm > segment.headTime && !holdStartNote.friction && context.score.holdNotes.at(holdStartNote.ID).startType == HoldNoteType::Normal) {
+				float t = unlerp(segment.headTime, segment.tailTime, scaled_tm);
+				float tempLeft = ease(startLeft, endLeft, t);
+				float tempRight = ease(startRight, endRight, t);
+				drawNoteBase(renderer, holdStartNote, tempLeft, tempRight, 1, segment.startTime / total_tm);
+			}
 		}
     }
 
-    void ScorePreviewWindow::drawNoteBase(const Note& note, float y, Renderer* renderer)
+    void ScorePreviewWindow::drawNoteBase(Renderer* renderer, const Note& note, float noteLeft, float noteRight, float y, float zScalar)
     {
 		const int NOTE_SIDE_WIDTH = 93;
 		if (noteTextures.notes == -1)
@@ -364,11 +367,10 @@ namespace MikuMikuWorld
 		const Transform& rTransform = ResourceManager::spriteTransform[transIndex];
 
 		const float noteHeight = Engine::getNoteHeight();
-		float noteLeft = Engine::laneToLeft(note.lane), noteRight = Engine::laneToLeft(note.lane) + note.width;
 		const float noteTop = 1. - noteHeight, noteBottom = 1. + noteHeight;
 		int zIndex = Engine::getZIndex(
 			!note.friction ? Engine::Layer::BASE_NOTE : Engine::Layer::TICK_NOTE,
-			Engine::getNoteCenter(note), y
+			noteLeft + (noteRight - noteLeft) / 2.f, y * zScalar
 		);
 
 		auto model = DirectX::XMMatrixScaling(y, y, 1.f);
@@ -395,7 +397,7 @@ namespace MikuMikuWorld
 		);
     }
 
-    void ScorePreviewWindow::drawTraceDiamond(const Note &note, float y, Renderer *renderer)
+    void ScorePreviewWindow::drawTraceDiamond(Renderer *renderer, const Note &note, float y)
     {
 		if (noteTextures.notes == -1)
 			return;
@@ -423,7 +425,7 @@ namespace MikuMikuWorld
 		renderer->drawQuad(vPos, model, texture, frictionSpr.getX1(), frictionSpr.getX2(), frictionSpr.getY1(), frictionSpr.getY2(), defaultTint, zIndex);
     }
 
-    void ScorePreviewWindow::drawFlickArrow(const Note &note, float y, float time, const Score &score, Renderer *renderer)
+    void ScorePreviewWindow::drawFlickArrow(Renderer *renderer, const Note &note, float y, float time)
     {
 		if (noteTextures.notes == -1)
 			return;

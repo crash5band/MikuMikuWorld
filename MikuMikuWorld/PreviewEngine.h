@@ -104,11 +104,15 @@ namespace MikuMikuWorld::Engine
     }
     static inline int getZIndex(Layer layer, float xOffset, float yOffset) {
         static_assert(sizeof(int) == sizeof(int32_t));
-        int32_t hhight = static_cast<int32_t>(layer) << 24;
-        yOffset = 1 - yOffset;
-        int32_t mid = static_cast<int32_t>((yOffset < 0.f ? 0.f : (yOffset <= 1.f ? yOffset : 1.f)) * float(UINT16_MAX) + 0.5f) << 8;
-        xOffset = (xOffset / 12.f) + 0.5f;
-        int32_t llow = static_cast<int32_t>((xOffset < 0.f ? 0.f : (xOffset < 1.f ? xOffset : 1.f)) * float(UINT8_MAX) + 0.5f);
-        return INT32_MAX - hhight - mid - llow;
+        // Implicitly clamp NaN to max value unlike normal clamp
+        const auto floatClamp = [](float value, float min, float max) { return value < min ? min : (value <= max ? value : max); };
+        const auto masknShift = [](int32_t value, int32_t mask, int offset) { return (value & mask) << offset; };
+        const int32_t mask24 = 0xFFFFFF, mask4 = 0x0F;
+        int32_t y = static_cast<int32_t>(floatClamp(1 - yOffset, 0, 1) * float(mask24) + 0.5f);
+        int32_t x = static_cast<int32_t>(floatClamp(xOffset / 12.f + 0.5f, 0, 1) * float(12) + 0.5f);
+        return INT32_MAX
+            - masknShift(static_cast<int32_t>(layer), mask4, 32 - 4)
+            - masknShift(y, mask24, 4)
+            - masknShift(x, mask4, 0);
     }
 }

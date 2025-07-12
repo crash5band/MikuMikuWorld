@@ -12,18 +12,18 @@ namespace MikuMikuWorld
 
 		const Texture& getNoteTexture();
 		
-		void drawNoteBase(const Note& note, float y, Renderer* renderer);
-		void drawTraceDiamond(const Note& note, float y, Renderer* renderer);
-		void drawFlickArrow(const Note& note, float y, float cur_time, const Score& score, Renderer* renderer);
+		void drawNoteBase(Renderer* renderer, const Note& note, float left, float right, float y, float zScalar = 1);
+		void drawTraceDiamond(Renderer* renderer, const Note& note, float y);
+		void drawFlickArrow(Renderer* renderer, const Note& note, float y, float cur_time);
 	public:
 		ScorePreviewWindow(); 
 		~ScorePreviewWindow();
 		void update(ScoreContext& context, Renderer* renderer);
 
-		void drawNotes(ScoreContext& context, Renderer* renderer);
-		void drawLines(ScoreContext& context, Renderer* renderer);
-		void drawHoldTicks(ScoreContext& context, Renderer* renderer);
-		void drawHoldCurves(ScoreContext& context, Renderer* renderer);
+		void drawNotes(const ScoreContext& context, Renderer* renderer);
+		void drawLines(const ScoreContext& context, Renderer* renderer);
+		void drawHoldTicks(const ScoreContext& context, Renderer* renderer);
+		void drawHoldCurves(const ScoreContext& context, Renderer* renderer);
 		void drawStage(Renderer* renderer);
 	};
 }
