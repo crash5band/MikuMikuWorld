@@ -10,7 +10,7 @@ using namespace nlohmann;
 namespace MikuMikuWorld
 {
 	ApplicationConfiguration config{};
-	constexpr const char* CONFIG_VERSION{ "1.12.0" };
+	constexpr const char* CONFIG_VERSION{ "1.13.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -76,6 +76,22 @@ namespace MikuMikuWorld
 			returnToLastSelectedTickOnPause = jsonIO::tryGetValue<bool>(config["timeline"], "return_to_last_tick_on_pause", false);
 			cursorPositionThreshold = jsonIO::tryGetValue<float>(config["timeline"], "cursor_position_threshold", 0.5f);
 			stopAtEnd = jsonIO::tryGetValue<bool>(config["timeline"], "stop_at_end", true);
+		}
+
+		if (jsonIO::keyExists(config, "preview"))
+		{
+			auto& previewObj = config["preview"];
+			pvLockAspectRatio = jsonIO::tryGetValue<bool>(previewObj, "lock_aspect_ratio", true);
+			pvMirrorScore = jsonIO::tryGetValue<bool>(previewObj, "mirror", false);
+			pvFlickAnimation = jsonIO::tryGetValue<bool>(previewObj, "marker_animation", true);
+			pvHoldAnimation = jsonIO::tryGetValue<bool>(previewObj, "hold_animation", true);
+			pvSimultaneousLine = jsonIO::tryGetValue<bool>(previewObj, "simultaneous_line", true);
+			pvNoteEffect = jsonIO::tryGetValue<bool>(previewObj, "note_effect", true);
+			pvLaneEffect = jsonIO::tryGetValue<bool>(previewObj, "lane_effect", true);
+			pvNoteGlow = jsonIO::tryGetValue<bool>(previewObj, "glow_effect", true);
+			pvNoteSpeed = jsonIO::tryGetValue<float>(previewObj, "note_speed", 6.0f);
+			pvHoldAlpha = jsonIO::tryGetValue<float>(previewObj, "hold_alpha", 1.f);
+			pvStageCover = jsonIO::tryGetValue<float>(previewObj, "stage_cover", 0.f);
 		}
 
 		if (jsonIO::keyExists(config, "theme"))
@@ -171,6 +187,20 @@ namespace MikuMikuWorld
 			{"stop_at_end", stopAtEnd}
 		};
 
+		config["preview"] = {
+			{"lock_aspect_ratio", pvLockAspectRatio},
+			{"mirror", pvMirrorScore},
+			{"marker_animation", pvFlickAnimation},
+			{"hold_animation", pvHoldAnimation},
+			{"simultaneous_line", pvSimultaneousLine},
+			{"note_effect", pvNoteEffect},
+			{"lane_effect", pvLaneEffect},
+			{"glow_effect", pvNoteGlow},
+			{"note_speed", pvNoteSpeed},
+			{"hold_alpha", pvHoldAlpha},
+			{"stage_cover", pvStageCover}
+		};
+
 		config["theme"] = {
 			{"accent_color", accentColor},
 			{"user_color",
@@ -253,6 +283,18 @@ namespace MikuMikuWorld
 		returnToLastSelectedTickOnPause = false;
 		hideStepOutlinesInPlayback = true;
 		stopAtEnd = true;
+
+		pvLockAspectRatio = true;
+		pvMirrorScore = false;
+		pvFlickAnimation = true;
+		pvSimultaneousLine = true;
+		pvHoldAnimation = true;
+		pvLaneEffect = true;
+		pvNoteEffect = true;
+		pvNoteGlow = true;
+		pvNoteSpeed = 6.0f;
+		pvHoldAlpha = 1.f;
+		pvStageCover = 0.f;
 
 		autoSaveEnabled = true;
 		autoSaveInterval = 5;

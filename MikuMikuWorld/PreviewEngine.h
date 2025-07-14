@@ -59,13 +59,9 @@ namespace MikuMikuWorld::Engine
         bool isGuide;
     };
 
-    struct PreviewConfiguration {
-        float noteSpeed = 6;
-    };
-
     struct DrawData {
+        float noteSpeed;
         int maxTicks;
-        PreviewConfiguration config;
         std::vector<DrawingNote> drawingNotes;
 		std::vector<DrawingLine> drawingLines;
         std::vector<DrawingHoldTick> drawingHoldTicks;
