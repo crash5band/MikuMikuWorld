@@ -85,11 +85,15 @@ namespace Audio
 		
 		for (size_t index = 0; index < soundEffectsProfileCount; index++)
 		{
-			std::string path = IO::formatString("%s%s%02d\\", mmw::Application::getAppDir().c_str(), "res\\sound\\", index + 1);			
+			std::string path = IO::File::pathConcat(mmw::Application::getResDir(), "sound", IO::formatString("%02d", index + 1), "");
 			for (size_t i = 0; i < soundEffectsCount; ++i)
 				sounds[index].pool.emplace(std::move(SoundPoolPair(mmw::SE_NAMES[i], std::make_unique<SoundPool>())));
-			
+
+#if defined(_WIN32)
 			std::for_each(std::execution::par, sounds[index].pool.begin(), sounds[index].pool.end(), [&](auto& s)
+#else
+			std::for_each(sounds[index].pool.begin(), sounds[index].pool.end(), [&](auto& s)
+#endif
 			{
 				std::string filename = path + s.first.data() + ".mp3";
 				size_t soundNameIndex = mmw::findArrayItem(s.first.data(), mmw::SE_NAMES, mmw::arrayLength(mmw::SE_NAMES));
@@ -104,7 +108,11 @@ namespace Audio
 				SoundInstance& debugSound = debugSounds[soundNameIndex + (index * soundEffectsCount)];
 				debugSound.name = name;
 
+#if defined(_WIN32)
 				ma_sound_init_from_file_w(&engine, IO::mbToWideStr(filename).c_str(), maSoundFlagsDecodeAsync, &soundEffectsGroup, nullptr, &debugSound.source);
+#else
+				ma_sound_init_from_file(&engine, filename.c_str(), maSoundFlagsDecodeAsync, &soundEffectsGroup, nullptr, &debugSound.source);
+#endif
 			});
 
 			// Adjust hold SE loop times for gapless playback

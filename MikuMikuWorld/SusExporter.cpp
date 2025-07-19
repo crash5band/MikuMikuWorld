@@ -287,7 +287,7 @@ namespace MikuMikuWorld
 			std::string errorMessage = IO::formatString("Too many BPM changes!\nNumber of unique identifiers (%l) exceeded limit (%l)", bpmIdentifiers.size(), maxBpmIdentifiers);
 			printf("%s", errorMessage.c_str());
 
-			throw std::exception(errorMessage.c_str());
+			throw std::runtime_error(errorMessage.c_str());
 		}
 
 		// Group bpms by measure

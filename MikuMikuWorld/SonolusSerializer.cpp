@@ -231,7 +231,7 @@ namespace MikuMikuWorld
 
 		json slideStartEntities{};
 		std::copy_if(entities.begin(), entities.end(), std::back_inserter(slideStartEntities), [](const auto& e) {
-			return IO::endsWith(e["archetype"], "SlideTraceNote") || IO::endsWith(e["archetype"], "SlideStartNote");
+			return IO::endsWith(static_cast<std::string>(e["archetype"]), "SlideTraceNote") || IO::endsWith(static_cast<std::string>(e["archetype"]), "SlideStartNote");
 		});
 
 		for (const auto& timescale : timescaleEntities)

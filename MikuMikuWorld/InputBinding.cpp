@@ -87,6 +87,18 @@ static constexpr ImGuiKeyInfo imguiKeysTable[] =
 	{ ImGuiKey_F10, 			"F10", "F10" },
 	{ ImGuiKey_F11, 			"F11", "F11" },
 	{ ImGuiKey_F12,				"F12", "F12" },
+	{ ImGuiKey_F13,				"F13", "F13" },
+	{ ImGuiKey_F14,				"F14", "F14" },
+	{ ImGuiKey_F15,				"F15", "F15" },
+	{ ImGuiKey_F16,				"F16", "F16" },
+	{ ImGuiKey_F17,				"F17", "F17" },
+	{ ImGuiKey_F18,				"F18", "F18" },
+	{ ImGuiKey_F19,				"F19", "F19" },
+	{ ImGuiKey_F20,				"F20", "F20" },
+	{ ImGuiKey_F21,				"F21", "F21" },
+	{ ImGuiKey_F22,				"F22", "F22" },
+	{ ImGuiKey_F23,				"F23", "F23" },
+	{ ImGuiKey_F24,				"F24", "F24" },
 	{ ImGuiKey_Apostrophe,		"Apostrophe", "'"},       // '
 	{ ImGuiKey_Comma,           "Comma", "," },           // ,
 	{ ImGuiKey_Minus,           "Minus", "-" },           // -
@@ -120,6 +132,8 @@ static constexpr ImGuiKeyInfo imguiKeysTable[] =
 	{ ImGuiKey_KeypadAdd,		"KeypadAdd", "Keypad Add" },
 	{ ImGuiKey_KeypadEnter,		"KeypadEnter", "Keypad Enter" },
 	{ ImGuiKey_KeypadEqual,		"KeypadEqual", "Keypad Equal" },
+	{ ImGuiKey_AppBack,			"AppBack", "App Back" },
+	{ ImGuiKey_AppForward,		"AppForward", "App Forward" },
 
 	{ ImGuiMod_Ctrl,			"Ctrl", "Ctrl" },
 	{ ImGuiMod_Shift,		"Shift", "Shift" },
@@ -132,14 +146,14 @@ static constexpr ImGuiKeyInfo GetImGuiKeyInfo(ImGuiKey key)
 	if (key == ImGuiKey_None)
 		return { key, "None", "" };
 	else if (key == ImGuiMod_Ctrl) // not very elegant but will do for now
-		return imguiKeysTable[105];
+		return imguiKeysTable[119];
 	else if (key == ImGuiMod_Shift)
-		return imguiKeysTable[106];
+		return imguiKeysTable[120];
 	else if (key == ImGuiMod_Alt)
-		return imguiKeysTable[107];
+		return imguiKeysTable[121];
 	else if (key == ImGuiMod_Super)
-		return imguiKeysTable[108];
-	else if (key < ImGuiKey_NamedKey_BEGIN || key > ImGuiMod_Super || (key > ImGuiKey_KeypadEqual && key < ImGuiMod_Ctrl))
+		return imguiKeysTable[122];
+	else if (key < ImGuiKey_NamedKey_BEGIN || key > ImGuiMod_Super || (key > ImGuiKey_AppForward && key < ImGuiMod_Ctrl))
 		return { key, "Unknown", "Unknown" };
 
 	return imguiKeysTable[key - ImGuiKey_NamedKey_BEGIN];
@@ -176,7 +190,12 @@ const char* ToShortcutString(ImGuiKey key, ImGuiModFlags_ mods)
 	{
 		strcat(keyInfoNameBuffer, GetImGuiKeyInfo(ImGuiMod_Alt).displayName);
 		strcat(keyInfoNameBuffer, " + ");
-	};
+	}
+	if (mods & ImGuiModFlags_Super)
+	{
+		strcat(keyInfoNameBuffer, GetImGuiKeyInfo(ImGuiMod_Super).displayName);
+		strcat(keyInfoNameBuffer, " + ");
+	}
 
 	strcat(keyInfoNameBuffer, GetImGuiKeyInfo(key).displayName);
 	return keyInfoNameBuffer;
@@ -193,6 +212,7 @@ std::string ToSerializedString(const InputBinding& binding)
 	if (binding.keyModifiers & ImGuiModFlags_Ctrl) string.append(GetImGuiKeyInfo(ImGuiMod_Ctrl).name).append(" + ");
 	if (binding.keyModifiers & ImGuiModFlags_Shift) string.append(GetImGuiKeyInfo(ImGuiMod_Shift).name).append(" + ");
 	if (binding.keyModifiers & ImGuiModFlags_Alt) string.append(GetImGuiKeyInfo(ImGuiMod_Alt).name).append(" + ");
+	if (binding.keyModifiers & ImGuiModFlags_Super) string.append(GetImGuiKeyInfo(ImGuiMod_Super).name).append(" + ");
 
 	return string.append(GetImGuiKeyInfo((ImGuiKey)binding.keyCode).name);
 }
@@ -223,7 +243,7 @@ InputBinding FromSerializedString(std::string string)
 
 	InputBinding binding{ ImGuiKey_None, ImGuiModFlags_None };
 
-	const std::array<int, 4> modIndices = { 105, 106, 107, 108 };
+	const std::array<int, 4> modIndices = { 119, 120, 121, 122 };
 
 	// case insensitive comparison
 	auto stringCompare = [](char a, char b) { return std::tolower(a) == std::tolower(b); };

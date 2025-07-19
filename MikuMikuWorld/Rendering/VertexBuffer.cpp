@@ -1,5 +1,5 @@
 #include "VertexBuffer.h"
-#include "glad/glad.h"
+#include <GLES3/gl3.h>
 #include <cstddef>
 
 namespace MikuMikuWorld

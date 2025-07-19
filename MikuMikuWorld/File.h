@@ -2,6 +2,15 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <filesystem>
+
+#if defined(_WIN32)
+const char PATH_SEPARATOR = '\\';
+#else
+const char PATH_SEPARATOR = '/';
+#endif
+
+namespace fs = std::filesystem;
 
 namespace IO
 {
@@ -20,13 +29,31 @@ namespace IO
 		static std::string getFileExtension(const std::string& filename);
 		static std::string getFilenameWithoutExtension(const std::string& filename);
 		static std::string getFullFilenameWithoutExtension(const std::string& filename);
-		static std::wstring getFullFilenameWithoutExtension(const std::wstring& filename);
 		static std::string getFilepath(const std::string& filename);
 		static std::string fixPath(const std::string& path);
+		template<typename... Args>
+		static std::string pathConcat(const Args&... args)
+		{
+			std::vector<std::string> parts{ args... };
+			std::string result;
+			for (const auto& part : parts) {
+				if (!result.empty() && result.back() != PATH_SEPARATOR)
+				{
+					result += PATH_SEPARATOR;
+				}
+				result += part;
+			}
+			return result;
+		}
 		static bool exists(const std::string& path);
+		static bool createDirectory(const std::string& path);
+		static bool copyFile(const std::string& from, const std::string& to);
+		static bool remove(const std::string& path);
+		static fs::directory_iterator directoryIterator(const std::string& path);
+		static std::ifstream ifstream(const std::string& path);
+		static std::ofstream ofstream(const std::string& path);
 
 		void open(const std::string& filename, FileMode mode);
-		void open(const std::wstring& filename, FileMode mode);
 		void close();
 		void flush();
 
@@ -41,16 +68,13 @@ namespace IO
 		bool isEndofFile();
 
 		std::string_view getOpenFilename() const { return openFilename; }
-		std::wstring_view getOpenFilenameW() const { return openFilenameW; }
 
 		File(const std::string& filename, FileMode mode);
-		File(const std::wstring& filename, FileMode mode);
 		~File();
 
 	private:
 		std::unique_ptr<std::fstream> stream{};
 		std::string openFilename{};
-		std::wstring openFilenameW{};
 
 		int getStreamMode(FileMode) const;
 	};

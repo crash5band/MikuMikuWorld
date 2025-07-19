@@ -1,19 +1,26 @@
 #pragma once
 
 #define IMGUI_DEFINE_MATH_OPERATORS
-#define NOMINMAX
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
+#if defined(_WIN32)
 #define GLFW_EXPOSE_NATIVE_WIN32
+#elif defined(__APPLE__)
+#define GLFW_EXPOSE_NATIVE_COCOA
+#endif
+#define GLFW_EXPOSE_NATIVE_EGL
+#define GLFW_INCLUDE_ES3
+#include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
 #include "ScoreEditor.h"
 #include "ImGuiManager.h"
-#include <Windows.h>
 
+#if defined(_WIN32)
+#include <Windows.h>
 LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+#elif defined(__APPLE__)
+#include "Mac.h"
+#endif
 
 namespace MikuMikuWorld
 {
@@ -33,7 +40,9 @@ namespace MikuMikuWorld
 		void* windowHandle{ 0 };
 		Vector2 position{};
 		Vector2 size{};
+#if defined(_WIN32)
 		UINT_PTR windowTimerId{};
+#endif
 	};
 
 	class Application
@@ -52,6 +61,7 @@ namespace MikuMikuWorld
 
 		static std::string version;
 		static std::string appDir;
+		static std::string resDir;
 
 		Result initOpenGL();
 		std::string getVersion();
@@ -62,7 +72,7 @@ namespace MikuMikuWorld
 
 		Application();
 
-		Result initialize(const std::string& root);
+		Result initialize(const std::string& root, const std::string& res);
 		void run();
 		void update();
 		void appendOpenFile(const std::string& filename);
@@ -77,6 +87,7 @@ namespace MikuMikuWorld
 		GLFWwindow* getGlfwWindow() { return window; }
 
 		static const std::string& getAppDir();
+		static const std::string& getResDir();
 		static const std::string& getAppVersion();
 	};
 }
