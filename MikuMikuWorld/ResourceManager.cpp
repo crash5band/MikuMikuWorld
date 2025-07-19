@@ -70,7 +70,8 @@ namespace MikuMikuWorld
 		if (txt.empty())
 			return;
 		// Remove comments
-		for(size_t pos, end; (pos = txt.find('#')) != std::string::npos; ) {
+		for(size_t pos, end; (pos = txt.find('#')) != std::string::npos; )
+		{
 			end = txt.find('\n', pos);
 			if (end != std::string::npos)
 				txt.erase(pos, end - pos + 1);
@@ -79,14 +80,17 @@ namespace MikuMikuWorld
 		}
 		std::stringstream ss(txt);
 		float value;
-		while(ss >> value) {
+		while(ss >> value)
+		{
 			transform[idx++] = value;
-			if (idx >= std::size(transform)) {
+			if (idx >= std::size(transform))
+			{
 				idx = 0;
 				spriteTransform.push_back(transform);
 			}
 		}
-		if (!ss.eof()) {
+		if (!ss.eof())
+		{
 			ss.clear();
 			auto invalid_pos = ss.tellg();
 			char invalid = ss.get();
@@ -95,7 +99,8 @@ namespace MikuMikuWorld
 				"Unexpected characters '%c' at position %ld while reading \"%s\"\n", invalid, (long)invalid_pos, filename.c_str());
 			throw std::runtime_error(msg);
 		}
-		if (idx != 0) {
+		if (idx != 0)
+		{
 			throw std::runtime_error(
 				"ResourceManager::loadTransform.\n"
 				"Incompleted transform declaration!\n"

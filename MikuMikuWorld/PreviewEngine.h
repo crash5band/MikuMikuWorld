@@ -7,7 +7,8 @@
 namespace MikuMikuWorld::Engine
 {
 
-    enum class SpriteType: int {
+    enum class SpriteType: int
+    {
         NoteLeft,
         NoteMiddle,
         NoteRight,
@@ -18,7 +19,8 @@ namespace MikuMikuWorld::Engine
         HoldTick
     };
 
-    enum class Layer : uint8_t {
+    enum class Layer : uint8_t
+    {
         FLICK_ARROW,
         DIAMOND,
         BASE_NOTE,
@@ -28,28 +30,38 @@ namespace MikuMikuWorld::Engine
         
     };
 
-    struct Range {
+    struct Range
+    {
         float min;
         float max;
     };
 
-    struct DrawingNote {
+    class Particle
+    {
+        
+    };
+
+    struct DrawingNote
+    {
         int refID;
         Range visualTime;
     };
 
-    struct DrawingLine {
+    struct DrawingLine
+    {
         Range xPos;
         Range visualTime;
     };
 
-    struct DrawingHoldTick {
+    struct DrawingHoldTick
+    {
         int refID;
         float center;
         Range visualTime;
     };
 
-    struct DrawingHoldSegment {
+    struct DrawingHoldSegment
+    {
         int endID;
         int headID, tailID;
         float headTime;
@@ -59,7 +71,8 @@ namespace MikuMikuWorld::Engine
         bool isGuide;
     };
 
-    struct DrawData {
+    struct DrawData
+    {
         float noteSpeed;
         int maxTicks;
         std::vector<DrawingNote> drawingNotes;
@@ -74,31 +87,52 @@ namespace MikuMikuWorld::Engine
     Range getNoteVisualTime(Note const& note, Score const& score, float noteSpeed);
 
     /// General helper functions for fixed values in the engine
-    static inline float getNoteDuration(float noteSpeed) {
+    static inline float getNoteDuration(float noteSpeed)
+    {
         return lerp(0.35, 4.f, std::pow(unlerp(12, 1, noteSpeed), 1.31f));
     }
-    static inline float approach(float start_time, float end_time, float current_time) {
+    static inline float approach(float start_time, float end_time, float current_time)
+    {
         return std::pow(1.06, 45 * lerp(-1, 0, unlerp(start_time, end_time, current_time)));
     }
-    static inline float getStageStart(float height) {
-        return height * (0.5 + 1.15875 * (47.f / 1176));
-    }
-    static inline float getStageEnd(float height) {
-        return height * (0.5 - 1.15875 * (803. / 1176));
-    }
-    static inline float getLaneWidth(float width) {
-        return width * ((1.15875 * (1420. / 1176)) / (16. / 9) / 12.);
-    }
-    static inline float laneToLeft(float lane) {
+    inline constexpr float STAGE_LANE_TOP = 47;
+    inline constexpr float STAGE_LANE_BOTTOM = 803;
+    inline constexpr float STAGE_LANE_HEIGHT = 850;
+    inline constexpr float STAGE_LANE_WIDTH = 1420;
+    inline constexpr float STAGE_NUM_LANES = 12;
+    inline constexpr float STAGE_TEX_WIDTH = 2048;
+    inline constexpr float STAGE_TEX_HEIGHT = 1176;
+    inline constexpr float STAGE_NOTE_HEIGHT = 75;
+    inline constexpr float STAGE_TARGET_WIDTH = 1920;
+    inline constexpr float STAGE_TARGET_HEIGHT = 1080;
+    inline constexpr float STAGE_ASPECT_RATIO = STAGE_TARGET_WIDTH / STAGE_TARGET_HEIGHT;
+    inline constexpr float STAGE_ZOOM = 927 / 800.f; // Magic value
+    inline constexpr float BACKGROUND_SIZE = 2462.25;
+
+    // Scale the screen width such that 1 unit correspond to 1 lane 
+    inline constexpr float STAGE_WIDTH_RATIO =
+        Engine::STAGE_ZOOM * Engine::STAGE_LANE_WIDTH / (Engine::STAGE_TEX_HEIGHT * Engine::STAGE_ASPECT_RATIO) / Engine::STAGE_NUM_LANES;
+    // Scale the screen height such that 1 unit correspond to the stage height
+    inline constexpr float STAGE_HEIGHT_RATIO =
+        Engine::STAGE_ZOOM * Engine::STAGE_LANE_HEIGHT / Engine::STAGE_TEX_HEIGHT;
+    // Shift the stage up to align with the stage texture and make the top of the screen is 1
+    inline constexpr float STAGE_TOP_RATIO = 
+        0.5f + Engine::STAGE_ZOOM * Engine::STAGE_LANE_TOP / Engine::STAGE_TEX_HEIGHT;
+
+    static inline float laneToLeft(float lane)
+    {
         return lane - 6;
     }
-    static inline float getNoteCenter(Note const& note) {
+    static inline float getNoteCenter(Note const& note)
+    {
         return laneToLeft(note.lane) + note.width / 2.f; 
     }
-    static inline float getNoteHeight() {
-        return 75. / 850. / 2.;
+    static inline float getNoteHeight()
+    {
+        return STAGE_NOTE_HEIGHT / STAGE_LANE_HEIGHT / 2.f;
     }
-    static inline int getZIndex(Layer layer, float xOffset, float yOffset) {
+    static inline int getZIndex(Layer layer, float xOffset, float yOffset)
+    {
         static_assert(sizeof(int) == sizeof(int32_t));
         // Implicitly clamp NaN to max value unlike normal clamp
         const auto floatClamp = [](float value, float min, float max) { return value < min ? min : (value <= max ? value : max); };

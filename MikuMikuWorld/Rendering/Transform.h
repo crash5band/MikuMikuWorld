@@ -4,7 +4,8 @@
 
 namespace DirectX 
 {
-    inline bool XMMatrixIsNull(FXMMATRIX M) {
+    inline bool XMMatrixIsNull(FXMMATRIX M)
+    {
         XMVECTOR zero = XMVectorZero();
         return  XMVector4Equal(M.r[0], zero) &&
                 XMVector4Equal(M.r[1], zero) &&

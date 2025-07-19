@@ -1,6 +1,8 @@
 #pragma once
-#include <DirectXMath.h>
+#include <GLES3/gl3.h>
+#include <cstddef>
 #include <array>
+#include <DirectXMath.h>
 
 namespace MikuMikuWorld
 {
@@ -11,11 +13,56 @@ namespace MikuMikuWorld
 		DirectX::XMVECTOR uv;
 	};
 
+	struct MaskVertex
+	{
+		DirectX::XMVECTOR position;
+		DirectX::XMVECTOR color;
+		DirectX::XMVECTOR uvBase;
+		DirectX::XMVECTOR uvMask;
+	};
+
+	template<typename T>
+	struct VertexLayout;
+
+	template<>
+	struct VertexLayout<Vertex> {
+		static inline void setup()
+		{
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+
+			glEnableVertexAttribArray(2);
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+		}
+	};
+
+	template<>
+	struct VertexLayout<MaskVertex> {
+		static inline void setup()
+		{
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MaskVertex), (void*)offsetof(MaskVertex, position));
+
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(MaskVertex), (void*)offsetof(MaskVertex, color));
+
+			glEnableVertexAttribArray(2);
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(MaskVertex), (void*)offsetof(MaskVertex, uvBase));
+
+			glEnableVertexAttribArray(3);
+			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(MaskVertex), (void*)offsetof(MaskVertex, uvMask));
+		}
+	};
+
+	template<typename VertexType>
 	struct Quad
 	{
 		int zIndex;
 		int texture;
-		Vertex vertices[4];
+		VertexType vertices[4];
 
 		Quad() : zIndex{ 0 }, texture{ 0 }
 		{
@@ -26,24 +73,9 @@ namespace MikuMikuWorld
 
 		}
 
-		Quad(const std::array<Vertex, 4>& v, const DirectX::XMMATRIX& m, int tex, int z = 0)
+		Quad(const std::array<VertexType, 4>& v, const DirectX::XMMATRIX& m, int tex, int z = 0)
 		{
-			vertices[0].position = v[0].position;
-			vertices[0].color = v[0].color;
-			vertices[0].uv = v[0].uv;
-
-			vertices[1].position = v[1].position;
-			vertices[1].color = v[1].color;
-			vertices[1].uv = v[1].uv;
-
-			vertices[2].position = v[2].position;
-			vertices[2].color = v[2].color;
-			vertices[2].uv = v[2].uv;
-
-			vertices[3].position = v[3].position;
-			vertices[3].color = v[3].color;
-			vertices[3].uv = v[3].uv;
-
+			std::copy(v.begin(), v.end(), vertices);
 			texture = tex;
 			zIndex = z;
 		}

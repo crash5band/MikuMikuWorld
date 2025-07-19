@@ -768,7 +768,7 @@ namespace MikuMikuWorld
 
 		Shader* shader = ResourceManager::shaders[0];
 		shader->use();
-		shader->setMatrix4("projection", Camera::getOffCenterOrthographicProjection(0, size.x, position.y, position.y + size.y));
+		shader->setMatrix4("projection", Camera::getOffCenterOrthographicProjection(0, size.x, position.y + size.y, position.y));
 
 		slidePathFramebuffer->bind();
 		slidePathFramebuffer->clear();

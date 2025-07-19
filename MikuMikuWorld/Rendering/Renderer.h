@@ -20,8 +20,12 @@ namespace MikuMikuWorld
 		size_t numQuads{};
 		size_t numBatchQuads{};
 
-		VertexBuffer vBuffer;
-		std::vector<Quad> quads;
+		VertexBuffer<Vertex> vBuffer;
+		std::vector<Quad<Vertex>> quads;
+
+		VertexBuffer<MaskVertex> mvBuffer;
+		std::vector<Quad<MaskVertex>> mQuads;
+
 		std::array<DirectX::XMFLOAT4, 4> vPos;
 		std::array<DirectX::XMFLOAT4, 4> uvCoords;
 
@@ -54,6 +58,9 @@ namespace MikuMikuWorld
 		void pushQuad(const std::array<DirectX::XMFLOAT4, 4>& pos, const std::array<DirectX::XMFLOAT4, 4>& uv,
 			const DirectX::XMMATRIX& m, const DirectX::XMFLOAT4& col, int tex, int z);
 
+		void pushQuadMasked(const std::array<DirectX::XMFLOAT4, 4>& pos, const std::array<DirectX::XMFLOAT4, 4>& UV, const std::array<DirectX::XMFLOAT4, 4>& maskUV,
+			const DirectX::XMFLOAT4& col, int tex, int maskTex);
+
 		void bindTexture(int tex);
 		void beginBatch();
 		void endBatch();
@@ -62,7 +69,8 @@ namespace MikuMikuWorld
 		inline int getNumQuads() const { return numBatchQuads; }
 	};
 
-	std::array<DirectX::XMFLOAT4, 4> orthogQuadvPos(float left, float right, float top, float bottom);
+	std::array<DirectX::XMFLOAT4, 4> quadvPos(float left, float right, float top, float bottom);
 	std::array<DirectX::XMFLOAT4, 4> perspectiveQuadvPos(float left, float right, float top, float bottom);
 	std::array<DirectX::XMFLOAT4, 4> perspectiveQuadvPos(float leftStart, float leftStop, float rightStart, float rightStop, float top, float bottom);
+	std::array<DirectX::XMFLOAT4, 4> quadUV(const Sprite& sprite, const Texture& texture);
 }

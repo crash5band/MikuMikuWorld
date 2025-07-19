@@ -53,12 +53,14 @@ namespace MikuMikuWorld
 		return total;
 	}
 
-	float accumulateScaledDuration(int tick, int ticksPerBeat, const std::vector<Tempo>& bpms, const std::vector<HiSpeedChange>& hispeeds) {
+	float accumulateScaledDuration(int tick, int ticksPerBeat, const std::vector<Tempo>& bpms, const std::vector<HiSpeedChange>& hispeeds)
+	{
 		int prvBpm = 0, prvSpd = -1;
 		int accTicks = 0;
 		float totalDuration = 0;
 
-		while (accTicks < tick) {
+		while (accTicks < tick)
+		{
 			int nxtBpmTick = prvBpm + 1 < bpms.size() ? bpms[prvBpm + 1].tick : INT32_MAX;
 			int nxtSpdTick = prvSpd + 1 < hispeeds.size() ? hispeeds[prvSpd + 1].tick : INT32_MAX;
 			int nxtTick = std::min({nxtBpmTick, nxtSpdTick, tick});

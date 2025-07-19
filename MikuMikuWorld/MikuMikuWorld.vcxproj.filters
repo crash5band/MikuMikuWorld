@@ -59,9 +59,6 @@
     <ClCompile Include="Rendering\Shader.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\VertexBuffer.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="UI.cpp">
       <Filter>UI</Filter>
     </ClCompile>
@@ -466,5 +463,10 @@
     <Image Include="mmw_icon.ico">
       <Filter>Resources</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Rendering\VertexBuffer.inl">
+      <Filter>Rendering</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -3,10 +3,11 @@
 
 namespace MikuMikuWorld
 {
+	template<typename VertexType>
 	class VertexBuffer
 	{
 	private:
-		Vertex* buffer;
+		VertexType* buffer;
 		int* indices;
 		int indexCapacity;
 		int vertexCapcity;
@@ -23,11 +24,14 @@ namespace MikuMikuWorld
 		void setup();
 		void dispose();
 		void bind() const;
-		void pushBuffer(const Quad& q);
+		void pushBuffer(const Quad<VertexType>& q);
 		void resetBufferPos();
 		void uploadBuffer();
 		void flushBuffer();
+		void flushBuffer(int bufPos, int bufSize);
 		int getCapacity() const;
 		int getSize() const;
 	};
 }
+
+#include "VertexBuffer.inl"

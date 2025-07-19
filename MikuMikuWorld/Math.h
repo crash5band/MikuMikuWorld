@@ -79,7 +79,8 @@ namespace MikuMikuWorld
 	float midpoint(float x1, float x2);
 	bool isWithinRange(float x, float left, float right);
 	template <typename T, typename cmp_t = std::less<T>>
-	inline const T& clamp(const T& v, const T& a, const T& b) {
+	inline const T& clamp(const T& v, const T& a, const T& b)
+	{
 		cmp_t cmp;
 		if (cmp(v, a))
 			return a;

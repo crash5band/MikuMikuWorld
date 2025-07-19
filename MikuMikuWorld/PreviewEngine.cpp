@@ -6,12 +6,14 @@
 
 namespace MikuMikuWorld::Engine
 {
-	Range getNoteVisualTime(Note const& note, Score const& score, float noteSpeed) {
+	Range getNoteVisualTime(Note const& note, Score const& score, float noteSpeed)
+	{
 		float targetTime = accumulateScaledDuration(note.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
 		return {targetTime - getNoteDuration(noteSpeed), targetTime};
 	}
 
-	struct TargetTimeComparer {
+	struct TargetTimeComparer
+	{
 		bool operator()(const Range& a, const Range& b) const
 		{
 			return a.max < b.max;
@@ -25,7 +27,8 @@ namespace MikuMikuWorld::Engine
 		{
 			this->noteSpeed = config.pvNoteSpeed;
 			std::map<Range, Range, TargetTimeComparer> simBuilder;
-			for (auto rit = score.notes.rbegin(), rend = score.notes.rend(); rit != rend; rit++) {
+			for (auto rit = score.notes.rbegin(), rend = score.notes.rend(); rit != rend; rit++)
+			{
 				auto& [id, note] = *rit;
 				maxTicks = std::max(note.tick, maxTicks);
 				NoteType type = note.getType();
@@ -34,7 +37,8 @@ namespace MikuMikuWorld::Engine
 					hidden = score.holdNotes.at(id).startType != HoldNoteType::Normal;
 				else if (type == NoteType::HoldEnd)
 					hidden = score.holdNotes.at(note.parentID).endType != HoldNoteType::Normal;
-				if (!hidden && type != NoteType::HoldMid) {
+				if (!hidden && type != NoteType::HoldMid)
+				{
 					auto visual_tm = getNoteVisualTime(note, score, noteSpeed);
 					drawingNotes.push_back(DrawingNote{note.ID, visual_tm});
 
@@ -52,20 +56,24 @@ namespace MikuMikuWorld::Engine
 				}
 			}
 
-			for (const auto& [visual_tm, x_range] : simBuilder) {
+			for (const auto& [visual_tm, x_range] : simBuilder)
+			{
 				if (x_range.min != x_range.max)
 					drawingLines.push_back(DrawingLine{x_range, visual_tm});
 			}
 
 			std::stack<HoldStep const*> skipStepIDs;
 			float noteDuration = getNoteDuration(noteSpeed);
-			for (auto rit = score.holdNotes.rbegin(), rend = score.holdNotes.rend(); rit != rend; rit++) {
+			for (auto rit = score.holdNotes.rbegin(), rend = score.holdNotes.rend(); rit != rend; rit++)
+			{
 				auto& [id, holdNote] = *rit;
 				const Note& startNote = score.notes.at(holdNote.start.ID), endNote = score.notes.at(holdNote.end);
 				float start_tm = accumulateDuration(startNote.tick, TICKS_PER_BEAT, score.tempoChanges);
 				auto it = holdNote.steps.begin(), end = holdNote.steps.end();
-				for (const HoldStep* head = &holdNote.start, *tail; head != nullptr; head = tail, ++it) {
-					while (it != end && it->type == HoldStepType::Skip) {
+				for (const HoldStep* head = &holdNote.start, *tail; head != nullptr; head = tail, ++it)
+				{
+					while (it != end && it->type == HoldStepType::Skip)
+					{
 						skipStepIDs.push(&(*it));
 						++it;
 					}
@@ -85,7 +93,8 @@ namespace MikuMikuWorld::Engine
 						holdNote.isGuide(),
 					});
 
-					while(skipStepIDs.size()) {
+					while(skipStepIDs.size())
+					{
 						const HoldStep& skipStep = *skipStepIDs.top();
 						const Note& skipNote = score.notes.at(skipStep.ID);
 						float step_scaled_tm = accumulateScaledDuration(skipNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
@@ -104,7 +113,8 @@ namespace MikuMikuWorld::Engine
 						});
 						skipStepIDs.pop();
 					}
-					if (tail && tail->type != HoldStepType::Hidden) {
+					if (tail && tail->type != HoldStepType::Hidden)
+					{
 						float tick_scaled_tm = accumulateScaledDuration(tailNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
 						drawingHoldTicks.push_back(DrawingHoldTick{
 							tailNote.ID,
@@ -121,7 +131,8 @@ namespace MikuMikuWorld::Engine
 		}
 	}
 
-	void DrawData::clear() {
+	void DrawData::clear()
+	{
 		drawingLines.clear();
 		drawingNotes.clear();
 		drawingHoldTicks.clear();

@@ -205,7 +205,6 @@
     <ClCompile Include="Rendering\Shader.cpp" />
     <ClCompile Include="Rendering\Texture.cpp" />
     <ClCompile Include="Rendering\Transform.cpp" />
-    <ClCompile Include="Rendering\VertexBuffer.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Score.cpp" />
     <ClCompile Include="ScoreContext.cpp" />
@@ -305,6 +304,9 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MikuMikuWorld.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Rendering\VertexBuffer.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -131,8 +131,11 @@ namespace MikuMikuWorld
 		config.windowSize = windowState.size;
 		config.userColor = Color::fromImVec4(UI::accentColors[0]);
 
-		editor->writeSettings();
-		config.write(appDir + APP_CONFIG_FILENAME);
+		if (editor)
+		{
+			editor->writeSettings();
+			config.write(appDir + APP_CONFIG_FILENAME);
+		}
 	}
 
 	void Application::appendOpenFile(const std::string& filename)
@@ -320,6 +323,7 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(texturesDir + "timeline_tools.png");
 		ResourceManager::loadTexture(texturesDir + "note_stats.png");
 		ResourceManager::loadTexture(texturesDir + "stage.png");
+		ResourceManager::loadTexture(texturesDir + "particles.png");
 
 		ResourceManager::loadTransform(texturesDir + "transform.txt");
 
