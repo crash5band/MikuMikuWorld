@@ -22,6 +22,7 @@ namespace IO
 		size_t getStreamPosition();
 
 		void seek(size_t pos);
+		void writeInt16(uint16_t data);
 		void writeInt32(uint32_t data);
 		void writeSingle(float data);
 		void writeString(std::string data);

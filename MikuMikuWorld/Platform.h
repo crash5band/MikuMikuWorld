@@ -15,6 +15,7 @@
 
 #define MMW_LINUX
 #include "unistd.h"
+#include <cstring>
 #include <cstdio>
 #include <cstdint>
 #include <string>
@@ -45,4 +46,47 @@ namespace Platform {
 	std::vector<std::string> GetCommandLineArgs();
 	std::string GetConfigPath(const std::string& app_root);
 	std::string GetResourcePath(const std::string& app_root);
+
+	namespace Bit {
+		static inline bool IsLittleEndian() {
+			#ifdef MMW_WINDOWS
+			return true;
+			#else
+			return __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__;
+			#endif
+		}
+		static inline uint16_t ByteSwap16(uint16_t x)
+		{
+			#ifdef MMW_WINDOWS
+			return _byteswap_ushort(x);
+			#else
+			return __builtin_bswap16(x);
+			#endif
+		}
+		static inline uint32_t ByteSwap32(uint32_t x)
+		{
+			#ifdef MMW_WINDOWS
+			return _byteswap_ulong(x);
+			#else
+			return __builtin_bswap32(x);;
+			#endif
+		}
+		static inline uint64_t ByteSwap64(uint64_t x)
+		{
+			#ifdef MMW_WINDOWS
+			return _byteswap_uint64(x);
+			#else
+			return __builtin_bswap64(x);;
+			#endif
+		}
+		static inline float ByteSwapf32(float f)
+		{
+			static_assert(sizeof(float) == sizeof(uint32_t), "Unexpected float format");
+			uint32_t asInt;
+			std::memcpy(&asInt, reinterpret_cast<const void *>(&f), sizeof(uint32_t));
+			asInt = ByteSwap32(asInt);
+			std::memcpy(&f, reinterpret_cast<void *>(&asInt), sizeof(float));
+			return f;
+		}
+	}
 }

@@ -56,23 +56,41 @@ namespace IO
 			fseek(stream, pos, SEEK_SET);
 	}
 
+	void BinaryWriter::writeInt16(uint16_t data)
+	{
+		if (!Platform::Bit::IsLittleEndian())
+			data = Platform::Bit::ByteSwap16(data);
+		if (stream)
+			fwrite(&data, sizeof(uint16_t), 1, stream);
+	}
+
 	void BinaryWriter::writeInt32(uint32_t data)
 	{
+		if (!Platform::Bit::IsLittleEndian())
+			data = Platform::Bit::ByteSwap32(data);
 		if (stream)
 			fwrite(&data, sizeof(uint32_t), 1, stream);
 	}
 
 	void BinaryWriter::writeSingle(float data)
 	{
+		if (!Platform::Bit::IsLittleEndian())
+			data = Platform::Bit::ByteSwapf32(data);
 		if (stream)
 			fwrite(&data, sizeof(float), 1, stream);
 	}
 
 	void BinaryWriter::writeNull(size_t length)
 	{
-		uint8_t zero = 0;
-		if (stream)
-			fwrite(&zero, sizeof(uint8_t), length, stream);
+		static const uint8_t zero[1024] = { 0 };
+		if (!stream)
+			return;
+		while (sizeof(zero) < length)
+		{
+			fwrite(zero, sizeof(uint8_t), sizeof(zero), stream);
+			length -= sizeof(zero);
+		}
+		fwrite(zero, sizeof(uint8_t), length, stream);
 	}
 
 	void BinaryWriter::writeString(std::string data)
