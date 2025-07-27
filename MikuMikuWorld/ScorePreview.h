@@ -44,6 +44,7 @@ namespace MikuMikuWorld
 		void drawNoteBase(Renderer* renderer, const Note& note, float left, float right, float y, float zScalar = 1);
 		void drawTraceDiamond(Renderer* renderer, const Note& note, float y);
 		void drawFlickArrow(Renderer* renderer, const Note& note, float y, float cur_time);
+		void drawParticle(Renderer *renderer, const Engine::DrawingParticle& particle, float progress, const Score& score, const Texture& texture, int curTick, int maxTick);
 	public:
 		ScorePreviewWindow(); 
 		~ScorePreviewWindow();
@@ -53,6 +54,7 @@ namespace MikuMikuWorld
 		void drawLines(const ScoreContext& context, Renderer* renderer);
 		void drawHoldTicks(const ScoreContext& context, Renderer* renderer);
 		void drawHoldCurves(const ScoreContext& context, Renderer* renderer);
+		void drawParticles(const ScoreContext& context, Renderer* renderer);
 		void drawStage(Renderer* renderer);
 	};
 }

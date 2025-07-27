@@ -8,7 +8,7 @@
 #include "Jacket.h"
 #include "Constants.h"
 #include "TimelineMode.h"
-#include "PreviewEngine.h"
+#include "PreviewData.h"
 #include <unordered_set>
 
 namespace MikuMikuWorld

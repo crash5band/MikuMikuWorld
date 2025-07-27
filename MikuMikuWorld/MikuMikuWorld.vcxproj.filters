@@ -167,8 +167,8 @@
     <ClCompile Include="ScorePreview.cpp">
       <Filter>ScorePreview</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Transform.cpp">
-      <Filter>Rendering</Filter>
+    <ClCompile Include="PreviewData.cpp">
+      <Filter>ScorePreview</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -382,8 +382,8 @@
     <ClInclude Include="ScorePreview.h">
       <Filter>ScorePreview</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Transform.h">
-      <Filter>Rendering</Filter>
+    <ClInclude Include="PreviewData.h">
+      <Filter>ScorePreview</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

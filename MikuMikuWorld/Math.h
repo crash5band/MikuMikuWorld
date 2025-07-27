@@ -47,6 +47,11 @@ namespace MikuMikuWorld
 		{
 
 		}
+		explicit Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
+			: r{ r / 255.f }, g{ g / 255.f}, b{ b / 255.f}, a{ a / 255.f }
+		{
+
+		}
 
 		inline bool operator==(const Color& c) const { return r == c.r && g == c.g && b == c.b && a == c.a; }
 		inline bool operator!=(const Color& c) const { return !(*this == c); }
@@ -92,4 +97,50 @@ namespace MikuMikuWorld
 	std::function<float(float, float, float)> getEaseFunction(EaseType ease);
 
 	uint32_t gcf(uint32_t a, uint32_t b);
+
+	static constexpr float NUM_PI = 3.14159265358979323846;
+	static constexpr float NUM_PI_2 = 3.14159265358979323846 / 2;
+
+	namespace Engine
+	{
+		struct Range
+		{
+			float min;
+			float max;
+		};
+
+		enum class Easing : uint8_t
+		{
+			Linear,
+			Sine,
+			Quad,
+			Cubic,
+			Quart,
+			Quint,
+			Expo,
+			Circ,
+			Back,
+			Elastic,
+			EasingCount,
+			TypeMask = 0b1111,
+			In    = 1 << 4,
+			Out   = 1 << 5,
+			InOut = In | Out,
+			OutIn = 1 << 6
+		};
+
+	    using EasingFunc = float(*)(float x);
+
+		float easeLinear(float x);
+		float easeInSine(float x);
+		float easeOutSine(float x);
+		float easeInOutSine(float x);
+		float easeOutInSine(float x);
+		float easeInQuad(float x);
+		float easeOutQuad(float x);
+		float easeInOutQuad(float x);
+		float easeOutInQuad(float x);
+
+		EasingFunc getEaseFunc(Easing easing);
+	}
 }

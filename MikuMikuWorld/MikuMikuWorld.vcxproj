@@ -198,13 +198,13 @@
     <ClCompile Include="OpenGlLoader.cpp" />
     <ClCompile Include="NotesPreset.cpp" />
     <ClCompile Include="Platform.cpp" />
+    <ClCompile Include="PreviewData.cpp" />
     <ClCompile Include="PreviewEngine.cpp" />
     <ClCompile Include="Rendering\Camera.cpp" />
     <ClCompile Include="Rendering\Framebuffer.cpp" />
     <ClCompile Include="Rendering\Renderer.cpp" />
     <ClCompile Include="Rendering\Shader.cpp" />
     <ClCompile Include="Rendering\Texture.cpp" />
-    <ClCompile Include="Rendering\Transform.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Score.cpp" />
     <ClCompile Include="ScoreContext.cpp" />
@@ -252,8 +252,8 @@
     <ClInclude Include="InputBinding.h" />
     <ClInclude Include="IO.h" />
     <ClInclude Include="Platform.h" />
+    <ClInclude Include="PreviewData.h" />
     <ClInclude Include="PreviewEngine.h" />
-    <ClInclude Include="Rendering\Transform.h" />
     <ClInclude Include="ScorePreview.h" />
     <ClInclude Include="ScoreSerializer.h" />
     <ClInclude Include="Jacket.h" />

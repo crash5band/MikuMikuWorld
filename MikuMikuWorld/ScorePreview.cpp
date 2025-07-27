@@ -41,7 +41,7 @@ namespace MikuMikuWorld
 
     ScorePreviewBackground::ScorePreviewBackground() : backgroundFile(), jacketFile{}, brightness(0.5f), frameBuffer{2048, 2048}, init{false}
     {
-		
+
     }
 
     ScorePreviewBackground::~ScorePreviewBackground()
@@ -102,14 +102,14 @@ namespace MikuMikuWorld
 		DirectX::XMFLOAT4 defCol = {defaultTint.r, defaultTint.g, defaultTint.b, defaultTint.a};
 		DirectX::XMFLOAT4 mainCol = { 1, 1, 1, 0.65 };
 		DirectX::XMFLOAT4 mirrorCol = { 1, 1, 1, 0.35 };
-		auto mainLeftPos = quadvPos(602, 602 + 264, 816, 816 + 174);
-		auto mainRightPos = quadvPos(1205, 1205 + 200, 629, 629 + 114);
-		auto mirrorLeftPos = quadvPos(615, 615 + 256, 1170, 1170 + 162);
-		auto mirrorRightPos = quadvPos(1186, 1186 + 196, 1387, 1387 + 105);
-		auto mainLeftMask = quadUV(stage.sprites[SPR_JACKET_LEFT_MASK], stage);
-		auto mainRightMask = quadUV(stage.sprites[SPR_JACKET_RIGHT_MASK], stage);
-		auto mirrorLeftMask = quadUV(stage.sprites[SPR_MIRROR_JACKET_LEFT_MASK], stage);
-		auto mirrorRightMask = quadUV(stage.sprites[SPR_MIRROR_JACKET_RIGHT_MASK], stage);
+		auto mainLeftPos = Engine::quadvPos(602, 602 + 264, 816, 816 + 174);
+		auto mainRightPos = Engine::quadvPos(1205, 1205 + 200, 629, 629 + 114);
+		auto mirrorLeftPos = Engine::quadvPos(615, 615 + 256, 1170, 1170 + 162);
+		auto mirrorRightPos = Engine::quadvPos(1186, 1186 + 196, 1387, 1387 + 105);
+		auto mainLeftMask = Engine::quadUV(stage.sprites[SPR_JACKET_LEFT_MASK], stage);
+		auto mainRightMask = Engine::quadUV(stage.sprites[SPR_JACKET_RIGHT_MASK], stage);
+		auto mirrorLeftMask = Engine::quadUV(stage.sprites[SPR_MIRROR_JACKET_LEFT_MASK], stage);
+		auto mirrorRightMask = Engine::quadUV(stage.sprites[SPR_MIRROR_JACKET_RIGHT_MASK], stage);
 
 		maskShader->use();
 		maskShader->setInt("baseTex", 0);
@@ -131,15 +131,15 @@ namespace MikuMikuWorld
 		renderer->pushQuad(mirrorRightPos, mirrorRightMask, DirectX::XMMatrixIdentity(), defCol, stage.getID(), 0);
 
 		sprite = &stage.sprites[SPR_JACKET_WINDOW];
-		renderer->drawRectangle({682, 497}, {686, 686}, stage, sprite->getX1(), sprite->getX2(), sprite->getY1(), sprite->getY2(), Color(1, 1, 1, 1), 1);
+		renderer->drawRectangle({682, 497}, {686, 686}, stage, sprite->getX1(), sprite->getX2(), sprite->getY1(), sprite->getY2(), Color(1.f, 1.f, 1.f, 1.f), 1);
 		sprite = &stage.sprites[SPR_MIRROR_JACKET_WINDOW];
-		renderer->drawRectangle({699, 958}, {651, 650}, stage, sprite->getX1(), sprite->getX2(), sprite->getY1(), sprite->getY2(), Color(1, 1, 1, 0.6), 1);
+		renderer->drawRectangle({699, 958}, {651, 650}, stage, sprite->getX1(), sprite->getX2(), sprite->getY1(), sprite->getY2(), Color(1.f, 1.f, 1.f, 0.6f), 1);
 		renderer->endBatch();
 
-		auto mainWindowPos = quadvPos(824, 824 + 400, 666, 666 + 384);
-		auto mainWindowMask = quadUV(stage.sprites[SPR_JACKET_MASK], stage);
-		auto mirrorWindowPos = quadvPos(834, 834 + 386, 1120, 1120 + 336);
-		auto mirrorWindowMask = quadUV(stage.sprites[SPR_MIRROR_JACKET_MASK], stage);
+		auto mainWindowPos = Engine::quadvPos(824, 824 + 400, 666, 666 + 384);
+		auto mainWindowMask = Engine::quadUV(stage.sprites[SPR_JACKET_MASK], stage);
+		auto mirrorWindowPos = Engine::quadvPos(834, 834 + 386, 1120, 1120 + 336);
+		auto mirrorWindowMask = Engine::quadUV(stage.sprites[SPR_MIRROR_JACKET_MASK], stage);
 		maskShader->use();
 		renderer->beginBatch();
 		renderer->pushQuadMasked(mainWindowPos, DefaultJacket::getCenterUV(), mainWindowMask, {1, 1, 1, 0.8}, jacket.getTexID(), stage.getID());
@@ -151,7 +151,7 @@ namespace MikuMikuWorld
 		renderer->pushQuad(mainWindowPos, mainWindowMask, DirectX::XMMatrixIdentity(), defCol, stage.getID(), 0);
 		renderer->pushQuad(mirrorWindowPos, mirrorWindowMask, DirectX::XMMatrixIdentity(), defCol, stage.getID(), 0);
 		sprite = &stage.sprites[SPR_SEKAI_FLOOR];
-		renderer->drawRectangle({0, 1251}, {sprite->getWidth(), sprite->getHeight()}, stage, sprite->getX1(), sprite->getX2(), sprite->getY1(), sprite->getY2(), Color(1, 1, 1, 0.8), 1);
+		renderer->drawRectangle({0, 1251}, {sprite->getWidth(), sprite->getHeight()}, stage, sprite->getX1(), sprite->getX2(), sprite->getY1(), sprite->getY2(), Color(1.f, 1.f, 1.f, 0.8f), 1);
 		renderer->endBatch();
     }
 
@@ -182,8 +182,8 @@ namespace MikuMikuWorld
 		const float bgHeight = bgScrHeight / (targetHeight * Engine::STAGE_HEIGHT_RATIO);
 		const float centerY = 0.5f / Engine::STAGE_HEIGHT_RATIO + Engine::STAGE_LANE_TOP / Engine::STAGE_LANE_HEIGHT;
 		const float bgTop = centerY + -bgHeight / 2;
-		auto vPos = quadvPos(bgLeft, bgLeft + bgWidth, bgTop, bgTop + bgHeight);
-		auto uv = quadvPos(0, 1, 0, 1);
+		auto vPos = Engine::quadvPos(bgLeft, bgLeft + bgWidth, bgTop, bgTop + bgHeight);
+		auto uv = Engine::quadvPos(0, 1, 0, 1);
 		renderer->pushQuad(vPos, uv, DirectX::XMMatrixIdentity(), DirectX::XMFLOAT4(brightness, brightness, brightness, 1), frameBuffer.getTexture(), -10);
     }
 
@@ -264,7 +264,9 @@ namespace MikuMikuWorld
 			// Don't draw anything if the window is not active.
 			// SFX and music updates are handled in the timeline
 			return;
-		if (context.scorePreviewDrawData.noteSpeed != config.pvNoteSpeed)
+		if (context.scorePreviewDrawData.noteSpeed != config.pvNoteSpeed
+		|| context.scorePreviewDrawData.hasLaneEffect != config.pvLaneEffect
+		|| context.scorePreviewDrawData.hasNoteEffect != config.pvNoteEffect)
 			context.scorePreviewDrawData.calculateDrawData(context.score);
 		ImVec2 size = ImGui::GetContentRegionAvail();
 		ImVec2 position = ImGui::GetCursorScreenPos();
@@ -312,6 +314,7 @@ namespace MikuMikuWorld
 		drawHoldCurves(context, renderer);
 		drawHoldTicks(context, renderer);
 		drawNotes(context, renderer);
+		drawParticles(context, renderer);
 		renderer->endBatch();
 		
 		previewBuffer.unblind();
@@ -373,21 +376,21 @@ namespace MikuMikuWorld
 		if (noteTextures.notes == -1)
 			return;
 		float scaled_tm = accumulateScaledDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
-		const auto& drawData = context.scorePreviewDrawData;
+		const auto& drawData = context.scorePreviewDrawData.drawingLines;
 
 		const Texture& texture = getNoteTexture();
 		size_t sprIndex = SPR_SIMULTANEOUS_CONNECTION;
 		if (!isArrayIndexInBounds(sprIndex, texture.sprites))
 			return;
 		const Sprite& sprite = texture.sprites[sprIndex];
-		size_t transIndex = static_cast<size_t>(Engine::SpriteType::SimultaneousLine);
-		if (!isArrayIndexInBounds(transIndex, ResourceManager::spriteTransform))
+		size_t transIndex = static_cast<size_t>(SpriteType::SimultaneousLine);
+		if (!isArrayIndexInBounds(transIndex, ResourceManager::spriteTransforms))
 			return;
-		const Transform& lineTransform = ResourceManager::spriteTransform[transIndex];
+		const SpriteTransform& lineTransform = ResourceManager::spriteTransforms[transIndex];
 		const Color color (1.f, 1.f, 1.f, 1.f);
 		const float noteTop = 1. + Engine::getNoteHeight(), noteBottom = 1. - Engine::getNoteHeight();
 
-		for (auto& line : drawData.drawingLines)
+		for (auto& line : drawData)
 		{
 			if (scaled_tm < line.visualTime.min || scaled_tm > line.visualTime.max)
 				continue;
@@ -395,7 +398,7 @@ namespace MikuMikuWorld
 			if (config.pvMirrorScore)
 				std::swap(noteLeft *= -1, noteRight *= -1);
 			float y = Engine::approach(line.visualTime.min, line.visualTime.max, scaled_tm);
-			auto vPos = lineTransform.apply(perspectiveQuadvPos(noteLeft, noteRight, noteTop, noteBottom));
+			auto vPos = lineTransform.apply(Engine::perspectiveQuadvPos(noteLeft, noteRight, noteTop, noteBottom));
 			auto model = DirectX::XMMatrixScaling(y, y, 1.f);
 			renderer->drawQuad(vPos, model, texture, sprite.getX1(), sprite.getX2(), sprite.getY1(), sprite.getY2());
 		}
@@ -418,19 +421,19 @@ namespace MikuMikuWorld
 			if (!isArrayIndexInBounds(sprIndex, texture.sprites))
 				continue;
 			const Sprite& sprite = texture.sprites[sprIndex];
-			size_t transIndex = static_cast<size_t>(Engine::SpriteType::HoldTick);
-			if (!isArrayIndexInBounds(transIndex, ResourceManager::spriteTransform))
+			size_t transIndex = static_cast<size_t>(SpriteType::HoldTick);
+			if (!isArrayIndexInBounds(transIndex, ResourceManager::spriteTransforms))
 				return;
-			const Transform& transform = ResourceManager::spriteTransform[transIndex];
+			const SpriteTransform& transform = ResourceManager::spriteTransforms[transIndex];
 			float y = Engine::approach(tick.visualTime.min, tick.visualTime.max, scaled_tm);
 			const float tickCenter = tick.center * (config.pvMirrorScore ? -1 : 1);
 			
-			auto vPos = transform.apply(quadvPos(
+			auto vPos = transform.apply(Engine::quadvPos(
 				tickCenter - w, tickCenter + w,
 				noteTop, noteBottom
 			));
 			auto model = DirectX::XMMatrixScaling(y, y, 1.f);
-			int zIndex = Engine::getZIndex(Engine::Layer::DIAMOND, tickCenter, y);
+			int zIndex = Engine::getZIndex(SpriteLayer::DIAMOND, tickCenter, y);
 			renderer->drawQuad(vPos, model, texture, sprite.getX1(), sprite.getX2(), sprite.getY1(), sprite.getY2(), defaultTint, zIndex);
 		}
     }
@@ -514,10 +517,10 @@ namespace MikuMikuWorld
 				float stepStartRight = ease(startRight, endRight, t_stepStart);
 				float   stepEndRight = ease(startRight, endRight, t_stepEnd);
 
-				auto vPos = perspectiveQuadvPos(stepStartLeft, stepEndLeft, stepStartRight, stepEndRight, stepTop, stepBottom);
+				auto vPos = Engine::perspectiveQuadvPos(stepStartLeft, stepEndLeft, stepStartRight, stepEndRight, stepTop, stepBottom);
 				auto model = DirectX::XMMatrixIdentity();
 				float alpha = config.pvHoldAlpha;
-				int zIndex = Engine::getZIndex(Engine::Layer::HOLD_PATH, holdStartCenter, segment.headTime / total_tm);
+				int zIndex = Engine::getZIndex(SpriteLayer::HOLD_PATH, holdStartCenter, segment.headTime / total_tm);
 
 				float spr_x1, spr_x2, spr_y1, spr_y2;
 				if (segment.isGuide)
@@ -540,7 +543,7 @@ namespace MikuMikuWorld
 					const Sprite& activeSprite = pathTexture.sprites[sprIndex - 1];
 					const int norm2ActiveOffset = activeSprite.getY1() - pathSprite.getY1();
 					float delta_tm = current_tm - segment.startTime;
-					float normalAplha = (std::cos(delta_tm * 2 * 3.14159265358979323846) + 2) / 3.;
+					float normalAplha = (std::cos(delta_tm * NUM_PI * 2) + 2) / 3.;
 
 					renderer->drawQuad(vPos, model, pathTexture, spr_x1, spr_x2, spr_y1, spr_y2, defaultTint.scaleAlpha(alpha * normalAplha), zIndex);
 					renderer->drawQuad(vPos, model, pathTexture, spr_x1, spr_x2, spr_y1 + norm2ActiveOffset, spr_y2 + norm2ActiveOffset, defaultTint.scaleAlpha(alpha * (1.f - normalAplha)), zIndex);
@@ -548,6 +551,29 @@ namespace MikuMikuWorld
 				else
 					renderer->drawQuad(vPos, model, pathTexture, spr_x1, spr_x2, spr_y1, spr_y2, defaultTint.scaleAlpha(alpha), zIndex);
 			}
+		}
+    }
+
+    void ScorePreviewWindow::drawParticles(const ScoreContext &context, Renderer *renderer)
+    {
+		const float current_tm = accumulateDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges);
+		int texId = ResourceManager::getTexture("particles");
+		if (texId < 0)
+			return;
+		const Texture& particleTex = ResourceManager::textures[texId];
+		for (auto& particle : context.scorePreviewDrawData.drawingParticles)
+		{
+			if (current_tm <= particle.time.min || current_tm > particle.time.max)
+				continue;
+			Particle& particleData = ResourceManager::particleEffects[particle.effectType].particles[particle.particleId];
+			float effectDuration = particleEffectDuration[(ParticleEffectType)particle.effectType];
+			float delta_tm = current_tm - particle.time.min - particleData.start * effectDuration;
+			if (delta_tm < 0) continue;
+			delta_tm = std::fmod(delta_tm, effectDuration);
+			float particleDuration = particleData.duration * effectDuration;
+			if (delta_tm > particleDuration) continue;
+			float progress = unlerp(0, particleDuration, delta_tm);
+			drawParticle(renderer, particle, progress, context.score, particleTex, context.currentTick, context.scorePreviewDrawData.maxTicks);
 		}
     }
 
@@ -562,48 +588,48 @@ namespace MikuMikuWorld
 			return;
 		const Sprite& sprite = texture.sprites[sprIndex];
 
-		size_t transIndex = static_cast<size_t>(Engine::SpriteType::NoteMiddle);
-		if (!isArrayIndexInBounds(transIndex, ResourceManager::spriteTransform))
+		size_t transIndex = static_cast<size_t>(SpriteType::NoteMiddle);
+		if (!isArrayIndexInBounds(transIndex, ResourceManager::spriteTransforms))
 			return;
-		const Transform& mTransform = ResourceManager::spriteTransform[transIndex];
+		const SpriteTransform& mTransform = ResourceManager::spriteTransforms[transIndex];
 
-		transIndex = static_cast<size_t>(Engine::SpriteType::NoteLeft);
-		if (!isArrayIndexInBounds(transIndex, ResourceManager::spriteTransform))
+		transIndex = static_cast<size_t>(SpriteType::NoteLeft);
+		if (!isArrayIndexInBounds(transIndex, ResourceManager::spriteTransforms))
 			return;
-		const Transform& lTransform = ResourceManager::spriteTransform[transIndex];
+		const SpriteTransform& lTransform = ResourceManager::spriteTransforms[transIndex];
 
-		transIndex = static_cast<size_t>(Engine::SpriteType::NoteRight);
-		if (!isArrayIndexInBounds(transIndex, ResourceManager::spriteTransform))
+		transIndex = static_cast<size_t>(SpriteType::NoteRight);
+		if (!isArrayIndexInBounds(transIndex, ResourceManager::spriteTransforms))
 			return;
-		const Transform& rTransform = ResourceManager::spriteTransform[transIndex];
+		const SpriteTransform& rTransform = ResourceManager::spriteTransforms[transIndex];
 
 		const float noteHeight = Engine::getNoteHeight();
 		const float noteTop = 1. - noteHeight, noteBottom = 1. + noteHeight;
 		if (config.pvMirrorScore)
 			std::swap(noteLeft *= -1, noteRight *= -1);
 		int zIndex = Engine::getZIndex(
-			!note.friction ? Engine::Layer::BASE_NOTE : Engine::Layer::TICK_NOTE,
+			!note.friction ? SpriteLayer::BASE_NOTE : SpriteLayer::TICK_NOTE,
 			noteLeft + (noteRight - noteLeft) / 2.f, y * zScalar
 		);
 
 		auto model = DirectX::XMMatrixScaling(y, y, 1.f);
 		std::array<DirectX::XMFLOAT4, 4> vPos;
 		// Middle
-		vPos = mTransform.apply(perspectiveQuadvPos(noteLeft + 0.3f, noteRight - 0.3f, noteTop, noteBottom));
+		vPos = mTransform.apply(Engine::perspectiveQuadvPos(noteLeft + 0.3f, noteRight - 0.3f, noteTop, noteBottom));
 		renderer->drawQuad(vPos, model, texture,
 			sprite.getX1() + NOTE_SIDE_WIDTH, sprite.getX2() - NOTE_SIDE_WIDTH, sprite.getY1(), sprite.getY2(),
 			defaultTint, zIndex
 		);
 
 		// Left slice
-		vPos = lTransform.apply(perspectiveQuadvPos(noteLeft, noteLeft + 0.3f, noteTop, noteBottom));
+		vPos = lTransform.apply(Engine::perspectiveQuadvPos(noteLeft, noteLeft + 0.3f, noteTop, noteBottom));
 		renderer->drawQuad(vPos, model, texture,
 			sprite.getX1() + NOTE_SIDE_PAD, sprite.getX1() + NOTE_SIDE_WIDTH, sprite.getY1(), sprite.getY2(),
 			defaultTint, zIndex
 		);
 		
 		// Right slice
-		vPos = rTransform.apply(perspectiveQuadvPos(noteRight - 0.3, noteRight, noteTop, noteBottom));
+		vPos = rTransform.apply(Engine::perspectiveQuadvPos(noteRight - 0.3, noteRight, noteTop, noteBottom));
 		renderer->drawQuad(vPos, model, texture,
 			sprite.getX2() - NOTE_SIDE_WIDTH, sprite.getX2() - NOTE_SIDE_PAD, sprite.getY1(), sprite.getY2(),
 			defaultTint, zIndex
@@ -620,18 +646,18 @@ namespace MikuMikuWorld
 		if (!isArrayIndexInBounds(frictionSprIndex, texture.sprites))
 			return;
 		const Sprite& frictionSpr = texture.sprites[frictionSprIndex];
-		size_t transIndex = static_cast<size_t>(Engine::SpriteType::TraceDiamond);
-		if (!isArrayIndexInBounds(transIndex, ResourceManager::spriteTransform))
+		size_t transIndex = static_cast<size_t>(SpriteType::TraceDiamond);
+		if (!isArrayIndexInBounds(transIndex, ResourceManager::spriteTransforms))
 			return;
-		const Transform& transform = ResourceManager::spriteTransform[transIndex];
+		const SpriteTransform& transform = ResourceManager::spriteTransforms[transIndex];
 
 		const int mirror = config.pvMirrorScore ? -1 : 1;
 		const float w = Engine::getNoteHeight() / scaledAspectRatio;
 		const float noteTop = 1. + Engine::getNoteHeight(), noteBottom = 1. - Engine::getNoteHeight();
 		const float noteCenter = Engine::getNoteCenter(note) * mirror;
-		int zIndex = Engine::getZIndex(Engine::Layer::DIAMOND, noteCenter, y);
+		int zIndex = Engine::getZIndex(SpriteLayer::DIAMOND, noteCenter, y);
 
-		auto vPos = transform.apply(quadvPos(
+		auto vPos = transform.apply(Engine::quadvPos(
 			noteCenter - w,
 			noteCenter + w,
 			noteTop, noteBottom)
@@ -651,10 +677,10 @@ namespace MikuMikuWorld
 		if (!isArrayIndexInBounds(sprIndex, texture.sprites))
 			return;
 		const Sprite& arrowSprite = texture.sprites[sprIndex];
-		size_t flickTransformIdx = clamp(note.width, 1, MAX_FLICK_SPRITES) - 1 + static_cast<int>((note.flick == FlickType::Left || note.flick == FlickType::Right) ? Engine::SpriteType::FlickArrowLeft : Engine::SpriteType::FlickArrowUp);
-		if (!isArrayIndexInBounds(flickTransformIdx, ResourceManager::spriteTransform))
+		size_t flickTransformIdx = clamp(note.width, 1, MAX_FLICK_SPRITES) - 1 + static_cast<int>((note.flick == FlickType::Left || note.flick == FlickType::Right) ? SpriteType::FlickArrowLeft : SpriteType::FlickArrowUp);
+		if (!isArrayIndexInBounds(flickTransformIdx, ResourceManager::spriteTransforms))
 			return;
-		const Transform& transform = ResourceManager::spriteTransform[flickTransformIdx];
+		const SpriteTransform& transform = ResourceManager::spriteTransforms[flickTransformIdx];
 
 		const int mirror = config.pvMirrorScore ? -1 : 1;
 		const int flickDirection = mirror * (note.flick == FlickType::Left ? -1 : (note.flick == FlickType::Right ? 1 : 0));
@@ -662,13 +688,13 @@ namespace MikuMikuWorld
 		const float w = clamp(note.width, 0, MAX_FLICK_SPRITES) * (note.flick == FlickType::Right ? -1 : 1) * mirror / 4.f;
 		
 		auto vPos = transform.apply(
-			quadvPos(
+			Engine::quadvPos(
 				center - w,
 				center + w,
 				1, 1 - 2 * std::abs(w) * scaledAspectRatio
 			)
 		);
-		int zIndex = Engine::getZIndex(Engine::Layer::FLICK_ARROW, center, y);
+		int zIndex = Engine::getZIndex(SpriteLayer::FLICK_ARROW, center, y);
 		
 		if (config.pvFlickAnimation)
 		{
@@ -692,4 +718,157 @@ namespace MikuMikuWorld
 			);
 		}
     }
+
+	static void updateHoldSegmentPos(const Note& note, const Score& score, int curTick, float& left, float& right, float& center)
+	{
+		const auto isNotHoldSkip = [](const HoldStep& step) { return step.type != HoldStepType::Skip; };
+		const HoldNote& holdNotes = score.holdNotes.at(note.ID);
+		auto it = std::lower_bound(holdNotes.steps.begin(), holdNotes.steps.end(), curTick, [&score](const HoldStep& step, int tick) { return score.notes.at(step.ID).tick < tick; });
+		auto rit = std::find_if(std::make_reverse_iterator(it), holdNotes.steps.rend(), isNotHoldSkip);
+		const HoldStep& startHoldStep = rit == holdNotes.steps.rend() ? holdNotes.start : *rit;
+		const Note& startNote = rit == holdNotes.steps.rend() ? note : score.notes.at(rit->ID);
+		if (startNote.tick == curTick) return;
+		auto end = std::find_if(it, holdNotes.steps.end(), isNotHoldSkip);
+		const Note& endNote = score.notes.at(end == holdNotes.steps.end() ? holdNotes.end : it->ID);
+		if (endNote.tick == curTick)
+		{
+			left = Engine::laneToLeft(endNote.lane);
+			right = Engine::laneToLeft(endNote.lane) + endNote.width;
+		}
+		else
+		{
+			auto easeFunc = getEaseFunction(startHoldStep.ease);
+			float progress = unlerp(
+				accumulateScaledDuration(startNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges),
+				accumulateScaledDuration(endNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges),
+				accumulateScaledDuration(curTick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges)
+			);
+			left = easeFunc(Engine::laneToLeft(startNote.lane), Engine::laneToLeft(endNote.lane), progress);
+			right = easeFunc(Engine::laneToLeft(startNote.lane) + startNote.width, Engine::laneToLeft(endNote.lane) + endNote.width, progress);
+		}
+		if (config.pvMirrorScore)
+			std::swap(left *= -1, right *= -1);
+		center = left + (right - left) / 2;
+	}
+
+	static void updateHoldTickPos(const Note& note, const Score& score, float& left, float& right, float& center)
+	{
+		auto& holdNotes = score.holdNotes.at(note.parentID);
+		int curStepIdx = findHoldStep(holdNotes, note.ID);
+		if (holdNotes.steps[curStepIdx].type != HoldStepType::Skip)
+			return;
+		for (;curStepIdx != 0 && holdNotes.steps[curStepIdx - 1].type == HoldStepType::Skip; curStepIdx--);
+		const HoldStep& lastHoldStep = curStepIdx != 0 ? holdNotes.steps[curStepIdx - 1] : holdNotes.start;
+		auto easeFunc = getEaseFunction(lastHoldStep.ease);
+		const Note& startNote = score.notes.at(lastHoldStep.ID);
+		float startLeft = Engine::laneToLeft(startNote.lane);
+		float startRight = Engine::laneToLeft(startNote.lane) + startNote.width;
+		auto it = std::find_if(holdNotes.steps.begin() + curStepIdx, holdNotes.steps.end(), [](const HoldStep& step) { return step.type != HoldStepType::Skip; });
+		const Note& endNote = score.notes.at(it == holdNotes.steps.end() ? holdNotes.end : it->ID);
+		float endLeft = Engine::laneToLeft(endNote.lane);
+		float endRight = Engine::laneToLeft(endNote.lane) + endNote.width;
+		float start_scaled_tm = accumulateScaledDuration(startNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
+		float end_scaled_tm = accumulateScaledDuration(endNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
+		float tick_scaled_tm = accumulateScaledDuration(note.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
+		float t = unlerp(start_scaled_tm, end_scaled_tm, tick_scaled_tm);
+		left = easeFunc(startLeft, endLeft, t);
+		right = easeFunc(startRight, endRight, t);
+		if (config.pvMirrorScore)
+			std::swap(left *= -1, right *= -1);
+		center = left + (right - left) / 2;
+	}
+
+    void ScorePreviewWindow::drawParticle(Renderer *renderer, const Engine::DrawingParticle& particle, float progress, const Score& score, const Texture& texture, int curTick, int maxTick)
+    {
+		const Note& note = score.notes.at(particle.refID);
+		float noteLeft = Engine::laneToLeft(note.lane), noteRight = Engine::laneToLeft(note.lane) + note.width;
+		if (config.pvMirrorScore) std::swap(noteLeft *= -1, noteRight *= -1);
+		float noteCenter = noteLeft + (noteRight - noteLeft) / 2;
+		const int flickDirection = (config.pvMirrorScore ? -1 : 1) * (note.flick == FlickType::Left ? -1 : (note.flick == FlickType::Right ? 1 : 0));
+		std::array<DirectX::XMFLOAT4, 4> vPos;
+		SpriteLayer layer;
+		switch (static_cast<ParticleEffectType>(particle.effectType))
+		{
+			case ParticleEffectType::Lane:
+			case ParticleEffectType::NoteTapLane:
+			case ParticleEffectType::NoteCriticalLane:
+			case ParticleEffectType::NoteCriticalFlickLane:
+				vPos = Engine::particleTransformQuad(
+					Engine::perspectiveQuadvPos(noteLeft, noteRight, Engine::STAGE_LANE_TOP / Engine::STAGE_LANE_HEIGHT, Engine::STAGE_TEX_HEIGHT / Engine::STAGE_LANE_HEIGHT),
+					particle.xywhta,
+					progress
+				);
+				layer = SpriteLayer::UNDER_NOTE_EFFECT;
+				break;
+			case ParticleEffectType::NoteTapCircular:
+			case ParticleEffectType::NoteCriticalCircular:
+			case ParticleEffectType::NoteFlickCircular:
+			case ParticleEffectType::NoteCriticalFlickCircular:
+			case ParticleEffectType::NoteLongCircular:
+			case ParticleEffectType::NoteLongCriticalCircular:
+				vPos = Engine::particleTransformQuad(
+					Engine::circularQuadvPos(noteCenter, 1.75, 1.05 * scaledAspectRatio),
+					particle.xywhta,
+					progress
+				);
+				layer = SpriteLayer::OVER_NOTE_EFFECT;
+				break;
+			case ParticleEffectType::NoteLongAmongCircular:
+			case ParticleEffectType::NoteLongAmongCriticalCircular:
+				updateHoldTickPos(note, score, noteLeft, noteRight, noteCenter);
+			case ParticleEffectType::NoteFrictionCircular:
+			case ParticleEffectType::NoteFrictionCriticalCircular:
+				vPos = Engine::particleTransformQuad(
+					Engine::quadvPos(noteCenter - 4, noteCenter + 4, 1 - 4 * scaledAspectRatio, 1 + 4 * scaledAspectRatio),
+					particle.xywhta,
+					progress
+				);
+				layer = SpriteLayer::OVER_NOTE_EFFECT;
+				break;
+			case ParticleEffectType::NoteLongSegmentLinear:
+			case ParticleEffectType::NoteLongCriticalSegmentLinear:
+				updateHoldSegmentPos(note, score, curTick, noteLeft, noteRight, noteCenter);
+			case ParticleEffectType::NoteTapLinear:
+			case ParticleEffectType::NoteCriticalLinear:
+			case ParticleEffectType::NoteFlickLinear:
+			case ParticleEffectType::NoteCriticalFlickLinear:
+			case ParticleEffectType::NoteFrictionLinear:
+			case ParticleEffectType::NoteFrictionCriticalLinear:
+			case ParticleEffectType::NoteLongLinear:
+			case ParticleEffectType::NoteLongCriticalLinear:
+				vPos = Engine::particleTransformQuad(
+					Engine::linearQuadvPos(noteCenter, 1.0, 1.0 * scaledAspectRatio, 0),
+					particle.xywhta,
+					progress
+				);
+				layer = SpriteLayer::OVER_NOTE_EFFECT;
+				break;
+			case ParticleEffectType::NoteFlickDirectional:
+			case ParticleEffectType::NoteCriticalDirectional:
+				vPos = Engine::particleTransformQuad(
+					Engine::linearQuadvPos(noteCenter, 1.0, 1.0 * scaledAspectRatio, flickDirection),
+					particle.xywhta,
+					progress
+				);
+				layer = SpriteLayer::OVER_NOTE_EFFECT;
+				break;
+			case ParticleEffectType::NoteLongSegmentCircular:
+			case ParticleEffectType::NoteLongCriticalSegmentCircular:
+				updateHoldSegmentPos(note, score, curTick, noteLeft, noteRight, noteCenter);
+				vPos = Engine::particleTransformQuad(
+					Engine::circularQuadvPos(noteCenter, 3.5, 2.1 * scaledAspectRatio),
+					particle.xywhta,
+					progress
+				);
+				layer = SpriteLayer::OVER_NOTE_EFFECT;
+				break;
+			
+			default:
+				return;
+		}
+		const Sprite& sprite = texture.sprites[ResourceManager::particleEffects[particle.effectType].particles[particle.particleId].spriteID];
+		renderer->drawQuad(vPos, DirectX::XMMatrixIdentity(), texture, sprite.getX1(), sprite.getX2(), sprite.getY2(), sprite.getY1(),
+			Color{1.f, 1.f, 1.f, particle.xywhta[5].at(progress)}, Engine::getZIndex(layer, noteCenter, float(note.tick) / maxTick));
+    }
+
 }

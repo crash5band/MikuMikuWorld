@@ -325,7 +325,8 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(texturesDir + "stage.png");
 		ResourceManager::loadTexture(texturesDir + "particles.png");
 
-		ResourceManager::loadTransform(texturesDir + "transform.txt");
+		ResourceManager::loadTransforms(texturesDir + "transform.txt");
+		ResourceManager::loadParticleEffects(texturesDir + "particles.pte");
 
 		// Cache note textures indices
 		noteTextures.notes = ResourceManager::getTexture(NOTES_TEX);

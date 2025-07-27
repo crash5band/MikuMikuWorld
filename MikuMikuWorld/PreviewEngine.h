@@ -1,12 +1,29 @@
 #pragma once
-#include <cmath>
 #include <array>
-#include "Score.h"
+#include <vector>
+#include <map>
+#include <memory>
 #include "Math.h"
+#include "Score.h"
+#include "Rendering/Texture.h"
+#include "Rendering/Sprite.h"
+#include "PreviewData.h"
+#include "DirectXMath.h"
 
-namespace MikuMikuWorld::Engine
+namespace DirectX 
 {
+    inline bool XMMatrixIsNull(FXMMATRIX M)
+    {
+        XMVECTOR zero = XMVectorZero();
+        return  XMVector4Equal(M.r[0], zero) &&
+                XMVector4Equal(M.r[1], zero) &&
+                XMVector4Equal(M.r[2], zero) &&
+                XMVector4Equal(M.r[3], zero);
+    }
+}
 
+namespace MikuMikuWorld
+{
     enum class SpriteType: int
     {
         NoteLeft,
@@ -19,72 +36,131 @@ namespace MikuMikuWorld::Engine
         HoldTick
     };
 
-    enum class Layer : uint8_t
+    enum class SpriteLayer : uint8_t // The max is 
     {
+        OVER_NOTE_EFFECT,
         FLICK_ARROW,
         DIAMOND,
         BASE_NOTE,
         TICK_NOTE,
         HOLD_MID,
-        HOLD_PATH
+        HOLD_PATH,
+        UNDER_NOTE_EFFECT
+    };
+
+    enum class ParticleEffectType : uint32_t
+    {
+        Lane,
         
+        NoteTapCircular, 
+        NoteTapLinear,
+
+        NoteLongCircular,
+        NoteLongLinear,
+
+        NoteFlickCircular,
+        NoteFlickLinear,
+        NoteFlickDirectional,
+
+        NoteCriticalCircular,
+        NoteCriticalLinear,
+        NoteCriticalDirectional,
+
+        NoteFrictionCircular,
+        NoteFrictionLinear,
+
+        NoteFrictionCriticalCircular,
+        NoteFrictionCriticalLinear,
+
+        NoteLongAmongCircular,
+        NoteLongAmongCriticalCircular,
+
+        NoteLongSegmentCircular,
+        NoteLongSegmentLinear,
+
+        NoteLongCriticalSegmentCircular,
+        NoteLongCriticalSegmentLinear,
+
+        NoteTapLane,
+        NoteCriticalLane,
+        NoteCriticalFlickLane,
+
+        NoteCriticalFlickCircular,
+        NoteCriticalFlickLinear,
+
+        NoteLongCriticalCircular,
+        NoteLongCriticalLinear,
+
+        NoteLongSegmentLinearEx,
+        NoteLongCriticalSegmentLinearEx,
+
+        SlotLongLinear,
+        SlotLongCriticalLinear,
+
+        Invalid = UINT32_MAX
     };
 
-    struct Range
+    class SpriteTransform
     {
-        float min;
-        float max;
-    };
-
-    class Particle
-    {
+        DirectX::XMMATRIX xx;
+        std::unique_ptr<DirectX::XMMATRIX> xy;
+        std::unique_ptr<DirectX::XMMATRIX> yx;
+        DirectX::XMMATRIX yy;
         
+        public:
+        SpriteTransform(float v[64]);
+        std::array<DirectX::XMFLOAT4, 4> apply(const std::array<DirectX::XMFLOAT4, 4>& vPos) const;
     };
 
-    struct DrawingNote
+    struct ParticleProperty
     {
-        int refID;
-        Range visualTime;
+        float from, to;
+        Engine::Easing easing;
     };
 
-    struct DrawingLine
+    struct PropertyCoeff
     {
-        Range xPos;
-        Range visualTime;
+        std::unique_ptr<DirectX::XMMATRIX> r1_4, r5_8, sinr1_4, sinr5_8, cosr1_4, cosr5_8;
+
+        DirectX::XMVECTOR compute(const DirectX::XMVECTOR & v1_4, const DirectX::XMVECTOR & v5_8) const;
     };
 
-    struct DrawingHoldTick
+    struct Particle
     {
-        int refID;
-        float center;
-        Range visualTime;
+        int groupID;
+        int spriteID;
+        Color color;
+        float start;
+        float duration;
+        std::array<ParticleProperty, 6> xywhta;
+        PropertyCoeff xyCoeff, whCoeff, taCoeff;
+
+        // Compute the static range[from, to] for each property from an instance of values
+        std::array<Engine::Range, 6> compute(const std::array<float, 8>& values) const;
     };
 
-    struct DrawingHoldSegment
+    struct ParticleEffect
     {
-        int endID;
-        int headID, tailID;
-        float headTime;
-        float tailTime;
-        float startTime;
-        EaseType ease;
-        bool isGuide;
+        std::vector<int> groupSizes;
+        std::vector<Particle> particles;
     };
 
-    struct DrawData
-    {
-        float noteSpeed;
-        int maxTicks;
-        std::vector<DrawingNote> drawingNotes;
-		std::vector<DrawingLine> drawingLines;
-        std::vector<DrawingHoldTick> drawingHoldTicks;
-        std::vector<DrawingHoldSegment> drawingHoldSegments;
+    extern std::map<ParticleEffectType, float> particleEffectDuration;
+    extern std::map<ParticleEffectType, ParticleEffectType> particleEffectFallback;
+}
 
-        void clear();
-        void calculateDrawData(Score const& score);
-    };
+namespace MikuMikuWorld::Engine
+{
+    std::array<DirectX::XMFLOAT4, 4> quadvPos(float left, float right, float top, float bottom);
+	std::array<DirectX::XMFLOAT4, 4> perspectiveQuadvPos(float left, float right, float top, float bottom);
+	std::array<DirectX::XMFLOAT4, 4> perspectiveQuadvPos(float leftStart, float leftStop, float rightStart, float rightStop, float top, float bottom);
+	std::array<DirectX::XMFLOAT4, 4> quadUV(const Sprite& sprite, const Texture& texture);
+    std::array<DirectX::XMFLOAT4, 4> circularQuadvPos(float lane, float width, float height);
+    std::array<DirectX::XMFLOAT4, 4> linearQuadvPos(float lane, float width, float height, float shear);
 
     Range getNoteVisualTime(Note const& note, Score const& score, float noteSpeed);
+
+    std::array<DirectX::XMFLOAT4, 4> particleTransformQuad(const std::array<DirectX::XMFLOAT4, 4>& quad, const std::array<Engine::DrawingParticleProperty, 6>& props, float p);
 
     /// General helper functions for fixed values in the engine
     static inline float getNoteDuration(float noteSpeed)
@@ -115,7 +191,7 @@ namespace MikuMikuWorld::Engine
     // Scale the screen height such that 1 unit correspond to the stage height
     inline constexpr float STAGE_HEIGHT_RATIO =
         Engine::STAGE_ZOOM * Engine::STAGE_LANE_HEIGHT / Engine::STAGE_TEX_HEIGHT;
-    // Shift the stage up to align with the stage texture and make the top of the screen is 1
+    // Shift the stage up to align with the stage texture and make the top of the screen is 0
     inline constexpr float STAGE_TOP_RATIO = 
         0.5f + Engine::STAGE_ZOOM * Engine::STAGE_LANE_TOP / Engine::STAGE_TEX_HEIGHT;
 
@@ -131,7 +207,7 @@ namespace MikuMikuWorld::Engine
     {
         return STAGE_NOTE_HEIGHT / STAGE_LANE_HEIGHT / 2.f;
     }
-    static inline int getZIndex(Layer layer, float xOffset, float yOffset)
+    static inline int getZIndex(SpriteLayer layer, float xOffset, float yOffset)
     {
         static_assert(sizeof(int) == sizeof(int32_t));
         // Implicitly clamp NaN to max value unlike normal clamp
