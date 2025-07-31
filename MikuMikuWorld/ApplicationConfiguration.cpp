@@ -92,6 +92,7 @@ namespace MikuMikuWorld
 			pvNoteSpeed = jsonIO::tryGetValue<float>(previewObj, "note_speed", 6.0f);
 			pvHoldAlpha = jsonIO::tryGetValue<float>(previewObj, "hold_alpha", 1.f);
 			pvStageCover = jsonIO::tryGetValue<float>(previewObj, "stage_cover", 0.f);
+			pvStageOpacity = jsonIO::tryGetValue<float>(previewObj, "stage_opacity", 1.f);
 		}
 
 		if (jsonIO::keyExists(config, "theme"))
@@ -198,7 +199,8 @@ namespace MikuMikuWorld
 			{"glow_effect", pvNoteGlow},
 			{"note_speed", pvNoteSpeed},
 			{"hold_alpha", pvHoldAlpha},
-			{"stage_cover", pvStageCover}
+			{"stage_cover", pvStageCover},
+			{"stage_opacity", pvStageOpacity}
 		};
 
 		config["theme"] = {
@@ -295,6 +297,7 @@ namespace MikuMikuWorld
 		pvNoteSpeed = 6.0f;
 		pvHoldAlpha = 1.f;
 		pvStageCover = 0.f;
+		pvStageOpacity = 1.f;
 
 		autoSaveEnabled = true;
 		autoSaveInterval = 5;

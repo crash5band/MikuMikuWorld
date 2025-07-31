@@ -64,6 +64,8 @@ namespace MikuMikuWorld
 		void bindTexture(int tex);
 		void beginBatch();
 		void endBatch();
+		void endBatchWithBlending(int srcRGB, int dstRGB, int srcA, int dstA);
+		void endBatchWithDepthTest(int depthFunc);
 
 		inline int getNumVertices() const { return numBatchVertices; }
 		inline int getNumQuads() const { return numBatchQuads; }

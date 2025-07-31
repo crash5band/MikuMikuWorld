@@ -7,7 +7,7 @@
 
 namespace MikuMikuWorld::Engine
 {
-    struct TargetTimeComparer
+	struct TargetTimeComparer
 	{
 		bool operator()(const Range& a, const Range& b) const
 		{
@@ -29,11 +29,12 @@ namespace MikuMikuWorld::Engine
 	};
 
 	static bool ensureValidParticle(ParticleEffectType& demandType);
-    static void addParticleEffect(DrawData& drawData, ParticleEffectType type, const Note& note, Score const &score, float effectDuration = NAN);
-    static void addLaneEffect(DrawData& drawData, const Note& note, Score const &score);
+	static void addParticleEffect(std::vector<DrawingParticle> &drawList, std::default_random_engine &rng, ParticleEffectType type, const Note &note, Score const &score, float effectDuration = NAN);
+	static void addLaneEffect(DrawData& drawData, const Note& note, Score const &score);
 	static void addNoteEffect(DrawData& drawData, const Note& note, Score const &score);
+	static void addSlotEffect(DrawData& drawData, const Note& note, Score const &score);
 
-    void DrawData::calculateDrawData(Score const &score)
+	void DrawData::calculateDrawData(Score const &score)
 	{
 		this->clear();
 		try
@@ -41,6 +42,7 @@ namespace MikuMikuWorld::Engine
 			this->noteSpeed = config.pvNoteSpeed;
 			this->hasLaneEffect = config.pvLaneEffect;
 			this->hasNoteEffect = config.pvNoteEffect;
+			this->hasSlotEffect = config.pvNoteGlow;
 			std::map<Range, Range, TargetTimeComparer> simBuilder;
 			for (auto rit = score.notes.rbegin(), rend = score.notes.rend(); rit != rend; rit++)
 			{
@@ -50,6 +52,8 @@ namespace MikuMikuWorld::Engine
 				bool hidden = false;
 				if (hasNoteEffect)
 					addNoteEffect(*this, note, score);
+				if (hasSlotEffect)
+					addSlotEffect(*this, note, score);
 				if (type == NoteType::Hold)
 					hidden = score.holdNotes.at(id).startType != HoldNoteType::Normal;
 				else if (type == NoteType::HoldEnd)
@@ -158,18 +162,23 @@ namespace MikuMikuWorld::Engine
 		drawingNotes.clear();
 		drawingHoldTicks.clear();
 		drawingHoldSegments.clear();
-		drawingParticles.clear();
+		drawingLaneEffects.clear();
+		drawingCircularEffects.clear();
+		drawingLinearEffects.clear();
+		drawingFlatEffects.clear();
+		drawingSlotEffects.clear();
+		drawingSlotGlowEffects.clear();
 		maxTicks = 1;
 		rng.seed((uint32_t)time(nullptr));
 	}
 
-    static bool ensureValidParticle(ParticleEffectType &effectType)
-    {
+	static bool ensureValidParticle(ParticleEffectType &effectType)
+	{
 		int effectID = static_cast<int>(effectType);
 		decltype(particleEffectFallback)::iterator it;
 		if (effectType == ParticleEffectType::Invalid)
 			return false;
-        if (effectID >= ResourceManager::particleEffects.size() || ResourceManager::particleEffects[effectID].particles.size() == 0)
+		if (effectID >= ResourceManager::particleEffects.size() || ResourceManager::particleEffects[effectID].particles.size() == 0)
 		{
 			ParticleEffectType originalEffect = effectType;
 			while ((it = particleEffectFallback.find(effectType)) != particleEffectFallback.end())
@@ -185,14 +194,17 @@ namespace MikuMikuWorld::Engine
 			return false;
 		}
 		return true;
-    }
+	}
 
-    static void addParticleEffect(DrawData &drawData, ParticleEffectType type, const Note &note, Score const &score, float effectDuration)
-    {
+	static void addParticleEffect(std::vector<DrawingParticle> &drawList, std::default_random_engine &rng, ParticleEffectType type, const Note &note, Score const &score, float effectDuration)
+	{
 		std::uniform_real_distribution<float> generator;
 		std::array<float, 8> randomValues;
-        int effectTypeId = static_cast<int>(type);
+		int effectTypeId = static_cast<int>(type);
 		const ParticleEffect& effect = ResourceManager::particleEffects[effectTypeId];
+		static int textureId = ResourceManager::getTexture("particles");
+		static const std::vector<Sprite>* spriteList = textureId >= 0 ? &ResourceManager::textures[textureId].sprites : nullptr;
+		if (!spriteList) return;
 		float spawn_tm = accumulateDuration(note.tick, TICKS_PER_BEAT, score.tempoChanges);
 		auto pStart = effect.particles.begin();
 		if (std::isnan(effectDuration))
@@ -209,19 +221,22 @@ namespace MikuMikuWorld::Engine
 			{
 				if (it == pBegin)
 					for (auto& val : randomValues)
-						val = generator(drawData.rng);
-				const auto& spawning = *it;
-				auto const& props = spawning.xywhta;
-				auto propsValue = spawning.compute(randomValues);
-				std::array<DrawingParticleProperty, 6> xywhta;
-				for (size_t i = 0; i < 6; i++) xywhta[i] = DrawingParticleProperty{propsValue[i], Engine::getEaseFunc(props[i].easing)};
-				drawData.drawingParticles.push_back(DrawingParticle {
-					effectTypeId,
-					(int)std::distance(effect.particles.begin(), it),
-					note.ID,
-					Range{spawn_tm, spawn_tm + effectDuration},
-					xywhta
-				});
+						val = generator(rng);
+				if (isArrayIndexInBounds(it->spriteID, *spriteList))
+				{
+					const auto& spawning = *it;
+					auto const& props = spawning.xywhta;
+					auto propsValue = spawning.compute(randomValues);
+					std::array<DrawingParticleProperty, 6> xywhta;
+					for (size_t i = 0; i < 6; i++) xywhta[i] = DrawingParticleProperty{propsValue[i], Engine::getEaseFunc(props[i].easing)};
+					drawList.push_back(DrawingParticle {
+						effectTypeId,
+						(int)std::distance(effect.particles.begin(), it),
+						note.ID,
+						Range{spawn_tm, spawn_tm + effectDuration},
+						xywhta
+					});
+				}
 				if (++it == pEnd) {
 					it = pBegin;
 					toSpawn--;
@@ -253,83 +268,157 @@ namespace MikuMikuWorld::Engine
 				auto it = std::lower_bound(steps.begin(), steps.end(), note.tick, [&](const HoldStep& step, int tick) { return step.type == HoldStepType::Hidden && (score.notes.at(step.ID).tick - tick) < 5; });
 				if (it != steps.begin())
 				{
-					addParticleEffect(drawData, effectType, score.notes.at(std::prev(it)->ID), score);
+					addParticleEffect(drawData.drawingLaneEffects, drawData.rng, effectType, score.notes.at(std::prev(it)->ID), score);
 					return;
 				}
 			}
 		}
-		addParticleEffect(drawData, effectType, note, score);
+		addParticleEffect(drawData.drawingLaneEffects, drawData.rng, effectType, note, score);
 	}
 
 	static void addHoldSegmentNoteEffect(DrawData &drawData, const Note &startNote, Score const &score)
 	{		
 		ParticleEffectType
 			circular = !startNote.critical ? ParticleEffectType::NoteLongSegmentCircular : ParticleEffectType::NoteLongCriticalSegmentCircular,
+			circularEx = !startNote.critical ? ParticleEffectType::NoteLongSegmentCircularEx : ParticleEffectType::NoteLongCriticalSegmentCircularEx,
 			linear = !startNote.critical ? ParticleEffectType::NoteLongSegmentLinear : ParticleEffectType::NoteLongCriticalSegmentLinear;
 		const Note& endNote = score.notes.at(score.holdNotes.at(startNote.ID).end);
 		float startTime = accumulateDuration(startNote.tick, TICKS_PER_BEAT, score.tempoChanges);
 		float endTime = accumulateDuration(endNote.tick, TICKS_PER_BEAT, score.tempoChanges);
 		if (ensureValidParticle(circular))
-			addParticleEffect(drawData, circular, startNote, score, endTime - startTime);
+			addParticleEffect(drawData.drawingCircularEffects, drawData.rng, circular, startNote, score, endTime - startTime);
+		if (ensureValidParticle(circularEx))
+			addParticleEffect(drawData.drawingLinearEffects, drawData.rng, circularEx, startNote, score, endTime - startTime);
 		if (ensureValidParticle(linear))
-			addParticleEffect(drawData, linear, startNote, score, endTime - startTime);
+			addParticleEffect(drawData.drawingLinearEffects, drawData.rng, linear, startNote, score, endTime - startTime);
 	}
 
-    static void addNoteEffect(DrawData &drawData, const Note &note, Score const &score)
-    {
+	static void addNoteEffect(DrawData &drawData, const Note &note, Score const &score)
+	{
 		ParticleEffectType circular = ParticleEffectType::Invalid, linear = ParticleEffectType::Invalid;
 		switch (note.getType())
 		{
-			case NoteType::Hold:
-			{
-				HoldNoteType startStepType = score.holdNotes.at(note.ID).startType;
-				if (startStepType != HoldNoteType::Guide)
-					addHoldSegmentNoteEffect(drawData, note, score);
-				if (startStepType == HoldNoteType::Normal)
-					if (!note.friction)
-						circular = !note.critical ? ParticleEffectType::NoteLongCircular : ParticleEffectType::NoteLongCriticalCircular;
-					else
-						circular = !note.critical ? ParticleEffectType::NoteFrictionCircular : ParticleEffectType::NoteFrictionCriticalCircular;
-				linear = static_cast<ParticleEffectType>(static_cast<int>(circular) + 1);
+		case NoteType::Hold:
+		{
+			HoldNoteType startStepType = score.holdNotes.at(note.ID).startType;
+			if (startStepType != HoldNoteType::Guide)
+				addHoldSegmentNoteEffect(drawData, note, score);
+			if (startStepType != HoldNoteType::Normal)
 				break;
-			}
-			case NoteType::HoldMid:
-			{
-				auto& holdNotes = score.holdNotes.at(note.parentID);
-				// Don't need to check for index bound
-				auto& holdStep = holdNotes.steps[findHoldStep(holdNotes, note.ID)];
-				if (holdStep.type == HoldStepType::Hidden)
-					return;
-				circular = !note.critical ? ParticleEffectType::NoteLongAmongCircular : ParticleEffectType::NoteLongAmongCriticalCircular;
-				break;
-			}
-			case NoteType::HoldEnd:
-				if (score.holdNotes.at(note.parentID).endType != HoldNoteType::Normal)
-					break;
-			case NoteType::Tap:
-				if (!note.friction)
-					if (note.flick == FlickType::None)
-						circular = !note.critical ? ParticleEffectType::NoteTapCircular : ParticleEffectType::NoteCriticalCircular;
-					else
-						circular = !note.critical ? ParticleEffectType::NoteFlickCircular : ParticleEffectType::NoteCriticalFlickCircular;
-				else
-					if (note.flick == FlickType::None)
-						circular = !note.critical ? ParticleEffectType::NoteFrictionCircular : ParticleEffectType::NoteFrictionCriticalCircular;
-					else
-						break;
-				linear = static_cast<ParticleEffectType>(static_cast<int>(circular) + 1);
-				break;
-			default:
+			if (!note.friction)
+				circular = !note.critical ? ParticleEffectType::NoteLongCircular : ParticleEffectType::NoteLongCriticalCircular;
+			else
+				circular = !note.critical ? ParticleEffectType::NoteFrictionCircular : ParticleEffectType::NoteFrictionCriticalCircular;
+			linear = static_cast<ParticleEffectType>(static_cast<int>(circular) + 1);
+			break;
+		}
+		case NoteType::HoldMid:
+		{
+			auto& holdNotes = score.holdNotes.at(note.parentID);
+			// Don't need to check for index bound
+			auto& holdStep = holdNotes.steps[findHoldStep(holdNotes, note.ID)];
+			if (holdStep.type == HoldStepType::Hidden)
 				return;
+			circular = !note.critical ? ParticleEffectType::NoteLongAmongCircular : ParticleEffectType::NoteLongAmongCriticalCircular;
+			break;
+		}
+		case NoteType::HoldEnd:
+			if (score.holdNotes.at(note.parentID).endType != HoldNoteType::Normal)
+				break;
+		case NoteType::Tap:
+			if (!note.friction)
+				if (note.flick == FlickType::None)
+					circular = !note.critical ? ParticleEffectType::NoteTapCircular : ParticleEffectType::NoteCriticalCircular;
+				else
+					circular = !note.critical ? ParticleEffectType::NoteFlickCircular : ParticleEffectType::NoteCriticalFlickCircular;
+			else
+				if (note.flick == FlickType::None)
+					circular = !note.critical ? ParticleEffectType::NoteFrictionCircular : ParticleEffectType::NoteFrictionCriticalCircular;
+				else
+					break;
+			linear = static_cast<ParticleEffectType>(static_cast<int>(circular) + 1);
+			break;
+		default:
+			return;
 		}
 		if (ensureValidParticle(circular))
-			addParticleEffect(drawData, circular, note, score);
+			switch(circular)
+			{
+			case ParticleEffectType::NoteLongAmongCircular: 
+			case ParticleEffectType::NoteLongAmongCriticalCircular:
+			case ParticleEffectType::NoteFrictionCircular:
+			case ParticleEffectType::NoteFrictionCriticalCircular:
+				addParticleEffect(drawData.drawingFlatEffects, drawData.rng, circular, note, score);
+				break;
+			default:
+				addParticleEffect(drawData.drawingCircularEffects, drawData.rng, circular, note, score);
+				break;
+			}
 		if (ensureValidParticle(linear))
-			addParticleEffect(drawData, linear, note, score);
+			addParticleEffect(drawData.drawingLinearEffects, drawData.rng, linear, note, score);
 		if (note.isFlick())
 		{
 			ParticleEffectType directional = !note.critical ? ParticleEffectType::NoteFlickDirectional : ParticleEffectType::NoteCriticalDirectional;
-			addParticleEffect(drawData, directional, note, score);
+			addParticleEffect(drawData.drawingLinearEffects, drawData.rng, directional, note, score);
 		}
-    }
+	}
+
+	void addSlotEffect(DrawData &drawData, const Note &note, Score const &score)
+	{
+		ParticleEffectType slot = ParticleEffectType::Invalid, slotGlow = ParticleEffectType::Invalid;
+		switch (note.getType())
+		{
+		case NoteType::Hold:
+		{
+			const auto& holdNote = score.holdNotes.at(note.ID);
+			if (holdNote.startType != HoldNoteType::Guide)
+			{
+				ParticleEffectType slotSegmentGlow = !note.critical ? ParticleEffectType::SlotGlowNoteLongSegment : ParticleEffectType::SlotGlowNoteLongCriticalSegment;
+				const Note& endNote = score.notes.at(holdNote.end);
+				float startTime = accumulateDuration(note.tick, TICKS_PER_BEAT, score.tempoChanges);
+				float endTime = accumulateDuration(endNote.tick, TICKS_PER_BEAT, score.tempoChanges);
+				addParticleEffect(drawData.drawingSlotGlowEffects, drawData.rng, slotSegmentGlow, note, score, endTime - startTime);
+			}
+			if (note.friction) return;
+			if (holdNote.startType == HoldNoteType::Normal)
+			{
+				slot = !note.critical ? ParticleEffectType::SlotNoteLong : ParticleEffectType::SlotNoteCritical;
+				slotGlow = !note.critical ? ParticleEffectType::SlotGlowNoteLong : ParticleEffectType::SlotGlowNoteCritical;
+			}
+			break;
+		}
+		case NoteType::HoldEnd:
+			if (note.friction) return;
+			if (score.holdNotes.at(note.parentID).endType == HoldNoteType::Normal)
+			{
+				slot = !note.critical ?
+					note.flick != FlickType::None
+					? ParticleEffectType::SlotNoteFlick
+					: ParticleEffectType::SlotNoteLong
+				: ParticleEffectType::SlotNoteCritical;
+				slotGlow = !note.critical ?
+					note.flick != FlickType::None
+					? ParticleEffectType::SlotGlowNoteFlick
+					: ParticleEffectType::SlotGlowNoteLong
+				: ParticleEffectType::SlotGlowNoteCritical;
+			}
+			break;
+		case NoteType::Tap:
+			if (note.friction) return;
+			slot = !note.critical 
+				? note.flick != FlickType::None
+					? ParticleEffectType::SlotNoteFlick
+					: ParticleEffectType::SlotNoteTap
+				: ParticleEffectType::SlotNoteCritical;
+			slotGlow = static_cast<ParticleEffectType>(static_cast<int>(slot) + 4);
+			break;
+		default:
+		case NoteType::HoldMid:
+			return;
+		}
+		if (ensureValidParticle(slot))
+			addParticleEffect(drawData.drawingSlotEffects, drawData.rng, slot, note, score);
+		if (ensureValidParticle(slotGlow))
+			addParticleEffect(drawData.drawingSlotGlowEffects, drawData.rng, slotGlow, note, score);
+	}
 }

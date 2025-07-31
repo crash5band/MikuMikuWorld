@@ -259,4 +259,39 @@ namespace MikuMikuWorld
 
 		batchStarted = false;
 	}
+
+    void Renderer::endBatchWithBlending(int srcRGB, int dstRGB, int srcA, int dstA)
+    {
+		GLboolean blending = glIsEnabled(GL_BLEND); // should always be true but just in case
+		if (!blending)
+			glEnable(GL_BLEND);
+		GLint oldSrcRGB, oldDstRGB, oldSrcAlpha, oldDstAlpha;
+		glGetIntegerv(GL_BLEND_SRC_RGB, &oldSrcRGB);
+		glGetIntegerv(GL_BLEND_DST_RGB, &oldDstRGB);
+		glGetIntegerv(GL_BLEND_SRC_ALPHA, &oldSrcAlpha);
+		glGetIntegerv(GL_BLEND_DST_ALPHA, &oldDstAlpha);
+		glBlendFuncSeparate(srcRGB, dstRGB, srcA, dstA);
+
+		endBatch();
+
+		glBlendFuncSeparate(oldSrcRGB, oldDstRGB, oldSrcAlpha, oldDstAlpha);
+		if (!blending)
+			glDisable(GL_BLEND);
+    }
+    
+	void Renderer::endBatchWithDepthTest(int depthFunc)
+    {
+		GLboolean depthTest = glIsEnabled(GL_DEPTH_TEST);
+		GLint oldDepthFunc;
+		if (!depthTest)
+			glEnable(GL_DEPTH_TEST);
+		glGetIntegerv(GL_DEPTH_FUNC, &oldDepthFunc);
+		glDepthFunc(depthFunc);
+
+		endBatch();
+
+		glDepthFunc(oldDepthFunc);
+		if (!depthTest)
+			glDisable(GL_DEPTH_TEST);
+    }
 }

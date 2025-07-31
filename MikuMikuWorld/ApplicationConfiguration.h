@@ -111,6 +111,7 @@ namespace MikuMikuWorld
 		float pvNoteSpeed;
 		float pvHoldAlpha;
 		float pvStageCover;
+		float pvStageOpacity;
 
 		InputConfiguration input;
 

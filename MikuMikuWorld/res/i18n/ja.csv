@@ -99,6 +99,7 @@ notes_effect, ノーツエフェクト
 notes_slot_effect, ノーツスロットエフェクト
 lanes_effect, レーンエフェクト
 holds_alpha, ロングノーツの不透明度
+stage_opacity, ステージの不透明度
 stage_cover, ステージカバー（縦方向）
 stage_lock_ratio, ステージのアスペクト比を維持
 

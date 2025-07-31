@@ -63,8 +63,8 @@ namespace MikuMikuWorld
 		return -1;
 	}
 
-    void ResourceManager::loadTransforms(const std::string &filename)
-    {
+	void ResourceManager::loadTransforms(const std::string &filename)
+	{
 		if (!IO::File::exists(filename))
 		{
 			fprintf(stderr, "ERROR: ResourceManager::loadTransforms() Could not find the file %s\n", filename.c_str());
@@ -116,10 +116,10 @@ namespace MikuMikuWorld
 				"Incompleted transform declaration!\n"
 			);
 		}
-    }
+	}
 
-    void ResourceManager::loadParticleEffects(const std::string &filename)
-    {
+	void ResourceManager::loadParticleEffects(const std::string &filename)
+	{
 		// [PTE] structure
 		// + uint32: "pte" signature
 		// + uint32: count of [ParticleEffect]
@@ -228,9 +228,9 @@ namespace MikuMikuWorld
 			particleEffect.particles.shrink_to_fit();
 			particleEffects.push_back(std::move(particleEffect));
 		}
-    }
+	}
 
-    void ResourceManager::disposeTexture(int texID)
+	void ResourceManager::disposeTexture(int texID)
 	{
 		for (int i = 0; i < textures.size(); ++i)
 		{

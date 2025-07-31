@@ -8,10 +8,10 @@ namespace MikuMikuWorld
 		return start + percentage * (end - start);
 	}
 
-    float unlerp(float start, float end, float value)
-    {
-        return (value - start) / (end - start);
-    }
+	float unlerp(float start, float end, float value)
+	{
+		return (value - start) / (end - start);
+	}
 
 	float easeIn(float start, float end, float ratio)
 	{
@@ -71,9 +71,9 @@ namespace MikuMikuWorld
 	{
 		// General formular for deriving ease funcions
 		// easeIn = some function that easeIn(0) = 0 and easeIn(1) = 1
-		// easeOut = 1 - easeIn(x-1)
-		// easeInOut = x < 0.5f ? easeIn(2x) / 2 : easeOut(2x - 1) / 2
-		// easeOutIn = x < 0.5f ? easeOut(2x) / 2 : easeIn(2x - 1) / 2
+		// easeOut = 1 - easeIn(1-x)
+		// easeInOut = x < 0.5f ? easeIn(2x) / 2 : (easeOut(2x - 1) + 1) / 2
+		// easeOutIn = x < 0.5f ? easeOut(2x) / 2 : (easeIn(2x - 1) + 1) / 2
 
 		float easeLinear(float x) { return x; }
 		float easeInSine(float x) { return 1 - std::cos(NUM_PI_2 * x); }
@@ -93,11 +93,11 @@ namespace MikuMikuWorld
 		float easeInOutQuart(float x) { return x < 0.5f ? 8*x*x*x*x : -7 + 32*x - 48*x*x + 32*x*x*x - 8*x*x*x*x; }
 		float easeOutInQuart(float x) { return x < 0.5f ? 4*x - 12*x*x + 16*x*x*x - 8*x*x*x*x : 1 - 4*x + 12*x*x - 16*x*x*x + 8*x*x*x*x; }
 		float easeInQuint(float x) { return x*x*x*x*x; }
-		float easeOutQuint(float x) { return 5*x - 10*x*x + 10*x*x*x - 5*x*x*x*x; }
+		float easeOutQuint(float x) { return 5*x - 10*x*x + 10*x*x*x - 5*x*x*x*x + x*x*x*x*x; }
 		float easeInOutQuint(float x) { return (x < 0.5f ? 0: -15 + 80*x - 160*x*x + 160*x*x*x - 80*x*x*x*x ) + 16*x*x*x*x*x; }
 		float easeOutInQuint(float x) { return 5*x - 20*x*x + 40*x*x*x - 40*x*x*x*x + 16*x*x*x*x*x; }
-		float easeInExpo(float x) { return std::pow(1024.f, x-1); } // f(x) = 2^(10(x-1))
-		float easeOutExpo(float x) { return 1 - std::pow(0.0009765625f, x); }
+		float easeInExpo(float x) { return x == 0 ? 0 : std::pow(1024.f, x-1); } // f(x) = 2^(10(x-1))
+		float easeOutExpo(float x) { return x == 1 ? 1 : 1 - std::pow(0.0009765625f, x); }
 		float easeInOutExpo(float x) { return x == 0 ? 0 : x == 1 ? 1 : (x < 0.5f ? std::pow(2.f, 20*x - 11) : 1 - std::pow(2.f, 9 - 20*x)); }
 		float easeOutInExpo(float x) { return x == 0.5f ? 0.5f : (x < 0.5f ? (1 - std::pow(2.f, -20*x)) : std::pow(2.f, 20*x-20) + 1) / 2; }
 		float easeInCirc(float x) { return 1 - std::sqrt(1 - x*x); }
@@ -106,12 +106,12 @@ namespace MikuMikuWorld
 		float easeOutInCirc(float x) { return x < 0.5f ? std::sqrt(x - x*x) : 1 - std::sqrt(x - x*x); }
 		float easeInBack(float x) { return -1.70158*x*x + 2.70158*x*x*x; } // f(x) = (c+1)x^3-cx^2 | c = 1.70158
 		float easeOutBack(float x) { x--; return 1 + 1.70158*x*x + 2.70158*x*x*x; } // c = 1.70158
-		float easeInOutBack(float x) { return x < 0.5f ? (-5.18982*x*x + 14.3796*x*x*x) : (-8.18982 + 32.7593*x - 37.9491*x*x + 14.3796*x*x*x); } // c = 1.70158 * 1.525
-		float easeOutInBack(float x) { return x < 0.5f ? (5.59491*x - 16.3796*x*x + 14.3796*x*x*x) : (-2.59491 + 15.9745*x - 26.7593*x*x + 14.3796*x*x*x); } // c = 1.70158 * 1.525
-		float easeInElastic(float x) { return x == 0 ? 0 : std::pow(-1024.f, x - 1) * std::sin((x - 1) * (20 * NUM_PI / 3) - NUM_PI_2); } // f (x) = -2^(10(x-1)) * sin((x-1-c/4)*(2pi/c)) | c = 0.3
+		float easeInOutBack(float x) { return x < 0.5f ? (-5.189819f*x*x + 14.379638f*x*x*x) : (-8.189819f + 32.759276f*x - 37.949095f*x*x + 14.379638f*x*x*x); } // c = 1.70158 * 1.525
+		float easeOutInBack(float x) { return x < 0.5f ? (5.5949095f*x - 16.379638f*x*x + 14.379638f*x*x*x) : (-2.5949095f + 15.9745475f*x - 26.759276f*x*x + 14.379638f*x*x*x); } // c = 1.70158 * 1.525
+		float easeInElastic(float x) { return x == 0 ? 0 : -std::pow(1024.f, x - 1) * std::sin((x - 1) * (20 * NUM_PI / 3) - NUM_PI_2); } // f (x) = -2^(10(x-1)) * sin((x-1-c/4)*(2pi/c)) | c = 0.3
 		float easeOutElastic(float x) { return x == 1 ? 1 : 1 + std::pow(0.0009765625f, x) * std::sin(-x * (20 * NUM_PI / 3) - NUM_PI_2); } // c = 0.3
 		float easeInOutElastic(float x) { return x == 0 ? 0 : x == 1 ? 1 : (x < 0.5f ? (-std::pow(2.f, 20*x-11) * std::sin((2*x-1) * (40 * NUM_PI / 9) - NUM_PI_2)) : 1 - std::pow(2.f, 9-20*x) * std::sin((2*x-1) * (40 * NUM_PI / 9) + NUM_PI_2) ); } // c = 0.45
-		float easeOutInElastic(float x) { return x == 0 ? 0 : x == 1 ? 1 : (x < 0.5f ? std::pow(2.f, -20*x) * std::sin(-x * (80 * NUM_PI / 9) - NUM_PI_2) : std::pow(-2.f, 20*(x-1)) * std::sin((x-1) * (80 * NUM_PI / 9) - NUM_PI_2)) / 2 + 0.5f; } // c = 0.45
+		float easeOutInElastic(float x) { return x == 0 ? 0 : x == 1 ? 1 : (x < 0.5f ? std::pow(2.f, -20*x) * std::sin(-x * (80 * NUM_PI / 9) - NUM_PI_2) : -std::pow(2.f, 20*(x-1)) * std::sin((x-1) * (80 * NUM_PI / 9) - NUM_PI_2)) / 2 + 0.5; } // c = 0.45
 
 		EasingFunc getEaseFunc(Easing easing)
 		{

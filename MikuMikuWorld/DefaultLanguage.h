@@ -104,6 +104,7 @@ namespace MikuMikuWorld
 		{"notes_slot_effect", "Notes Slot Effect"},
 		{"lanes_effect", "Lanes Effect"},
 		{"holds_alpha", "Long Note Transparency"},
+		{"stage_opacity", "Stage Opacity"},
 		{"stage_cover", "Vertical Stage Cover"},
 		{"stage_lock_ratio", "Lock Stage Aspect Ratio"},
 

@@ -314,6 +314,8 @@ namespace MikuMikuWorld
 	void Application::loadResources()
 	{
 		ResourceManager::loadShader(appDir + "res\\shaders\\basic2d");
+		ResourceManager::loadShader(appDir + "res\\shaders\\masking");
+		ResourceManager::loadShader(appDir + "res\\shaders\\particles");
 
 		const std::string texturesDir = appDir + "res\\textures\\";
 

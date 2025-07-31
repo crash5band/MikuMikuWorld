@@ -98,8 +98,8 @@ namespace MikuMikuWorld
 
 	uint32_t gcf(uint32_t a, uint32_t b);
 
-	static constexpr float NUM_PI = 3.14159265358979323846;
-	static constexpr float NUM_PI_2 = 3.14159265358979323846 / 2;
+	static constexpr double NUM_PI = 3.14159265358979323846;
+	static constexpr double NUM_PI_2 = 3.14159265358979323846 / 2;
 
 	namespace Engine
 	{
@@ -129,7 +129,7 @@ namespace MikuMikuWorld
 			OutIn = 1 << 6
 		};
 
-	    using EasingFunc = float(*)(float x);
+		using EasingFunc = float(*)(float x);
 
 		float easeLinear(float x);
 		float easeInSine(float x);
@@ -140,6 +140,34 @@ namespace MikuMikuWorld
 		float easeOutQuad(float x);
 		float easeInOutQuad(float x);
 		float easeOutInQuad(float x);
+		float easeInCubic(float x);
+		float easeOutCubic(float x);
+		float easeInOutCubic(float x);
+		float easeOutInCubic(float x);
+		float easeInQuart(float x);
+		float easeOutQuart(float x);
+		float easeInOutQuart(float x);
+		float easeOutInQuart(float x);
+		float easeInQuint(float x);
+		float easeOutQuint(float x);
+		float easeInOutQuint(float x);
+		float easeOutInQuint(float x);
+		float easeInExpo(float x);
+		float easeOutExpo(float x);
+		float easeInOutExpo(float x);
+		float easeOutInExpo(float x);
+		float easeInCirc(float x);
+		float easeOutCirc(float x);
+		float easeInOutCirc(float x);
+		float easeOutInCirc(float x);
+		float easeInBack(float x);
+		float easeOutBack(float x);
+		float easeInOutBack(float x);
+		float easeOutInBack(float x);
+		float easeInElastic(float x);
+		float easeOutElastic(float x);
+		float easeInOutElastic(float x);
+		float easeOutInElastic(float x);
 
 		EasingFunc getEaseFunc(Easing easing);
 	}

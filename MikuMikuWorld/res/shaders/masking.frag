@@ -10,8 +10,6 @@ out vec4 fragColor;
 
 uniform sampler2D baseTex;
 uniform sampler2D maskTex;
-uniform float blendFactor;
-uniform float tolerance;
 
 void main()
 {

@@ -12,7 +12,7 @@ namespace MikuMikuWorld
 		DirectX::XMVectorSetY(position, posY);
 	}
 
-    DirectX::XMMATRIX Camera::getOrthographicProjection(float width, float height)
+	DirectX::XMMATRIX Camera::getOrthographicProjection(float width, float height)
 	{
 		return DirectX::XMMatrixOrthographicRH(width, height, 0.001f, 100);
 	}

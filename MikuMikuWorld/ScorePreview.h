@@ -40,11 +40,15 @@ namespace MikuMikuWorld
 		float scaledAspectRatio;
 		std::unique_ptr<Texture> notesTex;
 		const Texture& getNoteTexture();
+		std::pair<float, float> getNoteBound(const Note& note) const;
+		std::pair<float, float> getHoldStepBound(const Note& note, const Score& score, int curTick) const;
+		std::pair<float, float> getHoldSegmentBound(const Note& note, const Score& score, int curTick) const;
 		
 		void drawNoteBase(Renderer* renderer, const Note& note, float left, float right, float y, float zScalar = 1);
-		void drawTraceDiamond(Renderer* renderer, const Note& note, float y);
+		void drawTraceDiamond(Renderer* renderer, const Note& note, float left, float right, float y);
 		void drawFlickArrow(Renderer* renderer, const Note& note, float y, float cur_time);
-		void drawParticle(Renderer *renderer, const Engine::DrawingParticle& particle, float progress, const Score& score, const Texture& texture, int curTick, int maxTick);
+		void drawParticle(Renderer* renderer, const std::array<DirectX::XMFLOAT4, 4>& layout, const Engine::DrawingParticle& particle,
+			float progress, const Texture& texture, const Sprite& sprite, int zIndex);
 	public:
 		ScorePreviewWindow(); 
 		~ScorePreviewWindow();
@@ -54,7 +58,9 @@ namespace MikuMikuWorld
 		void drawLines(const ScoreContext& context, Renderer* renderer);
 		void drawHoldTicks(const ScoreContext& context, Renderer* renderer);
 		void drawHoldCurves(const ScoreContext& context, Renderer* renderer);
+		void drawUnblendParticles(const ScoreContext& context, Renderer* renderer);
 		void drawParticles(const ScoreContext& context, Renderer* renderer);
-		void drawStage(Renderer* renderer);
+ 		void drawStage(Renderer* renderer);
+		void drawStageCover(Renderer* renderer);
 	};
 }

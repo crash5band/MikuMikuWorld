@@ -1039,7 +1039,7 @@ namespace MikuMikuWorld
 						UI::addPercentSliderProperty(getString("background_brightnes"), config.backgroundBrightness);
 						ImGui::Separator();
 
-						UI::addPercentSliderProperty(getString("lanes_opacity"), config.laneOpacity);
+						UI::addPercentSliderProperty(getString("stage_opacity"), config.pvStageOpacity);
 						UI::addPercentSliderProperty(getString("stage_cover"), config.pvStageCover);
 						UI::addCheckboxProperty(getString("stage_lock_ratio"), config.pvLockAspectRatio);
 						UI::endPropertyColumns();
