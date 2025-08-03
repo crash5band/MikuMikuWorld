@@ -469,7 +469,9 @@ static bool ZenityOpen(const std::vector<std::string>& arguments, std::string& o
 	if(!StartProcess(args[0], args.data(), &outfd, &pid))
 		return false;
 
-	SetWindowTransient(pid, stat);
+	char* session_type = getenv("XDG_SESSION_TYPE");
+	if (strcmp(session_type, "x11") == 0)
+		SetWindowTransient(pid, stat);
 
 	if (stat == 0)
 		waitpid(pid, &stat, 0);

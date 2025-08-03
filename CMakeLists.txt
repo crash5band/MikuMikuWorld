@@ -142,7 +142,7 @@ else()
                 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/MikuMikuWorld"
         )
         add_custom_command(TARGET MikuMikuWorld POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${CMAKE_SOURCE_DIR}/MikuMikuWorld/res" "${CMAKE_BINARY_DIR}/MikuMikuWorld/res"
+                COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/MikuMikuWorld/res" "${CMAKE_BINARY_DIR}/MikuMikuWorld/res"
                 COMMENT "Copying res"
         )
 
