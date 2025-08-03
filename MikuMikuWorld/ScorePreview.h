@@ -1,5 +1,6 @@
 #pragma once
 #include "ScoreContext.h"
+#include "ScoreEditorTimeline.h"
 #include "Rendering/Framebuffer.h"
 #include "Rendering/Renderer.h"
 
@@ -49,10 +50,15 @@ namespace MikuMikuWorld
 		void drawFlickArrow(Renderer* renderer, const Note& note, float y, float cur_time);
 		void drawParticle(Renderer* renderer, const std::array<DirectX::XMFLOAT4, 4>& layout, const Engine::DrawingParticle& particle,
 			float progress, const Texture& texture, const Sprite& sprite, int zIndex);
+		
+		void updateToolbar(ScoreEditorTimeline& timeline, ScoreContext& context) const;
+		float getScrollbarWidth() const;
+		void updateScrollbar(ScoreEditorTimeline& timeline, ScoreContext& context) const;
 	public:
 		ScorePreviewWindow(); 
 		~ScorePreviewWindow();
 		void update(ScoreContext& context, Renderer* renderer);
+		void updateUI(ScoreEditorTimeline& timeline, ScoreContext& context) const;
 
 		void drawNotes(const ScoreContext& context, Renderer* renderer);
 		void drawLines(const ScoreContext& context, Renderer* renderer);

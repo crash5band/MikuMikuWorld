@@ -168,6 +168,7 @@ namespace MikuMikuWorld
 		ImGui::SetNextWindowDockID(dockId, ImGuiCond_FirstUseEver);
 		ImGui::Begin(IMGUI_TITLE(ICON_FA_OBJECT_GROUP, "score_preview"), NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 		preview.update(context, renderer.get());
+		preview.updateUI(timeline, context);
 		ImGui::End();
 
 		if (config.debugEnabled)
