@@ -91,6 +91,7 @@ add_executable(MikuMikuWorld
 )
 
 target_include_directories(MikuMikuWorld PRIVATE
+        Depends/sal
         Depends/DirectXMath-master/Inc
         Depends/json
         Depends/stb_image
