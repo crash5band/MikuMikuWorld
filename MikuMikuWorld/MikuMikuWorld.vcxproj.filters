@@ -161,6 +161,9 @@
     <ClCompile Include="ScoreSerializer.cpp">
       <Filter>Score\Serialization</Filter>
     </ClCompile>
+    <ClCompile Include="Platform.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -363,6 +366,9 @@
     </ClInclude>
     <ClInclude Include="ScoreSerializer.h">
       <Filter>Score\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform.h">
+      <Filter>Misc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

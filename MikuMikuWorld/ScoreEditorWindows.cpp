@@ -22,7 +22,7 @@ namespace MikuMikuWorld
 				const Sprite& spr = tex.sprites[scoreStatsImages[row]];
 				ImVec2 uv0{ spr.getX1() / tex.getWidth(), spr.getY1() / tex.getHeight() };
 				ImVec2 uv1{ spr.getX2() / tex.getWidth(), spr.getY2() / tex.getHeight() };
-				ImGui::Image((void*)tex.getID(), { 20, 20 }, uv0, uv1);
+				ImGui::Image((ImTextureID)(size_t)tex.getID(), { 20, 20 }, uv0, uv1);
 			}
 			else
 			{
@@ -929,7 +929,7 @@ namespace MikuMikuWorld
 					if (ImGui::CollapsingHeader(getString("timeline"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
-						UI::addCheckboxProperty(getString("match_timeline_size_to_window"), config.matchTimelineSizeToScreen);
+						UI::addCheckboxProperty(getString("match_timeline_size_to_screen"), config.matchTimelineSizeToScreen);
 						UI::addCheckboxProperty(getString("match_notes_size_to_timeline"), config.matchNotesSizeToTimeline);
 						UI::addIntProperty(getString("lane_width"), config.timelineWidth, "%dpx", MIN_LANE_WIDTH, MAX_LANE_WIDTH);
 						

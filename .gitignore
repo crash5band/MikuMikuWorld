@@ -35,6 +35,9 @@ bld/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
+
+# Visual Studio Code
+.vscode/
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 
@@ -362,20 +365,25 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-MikuMikuWorld/imgui_config.ini
-
+# CMake build
+build/
+.cmake/
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+*.cmake
+compile_commands.json
+CMakeUserPresets.json
 CMakeLists.txt.user
 CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Testing
-Makefile
-cmake_install.cmake
 install_manifest.txt
-compile_commands.json
-CTestTestfile.cmake
-_deps
-CMakeUserPresets.json
+cmake-build-*/
 
-/.idea/
-/cmake-build-*/
+# IntelliJ IDEA
+.idea/
+_deps
+
+# Debian package
+*.deb
+_CPack*/

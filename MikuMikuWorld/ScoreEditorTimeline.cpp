@@ -7,6 +7,7 @@
 #include "Utilities.h"
 #include "ApplicationConfiguration.h"
 #include "Application.h"
+#include <cmath>
 #include <algorithm>
 
 namespace MikuMikuWorld
@@ -333,7 +334,7 @@ namespace MikuMikuWorld
 			const float bgWidth = static_cast<float>(background.getWidth());
 			const float bgHeight = static_cast<float>(background.getHeight());
 			ImVec2 bgPos{ position.x - (abs(bgWidth - size.x) / 2.0f), position.y - (abs(bgHeight - size.y) / 2.0f) };
-			drawList->AddImage((ImTextureID)background.getTextureID(), bgPos, bgPos + ImVec2{ bgWidth, bgHeight });
+			drawList->AddImage((ImTextureID)(size_t)background.getTextureID(), bgPos, bgPos + ImVec2{ bgWidth, bgHeight });
 		}
 
 		// Remember whether the last mouse click was in the timeline or not
@@ -824,7 +825,7 @@ namespace MikuMikuWorld
 		renderer->endBatch();
 		renderStats.addStats(renderer);
 
-		ImGui::GetWindowDrawList()->AddImage((void*)slidePathFramebuffer->getTexture(), position, position + size);
+		ImGui::GetWindowDrawList()->AddImage((ImTextureID)(size_t)slidePathFramebuffer->getTexture(), position, position + size);
 
 		notesFramebuffer->bind();
 		notesFramebuffer->clear();
@@ -900,7 +901,7 @@ namespace MikuMikuWorld
 			insertingHold = false;
 		}
 
-		ImGui::GetWindowDrawList()->AddImage((void*)notesFramebuffer->getTexture(), position, position + size);
+		ImGui::GetWindowDrawList()->AddImage((ImTextureID)(size_t)notesFramebuffer->getTexture(), position, position + size);
 		renderStats.renderCpuTime = renderTimer.elapsed();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -1496,7 +1497,7 @@ namespace MikuMikuWorld
 		const float limitY1 = getNoteYPosFromTick(positionToTick(visualOffset));
 
 		auto easeFunc = getEaseFunction(ease);
-		float steps = ease == EaseType::Linear ? 1 : std::max(5.0f, std::ceilf(abs((endY - startY)) / 10));
+		float steps = ease == EaseType::Linear ? 1 : std::max(5.0f, ceilf(abs((endY - startY)) / 10));
 
 		for (int y = 0; y < steps; ++y)
 		{
@@ -2117,7 +2118,7 @@ namespace MikuMikuWorld
 				const Note& note = it->second;
 				ImGui::Text("ID: %d\nType: %d\nTick: %d\nLane: %d\nWidth: %d\nCritical: %s\nFriction: %s\nFlick: %s",
 					note.ID,
-					note.getType(),
+					(int)note.getType(),
 					note.tick,
 					note.lane,
 					note.width,

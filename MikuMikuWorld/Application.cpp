@@ -69,43 +69,7 @@ namespace MikuMikuWorld
 
 	std::string Application::getVersion()
 	{
-#if defined(_WIN32)
-		wchar_t filename[1024];
-		lstrcpyW(filename, IO::mbToWideStr(IO::File::pathConcat(appDir, "MikuMikuWorld.exe")).c_str());
-
-		DWORD  verHandle = 0;
-		UINT   size = 0;
-		LPBYTE lpBuffer = NULL;
-		DWORD  verSize = GetFileVersionInfoSizeW(filename, &verHandle);
-
-		int major = 0, minor = 0, build = 0, rev = 0;
-		if (verSize != NULL)
-		{
-			LPSTR verData = new char[verSize];
-
-			if (GetFileVersionInfoW(filename, verHandle, verSize, verData))
-			{
-				if (VerQueryValue(verData, "\\", (VOID FAR * FAR*) & lpBuffer, &size))
-				{
-					if (size)
-					{
-						VS_FIXEDFILEINFO* verInfo = (VS_FIXEDFILEINFO*)lpBuffer;
-						if (verInfo->dwSignature == 0xfeef04bd)
-						{
-							major = (verInfo->dwFileVersionMS >> 16) & 0xffff;
-							minor = (verInfo->dwFileVersionMS >> 0) & 0xffff;
-							rev = (verInfo->dwFileVersionLS >> 16) & 0xffff;
-						}
-					}
-				}
-			}
-			delete[] verData;
-		}
-
-		return IO::formatString("%d.%d.%d", major, minor, rev);
-#elif defined(__APPLE__)
-		return platform::getBuildVersion();
-#endif
+		return Platform::GetBuildVersion();
 	}
 
 	const std::string& Application::getAppVersion()
@@ -142,8 +106,10 @@ namespace MikuMikuWorld
 		config.windowSize = windowState.size;
 		config.userColor = Color::fromImVec4(UI::accentColors[0]);
 
-		editor->writeSettings();
-		config.write(IO::File::pathConcat(appDir, APP_CONFIG_FILENAME));
+		if (editor) {
+			editor->writeSettings();
+			config.write(IO::File::pathConcat(appDir, APP_CONFIG_FILENAME));
+		}
 	}
 
 	void Application::appendOpenFile(const std::string& filename)
@@ -343,7 +309,7 @@ namespace MikuMikuWorld
 
 	void Application::run()
 	{
-#if defined(_WIN32)
+#ifdef MMW_WINDOWS
 		HWND hwnd = glfwGetWin32Window(window);
 
 		/*
@@ -360,7 +326,10 @@ namespace MikuMikuWorld
 			reinterpret_cast<UINT_PTR>(&windowState.windowTimerId), USER_TIMER_MINIMUM, nullptr);
 
 		::DragAcceptFiles(hwnd, TRUE);
+#elif defined(MMW_LINUX)
+		defaultDropFun = glfwSetDropCallback(window, windowDropCallback);
 #endif
+		glfwShowWindow(window);
 
 		while (!glfwWindowShouldClose(window))
 		{
@@ -378,6 +347,6 @@ namespace MikuMikuWorld
 
 	bool Application::isEditorUpToDate() const
 	{
-		return editor->isUpToDate();
+		return editor ? editor->isUpToDate() : true;
 	}
 }

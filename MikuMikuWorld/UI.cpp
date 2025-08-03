@@ -456,7 +456,7 @@ namespace MikuMikuWorld
 		const ImVec2 uv0{ spr.getX1() / tex.getWidth(), spr.getY1() / tex.getHeight() };
 		const ImVec2 uv1{ spr.getX2() / tex.getWidth(), spr.getY2() / tex.getHeight() };
 
-		bool activated = ImGui::ImageButton(lblId.c_str(), (void*)tex.getID(), UI::toolbarBtnImgSize, uv0, uv1);
+		bool activated = ImGui::ImageButton(lblId.c_str(), (ImTextureID)(size_t)tex.getID(), UI::toolbarBtnImgSize, uv0, uv1);
 
 		std::string tooltipLabel = label;
 		if (shortcut && strlen(shortcut))

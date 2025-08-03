@@ -49,7 +49,7 @@ namespace MikuMikuWorld
 		const char* glfwErrorDescription = NULL;
 		int possibleError = GLFW_NO_ERROR;
 
-#if defined(__APPLE__)
+#ifdef MMW_MACOS
 		glfwInitHint(GLFW_ANGLE_PLATFORM_TYPE, GLFW_ANGLE_PLATFORM_TYPE_METAL);
 #endif
 		glfwInit();
@@ -62,6 +62,7 @@ namespace MikuMikuWorld
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Hide the window until loading is finished
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 		glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
 

@@ -35,7 +35,7 @@ namespace MikuMikuWorld
 		{
 			bool gzip = true;
 			bool prettyDump = false;
-#if _DEBUG
+#ifndef NDEBUG
 			prettyDump = true;
 #endif
 

@@ -3,6 +3,7 @@
 #include "Score.h"
 #include "IO.h"
 #include "Constants.h"
+#include <cmath>
 #include <array>
 #include <unordered_set>
 #include <algorithm>
@@ -25,7 +26,7 @@ namespace MikuMikuWorld
 		for (int i = 2; i < 10; ++i)
 		{
 			if (fmodf(factor * length, 1) == 0)
-				return std::pair<int, int>(factor * length, pow(2, i));
+				return std::pair<int, int>((int)(factor * length), (int)pow(2, i));
 
 			factor *= 2;
 		}

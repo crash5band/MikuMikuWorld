@@ -1,5 +1,6 @@
 #pragma once
 #include <stdio.h>
+#include <cstdint>
 #include <string>
 
 namespace IO
@@ -20,6 +21,7 @@ namespace IO
 		size_t getStreamPosition();
 		void seek(size_t pos);
 
+		uint16_t readInt16();
 		uint32_t readInt32();
 		float readSingle();
 		std::string readString();

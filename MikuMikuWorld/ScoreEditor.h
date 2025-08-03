@@ -23,7 +23,9 @@ namespace MikuMikuWorld
 
 		Stopwatch autoSaveTimer;
 		std::string autoSavePath;
+#ifndef NDEBUG
 		bool showImGuiDemoWindow{false};
+#endif
 
 		std::future<void> loadScoreFuture{};
 		std::future<void> loadMusicFuture{};

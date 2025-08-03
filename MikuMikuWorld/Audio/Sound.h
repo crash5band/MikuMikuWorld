@@ -83,14 +83,14 @@ namespace Audio
 		
 		uint64_t getCurrentFrame()
 		{
-			uint64_t frame{};
+			ma_uint64 frame{};
 			ma_sound_get_cursor_in_pcm_frames(&source, &frame);
 			return frame;
 		}
 
 		uint64_t getLengthInFrames()
 		{
-			uint64_t frame{};
+			ma_uint64 frame{};
 			ma_sound_get_length_in_pcm_frames(&source, &frame);
 			return frame;
 		}
