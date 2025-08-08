@@ -811,7 +811,7 @@ namespace MikuMikuWorld
 			}
 			float noteCenter = noteLeft + (noteRight - noteLeft) / 2;
 			drawParticle(renderer,
-				Engine::linearQuadvPos(noteCenter, 1.0, 1.0 * scaledAspectRatio, 0),
+				Engine::linearQuadvPos(noteCenter, 1.0, 1.0 * scaledAspectRatio, shear),
 				particle, progress, texture, texture.sprites[particleData.spriteID],
 				Engine::getZIndex(SpriteLayer::PARTICLE_EFFECT, noteCenter, float(note.tick) / context.scorePreviewDrawData.maxTicks)
 			);
@@ -1199,7 +1199,7 @@ namespace MikuMikuWorld
 
 		ImVec2 scrollContentSize = ImGui::GetContentRegionAvail();
 		ImVec2 scrollMaxSize = ImGui::GetWindowContentRegionMax();
-		int maxTicks = context.scorePreviewDrawData.maxTicks;
+		int maxTicks = std::max(context.scorePreviewDrawData.maxTicks, 1);
 		float scrollRatio = std::min(Engine::getNoteDuration(config.pvNoteSpeed) / accumulateDuration(context.scorePreviewDrawData.maxTicks, TICKS_PER_BEAT, context.score.tempoChanges), 1.f);
 		float progress = std::min(float(context.currentTick) / maxTicks, 1.f);
 		float handleHeight = std::max(20.f, scrollContentSize.y * scrollRatio);
@@ -1207,7 +1207,7 @@ namespace MikuMikuWorld
 		bool scrollbarActive = false;
 		ImGui::BeginDisabled(timeline.isPlaying());
 		ImGui::SetCursorPos(ImGui::GetCursorStartPos());
-		ImGui::InvisibleButton("##scroll_bg", contentSize, ImGuiButtonFlags_AllowOverlap | ImGuiButtonFlags_NoNavFocus);
+		ImGui::InvisibleButton("##scroll_bg", contentSize, ImGuiButtonFlags_NoNavFocus);
 		scrollbarActive |= ImGui::IsItemActive();
 
 		ImVec2 handleSize = {style.ScrollbarSize, handleHeight};

@@ -95,7 +95,7 @@ namespace MikuMikuWorld::Engine
 				const Note& startNote = score.notes.at(holdNote.start.ID), endNote = score.notes.at(holdNote.end);
 				float start_tm = accumulateDuration(startNote.tick, TICKS_PER_BEAT, score.tempoChanges);
 				auto it = holdNote.steps.begin(), end = holdNote.steps.end();
-				for (const HoldStep* head = &holdNote.start, *tail; head != nullptr; head = tail, ++it)
+				for (const HoldStep* head = &holdNote.start, *tail; head != nullptr; head = tail)
 				{
 					while (it != end && it->type == HoldStepType::Skip)
 					{
@@ -147,6 +147,7 @@ namespace MikuMikuWorld::Engine
 							{tick_scaled_tm - noteDuration, tick_scaled_tm}
 						});
 					}
+					if (it != end) ++it;
 				}
 			}
 		}
