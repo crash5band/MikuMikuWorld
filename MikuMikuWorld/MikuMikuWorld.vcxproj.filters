@@ -373,9 +373,6 @@
     <ClInclude Include="ScoreSerializer.h">
       <Filter>Score\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="Platform.h">
-      <Filter>Misc</Filter>
-    </ClInclude>
     <ClInclude Include="PreviewEngine.h">
       <Filter>ScorePreview</Filter>
     </ClInclude>

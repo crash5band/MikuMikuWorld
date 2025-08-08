@@ -61,7 +61,7 @@ namespace MikuMikuWorld
 		jacketFile = jacket.getFilename();
 		brightness = config.backgroundBrightness;
 		bool useDefaultTexture = backgroundFile.empty();
-		Texture backgroundTex = { useDefaultTexture ? IO::File::pathConcat(Application::getResDir(), "textures", "default.png") : backgroundFile };
+		Texture backgroundTex = { useDefaultTexture ? Application::getAppDir() + "res\\textures\\default.png" : backgroundFile};
 		const float bgWidth = backgroundTex.getWidth(), bgHeight = backgroundTex.getHeight();
 		if (bgWidth != frameBuffer.getWidth() || bgHeight != frameBuffer.getHeight())
 			frameBuffer.resize(bgWidth, bgHeight);
@@ -1087,7 +1087,7 @@ namespace MikuMikuWorld
 		ImGui::PushStyleColor(ImGuiCol_ChildBg, 0x00202020 | childBgAlpha);
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
 		
-		ImGui::BeginChild("###toolbar", {0, 0}, ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+		ImGui::Begin("###preview_toolbar", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_ChildWindow);
 		toolBarWidth = ImGui::GetWindowWidth();
 		float centeredXBtn = toolBarWidth / 2 - UI::btnNormal.x / 2;
 		if (ImGui::IsWindowHovered())
@@ -1194,7 +1194,7 @@ namespace MikuMikuWorld
 		
 		ImGui::SetCursorPos(cursorBegPos + ImVec2{ contentSize.x - scrollbarSize.x - style.WindowPadding.x / 2, 0 });
 		ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_ScrollbarBg));
-		ImGui::BeginChild("###scrollbar", scrollbarSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
+		ImGui::BeginChild("###scrollbar", scrollbarSize, false, ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
 		ImGui::PopStyleColor();
 
 		ImVec2 scrollContentSize = ImGui::GetContentRegionAvail();

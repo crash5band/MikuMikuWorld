@@ -56,24 +56,18 @@ namespace IO
 
 	void BinaryWriter::writeInt16(uint16_t data)
 	{
-		if (!Platform::Bit::IsLittleEndian())
-			data = Platform::Bit::ByteSwap16(data);
 		if (stream)
 			fwrite(&data, sizeof(uint16_t), 1, stream);
 	}
 
 	void BinaryWriter::writeInt32(uint32_t data)
 	{
-		if (!Platform::Bit::IsLittleEndian())
-			data = Platform::Bit::ByteSwap32(data);
 		if (stream)
 			fwrite(&data, sizeof(uint32_t), 1, stream);
 	}
 
 	void BinaryWriter::writeSingle(float data)
 	{
-		if (!Platform::Bit::IsLittleEndian())
-			data = Platform::Bit::ByteSwapf32(data);
 		if (stream)
 			fwrite(&data, sizeof(float), 1, stream);
 	}

@@ -197,7 +197,6 @@
     <ClCompile Include="AggregateNotesFilter.cpp" />
     <ClCompile Include="OpenGlLoader.cpp" />
     <ClCompile Include="NotesPreset.cpp" />
-    <ClCompile Include="Platform.cpp" />
     <ClCompile Include="PreviewData.cpp" />
     <ClCompile Include="PreviewEngine.cpp" />
     <ClCompile Include="Rendering\Camera.cpp" />
@@ -251,7 +250,6 @@
     <ClInclude Include="ImGui\imstb_truetype.h" />
     <ClInclude Include="InputBinding.h" />
     <ClInclude Include="IO.h" />
-    <ClInclude Include="Platform.h" />
     <ClInclude Include="PreviewData.h" />
     <ClInclude Include="PreviewEngine.h" />
     <ClInclude Include="ScorePreview.h" />

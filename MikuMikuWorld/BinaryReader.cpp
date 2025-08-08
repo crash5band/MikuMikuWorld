@@ -49,8 +49,6 @@ namespace IO
 		uint16_t data = 0;
 		if (stream)
 			fread(&data, sizeof(uint16_t), 1, stream);
-		if (!Platform::Bit::IsLittleEndian())
-			data = Platform::Bit::ByteSwap16(data);
 		return data;
 	}
 
@@ -59,8 +57,6 @@ namespace IO
 		uint32_t data = 0;
 		if (stream)
 			fread(&data, sizeof(uint32_t), 1, stream);
-		if (!Platform::Bit::IsLittleEndian())
-			data = Platform::Bit::ByteSwap32(data);
 		return data;
 	}
 
@@ -69,8 +65,6 @@ namespace IO
 		float data = 0;
 		if (stream)
 			fread(&data, sizeof(float), 1, stream);
-		if (!Platform::Bit::IsLittleEndian())
-			data = Platform::Bit::ByteSwapf32(data);
 		return data;
 	}
 

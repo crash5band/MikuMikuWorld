@@ -1,5 +1,5 @@
 #pragma once
-#include <GLES3/gl3.h>
+#include "glad/glad.h"
 #include <cstddef>
 #include <array>
 #include <DirectXMath.h>
