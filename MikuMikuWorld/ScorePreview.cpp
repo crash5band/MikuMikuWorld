@@ -1082,9 +1082,10 @@ namespace MikuMikuWorld
 			ImGui::GetStyle().WindowPadding.y * 5
 		});
 		ImGui::SetNextWindowSizeConstraints({48, 0}, {120, FLT_MAX}, NULL);
-		ImU32 childBgAlpha = (static_cast<ImU32>(clamp(Engine::easeInCubic(unlerp(maxNoHoverTime, 0, lastHoveredTime)), 0.25f, 1.f) * 255) << IM_COL32_A_SHIFT) & IM_COL32_A_MASK;
+		float childBgAlpha = clamp(Engine::easeInCubic(unlerp(maxNoHoverTime, 0, lastHoveredTime)), 0.25f, 1.f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.f);
-		ImGui::PushStyleColor(ImGuiCol_ChildBg, 0x00202020 | childBgAlpha);
+		
+		ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetColorU32(ImGuiCol_WindowBg, childBgAlpha));
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
 		
 		ImGui::Begin("###preview_toolbar", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_ChildWindow);
