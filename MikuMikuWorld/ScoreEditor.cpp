@@ -160,6 +160,7 @@ namespace MikuMikuWorld
 		settingsWindow.update();
 		aboutDialog.update();
 
+		const bool timeline_just_created = (ImGui::FindWindowByName("###notes_timeline") == NULL);
 		ImGui::Begin(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"), NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 		ImGuiID dockId = ImGui::GetWindowDockID();
 		timeline.update(context, edit, renderer.get());
@@ -170,6 +171,8 @@ namespace MikuMikuWorld
 		preview.update(context, renderer.get());
 		preview.updateUI(timeline, context);
 		ImGui::End();
+
+		if (timeline_just_created) ImGui::SetWindowFocus("###notes_timeline");
 
 		if (config.debugEnabled)
 		{
