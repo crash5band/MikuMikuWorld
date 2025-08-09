@@ -416,7 +416,7 @@ namespace MikuMikuWorld
 		if (startNote.tick == curTick) return std::make_pair(leftStart, rightStart);
 
 		auto end = std::find_if(it, holdNotes.steps.end(), isNotHoldSkip);
-		const Note& endNote = score.notes.at(end == holdNotes.steps.end() ? holdNotes.end : it->ID);
+		const Note& endNote = score.notes.at(end == holdNotes.steps.end() ? holdNotes.end : end->ID);
 		auto [leftStop, rightStop] = getNoteBound(endNote);
 		if (endNote.tick == curTick) return std::make_pair(leftStop, rightStop);
 
