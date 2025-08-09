@@ -19,6 +19,7 @@ namespace MikuMikuWorld
 
 		void clear();
 		void bind();
+		void unblind();
 		void dispose();
 		void resize(unsigned int w, unsigned int h);
 

@@ -255,6 +255,7 @@ namespace MikuMikuWorld
 			ImGuiID bottomRightId = ImGui::DockBuilderSplitNode(midRightId, ImGuiDir_Down, 0.3f, nullptr, &midRightId);
 
 			ImGui::DockBuilderDockWindow("###notes_timeline", dockMainId);
+			ImGui::DockBuilderDockWindow("###score_preview", dockMainId);
 			ImGui::DockBuilderDockWindow("###chart_properties", midRightId);
 			ImGui::DockBuilderDockWindow("###options", bottomRightId);
 			ImGui::DockBuilderDockWindow("###presets", bottomRightId);

@@ -153,7 +153,9 @@ namespace MikuMikuWorld
 
 	void Shader::setMatrix4(const std::string& name, DirectX::XMMATRIX value)
 	{
-		glUniformMatrix4fv(getUniformLoc(name), 1, GL_FALSE, (GLfloat*)&value.r->m128_f32[0]);
+		DirectX::XMFLOAT4X4 mat;
+		DirectX::XMStoreFloat4x4(&mat, value);
+		glUniformMatrix4fv(getUniformLoc(name), 1, GL_FALSE, (GLfloat*)&mat.m[0][0]);
 	}
 
 }

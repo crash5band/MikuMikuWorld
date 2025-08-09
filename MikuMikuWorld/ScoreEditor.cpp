@@ -160,9 +160,19 @@ namespace MikuMikuWorld
 		settingsWindow.update();
 		aboutDialog.update();
 
+		const bool timeline_just_created = (ImGui::FindWindowByName("###notes_timeline") == NULL);
 		ImGui::Begin(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"), NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+		ImGuiID dockId = ImGui::GetWindowDockID();
 		timeline.update(context, edit, renderer.get());
 		ImGui::End();
+
+		ImGui::SetNextWindowDockID(dockId, ImGuiCond_FirstUseEver);
+		ImGui::Begin(IMGUI_TITLE(ICON_FA_OBJECT_GROUP, "score_preview"), NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+		preview.update(context, renderer.get());
+		preview.updateUI(timeline, context);
+		ImGui::End();
+
+		if (timeline_just_created) ImGui::SetWindowFocus("###notes_timeline");
 
 		if (config.debugEnabled)
 		{
@@ -215,6 +225,7 @@ namespace MikuMikuWorld
 		context.workingData = {};
 		context.history.clear();
 		context.scoreStats.reset();
+		context.scorePreviewDrawData.clear();
 		context.audio.disposeMusic();
 		context.waveformL.clear();
 		context.waveformR.clear();
@@ -261,6 +272,7 @@ namespace MikuMikuWorld
 			context.audio.setMusicOffset(0, context.workingData.musicOffset);
 
 			context.scoreStats.calculateStats(context.score);
+			context.scorePreviewDrawData.calculateDrawData(context.score);
 			timeline.calculateMaxOffsetFromScore(context.score);
 
 			UI::setWindowTitle((context.workingData.filename.size() ? IO::File::getFilename(context.workingData.filename) : windowUntitled));

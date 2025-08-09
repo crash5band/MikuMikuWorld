@@ -131,8 +131,11 @@ namespace MikuMikuWorld
 		config.windowSize = windowState.size;
 		config.userColor = Color::fromImVec4(UI::accentColors[0]);
 
-		editor->writeSettings();
-		config.write(appDir + APP_CONFIG_FILENAME);
+		if (editor)
+		{
+			editor->writeSettings();
+			config.write(appDir + APP_CONFIG_FILENAME);
+		}
 	}
 
 	void Application::appendOpenFile(const std::string& filename)
@@ -311,6 +314,8 @@ namespace MikuMikuWorld
 	void Application::loadResources()
 	{
 		ResourceManager::loadShader(appDir + "res\\shaders\\basic2d");
+		ResourceManager::loadShader(appDir + "res\\shaders\\masking");
+		ResourceManager::loadShader(appDir + "res\\shaders\\particles");
 
 		const std::string texturesDir = appDir + "res\\textures\\";
 
@@ -319,6 +324,11 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(texturesDir + "touchLine_eff.png");
 		ResourceManager::loadTexture(texturesDir + "timeline_tools.png");
 		ResourceManager::loadTexture(texturesDir + "note_stats.png");
+		ResourceManager::loadTexture(texturesDir + "stage.png");
+		ResourceManager::loadTexture(texturesDir + "particles.png");
+
+		ResourceManager::loadTransforms(texturesDir + "transform.txt");
+		ResourceManager::loadParticleEffects(texturesDir + "particles.pte");
 
 		// Cache note textures indices
 		noteTextures.notes = ResourceManager::getTexture(NOTES_TEX);

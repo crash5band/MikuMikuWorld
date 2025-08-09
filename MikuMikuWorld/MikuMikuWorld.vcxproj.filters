@@ -59,9 +59,6 @@
     <ClCompile Include="Rendering\Shader.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\VertexBuffer.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="UI.cpp">
       <Filter>UI</Filter>
     </ClCompile>
@@ -164,6 +161,15 @@
     </ClCompile>
     <ClCompile Include="..\Depends\zlib\src\gzlib.c" />
     <ClCompile Include="..\Depends\zlib\src\deflate.c" />
+    <ClCompile Include="PreviewEngine.cpp">
+      <Filter>ScorePreview</Filter>
+    </ClCompile>
+    <ClCompile Include="ScorePreview.cpp">
+      <Filter>ScorePreview</Filter>
+    </ClCompile>
+    <ClCompile Include="PreviewData.cpp">
+      <Filter>ScorePreview</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -367,6 +373,15 @@
     <ClInclude Include="ScoreSerializer.h">
       <Filter>Score\Serialization</Filter>
     </ClInclude>
+    <ClInclude Include="PreviewEngine.h">
+      <Filter>ScorePreview</Filter>
+    </ClInclude>
+    <ClInclude Include="ScorePreview.h">
+      <Filter>ScorePreview</Filter>
+    </ClInclude>
+    <ClInclude Include="PreviewData.h">
+      <Filter>ScorePreview</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">
@@ -432,6 +447,9 @@
     <Filter Include="Score\Serialization">
       <UniqueIdentifier>{299ab9ff-c0b1-4146-abb1-d4eb55442bff}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ScorePreview">
+      <UniqueIdentifier>{b2e37fa4-b250-4e59-89d0-131b15a9423e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MikuMikuWorld.rc">
@@ -442,5 +460,10 @@
     <Image Include="mmw_icon.ico">
       <Filter>Resources</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Rendering\VertexBuffer.inl">
+      <Filter>Rendering</Filter>
+    </None>
   </ItemGroup>
 </Project>

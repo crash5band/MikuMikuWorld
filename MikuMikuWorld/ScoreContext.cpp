@@ -677,6 +677,7 @@ namespace MikuMikuWorld
 			upToDate = false;
 
 			scoreStats.calculateStats(score);
+			scorePreviewDrawData.calculateDrawData(score);
 		}
 	}
 
@@ -691,6 +692,7 @@ namespace MikuMikuWorld
 			upToDate = false;
 
 			scoreStats.calculateStats(score);
+			scorePreviewDrawData.calculateDrawData(score);
 		}
 	}
 
@@ -700,6 +702,7 @@ namespace MikuMikuWorld
 
 		UI::setWindowTitle((workingData.filename.size() ? File::getFilename(workingData.filename) : windowUntitled) + "*");
 		scoreStats.calculateStats(score);
+		scorePreviewDrawData.calculateDrawData(score);
 
 		upToDate = false;
 	}

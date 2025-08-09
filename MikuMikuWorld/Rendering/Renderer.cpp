@@ -5,10 +5,10 @@
 
 namespace MikuMikuWorld
 {
-	Renderer::Renderer() : vBuffer{ VertexBuffer(maxQuads) }
+	Renderer::Renderer() : vBuffer{ maxQuads }, mvBuffer{ 24 }
 	{
 		vBuffer.setup();
-		vBuffer.bind();
+		mvBuffer.setup();
 		quads.reserve(maxQuads);
 		init();
 	}
@@ -16,10 +16,10 @@ namespace MikuMikuWorld
 	void Renderer::init()
 	{
 		// order: top-right, bottom-right, bottom-left, top-left
-		vPos[0] = DirectX::XMVECTOR{ 0.5f, 0.5f, 0.0f, 1.0f };
-		vPos[1] = DirectX::XMVECTOR{ 0.5f, -0.5f, 0.0f, 1.0f };
-		vPos[2] = DirectX::XMVECTOR{ -0.5f, -0.5f, 0.0f, 1.0f };
-		vPos[3] = DirectX::XMVECTOR{ -0.5f, 0.5f, 0.0f, 1.0f };
+		vPos[0] = {  0.5f,  0.5f, 0.0f, 1.0f };
+		vPos[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
+		vPos[2] = { -0.5f, -0.5f, 0.0f, 1.0f };
+		vPos[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
 	}
 
 	void Renderer::setAnchor(AnchorType type)
@@ -54,10 +54,10 @@ namespace MikuMikuWorld
 		default: break;
 		}
 
-		vPos[0] = DirectX::XMVECTOR{ right, top, 0.0f, 1.0f };
-		vPos[1] = DirectX::XMVECTOR{ right, bottom, 0.0f, 1.0f };
-		vPos[2] = DirectX::XMVECTOR{ left, bottom, 0.0f, 1.0f };
-		vPos[3] = DirectX::XMVECTOR{ left, top, 0.0f, 1.0f };
+		vPos[0] = { right, top, 0.0f, 1.0f };
+		vPos[1] = { right, bottom, 0.0f, 1.0f };
+		vPos[2] = { left, bottom, 0.0f, 1.0f };
+		vPos[3] = { left, top, 0.0f, 1.0f };
 	}
 
 	void Renderer::setUVCoords(const Texture& tex, float x1, float x2, float y1, float y2)
@@ -67,10 +67,10 @@ namespace MikuMikuWorld
 		float top		= y1 / tex.getHeight();
 		float bottom	= y2 / tex.getHeight();
 
-		uvCoords[0] = DirectX::XMVECTOR{ right, top, 0.0f, 0.0f };
-		uvCoords[1] = DirectX::XMVECTOR{ right, bottom, 0.0f, 0.0f };
-		uvCoords[2] = DirectX::XMVECTOR{ left, bottom, 0.0f, 0.0f };
-		uvCoords[3] = DirectX::XMVECTOR{ left, top, 0.0f, 0.0f };
+		uvCoords[0] = { right, top, 0.0f, 0.0f };
+		uvCoords[1] = { right, bottom, 0.0f, 0.0f };
+		uvCoords[2] = { left, bottom, 0.0f, 0.0f };
+		uvCoords[3] = { left, top, 0.0f, 0.0f };
 	}
 
 	DirectX::XMMATRIX Renderer::getModelMatrix(const Vector2& pos, const float rot, const Vector2& sz)
@@ -94,7 +94,7 @@ namespace MikuMikuWorld
 		const Texture& tex, float x1, float x2, float y1, float y2, const Color& tint, int z)
 	{
 		DirectX::XMMATRIX model = getModelMatrix(pos, rot, sz);
-		DirectX::XMVECTOR color{ tint.r, tint.g, tint.b, tint.a };
+		DirectX::XMFLOAT4 color{ tint.r, tint.g, tint.b, tint.a };
 		setUVCoords(tex, x1, x2, y1, y2);
 		setAnchor(anchor);
 
@@ -105,13 +105,22 @@ namespace MikuMikuWorld
 		const Texture& tex, float x1, float x2, float y1, float y2, const Color& tint, int z)
 	{
 		setUVCoords(tex, x1, x2, y1, y2);
-		vPos[0] = DirectX::XMVECTOR{ p4.x, p4.y, 0.0f, 1.0f };
-		vPos[1] = DirectX::XMVECTOR{ p2.x, p2.y, 0.0f, 1.0f };
-		vPos[2] = DirectX::XMVECTOR{ p1.x, p1.y, 0.0f, 1.0f };
-		vPos[3] = DirectX::XMVECTOR{ p3.x, p3.y, 0.0f, 1.0f };
-		DirectX::XMVECTOR color{ tint.r, tint.g, tint.b, tint.a };
+		vPos[0] = { p4.x, p4.y, 0.0f, 1.0f };
+		vPos[1] = { p2.x, p2.y, 0.0f, 1.0f };
+		vPos[2] = { p1.x, p1.y, 0.0f, 1.0f };
+		vPos[3] = { p3.x, p3.y, 0.0f, 1.0f };
+		DirectX::XMFLOAT4 color{ tint.r, tint.g, tint.b, tint.a };
 
 		pushQuad(vPos, uvCoords, DirectX::XMMatrixIdentity(), color, tex.getID(), z);
+	}
+
+	void Renderer::drawQuad(const std::array<DirectX::XMFLOAT4, 4> &pos, const DirectX::XMMATRIX &m,
+		const Texture &tex, float x1, float x2, float y1, float y2, const Color &tint, int z)
+	{
+		setUVCoords(tex, x1, x2, y1, y2);
+		DirectX::XMFLOAT4 color{ tint.r, tint.g, tint.b, tint.a };
+
+		pushQuad(pos, uvCoords, m, color, tex.getID(), z);
 	}
 
 	void Renderer::drawRectangle(Vector2 position, Vector2 size, const Texture& tex, float x1, float x2, float y1, float y2, Color tint, int z)
@@ -124,25 +133,25 @@ namespace MikuMikuWorld
 		drawQuad(p4, p3, p1, p2, tex, x1, x2, y1, y2, tint, z);
 	}
 
-	void Renderer::pushQuad(const std::array<DirectX::XMVECTOR, 4>& pos, const std::array<DirectX::XMVECTOR, 4>& uv,
-		const DirectX::XMMATRIX& m, const DirectX::XMVECTOR& col, int tex, int z)
+	void Renderer::pushQuad(const std::array<DirectX::XMFLOAT4, 4>& pos, const std::array<DirectX::XMFLOAT4, 4>& uv,
+		const DirectX::XMMATRIX& m, const DirectX::XMFLOAT4& col, int tex, int z)
 	{
-		Quad q{ tex, z };
-		q.vertices[0].position = DirectX::XMVector2Transform(pos[0], m);
-		q.vertices[0].color = col;
-		q.vertices[0].uv = uvCoords[0];
+		Quad<Vertex> q{ tex, z };
+		q.vertices[0].position = DirectX::XMVector2Transform(DirectX::XMLoadFloat4(&pos[0]), m);
+		q.vertices[0].color = DirectX::XMLoadFloat4(&col);
+		q.vertices[0].uv = DirectX::XMLoadFloat4(&uv[0]);
 
-		q.vertices[1].position = DirectX::XMVector2Transform(pos[1], m);
-		q.vertices[1].color = col;
-		q.vertices[1].uv = uvCoords[1];
+		q.vertices[1].position = DirectX::XMVector2Transform(DirectX::XMLoadFloat4(&pos[1]), m);
+		q.vertices[1].color = DirectX::XMLoadFloat4(&col);
+		q.vertices[1].uv = DirectX::XMLoadFloat4(&uv[1]);
 
-		q.vertices[2].position = DirectX::XMVector2Transform(pos[2], m);
-		q.vertices[2].color = col;
-		q.vertices[2].uv = uvCoords[2];
+		q.vertices[2].position = DirectX::XMVector2Transform(DirectX::XMLoadFloat4(&pos[2]), m);
+		q.vertices[2].color = DirectX::XMLoadFloat4(&col);
+		q.vertices[2].uv = DirectX::XMLoadFloat4(&uv[2]);
 
-		q.vertices[3].position = DirectX::XMVector2Transform(pos[3], m);
-		q.vertices[3].color = col;
-		q.vertices[3].uv = uvCoords[3];
+		q.vertices[3].position = DirectX::XMVector2Transform(DirectX::XMLoadFloat4(&pos[3]), m);
+		q.vertices[3].color = DirectX::XMLoadFloat4(&col);
+		q.vertices[3].uv = DirectX::XMLoadFloat4(&uv[3]);
 
 		quads.push_back(std::move(q));
 
@@ -151,7 +160,24 @@ namespace MikuMikuWorld
 		numIndices += 6;
 	}
 
-	void Renderer::resetRenderStats()
+    void Renderer::pushQuadMasked(const std::array<DirectX::XMFLOAT4, 4> &pos, const std::array<DirectX::XMFLOAT4, 4> &UV, const std::array<DirectX::XMFLOAT4, 4> &maskUV, const DirectX::XMFLOAT4 &col, int tex, int maskTex)
+    {
+		Quad<MaskVertex> mQuad { tex, maskTex };
+		for (size_t i = 0; i < 4; i++)
+		{
+			mQuad.vertices[i].position = DirectX::XMLoadFloat4(&pos[i]);
+			mQuad.vertices[i].uvBase = DirectX::XMLoadFloat4(&UV[i]);
+			mQuad.vertices[i].uvMask = DirectX::XMLoadFloat4(&maskUV[i]);
+			mQuad.vertices[i].color = DirectX::XMLoadFloat4(&col);
+		}
+		mQuads.push_back(mQuad);
+
+		++numQuads;
+		numVertices += 4;
+		numIndices += 6;
+    }
+
+    void Renderer::resetRenderStats()
 	{
 		numIndices = 0;
 		numVertices = 0;
@@ -169,6 +195,8 @@ namespace MikuMikuWorld
 		batchStarted = true;
 		vBuffer.resetBufferPos();
 		quads.clear();
+		mvBuffer.resetBufferPos();
+		mQuads.clear();
 		resetRenderStats();
 	}
 
@@ -179,34 +207,91 @@ namespace MikuMikuWorld
 		numBatchVertices = numVertices;
 		numBatchQuads = numQuads;
 
-		if (!quads.size())
-			return;
-
-		std::stable_sort(quads.begin(), quads.end(),
-			[](const Quad& q1, const Quad& q2) {return q1.zIndex < q2.zIndex; });
-		
-		bindTexture(quads[0].texture);
-		int vertexCount = 0;
-
-		for (const auto& q : quads)
+		if (quads.size())
 		{
-			if (texID != q.texture || vertexCount + 4 >= vBuffer.getCapacity())
+			std::stable_sort(quads.begin(), quads.end(),
+				[](const Quad<Vertex>& q1, const Quad<Vertex>& q2) {return q1.zIndex < q2.zIndex; });
+			
+			vBuffer.bind();
+			bindTexture(quads[0].texture);
+			int vertexCount = 0;
+	
+			for (const auto& q : quads)
 			{
-				vBuffer.uploadBuffer();
-				vBuffer.flushBuffer();
-				vBuffer.resetBufferPos();
-				vertexCount = 0;
-
-				bindTexture(q.texture);
+				if (texID != q.texture || vertexCount + 4 >= vBuffer.getCapacity())
+				{
+					vBuffer.uploadBuffer();
+					vBuffer.flushBuffer();
+					vBuffer.resetBufferPos();
+					vertexCount = 0;
+	
+					bindTexture(q.texture);
+				}
+	
+				vBuffer.pushBuffer(q);
+				vertexCount += 4;
 			}
-
-			vBuffer.pushBuffer(q);
-			vertexCount += 4;
+	
+			vBuffer.uploadBuffer();
+			vBuffer.flushBuffer();
 		}
 
-		vBuffer.uploadBuffer();
-		vBuffer.flushBuffer();
+		if (mQuads.size())
+		{
+			mvBuffer.bind();
+			int quadPerBatch = mvBuffer.getCapacity() / 4;
+			for (size_t batch = 0, nBatch = (mQuads.size() + quadPerBatch - 1) / quadPerBatch; batch < nBatch; batch++)
+			{
+				size_t start = batch * quadPerBatch, stop = std::min(start + quadPerBatch, mQuads.size());
+				for (size_t i = start; i < stop; i++)
+					mvBuffer.pushBuffer(mQuads[i]);
+				mvBuffer.uploadBuffer();
+				for (size_t i = start, vi = 0; i < stop; i++, vi += 4)
+				{
+					glActiveTexture(GL_TEXTURE1);
+					glBindTexture(GL_TEXTURE_2D, mQuads[i].zIndex);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, mQuads[i].texture);
+					mvBuffer.flushBuffer(vi, 4);
+				}
+			}
+		}
 
 		batchStarted = false;
 	}
+
+    void Renderer::endBatchWithBlending(int srcRGB, int dstRGB, int srcA, int dstA)
+    {
+		GLboolean blending = glIsEnabled(GL_BLEND); // should always be true but just in case
+		if (!blending)
+			glEnable(GL_BLEND);
+		GLint oldSrcRGB, oldDstRGB, oldSrcAlpha, oldDstAlpha;
+		glGetIntegerv(GL_BLEND_SRC_RGB, &oldSrcRGB);
+		glGetIntegerv(GL_BLEND_DST_RGB, &oldDstRGB);
+		glGetIntegerv(GL_BLEND_SRC_ALPHA, &oldSrcAlpha);
+		glGetIntegerv(GL_BLEND_DST_ALPHA, &oldDstAlpha);
+		glBlendFuncSeparate(srcRGB, dstRGB, srcA, dstA);
+
+		endBatch();
+
+		glBlendFuncSeparate(oldSrcRGB, oldDstRGB, oldSrcAlpha, oldDstAlpha);
+		if (!blending)
+			glDisable(GL_BLEND);
+    }
+    
+	void Renderer::endBatchWithDepthTest(int depthFunc)
+    {
+		GLboolean depthTest = glIsEnabled(GL_DEPTH_TEST);
+		GLint oldDepthFunc;
+		if (!depthTest)
+			glEnable(GL_DEPTH_TEST);
+		glGetIntegerv(GL_DEPTH_FUNC, &oldDepthFunc);
+		glDepthFunc(depthFunc);
+
+		endBatch();
+
+		glDepthFunc(oldDepthFunc);
+		if (!depthTest)
+			glDisable(GL_DEPTH_TEST);
+    }
 }

@@ -100,6 +100,18 @@ namespace MikuMikuWorld
 		int seProfileIndex;
 		int lastSelectedExportIndex;
 		bool debugEnabled;
+		bool pvLockAspectRatio;
+		bool pvMirrorScore;
+		bool pvFlickAnimation;
+		bool pvSimultaneousLine;
+		bool pvHoldAnimation;
+		bool pvLaneEffect;
+		bool pvNoteEffect;
+		bool pvNoteGlow;
+		float pvNoteSpeed;
+		float pvHoldAlpha;
+		float pvStageCover;
+		float pvStageOpacity;
 
 		InputConfiguration input;
 

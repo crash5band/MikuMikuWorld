@@ -1,0 +1,20 @@
+# Sekai Stage
+0,1,2048,1176
+# mask_2dmode_floor_grd.png
+0,1176,2048,390
+# bg_2dmode_window_nml.png
+0,1566,840,840
+# tex_2dmode_jacket_nml_main.png
+840,2366,498,474
+# tex_2dmode_jacket_nml_l.png
+0,2406,322,212
+# tex_2dmode_jacket_nml_r.png
+480,2406,240,136
+# bg_2dmode_window_mirror.png
+1248,1566,800,800
+# tex_2dmode_jacket_mirror_main.png
+1520,2376,474,428
+# tex_2dmode_jacket_mirror_l.png
+480,2556,310,196
+# tex_2dmode_jacket_mirror_r.png
+0,2622,244,130

@@ -54,6 +54,12 @@ namespace IO
 			fseek(stream, pos, SEEK_SET);
 	}
 
+	void BinaryWriter::writeInt16(uint16_t data)
+	{
+		if (stream)
+			fwrite(&data, sizeof(uint16_t), 1, stream);
+	}
+
 	void BinaryWriter::writeInt32(uint32_t data)
 	{
 		if (stream)
@@ -68,9 +74,15 @@ namespace IO
 
 	void BinaryWriter::writeNull(size_t length)
 	{
-		uint8_t zero = 0;
-		if (stream)
-			fwrite(&zero, sizeof(uint8_t), length, stream);
+		static const uint8_t zero[1024] = { 0 };
+		if (!stream)
+			return;
+		while (sizeof(zero) < length)
+		{
+			fwrite(zero, sizeof(uint8_t), sizeof(zero), stream);
+			length -= sizeof(zero);
+		}
+		fwrite(zero, sizeof(uint8_t), length, stream);
 	}
 
 	void BinaryWriter::writeString(std::string data)

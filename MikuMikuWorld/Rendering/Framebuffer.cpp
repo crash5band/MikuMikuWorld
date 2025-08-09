@@ -44,6 +44,11 @@ namespace MikuMikuWorld
 		glViewport(0, 0, width, height);
 	}
 
+	void Framebuffer::unblind()
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
 	void Framebuffer::dispose()
 	{
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
@@ -89,7 +94,7 @@ namespace MikuMikuWorld
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			printf("RenderTarget::setup() ERROR: Incomplete framebuffer");
+			fprintf(stderr, "RenderTarget::setup() ERROR: Incomplete framebuffer");
 
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

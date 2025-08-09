@@ -1000,6 +1000,72 @@ namespace MikuMikuWorld
 					ImGui::EndTabItem();
 				}
 
+				if (ImGui::BeginTabItem(IMGUI_TITLE("", "preview")))
+				{
+					if (ImGui::CollapsingHeader(getString("general"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						UI::beginPropertyColumns();
+						UI::addSliderProperty(getString("notes_speed"), config.pvNoteSpeed, 1, 12, "%.2f");
+						UI::addCheckboxProperty(getString("mirror_score"), config.pvMirrorScore);						
+						UI::endPropertyColumns();
+					}
+
+					if (ImGui::CollapsingHeader(getString("background"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						UI::beginPropertyColumns();
+						UI::addCheckboxProperty(getString("draw_background"), config.drawBackground);
+
+						std::string backgroundFile = config.backgroundImage;
+						int result = UI::addFileProperty(getString("background_image"), backgroundFile);
+						if (result == 1)
+						{
+							config.backgroundImage = backgroundFile;
+							isBackgroundChangePending = true;
+						}
+						else if (result == 2)
+						{
+							IO::FileDialog fileDialog{};
+							fileDialog.title = "Open Image File";
+							fileDialog.filters = { IO::imageFilter, IO::allFilter };
+							fileDialog.parentWindowHandle = Application::windowState.windowHandle;
+
+							if (fileDialog.openFile() == IO::FileDialogResult::OK)
+							{
+								config.backgroundImage = fileDialog.outputFilename;
+								isBackgroundChangePending = true;
+							}
+						}
+
+						UI::addPercentSliderProperty(getString("background_brightnes"), config.backgroundBrightness);
+						ImGui::Separator();
+
+						UI::addPercentSliderProperty(getString("stage_opacity"), config.pvStageOpacity);
+						UI::addPercentSliderProperty(getString("stage_cover"), config.pvStageCover);
+						UI::addCheckboxProperty(getString("stage_lock_ratio"), config.pvLockAspectRatio);
+						UI::endPropertyColumns();
+					}
+					
+					if (ImGui::CollapsingHeader(getString("visuals"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						UI::beginPropertyColumns();
+						UI::addCheckboxProperty(getString("flicks_animation"), config.pvFlickAnimation);
+						UI::addCheckboxProperty(getString("holds_animation"), config.pvHoldAnimation);
+						UI::addCheckboxProperty(getString("simultaneous_lines"), config.pvSimultaneousLine);
+						UI::addCheckboxProperty(getString("notes_effect"), config.pvNoteEffect);
+						UI::addCheckboxProperty(getString("notes_slot_effect"), config.pvNoteGlow);
+						UI::addCheckboxProperty(getString("lanes_effect"), config.pvLaneEffect);
+						ImGui::Separator();
+
+						float hold_alpha = config.pvHoldAlpha * 100.f;
+						UI::addSliderProperty(getString("holds_alpha"), hold_alpha, 10, 100, "%.0f%%");
+						config.pvHoldAlpha = hold_alpha / 100.f;
+						
+						UI::endPropertyColumns();
+					}
+					
+					ImGui::EndTabItem();
+				}
+
 				if (ImGui::BeginTabItem(IMGUI_TITLE("", "key_config")))
 				{
 					updateKeyConfig(bindings, sizeof(bindings) / sizeof(MultiInputBinding*));

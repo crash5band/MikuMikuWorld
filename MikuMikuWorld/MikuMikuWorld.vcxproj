@@ -197,18 +197,20 @@
     <ClCompile Include="AggregateNotesFilter.cpp" />
     <ClCompile Include="OpenGlLoader.cpp" />
     <ClCompile Include="NotesPreset.cpp" />
+    <ClCompile Include="PreviewData.cpp" />
+    <ClCompile Include="PreviewEngine.cpp" />
     <ClCompile Include="Rendering\Camera.cpp" />
     <ClCompile Include="Rendering\Framebuffer.cpp" />
     <ClCompile Include="Rendering\Renderer.cpp" />
     <ClCompile Include="Rendering\Shader.cpp" />
     <ClCompile Include="Rendering\Texture.cpp" />
-    <ClCompile Include="Rendering\VertexBuffer.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Score.cpp" />
     <ClCompile Include="ScoreContext.cpp" />
     <ClCompile Include="ScoreConverter.cpp" />
     <ClCompile Include="ScoreEditorTimeline.cpp" />
     <ClCompile Include="ScoreEditorWindows.cpp" />
+    <ClCompile Include="ScorePreview.cpp" />
     <ClCompile Include="ScoreSerializer.cpp" />
     <ClCompile Include="ScoreStats.cpp" />
     <ClCompile Include="SonolusSerializer.cpp" />
@@ -248,6 +250,9 @@
     <ClInclude Include="ImGui\imstb_truetype.h" />
     <ClInclude Include="InputBinding.h" />
     <ClInclude Include="IO.h" />
+    <ClInclude Include="PreviewData.h" />
+    <ClInclude Include="PreviewEngine.h" />
+    <ClInclude Include="ScorePreview.h" />
     <ClInclude Include="ScoreSerializer.h" />
     <ClInclude Include="Jacket.h" />
     <ClInclude Include="JsonIO.h" />
@@ -297,6 +302,9 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MikuMikuWorld.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Rendering\VertexBuffer.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

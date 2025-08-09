@@ -20,10 +20,14 @@ namespace MikuMikuWorld
 		size_t numQuads{};
 		size_t numBatchQuads{};
 
-		VertexBuffer vBuffer;
-		std::vector<Quad> quads;
-		std::array<DirectX::XMVECTOR, 4> vPos;
-		std::array<DirectX::XMVECTOR, 4> uvCoords;
+		VertexBuffer<Vertex> vBuffer;
+		std::vector<Quad<Vertex>> quads;
+
+		VertexBuffer<MaskVertex> mvBuffer;
+		std::vector<Quad<MaskVertex>> mQuads;
+
+		std::array<DirectX::XMFLOAT4, 4> vPos;
+		std::array<DirectX::XMFLOAT4, 4> uvCoords;
 
 		int texID{};
 		bool batchStarted{ false };
@@ -38,7 +42,11 @@ namespace MikuMikuWorld
 		void drawSprite(const Vector2& pos, float rot, const Vector2& sz, AnchorType anchor, const Texture& tex,
 			float x1, float x2, float y1, float y2, const Color& tint = Color(1.0f, 1.0f, 1.0f, 1.0f), int z = 0);
 		
+		// Draw a quad using points, defines in the zigzag order top->bottom, left->right
 		void drawQuad(const Vector2& p1, const Vector2& p2, const Vector2& p3, const Vector2& p4, const Texture& tex, float x1, float x2, float y1, float y2,
+			const Color& tint = Color(1.0f, 1.0f, 1.0f, 1.0f), int z = 0);
+		// Draw a quad using vertex positions, defines in the order right->left, bottom->top
+		void drawQuad(const std::array<DirectX::XMFLOAT4, 4>& pos, const DirectX::XMMATRIX& m, const Texture& tex, float x1, float x2, float y1, float y2,
 			const Color& tint = Color(1.0f, 1.0f, 1.0f, 1.0f), int z = 0);
 
 		void drawRectangle(Vector2 position, Vector2 size, const Texture& tex, float x1, float x2, float y1, float y2, Color tint, int z);
@@ -47,12 +55,17 @@ namespace MikuMikuWorld
 		void setAnchor(AnchorType type);
 		DirectX::XMMATRIX getModelMatrix(const Vector2& pos, const float rot, const Vector2& sz);
 
-		void pushQuad(const std::array<DirectX::XMVECTOR, 4>& pos, const std::array<DirectX::XMVECTOR, 4>& uv,
-			const DirectX::XMMATRIX& m, const DirectX::XMVECTOR& col, int tex, int z);
+		void pushQuad(const std::array<DirectX::XMFLOAT4, 4>& pos, const std::array<DirectX::XMFLOAT4, 4>& uv,
+			const DirectX::XMMATRIX& m, const DirectX::XMFLOAT4& col, int tex, int z);
+
+		void pushQuadMasked(const std::array<DirectX::XMFLOAT4, 4>& pos, const std::array<DirectX::XMFLOAT4, 4>& UV, const std::array<DirectX::XMFLOAT4, 4>& maskUV,
+			const DirectX::XMFLOAT4& col, int tex, int maskTex);
 
 		void bindTexture(int tex);
 		void beginBatch();
 		void endBatch();
+		void endBatchWithBlending(int srcRGB, int dstRGB, int srcA, int dstA);
+		void endBatchWithDepthTest(int depthFunc);
 
 		inline int getNumVertices() const { return numBatchVertices; }
 		inline int getNumQuads() const { return numBatchQuads; }

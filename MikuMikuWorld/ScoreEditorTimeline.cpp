@@ -7,6 +7,8 @@
 #include "Utilities.h"
 #include "ApplicationConfiguration.h"
 #include "Application.h"
+#include "Rendering/Camera.h"
+#include <cmath>
 #include <algorithm>
 
 namespace MikuMikuWorld
@@ -309,7 +311,7 @@ namespace MikuMikuWorld
 		size = ImGui::GetContentRegionAvail() - ImVec2{ ImGui::GetStyle().ScrollbarSize, UI::toolbarBtnSize.y };
 		position = ImGui::GetCursorScreenPos();
 		boundaries = ImRect(position, position + size);
-		mouseInTimeline = ImGui::IsMouseHoveringRect(position, position + size);
+		mouseInTimeline = ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(position, position + size);
 
 		laneOffset = (size.x * 0.5f) - ((NUM_LANES * laneWidth) * 0.5f);
 		minOffset = size.y - 50;
@@ -766,7 +768,7 @@ namespace MikuMikuWorld
 
 		Shader* shader = ResourceManager::shaders[0];
 		shader->use();
-		shader->setMatrix4("projection", camera.getOffCenterOrthographicProjection(0, size.x, position.y, position.y + size.y));
+		shader->setMatrix4("projection", Camera::getOffCenterOrthographicProjection(0, size.x, position.y + size.y, position.y));
 
 		slidePathFramebuffer->bind();
 		slidePathFramebuffer->clear();

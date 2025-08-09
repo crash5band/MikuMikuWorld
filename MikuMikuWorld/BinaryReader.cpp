@@ -44,12 +44,19 @@ namespace IO
 		return ftell(stream);
 	}
 
+	uint16_t IO::BinaryReader::readInt16()
+	{
+		uint16_t data = 0;
+		if (stream)
+			fread(&data, sizeof(uint16_t), 1, stream);
+		return data;
+	}
+
 	uint32_t BinaryReader::readInt32()
 	{
 		uint32_t data = 0;
 		if (stream)
 			fread(&data, sizeof(uint32_t), 1, stream);
-
 		return data;
 	}
 
@@ -58,7 +65,6 @@ namespace IO
 		float data = 0;
 		if (stream)
 			fread(&data, sizeof(float), 1, stream);
-
 		return data;
 	}
 

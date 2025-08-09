@@ -68,6 +68,7 @@ theme_light, ライト
 theme_dark, ダーク
 custom_color, カスタム色
 timeline, タイムライン
+preview, プレビュー
 match_timeline_size_to_screen, タイムラインの広さを画面の広さに合わせる
 match_notes_size_to_timeline, ノーツの高さをレーンの幅に合わせる
 lane_width, レーンの幅
@@ -88,11 +89,25 @@ lanes_opacity, レーンの不透明度
 video, 画面
 vsync_enable, VSync（垂直同期）
 notes_se, ノーツのSE
+visuals, ビジュアル
+notes_speed, ノーツの速さ
+mirror_score, ミラー譜面
+flicks_animation, マーカーのアニメーション
+holds_animation, ロングノーツのアニメーション
+simultaneous_lines, 同時押しライン
+notes_effect, ノーツエフェクト
+notes_slot_effect, ノーツスロットエフェクト
+lanes_effect, レーンエフェクト
+holds_alpha, ロングノーツの不透明度
+stage_opacity, ステージの不透明度
+stage_cover, ステージカバー（縦方向）
+stage_lock_ratio, ステージのアスペクト比を維持
 
 # score editor
 options, オプション
 chart_properties, 譜面プロパティ
 notes_timeline, タイムライン
+score_preview, 譜面プレビュー
 select, 選択
 tap, タップ
 hold, スライド
