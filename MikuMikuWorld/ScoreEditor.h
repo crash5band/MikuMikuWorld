@@ -22,6 +22,7 @@ namespace MikuMikuWorld
 		SettingsWindow settingsWindow{};
 		RecentFileNotFoundDialog recentFileNotFoundDialog{};
 		AboutDialog aboutDialog{};
+		std::unique_ptr<ScoreSerializationDialog> serializationDialog;
 
 		Stopwatch autoSaveTimer;
 		std::string autoSavePath;
@@ -43,10 +44,9 @@ namespace MikuMikuWorld
 		void reset();
 		void open();
 		void loadScore(std::string filename);
-		void asyncLoadScore(std::string filename);
 		void loadMusic(std::string filename);
 		void asyncLoadMusic(std::string filename);
-		void exportSus();
+		void exportExternal();
 		bool saveAs();
 		bool trySave(std::string);
 		void autoSave();

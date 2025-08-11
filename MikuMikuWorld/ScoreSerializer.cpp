@@ -10,7 +10,7 @@ namespace MikuMikuWorld
 	{
 		MMWS_EXTENSION,
 		SUS_EXTENSION,
-		USC_EXTENSION
+		SCP_EXTENSION
 	};
 
 	bool ScoreSerializer::isSupportedFileFormat(const std::string_view& extension)
@@ -31,22 +31,18 @@ namespace MikuMikuWorld
 		{
 			return std::make_unique<SusSerializer>();
 		}
-		else if (ext == USC_EXTENSION)
+		else if (ext == SCP_EXTENSION)
 		{
 			bool gzip = true;
 			bool prettyDump = false;
 #if _DEBUG
 			prettyDump = true;
 #endif
-
-#ifdef USC_NO_GZIP
-			gzip = false;
-#endif
 			return std::make_unique<SonolusSerializer>(prettyDump, gzip);
 		}
 		else
 		{
-			throw UnsupportedScoreFormatError(fileExtension);
+			return nullptr;
 		}
 	}
 

@@ -11,9 +11,10 @@ namespace IO
 {
 	FileDialogFilter mmwsFilter{ "MikuMikuWorld Score", "*.mmws" };
 	FileDialogFilter susFilter{ "Sliding Universal Score", "*.sus" };
-	FileDialogFilter uscFilter{ "Sonolus Level", "*.usc" };
+	FileDialogFilter scpFilter{ "Sonolus Collection", "*.scp" };
 	FileDialogFilter imageFilter{ "Image Files", "*.jpg;*.jpeg;*.png" };
 	FileDialogFilter audioFilter{ "Audio Files", "*.mp3;*.wav;*.flac;*.ogg" };
+	FileDialogFilter presetFilter{ "Notes Preset", "*.json" };
 	FileDialogFilter allFilter{ "All Files", "*.*" };
 
 	File::File(const std::string& filename, FileMode mode)

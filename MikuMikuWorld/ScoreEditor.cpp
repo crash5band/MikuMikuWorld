@@ -82,7 +82,7 @@ namespace MikuMikuWorld
 			if (ImGui::IsAnyPressed(config.input.openHelp)) help();
 			if (ImGui::IsAnyPressed(config.input.save)) trySave(context.workingData.filename);
 			if (ImGui::IsAnyPressed(config.input.saveAs)) saveAs();
-			if (ImGui::IsAnyPressed(config.input.exportSus)) exportSus();
+			if (ImGui::IsAnyPressed(config.input.exportExternal)) exportExternal();
 			if (ImGui::IsAnyPressed(config.input.togglePlayback)) timeline.setPlaying(context, !timeline.isPlaying());
 			if (ImGui::IsAnyPressed(config.input.stop)) timeline.stop(context);
 			if (ImGui::IsAnyPressed(config.input.previousTick, true)) timeline.previousTick(context);
@@ -159,6 +159,52 @@ namespace MikuMikuWorld
 
 		settingsWindow.update();
 		aboutDialog.update();
+		if (serializationDialog)
+		{
+			switch (serializationDialog->update())
+			{
+			case SerializationDialogResult::SerializeSuccess:
+				IO::messageBox(
+					APP_NAME,
+					IO::formatString(getString("export_successful")),
+					IO::MessageBoxButtons::Ok,
+					IO::MessageBoxIcon::Information,
+					Application::windowState.windowHandle
+				);
+				serializationDialog.reset();
+				break;
+			case SerializationDialogResult::DeserializeSuccess:
+				context.clearSelection();
+				context.history.clear();
+				context.score = serializationDialog->getScore();
+				context.workingData = EditorScoreData(context.score.metadata, serializationDialog->getFilename());
+
+				asyncLoadMusic(context.workingData.musicFilename);
+				context.audio.setMusicOffset(0, context.workingData.musicOffset);
+
+				context.scoreStats.calculateStats(context.score);
+				context.scorePreviewDrawData.calculateDrawData(context.score);
+				timeline.calculateMaxOffsetFromScore(context.score);
+
+				UI::setWindowTitle((context.workingData.filename.size() ? IO::File::getFilename(context.workingData.filename) : windowUntitled));
+				context.upToDate = true;
+				serializationDialog.reset();
+				break;
+			default:
+			case SerializationDialogResult::Error:
+				IO::messageBox(
+					APP_NAME,
+					serializationDialog->getErrorMessage(),
+					IO::MessageBoxButtons::Ok,
+					IO::MessageBoxIcon::Error,
+					Application::windowState.windowHandle
+				);
+				serializationDialog.reset();
+				break;
+			case SerializationDialogResult::None:
+				break;
+			}
+		}
 
 		const bool timeline_just_created = (ImGui::FindWindowByName("###notes_timeline") == NULL);
 		ImGui::Begin(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"), NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
@@ -242,65 +288,11 @@ namespace MikuMikuWorld
 		if (!IO::File::exists(filename))
 			return;
 
-		std::string extension = IO::File::getFileExtension(filename);
-		std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-
-		// Backup next note ID in case of an import failure
-		int nextIdBackup = nextID;
-		try
-		{
-			resetNextID();
-			std::string workingFilename;
-			Score newScore;
-
-			timeline.setPlaying(context, false);
-			
-			std::unique_ptr<ScoreSerializer> serializer = ScoreSerializerFactory::getSerializer(extension);
-			newScore = serializer->deserialize(filename);
-			
-			if (ScoreSerializerFactory::isNativeScoreFormat(extension))
-			{
-				workingFilename = filename;
-			}
-
-			context.clearSelection();
-			context.history.clear();
-			context.score = std::move(newScore);
-			context.workingData = EditorScoreData(context.score.metadata, workingFilename);
-
-			asyncLoadMusic(context.workingData.musicFilename);
-			context.audio.setMusicOffset(0, context.workingData.musicOffset);
-
-			context.scoreStats.calculateStats(context.score);
-			context.scorePreviewDrawData.calculateDrawData(context.score);
-			timeline.calculateMaxOffsetFromScore(context.score);
-
-			UI::setWindowTitle((context.workingData.filename.size() ? IO::File::getFilename(context.workingData.filename) : windowUntitled));
-			context.upToDate = true;
-		}
-		catch (std::exception& error)
-		{
-			nextID = nextIdBackup;
-			std::string errorMessage = IO::formatString("%s\n%s: %s\n%s: %s",
-				getString("error_load_score_file"),
-				getString("score_file"),
-				filename.c_str(),
-				getString("error"),
-				error.what()
-			);
-
-			IO::messageBox(APP_NAME, errorMessage, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error, Application::windowState.windowHandle);
-		}
+		timeline.setPlaying(context, false);
+		serializationDialog = SerializationDialogFactory::getDialog(filename);
+		serializationDialog->openDeserializingDialog(filename);
 
 		updateRecentFilesList(filename);
-	}
-
-	void ScoreEditor::asyncLoadScore(std::string filename)
-	{
-		if (loadScoreFuture.valid())
-			loadScoreFuture.get();
-
-		loadScoreFuture = std::async(std::launch::async, &ScoreEditor::loadScore, this, filename);
 	}
 
 	void ScoreEditor::loadMusic(std::string filename)
@@ -355,7 +347,7 @@ namespace MikuMikuWorld
 		IO::FileDialog fileDialog{};
 		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 		fileDialog.title = "Open Chart";
-		fileDialog.filters = { { "Score Files", "*.mmws;*.sus;*.usc" } };
+		fileDialog.filters = { IO::combineFilters("All Supported Files", {IO::mmwsFilter, IO::susFilter, IO::scpFilter}) };
 		
 		if (fileDialog.openFile() == IO::FileDialogResult::OK)
 			loadScore(fileDialog.outputFilename);
@@ -371,7 +363,7 @@ namespace MikuMikuWorld
 		try
 		{
 			context.score.metadata = context.workingData.toScoreMetadata();
-			serializeScore(context.score, filename);
+			ScoreSerializerFactory::getSerializer(MMWS_EXTENSION)->serialize(context.score, filename);
 
 			UI::setWindowTitle(IO::File::getFilename(filename));
 			context.upToDate = true;
@@ -414,49 +406,23 @@ namespace MikuMikuWorld
 		return false;
 	}
 
-	void ScoreEditor::exportSus()
+	void ScoreEditor::exportExternal()
 	{
-		constexpr const char* exportExtensions[] = { "sus", "usc" };
+		constexpr const char* exportExtensions[] = { "sus", "scp" };
 		int filterIndex = std::clamp(config.lastSelectedExportIndex, 0, static_cast<int>(arrayLength(exportExtensions) - 1));
 
 		IO::FileDialog fileDialog{};
 		fileDialog.title = "Export Chart";
-		fileDialog.filters = { IO::susFilter, IO::uscFilter };
+		fileDialog.filters = { IO::susFilter, IO::scpFilter };
 		fileDialog.filterIndex = filterIndex;
 		fileDialog.defaultExtension = exportExtensions[filterIndex];
 		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 
 		if (fileDialog.saveFile() == IO::FileDialogResult::OK)
 		{
-			try
-			{
-				Score exportScore = context.score;
-				exportScore.metadata = context.workingData.toScoreMetadata();
-
-				std::string extension = IO::File::getFileExtension(fileDialog.outputFilename);
-				std::unique_ptr<ScoreSerializer> serializer = ScoreSerializerFactory::getSerializer(extension);
-
-				serializer->serialize(exportScore, fileDialog.outputFilename);
-
-				IO::messageBox(
-					APP_NAME,
-					IO::formatString(getString("export_successful")),
-					IO::MessageBoxButtons::Ok,
-					IO::MessageBoxIcon::Information,
-					Application::windowState.windowHandle
-				);
-			}
-			catch (const std::exception& err)
-			{
-				IO::messageBox(
-					APP_NAME,
-					IO::formatString("An error occured while exporting the score file\n%s", err.what()),
-					IO::MessageBoxButtons::Ok,
-					IO::MessageBoxIcon::Error,
-					Application::windowState.windowHandle
-				);
-			}
-
+			serializationDialog = SerializationDialogFactory::getDialog(fileDialog.outputFilename);
+			serializationDialog->openSerializingDialog(context, fileDialog.outputFilename);
+			
 			config.lastSelectedExportIndex = fileDialog.filterIndex;
 		}
 	}
@@ -512,8 +478,8 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(getString("save_as"), ToShortcutString(config.input.saveAs)))
 				saveAs();
 
-			if (ImGui::MenuItem(getString("export"), ToShortcutString(config.input.exportSus)))
-				exportSus();
+			if (ImGui::MenuItem(getString("export"), ToShortcutString(config.input.exportExternal)))
+				exportExternal();
 
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("exit"), ToShortcutString(ImGuiKey_F4, ImGuiModFlags_Alt)))
@@ -687,8 +653,8 @@ namespace MikuMikuWorld
 		if (UI::toolbarButton(ICON_FA_SAVE, getString("save"), ToShortcutString(config.input.save)))
 			trySave(context.workingData.filename);
 
-		if (UI::toolbarButton(ICON_FA_FILE_EXPORT, getString("export"), ToShortcutString(config.input.exportSus)))
-			exportSus();
+		if (UI::toolbarButton(ICON_FA_FILE_EXPORT, getString("export"), ToShortcutString(config.input.exportExternal)))
+			exportExternal();
 
 		UI::toolbarSeparator();
 
@@ -746,7 +712,7 @@ namespace MikuMikuWorld
 		std::filesystem::create_directory(wAutoSaveDir);
 
 		context.score.metadata = context.workingData.toScoreMetadata();
-		serializeScore(context.score, autoSavePath + "\\mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION);
+		ScoreSerializerFactory::getSerializer(MMWS_EXTENSION)->serialize(context.score, autoSavePath + "\\mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION);
 		
 		int mmwsCount = 0;
 		for (const auto& file : std::filesystem::directory_iterator(wAutoSaveDir))
@@ -826,7 +792,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::openImportPresetDialog()
 	{
-		IO::FileDialog fileDialog{"Import Preset", {{"Notes Preset", "*.json"}}, "", "", ".json", 0, Application::windowState.windowHandle};
+		IO::FileDialog fileDialog{"Import Preset", { IO::presetFilter }, "", "", ".json", 0, Application::windowState.windowHandle};
 		if (fileDialog.openFile() == IO::FileDialogResult::OK)
 			importPreset(fileDialog.outputFilename);
 	}

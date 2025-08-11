@@ -33,7 +33,7 @@ namespace MikuMikuWorld
 		MultiInputBinding open = { "open", {ImGuiKey_O, ImGuiModFlags_Ctrl} };
 		MultiInputBinding save = { "save", {ImGuiKey_S, ImGuiModFlags_Ctrl} };
 		MultiInputBinding saveAs = { "save_as", {ImGuiKey_S, ImGuiModFlags_Ctrl | ImGuiModFlags_Shift} };
-		MultiInputBinding exportSus = { "export", {ImGuiKey_E, ImGuiModFlags_Ctrl} };
+		MultiInputBinding exportExternal = { "export", {ImGuiKey_E, ImGuiModFlags_Ctrl} };
 		MultiInputBinding selectAll = { "select_all", {ImGuiKey_A, ImGuiModFlags_Ctrl} };
 		MultiInputBinding undo = { "undo", {ImGuiKey_Z, ImGuiModFlags_Ctrl} };
 		MultiInputBinding redo = { "redo", {ImGuiKey_Y, ImGuiModFlags_Ctrl} };
@@ -134,7 +134,7 @@ namespace MikuMikuWorld
 		&config.input.open,
 		&config.input.save,
 		&config.input.saveAs,
-		&config.input.exportSus,
+		&config.input.exportExternal,
 		&config.input.undo,
 		&config.input.redo,
 

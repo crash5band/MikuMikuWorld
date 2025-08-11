@@ -25,11 +25,4 @@ namespace MikuMikuWorld
 		static std::unique_ptr<ScoreSerializer> getSerializer(const std::string& fileExtension);
 		static bool isNativeScoreFormat(const std::string& fileExtension);
 	};
-
-	class UnsupportedScoreFormatError : public std::runtime_error
-	{
-	public:
-		UnsupportedScoreFormatError(const std::string& format) :
-			std::runtime_error("Unsupported score format (" + format + ")") {}
-	};
 }

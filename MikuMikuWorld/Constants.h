@@ -22,5 +22,5 @@ namespace MikuMikuWorld
 
 	constexpr const char* SUS_EXTENSION			= ".sus";
 	constexpr const char* MMWS_EXTENSION		= ".mmws";
-	constexpr const char* USC_EXTENSION			= ".usc";
+	constexpr const char* SCP_EXTENSION			= ".scp";
 }
