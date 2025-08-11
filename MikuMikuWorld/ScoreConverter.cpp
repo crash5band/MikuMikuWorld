@@ -25,7 +25,7 @@ namespace MikuMikuWorld
 		for (int i = 2; i < 10; ++i)
 		{
 			if (fmodf(factor * length, 1) == 0)
-				return std::pair<int, int>(factor * length, pow(2, i));
+				return std::pair<int, int>((int)(factor * length), 1 << i);
 
 			factor *= 2;
 		}

@@ -525,7 +525,7 @@ namespace MikuMikuWorld::Engine
 			const float noteTime = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
 			if (isMidHold || isWithinRange(currentTime, noteTime - effectTimeAddBefore, noteTime + effectTimeAddAfter))
 			{
-				DrawingEffect drawingEffect{ id, {INT32_MAX, 0}, {} };
+				DrawingEffect drawingEffect{ id, {FLT_MAX, FLT_MIN}, {} };
 				drawingEffect.additiveAlphaBlendParticles.reserve(192);
 				drawingEffect.blendParticles.reserve(24);
 
