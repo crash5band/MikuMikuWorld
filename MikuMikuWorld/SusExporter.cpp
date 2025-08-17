@@ -270,6 +270,7 @@ namespace MikuMikuWorld
 		{
 			char buf[10]{};
 			std::string identifier = tostringBaseN(buf, bpmIdentifiers.size() + 1, 36);
+			std::transform(identifier.begin(), identifier.end(), identifier.begin(), ::toupper);
 			if (identifier.size() < 2)
 				identifier = "0" + identifier;
 
