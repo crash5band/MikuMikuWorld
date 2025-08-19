@@ -215,6 +215,7 @@
     <ClCompile Include="ScorePreview.cpp" />
     <ClCompile Include="ScoreSerializer.cpp" />
     <ClCompile Include="ScoreStats.cpp" />
+    <ClCompile Include="Sonolus.cpp" />
     <ClCompile Include="SonolusSerializer.cpp" />
     <ClCompile Include="Stopwatch.cpp" />
     <ClCompile Include="SusExporter.cpp" />
@@ -289,6 +290,8 @@
     <ClInclude Include="ScoreEditorTimeline.h" />
     <ClInclude Include="ScoreEditorWindows.h" />
     <ClInclude Include="ScoreStats.h" />
+    <ClInclude Include="SHA-1.hpp" />
+    <ClInclude Include="Sonolus.h" />
     <ClInclude Include="SonolusSerializer.h" />
     <ClInclude Include="Stopwatch.h" />
     <ClInclude Include="SUS.h" />

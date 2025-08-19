@@ -168,6 +168,9 @@
     <ClCompile Include="PreviewData.cpp">
       <Filter>ScorePreview</Filter>
     </ClCompile>
+    <ClCompile Include="Sonolus.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
     <ClCompile Include="Archive.cpp">
       <Filter>IO\ZipFile</Filter>
     </ClCompile>
@@ -389,6 +392,9 @@
     <ClInclude Include="PreviewData.h">
       <Filter>ScorePreview</Filter>
     </ClInclude>
+    <ClInclude Include="Sonolus.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
     <ClInclude Include="Archive.h">
       <Filter>IO\ZipFile</Filter>
     </ClInclude>
@@ -397,6 +403,9 @@
     </ClInclude>
     <ClInclude Include="ArchiveError.h">
       <Filter>IO\ZipFile</Filter>
+    </ClInclude>
+    <ClInclude Include="SHA-1.hpp">
+      <Filter>IO</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
