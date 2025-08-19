@@ -168,6 +168,15 @@
     <ClCompile Include="PreviewData.cpp">
       <Filter>ScorePreview</Filter>
     </ClCompile>
+    <ClCompile Include="Archive.cpp">
+      <Filter>IO\ZipFile</Filter>
+    </ClCompile>
+    <ClCompile Include="ArchiveFile.cpp">
+      <Filter>IO\ZipFile</Filter>
+    </ClCompile>
+    <ClCompile Include="ArchiveError.cpp">
+      <Filter>IO\ZipFile</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -380,6 +389,15 @@
     <ClInclude Include="PreviewData.h">
       <Filter>ScorePreview</Filter>
     </ClInclude>
+    <ClInclude Include="Archive.h">
+      <Filter>IO\ZipFile</Filter>
+    </ClInclude>
+    <ClInclude Include="ArchiveFile.h">
+      <Filter>IO\ZipFile</Filter>
+    </ClInclude>
+    <ClInclude Include="ArchiveError.h">
+      <Filter>IO\ZipFile</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">
@@ -447,6 +465,9 @@
     </Filter>
     <Filter Include="ScorePreview">
       <UniqueIdentifier>{b2e37fa4-b250-4e59-89d0-131b15a9423e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IO\ZipFile">
+      <UniqueIdentifier>{4e8c9f38-d5de-4480-bf3d-8a33bfe54ccb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

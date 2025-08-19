@@ -166,6 +166,9 @@
     <ClCompile Include="..\Depends\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="ApplicationConfiguration.cpp" />
+    <ClCompile Include="Archive.cpp" />
+    <ClCompile Include="ArchiveError.cpp" />
+    <ClCompile Include="ArchiveFile.cpp" />
     <ClCompile Include="Audio\Sound.cpp" />
     <ClCompile Include="Audio\AudioManager.cpp" />
     <ClCompile Include="Background.cpp" />
@@ -225,6 +228,9 @@
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="ApplicationConfiguration.h" />
+    <ClInclude Include="Archive.h" />
+    <ClInclude Include="ArchiveError.h" />
+    <ClInclude Include="ArchiveFile.h" />
     <ClInclude Include="Audio\Sound.h" />
     <ClInclude Include="Audio\AudioManager.h" />
     <ClInclude Include="Background.h" />
