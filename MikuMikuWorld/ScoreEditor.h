@@ -1,6 +1,7 @@
 #pragma once
 #include "ScoreEditorWindows.h"
 #include "ScorePreview.h"
+#include "ScoreSerializer.h"
 #include <future>
 
 namespace MikuMikuWorld

@@ -3,7 +3,6 @@
 #include "ScoreEditorTimeline.h"
 #include "Stopwatch.h"
 #include "InputBinding.h"
-#include "ScoreSerializer.h"
 
 namespace MikuMikuWorld
 {
@@ -103,39 +102,5 @@ namespace MikuMikuWorld
 	public:
 		bool open = false;
 		DialogResult update();
-	};
-
-	enum class SerializationDialogResult
-	{
-		None,
-		SerializeSuccess,
-		DeserializeSuccess,
-		Error,
-	};
-
-	class ScoreSerializationDialog
-	{
-	protected:
-		bool open = false;
-		bool isSerializing;
-		bool isNativeFormat;
-		std::unique_ptr<ScoreSerializer> serializer;
-		std::string filename;
-		std::string errorMessage = "Error: SerializationDialog was not opened";
-		Score score;
-	public:
-		Score& getScore();
-		const std::string& getFilename() const;
-		const std::string& getErrorMessage() const;
-
-		virtual void openSerializingDialog(const ScoreContext& context, const std::string& filename);
-		virtual void openDeserializingDialog(const std::string& filename);
-		virtual SerializationDialogResult update();
-	};
-
-	class SerializationDialogFactory
-	{
-	public:
-		static std::unique_ptr<ScoreSerializationDialog> getDialog(const std::string& filename);
 	};
 }

@@ -176,7 +176,7 @@ namespace MikuMikuWorld
 			case SerializationDialogResult::DeserializeSuccess:
 				context.clearSelection();
 				context.history.clear();
-				context.score = serializationDialog->getScore();
+				context.score = std::move(serializationDialog->getScore());
 				context.workingData = EditorScoreData(context.score.metadata, serializationDialog->getFilename());
 
 				asyncLoadMusic(context.workingData.musicFilename);
@@ -199,6 +199,9 @@ namespace MikuMikuWorld
 					IO::MessageBoxIcon::Error,
 					Application::windowState.windowHandle
 				);
+				serializationDialog.reset();
+				break;
+			case SerializationDialogResult::Cancel:
 				serializationDialog.reset();
 				break;
 			case SerializationDialogResult::None:
@@ -422,7 +425,7 @@ namespace MikuMikuWorld
 		{
 			serializationDialog = SerializationDialogFactory::getDialog(fileDialog.outputFilename);
 			serializationDialog->openSerializingDialog(context, fileDialog.outputFilename);
-			
+
 			config.lastSelectedExportIndex = fileDialog.filterIndex;
 		}
 	}
