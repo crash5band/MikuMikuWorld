@@ -49,7 +49,7 @@ namespace MikuMikuWorld
 		void drawTraceDiamond(Renderer* renderer, const Note& note, float left, float right, float y);
 		void drawFlickArrow(Renderer* renderer, const Note& note, float y, float cur_time);
 		void drawParticle(Renderer* renderer, const std::array<DirectX::XMFLOAT4, 4>& layout, const Engine::DrawingParticle& particle,
-			float progress, const Texture& texture, const Sprite& sprite, int zIndex);
+			float progress, const Texture& texture, const Sprite& sprite, int zIndex, Color tint);
 		
 		void updateToolbar(ScoreEditorTimeline& timeline, ScoreContext& context) const;
 		float getScrollbarWidth() const;

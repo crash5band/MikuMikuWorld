@@ -202,7 +202,7 @@ namespace MikuMikuWorld::Engine
 		std::uniform_real_distribution<float> generator;
 		std::array<float, 8> randomValues;
 		int effectTypeId = static_cast<int>(type);
-		const ParticleEffect& effect = ResourceManager::particleEffects[effectTypeId];
+		ParticleEffect& effect = ResourceManager::particleEffects[effectTypeId];
 		static int textureId = ResourceManager::getTexture("particles");
 		static const std::vector<Sprite>* spriteList = textureId >= 0 ? &ResourceManager::textures[textureId].sprites : nullptr;
 		if (!spriteList) return;
@@ -218,11 +218,35 @@ namespace MikuMikuWorld::Engine
 			auto [pBegin, pEnd] = std::equal_range(pStart, effect.particles.end(), (int)groupID, GroupIDComparer());
 			if (pBegin == pEnd) continue;
 			auto it = pBegin;
-			for (size_t toSpawn = effect.groupSizes[groupID]; toSpawn != 0;)
+
+			bool isDyanmicSizeEffect = type == ParticleEffectType::NoteTapLinearAdd ||
+				type == ParticleEffectType::NoteCriticalLinearAdd ||
+				type == ParticleEffectType::NoteLongLinearAdd ||
+				type == ParticleEffectType::NoteLongCriticalLinearAdd;
+
+			size_t count = effect.groupSizes[groupID];
+			if (isDyanmicSizeEffect)
+			{
+				if (note.critical)
+					count += 2;
+
+				count *= note.width;
+			}
+
+			for (size_t toSpawn = count; toSpawn != 0;)
 			{
 				if (it == pBegin)
+				{
 					for (auto& val : randomValues)
 						val = generator(rng);
+				}
+
+				if (isDyanmicSizeEffect)
+				{
+					it->xyCoeff.sinr5_8->r->m128_f32[0] = note.width * 0.5f;
+					it->xyCoeff.sinr5_8->r->m128_f32[1] = note.width * 0.5f;
+				}
+
 				if (isArrayIndexInBounds(it->spriteID, *spriteList))
 				{
 					const auto& spawning = *it;
@@ -238,6 +262,7 @@ namespace MikuMikuWorld::Engine
 						xywhta
 					});
 				}
+
 				if (++it == pEnd) {
 					it = pBegin;
 					toSpawn--;
@@ -296,7 +321,11 @@ namespace MikuMikuWorld::Engine
 
 	static void addNoteEffect(DrawData &drawData, const Note &note, Score const &score)
 	{
-		ParticleEffectType circular = ParticleEffectType::Invalid, linear = ParticleEffectType::Invalid;
+		ParticleEffectType
+			circular = ParticleEffectType::Invalid,
+			linear = ParticleEffectType::Invalid,
+			linearAdd = ParticleEffectType::Invalid;
+
 		switch (note.getType())
 		{
 		case NoteType::Hold:
@@ -307,9 +336,14 @@ namespace MikuMikuWorld::Engine
 			if (startStepType != HoldNoteType::Normal)
 				break;
 			if (!note.friction)
+			{
 				circular = !note.critical ? ParticleEffectType::NoteLongCircular : ParticleEffectType::NoteLongCriticalCircular;
+				linearAdd = !note.critical ? ParticleEffectType::NoteLongLinearAdd : ParticleEffectType::NoteLongCriticalLinearAdd;
+			}
 			else
+			{
 				circular = !note.critical ? ParticleEffectType::NoteFrictionCircular : ParticleEffectType::NoteFrictionCriticalCircular;
+			}
 			linear = static_cast<ParticleEffectType>(static_cast<int>(circular) + 1);
 			break;
 		}
@@ -328,16 +362,34 @@ namespace MikuMikuWorld::Engine
 				break;
 		case NoteType::Tap:
 			if (!note.friction)
-				if (note.flick == FlickType::None)
-					circular = !note.critical ? ParticleEffectType::NoteTapCircular : ParticleEffectType::NoteCriticalCircular;
+			{
+				linearAdd = note.critical ? ParticleEffectType::NoteCriticalLinearAdd : ParticleEffectType::NoteTapLinearAdd;
+				if (!note.isFlick())
+				{
+					if (note.getType() == NoteType::HoldEnd)
+					{
+						circular = !note.critical ? ParticleEffectType::NoteLongCircular : ParticleEffectType::NoteLongCriticalCircular;
+						linearAdd = note.critical ? ParticleEffectType::NoteLongCriticalLinearAdd : ParticleEffectType::NoteLongLinearAdd;
+					}
+					else
+					{
+						circular = !note.critical ? ParticleEffectType::NoteTapCircular : ParticleEffectType::NoteCriticalCircular;
+					}
+				}
 				else
+				{
 					circular = !note.critical ? ParticleEffectType::NoteFlickCircular : ParticleEffectType::NoteCriticalFlickCircular;
+				}
+			}
 			else
-				if (note.flick == FlickType::None)
+			{
+				if (!note.isFlick())
 					circular = !note.critical ? ParticleEffectType::NoteFrictionCircular : ParticleEffectType::NoteFrictionCriticalCircular;
 				else
 					break;
+			}
 			linear = static_cast<ParticleEffectType>(static_cast<int>(circular) + 1);
+
 			break;
 		default:
 			return;
@@ -357,6 +409,8 @@ namespace MikuMikuWorld::Engine
 			}
 		if (ensureValidParticle(linear))
 			addParticleEffect(drawData.drawingLinearEffects, drawData.rng, linear, note, score);
+		if (ensureValidParticle(linearAdd))
+			addParticleEffect(drawData.drawingLinearEffects, drawData.rng, linearAdd, note, score);
 		if (note.isFlick())
 		{
 			ParticleEffectType directional = !note.critical ? ParticleEffectType::NoteFlickDirectional : ParticleEffectType::NoteCriticalDirectional;

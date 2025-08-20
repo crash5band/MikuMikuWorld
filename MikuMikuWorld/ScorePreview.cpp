@@ -722,7 +722,7 @@ namespace MikuMikuWorld
 			if (config.pvMirrorScore) std::swap(noteLeft *= -1, noteRight *= -1);
 			float noteCenter = noteLeft + (noteRight - noteLeft) / 2;
 			auto vPos =  Engine::perspectiveQuadvPos(noteLeft, noteRight, Engine::STAGE_LANE_TOP / Engine::STAGE_LANE_HEIGHT, Engine::STAGE_TEX_HEIGHT / Engine::STAGE_LANE_HEIGHT);
-			drawParticle(renderer, vPos, particle, progress, texture, texture.sprites[particleData.spriteID], Engine::getZIndex(SpriteLayer::UNDER_NOTE_EFFECT, noteCenter, 1 - progress));
+			drawParticle(renderer, vPos, particle, progress, texture, texture.sprites[particleData.spriteID], Engine::getZIndex(SpriteLayer::UNDER_NOTE_EFFECT, noteCenter, 1 - progress), particleData.color);
 		}
 		size_t transIdx = static_cast<size_t>(SpriteType::Slot);
 		if (!isArrayIndexInBounds(transIdx, ResourceManager::spriteTransforms)) return;
@@ -783,7 +783,8 @@ namespace MikuMikuWorld
 			drawParticle(renderer,
 				Engine::circularQuadvPos(noteCenter, cirularWidth, circularHeight * scaledAspectRatio),
 				particle, progress, texture, texture.sprites[particleData.spriteID],
-				Engine::getZIndex(SpriteLayer::PARTICLE_EFFECT, noteCenter, float(note.tick) / context.scorePreviewDrawData.maxTicks)
+				Engine::getZIndex(SpriteLayer::PARTICLE_EFFECT, noteCenter, float(note.tick) / context.scorePreviewDrawData.maxTicks),
+				particleData.color
 			);
 		}
 		for (auto& particle : drawData.drawingLinearEffects)
@@ -794,10 +795,18 @@ namespace MikuMikuWorld
 			float progress = Engine::getParticleProgress((ParticleEffectType)particle.effectType, particleData, current_tm, particle.time.min, particle.time.max);
 			const Note& note = context.score.notes.at(particle.refID);
 			float noteLeft, noteRight, shear = 0;
-			switch ((ParticleEffectType)particle.effectType)
+			ParticleEffectType particleType = (ParticleEffectType)particle.effectType;
+			switch (particleType)
 			{
 			case ParticleEffectType::NoteLongSegmentLinear:
 			case ParticleEffectType::NoteLongCriticalSegmentLinear:
+			{
+				float effectDuration = particleEffectDuration.find(particleType)->second;
+				float effectProgressSeconds = effectDuration * progress;
+				int effectStartTick = accumulateTicks(current_tm - effectProgressSeconds, TICKS_PER_BEAT, context.score.tempoChanges);
+				std::tie(noteLeft, noteRight) = getHoldSegmentBound(note, context.score, effectStartTick);
+				break;
+			}
 			case ParticleEffectType::NoteLongSegmentCircularEx:
 			case ParticleEffectType::NoteLongCriticalSegmentCircularEx:
 				std::tie(noteLeft, noteRight) = getHoldSegmentBound(note, context.score, context.currentTick);
@@ -809,11 +818,13 @@ namespace MikuMikuWorld
 				std::tie(noteLeft, noteRight) = getNoteBound(note);
 				break;
 			}
+
 			float noteCenter = noteLeft + (noteRight - noteLeft) / 2;
 			drawParticle(renderer,
 				Engine::linearQuadvPos(noteCenter, 1.0, 1.0 * scaledAspectRatio, shear),
 				particle, progress, texture, texture.sprites[particleData.spriteID],
-				Engine::getZIndex(SpriteLayer::PARTICLE_EFFECT, noteCenter, float(note.tick) / context.scorePreviewDrawData.maxTicks)
+				Engine::getZIndex(SpriteLayer::PARTICLE_EFFECT, noteCenter, float(note.tick) / context.scorePreviewDrawData.maxTicks),
+				particleData.color
 			);
 		}
 		for (auto& particle : drawData.drawingFlatEffects)
@@ -838,7 +849,8 @@ namespace MikuMikuWorld
 			drawParticle(
 				renderer, Engine::quadvPos(noteCenter - 4, noteCenter + 4, 1 - 4 * scaledAspectRatio, 1 + 4 * scaledAspectRatio),
 				particle, progress, texture, texture.sprites[particleData.spriteID],
-				Engine::getZIndex(SpriteLayer::PARTICLE_EFFECT, noteCenter, float(note.tick) / context.scorePreviewDrawData.maxTicks)
+				Engine::getZIndex(SpriteLayer::PARTICLE_EFFECT, noteCenter, float(note.tick) / context.scorePreviewDrawData.maxTicks),
+				particleData.color
 			);
 		}
 		for (auto& particle : drawData.drawingSlotGlowEffects)
@@ -869,7 +881,8 @@ namespace MikuMikuWorld
 			
 			drawParticle(
 				renderer, layout, particle, progress, texture, texture.sprites[particleData.spriteID],
-				Engine::getZIndex(SpriteLayer::SLOT_GLOW_EFFECT, noteCenter, float(note.tick) / context.scorePreviewDrawData.maxTicks)
+				Engine::getZIndex(SpriteLayer::SLOT_GLOW_EFFECT, noteCenter, float(note.tick) / context.scorePreviewDrawData.maxTicks),
+				particleData.color
 			);
 		}
 	}
@@ -1018,7 +1031,7 @@ namespace MikuMikuWorld
 	}
 
 	void ScorePreviewWindow::drawParticle(Renderer* renderer, const std::array<DirectX::XMFLOAT4, 4>& layout, const Engine::DrawingParticle& particle,
-		float progress, const Texture& texture, const Sprite& sprite, int zIndex)
+		float progress, const Texture& texture, const Sprite& sprite, int zIndex, Color tint)
 	{
 		const float x = particle.xywhta[0].at(progress);
 		const float y = particle.xywhta[1].at(progress);
@@ -1068,7 +1081,7 @@ namespace MikuMikuWorld
 			{posX.w, posY.w, 0, 1}
 		}};
 
-		renderer->drawQuad(vPos, DirectX::XMMatrixIdentity(), texture, sprite.getX1(), sprite.getX2(), sprite.getY1(), sprite.getY2(), defaultTint.scaleAlpha(a), zIndex);
+		renderer->drawQuad(vPos, DirectX::XMMatrixIdentity(), texture, sprite.getX1(), sprite.getX2(), sprite.getY1(), sprite.getY2(), tint.scaleAlpha(a), zIndex);
 	}
 	
 	void ScorePreviewWindow::updateToolbar(ScoreEditorTimeline &timeline, ScoreContext &context) const
