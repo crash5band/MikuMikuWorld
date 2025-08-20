@@ -556,8 +556,9 @@ namespace MikuMikuWorld
 		if (noteTextures.notes == -1)
 			return;
 		float scaled_tm = accumulateScaledDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
-		const float w = Engine::getNoteHeight() / scaledAspectRatio;
-		const float noteTop = 1. + Engine::getNoteHeight(), noteBottom = 1. - Engine::getNoteHeight();
+		const float notesHeight = Engine::getNoteHeight() * 1.3f;
+		const float w = notesHeight / scaledAspectRatio;
+		const float noteTop = 1. + notesHeight, noteBottom = 1. - notesHeight;
 		const Texture& texture = getNoteTexture();
 
 		for (auto& tick : context.scorePreviewDrawData.drawingHoldTicks)
