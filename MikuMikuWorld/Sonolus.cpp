@@ -503,7 +503,7 @@ namespace Sonolus
 	{
 		LevelItem item;
 		item.version = levelVersion;
-		item.rating = 0;
+		item.rating = score.metadata.rating;
 		item.title = score.metadata.title;
 		item.artists = score.metadata.artist;
 		item.author = score.metadata.author;

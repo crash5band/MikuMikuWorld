@@ -58,7 +58,9 @@ namespace MikuMikuWorld
 			sus.metadata.data.at("designer"),
 			"",
 			"",
-			sus.metadata.waveOffset * 1000 // seconds -> milliseconds
+			"",
+			sus.metadata.waveOffset * 1000, // seconds -> milliseconds
+			0
 		};
 
 		std::unordered_map<std::string, FlickType> flicks;

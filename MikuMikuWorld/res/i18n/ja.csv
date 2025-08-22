@@ -148,9 +148,11 @@ metadata, 情報
 title, タイトル
 designer, 譜面作者
 artist, アーティスト
+rating, 難易度
 jacket, ジャケット
 audio, 音源
 music_file, 音源ファイル
+music_preview_file, 音源プレビューファイル
 music_offset, オフセット
 volume_master, 全体音量
 volume_bgm, BGM音量

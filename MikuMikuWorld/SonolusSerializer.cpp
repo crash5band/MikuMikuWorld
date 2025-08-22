@@ -502,6 +502,7 @@ namespace MikuMikuWorld
 				levelName.append("mmw-").append(Sonolus::hash(serializedBytes));
 			item.name = levelName;
 			if (!score.metadata.musicFile.empty()) item.bgm = Sonolus::packageFile<Sonolus::ResourceType::LevelBgm>(scpArch, score.metadata.musicFile);
+			if (!score.metadata.musicPreviewFile.empty()) item.preview = Sonolus::packageFile<Sonolus::ResourceType::LevelPreview>(scpArch, score.metadata.musicPreviewFile);
 			if (!score.metadata.jacketFile.empty()) item.cover = Sonolus::packageFile<Sonolus::ResourceType::LevelCover>(scpArch, score.metadata.jacketFile);
 			item.data = Sonolus::packageData<Sonolus::ResourceType::LevelData>(scpArch, serializedBytes);
 			Sonolus::serializeLevelDetails(scpArch, details);
@@ -548,7 +549,7 @@ namespace MikuMikuWorld
 		Sonolus::LevelData lvlData;
 		Sonolus::LevelItem lvlItem;
 		std::string jacketFile;
-		std::string musicFile;
+		std::string musicFile, musicPreviewFile;
 
 		if (sepIdx != std::string::npos)
 		{
@@ -573,6 +574,7 @@ namespace MikuMikuWorld
 
 			jacketFile = extractFile(scpArch, lvlItem.cover.url, ".png");
 			musicFile = extractFile(scpArch, lvlItem.bgm.url, ".mp3");
+			musicPreviewFile = extractFile(scpArch, lvlItem.preview.url, ".mp3");
 		}
 		else
 		{
@@ -591,9 +593,11 @@ namespace MikuMikuWorld
 		score.metadata.title = lvlItem.title;
 		score.metadata.artist = lvlItem.artists;
 		score.metadata.author = lvlItem.author;
+		score.metadata.rating = lvlItem.rating;
+		score.metadata.musicFile = musicFile;
+		score.metadata.musicPreviewFile = musicPreviewFile;
 		score.metadata.musicOffset = lvlData.bgmOffset;
 		score.metadata.jacketFile = jacketFile;
-		score.metadata.musicFile = musicFile;
 		
 		auto isTimescaleEntity = [](const Sonolus::LevelDataEntity& ent) { return ent.archetype == "#TIMESCALE_CHANGE"; };
 		auto isBpmChangeEntity = [](const Sonolus::LevelDataEntity& ent) { return ent.archetype == "#BPM_CHANGE"; };
@@ -608,6 +612,7 @@ namespace MikuMikuWorld
 			if (timescaleEntity.tryGetDataValue("#BEAT", beat) && timescaleEntity.tryGetDataValue("#TIMESCALE", speed))
 				score.hiSpeedChanges.push_back({ beatsToTicks(beat), speed });
 		}
+		std::sort(score.hiSpeedChanges.begin(), score.hiSpeedChanges.end(), [](const HiSpeedChange& sp1, const HiSpeedChange& sp2) { return sp1.tick < sp2.tick; });
 
 		score.tempoChanges.clear();
 		for (const auto& bpmChangeEntity : lvlData.entities)
@@ -619,6 +624,7 @@ namespace MikuMikuWorld
 		}
 		if (score.tempoChanges.empty())
 			score.tempoChanges.push_back(Tempo{});
+		std::sort(score.tempoChanges.begin(), score.tempoChanges.end(), [](const Tempo& t1, const Tempo& t2) { return t1.tick < t2.tick; });
 
 		for (const auto& tapNoteEntity : lvlData.entities)
 		{

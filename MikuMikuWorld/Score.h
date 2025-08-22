@@ -33,8 +33,10 @@ namespace MikuMikuWorld
 		std::string artist;
 		std::string author;
 		std::string musicFile;
+		std::string musicPreviewFile;
 		std::string jacketFile;
 		float musicOffset;
+		float rating;
 	};
 
 	struct Score

@@ -4,8 +4,7 @@
 namespace MikuMikuWorld
 {
 	using namespace IO;
-
-	const int NativeScoreSerializer::SCORE_VERSION = 4;
+	const int NativeScoreSerializer::SCORE_VERSION = 5;
 
 	Note NativeScoreSerializer::readNote(NoteType type, IO::BinaryReader* reader)
 	{
@@ -50,6 +49,12 @@ namespace MikuMikuWorld
 		if (version > 1)
 			metadata.jacketFile = reader->readString();
 
+		if (version > 4)
+		{
+			metadata.rating = reader->readSingle();
+			metadata.musicPreviewFile = reader->readString();
+		}
+
 		return metadata;
 	}
 
@@ -60,7 +65,11 @@ namespace MikuMikuWorld
 		writer->writeString(metadata.artist);
 		writer->writeString(metadata.musicFile);
 		writer->writeSingle(metadata.musicOffset);
+		// Version 2+
 		writer->writeString(metadata.jacketFile);
+		// Version 5+
+		writer->writeSingle(metadata.rating);
+		writer->writeString(metadata.musicPreviewFile);
 	}
 
 	void NativeScoreSerializer::readScoreEvents(Score& score, int version, IO::BinaryReader* reader)
@@ -162,7 +171,7 @@ namespace MikuMikuWorld
 		writer.writeString("MMWS");
 
 		// verison
-		writer.writeInt32(4);
+		writer.writeInt32(SCORE_VERSION);
 
 		// offsets address in order: metadata -> events -> taps -> holds
 		uint32_t offsetsAddress = writer.getStreamPosition();

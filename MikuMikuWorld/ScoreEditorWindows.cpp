@@ -45,6 +45,8 @@ namespace MikuMikuWorld
 			UI::addStringProperty(getString("title"), context.workingData.title);
 			UI::addStringProperty(getString("designer"), context.workingData.designer);
 			UI::addStringProperty(getString("artist"), context.workingData.artist);
+			UI::addFloatProperty(getString("rating"), context.workingData.rating, "%.0f");
+			context.workingData.rating = clamp(context.workingData.rating, 0.f, 99.f);
 
 			std::string jacketFile = context.workingData.jacket.getFilename();
 
@@ -100,6 +102,19 @@ namespace MikuMikuWorld
 				}
 			}
 
+			filePickResult = UI::addFileProperty(getString("music_preview_file"), context.workingData.musicPreviewFilename);
+
+			if (filePickResult == 2)
+			{
+				IO::FileDialog fileDialog{};
+				fileDialog.title = "Open Audio File";
+				fileDialog.filters = { IO::audioFilter, IO::allFilter };
+				fileDialog.parentWindowHandle = Application::windowState.windowHandle;
+
+				if (fileDialog.openFile() == IO::FileDialogResult::OK)
+					context.workingData.musicPreviewFilename = fileDialog.outputFilename;
+			}
+
 			float offset = context.workingData.musicOffset;
 			UI::addDragFloatProperty(getString("music_offset"), offset, "%.3fms");
 			if (offset != context.workingData.musicOffset)
@@ -132,7 +147,6 @@ namespace MikuMikuWorld
 		{
 			constexpr ImGuiTableFlags tableFlags
 			{	ImGuiTableFlags_BordersInner |
-				ImGuiTableFlags_ScrollY |
 				ImGuiTableFlags_SizingStretchSame |
 				ImGuiTableFlags_PadOuterX |
 				ImGuiTableFlags_RowBg

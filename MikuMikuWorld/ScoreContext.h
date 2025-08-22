@@ -34,13 +34,15 @@ namespace MikuMikuWorld
 		std::string artist{};
 		std::string filename{};
 		std::string musicFilename{};
+		std::string musicPreviewFilename{};
 		float musicOffset{};
+		float rating{};
 		Jacket jacket{};
 
 		EditorScoreData() {}
 		EditorScoreData(const ScoreMetadata& metadata, const std::string& filename) :
-			title{ metadata.title }, designer{ metadata.author }, artist{ metadata.artist },
-			musicFilename{ metadata.musicFile }, musicOffset{ metadata.musicOffset }
+			title{ metadata.title }, designer{ metadata.author }, artist{ metadata.artist }, rating{ metadata.rating },
+			musicFilename{ metadata.musicFile }, musicPreviewFilename{ metadata.musicPreviewFile }, musicOffset{ metadata.musicOffset }
 		{
 			this->filename = filename;
 			jacket.load(metadata.jacketFile);
@@ -48,7 +50,7 @@ namespace MikuMikuWorld
 
 		ScoreMetadata toScoreMetadata() const
 		{
-			return { title, artist, designer, musicFilename, jacket.getFilename(), musicOffset };
+			return { title, artist, designer, musicFilename, musicPreviewFilename, jacket.getFilename(), musicOffset, rating };
 		}
 	};
 
