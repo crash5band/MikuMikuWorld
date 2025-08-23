@@ -311,7 +311,7 @@ namespace MikuMikuWorld
 		size = ImGui::GetContentRegionAvail() - ImVec2{ ImGui::GetStyle().ScrollbarSize, UI::toolbarBtnSize.y };
 		position = ImGui::GetCursorScreenPos();
 		boundaries = ImRect(position, position + size);
-		mouseInTimeline = ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(position, position + size);
+		mouseInTimeline = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) && ImGui::IsMouseHoveringRect(position, position + size);
 
 		laneOffset = (size.x * 0.5f) - ((NUM_LANES * laneWidth) * 0.5f);
 		minOffset = size.y - 50;
