@@ -1465,17 +1465,11 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::drawHoldCurvePart(const Note& n1, const Note& n2, EaseType ease, bool isGuide, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
 	{
-		int texIndex{ noteTextures.holdPath };
-		ZIndex zIndex{ ZIndex::HoldLine };
-		if (isGuide)
-		{
-			zIndex = ZIndex::Guide;
-			texIndex = noteTextures.touchLine;
-		}
-
+		int texIndex{ isGuide ? noteTextures.touchLine : noteTextures.holdPath };
 		if (texIndex == -1)
 			return;
 
+		ZIndex zIndex{ ZIndex::HoldLine };
 		const Texture& pathTex = ResourceManager::textures[texIndex];
 		const int sprIndex = n1.critical ? 3 : 1;
 		if (!isArrayIndexInBounds(sprIndex, pathTex.sprites))
