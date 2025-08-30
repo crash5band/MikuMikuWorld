@@ -1,11 +1,29 @@
 #pragma once
 #include <random>
 #include <array>
+#include <list>
 #include "Score.h"
 #include "Math.h"
 
+namespace MikuMikuWorld
+{
+	struct Score;
+	struct Note;
+	struct ScoreContext;
+}
+
 namespace MikuMikuWorld::Engine
 {
+	enum class DrawingParticleType : uint8_t
+	{
+		Lane,
+		Circular,
+		Linear,
+		Flat,
+		Slot,
+		SlotGlow
+	};
+
 	struct DrawingNote
 	{
 		int refID;
@@ -47,31 +65,37 @@ namespace MikuMikuWorld::Engine
 	{
 		int effectType;
 		int particleId;
-		int refID;
 		Range time;
 		std::array<DrawingParticleProperty, 6> xywhta;
+
+		DrawingParticleType type;
+	};
+
+	struct DrawingEffect
+	{
+		int refID;
+		Range time;
+
+		std::vector<DrawingParticle> particles;
+		std::vector<DrawingParticle> laneParticles;
+		std::unique_ptr<DrawingParticle> slotParticle;
 	};
 
 	struct DrawData
 	{
 		float noteSpeed;
 		int maxTicks;
-		std::default_random_engine rng;
 		std::vector<DrawingNote> drawingNotes;
 		std::vector<DrawingLine> drawingLines;
 		std::vector<DrawingHoldTick> drawingHoldTicks;
 		std::vector<DrawingHoldSegment> drawingHoldSegments;
-		std::vector<DrawingParticle> drawingLaneEffects;
-		std::vector<DrawingParticle> drawingCircularEffects;
-		std::vector<DrawingParticle> drawingLinearEffects;
-		std::vector<DrawingParticle> drawingFlatEffects;
-		std::vector<DrawingParticle> drawingSlotEffects;
-		std::vector<DrawingParticle> drawingSlotGlowEffects;
+		std::map<int, DrawingEffect> drawingEffects;
 		bool hasLaneEffect;
 		bool hasNoteEffect;
 		bool hasSlotEffect;
 
 		void clear();
 		void calculateDrawData(Score const& score);
+		void updateNoteEffects(ScoreContext& context);
 	};
 }

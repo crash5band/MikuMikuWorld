@@ -6,6 +6,11 @@
 
 namespace MikuMikuWorld
 {
+	namespace Engine
+	{
+		struct DrawingParticle;
+	}
+
 	class ScorePreviewBackground
 	{
 		std::string backgroundFile;

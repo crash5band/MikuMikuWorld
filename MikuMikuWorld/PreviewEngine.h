@@ -75,13 +75,12 @@ namespace MikuMikuWorld
 		NoteCriticalLinear,
 		NoteCriticalLinearAdd,
 		NoteCriticalDirectional,
+		NoteCriticalFlickLinear,
 
 		NoteLongCriticalCircular,
-		NoteLongCriticalLinear,
 		NoteLongCriticalLinearAdd,
 		
 		NoteCriticalFlickCircular,
-		NoteCriticalFlickLinear,
 
 		NoteFrictionCriticalCircular,
 		NoteFrictionCriticalLinear,
