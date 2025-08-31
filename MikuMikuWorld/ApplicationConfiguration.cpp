@@ -94,7 +94,8 @@ namespace MikuMikuWorld
 			pvHoldAlpha = jsonIO::tryGetValue<float>(previewObj, "hold_alpha", 1.f);
 			pvStageCover = jsonIO::tryGetValue<float>(previewObj, "stage_cover", 0.f);
 			pvStageOpacity = jsonIO::tryGetValue<float>(previewObj, "stage_opacity", 1.f);
-			pvBackgroundBrightness = jsonIO::tryGetValue<float>(previewObj, "background_brightness", 1.0f);
+			pvBackgroundBrightness = jsonIO::tryGetValue<float>(previewObj, "background_brightness", 0.8f);
+			pvDrawToolbar = jsonIO::tryGetValue<bool>(previewObj, "draw_toolbar", true);
 		}
 
 		if (jsonIO::keyExists(config, "theme"))
@@ -203,7 +204,8 @@ namespace MikuMikuWorld
 			{"hold_alpha", pvHoldAlpha},
 			{"stage_cover", pvStageCover},
 			{"stage_opacity", pvStageOpacity},
-			{"background_brightness", pvBackgroundBrightness}
+			{"background_brightness", pvBackgroundBrightness},
+			{"draw_toolbar", pvDrawToolbar}
 		};
 
 		config["theme"] = {
@@ -301,7 +303,8 @@ namespace MikuMikuWorld
 		pvHoldAlpha = 1.f;
 		pvStageCover = 0.f;
 		pvStageOpacity = 1.f;
-		pvBackgroundBrightness = 1.f;
+		pvBackgroundBrightness = 0.8f;
+		pvDrawToolbar = true;
 
 		autoSaveEnabled = true;
 		autoSaveInterval = 5;

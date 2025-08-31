@@ -113,6 +113,7 @@ namespace MikuMikuWorld
 		float pvStageCover;
 		float pvStageOpacity;
 		float pvBackgroundBrightness;
+		bool pvDrawToolbar;
 
 		InputConfiguration input;
 

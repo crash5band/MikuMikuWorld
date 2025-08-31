@@ -409,7 +409,7 @@ namespace MikuMikuWorld
 		);
 	}
 
-	std::pair<float, float> MikuMikuWorld::ScorePreviewWindow::getHoldSegmentBound(const Note &note, const Score &score, int curTick) const
+	std::pair<float, float> ScorePreviewWindow::getHoldSegmentBound(const Note &note, const Score &score, int curTick) const
 	{
 		const auto isNotHoldSkip = [](const HoldStep& step) { return step.type != HoldStepType::Skip; };
 		const HoldNote& holdNotes = score.holdNotes.at(note.ID);
@@ -1172,15 +1172,17 @@ namespace MikuMikuWorld
 	void ScorePreviewWindow::updateToolbar(ScoreEditorTimeline &timeline, ScoreContext &context) const
 	{
 		static float lastHoveredTime = -1;
-		constexpr float maxNoHoverTime = 1.5f;
+		constexpr float MAX_NO_HOVER_TIME = 1.5f;
 		static float toolBarWidth = UI::btnNormal.x * 2;
+		if (!config.pvDrawToolbar)
+			return;
 		ImGuiIO io = ImGui::GetIO();
 		ImGui::SetNextWindowPos(ImGui::GetWindowPos() + ImVec2{
 			ImGui::GetContentRegionAvail().x - ImGui::GetStyle().WindowPadding.x * 4 - toolBarWidth,
 			ImGui::GetStyle().WindowPadding.y * 5
 		});
 		ImGui::SetNextWindowSizeConstraints({48, 0}, {120, FLT_MAX}, NULL);
-		float childBgAlpha = clamp(Engine::easeInCubic(unlerp(maxNoHoverTime, 0, lastHoveredTime)), 0.25f, 1.f);
+		float childBgAlpha = clamp(Engine::easeInCubic(unlerp(MAX_NO_HOVER_TIME, 0, lastHoveredTime)), 0.25f, 1.f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.f);
 		
 		ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetColorU32(ImGuiCol_WindowBg, childBgAlpha));
@@ -1192,7 +1194,7 @@ namespace MikuMikuWorld
 		if (ImGui::IsWindowHovered())
 			lastHoveredTime = 0;
 		else
-			lastHoveredTime = std::min(io.DeltaTime + lastHoveredTime, maxNoHoverTime);
+			lastHoveredTime = std::min(io.DeltaTime + lastHoveredTime, MAX_NO_HOVER_TIME);
 
 		ImGui::SetCursorPosX(centeredXBtn);
 		if (UI::transparentButton(ICON_FA_ANGLE_DOUBLE_UP, UI::btnNormal, true, context.currentTick > 0))

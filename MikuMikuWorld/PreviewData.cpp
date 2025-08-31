@@ -10,14 +10,6 @@ namespace MikuMikuWorld::Engine
 {
 	std::default_random_engine rng;
 
-	struct TargetTimeComparer
-	{
-		bool operator()(const Range& a, const Range& b) const
-		{
-			return a.max < b.max;
-		}
-	};
-
 	struct GroupIDComparer
 	{
 		bool operator()(const Particle& particle, int groupID) {
@@ -28,16 +20,6 @@ namespace MikuMikuWorld::Engine
 		}
 		bool operator()(const Particle& particleA, const Particle& particleB) {
 			return particleA.groupID < particleB.groupID;
-		}
-	};
-	
-	struct HiSpeedTimeRangeComparer
-	{
-		bool operator()(const HiSpeedChange& hispeed, const std::pair<int, int>& tickRange) {
-			return hispeed.tick < tickRange.first;
-		}
-		bool operator()(const std::pair<int, int>& tickRange, const HiSpeedChange& hispeed) {
-			return tickRange.second < hispeed.tick;
 		}
 	};
 
