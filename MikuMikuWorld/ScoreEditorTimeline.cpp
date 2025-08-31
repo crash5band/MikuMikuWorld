@@ -320,19 +320,19 @@ namespace MikuMikuWorld
 		drawList->PushClipRect(boundaries.Min, boundaries.Max, true);
 		drawList->AddRectFilled(boundaries.Min, boundaries.Max, 0xff202020);
 
+		if (background.isDirty())
+		{
+			background.resize({ size.x, size.y });
+			background.process(renderer);
+		}
+		else if (prevSize.x != size.x || prevSize.y != size.y)
+		{
+			background.resize({ size.x, size.y });
+		}
+
 		bool isWindowActive = !ImGui::IsWindowDocked() || ImGui::GetCurrentWindow()->TabId == ImGui::GetWindowDockNode()->SelectedTabId;
 		if (isWindowActive)
 		{
-			if (background.isDirty())
-			{
-				background.resize({ size.x, size.y });
-				background.process(renderer);
-			}
-			else if (prevSize.x != size.x || prevSize.y != size.y)
-			{
-				background.resize({ size.x, size.y });
-			}
-
 			if (config.drawBackground)
 			{
 				const float bgWidth = static_cast<float>(background.getWidth());
