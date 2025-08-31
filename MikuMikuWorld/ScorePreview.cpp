@@ -349,7 +349,7 @@ namespace MikuMikuWorld
 	{
 		updateToolbar(timeline, context);
 		ImGuiIO io = ImGui::GetIO();
-		float mouseWheel = io.MouseWheel * -1;
+		float mouseWheel = io.MouseWheel * 1;
 		if (!timeline.isPlaying() && ImGui::IsWindowHovered() && mouseWheel != 0)
 		{
 			context.currentTick += std::max(mouseWheel * TICKS_PER_BEAT / 2, (float)-context.currentTick);
@@ -1197,17 +1197,17 @@ namespace MikuMikuWorld
 			lastHoveredTime = std::min(io.DeltaTime + lastHoveredTime, MAX_NO_HOVER_TIME);
 
 		ImGui::SetCursorPosX(centeredXBtn);
-		if (UI::transparentButton(ICON_FA_ANGLE_DOUBLE_UP, UI::btnNormal, true, context.currentTick > 0))
+		if (UI::transparentButton(ICON_FA_ANGLE_DOUBLE_UP, UI::btnNormal, true, context.currentTick < context.scorePreviewDrawData.maxTicks + TICKS_PER_BEAT))
 		{
 			if (timeline.isPlaying()) timeline.setPlaying(context, false);
-			context.currentTick = std::max(timeline.roundTickDown(context.currentTick, timeline.getDivision()) - (TICKS_PER_BEAT / (timeline.getDivision() / 4)), 0);
+			context.currentTick = timeline.roundTickDown(context.currentTick, timeline.getDivision()) + (TICKS_PER_BEAT / (timeline.getDivision() / 4));
 		}
 
 		ImGui::SetCursorPosX(centeredXBtn);
-		if (UI::transparentButton(ICON_FA_ANGLE_UP, UI::btnNormal, true, context.currentTick > 0))
+		if (UI::transparentButton(ICON_FA_ANGLE_UP, UI::btnNormal, true, context.currentTick < context.scorePreviewDrawData.maxTicks + TICKS_PER_BEAT))
 		{
 			if (timeline.isPlaying()) timeline.setPlaying(context, false);
-			context.currentTick--;
+			context.currentTick++;
 		}
 
 		ImGui::SetCursorPosX(centeredXBtn);
@@ -1219,17 +1219,17 @@ namespace MikuMikuWorld
 			timeline.setPlaying(context, !timeline.isPlaying());
 
 		ImGui::SetCursorPosX(centeredXBtn);
-		if (UI::transparentButton(ICON_FA_ANGLE_DOWN, UI::btnNormal, true, context.currentTick < context.scorePreviewDrawData.maxTicks + TICKS_PER_BEAT))
+		if (UI::transparentButton(ICON_FA_ANGLE_DOWN, UI::btnNormal, true, context.currentTick > 0))
 		{
 			if (timeline.isPlaying()) timeline.setPlaying(context, false);
-			context.currentTick++;
+			context.currentTick--;
 		}
 
 		ImGui::SetCursorPosX(centeredXBtn);
-		if (UI::transparentButton(ICON_FA_ANGLE_DOUBLE_DOWN, UI::btnNormal, true, context.currentTick < context.scorePreviewDrawData.maxTicks + TICKS_PER_BEAT))
+		if (UI::transparentButton(ICON_FA_ANGLE_DOUBLE_DOWN, UI::btnNormal, true, context.currentTick > 0))
 		{
 			if (timeline.isPlaying()) timeline.setPlaying(context, false);
-			context.currentTick = timeline.roundTickDown(context.currentTick, timeline.getDivision()) + (TICKS_PER_BEAT / (timeline.getDivision() / 4));
+			context.currentTick = std::max(timeline.roundTickDown(context.currentTick, timeline.getDivision()) - (TICKS_PER_BEAT / (timeline.getDivision() / 4)), 0);
 		}
 
 		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
@@ -1302,7 +1302,7 @@ namespace MikuMikuWorld
 		ImVec2 scrollMaxSize = ImGui::GetWindowContentRegionMax();
 		int maxTicks = std::max(context.scorePreviewDrawData.maxTicks, 1);
 		float scrollRatio = std::min(Engine::getNoteDuration(config.pvNoteSpeed) / accumulateDuration(context.scorePreviewDrawData.maxTicks, TICKS_PER_BEAT, context.score.tempoChanges), 1.f);
-		float progress = std::min(float(context.currentTick) / maxTicks, 1.f);
+		float progress = 1.f - std::min(float(context.currentTick) / maxTicks, 1.f);
 		float handleHeight = std::max(20.f, scrollContentSize.y * scrollRatio);
 		
 		bool scrollbarActive = false;
@@ -1328,7 +1328,7 @@ namespace MikuMikuWorld
 		{
 			float absScrollStart = ImGui::GetWindowPos().y + handleSize.y / 2;
 			float absScrollEnd = ImGui::GetWindowPos().y + scrollMaxSize.y - handleSize.y / 2;
-			float mouseProgress = clamp(unlerp(absScrollStart, absScrollEnd, io.MousePos.y), 0.f, 1.f);
+			float mouseProgress = 1.f - clamp(unlerp(absScrollStart, absScrollEnd, io.MousePos.y), 0.f, 1.f);
 			context.currentTick = std::round(lerp(0, maxTicks, mouseProgress));	
 		}
 		
