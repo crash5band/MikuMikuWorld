@@ -59,7 +59,7 @@ namespace MikuMikuWorld
 		init = true;
 		backgroundFile = config.backgroundImage;
 		jacketFile = jacket.getFilename();
-		brightness = config.backgroundBrightness;
+		brightness = config.pvBackgroundBrightness;
 		bool useDefaultTexture = backgroundFile.empty();
 		Texture backgroundTex = { useDefaultTexture ? Application::getAppDir() + "res\\textures\\default.png" : backgroundFile};
 		const float bgWidth = backgroundTex.getWidth(), bgHeight = backgroundTex.getHeight();
@@ -189,7 +189,7 @@ namespace MikuMikuWorld
 
 	std::array<DirectX::XMFLOAT4, 4> ScorePreviewBackground::DefaultJacket::getLeftUV()
 	{
-		return {{
+		return {{	
 			{  303.8 / 740, 504.8 / 740, 0, 0 },
 			{  317.5 / 740, 297.7 / 740, 0, 0 },
 			{    5.5 / 740, 278.3 / 740, 0, 0 },
@@ -310,7 +310,7 @@ namespace MikuMikuWorld
 		renderer->beginBatch();
 		if (config.drawBackground)
 		{
-			background.setBrightness(config.backgroundBrightness);
+			background.setBrightness(config.pvBackgroundBrightness);
 			background.draw(renderer, width, height);
 		}
 		drawStage(renderer);

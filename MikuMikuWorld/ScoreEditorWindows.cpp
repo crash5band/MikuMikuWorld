@@ -1036,7 +1036,7 @@ namespace MikuMikuWorld
 							}
 						}
 
-						UI::addPercentSliderProperty(getString("background_brightnes"), config.backgroundBrightness);
+						UI::addPercentSliderProperty(getString("background_brightnes"), config.pvBackgroundBrightness);
 						ImGui::Separator();
 
 						UI::addPercentSliderProperty(getString("stage_opacity"), config.pvStageOpacity);

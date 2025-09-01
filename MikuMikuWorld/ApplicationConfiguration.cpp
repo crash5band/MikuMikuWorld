@@ -54,28 +54,29 @@ namespace MikuMikuWorld
 
 		if (jsonIO::keyExists(config, "timeline"))
 		{
-			timelineWidth = std::clamp(jsonIO::tryGetValue<int>(config["timeline"], "lane_width", 26), MIN_LANE_WIDTH, MAX_LANE_WIDTH);
-			notesHeight = std::clamp(jsonIO::tryGetValue<int>(config["timeline"], "notes_height", 26), MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT);
-			matchTimelineSizeToScreen = jsonIO::tryGetValue<bool>(config["timeline"], "match_timeline_size_to_window", false);
-			matchNotesSizeToTimeline = jsonIO::tryGetValue<bool>(config["timeline"], "match_notes_size_to_timeline", true);
+			auto& timeline = config["timeline"];
+			timelineWidth = std::clamp(jsonIO::tryGetValue<int>(timeline, "lane_width", 26), MIN_LANE_WIDTH, MAX_LANE_WIDTH);
+			notesHeight = std::clamp(jsonIO::tryGetValue<int>(timeline, "notes_height", 26), MIN_NOTES_HEIGHT, MAX_NOTES_HEIGHT);
+			matchTimelineSizeToScreen = jsonIO::tryGetValue<bool>(timeline, "match_timeline_size_to_window", false);
+			matchNotesSizeToTimeline = jsonIO::tryGetValue<bool>(timeline, "match_notes_size_to_timeline", true);
 
-			division = jsonIO::tryGetValue<int>(config["timeline"], "division", 8);
-			zoom = jsonIO::tryGetValue<float>(config["timeline"], "zoom", 2.0f);
-			laneOpacity = jsonIO::tryGetValue<float>(config["timeline"], "lane_opacity", 0.0f);
-			backgroundBrightness = jsonIO::tryGetValue<float>(config["timeline"], "background_brightness", 0.5f);
-			drawBackground = jsonIO::tryGetValue<bool>(config["timeline"], "draw_background", true);
-			backgroundImage = jsonIO::tryGetValue<std::string>(config["timeline"], "background_image", "");
+			division = jsonIO::tryGetValue<int>(timeline, "division", 8);
+			zoom = jsonIO::tryGetValue<float>(timeline, "zoom", 2.0f);
+			laneOpacity = jsonIO::tryGetValue<float>(timeline, "lane_opacity", 0.0f);
+			backgroundBrightness = jsonIO::tryGetValue<float>(timeline, "background_brightness", 0.5f);
+			drawBackground = jsonIO::tryGetValue<bool>(timeline, "draw_background", true);
+			backgroundImage = jsonIO::tryGetValue<std::string>(timeline, "background_image", "");
 
-			useSmoothScrolling = jsonIO::tryGetValue<bool>(config["timeline"], "smooth_scrolling_enable", true);
-			smoothScrollingTime = jsonIO::tryGetValue<float>(config["timeline"], "smooth_scrolling_time", 48.0f);
-			scrollSpeedNormal = jsonIO::tryGetValue<float>(config["timeline"], "scroll_speed_normal", 2.0f);
-			scrollSpeedShift = jsonIO::tryGetValue<float>(config["timeline"], "scroll_speed_fast", 5.0f);
+			useSmoothScrolling = jsonIO::tryGetValue<bool>(timeline, "smooth_scrolling_enable", true);
+			smoothScrollingTime = jsonIO::tryGetValue<float>(timeline, "smooth_scrolling_time", 48.0f);
+			scrollSpeedNormal = jsonIO::tryGetValue<float>(timeline, "scroll_speed_normal", 2.0f);
+			scrollSpeedShift = jsonIO::tryGetValue<float>(timeline, "scroll_speed_fast", 5.0f);
 
-			hideStepOutlinesInPlayback = jsonIO::tryGetValue<bool>(config["timeline"], "hide_step_outlines_in_playback", true);
-			drawWaveform = jsonIO::tryGetValue<bool>(config["timeline"], "draw_waveform", true);
-			returnToLastSelectedTickOnPause = jsonIO::tryGetValue<bool>(config["timeline"], "return_to_last_tick_on_pause", false);
-			cursorPositionThreshold = jsonIO::tryGetValue<float>(config["timeline"], "cursor_position_threshold", 0.5f);
-			stopAtEnd = jsonIO::tryGetValue<bool>(config["timeline"], "stop_at_end", true);
+			hideStepOutlinesInPlayback = jsonIO::tryGetValue<bool>(timeline, "hide_step_outlines_in_playback", true);
+			drawWaveform = jsonIO::tryGetValue<bool>(timeline, "draw_waveform", true);
+			returnToLastSelectedTickOnPause = jsonIO::tryGetValue<bool>(timeline, "return_to_last_tick_on_pause", false);
+			cursorPositionThreshold = jsonIO::tryGetValue<float>(timeline, "cursor_position_threshold", 0.5f);
+			stopAtEnd = jsonIO::tryGetValue<bool>(timeline, "stop_at_end", true);
 		}
 
 		if (jsonIO::keyExists(config, "preview"))
@@ -93,6 +94,7 @@ namespace MikuMikuWorld
 			pvHoldAlpha = jsonIO::tryGetValue<float>(previewObj, "hold_alpha", 1.f);
 			pvStageCover = jsonIO::tryGetValue<float>(previewObj, "stage_cover", 0.f);
 			pvStageOpacity = jsonIO::tryGetValue<float>(previewObj, "stage_opacity", 1.f);
+			pvBackgroundBrightness = jsonIO::tryGetValue<float>(previewObj, "background_brightness", 1.0f);
 		}
 
 		if (jsonIO::keyExists(config, "theme"))
@@ -200,7 +202,8 @@ namespace MikuMikuWorld
 			{"note_speed", pvNoteSpeed},
 			{"hold_alpha", pvHoldAlpha},
 			{"stage_cover", pvStageCover},
-			{"stage_opacity", pvStageOpacity}
+			{"stage_opacity", pvStageOpacity},
+			{"background_brightness", pvBackgroundBrightness}
 		};
 
 		config["theme"] = {
@@ -298,6 +301,7 @@ namespace MikuMikuWorld
 		pvHoldAlpha = 1.f;
 		pvStageCover = 0.f;
 		pvStageOpacity = 1.f;
+		pvBackgroundBrightness = 1.f;
 
 		autoSaveEnabled = true;
 		autoSaveInterval = 5;
