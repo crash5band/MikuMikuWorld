@@ -54,10 +54,10 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::SlotNoteFlick, 0.5f },
 		{ ParticleEffectType::SlotNoteCritical, 0.5f },
 
-		{ ParticleEffectType::SlotGlowNoteTap, 0.26f },
-		{ ParticleEffectType::SlotGlowNoteCritical, 0.27f },
+		{ ParticleEffectType::SlotGlowNoteTap, 0.27f },
+		{ ParticleEffectType::SlotGlowNoteCritical, 0.276f },
 		{ ParticleEffectType::SlotGlowNoteLong, 0.28f },
-		{ ParticleEffectType::SlotGlowNoteFlick, 0.27f },
+		{ ParticleEffectType::SlotGlowNoteFlick, 0.276f },
 
 		{ ParticleEffectType::SlotGlowNoteLongSegment, 0.5f },
 		{ ParticleEffectType::SlotGlowNoteLongCriticalSegment, 0.5f },
