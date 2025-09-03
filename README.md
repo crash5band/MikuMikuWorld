@@ -19,7 +19,7 @@ A chart editor and viewer for the mobile rhythm game Project Sekai Colorful Stag
 *Earlier versions of Windows may work but not tested.
 
 ## Download:
-The latest version can be downloaded [here](https://github.com/crash5band/MikuMikuWorld/releases/latest/download/MikuMikuWorld.zip).
+The latest version can be downloaded [here](https://github.com/Choccodrize/MikuMikuWorld/releases/tag/v3.4.0).
 
 ## Screenshot:
 ![MikuMikuWorld](https://github.com/crash5band/MikuMikuWorld/assets/44091782/ba9dbcdf-fa77-4b44-b5e3-2858a283fce0)
