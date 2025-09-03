@@ -1,7 +1,7 @@
 **English** / [日本語](./README.ja.md)
 
-# MikuMikuWorld
-A chart editor and viewer for the mobile rhythm game Project Sekai Colorful Stage feat. Hatsune Miku.
+# MikuMikuWorldForProsekaR
+A forked, is an chart editor and viewer for the mobile rhythm game Project Sekai Colorful Stage feat. Hatsune Miku.
 
 ## Features:
 - Import and export Sliding Universal Score (\*.sus) files.
@@ -19,7 +19,10 @@ A chart editor and viewer for the mobile rhythm game Project Sekai Colorful Stag
 *Earlier versions of Windows may work but not tested.
 
 ## Download:
-The latest version can be downloaded [here](https://github.com/Choccodrize/MikuMikuWorld/releases/tag/v3.4.0).
+The latest version can be downloaded [here](https://github.com/Choccodrize/MikuMikuWorld/releases/tag/v3.4.1). <---
 
 ## Screenshot:
-![MikuMikuWorld](https://github.com/crash5band/MikuMikuWorld/assets/44091782/ba9dbcdf-fa77-4b44-b5e3-2858a283fce0)
+![MikuMikuWorld](https://github.com/crash5band/MikuMikuWorld/assets/44091782/ba9dbcdf-fa77-4b44-b5e3-2858a283fce0) 
+
+## Discord Feedback:
+The Server Oficial has [here:] (https://discord.gg/FYMB5wgYDa)
