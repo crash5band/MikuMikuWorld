@@ -21,8 +21,8 @@ A forked, is an chart editor and viewer for the mobile rhythm game Project Sekai
 ## Download:
 The latest version can be downloaded [here](https://github.com/Choccodrize/MikuMikuWorld/releases/tag/v3.4.1). <---
 
+## Discord Feedback:
+The Server Oficial has [here](https://discord.gg/FYMB5wgYDa) for the annouciments for this project!
+
 ## Screenshot:
 ![MikuMikuWorld](https://github.com/crash5band/MikuMikuWorld/assets/44091782/ba9dbcdf-fa77-4b44-b5e3-2858a283fce0) 
-
-## Discord Feedback:
-The Server Oficial has [here:](https://discord.gg/FYMB5wgYDa)
