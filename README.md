@@ -9,6 +9,7 @@ A chart editor and viewer for the mobile rhythm game Project Sekai Colorful Stag
 - Custom timeline divisions up to 1920.
 - Create and use custom note presets.
 - Customizable keyboard shortcuts.
+- Export as ".spc" with a ProsekaR Engine (Base Forked By @Yarnix)
 
 ## Requirements:
 - 64-bit Windows 10 or higher*.
