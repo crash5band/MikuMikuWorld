@@ -25,4 +25,4 @@ The latest version can be downloaded [here](https://github.com/Choccodrize/MikuM
 ![MikuMikuWorld](https://github.com/crash5band/MikuMikuWorld/assets/44091782/ba9dbcdf-fa77-4b44-b5e3-2858a283fce0) 
 
 ## Discord Feedback:
-The Server Oficial has [here:] (https://discord.gg/FYMB5wgYDa)
+The Server Oficial has [here:](https://discord.gg/FYMB5wgYDa)
