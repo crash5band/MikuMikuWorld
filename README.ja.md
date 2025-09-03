@@ -1,24 +1,26 @@
 [English](./README.md) / **日本語**
 
-# MikuMikuWorld
-プロセカ用の譜面エディタ・譜面ビューアー。
+MikuMikuWorldForProsekaR
+フォーク版は、モバイルリズムゲーム「プロジェクトセカイ カラフルステージ feat. 初音ミク」の譜面エディタ兼ビューアです。
 
-## 必要な環境：
-- 64bitのWindows 10以上¹
-- [Microsoft Visual C++再頒布可能](https://aka.ms/vs/17/release/vc_redist.x64.exe)
-- GPU対応のOpenGL 3.3と最新のドライバ
+機能：
+スライド式ユニバーサルスコア（*.sus）ファイルのインポートとエクスポート。
+BPM、拍子、高速調整。
+最大1920までのタイムライン分割に対応。
+カスタムノートプリセットの作成と使用。
+カスタマイズ可能なキーボードショートカット。
+ProsekaRエンジン（ベースは@Yarnixによるフォーク）を使用して「.spc」形式でエクスポート。
+要件：
+64ビット版 Windows 10 以上*。
+Visual C++ 再頒布可能パッケージ。
+OpenGL 3.3 をサポートするGPUと最新ドライバーのインストール。
+*以前のバージョンのWindowsでも動作する可能性がありますが、テストは行われていません。
 
-1：古いバージョンでも動くかもしれませんが、動作確認はされていません。
+ダウンロード：
+最新バージョンはこちらからダウンロードできます。<---
 
-## 機能一覧：
-- Sliding Universal Score（\*.sus）ファイルの入出力。
-- BPM・拍子・ハイスピーの調整。
-- 最大1920分音符までのカスタム分割。
-- ノーツプリセットの作成・使用。
-- カスタマイズ可能なキーボードショートカット。
+スクリーンショット：
+MikuMikuWorld
 
-## ダウンロード：
-最新版は[ここ](https://github.com/crash5band/MikuMikuWorld/releases/latest/download/MikuMikuWorld.zip)からダウンロードできます。
-
-## スクリーンショット：
-![ミクワ](https://github.com/crash5band/MikuMikuWorld/assets/44091782/c56ec0d3-f50e-4944-94ca-a13a973d075a)
+Discordフィードバック：
+サーバー公式ページはこちら：
