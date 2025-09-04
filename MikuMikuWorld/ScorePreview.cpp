@@ -331,11 +331,16 @@ namespace MikuMikuWorld
 
 		pteShader->use();
 		pteShader->setMatrix4("viewProjection", viewProjection);
-		pteShader->setFloat("blendFactor", 0.5); // full additive 0 - 1 full alpha blend
+		pteShader->setFloat("blendFactor", 0.5f); // full additive 0 - 1 full alpha blend
 		renderer->beginBatch();
 		drawParticles(context, renderer);
 		renderer->endBatchWithBlending(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-		
+
+		pteShader->setFloat("blendFactor", 0.78f);
+		renderer->beginBatch();
+		drawBlendParticles(context, renderer);
+		renderer->endBatchWithBlending(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
 		previewBuffer.unblind();
 		drawList->AddImage((ImTextureID)(size_t)previewBuffer.getTexture(), position, position + size);
 	}
@@ -734,33 +739,6 @@ namespace MikuMikuWorld
 					drawParticle(renderer, vPos, particle, progress, texture, texture.sprites[particleData.spriteID], Engine::getZIndex(SpriteLayer::UNDER_NOTE_EFFECT, 0, 1 - progress), particleData.color);
 				}
 			}
-
-			if (!effect.slotParticle)
-				continue;
-
-			const auto& slotParticle = *effect.slotParticle.get();
-			if (current_tm <= slotParticle.time.min || current_tm >= slotParticle.time.max)
-				continue;
-
-			Particle& particleData = ResourceManager::particleEffects[slotParticle.effectType].particles[slotParticle.particleId];
-			float progress = Engine::getParticleProgress((ParticleEffectType)slotParticle.effectType, particleData, current_tm, slotParticle.time.min, slotParticle.time.max);
-
-			size_t transIdx = static_cast<size_t>(SpriteType::Slot);
-			if (!isArrayIndexInBounds(transIdx, ResourceManager::spriteTransforms)) break;
-			const auto& slotTransform = ResourceManager::spriteTransforms[transIdx];
-
-			const Note& note = context.score.notes.at(noteId);
-			const Sprite& sprite = texture.sprites[particleData.spriteID];
-			float slotLeft = Engine::laneToLeft(note.lane), slotTop = 1 - Engine::getNoteHeight(), slotBottom = 1 + Engine::getNoteHeight();
-			float alpha = slotParticle.xywhta[5].at(progress);
-			if (config.pvMirrorScore) slotLeft = (slotLeft + note.width) * -1;
-			for (int i = 0; i < note.width; i++)
-			{
-				std::array<DirectX::XMFLOAT4, 4> vPos = slotTransform.apply(Engine::perspectiveQuadvPos(slotLeft + i, slotLeft + i + 1.f, slotTop, slotBottom));
-				renderer->drawQuad(vPos, DirectX::XMMatrixIdentity(), texture, sprite.getX1(), sprite.getX2(), sprite.getY2(), sprite.getY1(),
-					defaultTint.scaleAlpha(alpha), Engine::getZIndex(SpriteLayer::UNDER_NOTE_EFFECT, slotLeft + 0.5f, 1 - progress)
-				);
-			}
 		}
 	}
 
@@ -774,7 +752,7 @@ namespace MikuMikuWorld
 		
 		for (const auto& [noteId, effect] : drawData.drawingEffects)
 		{
-			for (const auto& particle : effect.particles)
+			for (const auto& particle : effect.additiveAlphaBlendParticles)
 			{
 				if (current_tm <= particle.time.min || current_tm >= particle.time.max)
 					continue;
@@ -891,6 +869,79 @@ namespace MikuMikuWorld
 						particleData.color
 					);
 				}
+			}
+
+			if (!effect.slotParticle)
+				continue;
+
+			const auto& slotParticle = *effect.slotParticle;
+			if (current_tm <= slotParticle.time.min || current_tm >= slotParticle.time.max)
+				continue;
+
+			Particle& particleData = ResourceManager::particleEffects[slotParticle.effectType].particles[slotParticle.particleId];
+			float progress = Engine::getParticleProgress((ParticleEffectType)slotParticle.effectType, particleData, current_tm, slotParticle.time.min, slotParticle.time.max);
+
+			size_t transIdx = static_cast<size_t>(SpriteType::Slot);
+			if (!isArrayIndexInBounds(transIdx, ResourceManager::spriteTransforms)) break;
+			const auto& slotTransform = ResourceManager::spriteTransforms[transIdx];
+
+			const Note& note = context.score.notes.at(noteId);
+			const Sprite& sprite = texture.sprites[particleData.spriteID];
+			float slotLeft = Engine::laneToLeft(note.lane), slotTop = 1 - Engine::getNoteHeight(), slotBottom = 1 + Engine::getNoteHeight();
+			float alpha = slotParticle.xywhta[5].at(progress);
+			if (config.pvMirrorScore) slotLeft = (slotLeft + note.width) * -1;
+			for (int i = 0; i < note.width; i++)
+			{
+				std::array<DirectX::XMFLOAT4, 4> vPos = slotTransform.apply(Engine::perspectiveQuadvPos(slotLeft + i, slotLeft + i + 1.f, slotTop, slotBottom));
+				renderer->drawQuad(vPos, DirectX::XMMatrixIdentity(), texture, sprite.getX1(), sprite.getX2(), sprite.getY2(), sprite.getY1(),
+					defaultTint.scaleAlpha(alpha), Engine::getZIndex(SpriteLayer::UNDER_NOTE_EFFECT, slotLeft + 0.5f, 1 - progress)
+				);
+			}
+		}
+	}
+
+	void ScorePreviewWindow::drawBlendParticles(const ScoreContext& context, Renderer* renderer)
+	{
+		const float current_tm = accumulateDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges);
+		int particleTexId = ResourceManager::getTexture("particles");
+		if (particleTexId < 0) return;
+		const Texture& texture = ResourceManager::textures[particleTexId];
+		const Engine::DrawData& drawData = context.scorePreviewDrawData;
+
+		for (const auto& [noteId, effect] : drawData.drawingEffects)
+		{
+			for (const auto& particle : effect.blendParticles)
+			{
+				if (current_tm <= particle.time.min || current_tm >= particle.time.max)
+					continue;
+
+				const Note& note = context.score.notes.at(noteId);
+				Particle& particleData = ResourceManager::particleEffects[particle.effectType].particles[particle.particleId];
+				float progress = Engine::getParticleProgress((ParticleEffectType)particle.effectType, particleData, current_tm, particle.time.min, particle.time.max);
+				ParticleEffectType particleType = (ParticleEffectType)particle.effectType;
+
+				float cirularWidth, circularHeight, noteLeft, noteRight;
+				switch (particleType)
+				{
+				case ParticleEffectType::NoteLongSegmentCircular:
+				case ParticleEffectType::NoteLongCriticalSegmentCircular:
+					cirularWidth = 3.5;
+					circularHeight = 2.1;
+					std::tie(noteLeft, noteRight) = getHoldSegmentBound(note, context.score, context.currentTick);
+					break;
+				default:
+					cirularWidth = 1.75;
+					circularHeight = 1.05;
+					std::tie(noteLeft, noteRight) = getNoteBound(note);
+					break;
+				}
+				float noteCenter = noteLeft + (noteRight - noteLeft) / 2;
+				drawParticle(renderer,
+					Engine::circularQuadvPos(noteCenter, cirularWidth, circularHeight * scaledAspectRatio),
+					particle, progress, texture, texture.sprites[particleData.spriteID],
+					Engine::getZIndex(SpriteLayer::PARTICLE_EFFECT, noteCenter, float(note.tick) / context.scorePreviewDrawData.maxTicks),
+					particleData.color
+				);
 			}
 		}
 	}

@@ -105,6 +105,7 @@ namespace MikuMikuWorld
 		SlotGlowNoteCritical,
 		SlotGlowNoteFlick,
 		SlotGlowNoteLong,
+		SlotGlowNoteCriticalFlick,
 
 		SlotGlowNoteLongSegment,
 		SlotGlowNoteLongCriticalSegment,

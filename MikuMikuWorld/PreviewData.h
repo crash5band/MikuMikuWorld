@@ -18,6 +18,7 @@ namespace MikuMikuWorld::Engine
 	{
 		Lane,
 		Circular,
+		BlendCircular,
 		Linear,
 		Flat,
 		Slot,
@@ -76,7 +77,8 @@ namespace MikuMikuWorld::Engine
 		int refID;
 		Range time;
 
-		std::vector<DrawingParticle> particles;
+		std::vector<DrawingParticle> additiveAlphaBlendParticles;
+		std::vector<DrawingParticle> blendParticles;
 		std::vector<DrawingParticle> laneParticles;
 		std::unique_ptr<DrawingParticle> slotParticle;
 	};

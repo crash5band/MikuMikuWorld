@@ -263,8 +263,11 @@ namespace MikuMikuWorld::Engine
 					case DrawingParticleType::Lane:
 						drawList.laneParticles.emplace_back(std::move(drawingParticle));
 						break;
+					case DrawingParticleType::BlendCircular:
+						drawList.blendParticles.emplace_back(std::move(drawingParticle));
+						break;
 					default:
-						drawList.particles.emplace_back(std::move(drawingParticle));
+						drawList.additiveAlphaBlendParticles.emplace_back(std::move(drawingParticle));
 					}
 				}
 
@@ -317,7 +320,7 @@ namespace MikuMikuWorld::Engine
 		float startTime = accumulateDuration(startNote.tick, TICKS_PER_BEAT, score.tempoChanges);
 		float endTime = accumulateDuration(endNote.tick, TICKS_PER_BEAT, score.tempoChanges);
 		if (ensureValidParticle(circular))
-			addParticleEffect(effect, rng, circular, DrawingParticleType::Circular, startNote, score, endTime - startTime);
+			addParticleEffect(effect, rng, circular, DrawingParticleType::BlendCircular, startNote, score, endTime - startTime);
 		if (ensureValidParticle(circularEx))
 			addParticleEffect(effect, rng, circularEx, DrawingParticleType::Linear, startNote, score, endTime - startTime);
 		if (ensureValidParticle(linear))
@@ -350,6 +353,9 @@ namespace MikuMikuWorld::Engine
 				circular = !note.critical ? ParticleEffectType::NoteFrictionCircular : ParticleEffectType::NoteFrictionCriticalCircular;
 			}
 			linear = static_cast<ParticleEffectType>(static_cast<int>(circular) + 1);
+			if (note.critical && !note.friction)
+				linear = ParticleEffectType::NoteCriticalLinear;
+			
 			break;
 		}
 		case NoteType::HoldMid:
@@ -396,11 +402,14 @@ namespace MikuMikuWorld::Engine
 			linear = static_cast<ParticleEffectType>(static_cast<int>(circular) + 1);
 			if (note.isFlick() && note.critical && !note.friction)
 				linear = ParticleEffectType::NoteCriticalFlickLinear;
+			else if (note.getType() == NoteType::HoldEnd && !note.isFlick() && !note.friction && note.critical)
+				linear = ParticleEffectType::NoteCriticalLinear;
 
 			break;
 		default:
 			return;
 		}
+
 		if (ensureValidParticle(circular))
 			switch(circular)
 			{
@@ -478,6 +487,10 @@ namespace MikuMikuWorld::Engine
 		case NoteType::HoldMid:
 			return;
 		}
+
+		if (note.critical && note.isFlick())
+			slotGlow = ParticleEffectType::SlotGlowNoteCriticalFlick;
+
 		if (ensureValidParticle(slot))
 			addParticleEffect(effect, rng, slot, DrawingParticleType::Slot, note, score);
 		if (ensureValidParticle(slotGlow))
@@ -517,7 +530,8 @@ namespace MikuMikuWorld::Engine
 			if (isMidHold || isWithinRange(currentTime, noteTime - effectTimeAddBefore, noteTime + effectTimeAddAfter))
 			{
 				DrawingEffect drawingEffect{ id, {INT32_MAX, 0}, {} };
-				drawingEffect.particles.reserve(192);
+				drawingEffect.additiveAlphaBlendParticles.reserve(192);
+				drawingEffect.blendParticles.reserve(24);
 
 				if (hasNoteEffect)
 					addNoteEffect(*this, drawingEffect, note, context.score);

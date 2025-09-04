@@ -9,7 +9,7 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::NoteCriticalLane, 1.f },
 		{ ParticleEffectType::NoteCriticalFlickLane, 1.f },
 
-		{ ParticleEffectType::NoteTapCircular, 0.6f },
+		{ ParticleEffectType::NoteTapCircular, 0.575f },
 		{ ParticleEffectType::NoteTapLinear, 0.5f },
 		{ ParticleEffectType::NoteTapLinearAdd, 0.5f },
 
@@ -17,29 +17,29 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::NoteLongLinear, 0.5f },
 		{ ParticleEffectType::NoteLongLinearAdd, 0.5f },
 		
-		{ ParticleEffectType::NoteFlickCircular, 0.6f },
+		{ ParticleEffectType::NoteFlickCircular, 0.575f },
 		{ ParticleEffectType::NoteFlickLinear, 0.5f },
-		{ ParticleEffectType::NoteFlickDirectional, 0.31f },
+		{ ParticleEffectType::NoteFlickDirectional, 0.3f },
 		
-		{ ParticleEffectType::NoteCriticalCircular, 0.6f },
+		{ ParticleEffectType::NoteCriticalCircular, 0.575f },
 		{ ParticleEffectType::NoteCriticalLinear, 0.5f },
 		{ ParticleEffectType::NoteCriticalLinearAdd, 0.5f },
 		
 		{ ParticleEffectType::NoteLongCriticalCircular, 0.6f },
 		{ ParticleEffectType::NoteLongCriticalLinearAdd, 0.5f },
 		
-		{ ParticleEffectType::NoteCriticalFlickCircular, 0.575f },
+		{ ParticleEffectType::NoteCriticalFlickCircular, 0.6f },
 		{ ParticleEffectType::NoteCriticalDirectional, 0.31f },
-		{ ParticleEffectType::NoteCriticalFlickLinear, 0.53f },
+		{ ParticleEffectType::NoteCriticalFlickLinear, 0.55f },
 
-		{ ParticleEffectType::NoteFrictionCircular, 0.6f },
-		{ ParticleEffectType::NoteFrictionLinear, 0.5f },
+		{ ParticleEffectType::NoteFrictionCircular, 0.58f },
+		{ ParticleEffectType::NoteFrictionLinear, 0.65f },
 
-		{ ParticleEffectType::NoteFrictionCriticalCircular, 0.6f },
-		{ ParticleEffectType::NoteFrictionCriticalLinear, 0.5f },
+		{ ParticleEffectType::NoteFrictionCriticalCircular, 0.58f },
+		{ ParticleEffectType::NoteFrictionCriticalLinear, 0.65f },
 
-		{ ParticleEffectType::NoteLongAmongCircular, 0.6f },
-		{ ParticleEffectType::NoteLongAmongCriticalCircular, 0.6f },
+		{ ParticleEffectType::NoteLongAmongCircular, 0.5f },
+		{ ParticleEffectType::NoteLongAmongCriticalCircular, 0.5f },
 
 		{ ParticleEffectType::NoteLongSegmentCircular, 1.f },
 		{ ParticleEffectType::NoteLongSegmentCircularEx, 1.f },
@@ -54,10 +54,11 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::SlotNoteFlick, 0.5f },
 		{ ParticleEffectType::SlotNoteCritical, 0.5f },
 
-		{ ParticleEffectType::SlotGlowNoteTap, 0.27f },
+		{ ParticleEffectType::SlotGlowNoteTap, 0.275f },
 		{ ParticleEffectType::SlotGlowNoteCritical, 0.276f },
 		{ ParticleEffectType::SlotGlowNoteLong, 0.28f },
-		{ ParticleEffectType::SlotGlowNoteFlick, 0.276f },
+		{ ParticleEffectType::SlotGlowNoteFlick, 0.277f },
+		{ ParticleEffectType::SlotGlowNoteCriticalFlick, 0.277f },
 
 		{ ParticleEffectType::SlotGlowNoteLongSegment, 0.5f },
 		{ ParticleEffectType::SlotGlowNoteLongCriticalSegment, 0.5f },
