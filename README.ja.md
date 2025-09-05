@@ -19,7 +19,7 @@
 *以前のバージョンのWindowsでも動作する可能性がありますが、テストは行われていません。
 
 ## ダウンロード:
-最新バージョンは[こちら](https://github.com/Choccodrize/MikuMikuWorld/releases/tag/v3.4.1)からダウンロードできます。<---
+最新バージョンは[こちら](https://github.com/Choccodrize/MikuMikuWorldForProsekaR/releases/tag/v.3.4.1)からダウンロードできます
 
 ## Discord フィードバック:
 このプロジェクトに関するお知らせは、サーバー公式から[こちら](https://discord.gg/FYMB5wgYDa)で公開されています。
