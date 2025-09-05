@@ -1,4 +1,4 @@
-[English](./README.md) / [Português](./README.br.md) / **Japenese**
+[English](./README.md) / [Português](./README.br.md) / **日本語**
 
 # MikuMikuWorldForProsekaR
 モバイルリズムゲーム「プロジェクトセカイ カラフルステージ feat. 初音ミク」の譜面エディタ兼ビューアです。
