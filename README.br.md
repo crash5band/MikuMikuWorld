@@ -1,7 +1,7 @@
 [English](./README.md) / **Português** / [Japenese](./README.ja.md)
 
 # MikuMikuWorldForProsekaR
-Um fork é um editor e visualizador de gráficos para o jogo de ritmo mobile Project Sekai Colorful Stage com Hatsune Miku.
+Esse Repositório é um fork, de um software que é um editor e visualizador de gráficos para o jogo de ritmo mobile Project Sekai Colorful Stage com Hatsune Miku.
 
 ## Recursos:
 - Importe e exporte arquivos Sliding Universal Score (\*.sus).
@@ -9,7 +9,7 @@ Um fork é um editor e visualizador de gráficos para o jogo de ritmo mobile Pro
 - Divisões personalizadas da linha de tempo em até 1920.
 - Crie e use predefinições de notas personalizadas.
 - Atalhos de teclado personalizáveis.
-- Exporte como ".scp" com um ProsekaR Engine (Base bifurcada por @Yarnix)
+- Exporte como ".scp" com um ProsekaR Engine (Base por @Yarnix)
 
 ## Requisitos:
 - Windows 10 de 64 bits ou superior*.
