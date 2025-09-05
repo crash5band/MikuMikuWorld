@@ -19,8 +19,7 @@ Esse Repositório é um fork, de um software que é um editor e visualizador de 
 *Versões anteriores do Windows podem funcionar, mas não foram testadas.
 
 ## Download:
-A versão mais recente pode ser baixada [aqui](https://github.com/Choccodrize/MikuMikuWorld/releases/tag/v3.4.1). <---
-
+A versão mais recente pode ser baixada [aqui](https://github.com/Choccodrize/MikuMikuWorldForProsekaR/releases/tag/v.3.4.1)
 ## Feedback do Discord:
 O Oficial do Servidor está [aqui](https://discord.gg/FYMB5wgYDa) para os anúncios deste projeto!
  
