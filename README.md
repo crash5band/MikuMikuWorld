@@ -9,7 +9,7 @@ A forked, is an chart editor and viewer for the mobile rhythm game Project Sekai
 - Custom timeline divisions up to 1920.
 - Create and use custom note presets.
 - Customizable keyboard shortcuts.
-- Export as ".scp" with a ProsekaR Engine (Base Forked By @Yarnix)
+- Export as ".scp" with a ProsekaR Engine Base Forked By [@YarNix](https://github.com/YarNix/MikuMikuWorld)
 
 ## Requirements:
 - 64-bit Windows 10 or higher*.
