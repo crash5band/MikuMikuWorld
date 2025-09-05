@@ -1,4 +1,4 @@
-[English](./README.md) / **Português**
+[English](./README.md) / **Português** / [Japenese](./README.ja.md)
 
 # MikuMikuWorldForProsekaR
 Um fork é um editor e visualizador de gráficos para o jogo de ritmo mobile Project Sekai Colorful Stage com Hatsune Miku.
