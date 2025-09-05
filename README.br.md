@@ -1,7 +1,7 @@
 [English](./README.md) / **Português** / [Japenese](./README.ja.md)
 
 # MikuMikuWorldForProsekaR
-Esse Repositório é um fork, de um software que é um editor e visualizador de gráficos para o jogo de ritmo mobile Project Sekai Colorful Stage com Hatsune Miku.
+Esse Repositório é um fork, de um software que é um editor e visualizador de gráficos para o jogo de ritmo mobile Project Sekai Colorful Stage com Hatsune Miku, a mesma vocaloid que aparece em [ProjectDiva](https://project-diva.fandom.com/wiki/Project_DIVA_Wiki)
 
 ## Recursos:
 - Importe e exporte arquivos Sliding Universal Score (\*.sus).
