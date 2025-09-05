@@ -9,7 +9,7 @@ Esse Repositório é um fork, de um software que é um editor e visualizador de 
 - Divisões personalizadas da linha de tempo em até 1920.
 - Crie e use predefinições de notas personalizadas.
 - Atalhos de teclado personalizáveis.
-- Exporte como ".scp" com um ProsekaR Engine (Base por @Yarnix)
+- Exporte como ".scp" com um ProsekaR Engine Base por [@YarNix](https://github.com/YarNix/MikuMikuWorld)
 
 ## Requisitos:
 - Windows 10 de 64 bits ou superior*.
