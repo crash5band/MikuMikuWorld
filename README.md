@@ -1,4 +1,4 @@
-**English** / [Português](./README.br.md) / [Japenese](./README.ja.md)
+**English** / [Portuguese](./README.br.md) / [Japenese](./README.ja.md)
 
 # MikuMikuWorldForProsekaR
 A forked, is an chart editor and viewer for the mobile rhythm game Project Sekai Colorful Stage feat. Hatsune Miku.
