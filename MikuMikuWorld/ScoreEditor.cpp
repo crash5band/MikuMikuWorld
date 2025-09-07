@@ -9,7 +9,8 @@
 #include "Constants.h"
 #include "Utilities.h"
 #include "ImageCrop.h"
-#include "ScoreSerializer.h"
+#include "NativeScoreSerializer.h"
+#include "ScoreSerializeWindow.h"
 #include <filesystem>
 #include <Windows.h>
 
@@ -159,55 +160,7 @@ namespace MikuMikuWorld
 
 		settingsWindow.update();
 		aboutDialog.update();
-		if (serializationDialog)
-		{
-			switch (serializationDialog->update())
-			{
-			case SerializationDialogResult::SerializeSuccess:
-				IO::messageBox(
-					APP_NAME,
-					IO::formatString(getString("export_successful")),
-					IO::MessageBoxButtons::Ok,
-					IO::MessageBoxIcon::Information,
-					Application::windowState.windowHandle
-				);
-				serializationDialog.reset();
-				break;
-			case SerializationDialogResult::DeserializeSuccess:
-				context.clearSelection();
-				context.history.clear();
-				context.score = std::move(serializationDialog->getScore());
-				context.workingData = EditorScoreData(context.score.metadata, serializationDialog->getFilename());
-
-				asyncLoadMusic(context.workingData.musicFilename);
-				context.audio.setMusicOffset(0, context.workingData.musicOffset);
-
-				context.scoreStats.calculateStats(context.score);
-				context.scorePreviewDrawData.calculateDrawData(context.score);
-				timeline.calculateMaxOffsetFromScore(context.score);
-
-				UI::setWindowTitle((context.workingData.filename.size() ? IO::File::getFilename(context.workingData.filename) : windowUntitled));
-				context.upToDate = true;
-				serializationDialog.reset();
-				break;
-			default:
-			case SerializationDialogResult::Error:
-				IO::messageBox(
-					APP_NAME,
-					serializationDialog->getErrorMessage(),
-					IO::MessageBoxButtons::Ok,
-					IO::MessageBoxIcon::Error,
-					Application::windowState.windowHandle
-				);
-				serializationDialog.reset();
-				break;
-			case SerializationDialogResult::Cancel:
-				serializationDialog.reset();
-				break;
-			case SerializationDialogResult::None:
-				break;
-			}
-		}
+		serializeWindow.update(*this, context, timeline);
 
 		const bool timeline_just_created = (ImGui::FindWindowByName("###notes_timeline") == NULL);
 		ImGui::Begin(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"), NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
@@ -292,8 +245,7 @@ namespace MikuMikuWorld
 			return;
 
 		timeline.setPlaying(context, false);
-		serializationDialog = SerializationDialogFactory::getDialog(filename);
-		serializationDialog->openDeserializingDialog(filename);
+		serializeWindow.openDeserializeDialog(filename);
 
 		updateRecentFilesList(filename);
 	}
@@ -350,7 +302,13 @@ namespace MikuMikuWorld
 		IO::FileDialog fileDialog{};
 		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 		fileDialog.title = "Open Chart";
-		fileDialog.filters = { IO::combineFilters("All Supported Files", {IO::mmwsFilter, IO::susFilter, IO::scpFilter}) };
+		fileDialog.filters = {
+			IO::combineFilters("All Supported Files",{ IO::mmwsFilter, IO::susFilter, IO::lvlDatFilter, IO::scpFilter }),
+			IO::mmwsFilter,
+			IO::susFilter,
+			IO::scpFilter,
+			IO::allFilter
+		};
 		
 		if (fileDialog.openFile() == IO::FileDialogResult::OK)
 			loadScore(fileDialog.outputFilename);
@@ -366,7 +324,7 @@ namespace MikuMikuWorld
 		try
 		{
 			context.score.metadata = context.workingData.toScoreMetadata();
-			ScoreSerializerFactory::getSerializer(MMWS_EXTENSION)->serialize(context.score, filename);
+			NativeScoreSerializer().serialize(context.score, filename);
 
 			UI::setWindowTitle(IO::File::getFilename(filename));
 			context.upToDate = true;
@@ -411,21 +369,19 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::exportExternal()
 	{
-		constexpr const char* exportExtensions[] = { "sus", "scp" };
+		constexpr const char* exportExtensions[] = { "sus", "scp", "json" };
 		int filterIndex = std::clamp(config.lastSelectedExportIndex, 0, static_cast<int>(arrayLength(exportExtensions) - 1));
 
 		IO::FileDialog fileDialog{};
 		fileDialog.title = "Export Chart";
-		fileDialog.filters = { IO::susFilter, IO::scpFilter };
+		fileDialog.filters = { IO::susFilter, IO::scpFilter, IO::lvlDatFilter };
 		fileDialog.filterIndex = filterIndex;
 		fileDialog.defaultExtension = exportExtensions[filterIndex];
 		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 
 		if (fileDialog.saveFile() == IO::FileDialogResult::OK)
 		{
-			serializationDialog = SerializationDialogFactory::getDialog(fileDialog.outputFilename);
-			serializationDialog->openSerializingDialog(context, fileDialog.outputFilename);
-
+			serializeWindow.openSerializeDialog(context, fileDialog.outputFilename);
 			config.lastSelectedExportIndex = fileDialog.filterIndex;
 		}
 	}
@@ -715,7 +671,7 @@ namespace MikuMikuWorld
 		std::filesystem::create_directory(wAutoSaveDir);
 
 		context.score.metadata = context.workingData.toScoreMetadata();
-		ScoreSerializerFactory::getSerializer(MMWS_EXTENSION)->serialize(context.score, autoSavePath + "\\mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION);
+		NativeScoreSerializer().serialize(context.score, autoSavePath + "\\mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION);
 		
 		int mmwsCount = 0;
 		for (const auto& file : std::filesystem::directory_iterator(wAutoSaveDir))

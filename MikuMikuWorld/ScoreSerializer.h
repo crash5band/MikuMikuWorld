@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ScoreContext.h"
+#include "Score.h"
 #include <memory>
 #include <string>
 
@@ -16,16 +16,10 @@ namespace MikuMikuWorld
 		virtual ~ScoreSerializer() {};
 
 		static bool isSupportedFileFormat(const std::string_view& extension);
-	};
-
-	class ScoreSerializerFactory
-	{
-	public:
-		static std::unique_ptr<ScoreSerializer> getSerializer(const std::string& fileExtension);
 		static bool isNativeScoreFormat(const std::string& fileExtension);
 	};
 
-	enum class SerializationDialogResult
+	enum class SerializeDialogResult
 	{
 		None,
 		Cancel,
@@ -34,29 +28,33 @@ namespace MikuMikuWorld
 		Error,
 	};
 
-	class ScoreSerializationDialog
+	class ScoreSerializeDialog
 	{
 	protected:
-		bool open = false;
-		bool isSerializing;
-		bool isNativeFormat;
-		std::unique_ptr<ScoreSerializer> serializer;
-		std::string filename;
-		std::string errorMessage;
-		Score score;
+		ScoreSerializeDialog() = default;
 	public:
 		Score& getScore();
-		const std::string& getFilename() const;
+		const std::string& getScoreFilename() const;
 		const std::string& getErrorMessage() const;
 
-		virtual void openSerializingDialog(const ScoreContext& context, const std::string& filename);
-		virtual void openDeserializingDialog(const std::string& filename);
-		virtual SerializationDialogResult update();
+		virtual SerializeDialogResult update() = 0;
+		virtual ~ScoreSerializeDialog() {};
+	protected:
+		std::string errorMessage;
+		std::string scoreFilename;
+		Score score;
 	};
 
-	class SerializationDialogFactory
+	class GenericScoreSerializeDialog : public ScoreSerializeDialog
 	{
 	public:
-		static std::unique_ptr<ScoreSerializationDialog> getDialog(const std::string& filename);
+		GenericScoreSerializeDialog(std::unique_ptr<ScoreSerializer> serializer, Score score, const std::string& filename);
+		GenericScoreSerializeDialog(std::unique_ptr<ScoreSerializer> deserializer, const std::string& filename);
+	
+		SerializeDialogResult update() override;
+	private:
+		bool isSerializing;
+		std::unique_ptr<ScoreSerializer> serializer;
+		std::string filename;
 	};
 }

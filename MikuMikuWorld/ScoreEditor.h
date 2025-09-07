@@ -1,7 +1,7 @@
 #pragma once
 #include "ScoreEditorWindows.h"
 #include "ScorePreview.h"
-#include "ScoreSerializer.h"
+#include "ScoreSerializeWindow.h"
 #include <future>
 
 namespace MikuMikuWorld
@@ -23,7 +23,7 @@ namespace MikuMikuWorld
 		SettingsWindow settingsWindow{};
 		RecentFileNotFoundDialog recentFileNotFoundDialog{};
 		AboutDialog aboutDialog{};
-		std::unique_ptr<ScoreSerializationDialog> serializationDialog;
+		ScoreSerializeWindow serializeWindow;
 
 		Stopwatch autoSaveTimer;
 		std::string autoSavePath;

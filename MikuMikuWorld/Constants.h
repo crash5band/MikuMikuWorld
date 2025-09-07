@@ -23,4 +23,5 @@ namespace MikuMikuWorld
 	constexpr const char* SUS_EXTENSION			= ".sus";
 	constexpr const char* MMWS_EXTENSION		= ".mmws";
 	constexpr const char* SCP_EXTENSION			= ".scp";
+	constexpr const char* LVLDAT_EXTENSION		= ".json";
 }

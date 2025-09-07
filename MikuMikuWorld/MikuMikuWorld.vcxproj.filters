@@ -180,6 +180,12 @@
     <ClCompile Include="ArchiveError.cpp">
       <Filter>IO\ZipFile</Filter>
     </ClCompile>
+    <ClCompile Include="ScoreSerializeWindow.cpp">
+      <Filter>Score\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="SonolusCollectionSerializer.cpp">
+      <Filter>Score\Serialization</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -406,6 +412,12 @@
     </ClInclude>
     <ClInclude Include="SHA-1.hpp">
       <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="ScoreSerializeWindow.h">
+      <Filter>Score\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="SonolusCollectionSerializer.h">
+      <Filter>Score\Serialization</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

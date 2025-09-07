@@ -1,17 +1,19 @@
 #include "ScoreSerializer.h"
-
-#include "NativeScoreSerializer.h"
-#include "SusSerializer.h"
-#include "SonolusSerializer.h"
 #include "Localization.h"
+#include "Constants.h"
+#include "IO.h"
+#include "File.h"
+#include <array>
+#include <algorithm>
 
 namespace MikuMikuWorld
 {
-	constexpr std::array<std::string_view, 3> supportedScoreExtensions =
+	constexpr std::array<std::string_view, 4> supportedScoreExtensions =
 	{
 		MMWS_EXTENSION,
 		SUS_EXTENSION,
-		SCP_EXTENSION
+		SCP_EXTENSION,
+		LVLDAT_EXTENSION
 	};
 
 	bool ScoreSerializer::isSupportedFileFormat(const std::string_view& extension)
@@ -19,98 +21,67 @@ namespace MikuMikuWorld
 		return std::find(supportedScoreExtensions.cbegin(), supportedScoreExtensions.cend(), extension) != supportedScoreExtensions.end();
 	}
 
-	std::unique_ptr<ScoreSerializer> ScoreSerializerFactory::getSerializer(const std::string& fileExtension)
+	bool ScoreSerializer::isNativeScoreFormat(const std::string& fileExtension)
 	{
-		std::string ext;
-		ext.reserve(fileExtension.size());
-		std::transform(fileExtension.begin(), fileExtension.end(), std::back_inserter(ext), ::tolower);
-
-		if (ext == MMWS_EXTENSION)
-		{
-			return std::make_unique<NativeScoreSerializer>();
-		}
-		else if (ext == SUS_EXTENSION)
-		{
-			return std::make_unique<SusSerializer>();
-		}
-		else if (ext == SCP_EXTENSION)
-		{
-			return std::make_unique<SonolusSerializer>();
-		}
-		else
-		{
-			return nullptr;
-		}
-	}
-
-	bool ScoreSerializerFactory::isNativeScoreFormat(const std::string& fileExtension)
-	{
-		std::string ext;
-		ext.reserve(fileExtension.size());
-		std::transform(fileExtension.begin(), fileExtension.end(), std::back_inserter(ext), ::tolower);
+		std::string ext = fileExtension;
+		std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
 		return ext == MMWS_EXTENSION;
 	}
 
-	Score& ScoreSerializationDialog::getScore()
+	Score& ScoreSerializeDialog::getScore()
 	{
 		return score;
 	}
 
-	const std::string& ScoreSerializationDialog::getFilename() const
+	const std::string& ScoreSerializeDialog::getScoreFilename() const
 	{
-		static const std::string noName;
-		if (isNativeFormat)
-			return filename;
-		else
-			return noName;
+		return scoreFilename;
 	}
 
-	const std::string& ScoreSerializationDialog::getErrorMessage() const
+	const std::string& ScoreSerializeDialog::getErrorMessage() const
 	{
 		return errorMessage;
 	}
 
-	void ScoreSerializationDialog::openSerializingDialog(const ScoreContext& context, const std::string& filename)
+	GenericScoreSerializeDialog::GenericScoreSerializeDialog(std::unique_ptr<ScoreSerializer> serializer, Score score, const std::string& filename)
+		: isSerializing(true), serializer(std::move(serializer)), filename(filename)
 	{
-		std::string extension = IO::File::getFileExtension(filename);
-		isSerializing = true;
-		open = true;
-		serializer = ScoreSerializerFactory::getSerializer(extension);
-		if (!serializer)
-			this->errorMessage = "Unsupported score format (" + extension + ")";
-		this->filename = filename;
-		score = context.score;
-		score.metadata = context.workingData.toScoreMetadata();
-		isNativeFormat = ScoreSerializerFactory::isNativeScoreFormat(extension);
+		this->score = std::move(score);
+
+		if (ScoreSerializer::isNativeScoreFormat(IO::File::getFileExtension(filename)))
+			this->scoreFilename = filename;
 	}
 
-	void ScoreSerializationDialog::openDeserializingDialog(const std::string& filename)
+	GenericScoreSerializeDialog::GenericScoreSerializeDialog(std::unique_ptr<ScoreSerializer> deserializer, const std::string& filename)
+		: isSerializing(false), serializer(std::move(deserializer)), filename(filename)
 	{
-		std::string extension = IO::File::getFileExtension(filename);
-		isSerializing = false;
-		open = true;
-		serializer = ScoreSerializerFactory::getSerializer(extension);
-		if (!serializer)
-			this->errorMessage = "Unsupported score format (" + extension + ")";
-		this->filename = filename;
-		isNativeFormat = ScoreSerializerFactory::isNativeScoreFormat(extension);
+
+		if (ScoreSerializer::isNativeScoreFormat(IO::File::getFileExtension(filename)))
+			this->scoreFilename = filename;
 	}
 
-	SerializationDialogResult ScoreSerializationDialog::update()
+	SerializeDialogResult MikuMikuWorld::GenericScoreSerializeDialog::update()
 	{
 		if (!serializer)
-			return SerializationDialogResult::Error;
+			return SerializeDialogResult::Error;
 		if (isSerializing)
 		{
 			try
 			{
 				serializer->serialize(score, filename);
-				return SerializationDialogResult::SerializeSuccess;
+				serializer.reset();
+				return SerializeDialogResult::SerializeSuccess;
 			}
 			catch (const std::exception& err)
 			{
-				errorMessage = IO::formatString("An error occured while saving the score file\n%s", err.what());
+				errorMessage = IO::formatString(
+					"%s\n"
+					"%s: %s",
+					getString("error_save_score_file"),
+					getString("error"), err.what()
+				);
+				return SerializeDialogResult::Error;
 			}
 		}
 		else
@@ -121,29 +92,21 @@ namespace MikuMikuWorld
 			{
 				resetNextID();
 				score = serializer->deserialize(filename);
-				return SerializationDialogResult::DeserializeSuccess;
+				return SerializeDialogResult::DeserializeSuccess;
 			}
 			catch (std::exception& error)
 			{
 				nextID = nextIdBackup;
-				errorMessage = IO::formatString("%s\n%s: %s\n%s: %s",
+				errorMessage = IO::formatString(
+					"%s\n"
+					"%s: %s\n"
+					"%s: %s",
 					getString("error_load_score_file"),
-					getString("score_file"),
-					filename.c_str(),
-					getString("error"),
-					error.what()
+					getString("score_file"), filename.c_str(),
+					getString("error"), error.what()
 				);
+				return SerializeDialogResult::Error;
 			}
 		}
-		return SerializationDialogResult::Error;
-	}
-
-	std::unique_ptr<ScoreSerializationDialog> SerializationDialogFactory::getDialog(const std::string& filename)
-	{
-		std::string extension = IO::File::getFileExtension(filename);
-		std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-		if (extension == SCP_EXTENSION)
-			return std::make_unique<SonolusSerializationDialog>();
-		return std::make_unique<ScoreSerializationDialog>();
 	}
 }

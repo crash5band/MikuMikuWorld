@@ -113,6 +113,7 @@ namespace IO
 
 	extern FileDialogFilter mmwsFilter;
 	extern FileDialogFilter susFilter;
+	extern FileDialogFilter lvlDatFilter;
 	extern FileDialogFilter scpFilter;
 	extern FileDialogFilter imageFilter;
 	extern FileDialogFilter audioFilter;

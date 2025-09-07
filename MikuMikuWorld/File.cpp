@@ -11,7 +11,8 @@ namespace IO
 {
 	FileDialogFilter mmwsFilter{ "MikuMikuWorld Score", "*.mmws" };
 	FileDialogFilter susFilter{ "Sliding Universal Score", "*.sus" };
-	FileDialogFilter scpFilter{ "Sonolus Collection", "*.scp" };
+	FileDialogFilter lvlDatFilter{ "Sonolus Level Data", "*.json" };
+	FileDialogFilter scpFilter{ "Sonolus Collection", "*.scp;info" };
 	FileDialogFilter imageFilter{ "Image Files", "*.jpg;*.jpeg;*.png" };
 	FileDialogFilter audioFilter{ "Audio Files", "*.mp3;*.wav;*.flac;*.ogg" };
 	FileDialogFilter presetFilter{ "Notes Preset", "*.json" };

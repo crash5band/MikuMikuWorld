@@ -4,9 +4,7 @@
 #include <optional>
 #include <variant>
 #include <stdexcept>
-#include "Score.h"
-#include "Archive.h"
-#include "JsonIO.h"
+#include <map>
 
 namespace Sonolus
 {
@@ -50,6 +48,10 @@ namespace Sonolus
 	{
 		std::string hash;
 		std::string url;
+
+		SRL() : hash(), url() {}
+		SRL(const std::string& hash, const std::string& url) : hash(hash), url(url) { }
+		SRL(const std::pair<std::string, std::string>& res_pair) : hash(res_pair.first), url(res_pair.second) { }
 	};
 
 	template<typename T>
@@ -223,12 +225,6 @@ namespace Sonolus
 		std::vector<ItemSection<T>> sections;
 	};
 
-	struct SonolusSerializingError : std::runtime_error
-	{
-		SonolusSerializingError(const char* message) : std::runtime_error(message) { }
-		SonolusSerializingError(const std::string& message) : std::runtime_error(message) { }
-	};
-
 	extern int skinVersion;
 	extern int backgroundVersion;
 	extern int effectVersion;
@@ -312,41 +308,6 @@ namespace Sonolus
 		float bgmOffset;
 		std::vector<LevelDataEntity> entities;
 	};
-
-	bool createSonolusCollection(const std::string& filename);
-	LevelItem generateLevelItem(const mmw::Score& score);
-
-	void serializeLevelDetails(IO::Archive& scpArchive, const ItemDetail<LevelItem>& levelDetail);
-	void serializeLevelInfo(IO::Archive& scpArchive, const ItemInfo<LevelItem>& levelInfo);
-	void serializeLevelList(IO::Archive& scpArchive, const ItemList<LevelItem>& levelList);
-
-	ItemDetail<LevelItem> deserializeLevelDetails(IO::Archive& scpArchive, const std::string levelName);
-
-	ItemInfo<LevelItem> deserializeLevelInfo(const std::string& filename);
-	ItemInfo<LevelItem> deserializeLevelInfo(IO::Archive& scpArchive);
-
-	ItemList<LevelItem> deserializeLevelList(const std::string& filename);
-	ItemList<LevelItem> deserializeLevelList(IO::Archive& scpArchive);
-
-	void to_json(nlohmann::json& json, const LevelData& levelData);
-	void from_json(const nlohmann::json& itemJson, LevelData& levelData);
-
-	std::pair<std::string, std::string> packageData(IO::Archive& scpArchive, const std::vector<uint8_t>& buffer);
-	std::pair<std::string, std::string> packageFile(IO::Archive& scpArchive, const std::string& filepath);
-
-	template<ResourceType res_t>
-	inline SRL<res_t> packageFile(IO::Archive& scpArchive, const std::string& filepath)
-	{
-		auto [hash, url] = packageFile(scpArchive, filepath);
-		return { hash, url };
-	}
-
-	template<ResourceType res_t>
-	inline SRL<res_t> packageData(IO::Archive& scpArchive, const std::vector<uint8_t>& buffer)
-	{
-		auto [hash, url] = packageData(scpArchive, buffer);
-		return { hash, url };
-	}
 
 	std::string hash(const std::vector<uint8_t>& data);
 }
