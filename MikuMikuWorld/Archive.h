@@ -30,7 +30,7 @@ namespace IO
 		const ArchiveError& getLastError() const;
 
 		int64_t getEntryIndex(const std::string& entryName, bool caseSensitive = true, bool wildCard = false);
-		const std::string& getEntryName(int64_t entryIndex);
+		std::string getEntryName(int64_t entryIndex);
 
 		ArchiveFile openFile(const std::string& filename);
 		ArchiveFile openFile(int64_t entryIndex);
@@ -38,8 +38,10 @@ namespace IO
 		ArchiveFile createFile(const std::string& filename);
 		void removeFile(const std::string& filename);
 		
+		void open(const std::string& archiveName, ArchiveOpenMode openmode = ArchiveOpenMode::None);
 		void close();
 
+		Archive();
 		Archive(const std::string& archiveName, ArchiveOpenMode openmode = ArchiveOpenMode::None);
 		Archive(const Archive&) = delete;
 		~Archive();
@@ -47,11 +49,6 @@ namespace IO
 		
 		ArchiveError zipErr;
 		zip_t* zipArchive;
-		std::string archiveName;
-		std::string entryName;
 		std::shared_ptr<SourceStorage> storage;
 	};
-
-	std::string normalizeArchivePath(const std::string& filename);
-	void normalizeArchivePath(std::string& filename);
 }

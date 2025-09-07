@@ -3,24 +3,12 @@
 
 namespace IO
 {
-	std::string normalizeArchivePath(const std::string& filename)
+	Archive::Archive() : zipArchive(NULL), zipErr(), storage(std::make_shared<Archive::SourceStorage>())
 	{
-		std::filesystem::path filepath = filename;
-		if (filepath.is_absolute() || filepath.has_root_directory())
-			filepath = filepath.relative_path();
-		return filepath.generic_u8string();
+
 	}
 
-	void normalizeArchivePath(std::string& filename)
-	{
-		std::filesystem::path filepath = filename;
-		if (filepath.is_absolute() || filepath.has_root_directory())
-			filepath = filepath.relative_path();
-		filename = filepath.generic_u8string();
-		return;
-	}
-
-	Archive::Archive(const std::string& archiveName, ArchiveOpenMode openmode) : zipArchive(NULL), zipErr(), archiveName(archiveName), storage(std::make_shared<Archive::SourceStorage>())
+	Archive::Archive(const std::string& archiveName, ArchiveOpenMode openmode) : zipArchive(NULL), zipErr(), storage(std::make_shared<Archive::SourceStorage>())
 	{
 		int err;
 		zipArchive = zip_open(archiveName.c_str(), static_cast<int>(openmode), &err);
@@ -57,12 +45,12 @@ namespace IO
 		else
 			zipErr.set(ZIP_ER_OK);
 		zip_flags_t flag = (!caseSensitive ? ZIP_FL_NOCASE : 0) | (wildCard ? ZIP_FL_NODIR : 0);
-		return zip_name_locate(zipArchive, normalizeArchivePath(entryName).c_str(), flag);
+		return zip_name_locate(zipArchive, entryName.c_str(), flag);
 	}
 
-	const std::string& Archive::getEntryName(int64_t entryIndex)
+	std::string Archive::getEntryName(int64_t entryIndex)
 	{
-		entryName.clear();
+		std::string entryName;
 		if (!isOpen())
 		{
 			zipErr.set(ZIP_ER_ZIPCLOSED);
@@ -86,7 +74,7 @@ namespace IO
 			zipErr.set(ZIP_ER_ZIPCLOSED);
 			return {};
 		}
-		zip_int64_t idx = zip_name_locate(zipArchive, normalizeArchivePath(filename).c_str(), 0);
+		zip_int64_t idx = zip_name_locate(zipArchive, filename.c_str(), 0);
 		if (idx >= 0)
 			return openFile(idx);
 		else
@@ -124,7 +112,7 @@ namespace IO
 			zipErr.set(zip_get_error(zipArchive));
 			return {};
 		}
-		zip_int64_t fileIdx = zip_file_add(zipArchive, normalizeArchivePath(filename).c_str(), source, 0);
+		zip_int64_t fileIdx = zip_file_add(zipArchive, filename.c_str(), source, 0);
 		if (fileIdx < 0)
 		{
 			zip_source_free(source);
@@ -136,7 +124,7 @@ namespace IO
 
 	void Archive::removeFile(const std::string& filename)
 	{
-		zip_int64_t idx = zip_name_locate(zipArchive, normalizeArchivePath(filename).c_str(), 0);
+		zip_int64_t idx = zip_name_locate(zipArchive, filename.c_str(), 0);
 		if (idx < 0)
 			return;
 		if (zip_delete(zipArchive, idx) < 0)
@@ -145,6 +133,13 @@ namespace IO
 			return;
 		}
 		zipErr.set(ZIP_ER_OK);
+	}
+
+	void Archive::open(const std::string& archiveName, ArchiveOpenMode openmode)
+	{
+		int err;
+		zipArchive = zip_open(archiveName.c_str(), static_cast<int>(openmode), &err);
+		if (zipArchive == NULL) zipErr.set(err);
 	}
 
 	void Archive::close()
