@@ -51,6 +51,17 @@ namespace MikuMikuWorld
 		inline constexpr ImU32 getOutlineColor() const { return stepDrawOutlineColors->at((int)type); }
 	};
 
+	struct EventControlDrawData
+	{
+		bool highlight;
+		float timelineX;
+		ImVec2 pos;
+		ImVec2 size;
+		ImVec2 txtSize;
+		ImU32 color;
+		std::string txt;
+	};
+
 	class ScoreEditorTimeline
 	{
 	private:
@@ -77,6 +88,7 @@ namespace MikuMikuWorld
 		static constexpr float maxZoom = 30.0f;
 		static constexpr double waveformSecondsPerPixel = 0.005;
 		static constexpr float noteControlWidth = 12;
+		static constexpr float eventControlPadding = 10;
 
 		static constexpr float minPlaybackSpeed = 0.25f;
 		static constexpr float maxPlaybackSpeed = 1.00f;
@@ -145,6 +157,8 @@ namespace MikuMikuWorld
 
 		} noteTransformOrigin;
 
+		std::map<int, std::pair<float, float>> eventControlCursor;
+		std::stack<EventControlDrawData> drawEvents;
 		std::vector<StepDrawData> drawSteps;
 		std::unordered_set<std::string> playingNoteSounds;
 		static constexpr float audioOffsetCorrection = 0.02f;
@@ -164,6 +178,7 @@ namespace MikuMikuWorld
 		void drawOutline(const StepDrawData& data);
 		void drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
 		void drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick = 0, const int offsetLane = 0);
+		bool eventControl(int tick, ImU32 color, const char* txt, bool fromStart, bool enabled);
 		bool noteControl(ScoreContext& context, const ImVec2& pos, const ImVec2& sz, const char* id, ImGuiMouseCursor cursor);
 		bool bpmControl(const Tempo& tempo);
 		bool bpmControl(float bpm, int tick, bool enabled);
