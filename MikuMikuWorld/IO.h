@@ -56,16 +56,30 @@ namespace IO
 	std::vector<uint8_t> inflateGzip(const std::vector<uint8_t>& data);
 	std::vector<uint8_t> deflateGzip(const std::vector<uint8_t>& data);
 	bool isGzipCompressed(const std::vector<uint8_t>& data);
+	
+	namespace formatting
+	{
+		inline const char* to_printable(const char* s) { return s; }
+		inline const char* to_printable(char* s) { return s; }
+		inline const char* to_printable(const std::string& s) { return s.c_str(); }
+		template<typename T,
+			typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
+		T to_printable(T v) {
+			return v;
+		}
+		inline void* to_printable(void* p) { return p; }
+		inline const void* to_printable(const void* p) { return p; }
+	}
 
 	template<typename ... Args>
-	std::string formatString(const char* format, Args ... args)
+	std::string formatString(const char* format, Args&& ... args)
 	{
-		size_t length = std::snprintf(nullptr, 0, format, args ...) + 1;
+		size_t length = std::snprintf(nullptr, 0, format, formatting::to_printable(std::forward<Args>(args)) ...) + 1;
 		if (length <= 0)
 			throw std::runtime_error("An error occured while attempting to format a string.");
 
 		std::unique_ptr<char[]> buf(new char[length]);
-		std::snprintf(buf.get(), length, format, args ...);
+		std::snprintf(buf.get(), length, format, formatting::to_printable(std::forward<Args>(args)) ...);
 
 		return std::string(buf.get());
 	}
