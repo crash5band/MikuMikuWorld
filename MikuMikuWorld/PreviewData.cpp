@@ -210,6 +210,7 @@ namespace MikuMikuWorld::Engine
 
 		bool isDyanmicSizeEffect = type == ParticleEffectType::NoteTapLinearAdd ||
 			type == ParticleEffectType::NoteCriticalLinearAdd ||
+			type == ParticleEffectType::NoteCriticalFlickLinearAdd ||
 			type == ParticleEffectType::NoteLongLinearAdd ||
 			type == ParticleEffectType::NoteLongCriticalLinearAdd;
 
@@ -257,6 +258,9 @@ namespace MikuMikuWorld::Engine
 
 					switch (drawType)
 					{
+					case DrawingParticleType::SlotGlowAdditive:
+						drawList.additiveParticles.emplace_back(std::move(drawingParticle));
+						break;
 					case DrawingParticleType::Slot:
 						drawList.slotParticle = std::make_unique<DrawingParticle>(drawingParticle);
 						break;
@@ -401,7 +405,10 @@ namespace MikuMikuWorld::Engine
 			}
 			linear = static_cast<ParticleEffectType>(static_cast<int>(circular) + 1);
 			if (note.isFlick() && note.critical && !note.friction)
+			{
 				linear = ParticleEffectType::NoteCriticalFlickLinear;
+				linearAdd = ParticleEffectType::NoteCriticalFlickLinearAdd;
+			}
 			else if (note.getType() == NoteType::HoldEnd && !note.isFlick() && !note.friction && note.critical)
 				linear = ParticleEffectType::NoteCriticalLinear;
 
@@ -431,6 +438,9 @@ namespace MikuMikuWorld::Engine
 		{
 			ParticleEffectType directional = !note.critical ? ParticleEffectType::NoteFlickDirectional : ParticleEffectType::NoteCriticalDirectional;
 			addParticleEffect(effect, rng, directional, DrawingParticleType::Linear, note, score);
+
+			if (note.critical)
+				addParticleEffect(effect, rng, ParticleEffectType::NoteCriticalFlickFlare, DrawingParticleType::Linear, note, score);
 		}
 	}
 
@@ -454,7 +464,7 @@ namespace MikuMikuWorld::Engine
 			if (holdNote.startType == HoldNoteType::Normal)
 			{
 				slot = !note.critical ? ParticleEffectType::SlotNoteLong : ParticleEffectType::SlotNoteCritical;
-				slotGlow = !note.critical ? ParticleEffectType::SlotGlowNoteLong : ParticleEffectType::SlotGlowNoteCritical;
+				slotGlow = !note.critical ? ParticleEffectType::SlotGlowNoteLong : ParticleEffectType::SlotGlowNoteCriticalLong;
 			}
 			break;
 		}
@@ -471,7 +481,7 @@ namespace MikuMikuWorld::Engine
 					note.flick != FlickType::None
 					? ParticleEffectType::SlotGlowNoteFlick
 					: ParticleEffectType::SlotGlowNoteLong
-				: ParticleEffectType::SlotGlowNoteCritical;
+				: ParticleEffectType::SlotGlowNoteCriticalLong;
 			}
 			break;
 		case NoteType::Tap:
@@ -494,7 +504,7 @@ namespace MikuMikuWorld::Engine
 		if (ensureValidParticle(slot))
 			addParticleEffect(effect, rng, slot, DrawingParticleType::Slot, note, score);
 		if (ensureValidParticle(slotGlow))
-			addParticleEffect(effect, rng, slotGlow, DrawingParticleType::SlotGlow, note, score);
+			addParticleEffect(effect, rng, slotGlow, DrawingParticleType::SlotGlowAdditive, note, score);
 	}
 
 	void DrawData::updateNoteEffects(ScoreContext& context)

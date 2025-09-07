@@ -71,6 +71,7 @@ namespace MikuMikuWorld
 		void drawHoldCurves(const ScoreContext& context, Renderer* renderer);
 		void drawUnblendParticles(const ScoreContext& context, Renderer* renderer);
 		void drawParticles(const ScoreContext& context, Renderer* renderer);
+		void drawAdditiveParticles(const ScoreContext& context, Renderer* renderer);
 
 		// TODO: Give this a better name!
 		void drawBlendParticles(const ScoreContext& context, Renderer* renderer);

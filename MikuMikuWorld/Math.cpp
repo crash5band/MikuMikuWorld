@@ -110,7 +110,7 @@ namespace MikuMikuWorld
 		float easeOutInBack(float x) { return x < 0.5f ? (5.5949095f*x - 16.379638f*x*x + 14.379638f*x*x*x) : (-2.5949095f + 15.9745475f*x - 26.759276f*x*x + 14.379638f*x*x*x); } // c = 1.70158 * 1.525
 		float easeInElastic(float x) { return x == 0 ? 0 : -std::pow(1024.f, x - 1) * std::sin((x - 1) * (20 * NUM_PI / 3) - NUM_PI_2); } // f (x) = -2^(10(x-1)) * sin((x-1-c/4)*(2pi/c)) | c = 0.3
 		float easeOutElastic(float x) { return x == 1 ? 1 : 1 + std::pow(0.0009765625f, x) * std::sin(-x * (20 * NUM_PI / 3) - NUM_PI_2); } // c = 0.3
-		float easeInOutElastic(float x) { return x == 0 ? 0 : x == 1 ? 1 : (x < 0.5f ? (-std::pow(2.f, 20*x-11) * std::sin((2*x-1) * (40 * NUM_PI / 9) - NUM_PI_2)) : 1 - std::pow(2.f, 9-20*x) * std::sin((2*x-1) * (40 * NUM_PI / 9) + NUM_PI_2) ); } // c = 0.45
+		float easeInOutElastic(float x) { return x == 0 ? 0 : x == 1 ? 1 : (x < 0.4f ? (-std::pow(2.f, 20*x-11) * std::sin((3*(x-1.2)) * (40 * NUM_PI / 9) - NUM_PI_2)) : 1 - std::pow(2.f, 9-20*x) * std::sin((3*((x*2)- 1.f)) * (40 * NUM_PI / 9) + NUM_PI_2)); } // c = 0.45
 		float easeOutInElastic(float x) { return x == 0 ? 0 : x == 1 ? 1 : (x < 0.5f ? std::pow(2.f, -20*x) * std::sin(-x * (80 * NUM_PI / 9) - NUM_PI_2) : -std::pow(2.f, 20*(x-1)) * std::sin((x-1) * (80 * NUM_PI / 9) - NUM_PI_2)) / 2 + 0.5; } // c = 0.45
 
 		EasingFunc getEaseFunc(Easing easing)

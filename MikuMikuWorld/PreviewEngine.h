@@ -74,8 +74,10 @@ namespace MikuMikuWorld
 		NoteCriticalCircular,
 		NoteCriticalLinear,
 		NoteCriticalLinearAdd,
+		NoteCriticalFlickLinearAdd,
 		NoteCriticalDirectional,
 		NoteCriticalFlickLinear,
+		NoteCriticalFlickFlare,
 
 		NoteLongCriticalCircular,
 		NoteLongCriticalLinearAdd,
@@ -106,6 +108,7 @@ namespace MikuMikuWorld
 		SlotGlowNoteFlick,
 		SlotGlowNoteLong,
 		SlotGlowNoteCriticalFlick,
+		SlotGlowNoteCriticalLong,
 
 		SlotGlowNoteLongSegment,
 		SlotGlowNoteLongCriticalSegment,

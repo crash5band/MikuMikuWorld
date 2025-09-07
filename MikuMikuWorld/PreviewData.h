@@ -22,7 +22,8 @@ namespace MikuMikuWorld::Engine
 		Linear,
 		Flat,
 		Slot,
-		SlotGlow
+		SlotGlow,
+		SlotGlowAdditive
 	};
 
 	struct DrawingNote
@@ -80,6 +81,7 @@ namespace MikuMikuWorld::Engine
 		std::vector<DrawingParticle> additiveAlphaBlendParticles;
 		std::vector<DrawingParticle> blendParticles;
 		std::vector<DrawingParticle> laneParticles;
+		std::vector<DrawingParticle> additiveParticles;
 		std::unique_ptr<DrawingParticle> slotParticle;
 	};
 
