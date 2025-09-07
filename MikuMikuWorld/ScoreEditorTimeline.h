@@ -207,7 +207,9 @@ namespace MikuMikuWorld
 			float editBpm = 120.0f;
 			int editTimeSignatureNumerator = 4;
 			int editTimeSignatureDenominator = 4;
-			float editHiSpeed = 1.0f;
+			std::string editHiSpeed = "1.00";
+
+			inline void setEditHispeed(float value) { editHiSpeed = formatFixedFloatTrimmed(value); }
 		} eventEdit {};
 
 		int snapTickFromPos(float posY) const;

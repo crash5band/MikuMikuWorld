@@ -74,7 +74,7 @@ namespace IO
 	template<typename ... Args>
 	std::string formatString(const char* format, Args&& ... args)
 	{
-		size_t length = std::snprintf(nullptr, 0, format, formatting::to_printable(std::forward<Args>(args)) ...) + 1;
+		auto length = std::snprintf(nullptr, 0, format, formatting::to_printable(std::forward<Args>(args)) ...) + 1;
 		if (length <= 0)
 			throw std::runtime_error("An error occured while attempting to format a string.");
 

@@ -99,6 +99,20 @@ namespace MikuMikuWorld
 		return -1;
 	}
 
+	static std::string formatFixedFloatTrimmed(float value, int precision = 7)
+	{
+		auto length = std::snprintf(NULL, 0, "%.*f", precision, value);
+		if (length < 0)
+			return "NaN";
+		std::string buf(length - 1, '\0');
+		std::snprintf(buf.data(), length, "%.*f", precision, value);
+		// Trim trailing zeros
+		size_t end = buf.find_last_not_of('0');
+		if (end != std::string::npos)
+			buf.erase(buf[end] == '.' ? end : end + 1);
+		return buf;
+	}
+
 	void drawShadedText(ImDrawList* drawList, ImVec2 textPos, float fontSize, ImU32 fontColor, const char* text);
 	void drawTextureUnscaled(unsigned int texId, float texWidth, float texHeight, ImVec2 const& pos, ImVec2 const& size, ImU32 const& col);
 }
