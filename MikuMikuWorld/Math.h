@@ -79,6 +79,8 @@ namespace MikuMikuWorld
 
 	float lerp(float start, float end, float ratio);
 	float unlerp(float start, float end, float value);
+	double lerpD(double start, double end, double ratio);
+	double unlerpD(double start, double end, double value);
 	float easeIn(float start, float end, float ratio);
 	float easeOut(float start, float end, float ratio);
 	float midpoint(float x1, float x2);
