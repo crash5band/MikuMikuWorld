@@ -1191,7 +1191,7 @@ namespace MikuMikuWorld
 		ImGui::Begin("###preview_toolbar", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_ChildWindow);
 		toolBarWidth = ImGui::GetWindowWidth();
 		float centeredXBtn = toolBarWidth / 2 - UI::btnNormal.x / 2;
-		if (ImGui::IsWindowHovered())
+		if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
 			lastHoveredTime = 0;
 		else
 			lastHoveredTime = std::min(io.DeltaTime + lastHoveredTime, MAX_NO_HOVER_TIME);
