@@ -9,7 +9,7 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::NoteCriticalLane, 1.1f },
 		{ ParticleEffectType::NoteCriticalFlickLane, 1.05f },
 
-		{ ParticleEffectType::NoteTapCircular, 0.56f },
+		{ ParticleEffectType::NoteTapCircular, 0.5f },
 		{ ParticleEffectType::NoteTapLinear, 0.5f },
 		{ ParticleEffectType::NoteTapLinearAdd, 0.6f },
 
@@ -17,23 +17,23 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::NoteLongLinear, 0.5f },
 		{ ParticleEffectType::NoteLongLinearAdd, 0.5f },
 		
-		{ ParticleEffectType::NoteFlickCircular, 0.56f },
+		{ ParticleEffectType::NoteFlickCircular, 0.53f },
 		{ ParticleEffectType::NoteFlickLinear, 0.5f },
-		{ ParticleEffectType::NoteFlickDirectional, 0.325f },
+		{ ParticleEffectType::NoteFlickDirectional, 0.31f },
 		
 		{ ParticleEffectType::NoteFrictionCircular, 0.58f },
 		{ ParticleEffectType::NoteFrictionLinear, 0.65f },
 
-		{ ParticleEffectType::NoteCriticalCircular, 0.575f },
-		{ ParticleEffectType::NoteCriticalLinear, 0.5f },
+		{ ParticleEffectType::NoteCriticalCircular, 0.53f },
+		{ ParticleEffectType::NoteCriticalLinear, 0.52f },
 		{ ParticleEffectType::NoteCriticalLinearAdd, 0.5f },
 		
 		{ ParticleEffectType::NoteLongCriticalCircular, 0.6f },
 		{ ParticleEffectType::NoteLongCriticalLinear, 0.48f },
 		{ ParticleEffectType::NoteLongCriticalLinearAdd, 0.5f },
 		
-		{ ParticleEffectType::NoteCriticalFlickCircular, 0.6f },
-		{ ParticleEffectType::NoteCriticalFlickLinear, 0.55f },
+		{ ParticleEffectType::NoteCriticalFlickCircular, 0.57f },
+		{ ParticleEffectType::NoteCriticalFlickLinear, 0.53f },
 		{ ParticleEffectType::NoteCriticalDirectional, 0.31f },
 
 		{ ParticleEffectType::NoteFrictionCriticalCircular, 0.6f },
@@ -55,11 +55,11 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::SlotNoteFlick, 0.5f },
 		{ ParticleEffectType::SlotNoteCritical, 0.5f },
 
-		{ ParticleEffectType::SlotGlowNoteTap, 0.267f },
-		{ ParticleEffectType::SlotGlowNoteCritical, 0.267f },
-		{ ParticleEffectType::SlotGlowNoteLong, 0.27f },
-		{ ParticleEffectType::SlotGlowNoteFlick, 0.35f },
-		{ ParticleEffectType::SlotGlowNoteCriticalFlick, 0.267f },
+		{ ParticleEffectType::SlotGlowNoteTap, 0.24f },
+		{ ParticleEffectType::SlotGlowNoteCritical, 0.245f },
+		{ ParticleEffectType::SlotGlowNoteLong, 0.25f },
+		{ ParticleEffectType::SlotGlowNoteFlick, 0.3f },
+		{ ParticleEffectType::SlotGlowNoteCriticalFlick, 0.25f },
 		{ ParticleEffectType::SlotGlowNoteCriticalLong, 0.267f },
 
 		{ ParticleEffectType::SlotGlowNoteLongSegment, 0.5f },

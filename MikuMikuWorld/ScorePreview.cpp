@@ -337,11 +337,11 @@ namespace MikuMikuWorld
 		renderer->beginBatch();
 		drawAdditiveParticles(context, renderer);
 		renderer->endBatchWithBlending(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
 		pteShader->setFloat("blendFactor", 0.5f);
 		renderer->beginBatch();
 		drawParticles(context, renderer);
 		renderer->endBatchWithBlending(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
 
 		pteShader->setFloat("blendFactor", 0.8f);
 		renderer->beginBatch();
