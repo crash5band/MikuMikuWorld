@@ -64,6 +64,9 @@ namespace MikuMikuWorld
 
 		{ ParticleEffectType::SlotGlowNoteLongSegment, 0.5f },
 		{ ParticleEffectType::SlotGlowNoteLongCriticalSegment, 0.5f },
+
+		{ ParticleEffectType::NoteCriticalFlickLinearAdd, 0.5f },
+		{ ParticleEffectType::NoteCriticalFlickFlare, 0.8f },
 	};
 
 	std::map<ParticleEffectType, ParticleEffectType> particleEffectFallback = {
@@ -81,7 +84,6 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::NoteFrictionCriticalLinear, ParticleEffectType::NoteCriticalLinear },
 
 		{ ParticleEffectType::NoteLongCriticalCircular, ParticleEffectType::NoteCriticalCircular },
-		{ ParticleEffectType::NoteLongCriticalLinear, ParticleEffectType::NoteCriticalLinear },
 	};
 
 	SpriteTransform::SpriteTransform(float v[64]) : xx(v), xy(nullptr), yx(nullptr), yy(v + 48) 

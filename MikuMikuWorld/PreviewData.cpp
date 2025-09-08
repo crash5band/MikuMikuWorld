@@ -406,20 +406,10 @@ namespace MikuMikuWorld::Engine
 					linear = toCrit(linear);
 					if (linearAdd != ParticleEffectType::Invalid)
 						linearAdd = toCrit(linearAdd);
+
+					linearAdd = note.critical && note.isFlick() ? ParticleEffectType::NoteCriticalFlickLinearAdd : linearAdd;
 				}
 			}
-			linear = static_cast<ParticleEffectType>(static_cast<int>(circular) + 1);
-			if (note.isFlick() && note.critical && !note.friction)
-			{
-				linear = ParticleEffectType::NoteCriticalFlickLinear;
-				linearAdd = ParticleEffectType::NoteCriticalFlickLinearAdd;
-			}
-			else if (note.getType() == NoteType::HoldEnd && !note.isFlick() && !note.friction && note.critical)
-				linear = ParticleEffectType::NoteCriticalLinear;
-
-			break;
-		default:
-			return;
 		}
 
 		if (ensureValidParticle(circular))

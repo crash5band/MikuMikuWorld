@@ -55,7 +55,7 @@ namespace MikuMikuWorld
 		NoteTapLane,
 		NoteCriticalLane,
 		NoteCriticalFlickLane,
-		
+
 		NoteTapCircular,
 		NoteTapLinear,
 		NoteTapLinearAdd,
@@ -74,10 +74,6 @@ namespace MikuMikuWorld
 		NoteCriticalCircular,
 		NoteCriticalLinear,
 		NoteCriticalLinearAdd,
-		NoteCriticalFlickLinearAdd,
-		NoteCriticalDirectional,
-		NoteCriticalFlickLinear,
-		NoteCriticalFlickFlare,
 
 		NoteLongCriticalCircular,
 		NoteLongCriticalLinear,
@@ -105,7 +101,7 @@ namespace MikuMikuWorld
 		SlotNoteCritical,
 		SlotNoteFlick,
 		SlotNoteLong,
-		
+
 		SlotGlowNoteTap,
 		SlotGlowNoteCritical,
 		SlotGlowNoteFlick,
@@ -115,6 +111,9 @@ namespace MikuMikuWorld
 
 		SlotGlowNoteLongSegment,
 		SlotGlowNoteLongCriticalSegment,
+
+		NoteCriticalFlickLinearAdd,
+		NoteCriticalFlickFlare,
 
 		Invalid = UINT32_MAX
 	};

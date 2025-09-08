@@ -333,15 +333,15 @@ namespace MikuMikuWorld
 		pteShader->setMatrix4("viewProjection", viewProjection);
 		// blendFactor: full additive 0 - 1 full alpha blend
 
+		pteShader->setFloat("blendFactor", 0.1f);
+		renderer->beginBatch();
+		drawAdditiveParticles(context, renderer);
+		renderer->endBatchWithBlending(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		pteShader->setFloat("blendFactor", 0.5f);
 		renderer->beginBatch();
 		drawParticles(context, renderer);
 		renderer->endBatchWithBlending(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-		pteShader->setFloat("blendFactor", 0.1f);
-		renderer->beginBatch();
-		drawAdditiveParticles(context, renderer);
-		renderer->endBatchWithBlending(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
 		pteShader->setFloat("blendFactor", 0.75f);
 		renderer->beginBatch();
@@ -598,7 +598,7 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void ScorePreviewWindow::drawHoldCurves(const ScoreContext &context, Renderer *renderer)
+	void ScorePreviewWindow::drawHoldCurves(const ScoreContext& context, Renderer* renderer)
 	{
 		const float total_tm = accumulateDuration(context.scorePreviewDrawData.maxTicks, TICKS_PER_BEAT, context.score.tempoChanges);
 		const float current_tm = accumulateDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges);
@@ -612,7 +612,7 @@ namespace MikuMikuWorld
 		{
 			if ((std::min(segment.headTime, segment.tailTime) > visible_stm && segment.startTime > current_tm) || current_tm >= segment.endTime)
 				continue;
-			
+
 			const Note& holdEnd = context.score.notes.at(segment.endID);
 			const Note& holdStart = context.score.notes.at(holdEnd.parentID);
 			float holdStartCenter = Engine::getNoteCenter(holdStart) * mirror;
@@ -707,7 +707,7 @@ namespace MikuMikuWorld
 				float   stepEndRight = ease(startRight, endRight, stepEndProgress);
 
 				auto vPos = Engine::perspectiveQuadvPos(stepStartLeft, stepEndLeft, stepStartRight, stepEndRight, stepTop, stepBottom);
-				
+
 				float spr_x1, spr_x2, spr_y1, spr_y2;
 				if (segment.isGuide)
 				{

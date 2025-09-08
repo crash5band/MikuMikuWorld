@@ -4,6 +4,7 @@
 #include <list>
 #include "Score.h"
 #include "Math.h"
+#include <memory>
 
 namespace MikuMikuWorld
 {
