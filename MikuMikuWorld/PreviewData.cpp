@@ -383,7 +383,7 @@ namespace MikuMikuWorld::Engine
 			};
 			if (!note.friction)
 			{
-				bool isTap = note.getType() == NoteType::Tap;
+				bool isTap = note.getType() == NoteType::Tap || note.isFlick();
 				linearAdd = isTap ? ParticleEffectType::NoteTapLinearAdd : ParticleEffectType::NoteLongLinearAdd;
 				if (note.isFlick())
 					circular = ParticleEffectType::NoteFlickCircular;

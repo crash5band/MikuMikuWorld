@@ -29,7 +29,7 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::NoteCriticalLinearAdd, 0.5f },
 		
 		{ ParticleEffectType::NoteLongCriticalCircular, 0.6f },
-		{ ParticleEffectType::NoteLongCriticalLinear, 0.5f },
+		{ ParticleEffectType::NoteLongCriticalLinear, 0.48f },
 		{ ParticleEffectType::NoteLongCriticalLinearAdd, 0.5f },
 		
 		{ ParticleEffectType::NoteCriticalFlickCircular, 0.6f },
@@ -42,12 +42,12 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::NoteLongAmongCircular, 0.5f },
 		{ ParticleEffectType::NoteLongAmongCriticalCircular, 0.5f },
 
-		{ ParticleEffectType::NoteLongSegmentCircular, 1.f },
-		{ ParticleEffectType::NoteLongSegmentCircularEx, 1.f },
+		{ ParticleEffectType::NoteLongSegmentCircular, 0.8f },
+		{ ParticleEffectType::NoteLongSegmentCircularEx, 0.8f },
 		{ ParticleEffectType::NoteLongSegmentLinear, 0.6f },
 
-		{ ParticleEffectType::NoteLongCriticalSegmentCircular, 1.f },
-		{ ParticleEffectType::NoteLongCriticalSegmentCircularEx, 1.f },
+		{ ParticleEffectType::NoteLongCriticalSegmentCircular, 0.8f },
+		{ ParticleEffectType::NoteLongCriticalSegmentCircularEx, 0.8f },
 		{ ParticleEffectType::NoteLongCriticalSegmentLinear, 0.6f },
 
 		{ ParticleEffectType::SlotNoteTap, 0.5f },
@@ -66,7 +66,7 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::SlotGlowNoteLongCriticalSegment, 0.5f },
 
 		{ ParticleEffectType::NoteCriticalFlickLinearAdd, 0.5f },
-		{ ParticleEffectType::NoteCriticalFlickFlare, 0.8f },
+		{ ParticleEffectType::NoteCriticalFlickFlare, 0.85f },
 	};
 
 	std::map<ParticleEffectType, ParticleEffectType> particleEffectFallback = {
