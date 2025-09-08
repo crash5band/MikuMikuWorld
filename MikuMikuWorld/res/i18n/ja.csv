@@ -90,6 +90,7 @@ video, 画面
 vsync_enable, VSync（垂直同期）
 notes_se, ノーツのSE
 visuals, ビジュアル
+preview_draw_toolbar, プレビューツールバーを描く
 notes_speed, ノーツの速さ
 mirror_score, ミラー譜面
 flicks_animation, マーカーのアニメーション

@@ -47,7 +47,7 @@ namespace MikuMikuWorld
 		std::unique_ptr<Texture> notesTex;
 		const Texture& getNoteTexture();
 		std::pair<float, float> getNoteBound(const Note& note) const;
-		std::pair<float, float> getHoldStepBound(const Note& note, const Score& score, int curTick) const;
+		std::pair<float, float> getHoldStepBound(const Note& note, const Score& score) const;
 		std::pair<float, float> getHoldSegmentBound(const Note& note, const Score& score, int curTick) const;
 		
 		void drawNoteBase(Renderer* renderer, const Note& note, float left, float right, float y, float zScalar = 1);

@@ -95,6 +95,7 @@ namespace MikuMikuWorld
 		{"video", "Video"},
 		{"notes_se", "Notes SE"},
 		{"visuals", "Visuals"},
+		{"preview_draw_toolbar", "Draw Preview Toolbar"},
 		{"notes_speed", "Notes Speed"},
 		{"mirror_score", "Mirrored Lanes"},
 		{"flicks_animation", "Animate Flick Arrow"},
