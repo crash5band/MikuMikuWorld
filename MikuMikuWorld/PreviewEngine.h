@@ -56,7 +56,7 @@ namespace MikuMikuWorld
 		NoteCriticalLane,
 		NoteCriticalFlickLane,
 		
-		NoteTapCircular, 
+		NoteTapCircular,
 		NoteTapLinear,
 		NoteTapLinearAdd,
 
@@ -74,13 +74,14 @@ namespace MikuMikuWorld
 		NoteCriticalCircular,
 		NoteCriticalLinear,
 		NoteCriticalLinearAdd,
-		NoteCriticalDirectional,
-		NoteCriticalFlickLinear,
 
 		NoteLongCriticalCircular,
+		NoteLongCriticalLinear,
 		NoteLongCriticalLinearAdd,
-		
+
 		NoteCriticalFlickCircular,
+		NoteCriticalFlickLinear,
+		NoteCriticalDirectional,
 
 		NoteFrictionCriticalCircular,
 		NoteFrictionCriticalLinear,
