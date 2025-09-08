@@ -13,6 +13,16 @@ namespace MikuMikuWorld
 		return (value - start) / (end - start);
 	}
 
+	double lerpD(double start, double end, double percentage)
+	{
+		return start + percentage * (end - start);
+	}
+
+	double unlerpD(double start, double end, double value)
+	{
+		return (value - start) / (end - start);
+	}
+
 	float easeIn(float start, float end, float ratio)
 	{
 		return lerp(start, end, ratio * ratio);
