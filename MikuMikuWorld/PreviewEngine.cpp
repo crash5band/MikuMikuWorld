@@ -21,21 +21,20 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::NoteFlickLinear, 0.5f },
 		{ ParticleEffectType::NoteFlickDirectional, 0.325f },
 		
-		{ ParticleEffectType::NoteCriticalCircular, 0.56f },
-		{ ParticleEffectType::NoteCriticalLinear, 0.55f },
-		{ ParticleEffectType::NoteCriticalLinearAdd, 0.57f },
-		{ ParticleEffectType::NoteCriticalFlickLinearAdd, 0.55f },
+		{ ParticleEffectType::NoteFrictionCircular, 0.58f },
+		{ ParticleEffectType::NoteFrictionLinear, 0.65f },
+
+		{ ParticleEffectType::NoteCriticalCircular, 0.575f },
+		{ ParticleEffectType::NoteCriticalLinear, 0.5f },
+		{ ParticleEffectType::NoteCriticalLinearAdd, 0.5f },
 		
 		{ ParticleEffectType::NoteLongCriticalCircular, 0.6f },
-		{ ParticleEffectType::NoteLongCriticalLinearAdd, 0.51f },
+		{ ParticleEffectType::NoteLongCriticalLinear, 0.5f },
+		{ ParticleEffectType::NoteLongCriticalLinearAdd, 0.5f },
 		
 		{ ParticleEffectType::NoteCriticalFlickCircular, 0.6f },
-		{ ParticleEffectType::NoteCriticalDirectional, 0.325f },
-		{ ParticleEffectType::NoteCriticalFlickLinear, 0.58f },
-		{ ParticleEffectType::NoteCriticalFlickFlare, 1.f },
-
-		{ ParticleEffectType::NoteFrictionCircular, 0.6f },
-		{ ParticleEffectType::NoteFrictionLinear, 0.65f },
+		{ ParticleEffectType::NoteCriticalFlickLinear, 0.55f },
+		{ ParticleEffectType::NoteCriticalDirectional, 0.31f },
 
 		{ ParticleEffectType::NoteFrictionCriticalCircular, 0.6f },
 		{ ParticleEffectType::NoteFrictionCriticalLinear, 0.65f },
@@ -73,6 +72,7 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::NoteCriticalFlickLane, ParticleEffectType::NoteCriticalLane },
 
 		{ ParticleEffectType::NoteCriticalFlickCircular, ParticleEffectType::NoteCriticalCircular },
+		{ ParticleEffectType::NoteCriticalFlickLinear, ParticleEffectType::NoteCriticalLinear },
 
 		{ ParticleEffectType::NoteFrictionCircular, ParticleEffectType::NoteLongAmongCircular },
 		{ ParticleEffectType::NoteFrictionLinear, ParticleEffectType::NoteLongLinear },
@@ -81,6 +81,7 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::NoteFrictionCriticalLinear, ParticleEffectType::NoteCriticalLinear },
 
 		{ ParticleEffectType::NoteLongCriticalCircular, ParticleEffectType::NoteCriticalCircular },
+		{ ParticleEffectType::NoteLongCriticalLinear, ParticleEffectType::NoteCriticalLinear },
 	};
 
 	SpriteTransform::SpriteTransform(float v[64]) : xx(v), xy(nullptr), yx(nullptr), yy(v + 48) 

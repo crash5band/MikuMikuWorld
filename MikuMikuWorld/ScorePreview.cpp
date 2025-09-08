@@ -356,7 +356,7 @@ namespace MikuMikuWorld
 	{
 		updateToolbar(timeline, context);
 		ImGuiIO io = ImGui::GetIO();
-		float mouseWheel = io.MouseWheel * -1;
+		float mouseWheel = io.MouseWheel * 1;
 		if (!timeline.isPlaying() && ImGui::IsWindowHovered() && mouseWheel != 0)
 		{
 			context.currentTick += std::max(mouseWheel * TICKS_PER_BEAT / 2, (float)-context.currentTick);
@@ -385,7 +385,7 @@ namespace MikuMikuWorld
 		return std::make_pair(left, right);
 	}
 
-	std::pair<float, float> ScorePreviewWindow::getHoldStepBound(const Note &note, const Score &score, int curTick) const
+	std::pair<float, float> ScorePreviewWindow::getHoldStepBound(const Note &note, const Score &score) const
 	{
 		auto& holdNotes = score.holdNotes.at(note.parentID);
 		int curStepIdx = findHoldStep(holdNotes, note.ID);
@@ -405,11 +405,10 @@ namespace MikuMikuWorld
 		const Note& endNote = score.notes.at(it == holdNotes.steps.end() ? holdNotes.end : it->ID);
 		auto [leftStop, rightStop] = getNoteBound(endNote);
 
-		float progress = unlerp(
-			accumulateScaledDuration(startNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges),
-			accumulateScaledDuration(endNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges),
-			accumulateScaledDuration(note.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges)
-		);
+		float start_tm = accumulateDuration(startNote.tick, TICKS_PER_BEAT, score.tempoChanges);
+		float end_tm = accumulateDuration(endNote.tick, TICKS_PER_BEAT, score.tempoChanges);
+		float current_tm = accumulateDuration(note.tick, TICKS_PER_BEAT, score.tempoChanges);
+		float progress = unlerp(start_tm, end_tm, current_tm);
 
 		return std::make_pair(
 			easeFunc(leftStart, leftStop, progress),
@@ -417,29 +416,28 @@ namespace MikuMikuWorld
 		);
 	}
 
-	std::pair<float, float> MikuMikuWorld::ScorePreviewWindow::getHoldSegmentBound(const Note &note, const Score &score, int curTick) const
+	std::pair<float, float> ScorePreviewWindow::getHoldSegmentBound(const Note &note, const Score &score, int curTick) const
 	{
 		const auto isNotHoldSkip = [](const HoldStep& step) { return step.type != HoldStepType::Skip; };
 		const HoldNote& holdNotes = score.holdNotes.at(note.ID);
-		auto it = std::lower_bound(holdNotes.steps.begin(), holdNotes.steps.end(), curTick, [&score](const HoldStep& step, int tick) { return score.notes.at(step.ID).tick < tick; });
-		auto rit = std::find_if(std::make_reverse_iterator(it), holdNotes.steps.rend(), isNotHoldSkip);
-		const HoldStep& startHoldStep = rit == holdNotes.steps.rend() ? holdNotes.start : *rit;
+		auto curStepIt = std::lower_bound(holdNotes.steps.begin(), holdNotes.steps.end(), curTick, [&score](const HoldStep& step, int tick) { return score.notes.at(step.ID).tick < tick; });
+		auto startStepIt = std::find_if(std::make_reverse_iterator(curStepIt), holdNotes.steps.rend(), isNotHoldSkip);
+		const HoldStep& startHoldStep = startStepIt == holdNotes.steps.rend() ? holdNotes.start : *startStepIt;
 
-		const Note& startNote = rit == holdNotes.steps.rend() ? note : score.notes.at(rit->ID);
+		const Note& startNote = startStepIt == holdNotes.steps.rend() ? note : score.notes.at(startStepIt->ID);
+		if (startNote.tick == curTick) return getNoteBound(startNote);
 		auto [leftStart, rightStart] = getNoteBound(startNote);
-		if (startNote.tick == curTick) return std::make_pair(leftStart, rightStart);
 
-		auto end = std::find_if(it, holdNotes.steps.end(), isNotHoldSkip);
+		auto end = std::find_if(curStepIt, holdNotes.steps.end(), isNotHoldSkip);
 		const Note& endNote = score.notes.at(end == holdNotes.steps.end() ? holdNotes.end : end->ID);
+		if (endNote.tick == curTick) return getNoteBound(endNote);
 		auto [leftStop, rightStop] = getNoteBound(endNote);
-		if (endNote.tick == curTick) return std::make_pair(leftStop, rightStop);
-
 		auto easeFunc = getEaseFunction(startHoldStep.ease);
-		float progress = unlerp(
-			accumulateScaledDuration(startNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges),
-			accumulateScaledDuration(endNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges),
-			accumulateScaledDuration(curTick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges)
-		);
+
+		float start_tm = accumulateDuration(startNote.tick, TICKS_PER_BEAT, score.tempoChanges);
+		float end_tm = accumulateDuration(endNote.tick, TICKS_PER_BEAT, score.tempoChanges);
+		float current_tm = accumulateDuration(curTick, TICKS_PER_BEAT, score.tempoChanges);
+		float progress = unlerp(start_tm, end_tm, current_tm);
 
 		return std::make_pair(
 			easeFunc(leftStart, leftStop, progress),
@@ -602,51 +600,64 @@ namespace MikuMikuWorld
 
 	void ScorePreviewWindow::drawHoldCurves(const ScoreContext &context, Renderer *renderer)
 	{
-		const float total_tm = accumulateScaledDuration(context.scorePreviewDrawData.maxTicks, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
+		const float total_tm = accumulateDuration(context.scorePreviewDrawData.maxTicks, TICKS_PER_BEAT, context.score.tempoChanges);
 		const float current_tm = accumulateDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges);
-		const float scaled_tm = accumulateScaledDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
+		const float current_stm = accumulateScaledDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
 		const float noteDuration = Engine::getNoteDuration(config.pvNoteSpeed);
+		const float visible_stm = current_stm + noteDuration;
 		const float mirror = config.pvMirrorScore ? -1 : 1;
 		const auto& drawData = context.scorePreviewDrawData;
-		
+
 		for (auto& segment : drawData.drawingHoldSegments)
 		{
-			if (scaled_tm < (segment.headTime - noteDuration) || scaled_tm >= segment.tailTime)
+			if ((std::min(segment.headTime, segment.tailTime) > visible_stm && segment.startTime > current_tm) || current_tm >= segment.endTime)
 				continue;
 			
 			const Note& holdEnd = context.score.notes.at(segment.endID);
 			const Note& holdStart = context.score.notes.at(holdEnd.parentID);
-			float holdStartCenter = Engine::getNoteCenter(holdStart) * mirror, holdStart_tm, holdEnd_tm;
-			bool isActivated = current_tm >= segment.startTime;
+			float holdStartCenter = Engine::getNoteCenter(holdStart) * mirror;
+			bool isHoldActivated = current_tm >= segment.activeTime;
+			bool isSegmentActivated = current_tm >= segment.startTime;
 
 			int textureID = segment.isGuide ? noteTextures.touchLine : noteTextures.holdPath;
 			if (textureID == -1)
 				continue;
-			const Texture& pathTexture = ResourceManager::textures[textureID];
+			const Texture& texture = ResourceManager::textures[textureID];
 			const int sprIndex = (!holdStart.critical ? 1 : 3);
-			if (!isArrayIndexInBounds(sprIndex, pathTexture.sprites))
+			if (!isArrayIndexInBounds(sprIndex, texture.sprites))
 				continue;
-			const Sprite& pathSprite = pathTexture.sprites[sprIndex];
+			const Sprite& segmentSprite = texture.sprites[sprIndex];
 
+			float segmentHead_stm = std::min(segment.headTime, segment.tailTime);
+			float segmentTail_stm = std::max(segment.headTime, segment.tailTime);
 			// Clamp the segment to be within the visible stage
-			float pathStart_tm = std::max(segment.headTime, scaled_tm);
-			float pathEnd_tm = std::min(segment.tailTime, scaled_tm + noteDuration);
-			
-			const int steps = (segment.ease == EaseType::Linear ? 10 : 15)
-				+ static_cast<int>(std::log(std::max((pathEnd_tm - pathStart_tm) / noteDuration, 4.5399e-5f)) + 0.5f); // Reduce steps if the segment is relatively small
-			const auto ease = getEaseFunction(segment.ease);
-			const Note& segmentStart = context.score.notes.at(segment.headID);
-			float startLeft = Engine::laneToLeft(segmentStart.lane);
-			float startRight = Engine::laneToLeft(segmentStart.lane) + segmentStart.width;
-			const Note& segmentEnd = context.score.notes.at(segment.tailID);
-			float endLeft = Engine::laneToLeft(segmentEnd.lane);
-			float endRight = Engine::laneToLeft(segmentEnd.lane) + segmentEnd.width;
+			float segmentStart_stm = std::max(segmentHead_stm, current_stm);
+			float segmentEnd_stm = std::min(segmentTail_stm, visible_stm);
+			float segmentStartProgress, segmentEndProgress, holdStartProgress, holdEndProgress;
 
-			if (scaled_tm > segment.headTime && context.score.holdNotes.at(holdStart.ID).startType == HoldNoteType::Normal)
+			if (!isSegmentActivated)
 			{
-				float t = unlerp(segment.headTime, segment.tailTime, scaled_tm);
-				float l = ease(startLeft, endLeft, t), r = ease(startRight, endRight, t);
-				drawNoteBase(renderer, holdStart, l, r, 1, segment.startTime / total_tm);
+				segmentStartProgress = 0;
+				segmentEndProgress = unlerp(segmentHead_stm, segmentTail_stm, segmentEnd_stm);
+			}
+			else
+			{
+				segmentStartProgress = unlerp(segment.startTime, segment.endTime, current_tm);
+				segmentEndProgress = lerp(segmentStartProgress, 1.f, unlerp(current_stm, segmentTail_stm, segmentEnd_stm));
+			}
+
+			const int steps = (segment.ease == EaseType::Linear ? 10 : 15)
+				+ static_cast<int>(std::log(std::max((segmentEnd_stm - segmentStart_stm) / noteDuration, 4.5399e-5f)) + 0.5f); // Reduce steps if the segment is relatively small
+			const auto ease = getEaseFunction(segment.ease);
+			float startLeft = segment.headLeft;
+			float startRight = segment.headRight;
+			float endLeft = segment.tailLeft;
+			float endRight = segment.tailRight;
+
+			if (isSegmentActivated && context.score.holdNotes.at(holdStart.ID).startType == HoldNoteType::Normal)
+			{
+				float l = ease(startLeft, endLeft, segmentStartProgress), r = ease(startRight, endRight, segmentStartProgress);
+				drawNoteBase(renderer, holdStart, l, r, 1, segment.activeTime / total_tm);
 				if (holdStart.friction)
 					drawTraceDiamond(renderer, holdStart, l, r, 1);
 			}
@@ -659,62 +670,77 @@ namespace MikuMikuWorld
 
 			if (segment.isGuide)
 			{
-				holdStart_tm = accumulateScaledDuration(holdStart.tick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
-				holdEnd_tm = accumulateScaledDuration(holdEnd.tick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
+				float holdStart_stm = accumulateScaledDuration(holdStart.tick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
+				float holdEnd_stm = accumulateScaledDuration(holdEnd.tick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
+
+				if (!isSegmentActivated)
+				{
+					holdStartProgress = unlerp(holdStart_stm, holdEnd_stm, segmentStart_stm);
+					holdEndProgress = unlerp(holdStart_stm, holdEnd_stm, segmentEnd_stm);
+				}
+				else
+				{
+					holdStartProgress = unlerp(holdStart.tick, holdEnd.tick, context.currentTick);
+					holdEndProgress = lerp(holdStartProgress, 1, unlerp(current_stm, holdEnd_stm, segmentEnd_stm));
+				}
 			}
+
+			float from_percentage = 0;
+			float stepStart_stm = segmentStart_stm;
+			float stepTop = Engine::approach(stepStart_stm - noteDuration, stepStart_stm, current_stm);
+			float stepStartProgress = segmentStartProgress;
+
+			auto model = DirectX::XMMatrixIdentity();
+			float alpha = config.pvHoldAlpha;
+			int zIndex = Engine::getZIndex(SpriteLayer::HOLD_PATH, holdStartCenter, segment.activeTime / total_tm);
 
 			for (int i = 0; i < steps; i++)
 			{
-				float from_percentage = float(i) / steps, to_percentage = float(i + 1) / steps;
-				float stepStart_tm = lerp(pathStart_tm, pathEnd_tm, from_percentage);
-				float stepEnd_tm = lerp(pathStart_tm, pathEnd_tm, to_percentage);
+				float to_percentage = float(i + 1) / steps;
+				float stepEnd_stm = lerp(segmentStart_stm, segmentEnd_stm, to_percentage);
+				float stepBottom = Engine::approach(stepEnd_stm - noteDuration, stepEnd_stm, current_stm);
+				float stepEndProgress = lerp(segmentStartProgress, segmentEndProgress, to_percentage);
 
-				float stepTop    = Engine::approach(stepStart_tm - noteDuration, stepStart_tm, scaled_tm);
-				float stepBottom = Engine::approach(stepEnd_tm   - noteDuration, stepEnd_tm  , scaled_tm);
-
-				// Since we clamped the segment to only the visible parts
-				// We need to figure out which part of the segment we are on
-				float t_stepStart = unlerp(segment.headTime, segment.tailTime, stepStart_tm);
-				float   t_stepEnd = unlerp(segment.headTime, segment.tailTime, stepEnd_tm);
-
-				float stepStartLeft = ease(startLeft, endLeft, t_stepStart);
-				float   stepEndLeft = ease(startLeft, endLeft, t_stepEnd);
-				float stepStartRight = ease(startRight, endRight, t_stepStart);
-				float   stepEndRight = ease(startRight, endRight, t_stepEnd);
+				float stepStartLeft = ease(startLeft, endLeft, stepStartProgress);
+				float   stepEndLeft = ease(startLeft, endLeft, stepEndProgress);
+				float stepStartRight = ease(startRight, endRight, stepStartProgress);
+				float   stepEndRight = ease(startRight, endRight, stepEndProgress);
 
 				auto vPos = Engine::perspectiveQuadvPos(stepStartLeft, stepEndLeft, stepStartRight, stepEndRight, stepTop, stepBottom);
-				auto model = DirectX::XMMatrixIdentity();
-				float alpha = config.pvHoldAlpha;
-				int zIndex = Engine::getZIndex(SpriteLayer::HOLD_PATH, holdStartCenter, segment.headTime / total_tm);
-
+				
 				float spr_x1, spr_x2, spr_y1, spr_y2;
 				if (segment.isGuide)
 				{
-					spr_x1 = pathSprite.getX1() + GUIDE_XCUTOFF;
-					spr_x2 = pathSprite.getX2() - GUIDE_XCUTOFF;
-					spr_y1 = lerp(pathSprite.getY2() - GUIDE_Y_BOTTOM_CUTOFF, pathSprite.getY1() + GUIDE_Y_TOP_CUTOFF, unlerp(holdStart_tm, holdEnd_tm, stepStart_tm));
-					spr_y2 = lerp(pathSprite.getY2() - GUIDE_Y_BOTTOM_CUTOFF, pathSprite.getY1() + GUIDE_Y_TOP_CUTOFF, unlerp(holdStart_tm, holdEnd_tm, stepEnd_tm));
+					spr_x1 = segmentSprite.getX1() + GUIDE_XCUTOFF;
+					spr_x2 = segmentSprite.getX2() - GUIDE_XCUTOFF;
+					spr_y1 = lerp(segmentSprite.getY2() - GUIDE_Y_BOTTOM_CUTOFF, segmentSprite.getY1() + GUIDE_Y_TOP_CUTOFF, lerp(holdStartProgress, holdEndProgress, from_percentage));
+					spr_y2 = lerp(segmentSprite.getY2() - GUIDE_Y_BOTTOM_CUTOFF, segmentSprite.getY1() + GUIDE_Y_TOP_CUTOFF, lerp(holdStartProgress, holdEndProgress, to_percentage));
 				}
 				else
 				{
-					spr_x1 = pathSprite.getX1() + HOLD_XCUTOFF;
-					spr_x2 = pathSprite.getX2() - HOLD_XCUTOFF;
-					spr_y1 = pathSprite.getY1();
-					spr_y2 = pathSprite.getY2();
+					spr_x1 = segmentSprite.getX1() + HOLD_XCUTOFF;
+					spr_x2 = segmentSprite.getX2() - HOLD_XCUTOFF;
+					spr_y1 = segmentSprite.getY1();
+					spr_y2 = segmentSprite.getY2();
 				}
 
-				if (config.pvHoldAnimation && isActivated && isArrayIndexInBounds(sprIndex - 1, pathTexture.sprites))
+				if (config.pvHoldAnimation && isHoldActivated && isArrayIndexInBounds(sprIndex - 1, texture.sprites))
 				{
-					const Sprite& activeSprite = pathTexture.sprites[sprIndex - 1];
-					const int norm2ActiveOffset = activeSprite.getY1() - pathSprite.getY1();
-					float delta_tm = current_tm - segment.startTime;
+					const Sprite& activeSprite = texture.sprites[sprIndex - 1];
+					const int norm2ActiveOffset = activeSprite.getY1() - segmentSprite.getY1();
+					float delta_tm = current_tm - segment.activeTime;
 					float normalAplha = (std::cos(delta_tm * NUM_PI * 2) + 2) / 3.;
 
-					renderer->drawQuad(vPos, model, pathTexture, spr_x1, spr_x2, spr_y1, spr_y2, defaultTint.scaleAlpha(alpha * normalAplha), zIndex);
-					renderer->drawQuad(vPos, model, pathTexture, spr_x1, spr_x2, spr_y1 + norm2ActiveOffset, spr_y2 + norm2ActiveOffset, defaultTint.scaleAlpha(alpha * (1.f - normalAplha)), zIndex);
+					renderer->drawQuad(vPos, model, texture, spr_x1, spr_x2, spr_y1, spr_y2, defaultTint.scaleAlpha(alpha * normalAplha), zIndex);
+					renderer->drawQuad(vPos, model, texture, spr_x1, spr_x2, spr_y1 + norm2ActiveOffset, spr_y2 + norm2ActiveOffset, defaultTint.scaleAlpha(alpha * (1.f - normalAplha)), zIndex);
 				}
 				else
-					renderer->drawQuad(vPos, model, pathTexture, spr_x1, spr_x2, spr_y1, spr_y2, defaultTint.scaleAlpha(alpha), zIndex);
+					renderer->drawQuad(vPos, model, texture, spr_x1, spr_x2, spr_y1, spr_y2, defaultTint.scaleAlpha(alpha), zIndex);
+
+				from_percentage = to_percentage;
+				stepStart_stm = stepEnd_stm;
+				stepTop = stepBottom;
+				stepStartProgress = stepEndProgress;
 			}
 		}
 	}
@@ -906,7 +932,7 @@ namespace MikuMikuWorld
 					{
 					case ParticleEffectType::NoteLongAmongCircular:
 					case ParticleEffectType::NoteLongAmongCriticalCircular:
-						std::tie(noteLeft, noteRight) = getHoldStepBound(note, context.score, context.currentTick);
+						std::tie(noteLeft, noteRight) = getHoldStepBound(note, context.score);
 						break;
 					default:
 						std::tie(noteLeft, noteRight) = getNoteBound(note);
@@ -1197,15 +1223,17 @@ namespace MikuMikuWorld
 	void ScorePreviewWindow::updateToolbar(ScoreEditorTimeline &timeline, ScoreContext &context) const
 	{
 		static float lastHoveredTime = -1;
-		constexpr float maxNoHoverTime = 1.5f;
+		constexpr float MAX_NO_HOVER_TIME = 1.5f;
 		static float toolBarWidth = UI::btnNormal.x * 2;
+		if (!config.pvDrawToolbar)
+			return;
 		ImGuiIO io = ImGui::GetIO();
 		ImGui::SetNextWindowPos(ImGui::GetWindowPos() + ImVec2{
 			ImGui::GetContentRegionAvail().x - ImGui::GetStyle().WindowPadding.x * 4 - toolBarWidth,
 			ImGui::GetStyle().WindowPadding.y * 5
 		});
 		ImGui::SetNextWindowSizeConstraints({48, 0}, {120, FLT_MAX}, NULL);
-		float childBgAlpha = clamp(Engine::easeInCubic(unlerp(maxNoHoverTime, 0, lastHoveredTime)), 0.25f, 1.f);
+		float childBgAlpha = clamp(Engine::easeInCubic(unlerp(MAX_NO_HOVER_TIME, 0, lastHoveredTime)), 0.25f, 1.f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.f);
 		
 		ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetColorU32(ImGuiCol_WindowBg, childBgAlpha));
@@ -1214,23 +1242,23 @@ namespace MikuMikuWorld
 		ImGui::Begin("###preview_toolbar", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_ChildWindow);
 		toolBarWidth = ImGui::GetWindowWidth();
 		float centeredXBtn = toolBarWidth / 2 - UI::btnNormal.x / 2;
-		if (ImGui::IsWindowHovered())
+		if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
 			lastHoveredTime = 0;
 		else
-			lastHoveredTime = std::min(io.DeltaTime + lastHoveredTime, maxNoHoverTime);
+			lastHoveredTime = std::min(io.DeltaTime + lastHoveredTime, MAX_NO_HOVER_TIME);
 
 		ImGui::SetCursorPosX(centeredXBtn);
-		if (UI::transparentButton(ICON_FA_ANGLE_DOUBLE_UP, UI::btnNormal, true, context.currentTick > 0))
+		if (UI::transparentButton(ICON_FA_ANGLE_DOUBLE_UP, UI::btnNormal, true, context.currentTick < context.scorePreviewDrawData.maxTicks + TICKS_PER_BEAT))
 		{
 			if (timeline.isPlaying()) timeline.setPlaying(context, false);
-			context.currentTick = std::max(timeline.roundTickDown(context.currentTick, timeline.getDivision()) - (TICKS_PER_BEAT / (timeline.getDivision() / 4)), 0);
+			context.currentTick = timeline.roundTickDown(context.currentTick, timeline.getDivision()) + (TICKS_PER_BEAT / (timeline.getDivision() / 4));
 		}
 
 		ImGui::SetCursorPosX(centeredXBtn);
-		if (UI::transparentButton(ICON_FA_ANGLE_UP, UI::btnNormal, true, context.currentTick > 0))
+		if (UI::transparentButton(ICON_FA_ANGLE_UP, UI::btnNormal, true, context.currentTick < context.scorePreviewDrawData.maxTicks + TICKS_PER_BEAT))
 		{
 			if (timeline.isPlaying()) timeline.setPlaying(context, false);
-			context.currentTick--;
+			context.currentTick++;
 		}
 
 		ImGui::SetCursorPosX(centeredXBtn);
@@ -1242,17 +1270,17 @@ namespace MikuMikuWorld
 			timeline.setPlaying(context, !timeline.isPlaying());
 
 		ImGui::SetCursorPosX(centeredXBtn);
-		if (UI::transparentButton(ICON_FA_ANGLE_DOWN, UI::btnNormal, true, context.currentTick < context.scorePreviewDrawData.maxTicks + TICKS_PER_BEAT))
+		if (UI::transparentButton(ICON_FA_ANGLE_DOWN, UI::btnNormal, true, context.currentTick > 0))
 		{
 			if (timeline.isPlaying()) timeline.setPlaying(context, false);
-			context.currentTick++;
+			context.currentTick--;
 		}
 
 		ImGui::SetCursorPosX(centeredXBtn);
-		if (UI::transparentButton(ICON_FA_ANGLE_DOUBLE_DOWN, UI::btnNormal, true, context.currentTick < context.scorePreviewDrawData.maxTicks + TICKS_PER_BEAT))
+		if (UI::transparentButton(ICON_FA_ANGLE_DOUBLE_DOWN, UI::btnNormal, true, context.currentTick > 0))
 		{
 			if (timeline.isPlaying()) timeline.setPlaying(context, false);
-			context.currentTick = timeline.roundTickDown(context.currentTick, timeline.getDivision()) + (TICKS_PER_BEAT / (timeline.getDivision() / 4));
+			context.currentTick = std::max(timeline.roundTickDown(context.currentTick, timeline.getDivision()) - (TICKS_PER_BEAT / (timeline.getDivision() / 4)), 0);
 		}
 
 		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
@@ -1325,7 +1353,7 @@ namespace MikuMikuWorld
 		ImVec2 scrollMaxSize = ImGui::GetWindowContentRegionMax();
 		int maxTicks = std::max(context.scorePreviewDrawData.maxTicks, 1);
 		float scrollRatio = std::min(Engine::getNoteDuration(config.pvNoteSpeed) / accumulateDuration(context.scorePreviewDrawData.maxTicks, TICKS_PER_BEAT, context.score.tempoChanges), 1.f);
-		float progress = std::min(float(context.currentTick) / maxTicks, 1.f);
+		float progress = 1.f - std::min(float(context.currentTick) / maxTicks, 1.f);
 		float handleHeight = std::max(20.f, scrollContentSize.y * scrollRatio);
 		
 		bool scrollbarActive = false;
@@ -1351,7 +1379,7 @@ namespace MikuMikuWorld
 		{
 			float absScrollStart = ImGui::GetWindowPos().y + handleSize.y / 2;
 			float absScrollEnd = ImGui::GetWindowPos().y + scrollMaxSize.y - handleSize.y / 2;
-			float mouseProgress = clamp(unlerp(absScrollStart, absScrollEnd, io.MousePos.y), 0.f, 1.f);
+			float mouseProgress = 1.f - clamp(unlerp(absScrollStart, absScrollEnd, io.MousePos.y), 0.f, 1.f);
 			context.currentTick = std::round(lerp(0, maxTicks, mouseProgress));	
 		}
 		

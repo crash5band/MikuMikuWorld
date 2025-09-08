@@ -562,6 +562,7 @@ namespace MikuMikuWorld
 			ImGui::MenuItem(getString("return_to_last_tick"), NULL, &config.returnToLastSelectedTickOnPause);
 			ImGui::MenuItem(getString("draw_waveform"), NULL, &config.drawWaveform);
 			ImGui::MenuItem(getString("stop_at_end"), NULL, &config.stopAtEnd);
+			ImGui::MenuItem(getString("preview_draw_toolbar"), NULL, &config.pvDrawToolbar);
 
 			ImGui::EndMenu();
 		}
