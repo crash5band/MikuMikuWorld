@@ -69,7 +69,7 @@ theme_dark, ダーク
 custom_color, カスタム色
 timeline, タイムライン
 preview, プレビュー
-match_timeline_size_to_screen, タイムラインの広さを画面の広さに合わせる
+match_timeline_size_to_window, タイムラインの広さを画面の広さに合わせる
 match_notes_size_to_timeline, ノーツの高さをレーンの幅に合わせる
 lane_width, レーンの幅
 notes_height, ノーツの高さ

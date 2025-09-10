@@ -75,7 +75,7 @@ namespace MikuMikuWorld
 		{"language", "Language"},
 		{"timeline", "Timeline"},
 		{"preview", "Preview"},
-		{"match_timeline_size_to_screen", "Match timeline width to screen width"},
+		{"match_timeline_size_to_window", "Match timeline width to the window's width"},
 		{"match_notes_size_to_timeline", "Match notes size to timeline width"},
 		{"lane_width", "Lane Width"},
 		{"notes_height", "Notes Height"},
