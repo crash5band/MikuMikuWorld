@@ -1,6 +1,6 @@
+#include "Application.h"
 #include "NotesPreset.h"
 #include "IO.h"
-#include "Application.h"
 #include "File.h"
 #include "Utilities.h"
 #include <fstream>

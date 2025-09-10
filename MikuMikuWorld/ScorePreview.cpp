@@ -1,10 +1,10 @@
+#include "Application.h"
 #include "ScorePreview.h"
 #include "PreviewEngine.h"
 #include "Rendering/Camera.h"
 #include "ResourceManager.h"
 #include "Colors.h"
 #include "ImageCrop.h"
-#include "Application.h"
 #include "ApplicationConfiguration.h"
 
 namespace MikuMikuWorld

@@ -159,8 +159,6 @@
     <ClCompile Include="ScoreSerializer.cpp">
       <Filter>Score\Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="..\Depends\zlib\src\gzlib.c" />
-    <ClCompile Include="..\Depends\zlib\src\deflate.c" />
     <ClCompile Include="PreviewEngine.cpp">
       <Filter>ScorePreview</Filter>
     </ClCompile>
