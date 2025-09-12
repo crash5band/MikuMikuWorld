@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -125,8 +125,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;zlibstat.lib;opengl32.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../Depends/GLFW/lib;../Depends/zlib/lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;zlibstatic.lib;opengl32.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../Depends/GLFW/lib;../Depends/zlib/lib;../Depends/libzip/lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)res\" "$(OutDir)res\" /E /Y</Command>
@@ -150,11 +150,12 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../Depends/GLFW/lib;../Depends/zlib/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;zlibstat.lib;opengl32.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>../Depends/GLFW/lib;../Depends/zlib/lib;../Depends/libzip/lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;zlibstatic.lib;opengl32.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*'</AdditionalManifestDependencies>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)res\" "$(OutDir)res\" /E /Y</Command>
@@ -163,8 +164,6 @@
   <ItemGroup>
     <ClCompile Include="..\Depends\glad\src\glad.c" />
     <ClCompile Include="..\Depends\stb_vorbis\stb_vorbis.c" />
-    <ClCompile Include="..\Depends\zlib\src\deflate.c" />
-    <ClCompile Include="..\Depends\zlib\src\gzlib.c" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="ApplicationConfiguration.cpp" />
     <ClCompile Include="Audio\Sound.cpp" />
@@ -211,6 +210,7 @@
     <ClCompile Include="ScoreEditorTimeline.cpp" />
     <ClCompile Include="ScoreEditorWindows.cpp" />
     <ClCompile Include="ScorePreview.cpp" />
+    <ClCompile Include="ScoreSerializeWindow.cpp" />
     <ClCompile Include="ScoreSerializer.cpp" />
     <ClCompile Include="ScoreStats.cpp" />
     <ClCompile Include="SonolusSerializer.cpp" />
@@ -253,6 +253,7 @@
     <ClInclude Include="PreviewData.h" />
     <ClInclude Include="PreviewEngine.h" />
     <ClInclude Include="ScorePreview.h" />
+    <ClInclude Include="ScoreSerializeWindow.h" />
     <ClInclude Include="ScoreSerializer.h" />
     <ClInclude Include="Jacket.h" />
     <ClInclude Include="JsonIO.h" />

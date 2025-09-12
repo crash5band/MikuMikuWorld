@@ -24,6 +24,15 @@ namespace jsonIO
 		return keyExists(js, key) ? (T)js[key] : def;
 	}
 
+	template<typename T>
+	static auto optional_get_to(const nlohmann::json& j, const std::string& k, T& v)
+		-> typename decltype(j.get_to(v))
+	{
+		if (j.contains(k))
+			return j[k].get_to(v);
+		return v;
+	}
+
 	static mmw::Vector2 tryGetValue(const nlohmann::json& js, const char* key, const mmw::Vector2& def)
 	{
 		mmw::Vector2 v = def;

@@ -2,134 +2,124 @@
 #include "ScoreSerializer.h"
 #include <string>
 #include "JsonIO.h"
-#include "json.hpp"
+#include "Constants.h"
+#include "variant"
 
-using json = nlohmann::json;
+namespace Sonolus
+{
+	struct LevelDataEntity
+	{
+		enum class DataValueType { Integer, Real, Ref };
+		using IntegerType = int;
+		using RealType = double;
+		using RefType = std::string;
+
+		using ValueType = std::variant<IntegerType, RealType, RefType>;
+		using MapDataType = std::map<std::string, ValueType>;
+		
+		std::string name;
+		std::string archetype;
+		MapDataType data;
+		LevelDataEntity() = default;
+		LevelDataEntity(const std::string& archetype) : archetype(archetype) { }
+		template<typename StrArg, typename MapArg>
+		LevelDataEntity(StrArg&& archetype, MapArg&& data) : archetype(std::forward<StrArg>(archetype)), data(std::forward<MapArg>(data)) { }
+		LevelDataEntity(const std::string& archetype, std::initializer_list<MapDataType::value_type> init) : archetype(archetype), data(init) { }
+		LevelDataEntity(const std::string& name, const std::string& archetype, const MapDataType& data) : name(name), archetype(archetype), data(data) { }
+
+		template<typename T>
+		inline T& getDataValue(const std::string& name) { return std::get<T>(data.at(name)); }
+
+		template<typename T>
+		inline const T& getDataValue(const std::string& name) const { return std::get<T>(data.at(name)); }
+
+		template<typename T, typename ValueT>
+		inline static auto getDataValue(ValueT&& value) { return std::get<T>(value); }
+
+		inline static DataValueType getDataValueType(const ValueType& value)
+		{
+			if (std::holds_alternative<RefType>(value))
+				return DataValueType::Ref;
+			if (std::holds_alternative<RealType>(value))
+				return DataValueType::Real;
+			return DataValueType::Integer;
+		}
+
+		template <typename StrType, typename T>
+		inline bool tryGetDataValue(StrType&& name, T& value) const
+		{
+			auto it = data.find(std::forward<StrType>(name));
+			if (it == data.end()) return false;
+			
+			switch (getDataValueType(it->second))
+			{
+			case DataValueType::Ref:
+				if constexpr (std::is_assignable_v<T, RefType>)
+					value = getDataValue<RefType>(it->second);
+				else
+					return false;
+				break;
+			case DataValueType::Integer:
+				if constexpr (std::is_arithmetic_v<T>)
+					value = static_cast<T>(getDataValue<IntegerType>(it->second));
+				else
+					return false;
+				break;
+			case DataValueType::Real:
+				if constexpr (std::is_floating_point_v<T>)
+					value = static_cast<T>(getDataValue<RealType>(it->second));
+				else
+					return false;
+				break;
+			default:
+				return false;
+			}
+			return true;
+		}
+	};
+
+	struct LevelData
+	{
+		float bgmOffset;
+		std::vector<LevelDataEntity> entities;
+	};
+
+	void to_json(nlohmann::json& json, const LevelDataEntity& levelData);
+	void to_json(nlohmann::json& json, const LevelData& levelData);
+
+	void from_json(const nlohmann::json& json, LevelDataEntity& levelData);
+	void from_json(const nlohmann::json& json, LevelData& levelData);
+}
 
 namespace MikuMikuWorld
 {
-	enum class DataValueType : uint8_t
-	{
-		Value, Ref
-	};
-
-	enum class NumberType
-	{
-		Integer,
-		Float
-	};
-
-	union Number
-	{
-		int intValue;
-		float floatValue;
-	};
-
-	class DataValue
-	{
-	public:
-		inline std::string getName() const { return mName; }
-		inline float getFloatValue() const { return mValue.floatValue; }
-		inline int getIntValue() const { return mValue.intValue; }
-		inline std::string getRef() const { return mRef; }
-		inline DataValueType getType() const { return mType; }
-		inline NumberType getNumType() const { return mNumType; }
-
-		DataValue(std::string name, float v) : mType{ DataValueType::Value }, mNumType{ NumberType::Float }, mName{ name }
-		{
-			mValue.floatValue = v;
-		}
-
-		explicit DataValue(std::string name, int v) : mType{ DataValueType::Value }, mNumType{ NumberType::Integer }, mName{ name }
-		{
-			mValue.intValue = v;
-		}
-
-		DataValue(std::string name, std::string r) : mType{ DataValueType::Ref }, mName{ name }, mRef { r }
-		{
-		}
-
-	private:
-		std::string mName;
-		DataValueType mType;
-		NumberType mNumType;
-		Number mValue;
-		std::string mRef;
-	};
-
-	struct ArchetypeData
-	{
-		std::string name;
-		std::string archetype;
-		std::vector<DataValue> data;
-	};
-
-	struct SlideConnection
-	{
-		std::string head;
-		std::string tail;
-		int ease;
-		bool active;
-		bool critical;
-	};
-
-	void to_json(json& j, const ArchetypeData& data);
-
     class SonolusSerializer : public ScoreSerializer
     {
+		using IntegerType = Sonolus::LevelDataEntity::IntegerType;
+		using RealType = Sonolus::LevelDataEntity::RealType;
+
     public:
         void serialize(const Score& score, std::string filename) override;
         Score deserialize(std::string filename) override;
 
-		SonolusSerializer(bool prettyDump, bool gzip) : prettyDump{ prettyDump }, useGzip{ gzip }
-		{
+		Sonolus::LevelData serialize(const Score& score);
+		Score deserialize(const Sonolus::LevelData& levelData);
 
-		}
+		SonolusSerializer(bool compressData = true) : compressData(compressData) { }
 
-	private:
-		bool prettyDump;
-		bool useGzip;
+		static RealType ticksToBeats(int ticks, int beatTicks = TICKS_PER_BEAT);
+		static RealType widthToSize(int width);
+		static RealType toSonolusLane(int lane, int width);
+		static int toSonolusDirection(FlickType flick);
+		static int toSonolusEase(EaseType ease);
 
-		float ticksToBeats(int ticks);
-		float toSonolusLane(int lane, int width);
-		int flickToDirection(FlickType flick);
-		int toSonolusEase(EaseType ease);
+		static int beatsToTicks(RealType beats, int beatTicks = TICKS_PER_BEAT);
+		static int sizeToWidth(RealType size);
+		static int toNativeLane(RealType lane, RealType size);
+		static FlickType toNativeFlick(int direction);
+		static EaseType toNativeEase(int ease);
 
-		int beatsToTicks(float beats);
-		int toNativeLane(float lane, float width);
-		FlickType directionToFlick(int direction);
-		EaseType toNativeEase(int ease);
-
-		json getEntitiesByArchetype(const json& j, const std::string& archetype);
-		json getEntitiesByArchetypeEndingWith(const json& j, const std::string& archetype);
-		std::string getSlideConnectorId(const HoldStep& step);
-		std::string noteToArchetype(const Score& score, const Note& note);
-		std::map<int, std::vector<Note>> buildTickNoteMap(const Score& score);
-
-		std::string getSlideConnectorArchetype(const Score& score, const HoldNote& hold);
-		std::string getParentSlideConnector(const std::unordered_map<std::string, std::string>& connections, const std::string& slideKey);
-		std::string getLastSlideConnector(const std::unordered_map<std::string, SlideConnection>& connections, const std::string& slideKey);
-
-		Note createNote(const json& entity, NoteType type);
-		NoteType getNoteTypeFromArchetype(const std::string& archetype);
-
-		template<typename T>
-		T getEntityDataOrDefault(const json& data, const std::string& name, const T& def)
-		{
-			auto it = std::find_if(data.begin(), data.end(),
-				[&name](const auto& entry) { return jsonIO::tryGetValue<std::string>(entry, "name", "") == name; });
-
-			if (it != data.end())
-			{
-				if constexpr (std::is_same_v<T, std::string>)
-					return jsonIO::tryGetValue<std::string>(it.value(), "ref", def);
-				else
-					return jsonIO::tryGetValue<float>(it.value(), "value", def);
-			}
-
-			return def;
-		}
+		bool compressData;
     };
 }
-
 

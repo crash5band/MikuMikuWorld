@@ -1,3 +1,4 @@
+#include "Application.h"
 #include "ScoreEditorTimeline.h"
 #include "Constants.h"
 #include "UI.h"
@@ -6,28 +7,84 @@
 #include "Tempo.h"
 #include "Utilities.h"
 #include "ApplicationConfiguration.h"
-#include "Application.h"
 #include "Rendering/Camera.h"
 #include <cmath>
 #include <algorithm>
 
 namespace MikuMikuWorld
 {
-	bool eventControl(float xPos, Vector2 pos, ImU32 color, const char* txt, bool enabled)
+	static void drawEventControl(const EventControlDrawData& eventData)
 	{
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		if (!drawList)
+			return;
+		const ImVec2 framePadding = { 1, 0 };
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, framePadding);
+		const float frameHeight = ImGui::GetFrameHeightWithSpacing();
+		ImGui::PopStyleVar();
+		ImU32 col = eventData.color;
+		if (eventData.highlight)
+			col = ImGui::ColorConvertFloat4ToU32(generateHighlightColor(ImGui::ColorConvertU32ToFloat4(col)));
+		ImRect bound = { eventData.pos, eventData.pos + eventData.size };
+		ImGui::RenderFrame(bound.Min, bound.Max, col, true, 2.0f);
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.15f, 0.15f, 0.15f, 1.0));
+		ImGui::RenderTextClipped(bound.Min + framePadding, bound.Max - framePadding, eventData.txt.c_str(), NULL, &eventData.txtSize, ImGui::GetStyle().ButtonTextAlign, &bound);
+		ImGui::PopStyleColor();
+		drawList->AddLine({ eventData.timelineX, eventData.pos.y + frameHeight }, { eventData.pos.x + (eventData.pos.x < eventData.timelineX ? 0 : eventData.size.x), eventData.pos.y + frameHeight }, col, primaryLineThickness);
+	}
+
+	bool ScoreEditorTimeline::eventControl(int tick, ImU32 color, const char* txt, bool fromStart, bool enabled)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 1, 0 });
+		const float frameHeight = ImGui::GetFrameHeightWithSpacing();
+		ImGui::PopStyleVar();
+		const float dpiScale = ImGui::GetMainViewport()->DpiScale;
+		const ImVec2 txtSize = ImGui::CalcTextSize(txt);
+		const ImVec2 itemSize = { std::max(txtSize.x + 5.0f, 30.0f), frameHeight };
+		const float tickPos = tickToPosition(tick);
+		float posX, posY = floorf(position.y - tickPos + visualOffset - frameHeight);
+		float minCursor, maxCursor, timelineX;
+
+		if (posY + itemSize.y < boundaries.Min.x || posY > boundaries.Max.y)
 			return false;
 
-		pos.x = floorf(pos.x);
-		pos.y = floorf(pos.y);
+		int tracks = std::floor(tickPos / 1.5f / frameHeight);
+		auto it = eventControlCursor.find(tracks);
+		if (it == eventControlCursor.end())
+		{
+			const float timelineMinX = getTimelineStartX(), timelineMaxX = getTimelineEndX();
+			minCursor = getTimelineStartX() - 16;
+			maxCursor = getTimelineEndX() + 16;
+		}
+		else
+			std::tie(minCursor, maxCursor) = it->second;
 
-		ImGui::PushID(pos.y);
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {1, 0});
-		bool activated = UI::coloredButton(txt, { pos.x, pos.y - ImGui::GetFrameHeightWithSpacing() }, { -1, -1 }, color, enabled);
+		if (fromStart)
+		{
+			posX = floorf(minCursor - itemSize.x);
+			minCursor = posX - eventControlPadding * dpiScale;
+			timelineX = getTimelineStartX();
+		}
+		else
+		{
+			posX = floorf(maxCursor);
+			maxCursor = posX + itemSize.x + eventControlPadding * dpiScale;
+			timelineX = getTimelineEndX();
+		}
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 2.0f);
+		ImGui::BeginDisabled(!enabled);
+		ImGui::SetCursorScreenPos({posX, posY});
+		bool activated = ImGui::Button(IO::formatString("##%s###%.f|%.f", txt, posX, posY).c_str(), itemSize);
+		ImGui::EndDisabled();
 		ImGui::PopStyleVar();
-		ImGui::PopID();
-		drawList->AddLine({ xPos, pos.y }, { pos.x + ImGui::GetItemRectSize().x, pos.y }, color, primaryLineThickness);
+		ImGui::PopStyleColor(3);
+
+		drawEvents.push({ activated || ImGui::IsItemHovered() || ImGui::IsItemActive(), timelineX, {posX, posY}, itemSize + ImVec2{1, 0}, txtSize, color, txt});
+		eventControlCursor[tracks] = std::make_pair(minCursor, maxCursor);
 
 		return activated;
 	}
@@ -338,7 +395,7 @@ namespace MikuMikuWorld
 				const float bgWidth = static_cast<float>(background.getWidth());
 				const float bgHeight = static_cast<float>(background.getHeight());
 				ImVec2 bgPos{ position.x - (abs(bgWidth - size.x) / 2.0f), position.y - (abs(bgHeight - size.y) / 2.0f) };
-				drawList->AddImage((ImTextureID)background.getTextureID(), bgPos, bgPos + ImVec2{ bgWidth, bgHeight });
+				drawList->AddImage((ImTextureID)(size_t)background.getTextureID(), bgPos, bgPos + ImVec2{ bgWidth, bgHeight });
 			}
 
 			// Remember whether the last mouse click was in the timeline or not
@@ -525,15 +582,17 @@ namespace MikuMikuWorld
 
 			contextMenu(context);
 
-			// Update hi-speed changes
-			for (int index = 0; index < context.score.hiSpeedChanges.size(); ++index)
+			eventControlCursor.clear();
+
+			// Update bpm changes
+			for (int index = 0; index < context.score.tempoChanges.size(); ++index)
 			{
-				HiSpeedChange& hiSpeed = context.score.hiSpeedChanges[index];
-				if (hiSpeedControl(hiSpeed))
+				Tempo& tempo = context.score.tempoChanges[index];
+				if (bpmControl(tempo))
 				{
 					eventEdit.editIndex = index;
-					eventEdit.editHiSpeed = hiSpeed.speed;
-					eventEdit.type = EventType::HiSpeed;
+					eventEdit.editBpm = tempo.bpm;
+					eventEdit.type = EventType::Bpm;
 					ImGui::OpenPopup("edit_event");
 				}
 			}
@@ -551,15 +610,15 @@ namespace MikuMikuWorld
 				}
 			}
 
-			// Update bpm changes
-			for (int index = 0; index < context.score.tempoChanges.size(); ++index)
+			// Update hi-speed changes
+			for (int index = 0; index < context.score.hiSpeedChanges.size(); ++index)
 			{
-				Tempo& tempo = context.score.tempoChanges[index];
-				if (bpmControl(tempo))
+				HiSpeedChange& hiSpeed = context.score.hiSpeedChanges[index];
+				if (hiSpeedControl(hiSpeed))
 				{
 					eventEdit.editIndex = index;
-					eventEdit.editBpm = tempo.bpm;
-					eventEdit.type = EventType::Bpm;
+					eventEdit.setEditHispeed(hiSpeed.speed);
+					eventEdit.type = EventType::HiSpeed;
 					ImGui::OpenPopup("edit_event");
 				}
 			}
@@ -586,6 +645,12 @@ namespace MikuMikuWorld
 
 			eventEditor(context);
 			updateNotes(context, edit, renderer);
+
+		while (!drawEvents.empty())
+		{
+			drawEventControl(drawEvents.top());
+			drawEvents.pop();
+		}
 
 			// Update cursor tick after determining whether a note is hovered
 			// The cursor tick should not change if a note is hovered
@@ -708,11 +773,11 @@ namespace MikuMikuWorld
 			float speed = (hiSpeed == -1 ? 1.0f : context.score.hiSpeedChanges[hiSpeed].speed);
 
 			static char rhythmString[256];
-			snprintf(rhythmString, 256, "  %02d:%02d:%02d  |  %d/%d  |  %g BPM  |  %gx",
+			snprintf(rhythmString, 256, "  %02d:%02d:%02d  |  %d/%d  |  %g BPM  |  %sx",
 				(int)time / 60, (int)time % 60, (int)((time - (int)time) * 100),
 				ts.numerator, ts.denominator,
 				tempo.bpm,
-				speed
+				IO::formatFixedFloatTrimmed(speed).c_str()
 			);
 
 			float _zoom = zoom;
@@ -830,7 +895,7 @@ namespace MikuMikuWorld
 		renderer->endBatch();
 		renderStats.addStats(renderer);
 
-		ImGui::GetWindowDrawList()->AddImage((void*)slidePathFramebuffer->getTexture(), position, position + size);
+		ImGui::GetWindowDrawList()->AddImage((ImTextureID)(size_t)slidePathFramebuffer->getTexture(), position, position + size);
 
 		notesFramebuffer->bind();
 		notesFramebuffer->clear();
@@ -906,7 +971,7 @@ namespace MikuMikuWorld
 			insertingHold = false;
 		}
 
-		ImGui::GetWindowDrawList()->AddImage((void*)notesFramebuffer->getTexture(), position, position + size);
+		ImGui::GetWindowDrawList()->AddImage((ImTextureID)(size_t)notesFramebuffer->getTexture(), position, position + size);
 		renderStats.renderCpuTime = renderTimer.elapsed();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -1795,15 +1860,12 @@ namespace MikuMikuWorld
 
 	bool ScoreEditorTimeline::bpmControl(float bpm, int tick, bool enabled)
 	{
-		Vector2 pos{ getTimelineEndX() + 15, position.y - tickToPosition(tick) + visualOffset };
-		return eventControl(getTimelineEndX(), pos, tempoColor, IO::formatString("%g BPM", bpm).c_str(), enabled);
+		return eventControl(tick, tempoColor, IO::formatString("%g BPM", bpm).c_str(), false, enabled);
 	}
 
 	bool ScoreEditorTimeline::timeSignatureControl(int numerator, int denominator, int tick, bool enabled)
 	{
-		float dpiScale = ImGui::GetMainViewport()->DpiScale;
-		Vector2 pos{ getTimelineEndX() + (78 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
-		return eventControl(getTimelineEndX(), pos, timeColor, IO::formatString("%d/%d", numerator, denominator).c_str(), enabled);
+		return eventControl(tick, timeColor, IO::formatString("%d/%d", numerator, denominator).c_str(), false, enabled);
 	}
 
 	bool ScoreEditorTimeline::skillControl(const SkillTrigger& skill)
@@ -1813,9 +1875,7 @@ namespace MikuMikuWorld
 
 	bool ScoreEditorTimeline::skillControl(int tick, bool enabled)
 	{
-		float dpiScale = ImGui::GetMainViewport()->DpiScale;
-		Vector2 pos{ getTimelineStartX() - (50 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
-		return eventControl(getTimelineStartX(), pos, skillColor, getString("skill"), enabled);
+		return eventControl(tick, skillColor, getString("skill"), true, enabled);
 	}
 
 	bool ScoreEditorTimeline::feverControl(const Fever& fever)
@@ -1831,9 +1891,7 @@ namespace MikuMikuWorld
 		std::string txt = "FEVER";
 		txt.append(start ? ICON_FA_CARET_UP : ICON_FA_CARET_DOWN);
 
-		float dpiScale = ImGui::GetMainViewport()->DpiScale;
-		Vector2 pos{ getTimelineStartX() - (108 * dpiScale), position.y - tickToPosition(tick) + visualOffset };
-		return eventControl(getTimelineStartX(), pos, feverColor, txt.c_str(), enabled);
+		return eventControl(tick, feverColor, txt.c_str(), true, enabled);
 	}
 
 	bool ScoreEditorTimeline::hiSpeedControl(const HiSpeedChange& hiSpeed)
@@ -1843,21 +1901,24 @@ namespace MikuMikuWorld
 
 	bool ScoreEditorTimeline::hiSpeedControl(int tick, float speed)
 	{
-		std::string txt = IO::formatString("%.2fx", speed);
+		std::string txt = IO::formatString("%sx", IO::formatFixedFloatTrimmed(speed));
 		float dpiScale = ImGui::GetMainViewport()->DpiScale;
 		Vector2 pos{ getTimelineEndX() + (115 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
-		return eventControl(getTimelineEndX(), pos, speedColor, txt.c_str(), !playing);
+		return eventControl(tick, speedColor, txt.c_str(), false, !playing);
 	}
 
 	void ScoreEditorTimeline::eventEditor(ScoreContext& context)
 	{
-		ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
+		ImGui::SetNextWindowSize(ImVec2(280, -1), ImGuiCond_Always);
 		if (ImGui::BeginPopup("edit_event"))
 		{
 			std::string editLabel{"edit_"};
 			editLabel.append(eventTypes[(int)eventEdit.type]);
 			ImGui::Text(getString(editLabel));
 			ImGui::Separator();
+			const char* label;
+			ImGuiStyle& style = ImGui::GetStyle();
+			bool appearing = ImGui::IsWindowAppearing();
 
 			if (eventEdit.type == EventType::Bpm)
 			{
@@ -1871,11 +1932,15 @@ namespace MikuMikuWorld
 				UI::beginPropertyColumns();
 
 				Tempo& tempo = context.score.tempoChanges[eventEdit.editIndex];
-				UI::addFloatProperty(getString("bpm"), eventEdit.editBpm, "%g");
+				label = getString("bpm");
+				if (appearing)
+					ImGui::SetColumnWidth(0, ImGui::CalcTextSize(label).x + ImGui::GetCursorPosX() + style.ItemSpacing.x);
+				UI::addFloatProperty(label, eventEdit.editBpm, "%g");
 				if (ImGui::IsItemDeactivatedAfterEdit())
 				{
 					Score prev = context.score;
 					tempo.bpm = std::clamp(eventEdit.editBpm, MIN_BPM, MAX_BPM);
+					eventEdit.editBpm = tempo.bpm;
 
 					context.pushHistory("Change tempo", prev, context.score);
 				}
@@ -1904,12 +1969,17 @@ namespace MikuMikuWorld
 				}
 
 				UI::beginPropertyColumns();
+				label = getString("time_signature");
+				if (appearing)
+					ImGui::SetColumnWidth(0, ImGui::CalcTextSize(label).x + ImGui::GetCursorPosX() + style.ItemSpacing.x);
 				if (UI::timeSignatureSelect(eventEdit.editTimeSignatureNumerator, eventEdit.editTimeSignatureDenominator))
 				{
 					Score prev = context.score;
 					TimeSignature& ts = context.score.timeSignatures[eventEdit.editIndex];
 					ts.numerator = std::clamp(abs(eventEdit.editTimeSignatureNumerator), MIN_TIME_SIGNATURE, MAX_TIME_SIGNATURE_NUMERATOR);
 					ts.denominator = std::clamp(abs(eventEdit.editTimeSignatureDenominator), MIN_TIME_SIGNATURE, MAX_TIME_SIGNATURE_DENOMINATOR);
+					eventEdit.editTimeSignatureNumerator = ts.numerator;
+					eventEdit.editTimeSignatureDenominator = ts.denominator;
 
 					context.pushHistory("Change time signature", prev, context.score);
 				}
@@ -1938,12 +2008,16 @@ namespace MikuMikuWorld
 				}
 
 				UI::beginPropertyColumns();
-				UI::addFloatProperty(getString("hi_speed_speed"), eventEdit.editHiSpeed, "%g");
+				label = getString("hi_speed_speed");
+				if (appearing)
+					ImGui::SetColumnWidth(0, ImGui::CalcTextSize(label).x + ImGui::GetCursorPosX() + style.ItemSpacing.x);
+				UI::addNumericStringProperty(label, eventEdit.editHiSpeed);
 				HiSpeedChange& hiSpeed = context.score.hiSpeedChanges[eventEdit.editIndex];
 				if (ImGui::IsItemDeactivatedAfterEdit())
 				{
 					Score prev = context.score;
-					hiSpeed.speed = eventEdit.editHiSpeed;
+					hiSpeed.speed = std::stof(eventEdit.editHiSpeed);
+					eventEdit.setEditHispeed(hiSpeed.speed);
 
 					context.pushHistory("Change hi-speed", prev, context.score);
 				}

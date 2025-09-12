@@ -159,8 +159,6 @@
     <ClCompile Include="ScoreSerializer.cpp">
       <Filter>Score\Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="..\Depends\zlib\src\gzlib.c" />
-    <ClCompile Include="..\Depends\zlib\src\deflate.c" />
     <ClCompile Include="PreviewEngine.cpp">
       <Filter>ScorePreview</Filter>
     </ClCompile>
@@ -169,6 +167,9 @@
     </ClCompile>
     <ClCompile Include="PreviewData.cpp">
       <Filter>ScorePreview</Filter>
+    </ClCompile>
+    <ClCompile Include="ScoreSerializeWindow.cpp">
+      <Filter>Score\Serialization</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -381,6 +382,9 @@
     </ClInclude>
     <ClInclude Include="PreviewData.h">
       <Filter>ScorePreview</Filter>
+    </ClInclude>
+    <ClInclude Include="ScoreSerializeWindow.h">
+      <Filter>Score\Serialization</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

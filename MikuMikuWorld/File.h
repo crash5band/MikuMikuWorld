@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <numeric>
 
 namespace IO
 {
@@ -98,9 +99,21 @@ namespace IO
 		FileDialogResult saveFile();
 	};
 
+	inline FileDialogFilter combineFilters(const std::string& filterName, const std::initializer_list<FileDialogFilter>& filters)
+	{
+		std::string filterType;
+		if (!filters.size()) return { filterName, "*.*" };
+		filterType.reserve(std::accumulate(filters.begin(), filters.end(), size_t(0), [](size_t sz, const FileDialogFilter& filter) { return sz + filter.filterType.size() + 1; }) - 1);
+		auto begin = filters.begin(), end = filters.end();
+		filterType += (begin++)->filterType;
+		for (; begin != end; ++begin)
+			filterType.append(";").append(begin->filterType);
+		return { filterName, filterType };
+	}
+
 	extern FileDialogFilter mmwsFilter;
 	extern FileDialogFilter susFilter;
-	extern FileDialogFilter uscFilter;
+	extern FileDialogFilter lvlDatFilter;
 	extern FileDialogFilter imageFilter;
 	extern FileDialogFilter audioFilter;
 	extern FileDialogFilter allFilter;

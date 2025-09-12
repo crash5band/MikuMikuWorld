@@ -181,11 +181,11 @@ namespace MikuMikuWorld::Engine
 	/// General helper functions for fixed values in the engine
 	static inline float getNoteDuration(float noteSpeed)
 	{
-		return lerp(0.35, 4.f, std::pow(unlerp(12, 1, noteSpeed), 1.31f));
+		return lerpD(0.35, 4.0, std::pow(unlerpD(12, 1, noteSpeed), 1.31));
 	}
-	static inline float approach(float start_time, float end_time, float current_time)
+	static inline double approach(double start_time, double end_time, double current_time)
 	{
-		return std::pow(1.06, 45 * lerp(-1, 0, unlerp(start_time, end_time, current_time)));
+		return std::pow(1.06, 45 * lerpD(-1, 0, unlerpD(start_time, end_time, current_time)));
 	}
 	inline constexpr float STAGE_LANE_TOP = 47;
 	inline constexpr float STAGE_LANE_BOTTOM = 803;

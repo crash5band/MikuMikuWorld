@@ -46,8 +46,14 @@ save_changes, 保存する
 discard_changes, 保存しない
 score_file, 譜面ファイル
 export_successful, エクスポートが完了しました
+unknown_file_format, 不明なファイル形式
+open_as_file_format, 形式として開きますか
 error, エラー
+error_reason, 理由
+error_open_file_msg1, ファイル
+error_open_file_msg2, を開けません
 error_load_score_file, 譜面ファイルの読み込み中にエラーが発生しました
+error_save_score_file, 譜面ファイルの保存中にエラーが発生しました
 error_load_music_file, 音楽ファイルの読み込みに失敗しました
 cancel, キャンセル
 general, 一般

@@ -205,7 +205,7 @@ namespace MikuMikuWorld
 		fontConfig.GlyphMinAdvanceX = 13.0f;
 		fontConfig.PixelSnapH = false;
 		fontConfig.OversampleH = 1;
-		static const ImWchar iconRanges[] = { start, end, 0 };
+		static const ImWchar iconRanges[] = { (ImWchar)start, (ImWchar)end, 0 };
 		ImGui::GetIO().Fonts->AddFontFromFileTTF(filename.c_str(), (int)size, &fontConfig, iconRanges);
 	}
 

@@ -9,7 +9,8 @@
 #include "Constants.h"
 #include "Utilities.h"
 #include "ImageCrop.h"
-#include "ScoreSerializer.h"
+#include "NativeScoreSerializer.h"
+#include "ScoreSerializeWindow.h"
 #include <filesystem>
 #include <Windows.h>
 
@@ -159,6 +160,7 @@ namespace MikuMikuWorld
 
 		settingsWindow.update();
 		aboutDialog.update();
+		serializeWindow.update(*this, context, timeline);
 
 		const bool timeline_just_created = (ImGui::FindWindowByName("###notes_timeline") == NULL);
 		ImGui::Begin(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"), NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
@@ -242,57 +244,8 @@ namespace MikuMikuWorld
 		if (!IO::File::exists(filename))
 			return;
 
-		std::string extension = IO::File::getFileExtension(filename);
-		std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-
-		// Backup next note ID in case of an import failure
-		int nextIdBackup = nextID;
-		try
-		{
-			resetNextID();
-			std::string workingFilename;
-			Score newScore;
-
-			timeline.setPlaying(context, false);
-			
-			std::unique_ptr<ScoreSerializer> serializer = ScoreSerializerFactory::getSerializer(extension);
-			newScore = serializer->deserialize(filename);
-			
-			if (ScoreSerializerFactory::isNativeScoreFormat(extension))
-			{
-				workingFilename = filename;
-			}
-
-			context.clearSelection();
-			context.history.clear();
-			context.score = std::move(newScore);
-			context.workingData = EditorScoreData(context.score.metadata, workingFilename);
-
-			asyncLoadMusic(context.workingData.musicFilename);
-			context.audio.setMusicOffset(0, context.workingData.musicOffset);
-
-			context.scoreStats.calculateStats(context.score);
-			context.scorePreviewDrawData.calculateDrawData(context.score);
-			timeline.calculateMaxOffsetFromScore(context.score);
-
-			UI::setWindowTitle((context.workingData.filename.size() ? IO::File::getFilename(context.workingData.filename) : windowUntitled));
-			context.upToDate = true;
-		}
-		catch (std::exception& error)
-		{
-			nextID = nextIdBackup;
-			std::string errorMessage = IO::formatString("%s\n%s: %s\n%s: %s",
-				getString("error_load_score_file"),
-				getString("score_file"),
-				filename.c_str(),
-				getString("error"),
-				error.what()
-			);
-
-			IO::messageBox(APP_NAME, errorMessage, IO::MessageBoxButtons::Ok, IO::MessageBoxIcon::Error, Application::windowState.windowHandle);
-		}
-
-		updateRecentFilesList(filename);
+		timeline.setPlaying(context, false);
+		serializeWindow.deserialize(filename);
 	}
 
 	void ScoreEditor::asyncLoadScore(std::string filename)
@@ -355,7 +308,12 @@ namespace MikuMikuWorld
 		IO::FileDialog fileDialog{};
 		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 		fileDialog.title = "Open Chart";
-		fileDialog.filters = { { "Score Files", "*.mmws;*.sus;*.usc" } };
+		fileDialog.filters = {
+			IO::combineFilters("All Supported Files",{ IO::mmwsFilter, IO::susFilter, IO::lvlDatFilter }),
+			IO::mmwsFilter,
+			IO::susFilter,
+			IO::allFilter
+		};
 		
 		if (fileDialog.openFile() == IO::FileDialogResult::OK)
 			loadScore(fileDialog.outputFilename);
@@ -371,7 +329,7 @@ namespace MikuMikuWorld
 		try
 		{
 			context.score.metadata = context.workingData.toScoreMetadata();
-			serializeScore(context.score, filename);
+			NativeScoreSerializer().serialize(context.score, filename);
 
 			UI::setWindowTitle(IO::File::getFilename(filename));
 			context.upToDate = true;
@@ -380,7 +338,7 @@ namespace MikuMikuWorld
 		{
 			IO::messageBox(
 				APP_NAME,
-				IO::formatString("An error occured while saving the score file\n%s", err.what()),
+				IO::formatString("%s\n%s: %s", getString("error_save_score_file"), getString("error"), err.what()),
 				IO::MessageBoxButtons::Ok,
 				IO::MessageBoxIcon::Error,
 				Application::windowState.windowHandle
@@ -416,47 +374,19 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::exportSus()
 	{
-		constexpr const char* exportExtensions[] = { "sus", "usc" };
+		constexpr const char* exportExtensions[] = { "sus", "scp", "json" };
 		int filterIndex = std::clamp(config.lastSelectedExportIndex, 0, static_cast<int>(arrayLength(exportExtensions) - 1));
 
 		IO::FileDialog fileDialog{};
 		fileDialog.title = "Export Chart";
-		fileDialog.filters = { IO::susFilter, IO::uscFilter };
+		fileDialog.filters = { IO::susFilter, IO::lvlDatFilter };
 		fileDialog.filterIndex = filterIndex;
 		fileDialog.defaultExtension = exportExtensions[filterIndex];
 		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 
 		if (fileDialog.saveFile() == IO::FileDialogResult::OK)
 		{
-			try
-			{
-				Score exportScore = context.score;
-				exportScore.metadata = context.workingData.toScoreMetadata();
-
-				std::string extension = IO::File::getFileExtension(fileDialog.outputFilename);
-				std::unique_ptr<ScoreSerializer> serializer = ScoreSerializerFactory::getSerializer(extension);
-
-				serializer->serialize(exportScore, fileDialog.outputFilename);
-
-				IO::messageBox(
-					APP_NAME,
-					IO::formatString(getString("export_successful")),
-					IO::MessageBoxButtons::Ok,
-					IO::MessageBoxIcon::Information,
-					Application::windowState.windowHandle
-				);
-			}
-			catch (const std::exception& err)
-			{
-				IO::messageBox(
-					APP_NAME,
-					IO::formatString("An error occured while exporting the score file\n%s", err.what()),
-					IO::MessageBoxButtons::Ok,
-					IO::MessageBoxIcon::Error,
-					Application::windowState.windowHandle
-				);
-			}
-
+			serializeWindow.serialize(context, fileDialog.outputFilename);
 			config.lastSelectedExportIndex = fileDialog.filterIndex;
 		}
 	}
@@ -746,7 +676,7 @@ namespace MikuMikuWorld
 		std::filesystem::create_directory(wAutoSaveDir);
 
 		context.score.metadata = context.workingData.toScoreMetadata();
-		serializeScore(context.score, autoSavePath + "\\mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION);
+		NativeScoreSerializer().serialize(context.score, autoSavePath + "\\mmw_auto_save_" + Utilities::getCurrentDateTime() + MMWS_EXTENSION);
 		
 		int mmwsCount = 0;
 		for (const auto& file : std::filesystem::directory_iterator(wAutoSaveDir))

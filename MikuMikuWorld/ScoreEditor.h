@@ -1,6 +1,7 @@
 #pragma once
 #include "ScoreEditorWindows.h"
 #include "ScorePreview.h"
+#include "ScoreSerializeWindow.h"
 #include <future>
 
 namespace MikuMikuWorld
@@ -22,6 +23,7 @@ namespace MikuMikuWorld
 		SettingsWindow settingsWindow{};
 		RecentFileNotFoundDialog recentFileNotFoundDialog{};
 		AboutDialog aboutDialog{};
+		ScoreSerializeWindow serializeWindow;
 
 		Stopwatch autoSaveTimer;
 		std::string autoSavePath;
@@ -33,7 +35,6 @@ namespace MikuMikuWorld
 		std::future<void> importPresetFuture{};
 
 		bool save(std::string filename);
-		size_t updateRecentFilesList(const std::string& entry);
 
 	public:
 		ScoreEditor();
@@ -51,6 +52,7 @@ namespace MikuMikuWorld
 		bool trySave(std::string);
 		void autoSave();
 		int deleteOldAutoSave(int count);
+		size_t updateRecentFilesList(const std::string& entry);
 
 		void drawMenubar();
 		void drawToolbar();

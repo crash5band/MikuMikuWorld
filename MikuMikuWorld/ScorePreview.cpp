@@ -1,10 +1,10 @@
+#include "Application.h"
 #include "ScorePreview.h"
 #include "PreviewEngine.h"
 #include "Rendering/Camera.h"
 #include "ResourceManager.h"
 #include "Colors.h"
 #include "ImageCrop.h"
-#include "Application.h"
 #include "ApplicationConfiguration.h"
 
 namespace MikuMikuWorld
@@ -247,7 +247,7 @@ namespace MikuMikuWorld
 		}};
 	}
 
-	ScorePreviewWindow::ScorePreviewWindow() : previewBuffer{1920, 1080}, notesTex(), background()
+	ScorePreviewWindow::ScorePreviewWindow() : previewBuffer{1920, 1080}, notesTex(), background(), scaledAspectRatio(1)
 	{
 
 	}
@@ -633,17 +633,17 @@ namespace MikuMikuWorld
 			// Clamp the segment to be within the visible stage
 			float segmentStart_stm = std::max(segmentHead_stm, current_stm);
 			float segmentEnd_stm = std::min(segmentTail_stm, visible_stm);
-			float segmentStartProgress, segmentEndProgress, holdStartProgress, holdEndProgress;
+			double segmentStartProgress, segmentEndProgress, holdStartProgress, holdEndProgress;
 
 			if (!isSegmentActivated)
 			{
 				segmentStartProgress = 0;
-				segmentEndProgress = unlerp(segmentHead_stm, segmentTail_stm, segmentEnd_stm);
+				segmentEndProgress = unlerpD(segmentHead_stm, segmentTail_stm, segmentEnd_stm);
 			}
 			else
 			{
-				segmentStartProgress = unlerp(segment.startTime, segment.endTime, current_tm);
-				segmentEndProgress = lerp(segmentStartProgress, 1.f, unlerp(current_stm, segmentTail_stm, segmentEnd_stm));
+				segmentStartProgress = unlerpD(segment.startTime, segment.endTime, current_tm);
+				segmentEndProgress = lerpD(segmentStartProgress, 1.0, unlerpD(current_stm, segmentTail_stm, segmentEnd_stm));
 			}
 
 			const int steps = (segment.ease == EaseType::Linear ? 10 : 15)
@@ -675,20 +675,20 @@ namespace MikuMikuWorld
 
 				if (!isSegmentActivated)
 				{
-					holdStartProgress = unlerp(holdStart_stm, holdEnd_stm, segmentStart_stm);
-					holdEndProgress = unlerp(holdStart_stm, holdEnd_stm, segmentEnd_stm);
+					holdStartProgress = unlerpD(holdStart_stm, holdEnd_stm, segmentStart_stm);
+					holdEndProgress = unlerpD(holdStart_stm, holdEnd_stm, segmentEnd_stm);
 				}
 				else
 				{
-					holdStartProgress = unlerp(holdStart.tick, holdEnd.tick, context.currentTick);
-					holdEndProgress = lerp(holdStartProgress, 1, unlerp(current_stm, holdEnd_stm, segmentEnd_stm));
+					holdStartProgress = unlerpD(holdStart.tick, holdEnd.tick, context.currentTick);
+					holdEndProgress = lerpD(holdStartProgress, 1, unlerpD(current_stm, holdEnd_stm, segmentEnd_stm));
 				}
 			}
 
-			float from_percentage = 0;
-			float stepStart_stm = segmentStart_stm;
-			float stepTop = Engine::approach(stepStart_stm - noteDuration, stepStart_stm, current_stm);
-			float stepStartProgress = segmentStartProgress;
+			double from_percentage = 0;
+			double stepStart_stm = segmentStart_stm;
+			double stepTop = Engine::approach(stepStart_stm - noteDuration, stepStart_stm, current_stm);
+			double stepStartProgress = segmentStartProgress;
 
 			auto model = DirectX::XMMatrixIdentity();
 			float alpha = config.pvHoldAlpha;
@@ -696,10 +696,10 @@ namespace MikuMikuWorld
 
 			for (int i = 0; i < steps; i++)
 			{
-				float to_percentage = float(i + 1) / steps;
-				float stepEnd_stm = lerp(segmentStart_stm, segmentEnd_stm, to_percentage);
-				float stepBottom = Engine::approach(stepEnd_stm - noteDuration, stepEnd_stm, current_stm);
-				float stepEndProgress = lerp(segmentStartProgress, segmentEndProgress, to_percentage);
+				double to_percentage = double(i + 1) / steps;
+				double stepEnd_stm = lerpD(segmentStart_stm, segmentEnd_stm, to_percentage);
+				double stepBottom = Engine::approach(stepEnd_stm - noteDuration, stepEnd_stm, current_stm);
+				double stepEndProgress = lerpD(segmentStartProgress, segmentEndProgress, to_percentage);
 
 				float stepStartLeft = ease(startLeft, endLeft, stepStartProgress);
 				float   stepEndLeft = ease(startLeft, endLeft, stepEndProgress);
@@ -713,8 +713,8 @@ namespace MikuMikuWorld
 				{
 					spr_x1 = segmentSprite.getX1() + GUIDE_XCUTOFF;
 					spr_x2 = segmentSprite.getX2() - GUIDE_XCUTOFF;
-					spr_y1 = lerp(segmentSprite.getY2() - GUIDE_Y_BOTTOM_CUTOFF, segmentSprite.getY1() + GUIDE_Y_TOP_CUTOFF, lerp(holdStartProgress, holdEndProgress, from_percentage));
-					spr_y2 = lerp(segmentSprite.getY2() - GUIDE_Y_BOTTOM_CUTOFF, segmentSprite.getY1() + GUIDE_Y_TOP_CUTOFF, lerp(holdStartProgress, holdEndProgress, to_percentage));
+					spr_y1 = lerp(segmentSprite.getY2() - GUIDE_Y_BOTTOM_CUTOFF, segmentSprite.getY1() + GUIDE_Y_TOP_CUTOFF, lerpD(holdStartProgress, holdEndProgress, from_percentage));
+					spr_y2 = lerp(segmentSprite.getY2() - GUIDE_Y_BOTTOM_CUTOFF, segmentSprite.getY1() + GUIDE_Y_TOP_CUTOFF, lerpD(holdStartProgress, holdEndProgress, to_percentage));
 				}
 				else
 				{
@@ -1308,12 +1308,12 @@ namespace MikuMikuWorld
 		float speed = (hiSpeedIdx == -1 ? 1.0f : context.score.hiSpeedChanges[hiSpeedIdx].speed);
 
 		char rhythmString[256];
-		snprintf(rhythmString, sizeof(rhythmString), "%02d:%02d:%02d|%.2fs|%d/%d|%g BPM|%gx",
+		snprintf(rhythmString, sizeof(rhythmString), "%02d:%02d:%02d|%.2fs|%d/%d|%g BPM|%sx",
 			static_cast<int>(currentTm / 60), static_cast<int>(std::fmod(currentTm, 60.f)), static_cast<int>(std::fmod(currentTm * 100, 100.f)),
 			currentScaledTm,
 			ts.numerator, ts.denominator,
 			tempo.bpm,
-			speed
+			IO::formatFixedFloatTrimmed(speed).c_str()
 		);
 		char* str = strtok(rhythmString, "|");
 		ImGui::SetCursorPosX(toolBarWidth / 2 - ImGui::CalcTextSize(str).x / 2);

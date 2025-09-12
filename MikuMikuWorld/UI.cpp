@@ -151,6 +151,14 @@ namespace MikuMikuWorld
 		ImGui::NextColumn();
 	}
 
+	void UI::addNumericStringProperty(const char* label, std::string& val, bool button)
+	{
+		propertyLabel(label);
+
+		ImGui::InputText(labelID(label), &val, ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_CharsScientific | ImGuiInputTextFlags_CharsNoBlank);
+		ImGui::NextColumn();
+	}
+
 	void UI::addDragFloatProperty(const char* label, float& val, const char* format)
 	{
 		propertyLabel(label);
@@ -363,9 +371,9 @@ namespace MikuMikuWorld
 			ImGui::EndCombo();
 		}
 
-		ImGui::SameLine();
+		ImGui::SameLine(0, 0);
 		ImGui::Text("/");
-		ImGui::SameLine();
+		ImGui::SameLine(0, 0);
 		ImGui::SetNextItemWidth(controlWidth);
 
 		if (ImGui::BeginCombo("##ts_denom", std::to_string(denominator).c_str()))
@@ -456,7 +464,7 @@ namespace MikuMikuWorld
 		const ImVec2 uv0{ spr.getX1() / tex.getWidth(), spr.getY1() / tex.getHeight() };
 		const ImVec2 uv1{ spr.getX2() / tex.getWidth(), spr.getY2() / tex.getHeight() };
 
-		bool activated = ImGui::ImageButton(lblId.c_str(), (void*)tex.getID(), UI::toolbarBtnImgSize, uv0, uv1);
+		bool activated = ImGui::ImageButton(lblId.c_str(), (ImTextureID)(size_t)tex.getID(), UI::toolbarBtnImgSize, uv0, uv1);
 
 		std::string tooltipLabel = label;
 		if (shortcut && strlen(shortcut))
