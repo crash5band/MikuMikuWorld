@@ -69,7 +69,10 @@ namespace MikuMikuWorld::Engine
 		int effectType;
 		int particleId;
 		Range time;
-		std::array<DrawingParticleProperty, 6> xywhta;
+
+		// u1 and u2 are "user data" fields
+		// Currently u1 is used as an "elevation" parameter for circular effects
+		std::array<DrawingParticleProperty, 8> xywhtau1u2;
 
 		DrawingParticleType type;
 	};

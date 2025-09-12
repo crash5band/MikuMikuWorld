@@ -11,11 +11,11 @@ namespace MikuMikuWorld
 
 		{ ParticleEffectType::NoteTapCircular, 0.5f },
 		{ ParticleEffectType::NoteTapLinear, 0.5f },
-		{ ParticleEffectType::NoteTapLinearAdd, 0.6f },
+		{ ParticleEffectType::NoteTapLinearAdd, 0.5f },
 
 		{ ParticleEffectType::NoteLongCircular, 0.6f },
 		{ ParticleEffectType::NoteLongLinear, 0.5f },
-		{ ParticleEffectType::NoteLongLinearAdd, 0.5f },
+		{ ParticleEffectType::NoteLongLinearAdd, 0.52f },
 		
 		{ ParticleEffectType::NoteFlickCircular, 0.53f },
 		{ ParticleEffectType::NoteFlickLinear, 0.5f },
@@ -30,9 +30,9 @@ namespace MikuMikuWorld
 		
 		{ ParticleEffectType::NoteLongCriticalCircular, 0.6f },
 		{ ParticleEffectType::NoteLongCriticalLinear, 0.48f },
-		{ ParticleEffectType::NoteLongCriticalLinearAdd, 0.5f },
+		{ ParticleEffectType::NoteLongCriticalLinearAdd, 0.52f },
 		
-		{ ParticleEffectType::NoteCriticalFlickCircular, 0.57f },
+		{ ParticleEffectType::NoteCriticalFlickCircular, 0.56f },
 		{ ParticleEffectType::NoteCriticalFlickLinear, 0.53f },
 		{ ParticleEffectType::NoteCriticalDirectional, 0.31f },
 
@@ -42,11 +42,11 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::NoteLongAmongCircular, 0.5f },
 		{ ParticleEffectType::NoteLongAmongCriticalCircular, 0.5f },
 
-		{ ParticleEffectType::NoteLongSegmentCircular, 0.8f },
+		{ ParticleEffectType::NoteLongSegmentCircular, 0.85f },
 		{ ParticleEffectType::NoteLongSegmentCircularEx, 0.8f },
 		{ ParticleEffectType::NoteLongSegmentLinear, 0.6f },
 
-		{ ParticleEffectType::NoteLongCriticalSegmentCircular, 0.8f },
+		{ ParticleEffectType::NoteLongCriticalSegmentCircular, 0.85f },
 		{ ParticleEffectType::NoteLongCriticalSegmentCircularEx, 0.8f },
 		{ ParticleEffectType::NoteLongCriticalSegmentLinear, 0.6f },
 
@@ -66,7 +66,7 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::SlotGlowNoteLongCriticalSegment, 0.5f },
 
 		{ ParticleEffectType::NoteCriticalFlickLinearAdd, 0.5f },
-		{ ParticleEffectType::NoteCriticalFlickFlare, 0.85f },
+		{ ParticleEffectType::NoteCriticalFlickFlare, 0.87f },
 	};
 
 	std::map<ParticleEffectType, ParticleEffectType> particleEffectFallback = {
@@ -131,13 +131,14 @@ namespace MikuMikuWorld
 		return result;
 	}
 
-	std::array<Engine::Range, 6> Particle::compute(const std::array<float, 8> &values) const
+	std::array<Engine::Range, 8> Particle::compute(const std::array<float, 8> &values) const
 	{
 		DirectX::XMVECTOR r1_4 = DirectX::XMLoadFloat4(reinterpret_cast<const DirectX::XMFLOAT4*>(values.data()));
 		DirectX::XMVECTOR r5_8 = DirectX::XMLoadFloat4(reinterpret_cast<const DirectX::XMFLOAT4*>(values.data() + 4));
-		DirectX::XMVECTOR xyFromTo = DirectX::XMVectorAdd(DirectX::XMVectorSet(xywhta[0].from, xywhta[0].to, xywhta[1].from, xywhta[1].to), xyCoeff.compute(r1_4, r5_8));
-		DirectX::XMVECTOR whFromTo = DirectX::XMVectorAdd(DirectX::XMVectorSet(xywhta[2].from, xywhta[2].to, xywhta[3].from, xywhta[3].to), whCoeff.compute(r1_4, r5_8));
-		DirectX::XMVECTOR taFromTo = DirectX::XMVectorAdd(DirectX::XMVectorSet(xywhta[4].from, xywhta[4].to, xywhta[5].from, xywhta[5].to), taCoeff.compute(r1_4, r5_8));
+		DirectX::XMVECTOR xyFromTo = DirectX::XMVectorAdd(DirectX::XMVectorSet(xywhtau1u2[0].from, xywhtau1u2[0].to, xywhtau1u2[1].from, xywhtau1u2[1].to), xyCoeff.compute(r1_4, r5_8));
+		DirectX::XMVECTOR whFromTo = DirectX::XMVectorAdd(DirectX::XMVectorSet(xywhtau1u2[2].from, xywhtau1u2[2].to, xywhtau1u2[3].from, xywhtau1u2[3].to), whCoeff.compute(r1_4, r5_8));
+		DirectX::XMVECTOR taFromTo = DirectX::XMVectorAdd(DirectX::XMVectorSet(xywhtau1u2[4].from, xywhtau1u2[4].to, xywhtau1u2[5].from, xywhtau1u2[5].to), taCoeff.compute(r1_4, r5_8));
+		DirectX::XMVECTOR u1u2FromTo = DirectX::XMVectorAdd(DirectX::XMVectorSet(xywhtau1u2[6].from, xywhtau1u2[6].to, xywhtau1u2[7].from, xywhtau1u2[7].to), u1u2Coeff.compute(r1_4, r5_8));
 		return {{
 			{ DirectX::XMVectorGetX(xyFromTo), DirectX::XMVectorGetY(xyFromTo) },
 			{ DirectX::XMVectorGetZ(xyFromTo), DirectX::XMVectorGetW(xyFromTo) },
@@ -145,6 +146,8 @@ namespace MikuMikuWorld
 			{ DirectX::XMVectorGetZ(whFromTo), DirectX::XMVectorGetW(whFromTo) },
 			{ DirectX::XMVectorGetX(taFromTo), DirectX::XMVectorGetY(taFromTo) },
 			{ DirectX::XMVectorGetZ(taFromTo), DirectX::XMVectorGetW(taFromTo) },
+			{ DirectX::XMVectorGetX(u1u2FromTo), DirectX::XMVectorGetY(u1u2FromTo) },
+			{ DirectX::XMVectorGetZ(u1u2FromTo), DirectX::XMVectorGetW(u1u2FromTo) },
 		}};
 	}
 }

@@ -198,7 +198,7 @@ namespace MikuMikuWorld
 					uint32_t color = reader.readInt32();
 					float start = reader.readSingle();
 					float duration = reader.readSingle();
-					std::array<ParticleProperty, 6> props;
+					std::array<ParticleProperty, 8> props;
 					for (auto& prop : props)
 					{
 						float from = reader.readSingle();
@@ -206,12 +206,13 @@ namespace MikuMikuWorld
 						Engine::Easing easeType = (Engine::Easing)reader.readInt16();
 						prop = {from, to, easeType};
 					}
-					std::array<uint16_t, 3 * 6> flags;
+					std::array<uint16_t, 3 * 8> flags;
 					for (auto& flag : flags)
 						flag = reader.readInt16();
 					PropertyCoeff xy = readCoeff(reader, flags.data()); 
 					PropertyCoeff wh = readCoeff(reader, flags.data() + 6);
 					PropertyCoeff ta = readCoeff(reader, flags.data() + 12);
+					PropertyCoeff u1u2 = readCoeff(reader, flags.data() + 18);
 					particleEffect.particles.push_back(Particle{
 						(int)g,
 						(int)spriteId,
@@ -221,7 +222,8 @@ namespace MikuMikuWorld
 						props,
 						std::move(xy),
 						std::move(wh),
-						std::move(ta)
+						std::move(ta),
+						std::move(u1u2)
 					});
 				}
 			}

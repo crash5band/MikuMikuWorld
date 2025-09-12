@@ -150,11 +150,11 @@ namespace MikuMikuWorld
 		Color color;
 		float start;
 		float duration;
-		std::array<ParticleProperty, 6> xywhta;
-		PropertyCoeff xyCoeff, whCoeff, taCoeff;
+		std::array<ParticleProperty, 8> xywhtau1u2;
+		PropertyCoeff xyCoeff, whCoeff, taCoeff, u1u2Coeff;
 
 		// Compute the static range[from, to] for each property from an instance of values
-		std::array<Engine::Range, 6> compute(const std::array<float, 8>& values) const;
+		std::array<Engine::Range, 8> compute(const std::array<float, 8>& values) const;
 	};
 
 	struct ParticleEffect

@@ -255,10 +255,10 @@ namespace MikuMikuWorld::Engine
 				if (isArrayIndexInBounds(it->spriteID, *spriteList))
 				{
 					const auto& spawning = *it;
-					auto const& props = spawning.xywhta;
+					auto const& props = spawning.xywhtau1u2;
 					auto propsValue = spawning.compute(randomValues);
-					std::array<DrawingParticleProperty, 6> xywhta;
-					for (size_t i = 0; i < 6; i++) xywhta[i] = DrawingParticleProperty{propsValue[i], Engine::getEaseFunc(props[i].easing)};
+					std::array<DrawingParticleProperty, 8> xywhtau1u2;
+					for (size_t i = 0; i < xywhtau1u2.size(); i++) xywhtau1u2[i] = DrawingParticleProperty{propsValue[i], Engine::getEaseFunc(props[i].easing)};
 					
 					Range time{ spawn_tm, spawn_tm + effectDuration };
 					drawList.time.min = std::min(drawList.time.min, time.min);
@@ -267,7 +267,7 @@ namespace MikuMikuWorld::Engine
 						effectTypeId,
 						(int)std::distance(effect.particles.begin(), it),
 						time,
-						xywhta,
+						xywhtau1u2,
 						drawType };
 
 					switch (drawType)

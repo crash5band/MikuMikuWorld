@@ -791,7 +791,7 @@ namespace MikuMikuWorld
 			const Note& note = context.score.notes.at(noteId);
 			const Sprite& sprite = texture.sprites[particleData.spriteID];
 			float slotLeft = Engine::laneToLeft(note.lane), slotTop = 1 - Engine::getNoteHeight(), slotBottom = 1 + Engine::getNoteHeight();
-			float alpha = slotParticle.xywhta[5].at(progress);
+			float alpha = slotParticle.xywhtau1u2[5].at(progress);
 			if (config.pvMirrorScore) slotLeft = (slotLeft + note.width) * -1;
 			for (int i = 0; i < note.width; i++)
 			{
@@ -1169,12 +1169,14 @@ namespace MikuMikuWorld
 	void ScorePreviewWindow::drawParticle(Renderer* renderer, const std::array<DirectX::XMFLOAT4, 4>& layout, const Engine::DrawingParticle& particle,
 		float progress, const Texture& texture, const Sprite& sprite, int zIndex, Color tint)
 	{
-		const float x = particle.xywhta[0].at(progress);
-		const float y = particle.xywhta[1].at(progress);
-		const float w = particle.xywhta[2].at(progress);
-		const float h = particle.xywhta[3].at(progress);
-		const float t = particle.xywhta[4].at(progress);
-		const float a = particle.xywhta[5].at(progress);
+		const float x = particle.xywhtau1u2[0].at(progress);
+		const float y = particle.xywhtau1u2[1].at(progress);
+		const float w = particle.xywhtau1u2[2].at(progress);
+		const float h = particle.xywhtau1u2[3].at(progress);
+		const float t = particle.xywhtau1u2[4].at(progress);
+		const float a = particle.xywhtau1u2[5].at(progress);
+		const float u1 = particle.xywhtau1u2[6].at(progress);
+		const float u2 = particle.xywhtau1u2[7].at(progress);
 		const DirectX::XMVECTOR sx = DirectX::XMVectorSet( w,  w, -w, -w );
 		const DirectX::XMVECTOR sy = DirectX::XMVectorSet( h, -h, -h,  h );
 		const DirectX::XMVECTOR px = DirectX::XMVectorScale(
@@ -1211,10 +1213,10 @@ namespace MikuMikuWorld
 		DirectX::XMStoreFloat4(&posY, vy);
 
 		std::array<DirectX::XMFLOAT4, 4> vPos = {{
-			{posX.x, posY.x, 0, 1},
-			{posX.y, posY.y, 0, 1},
-			{posX.z, posY.z, 0, 1},
-			{posX.w, posY.w, 0, 1}
+			{posX.x, posY.x + u1, 0, 1},
+			{posX.y, posY.y + u1, 0, 1},
+			{posX.z, posY.z + u1, 0, 1},
+			{posX.w, posY.w + u1, 0, 1}
 		}};
 
 		renderer->drawQuad(vPos, DirectX::XMMatrixIdentity(), texture, sprite.getX1(), sprite.getX2(), sprite.getY1(), sprite.getY2(), tint.scaleAlpha(a), zIndex);
