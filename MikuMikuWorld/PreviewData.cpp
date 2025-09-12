@@ -82,7 +82,7 @@ namespace MikuMikuWorld::Engine
 			{
 				if (x_range.min != x_range.max)
 				{
-					float targetTime = accumulateScaledDuration(line_tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
+					double targetTime = accumulateScaledDuration(line_tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
 					drawingLines.push_back(DrawingLine{ x_range, Range{ targetTime - getNoteDuration(noteSpeed), targetTime } });
 				}
 			}
@@ -156,7 +156,7 @@ namespace MikuMikuWorld::Engine
 				if (skipNote.tick > tail.tick)
 					break;
 				double tickTime = accumulateScaledDuration(skipNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
-				float tick_t = unlerp(head.time, tail.time, tickTime);
+				double tick_t = unlerpD(head.time, tail.time, tickTime);
 				float skipLeft = easeFunction(head.left, tail.left, tick_t);
 				float skipRight = easeFunction(head.right, tail.right, tick_t);
 				drawData.drawingHoldTicks.push_back(DrawingHoldTick{
