@@ -532,7 +532,7 @@ namespace MikuMikuWorld
 				if (hiSpeedControl(hiSpeed))
 				{
 					eventEdit.editIndex = index;
-					eventEdit.editHiSpeed = hiSpeed.speed;
+					eventEdit.setEditHispeed(hiSpeed.speed);
 					eventEdit.type = EventType::HiSpeed;
 					ImGui::OpenPopup("edit_event");
 				}
@@ -708,11 +708,11 @@ namespace MikuMikuWorld
 			float speed = (hiSpeed == -1 ? 1.0f : context.score.hiSpeedChanges[hiSpeed].speed);
 
 			static char rhythmString[256];
-			snprintf(rhythmString, 256, "  %02d:%02d:%02d  |  %d/%d  |  %g BPM  |  %gx",
+			snprintf(rhythmString, 256, "  %02d:%02d:%02d  |  %d/%d  |  %g BPM  |  %sx",
 				(int)time / 60, (int)time % 60, (int)((time - (int)time) * 100),
 				ts.numerator, ts.denominator,
 				tempo.bpm,
-				speed
+				IO::formatFixedFloatTrimmed(speed).c_str()
 			);
 
 			float _zoom = zoom;
@@ -1843,7 +1843,7 @@ namespace MikuMikuWorld
 
 	bool ScoreEditorTimeline::hiSpeedControl(int tick, float speed)
 	{
-		std::string txt = IO::formatString("%.2fx", speed);
+		std::string txt = IO::formatString("%sx", IO::formatFixedFloatTrimmed(speed));
 		float dpiScale = ImGui::GetMainViewport()->DpiScale;
 		Vector2 pos{ getTimelineEndX() + (115 * dpiScale), position.y - tickToPosition(tick) + visualOffset};
 		return eventControl(getTimelineEndX(), pos, speedColor, txt.c_str(), !playing);
@@ -1851,13 +1851,16 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::eventEditor(ScoreContext& context)
 	{
-		ImGui::SetNextWindowSize(ImVec2(250, -1), ImGuiCond_Always);
+		ImGui::SetNextWindowSize(ImVec2(280, -1), ImGuiCond_Always);
 		if (ImGui::BeginPopup("edit_event"))
 		{
 			std::string editLabel{"edit_"};
 			editLabel.append(eventTypes[(int)eventEdit.type]);
 			ImGui::Text(getString(editLabel));
 			ImGui::Separator();
+			const char* label;
+			ImGuiStyle& style = ImGui::GetStyle();
+			bool appearing = ImGui::IsWindowAppearing();
 
 			if (eventEdit.type == EventType::Bpm)
 			{
@@ -1871,11 +1874,15 @@ namespace MikuMikuWorld
 				UI::beginPropertyColumns();
 
 				Tempo& tempo = context.score.tempoChanges[eventEdit.editIndex];
-				UI::addFloatProperty(getString("bpm"), eventEdit.editBpm, "%g");
+				label = getString("bpm");
+				if (appearing)
+					ImGui::SetColumnWidth(0, ImGui::CalcTextSize(label).x + ImGui::GetCursorPosX() + style.ItemSpacing.x);
+				UI::addFloatProperty(label, eventEdit.editBpm, "%g");
 				if (ImGui::IsItemDeactivatedAfterEdit())
 				{
 					Score prev = context.score;
 					tempo.bpm = std::clamp(eventEdit.editBpm, MIN_BPM, MAX_BPM);
+					eventEdit.editBpm = tempo.bpm;
 
 					context.pushHistory("Change tempo", prev, context.score);
 				}
@@ -1904,12 +1911,17 @@ namespace MikuMikuWorld
 				}
 
 				UI::beginPropertyColumns();
+				label = getString("time_signature");
+				if (appearing)
+					ImGui::SetColumnWidth(0, ImGui::CalcTextSize(label).x + ImGui::GetCursorPosX() + style.ItemSpacing.x);
 				if (UI::timeSignatureSelect(eventEdit.editTimeSignatureNumerator, eventEdit.editTimeSignatureDenominator))
 				{
 					Score prev = context.score;
 					TimeSignature& ts = context.score.timeSignatures[eventEdit.editIndex];
 					ts.numerator = std::clamp(abs(eventEdit.editTimeSignatureNumerator), MIN_TIME_SIGNATURE, MAX_TIME_SIGNATURE_NUMERATOR);
 					ts.denominator = std::clamp(abs(eventEdit.editTimeSignatureDenominator), MIN_TIME_SIGNATURE, MAX_TIME_SIGNATURE_DENOMINATOR);
+					eventEdit.editTimeSignatureNumerator = ts.numerator;
+					eventEdit.editTimeSignatureDenominator = ts.denominator;
 
 					context.pushHistory("Change time signature", prev, context.score);
 				}
@@ -1938,12 +1950,16 @@ namespace MikuMikuWorld
 				}
 
 				UI::beginPropertyColumns();
-				UI::addFloatProperty(getString("hi_speed_speed"), eventEdit.editHiSpeed, "%g");
+				label = getString("hi_speed_speed");
+				if (appearing)
+					ImGui::SetColumnWidth(0, ImGui::CalcTextSize(label).x + ImGui::GetCursorPosX() + style.ItemSpacing.x);
+				UI::addNumericStringProperty(label, eventEdit.editHiSpeed);
 				HiSpeedChange& hiSpeed = context.score.hiSpeedChanges[eventEdit.editIndex];
 				if (ImGui::IsItemDeactivatedAfterEdit())
 				{
 					Score prev = context.score;
-					hiSpeed.speed = eventEdit.editHiSpeed;
+					hiSpeed.speed = std::stof(eventEdit.editHiSpeed);
+					eventEdit.setEditHispeed(hiSpeed.speed);
 
 					context.pushHistory("Change hi-speed", prev, context.score);
 				}

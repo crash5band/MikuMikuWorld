@@ -82,5 +82,19 @@ namespace IO
 		return std::string(buf.get());
 	}
 
+	static std::string formatFixedFloatTrimmed(float value, int precision = 7)
+	{
+		auto length = std::snprintf(NULL, 0, "%.*f", precision, value);
+		if (length < 0)
+			return "NaN";
+		std::string buf(length - 1, '\0');
+		std::snprintf(buf.data(), length, "%.*f", precision, value);
+		// Trim trailing zeros
+		size_t end = buf.find_last_not_of('0');
+		if (end != std::string::npos)
+			buf.erase(buf[end] == '.' ? end : end + 1);
+		return buf;
+	}
+
 	MessageBoxResult messageBox(std::string title, std::string message, MessageBoxButtons buttons, MessageBoxIcon icon, void* parentWindow = NULL);
 }

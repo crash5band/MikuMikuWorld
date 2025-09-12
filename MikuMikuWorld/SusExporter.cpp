@@ -1,6 +1,7 @@
 #include "SusExporter.h"
 #include "IO.h"
 #include "File.h"
+#include "Utilities.h"
 #include <algorithm>
 #include <numeric>
 
@@ -201,7 +202,7 @@ namespace MikuMikuWorld
 			lines.push_back("#" + key + " \"" + attrValue + "\"");
 		}
 
-		lines.push_back(IO::formatString("#WAVEOFFSET %g", sus.metadata.waveOffset));
+		lines.push_back(IO::formatString("#WAVEOFFSET %s", formatFixedFloatTrimmed(sus.metadata.waveOffset).c_str()));
 		lines.push_back("");
 		lines.push_back(IO::formatString("#REQUEST \"ticks_per_beat %d\"", ticksPerBeat));
 		lines.push_back("");
@@ -270,13 +271,14 @@ namespace MikuMikuWorld
 		{
 			char buf[10]{};
 			std::string identifier = tostringBaseN(buf, bpmIdentifiers.size() + 1, 36);
+			std::transform(identifier.begin(), identifier.end(), identifier.begin(), ::toupper);
 			if (identifier.size() < 2)
 				identifier = "0" + identifier;
 
 			if (bpmIdentifiers.find(bpm.bpm) == bpmIdentifiers.end())
 			{
 				bpmIdentifiers[bpm.bpm] = identifier;
-				lines.push_back(formatString("#BPM%s: %g", identifier.c_str(), bpm.bpm));
+				lines.push_back(formatString("#BPM%s: %s", identifier.c_str(), formatFixedFloatTrimmed(bpm.bpm).c_str()));
 			}
 		}
 
@@ -338,7 +340,7 @@ namespace MikuMikuWorld
 			int offsetTicks = sus.hiSpeeds[i].tick - getTicksFromMeasure(measure);
 			float speed = sus.hiSpeeds[i].speed;
 
-			speedLine.append(formatString("%d'%d:%g", measure, offsetTicks, speed));
+			speedLine.append(formatString("%d'%d:%s", measure, offsetTicks, formatFixedFloatTrimmed(speed).c_str()));
 
 			if (i < sus.hiSpeeds.size() - 1)
 				speedLine.append(", ");
