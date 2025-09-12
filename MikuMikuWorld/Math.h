@@ -107,8 +107,8 @@ namespace MikuMikuWorld
 	{
 		struct Range
 		{
-			float min;
-			float max;
+			double min;
+			double max;
 		};
 
 		enum class Easing : uint8_t

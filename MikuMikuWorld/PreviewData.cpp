@@ -26,7 +26,7 @@ namespace MikuMikuWorld::Engine
 	struct DrawingHoldStep
 	{
 		int tick;
-		float time;
+		double time;
 		float left;
 		float right;
 		EaseType ease;
@@ -139,8 +139,9 @@ namespace MikuMikuWorld::Engine
 			float endTime = accumulateDuration(tailNote.tick, TICKS_PER_BEAT, score.tempoChanges);
 			drawData.drawingHoldSegments.push_back(DrawingHoldSegment {
 				holdNote.end,
-				head.time, head.left, head.right,
-				tail.time, tail.left, tail.right,
+				head.time, tail.time,
+				head.left, head.right,
+				tail.left, tail.right,
 				startTime, endTime,
 				activeTime,
 				head.ease,
@@ -154,7 +155,7 @@ namespace MikuMikuWorld::Engine
 				const Note& skipNote = score.notes.at(skipStep.ID);
 				if (skipNote.tick > tail.tick)
 					break;
-				float tickTime = accumulateScaledDuration(skipNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
+				double tickTime = accumulateScaledDuration(skipNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
 				float tick_t = unlerp(head.time, tail.time, tickTime);
 				float skipLeft = easeFunction(head.left, tail.left, tick_t);
 				float skipRight = easeFunction(head.right, tail.right, tick_t);
@@ -167,7 +168,7 @@ namespace MikuMikuWorld::Engine
 			}
 			if (tailStep.type != HoldStepType::Hidden)
 			{
-				float tickTime = accumulateScaledDuration(tailNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
+				double tickTime = accumulateScaledDuration(tailNote.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
 				drawData.drawingHoldTicks.push_back(DrawingHoldTick{
 					tailNote.ID,
 					getNoteCenter(tailNote),

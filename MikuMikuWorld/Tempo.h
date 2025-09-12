@@ -34,7 +34,7 @@ namespace MikuMikuWorld
 	int accumulateMeasures(int ticks, int beatTicks, const std::map<int, TimeSignature>& ts);
 	int measureToTicks(int measure, int beatTicks, const std::map<int, TimeSignature>& ts);
 
-	float accumulateScaledDuration(int tick, int ticksPerBeat, const std::vector<Tempo>& bpms, const std::vector<HiSpeedChange>& hispeeds);
+	double accumulateScaledDuration(int tick, int ticksPerBeat, const std::vector<Tempo>& bpms, const std::vector<HiSpeedChange>& hispeeds);
 
 	const Tempo& getTempoAt(int tick, const std::vector<Tempo>& tempos);
 	int findTimeSignature(int measure, const std::map<int, TimeSignature>& ts);

@@ -49,10 +49,11 @@ namespace MikuMikuWorld::Engine
 	struct DrawingHoldSegment
 	{
 		int endID;
-		float headTime, headLeft, headRight;
-		float tailTime, tailLeft, tailRight;
+		double headTime, tailTime;
+		float headLeft, headRight;
+		float tailLeft, tailRight;
 		float startTime, endTime;
-		float activeTime;
+		double activeTime;
 		EaseType ease;
 		bool isGuide;
 	};

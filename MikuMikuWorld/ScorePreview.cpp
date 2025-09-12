@@ -510,8 +510,8 @@ namespace MikuMikuWorld
 
 	void ScorePreviewWindow::drawNotes(const ScoreContext& context, Renderer *renderer)
 	{
-		float current_tm = accumulateDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges);
-		float scaled_tm = accumulateScaledDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
+		double current_tm = accumulateDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges);
+		double scaled_tm = accumulateScaledDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
 		const auto& drawData = context.scorePreviewDrawData;
 	
 		for (auto& note : drawData.drawingNotes)
@@ -519,7 +519,7 @@ namespace MikuMikuWorld
 			if (scaled_tm < note.visualTime.min || scaled_tm > note.visualTime.max)
 				continue;
 			const Note& noteData = context.score.notes.at(note.refID);
-			float y = Engine::approach(note.visualTime.min, note.visualTime.max, scaled_tm);
+			double y = Engine::approach(note.visualTime.min, note.visualTime.max, scaled_tm);
 			float l = Engine::laneToLeft(noteData.lane), r = Engine::laneToLeft(noteData.lane) + noteData.width;
 			drawNoteBase(renderer, noteData, l, r, y);
 			if (noteData.friction)
@@ -535,7 +535,7 @@ namespace MikuMikuWorld
 			return;
 		if (noteTextures.notes == -1)
 			return;
-		float scaled_tm = accumulateScaledDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
+		double scaled_tm = accumulateScaledDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
 		const auto& drawData = context.scorePreviewDrawData.drawingLines;
 
 		const Texture& texture = getNoteTexture();
@@ -601,10 +601,10 @@ namespace MikuMikuWorld
 	void ScorePreviewWindow::drawHoldCurves(const ScoreContext& context, Renderer* renderer)
 	{
 		const float total_tm = accumulateDuration(context.scorePreviewDrawData.maxTicks, TICKS_PER_BEAT, context.score.tempoChanges);
-		const float current_tm = accumulateDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges);
-		const float current_stm = accumulateScaledDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
+		const double current_tm = accumulateDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges);
+		const double current_stm = accumulateScaledDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
 		const float noteDuration = Engine::getNoteDuration(config.pvNoteSpeed);
-		const float visible_stm = current_stm + noteDuration;
+		const double visible_stm = current_stm + noteDuration;
 		const float mirror = config.pvMirrorScore ? -1 : 1;
 		const auto& drawData = context.scorePreviewDrawData;
 
@@ -628,11 +628,11 @@ namespace MikuMikuWorld
 				continue;
 			const Sprite& segmentSprite = texture.sprites[sprIndex];
 
-			float segmentHead_stm = std::min(segment.headTime, segment.tailTime);
-			float segmentTail_stm = std::max(segment.headTime, segment.tailTime);
+			double segmentHead_stm = std::min(segment.headTime, segment.tailTime);
+			double segmentTail_stm = std::max(segment.headTime, segment.tailTime);
 			// Clamp the segment to be within the visible stage
-			float segmentStart_stm = std::max(segmentHead_stm, current_stm);
-			float segmentEnd_stm = std::min(segmentTail_stm, visible_stm);
+			double segmentStart_stm = std::max(segmentHead_stm, current_stm);
+			double segmentEnd_stm = std::min(segmentTail_stm, visible_stm);
 			double segmentStartProgress, segmentEndProgress, holdStartProgress, holdEndProgress;
 
 			if (!isSegmentActivated)
@@ -647,7 +647,7 @@ namespace MikuMikuWorld
 			}
 
 			const int steps = (segment.ease == EaseType::Linear ? 10 : 15)
-				+ static_cast<int>(std::log(std::max((segmentEnd_stm - segmentStart_stm) / noteDuration, 4.5399e-5f)) + 0.5f); // Reduce steps if the segment is relatively small
+				+ static_cast<int>(std::log(std::max((segmentEnd_stm - segmentStart_stm) / noteDuration, 4.5399e-5)) + 0.5); // Reduce steps if the segment is relatively small
 			const auto ease = getEaseFunction(segment.ease);
 			float startLeft = segment.headLeft;
 			float startRight = segment.headRight;
@@ -670,8 +670,8 @@ namespace MikuMikuWorld
 
 			if (segment.isGuide)
 			{
-				float holdStart_stm = accumulateScaledDuration(holdStart.tick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
-				float holdEnd_stm = accumulateScaledDuration(holdEnd.tick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
+				double holdStart_stm = accumulateScaledDuration(holdStart.tick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
+				double holdEnd_stm = accumulateScaledDuration(holdEnd.tick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
 
 				if (!isSegmentActivated)
 				{
@@ -728,7 +728,7 @@ namespace MikuMikuWorld
 				{
 					const Sprite& activeSprite = texture.sprites[sprIndex - 1];
 					const int norm2ActiveOffset = activeSprite.getY1() - segmentSprite.getY1();
-					float delta_tm = current_tm - segment.activeTime;
+					double delta_tm = current_tm - segment.activeTime;
 					float normalAplha = (std::cos(delta_tm * NUM_PI * 2) + 2) / 3.;
 
 					renderer->drawQuad(vPos, model, texture, spr_x1, spr_x2, spr_y1, spr_y2, defaultTint.scaleAlpha(alpha * normalAplha), zIndex);
@@ -1114,7 +1114,7 @@ namespace MikuMikuWorld
 		renderer->drawQuad(vPos, model, texture, frictionSpr.getX1(), frictionSpr.getX2(), frictionSpr.getY1(), frictionSpr.getY2(), defaultTint, zIndex);
 	}
 
-	void ScorePreviewWindow::drawFlickArrow(Renderer *renderer, const Note &note, float y, float time)
+	void ScorePreviewWindow::drawFlickArrow(Renderer *renderer, const Note &note, float y, double time)
 	{
 		if (noteTextures.notes == -1)
 			return;
@@ -1145,8 +1145,8 @@ namespace MikuMikuWorld
 		
 		if (config.pvFlickAnimation)
 		{
-			float t = std::fmod(time, 0.5f) / 0.5f;
-			const auto cubicEaseIn = [](float t) { return t * t * t; };
+			double t = std::fmod(time, 0.5) / 0.5;
+			const auto cubicEaseIn = [](double t) { return t * t * t; };
 			auto animationVector = DirectX::XMVectorScale(DirectX::XMVectorSet(flickDirection, -2 * scaledAspectRatio, 0.f, 0.f), t);
 			auto model = DirectX::XMMatrixTranslationFromVector(animationVector) * DirectX::XMMatrixScaling(y, y, 1.f);
 			
