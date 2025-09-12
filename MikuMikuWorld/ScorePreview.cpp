@@ -823,19 +823,19 @@ namespace MikuMikuWorld
 				float progress = Engine::getParticleProgress((ParticleEffectType)particle.effectType, particleData, current_tm, particle.time.min, particle.time.max);
 				ParticleEffectType particleType = (ParticleEffectType)particle.effectType;
 
-				const float laneLeft = Engine::laneToLeft(note.lane);
-				if (config.pvMirrorScore) (laneLeft + note.width) * -1;
+				float laneLeft = Engine::laneToLeft(note.lane);
+				if (config.pvMirrorScore) laneLeft = (laneLeft + note.width) * -1;
 				for (int i = 0; i < note.width; i++)
 				{
 					float noteLeft = laneLeft + i, noteRight = noteLeft + 1;
 					std::array<DirectX::XMFLOAT4, 4> layout = { {
-						{ noteRight * 1.2f, scaledAspectRatio * 4.25f, 0.0f, 1.0f },
-						{ noteRight * 1.015f, 		 1.0f,                      0.0f, 1.0f },
-						{ noteLeft * 1.015f, 		 1.0f,                      0.0f, 1.0f },
-						{ noteLeft * 1.2f,  scaledAspectRatio * 4.25f, 0.0f, 1.0f }
+						{ noteRight * 1.2f,		scaledAspectRatio * 4.25f, 0.0f, 1.0f },
+						{ noteRight * 1.015f,	1.0f,                      0.0f, 1.0f },
+						{ noteLeft * 1.015f,	1.0f,                      0.0f, 1.0f },
+						{ noteLeft * 1.2f,		scaledAspectRatio * 4.25f, 0.0f, 1.0f }
 					} };
-					float noteCenter = noteLeft + (noteRight - noteLeft) / 2;
 
+					const float noteCenter = noteLeft + (noteRight - noteLeft) / 2;
 					drawParticle(
 						renderer, layout, particle, progress, texture, texture.sprites[particleData.spriteID],
 						Engine::getZIndex(SpriteLayer::SLOT_GLOW_EFFECT, noteCenter, float(note.tick) / context.scorePreviewDrawData.maxTicks),
