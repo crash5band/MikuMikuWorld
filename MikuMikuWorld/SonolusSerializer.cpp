@@ -1,494 +1,739 @@
 #include "SonolusSerializer.h"
-#include "json.hpp"
 #include "Constants.h"
 #include "IO.h"
 #include "File.h"
-#include "JsonIO.h"
-#include "Utilities.h"
-#include <zlib.h>
-#include <fstream>
 
-using namespace nlohmann;
+using json = nlohmann::json;
 
 namespace MikuMikuWorld
 {
 	constexpr int halfBeat = TICKS_PER_BEAT / 2;
 
-	std::vector<DataValue> getSlideConnectorData(const std::string& start, const std::string& end, const std::string& head, const std::string &tail, int ease)
+	class IdManager
 	{
-		return std::vector<DataValue>
+		inline int64_t getID(size_t idx)
 		{
-			{ "start", start },
-			{ "end", end },
-			{ "head", head },
-			{ "tail", tail },
-			DataValue("ease", ease)
-		};
-	}
-
-	HoldNoteType getHoldNoteTypeFromConnection(const SlideConnection& connection, bool hidden)
-	{
-		if (hidden)
-			return HoldNoteType::Hidden;
-
-		return !connection.active ? HoldNoteType::Guide : HoldNoteType::Normal;
-	}
-
-	const json& findEntityByName(const json& entities, const std::string& name)
-	{
-		for (const auto& entity : entities)
-		{
-			const std::string nameProperty = jsonIO::tryGetValue<std::string>(entity, "name", "");
-			if (nameProperty == name)
-				return entity;
+			auto it = indexToID.find(idx);
+			if (it == indexToID.end())
+				it = indexToID.emplace_hint(indexToID.end(), idx, nextID++);
+			return it->second;
 		}
+		inline bool hasIdx(size_t idx) const
+		{
+			auto it = indexToID.find(idx);
+			return it != indexToID.end();
+		}
+		inline static std::string toRef(int64_t index)
+		{
+			// Basically base 10 to base 36
+			if (index < 0)
+				return toRef(-index).insert(0, "-");
+			std::string ref;
+			lldiv_t dv;
+			do
+			{
+				dv = std::div(index, 36ll);
+				ref += dv.rem < 10 ? ('0' + dv.rem) : ('a' + (dv.rem - 10));
+				index = dv.quot;
+			} while (dv.quot);
+			return { ref.rbegin(), ref.rend() };
+		}
+	public:
+		inline void clear() { indexToID.clear(); }
+		inline std::string getStartRef() { return toRef(getID(START_INDEX)); }
+		inline std::string getEndRef() { return toRef(getID(END_INDEX)); }
+		inline std::string getConnectorRef(size_t index) { return toRef(getID(index)); }
+		inline std::string getExistingConnectorRef(size_t index) const { return hasIdx(index) ? toRef(indexToID.at(index)) : ""; }
+		inline std::string getNextRef() { return toRef(nextID++); }
+		
+	private:
+		int64_t nextID;
+		std::map<size_t, int64_t> indexToID;
+		static constexpr size_t START_INDEX = size_t(-1);
+		static constexpr size_t END_INDEX = size_t(-2);
+	};
 
-		// BAD!
-		return {};
+	struct HoldJoint
+	{
+		size_t entityIdx;
+		EaseType ease;
+	};
+
+	struct LinkedHoldStep
+	{
+		enum StepType : uint8_t { Joint, Attach, EndHold };
+		enum Modifier : uint8_t { None = 0, Guide = 1, Critical = 2 };
+
+		std::string nextTail;
+		StepType step;
+		Modifier mod;
+		EaseType ease;
+
+	};
+	
+	inline static std::string getTapNoteArchetype(const Note& note)
+	{
+		std::string archetype = (note.critical ? "Critical" : "Normal");
+		if (note.friction) archetype += "Trace";
+		if (note.isFlick()) archetype += "Flick";
+		if (!note.friction && !note.isFlick()) archetype += "Tap";
+		archetype += "Note";
+		return archetype;
+	}
+	
+	inline static std::string getHoldNoteArchetype(const Note& note, const HoldNote& holdNote)
+	{
+		if (note.friction && note.isFlick())
+			// Special case
+			return getTapNoteArchetype(note);
+		std::string archetype = (note.critical ? "Critical" : "Normal");
+		archetype += "Slide";
+		if (note.ID == holdNote.end)
+		{
+			if (holdNote.endType != HoldNoteType::Normal)
+				return "IgnoredSlideTickNote";
+			archetype += "End";
+			if (note.friction)
+				archetype += "Trace";
+			if (note.isFlick())
+				archetype += "Flick";
+		}
+		else
+		{
+			if (holdNote.startType != HoldNoteType::Normal)
+				return "IgnoredSlideTickNote";
+			if (note.friction)
+				archetype += "Trace";
+			else
+				archetype += "Start";
+		}
+		archetype += "Note";
+		return archetype;
+	}
+
+	inline static Sonolus::LevelDataEntity getTickNoteEntity(const Note& note, const HoldStep& step, IdManager& mgr, size_t currJoint)
+	{
+		std::string archetype = (note.critical ? "Critical" : "Normal");
+		Sonolus::LevelDataEntity::MapDataType data = { { "#BEAT", SonolusSerializer::ticksToBeats(note.tick) } };
+		switch (step.type)
+		{
+		case HoldStepType::Skip:
+			archetype += "Attached";
+			data.emplace("attach", mgr.getConnectorRef(currJoint));
+			break;
+		case HoldStepType::Normal:
+			data.emplace("lane", SonolusSerializer::toSonolusLane(note.lane, note.width));
+			data.emplace("size", SonolusSerializer::widthToSize(note.width));
+			break;
+		default:
+		case HoldStepType::Hidden:
+			archetype = "Ignored";
+			data.emplace("lane", SonolusSerializer::toSonolusLane(note.lane, note.width));
+			data.emplace("size", SonolusSerializer::widthToSize(note.width));
+			break;
+		}
+		archetype += "SlideTickNote";
+		return { archetype, data };
+	}
+
+	inline static void insertTickNoteBetween(const Note& headNote, const Note& tailNote, std::vector<Sonolus::LevelDataEntity>& entities, IdManager& mgr, size_t currJoint)
+	{
+		int startTick = (headNote.tick / halfBeat + 1) * halfBeat;
+		int endTick = (tailNote.tick / halfBeat) * halfBeat;
+		std::string refStr;
+		if (startTick < endTick) refStr = mgr.getConnectorRef(currJoint);
+		for (int tick = startTick; tick < endTick; tick += halfBeat)
+			entities.push_back({ "HiddenSlideTickNote", {{ "#BEAT", SonolusSerializer::ticksToBeats(tick) }, { "attach", refStr }} });
+	}
+
+	inline static bool stringMatching(const std::string& source, const std::string_view& toMatch, size_t& offset)
+	{
+		if (toMatch.size() > source.size() - offset) return false;
+		std::string_view source_view = std::string_view(source).substr(offset, toMatch.size());
+		bool result = source_view == toMatch;
+		if (result == true)
+			offset += toMatch.size();
+		return result;
+	}
+
+	inline static bool stringMatchAll(const std::string& source, const std::string_view& toMatch, size_t offset)
+	{
+		return std::string_view(source).substr(offset, toMatch.size()) == toMatch;
+	}
+
+	inline static bool tapNoteArchetypeToNativeNote(const Sonolus::LevelDataEntity& tapNoteEntity, Note& note)
+	{
+		size_t offset = 0;
+		// Doing the reverse of serializating to ensure we don't parse any invalid archetype
+		float beat, lane, size;
+		if (!tapNoteEntity.tryGetDataValue("#BEAT", beat)
+			|| !tapNoteEntity.tryGetDataValue("lane", lane)
+			|| !tapNoteEntity.tryGetDataValue("size", size))
+			return false;
+		note.tick = SonolusSerializer::beatsToTicks(beat);
+		note.width = SonolusSerializer::sizeToWidth(size);
+		note.lane = SonolusSerializer::toNativeLane(lane, size);
+		if (stringMatching(tapNoteEntity.archetype, "Critical", offset))
+			note.critical = true;
+		else if (!stringMatching(tapNoteEntity.archetype, "Normal", offset))
+			return false;
+		if (stringMatchAll(tapNoteEntity.archetype, "TraceFlickNote", offset))
+		{
+			// Special case of hold end
+			if (tapNoteEntity.data.find("slide") != tapNoteEntity.data.end())
+				return false;
+		}
+		bool hasModifier = false;
+		if (stringMatching(tapNoteEntity.archetype, "Trace", offset))
+		{
+			hasModifier = true;
+			note.friction = true;
+		}
+		if (stringMatching(tapNoteEntity.archetype, "Flick", offset))
+		{
+			hasModifier = true;
+			int direction;
+			if (!tapNoteEntity.tryGetDataValue("direction", direction))
+				return false;
+			note.flick = SonolusSerializer::toNativeFlick(direction);
+		}
+		if (!hasModifier && !stringMatching(tapNoteEntity.archetype, "Tap", offset))
+			return false;
+		if (!stringMatchAll(tapNoteEntity.archetype, "Note", offset))
+			return false;
+		return true;
+	}
+
+	inline static bool holdStartNoteArchetypeToNativeNote(const Sonolus::LevelDataEntity& noteEntity, Note& startNote)
+	{
+		size_t offset = 0;
+		float beat, lane, size;
+		if (!noteEntity.tryGetDataValue("#BEAT", beat)
+			|| !noteEntity.tryGetDataValue("lane", lane)
+			|| !noteEntity.tryGetDataValue("size", size))
+			return false;
+		startNote.tick = SonolusSerializer::beatsToTicks(beat);
+		startNote.width = SonolusSerializer::sizeToWidth(size);
+		startNote.lane = SonolusSerializer::toNativeLane(lane, size);
+		if (noteEntity.archetype == "IgnoredSlideTickNote")
+			return true;
+		if (stringMatching(noteEntity.archetype, "Critical", offset))
+			startNote.critical = true;
+		else if (!stringMatching(noteEntity.archetype, "Normal", offset))
+			return false;
+		if (!stringMatching(noteEntity.archetype, "Slide", offset))
+			return false;
+		if (stringMatching(noteEntity.archetype, "Trace", offset))
+			startNote.friction = true;
+		else if (!stringMatching(noteEntity.archetype, "Start", offset))
+			return false;
+		if (!stringMatchAll(noteEntity.archetype, "Note", offset))
+			return false;
+		return true;
+	}
+
+	inline static bool holdEndNoteArchetypeToNativeNote(const Sonolus::LevelDataEntity& noteEntity, Note& endNote)
+	{
+		size_t offset = 0;
+		int direction;
+		float beat, lane, size;
+		if (!noteEntity.tryGetDataValue("#BEAT", beat)
+			|| !noteEntity.tryGetDataValue("lane", lane)
+			|| !noteEntity.tryGetDataValue("size", size))
+			return false;
+		endNote.tick = SonolusSerializer::beatsToTicks(beat);
+		endNote.width = SonolusSerializer::sizeToWidth(size);
+		endNote.lane = SonolusSerializer::toNativeLane(lane, size);
+		if (noteEntity.archetype == "IgnoredSlideTickNote")
+			return true;
+		if (stringMatching(noteEntity.archetype, "Critical", offset))
+			endNote.critical = true;
+		else if (!stringMatching(noteEntity.archetype, "Normal", offset))
+			return false;
+		if (stringMatchAll(noteEntity.archetype, "TraceFlickNote", offset))
+		{
+			// Special case
+			if (!noteEntity.tryGetDataValue("direction", direction))
+				return false;
+			endNote.flick = SonolusSerializer::toNativeFlick(direction);
+			endNote.friction = true;
+			return true;
+		}
+		if (!stringMatching(noteEntity.archetype, "SlideEnd", offset))
+			return false;
+		if (stringMatching(noteEntity.archetype, "Trace", offset))
+			endNote.friction = true;
+		if (stringMatching(noteEntity.archetype, "Flick", offset))
+		{
+			if (!noteEntity.tryGetDataValue("direction", direction))
+				return false;
+			endNote.flick = SonolusSerializer::toNativeFlick(direction);
+		}
+		if (!stringMatchAll(noteEntity.archetype, "Note", offset))
+			return false;
+		return true;
+	}
+
+	inline static bool slideTickNoteArchetypeToNativeNote(const Sonolus::LevelDataEntity& tickEntity, Note& tickNote)
+	{
+		bool hidden = tickEntity.archetype == "IgnoredSlideTickNote";
+		size_t offset = 0;
+		float beat, lane, size;
+		if (stringMatching(tickEntity.archetype, "Critical", offset))
+			tickNote.critical = true;
+		else if (!hidden && !stringMatching(tickEntity.archetype, "Normal", offset))
+			return false;
+		if (hidden || stringMatchAll(tickEntity.archetype, "SlideTickNote", offset))
+		{
+			if (!tickEntity.tryGetDataValue("#BEAT", beat)
+				|| !tickEntity.tryGetDataValue("lane", lane)
+				|| !tickEntity.tryGetDataValue("size", size))
+				return false;
+			tickNote.tick = SonolusSerializer::beatsToTicks(beat);
+			tickNote.width = SonolusSerializer::sizeToWidth(size);
+			tickNote.lane = SonolusSerializer::toNativeLane(lane, size);
+			return true;
+		}
+		else if (stringMatchAll(tickEntity.archetype, "AttachedSlideTickNote", offset))
+		{
+			if (!tickEntity.tryGetDataValue("#BEAT", beat))
+				return false;
+			tickNote.tick = SonolusSerializer::beatsToTicks(beat);
+			// We'll estimate lane and width later
+			tickNote.lane = 0;
+			tickNote.width = 1;
+			return true;
+		}
+		return false;
 	}
 
 	void SonolusSerializer::serialize(const Score& score, std::string filename)
 	{
-		json entities = json::array();
-		entities.push_back({ { "archetype", "Initialization" }, {"data", json::array()} });
-		entities.push_back({ { "archetype", "Stage" }, {"data", json::array()} });
+		Sonolus::LevelData levelData = serialize(score);
+		std::string serializedData = json(levelData).dump();
+		std::vector<uint8_t> serializedBytes(serializedData.begin(), serializedData.end());
+		if (compressData)
+			serializedBytes = IO::deflateGzip(serializedBytes);
 
-		std::vector<ArchetypeData> entitiesData;
+		IO::File levelFile(filename, IO::FileMode::WriteBinary);
+		levelFile.writeAllBytes(serializedBytes);
+		levelFile.flush();
+		levelFile.close();
+	}
+
+	Sonolus::LevelData SonolusSerializer::serialize(const Score& score)
+	{
+		Sonolus::LevelData levelData;
+		levelData.bgmOffset = score.metadata.musicOffset / 1000;
+		levelData.entities.emplace_back("Initialization");
+		levelData.entities.emplace_back("Stage");
+
 		for (const auto& speed : score.hiSpeedChanges)
 		{
-			std::vector<DataValue> data;
-			data.push_back({ "#BEAT", ticksToBeats(speed.tick) });
-			data.push_back({ "#TIMESCALE", speed.speed });
-			
-			entitiesData.push_back({ "", "#TIMESCALE_CHANGE", data });
+			levelData.entities.push_back({
+				"#TIMESCALE_CHANGE",
+				{
+					{ "#BEAT",      ticksToBeats(speed.tick) },
+					{ "#TIMESCALE", speed.speed              }
+				}
+				});
 		}
 
 		for (const auto& bpm : score.tempoChanges)
 		{
-			std::vector<DataValue> data;
-			data.push_back({ "#BEAT", ticksToBeats(bpm.tick) });
-			data.push_back({ "#BPM", bpm.bpm });
-
-			entitiesData.push_back({ "", "#BPM_CHANGE", data });
+			levelData.entities.push_back({
+				"#BPM_CHANGE",
+				{
+					{ "#BEAT", ticksToBeats(bpm.tick) },
+					{ "#BPM", bpm.bpm }
+				}
+				});
 		}
 
+		std::multimap<decltype(Note::tick), size_t> simBuilder;
 		for (const auto& [id, note] : score.notes)
 		{
-			std::vector<DataValue> data;
-			data.push_back({ "#BEAT", ticksToBeats(note.tick) });
-			data.push_back({ "lane", toSonolusLane(note.lane, note.width) });
-			data.push_back({ "size", static_cast<float>(note.width) / 2.0f });
+			if (note.getType() != NoteType::Tap) continue;
+			Sonolus::LevelDataEntity::MapDataType data = {
+				{ "#BEAT", ticksToBeats(note.tick)              },
+				{ "lane", toSonolusLane(note.lane, note.width)  },
+				{ "size", widthToSize(note.width) }
+			};
 
 			if (note.isFlick())
-			{
-				data.push_back(DataValue("direction", flickToDirection(note.flick)));
-			}
+				data.emplace("direction", toSonolusDirection(note.flick));
 
-			if (note.getType() == NoteType::HoldMid)
-			{
-				const HoldNote& hold = score.holdNotes.at(note.parentID);
-				const int stepIndex = findHoldStep(hold, note.ID);
-				if (isArrayIndexInBounds(stepIndex, hold.steps) && hold.steps[stepIndex].type == HoldStepType::Skip)
-					data.push_back({ "attach", getSlideConnectorId(score.holdNotes.at(note.parentID).start) });
-			}
-			else if (note.getType() == NoteType::HoldEnd)
-			{
-				const HoldNote& hold = score.holdNotes.at(note.parentID);
-				int lastStepIndex = hold.steps.size() - 1;
-				while (lastStepIndex >= 0 && hold.steps[lastStepIndex].type == HoldStepType::Skip)
-					lastStepIndex--;
-
-				const HoldStep& connector = lastStepIndex < 0 ? hold.start : hold.steps.at(lastStepIndex);
-				if (hold.endType == HoldNoteType::Normal)
-					data.push_back({ "slide", getSlideConnectorId(connector) });
-			}
-
-			entitiesData.push_back({ std::to_string(id), noteToArchetype(score, note), data });
-		}
-
-		for (const auto& [id, hold] : score.holdNotes)
-		{
-			if (hold.isGuide())
-				continue;
-
-			int startTick = score.notes.at(id).tick;
-			int endTick = score.notes.at(hold.end).tick;
-
-			startTick += halfBeat;
-			if (startTick % halfBeat)
-				startTick -= (startTick % halfBeat);
-
-			if (endTick % halfBeat)
-				endTick += halfBeat - (endTick % halfBeat);
-
-			for (int i = startTick; i < endTick; i += halfBeat)
-			{
-				std::vector<DataValue> data{ { "#BEAT", ticksToBeats(i) }, { "attach", std::to_string(id) } };
-				entitiesData.push_back({ "", "HiddenSlideTickNote", data});
-			}
-		}
-
-		for (const auto& [id, hold] : score.holdNotes)
-		{
-			std::string start = std::to_string(id);
-			std::string end = std::to_string(hold.end);
-
-			std::string slideConnectorArchetype = getSlideConnectorArchetype(score, hold);
-
-			int s1 = -1, s2 = 0;
-			if (!hold.steps.empty())
-			{
-				while (s2 < hold.steps.size() && hold.steps[s2].type == HoldStepType::Skip)
-					s2++;
-
-				if (s2 < hold.steps.size())
-				{
-					entitiesData.push_back({
-						getSlideConnectorId(hold.start),
-						slideConnectorArchetype,
-						getSlideConnectorData(start, end, start, std::to_string(hold.steps[s2].ID), toSonolusEase(hold.start.ease))
-					});
-					s1 = s2;
-				}
-			}
-
-			for (int currentStepIndex = s1 + 1; currentStepIndex < hold.steps.size(); currentStepIndex++)
-			{
-				if (hold.steps[currentStepIndex].type == HoldStepType::Skip)
-					continue;
-
-				s2 = currentStepIndex;
-
-				entitiesData.push_back({
-					getSlideConnectorId(hold.steps[s1]),
-					slideConnectorArchetype,
-					getSlideConnectorData(start, end, std::to_string(hold.steps[s1].ID), std::to_string(hold.steps[s2].ID), toSonolusEase(hold.steps[s1].ease))
+			simBuilder.emplace(note.tick, levelData.entities.size());
+			levelData.entities.push_back({
+				getTapNoteArchetype(note),
+				std::move(data)
 				});
-
-				s1 = s2;
-			}
-
-			entitiesData.push_back({
-				getSlideConnectorId(s1 == -1 ? hold.start : hold.steps[s1]),
-				slideConnectorArchetype,
-				getSlideConnectorData(start, end, std::to_string(s1 == -1 ? id : hold.steps[s1].ID), std::to_string(hold.end), toSonolusEase(s1 == -1 ? hold.start.ease : hold.steps[s1].ease))
-			});
 		}
 
-		const auto& simLineNotes = buildTickNoteMap(score);
-		for (const auto& [tick, notes] : simLineNotes)
+		IdManager idMgr;
+		std::vector<HoldJoint> joints;
+		for (const auto& [id, hold] : score.holdNotes)
 		{
-			for (int i = 0; i < notes.size() - 1; i++)
+			idMgr.clear();
+			joints.clear();
+			// First we insert the hold intermediates
+			const Note& startNote = score.notes.at(hold.start.ID), & endNote = score.notes.at(hold.end);
+			const Note* headNote = &startNote;
+			joints.push_back({ levelData.entities.size(), hold.start.ease });
+			if (hold.startType == HoldNoteType::Normal)
+				simBuilder.emplace(startNote.tick, levelData.entities.size());
+			levelData.entities.push_back({
+				getHoldNoteArchetype(startNote, hold),
+				{
+					{ "#BEAT", ticksToBeats(startNote.tick)                  },
+					{ "lane", toSonolusLane(startNote.lane, startNote.width) },
+					{ "size", widthToSize(startNote.width)                   }
+				}
+				});
+			for (auto& tailStep : hold.steps)
 			{
-				std::vector<DataValue> data{ { "a", std::to_string(notes[i].ID) }, { "b", std::to_string(notes[i + 1].ID) } };
-				entitiesData.push_back({ "", "SimLine", data });
+				const Note& tailNote = score.notes.at(tailStep.ID);
+				if (!hold.isGuide()) insertTickNoteBetween(*headNote, tailNote, levelData.entities, idMgr, joints.size());
+				headNote = &tailNote;
+				if (tailStep.type != HoldStepType::Skip) joints.push_back({ levelData.entities.size(), tailStep.ease });
+
+				levelData.entities.push_back(getTickNoteEntity(tailNote, tailStep, idMgr, joints.size()));
+				if (!hold.isGuide() && (tailNote.tick % halfBeat == 0))
+					levelData.entities.push_back({ "HiddenSlideTickNote", {{ "#BEAT", ticksToBeats(tailNote.tick) }, { "attach", idMgr.getConnectorRef(joints.size()) }} });
+			}
+			if (!hold.isGuide()) insertTickNoteBetween(*headNote, endNote, levelData.entities, idMgr, joints.size());
+			Sonolus::LevelDataEntity::MapDataType endData = {
+				{ "#BEAT", ticksToBeats(endNote.tick)                },
+				{ "lane", toSonolusLane(endNote.lane, endNote.width) },
+				{ "size", widthToSize(endNote.width)                 },
+			};
+			if (endNote.isFlick())
+				endData.emplace("direction", toSonolusDirection(endNote.flick));
+			if (hold.endType == HoldNoteType::Normal)
+				endData.emplace("slide", idMgr.getConnectorRef(joints.size()));
+			joints.push_back({ levelData.entities.size(), EaseType::EaseTypeCount });
+			if (hold.endType == HoldNoteType::Normal)
+				simBuilder.emplace(endNote.tick, levelData.entities.size());
+			levelData.entities.emplace_back(getHoldNoteArchetype(endNote, hold), std::move(endData));
+
+			// Then we insert the hold connectors
+			std::string connArchetype = (startNote.critical ? "Critical" : "Normal");
+			connArchetype += !hold.isGuide() ? "ActiveSlideConnector" : "SlideConnector";
+			std::string startRef = idMgr.getStartRef(), endRef = idMgr.getEndRef();
+			std::string headRef, tailRef = startRef;
+			for (size_t connHeadIdx = 0, connTailIdx = 1; connTailIdx < joints.size(); ++connHeadIdx, ++connTailIdx)
+			{
+				headRef = std::move(tailRef);
+				tailRef = (connTailIdx == joints.size() - 1) ? idMgr.getEndRef() : idMgr.getNextRef();
+				std::string connectorRef = idMgr.getExistingConnectorRef(connTailIdx);
+				const auto& headJoint = joints[connHeadIdx];
+				levelData.entities[headJoint.entityIdx].name = headRef;
+				levelData.entities[joints[connTailIdx].entityIdx].name = tailRef;
+				int connEase = toSonolusEase(headJoint.ease);
+				Sonolus::LevelDataEntity::MapDataType connData = {
+					{ "start", startRef },
+					{ "end",     endRef },
+					{ "head",   headRef },
+					{ "tail",   tailRef },
+					{ "ease",  connEase }
+				};
+				levelData.entities.emplace_back(connectorRef, connArchetype, connData);
 			}
 		}
 
-		json entitiesJson = entitiesData;
-		std::copy(entitiesJson.begin(), entitiesJson.end(), std::back_inserter(entities));
+		for (auto it = simBuilder.begin(), end = simBuilder.end(); it != end; )
+		{
+			auto [startEnt, endEnt] = simBuilder.equal_range(it->first);
 
-		json usc{};
-		usc["bgmOffset"] = score.metadata.musicOffset;
-		usc["entities"] = entities;
+			for (auto aEnt = startEnt, bEnt = std::next(startEnt); bEnt != endEnt; ++aEnt, ++bEnt)
+			{
+				auto& a = levelData.entities[aEnt->second], & b = levelData.entities[bEnt->second];
+				if (a.name.empty())
+					a.name = idMgr.getNextRef();
+				if (b.name.empty())
+					b.name = idMgr.getNextRef();
+				levelData.entities.push_back({ "SimLine", {{"a", a.name}, {"b", b.name}} });
+			}
+			it = endEnt;
+		}
 
-		std::string serializedUsc = usc.dump();
-		std::vector<uint8_t> serializedUscBytes(serializedUsc.begin(), serializedUsc.end());
-
-		if (useGzip)
-			serializedUscBytes = IO::deflateGzip(serializedUscBytes);
-
-		IO::File uscFile(filename, IO::FileMode::WriteBinary);
-		uscFile.writeAllBytes(serializedUscBytes);
-		uscFile.flush();
-		uscFile.close();
+		return levelData;
 	}
 
 	Score SonolusSerializer::deserialize(std::string filename)
 	{
-		if (!IO::File::exists(filename))
+		if (!IO::File::exists(filename.c_str()))
 			return {};
+		IO::File levelFile(filename, IO::FileMode::ReadBinary);
+		std::vector<uint8_t> bytes = levelFile.readAllBytes();
+		levelFile.close();
+		if (IO::isGzipCompressed(bytes))
+			bytes = IO::inflateGzip(bytes);
+		json levelDataJson = json::parse(std::string(bytes.begin(), bytes.end()));
+		Sonolus::LevelData levelData;
+		levelDataJson.get_to(levelData);
+		return deserialize(levelData);
+	}
 
-		IO::File gZippedUscFile(filename, IO::FileMode::ReadBinary);
-		std::vector<uint8_t> uscBytes = gZippedUscFile.readAllBytes();
-		gZippedUscFile.close();
+	Score SonolusSerializer::deserialize(const Sonolus::LevelData& levelData)
+	{
+		Score score;
+		score.metadata.musicOffset = levelData.bgmOffset * 1000;
 
-		if (IO::isGzipCompressed(uscBytes))
-			uscBytes = IO::inflateGzip(uscBytes);
+		auto isTimescaleEntity = [](const Sonolus::LevelDataEntity& ent) { return ent.archetype == "#TIMESCALE_CHANGE"; };
+		auto isBpmChangeEntity = [](const Sonolus::LevelDataEntity& ent) { return ent.archetype == "#BPM_CHANGE"; };
+		auto isTapNoteEntity = [](const Sonolus::LevelDataEntity& ent) { return IO::endsWith(ent.archetype, "Note") && ent.archetype.find("Slide") == std::string::npos; };
+		auto isSlideConnectorEntity = [](const Sonolus::LevelDataEntity& ent) { return IO::endsWith(ent.archetype, "SlideConnector"); };
+		auto isAttachedTickNote = [](const Sonolus::LevelDataEntity& ent) { return IO::endsWith(ent.archetype, "AttachedSlideTickNote"); };
 
-		std::string uscJsonString(uscBytes.begin(), uscBytes.end());
-		ordered_json uscJson = ordered_json::parse(uscJsonString);
-
-		Score score{};
-		score.metadata.musicOffset = jsonIO::tryGetValue<float>(uscJson, "bgmOffset", 0);
-
-		json entities = uscJson["entities"];
-		
-		json timescaleEntities = getEntitiesByArchetype(entities, "#TIMESCALE_CHANGE");
-		json bpmChangeEntities = getEntitiesByArchetype(entities, "#BPM_CHANGE");
-		json noteEntities = getEntitiesByArchetypeEndingWith(entities, "Note");
-		json slideConnectorEntities = getEntitiesByArchetypeEndingWith(entities, "Connector");
-
-		json slideStartEntities{};
-		std::copy_if(entities.begin(), entities.end(), std::back_inserter(slideStartEntities), [](const auto& e) {
-			return IO::endsWith(e["archetype"], "SlideTraceNote") || IO::endsWith(e["archetype"], "SlideStartNote");
-		});
-
-		for (const auto& timescale : timescaleEntities)
+		for (const auto& timescaleEntity : levelData.entities)
 		{
-			const json& dataArray = timescale["data"];
-			int tick = beatsToTicks(getEntityDataOrDefault<float>(dataArray, "#BEAT", 0));
-			float speed = getEntityDataOrDefault<float>(dataArray, "#TIMESCALE", 1);
-			
-			score.hiSpeedChanges.push_back({ tick, speed });
+			if (!isTimescaleEntity(timescaleEntity)) continue;
+			float beat = 0, speed = 1;
+			if (timescaleEntity.tryGetDataValue("#BEAT", beat) && timescaleEntity.tryGetDataValue("#TIMESCALE", speed))
+				score.hiSpeedChanges.push_back({ beatsToTicks(beat), speed });
+		}
+		std::sort(score.hiSpeedChanges.begin(), score.hiSpeedChanges.end(), [](const HiSpeedChange& sp1, const HiSpeedChange& sp2) { return sp1.tick < sp2.tick; });
+
+		score.tempoChanges.clear();
+		for (const auto& bpmChangeEntity : levelData.entities)
+		{
+			if (!isBpmChangeEntity(bpmChangeEntity)) continue;
+			float beat, bpm;
+			if (bpmChangeEntity.tryGetDataValue("#BEAT", beat) && bpmChangeEntity.tryGetDataValue("#BPM", bpm))
+				score.tempoChanges.push_back({ beatsToTicks(beat), bpm });
+		}
+		if (score.tempoChanges.empty())
+			score.tempoChanges.push_back(Tempo{});
+		std::sort(score.tempoChanges.begin(), score.tempoChanges.end(), [](const Tempo& t1, const Tempo& t2) { return t1.tick < t2.tick; });
+
+		for (const auto& tapNoteEntity : levelData.entities)
+		{
+			if (!isTapNoteEntity(tapNoteEntity)) continue;
+			Note note(NoteType::Tap);
+			if (!tapNoteArchetypeToNativeNote(tapNoteEntity, note))
+				continue;
+			note.ID = nextID;
+			score.notes[nextID++] = note;
 		}
 
-		if (!bpmChangeEntities.empty())
-			score.tempoChanges.clear();
-
-		for (const auto& bpmChange : bpmChangeEntities)
+		std::unordered_map<std::string, size_t> entityNameMap;
+		for (size_t i = 0; i < levelData.entities.size(); ++i)
 		{
-			const json& dataArray = bpmChange["data"];
+			const auto& entity = levelData.entities[i];
+			if (!entity.name.empty())
+				entityNameMap.emplace(entity.name, i);
+		}
+		// We'll use this as a linked list to walk forward and collect all the hold steps
+		std::unordered_map<std::string, LinkedHoldStep> headToTailMap;
+		// This is where we'll start building the hold note
+		std::unordered_set<std::string> startRefSet;
 
-			int tick = beatsToTicks(getEntityDataOrDefault<float>(dataArray, "#BEAT", 0));
-			float bpm = getEntityDataOrDefault<float>(dataArray, "#BPM", 120.0f);
+		for (const auto& connectorEntity : levelData.entities)
+		{
+			if (!isSlideConnectorEntity(connectorEntity)) continue;
+			size_t offset = 0;
+			bool critical = false, active = false;
+			// Validate connector archetype
+			if (stringMatching(connectorEntity.archetype, "Critical", offset))
+				critical = true;
+			else if (!stringMatching(connectorEntity.archetype, "Normal", offset))
+				continue;
+			if (stringMatching(connectorEntity.archetype, "Active", offset))
+				active = true;
+			if (!stringMatchAll(connectorEntity.archetype, "SlideConnector", offset))
+				continue;
 
-			score.tempoChanges.push_back({ tick, bpm });
+			std::string startRef, endRef, headRef, tailRef;
+			int connEase;
+			if (!connectorEntity.tryGetDataValue("start", startRef) || startRef.empty()
+				|| !connectorEntity.tryGetDataValue("end", endRef) || endRef.empty()
+				|| !connectorEntity.tryGetDataValue("head", headRef) || headRef.empty()
+				|| !connectorEntity.tryGetDataValue("tail", tailRef) || tailRef.empty()
+				|| !connectorEntity.tryGetDataValue("ease", connEase))
+				continue;
+
+			startRefSet.insert(startRef);
+			LinkedHoldStep::Modifier mod = static_cast<LinkedHoldStep::Modifier>((active ? LinkedHoldStep::None : LinkedHoldStep::Guide) | (critical ? LinkedHoldStep::Critical : LinkedHoldStep::None));
+			LinkedHoldStep endStep = { "", LinkedHoldStep::EndHold, mod };
+			LinkedHoldStep endStepInserted = headToTailMap.try_emplace(endRef, endStep).first->second;
+
+			// Check if the connector is consistent with other connector we'd found
+			if (endStep.mod != endStepInserted.mod)
+				continue;
+
+			headToTailMap[headRef] = { tailRef, LinkedHoldStep::Joint, LinkedHoldStep::None, toNativeEase(connEase) };
 		}
 
-		// We'll use this as a linked list to walk back and find which slide tick belongs to which slide
-		std::unordered_map<std::string, SlideConnection> slideConnectionMapping{};
-		std::unordered_map<std::string, std::string> tailToHeadMapping{};
-		tailToHeadMapping.reserve(slideConnectorEntities.size());
-
-		for (const auto& connector : slideConnectorEntities)
+		IdManager idMgr;
+		// Since the connector already tell us where to find each joint of the hold note
+		// The only thing missing from the holds are attached notes (or HoldStepType::Skip)
+		for (size_t i = 0; i < levelData.entities.size(); ++i)
 		{
-			const json& dataArray = connector["data"];
-			const std::string& head = getEntityDataOrDefault<std::string>(dataArray, "head", "");
-			const std::string& tail = getEntityDataOrDefault<std::string>(dataArray, "tail", "");
-			const std::string& archetype = jsonIO::tryGetValue<std::string>(connector, "archetype", "NormalActiveSlideConnector");
-
-			bool active = archetype.find("Active") != std::string::npos;
-			bool critical = archetype.find("Critical") != std::string::npos;
-			int ease = getEntityDataOrDefault<int>(dataArray, "ease", 0);
-
-			if (jsonIO::keyExists(connector, "name"))
+			auto& attachTickEntity = levelData.entities[i];
+			if (!isAttachedTickNote(attachTickEntity)) continue;
+			size_t offset = 0;
+			std::string connRef, headRef;
+			if (!stringMatching(attachTickEntity.archetype, "Critical", offset) && !stringMatching(attachTickEntity.archetype, "Normal", offset))
+				continue;
+			if (!stringMatchAll(attachTickEntity.archetype, "AttachedSlideTickNote", offset))
+				continue;
+			if (!attachTickEntity.tryGetDataValue("attach", connRef))
+				continue;
+			auto entIt = entityNameMap.find(connRef);
+			if (entIt == entityNameMap.end())
+				continue;
+			const auto& connectorEntity = levelData.entities[entIt->second];
+			if (!connectorEntity.tryGetDataValue("head", headRef))
+				continue;
+			auto headIt = headToTailMap.find(headRef);
+			if (headIt == headToTailMap.end())
+				continue;
+			std::string attachName;
+			if (attachTickEntity.name.empty())
 			{
-				slideConnectionMapping[connector["name"]] = { head, tail, ease, active, critical };
+				attachName = "__mmw_attach__" + idMgr.getNextRef();
+				entityNameMap[attachName] = i;
 			}
-
-			slideConnectionMapping[head] = { head, tail, ease, active, critical };
-			tailToHeadMapping[tail] = head;
+			else
+				attachName = attachTickEntity.name;
+			// Insert the attach note between the head and tail
+			headToTailMap[attachName] = LinkedHoldStep{ headIt->second.nextTail , LinkedHoldStep::Attach };
+			headIt->second.nextTail = attachName;
 		}
 
-		std::unordered_map<std::string, int> slideEntityMapping{};
-		slideEntityMapping.reserve(slideStartEntities.size());
-
-		for (const auto& slideEntity : slideStartEntities)
+		for (auto& startRef : startRefSet)
 		{
-			Note note = createNote(slideEntity, NoteType::Hold);
+			HoldNote holdNote;
+			std::vector<Note> holdNotes;
 
-			HoldNote hold{};
-			hold.start = { note.ID, HoldStepType::Normal, EaseType::Linear };
-			auto connIt = slideConnectionMapping.find(slideEntity["name"]);
+			std::string stepRef = startRef;
+			HoldStep* step = &holdNote.start;
+			NoteType nextNoteType = NoteType::Hold;
+			auto toNativeNote = holdStartNoteArchetypeToNativeNote;
+			bool validHold = false;
 
-			if (connIt != slideConnectionMapping.end())
+			while (true)
 			{
-				hold.start.ease = toNativeEase(connIt->second.ease);
-			}
-
-			score.notes[note.ID] = note;
-			score.holdNotes[note.ID] = hold;
-			slideEntityMapping[slideEntity["name"]] = note.ID;
-		}
-
-		/*
-			Keeps track of which hold notes have been created with one of its steps.
-			This is used to avoid created duplicate hidden slide steps
-		*/
-		std::unordered_set<std::string> skipNotes{};
-		std::vector<json> slideEndEntities;
-		for (const auto& entity : noteEntities)
-		{
-			const std::string& archetype = jsonIO::tryGetValue<std::string>(entity, "archetype", "");
-			const std::string& entityName = jsonIO::tryGetValue<std::string>(entity, "name", "");
-
-			if (skipNotes.find(entityName) != skipNotes.end())
-				continue;
-
-			// The auto combo note isn't really a note to us
-			if (archetype == "HiddenSlideTickNote")
-				continue;
-
-			const NoteType noteType = getNoteTypeFromArchetype(archetype);
-			// We already handled slide start notes
-			if (noteType == NoteType::Hold)
-			{
-				continue;
-			}
-			else if (noteType == NoteType::HoldEnd)
-			{
-				slideEndEntities.push_back(entity);
-				continue;
-			}
-
-			const json& dataArray = entity["data"];
-			Note note = createNote(entity, noteType);
-			if (noteType == NoteType::HoldMid)
-			{
-				std::string noteKey = IO::endsWith(archetype, "AttachedSlideTickNote") ?
-					getEntityDataOrDefault<std::string>(dataArray, "attach", "") :
-					jsonIO::tryGetValue<std::string>(entity, "name", "");
-
-				std::string parentKey = getParentSlideConnector(tailToHeadMapping, noteKey);
-
-				const auto& parentConnectionIt = slideConnectionMapping.find(parentKey);
-				if (parentConnectionIt == slideConnectionMapping.end())
-					continue;
-
-				const auto& tailIt = tailToHeadMapping.find(noteKey);
-				std::string childKey = getLastSlideConnector(slideConnectionMapping, tailIt == tailToHeadMapping.end() ? noteKey : tailIt->second);
-
-				auto connectionIt = slideConnectionMapping.find(noteKey);
-				if (connectionIt == slideConnectionMapping.end())
-					connectionIt =  slideConnectionMapping.find(tailToHeadMapping[noteKey]);
-
-				if (connectionIt == slideConnectionMapping.end())
-					throw("Note key is neither a head nor tail?!");
-
-				const SlideConnection& parentConnection = parentConnectionIt->second;
-				const SlideConnection& lastConnection = slideConnectionMapping.at(childKey);
-				const bool isTailNote = entityName == lastConnection.tail;
-
-				HoldStep step{ note.ID, HoldStepType::Normal, EaseType::Linear };
-				if (archetype == "IgnoredSlideTickNote" || IO::endsWith(archetype, "AttachedSlideTickNote"))
+				auto nodeStep = headToTailMap.extract(stepRef);
+				if (nodeStep.empty())
+					// either the next step was never inserted
+					// or we have visited this step before
+					break;
+				const LinkedHoldStep& linkedStep = nodeStep.mapped();
+				auto it = entityNameMap.find(stepRef);
+				if (it == entityNameMap.end())
+					break;
+				auto& holdStepEntity = levelData.entities[it->second];
+				if (linkedStep.step == LinkedHoldStep::EndHold)
 				{
-					// Special case for guides/hidden start/end slide points
-					const auto& holdIt = slideEntityMapping.find(parentConnection.head);
-					if (holdIt == slideEntityMapping.end())
+					Note& endNote = holdNotes.emplace_back(NoteType::HoldEnd);
+					endNote.ID = nextID + static_cast<int>(holdNotes.size()) - 1;
+					endNote.parentID = holdNotes.front().ID;
+					holdNote.end = endNote.ID;
+					if (!holdEndNoteArchetypeToNativeNote(holdStepEntity, endNote))
+						break;
+					if (holdStepEntity.archetype == "IgnoredSlideTickNote")
+						holdNote.endType = HoldNoteType::Hidden;
+					if ((linkedStep.mod & LinkedHoldStep::Guide))
 					{
-						const bool isHeadNote = entityName == parentConnection.head;
-						Note noteAsHold = Note(NoteType::Hold, note.tick, note.lane, note.width);
-						noteAsHold.ID = note.ID;
-						noteAsHold.critical = parentConnection.critical;
-						if (!isHeadNote)
-						{
-							const json& parentEntity = findEntityByName(entities, parentConnection.head);
-							const float size = getEntityDataOrDefault<float>(parentEntity["data"], "size", 1.5f);
-							noteAsHold.tick = beatsToTicks(getEntityDataOrDefault<float>(parentEntity["data"], "#BEAT", 0));
-							noteAsHold.lane = toNativeLane(getEntityDataOrDefault<float>(parentEntity["data"], "lane", 0), size);
-							noteAsHold.width = static_cast<int>(size * 2);
-							noteAsHold.ID = nextID++;
-
-							skipNotes.insert(parentConnection.head);
-						}
-
-						const SlideConnection& connection = connectionIt->second;
-
-						HoldStep start{ noteAsHold.ID, HoldStepType::Normal, toNativeEase(connection.ease) };
-						HoldNoteType startType = getHoldNoteTypeFromConnection(connection, true);
-						HoldNoteType endType = getHoldNoteTypeFromConnection(connection, false);
-						HoldNote hold{ start, {}, 0, startType, endType };
-
-						score.notes[noteAsHold.ID] = noteAsHold;
-						score.holdNotes[noteAsHold.ID] = hold;
-						slideEntityMapping[parentConnection.head] = noteAsHold.ID;
-
-						if (isHeadNote)
-							continue;
+						holdNote.startType = HoldNoteType::Guide;
+						holdNote.endType = HoldNoteType::Guide;
+					}
+					if ((linkedStep.mod & LinkedHoldStep::Critical))
+					{
+						for (auto& note : holdNotes)
+							note.critical = true;
+						endNote.critical = true;
 					}
 
-					if (isTailNote)
+					validHold = true;
+					break;
+				}
+				if (step == nullptr) step = &holdNote.steps.emplace_back();
+				Note& stepNote = holdNotes.emplace_back(nextNoteType);
+				stepNote.ID = nextID + static_cast<int>(holdNotes.size()) - 1;
+				stepNote.parentID = holdNotes.front().ID;
+				if (!toNativeNote(holdStepEntity, stepNote))
+					break;
+				switch (linkedStep.step)
+				{
+				case LinkedHoldStep::Joint:
+					step->ease = linkedStep.ease;
+					step->ID = stepNote.ID;
+					step->type = HoldStepType::Normal;
+					break;
+				case LinkedHoldStep::Attach:
+					step->ID = stepNote.ID;
+					step->type = HoldStepType::Skip;
+					break;
+				}
+				if (holdStepEntity.archetype == "IgnoredSlideTickNote")
+					if (stepNote.ID == holdNotes.front().ID)
+						holdNote.startType = HoldNoteType::Hidden;
+					else
+						step->type = HoldStepType::Hidden;
+
+				nextNoteType = NoteType::HoldMid;
+				toNativeNote = slideTickNoteArchetypeToNativeNote;
+				stepRef = linkedStep.nextTail;
+				step = nullptr;
+			}
+			if (validHold)
+			{
+				holdNotes.front().parentID = -1;
+				for (auto& note : holdNotes) score.notes.emplace(note.ID, note);
+				nextID += holdNotes.size();
+				auto&& [it, _] = score.holdNotes.emplace(holdNotes.front().ID, std::move(holdNote));
+				auto& insHoldNote = it->second;
+				sortHoldSteps(score, insHoldNote);
+
+				// Estimating the position of skip steps
+				int lastJointIdx = -1, nextJointIdx = -1;
+				for (unsigned i = 0; i < insHoldNote.steps.size(); ++i)
+				{
+					if (insHoldNote.steps[i].type != HoldStepType::Skip)
 					{
-						const auto& holdIt = slideEntityMapping.find(parentConnection.head);
-						if (holdIt == slideEntityMapping.end())
-							throw("Hidden/Guide slide head created but not found?!");
-
-						Note noteAsHoldEnd = Note(NoteType::HoldEnd, note.tick, note.lane, note.width);
-						noteAsHoldEnd.ID = note.ID;
-						noteAsHoldEnd.critical = score.notes.at(holdIt->second).critical;
-						noteAsHoldEnd.parentID = holdIt->second;
-
-						HoldNote& hold = score.holdNotes.at(holdIt->second);
-						hold.end = noteAsHoldEnd.ID;
-						hold.endType = hold.isGuide() ? HoldNoteType::Guide : HoldNoteType::Hidden;
-
-						score.notes[noteAsHoldEnd.ID] = noteAsHoldEnd;
+						lastJointIdx = i;
 						continue;
 					}
+					Note& stepNote = score.notes[insHoldNote.steps[i].ID];
+					const Note& headNote = lastJointIdx < 0 ? score.notes[insHoldNote.start.ID] : score.notes[insHoldNote.steps[lastJointIdx].ID];
+					if (nextJointIdx < int(i))
+					{
+						auto it = std::find_if(insHoldNote.steps.begin() + i + 1, insHoldNote.steps.end(), [](const HoldStep& step) { return step.type != HoldStepType::Skip; });
+						if (it == insHoldNote.steps.end())
+							nextJointIdx = insHoldNote.steps.size();
+						else
+							nextJointIdx = std::distance(insHoldNote.steps.begin(), it);
+					}
+					const Note& tailNote = nextJointIdx == insHoldNote.steps.size() ? score.notes[insHoldNote.end] : score.notes[insHoldNote.steps[nextJointIdx].ID];
 
-					step.type = HoldStepType::Hidden;
+					stepNote.width = std::min(headNote.width, tailNote.width);
+					stepNote.lane = headNote.lane >= 6 ? headNote.lane + headNote.width - stepNote.width : headNote.lane;
 				}
-
-				if (IO::endsWith(archetype, "AttachedSlideTickNote"))
-				{
-					step.type = HoldStepType::Skip;
-				}
-
-				const auto& holdIt = slideEntityMapping.find(parentConnection.head);
-				if (holdIt == slideEntityMapping.end())
-					throw("A slide tick without a parent?!");
-
-				const SlideConnection& connection = connectionIt->second;
-				step.ease = toNativeEase(connection.ease);
-
-				HoldNote& hold = score.holdNotes.at(holdIt->second);
-				const Note& parentNote = score.notes.at(hold.start.ID);
-				note.critical = parentNote.critical;
-				note.parentID = parentNote.ID;
-
-				hold.steps.push_back(step);
 			}
-
-			score.notes[note.ID] = note;
 		}
-
-		for (const auto& slideEndEntity : slideEndEntities)
-		{
-			const std::string& entityName = jsonIO::tryGetValue<std::string>(slideEndEntity, "name", "");
-			const json& dataArray = slideEndEntity["data"];
-
-			std::string parentKey = getEntityDataOrDefault<std::string>(dataArray, "slide", "");
-			const auto& connectionIt = slideConnectionMapping.find(parentKey);
-
-			if (connectionIt == slideConnectionMapping.end())
-				continue;
-
-			std::string parentConnectionKey = getParentSlideConnector(tailToHeadMapping, connectionIt->second.head);
-
-			const auto& parentSlide = slideEntityMapping.find(parentConnectionKey);
-			if (parentSlide == slideEntityMapping.end())
-				throw ("A slide end without a connection?!");
-
-			const auto& parentHoldIt = score.holdNotes.find(parentSlide->second);
-			if (parentHoldIt == score.holdNotes.end())
-				throw ("A slide end without a start?!");
-
-			Note note = createNote(slideEndEntity, NoteType::HoldEnd);
-			HoldNote& parentHold = parentHoldIt->second;
-			parentHold.end = note.ID;
-			note.parentID = parentHold.start.ID;
-
-			score.notes[note.ID] = note;
-		}
-
-		for (auto& [id, hold] : score.holdNotes)
-			sortHold(score, hold);
 
 		return score;
 	}
 
-	float SonolusSerializer::ticksToBeats(int ticks)
+	SonolusSerializer::RealType SonolusSerializer::ticksToBeats(int ticks, int beatTicks)
 	{
-		return static_cast<float>(ticks) / TICKS_PER_BEAT;
+		return static_cast<RealType>(ticks) / beatTicks;
 	}
 
-	float SonolusSerializer::toSonolusLane(int lane, int width)
+	SonolusSerializer::RealType SonolusSerializer::widthToSize(int width)
 	{
-		return (lane - 6) + (static_cast<float>(width) / 2.0f);
+		return static_cast<RealType>(width) / 2;
 	}
 
-	int SonolusSerializer::flickToDirection(FlickType flick)
+	SonolusSerializer::RealType SonolusSerializer::toSonolusLane(int lane, int width)
+	{
+		return (lane - 6) + (static_cast<RealType>(width) / 2);
+	}
+
+	int SonolusSerializer::toSonolusDirection(FlickType flick)
 	{
 		switch (flick)
 		{
@@ -514,17 +759,22 @@ namespace MikuMikuWorld
 		}
 	}
 
-	int SonolusSerializer::beatsToTicks(float beats)
+	int SonolusSerializer::beatsToTicks(RealType beats, int beatTicks)
 	{
-		return beats * TICKS_PER_BEAT;
+		return std::lround(beats * beatTicks);
 	}
 
-	int SonolusSerializer::toNativeLane(float lane, float width)
+	int SonolusSerializer::sizeToWidth(RealType size)
 	{
-		return lane - width + 6;
+		return size * 2;
 	}
 
-	FlickType SonolusSerializer::directionToFlick(int direction)
+	int SonolusSerializer::toNativeLane(RealType lane, RealType size)
+	{
+		return lane - size + 6;
+	}
+
+	FlickType SonolusSerializer::toNativeFlick(int direction)
 	{
 		switch (direction)
 		{
@@ -551,209 +801,70 @@ namespace MikuMikuWorld
 			return EaseType::Linear;
 		}
 	}
+}
 
-	json SonolusSerializer::getEntitiesByArchetype(const json& j, const std::string& archetype)
+namespace Sonolus
+{
+	void to_json(nlohmann::json& json, const LevelDataEntity& levelData)
 	{
-		json entities{};
-		std::copy_if(j.begin(), j.end(), std::back_inserter(entities),
-			[&archetype](auto& j) { return jsonIO::tryGetValue<std::string>(j, "archetype", "") == archetype; });
-
-		return entities;
-	}
-
-	json SonolusSerializer::getEntitiesByArchetypeEndingWith(const json& j, const std::string& archetype)
-	{
-		json entities{};
-		std::copy_if(j.begin(), j.end(), std::back_inserter(entities),
-			[&archetype](auto& j) { return IO::endsWith(jsonIO::tryGetValue<std::string>(j, "archetype", ""), archetype); });
-
-		return entities;
-	}
-
-	std::string MikuMikuWorld::SonolusSerializer::getSlideConnectorId(const HoldStep& step)
-	{
-		return "connect_" + std::to_string(step.ID);
-	}
-
-	std::string SonolusSerializer::noteToArchetype(const Score& score, const Note& note)
-	{
-		std::string noteType = note.critical ? "Critical" : "Normal";
-		if (note.friction)
-			noteType.append("Trace");
-
-		if (note.isFlick())
-			noteType.append("Flick");
-
-		if (note.getType() == NoteType::Hold)
+		if (!levelData.name.empty())
+			json["name"] = levelData.name;
+		json["archetype"] = levelData.archetype;
+		nlohmann::json& dataJson = json["data"] = nlohmann::json::array();
+		for (const auto& [name, value] : levelData.data)
 		{
-			if (score.holdNotes.at(note.ID).startType != HoldNoteType::Normal)
-				return "IgnoredSlideTickNote";
-
-			noteType = note.critical ? "Critical" : "Normal";
-			noteType += note.friction ? "SlideTrace" : "SlideStart";
+			nlohmann::json item;
+			item["name"] = name;
+			switch (levelData.getDataValueType(value))
+			{
+			case LevelDataEntity::DataValueType::Ref:
+				item["ref"] = LevelDataEntity::getDataValue<LevelDataEntity::RefType>(value);
+				break;
+			case LevelDataEntity::DataValueType::Real:
+				item["value"] = LevelDataEntity::getDataValue<LevelDataEntity::RealType>(value);
+				break;
+			case LevelDataEntity::DataValueType::Integer:
+				item["value"] = LevelDataEntity::getDataValue<LevelDataEntity::IntegerType>(value);
+				break;
+			}
+			dataJson.push_back(item);
 		}
-		else if (note.getType() == NoteType::HoldMid)
-		{
-			const HoldNote& parent = score.holdNotes.at(note.parentID);
-			const HoldStep& step = parent.steps[findHoldStep(parent, note.ID)];
+	}
 
-			if (step.type == HoldStepType::Hidden)
-				return "IgnoredSlideTickNote";
-			else if (step.type == HoldStepType::Skip)
-				noteType.append("AttachedSlideTick");
+	void to_json(nlohmann::json& json, const LevelData& levelData)
+	{
+		json["bgmOffset"] = levelData.bgmOffset;
+		json["entities"] = levelData.entities;
+	}
+
+	void from_json(const nlohmann::json& json, LevelDataEntity& levelData)
+	{
+		jsonIO::optional_get_to(json, "name", levelData.name);
+		json.at("archetype").get_to(levelData.archetype);
+		auto& data = json.at("data");
+		for (auto& item : data)
+		{
+			auto it = item.find("ref");
+			if (it != item.end())
+			{
+				levelData.data.emplace(item.at("name").get<std::string>(), item.at("ref").get<std::string>());
+			}
 			else
-				noteType.append("SlideTick");
-		}
-		else if (note.getType() == NoteType::HoldEnd)
-		{
-			if (score.holdNotes.at(note.parentID).endType != HoldNoteType::Normal)
-				return "IgnoredSlideTickNote";
-
-			noteType = "SlideEnd" + noteType;
-		}
-		else if (!note.friction && !note.isFlick())
-		{
-			noteType.append("Tap");
-		}
-
-		noteType.append("Note");
-		return noteType;
-	}
-
-	std::map<int, std::vector<Note>> SonolusSerializer::buildTickNoteMap(const Score& score)
-	{
-		std::map<int, std::vector<Note>> allNotes{};
-		std::map<int, std::vector<Note>> map{};
-		for (const auto& [id, note] : score.notes)
-		{
-			if (note.getType() == NoteType::Hold)
 			{
-				const HoldNote& hold = score.holdNotes.at(id);
-				if (hold.startType != HoldNoteType::Normal)
-					continue;
-			}
-			
-			if (note.getType() == NoteType::HoldEnd)
-			{
-				const HoldNote& hold = score.holdNotes.at(note.parentID);
-				if (hold.endType != HoldNoteType::Normal)
-					continue;
-			}
-
-			if (note.getType() == NoteType::HoldMid)
-				continue;
-
-			allNotes[note.tick].push_back(note);
-		}
-
-		std::copy_if(allNotes.cbegin(), allNotes.cend(), std::inserter(map, map.begin()),
-			[](const std::pair<int, std::vector<Note>>& x) { return x.second.size() > 1; });
-
-		for (auto& [tick, notes] : map)
-		{
-			std::sort(notes.begin(), notes.end(),
-				[](const Note& a, const Note& b) { return a.lane < b.lane; });
-		}
-
-		return map;
-	}
-
-	std::string SonolusSerializer::getSlideConnectorArchetype(const Score& score, const HoldNote& hold)
-	{
-		std::string archetype = score.notes.at(hold.start.ID).critical ? "Critical" : "Normal";	
-		if (!hold.isGuide())
-		{
-			archetype.append("Active");
-		}
-
-		archetype.append("SlideConnector");
-		return archetype;
-	}
-
-	std::string SonolusSerializer::getParentSlideConnector(const std::unordered_map<std::string, std::string>& connections, const std::string& slideKey)
-	{
-		std::string head = slideKey;
-		auto it = connections.find(head);
-		while (it != connections.end() && it->second != head)
-		{
-			head = it->second;
-			it = connections.find(head);
-		}
-
-		return head;
-	}
-
-	std::string SonolusSerializer::getLastSlideConnector(const std::unordered_map<std::string, SlideConnection>& connections, const std::string& slideKey)
-	{
-		std::string head = slideKey;
-		auto it = connections.find(head);
-		while (it != connections.end())
-		{
-			head = it->second.head;
-			it = connections.find(it->second.tail);
-		}
-
-		return head;
-	}
-
-	Note SonolusSerializer::createNote(const json& entity, NoteType type)
-	{
-		const std::string& archetype = entity["archetype"];
-		const json& data = entity["data"];
-		const float size = getEntityDataOrDefault<float>(data, "size", 1.5f);
-
-		Note note(type);
-		note.ID = nextID++;
-		note.tick = beatsToTicks(getEntityDataOrDefault<float>(data, "#BEAT", 0.0f));
-		note.width = static_cast<int>(size * 2.0f);
-		note.lane = toNativeLane(getEntityDataOrDefault<float>(data, "lane", 0.0f), size);
-		note.friction = archetype.find("Trace") != std::string::npos;
-		note.critical = archetype.find("Critical") != std::string::npos;
-		note.flick = directionToFlick(getEntityDataOrDefault<int>(data, "direction", 2));
-
-		return note;
-	}
-
-	NoteType SonolusSerializer::getNoteTypeFromArchetype(const std::string& archetype)
-	{
-		if (archetype.find("SlideStart") != std::string::npos || archetype.find("SlideTrace") != std::string::npos)
-		{
-			return NoteType::Hold;
-		}
-		else if (archetype.find("TickNote") != std::string::npos)
-		{
-			return NoteType::HoldMid;
-		}
-		else if (archetype.find("SlideEnd") != std::string::npos)
-		{
-			return NoteType::HoldEnd;
-		}
-
-		return NoteType::Tap;
-	}
-
-	void to_json(json& j, const ArchetypeData& data)
-	{
-		ordered_json dataArray = ordered_json::array();
-		for (const auto& entry : data.data)
-		{
-			if (entry.getType() == DataValueType::Value)
-			{
-				dataArray.push_back({
-					{ "name", entry.getName() },
-					{ "value", entry.getNumType() == NumberType::Integer ? entry.getIntValue() : entry.getFloatValue() }
-				});
-			}
-			else if (entry.getType() == DataValueType::Ref)
-			{
-				dataArray.push_back({ { "name", entry.getName() }, {"ref", entry.getRef()} });
+				auto& valueJson = item.at("value");
+				if (valueJson.is_number_float())
+					levelData.data.emplace(item.at("name").get<std::string>(), valueJson.get<float>());
+				else if (valueJson.is_number())
+					levelData.data.emplace(item.at("name").get<std::string>(), valueJson.get<int>());
+				else
+					throw std::runtime_error("Bad archetype data! Value is not a number!");
 			}
 		}
+	}
 
-		j["archetype"] = data.archetype;
-		j["data"] = dataArray;
-
-		if (!data.name.empty())
-			j["name"] = data.name;
+	void from_json(const nlohmann::json& json, LevelData& levelData)
+	{
+		json.at("bgmOffset").get_to(levelData.bgmOffset);
+		json.at("entities").get_to(levelData.entities);
 	}
 }

@@ -168,6 +168,9 @@
     <ClCompile Include="PreviewData.cpp">
       <Filter>ScorePreview</Filter>
     </ClCompile>
+    <ClCompile Include="ScoreSerializeWindow.cpp">
+      <Filter>Score\Serialization</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -379,6 +382,9 @@
     </ClInclude>
     <ClInclude Include="PreviewData.h">
       <Filter>ScorePreview</Filter>
+    </ClInclude>
+    <ClInclude Include="ScoreSerializeWindow.h">
+      <Filter>Score\Serialization</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

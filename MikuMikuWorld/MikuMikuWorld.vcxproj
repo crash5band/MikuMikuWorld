@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -210,6 +210,7 @@
     <ClCompile Include="ScoreEditorTimeline.cpp" />
     <ClCompile Include="ScoreEditorWindows.cpp" />
     <ClCompile Include="ScorePreview.cpp" />
+    <ClCompile Include="ScoreSerializeWindow.cpp" />
     <ClCompile Include="ScoreSerializer.cpp" />
     <ClCompile Include="ScoreStats.cpp" />
     <ClCompile Include="SonolusSerializer.cpp" />
@@ -252,6 +253,7 @@
     <ClInclude Include="PreviewData.h" />
     <ClInclude Include="PreviewEngine.h" />
     <ClInclude Include="ScorePreview.h" />
+    <ClInclude Include="ScoreSerializeWindow.h" />
     <ClInclude Include="ScoreSerializer.h" />
     <ClInclude Include="Jacket.h" />
     <ClInclude Include="JsonIO.h" />
