@@ -33,7 +33,7 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::NoteLongCriticalLinearAdd, 0.52f },
 		
 		{ ParticleEffectType::NoteCriticalFlickCircular, 0.56f },
-		{ ParticleEffectType::NoteCriticalFlickLinear, 0.53f },
+		{ ParticleEffectType::NoteCriticalFlickLinear, 0.55f },
 		{ ParticleEffectType::NoteCriticalDirectional, 0.31f },
 
 		{ ParticleEffectType::NoteFrictionCriticalCircular, 0.6f },
@@ -66,7 +66,7 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::SlotGlowNoteLongCriticalSegment, 0.5f },
 
 		{ ParticleEffectType::NoteCriticalFlickLinearAdd, 0.5f },
-		{ ParticleEffectType::NoteCriticalFlickFlare, 0.87f },
+		{ ParticleEffectType::NoteCriticalFlickFlare, 0.95f },
 	};
 
 	std::map<ParticleEffectType, ParticleEffectType> particleEffectFallback = {
@@ -156,7 +156,7 @@ namespace MikuMikuWorld::Engine
 {
 	Range getNoteVisualTime(Note const& note, Score const& score, float noteSpeed)
 	{
-		float targetTime = accumulateScaledDuration(note.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
+		double targetTime = accumulateScaledDuration(note.tick, TICKS_PER_BEAT, score.tempoChanges, score.hiSpeedChanges);
 		return {targetTime - getNoteDuration(noteSpeed), targetTime};
 	}
 
@@ -214,13 +214,12 @@ namespace MikuMikuWorld::Engine
 	{
 		float bottom = 1 + height;
 		float top = 1 - height;
-
 		return perspectiveQuadvPos(
 			lane - width / top,
 			lane - width / bottom,
 			lane + width / top,
 			lane + width / bottom,
-			top, bottom
+			top + 0.03f, bottom + 0.05f
 		);
 	}
 
