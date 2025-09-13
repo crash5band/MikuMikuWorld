@@ -161,6 +161,24 @@ namespace MikuMikuWorld
 		return std::string_view(source).substr(offset, toMatch.size()) == toMatch;
 	}
 
+	inline static bool isValidNotePosition(const Note& note)
+	{
+		return note.tick >= 0 && note.width >= MIN_NOTE_WIDTH && note.width <= MAX_NOTE_WIDTH && note.lane >= MIN_LANE && note.lane <= MAX_LANE;
+	}
+
+	inline static bool isValidHoldNotes(const std::vector<Note>& holdNotes)
+	{
+		if (holdNotes.size() < 2)
+			return false;
+		const Note& startNote = holdNotes.front();
+		const Note& endNote = holdNotes.back();
+		if (startNote.critical != endNote.critical || startNote.isFlick())
+			return false;
+		if (std::any_of(holdNotes.begin() + 1, holdNotes.end(), [startTick = startNote.tick, endTick = endNote.tick](const Note& note) { return note.tick < startTick || note.tick > endTick; }))
+			return false;
+		return true;
+	}
+
 	inline static bool tapNoteArchetypeToNativeNote(const Sonolus::LevelDataEntity& tapNoteEntity, Note& note)
 	{
 		size_t offset = 0;
@@ -173,6 +191,8 @@ namespace MikuMikuWorld
 		note.tick = SonolusSerializer::beatsToTicks(beat);
 		note.width = SonolusSerializer::sizeToWidth(size);
 		note.lane = SonolusSerializer::toNativeLane(lane, size);
+		if (!isValidNotePosition(note))
+			return false;
 		if (stringMatching(tapNoteEntity.archetype, "Critical", offset))
 			note.critical = true;
 		else if (!stringMatching(tapNoteEntity.archetype, "Normal", offset))
@@ -215,6 +235,8 @@ namespace MikuMikuWorld
 		startNote.tick = SonolusSerializer::beatsToTicks(beat);
 		startNote.width = SonolusSerializer::sizeToWidth(size);
 		startNote.lane = SonolusSerializer::toNativeLane(lane, size);
+		if (!isValidNotePosition(startNote))
+			return false;
 		if (noteEntity.archetype == "IgnoredSlideTickNote")
 			return true;
 		if (stringMatching(noteEntity.archetype, "Critical", offset))
@@ -244,6 +266,8 @@ namespace MikuMikuWorld
 		endNote.tick = SonolusSerializer::beatsToTicks(beat);
 		endNote.width = SonolusSerializer::sizeToWidth(size);
 		endNote.lane = SonolusSerializer::toNativeLane(lane, size);
+		if (!isValidNotePosition(endNote))
+			return false;
 		if (noteEntity.archetype == "IgnoredSlideTickNote")
 			return true;
 		if (stringMatching(noteEntity.archetype, "Critical", offset))
@@ -292,6 +316,8 @@ namespace MikuMikuWorld
 			tickNote.tick = SonolusSerializer::beatsToTicks(beat);
 			tickNote.width = SonolusSerializer::sizeToWidth(size);
 			tickNote.lane = SonolusSerializer::toNativeLane(lane, size);
+			if (!isValidNotePosition(tickNote))
+				return false;
 			return true;
 		}
 		else if (stringMatchAll(tickEntity.archetype, "AttachedSlideTickNote", offset))
@@ -679,7 +705,7 @@ namespace MikuMikuWorld
 				stepRef = linkedStep.nextTail;
 				step = nullptr;
 			}
-			if (validHold)
+			if (validHold && isValidHoldNotes(holdNotes))
 			{
 				holdNotes.front().parentID = -1;
 				for (auto& note : holdNotes) score.notes.emplace(note.ID, note);
