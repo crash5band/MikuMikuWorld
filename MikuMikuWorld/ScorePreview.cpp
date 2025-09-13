@@ -389,11 +389,11 @@ namespace MikuMikuWorld
 	{
 		auto& holdNotes = score.holdNotes.at(note.parentID);
 		int curStepIdx = findHoldStep(holdNotes, note.ID);
-		if (holdNotes.steps[curStepIdx].type != HoldStepType::Skip)
+		if (holdNotes.steps[curStepIdx].canEase())
 			return getNoteBound(note);
 		
 		int startStepIdx = curStepIdx;
-		while (startStepIdx != 0 && holdNotes.steps[startStepIdx - 1].type == HoldStepType::Skip)
+		while (startStepIdx != 0 && !holdNotes.steps[startStepIdx - 1].canEase())
 			startStepIdx--;
 		const HoldStep& lastHoldStep = startStepIdx != 0 ? holdNotes.steps[startStepIdx - 1] : holdNotes.start;
 		auto easeFunc = getEaseFunction(lastHoldStep.ease);
@@ -401,7 +401,7 @@ namespace MikuMikuWorld
 		const Note& startNote = score.notes.at(lastHoldStep.ID);
 		auto [leftStart, rightStart] = getNoteBound(startNote);
 
-		auto it = std::find_if(holdNotes.steps.begin() + curStepIdx, holdNotes.steps.end(), [](const HoldStep& step) { return step.type != HoldStepType::Skip; });
+		auto it = std::find_if(holdNotes.steps.begin() + curStepIdx, holdNotes.steps.end(), std::mem_fn(&HoldStep::canEase));
 		const Note& endNote = score.notes.at(it == holdNotes.steps.end() ? holdNotes.end : it->ID);
 		auto [leftStop, rightStop] = getNoteBound(endNote);
 
@@ -418,17 +418,16 @@ namespace MikuMikuWorld
 
 	std::pair<float, float> ScorePreviewWindow::getHoldSegmentBound(const Note &note, const Score &score, int curTick) const
 	{
-		const auto isNotHoldSkip = [](const HoldStep& step) { return step.type != HoldStepType::Skip; };
 		const HoldNote& holdNotes = score.holdNotes.at(note.ID);
 		auto curStepIt = std::lower_bound(holdNotes.steps.begin(), holdNotes.steps.end(), curTick, [&score](const HoldStep& step, int tick) { return score.notes.at(step.ID).tick < tick; });
-		auto startStepIt = std::find_if(std::make_reverse_iterator(curStepIt), holdNotes.steps.rend(), isNotHoldSkip);
+		auto startStepIt = std::find_if(std::make_reverse_iterator(curStepIt), holdNotes.steps.rend(), std::mem_fn(&HoldStep::canEase));
 		const HoldStep& startHoldStep = startStepIt == holdNotes.steps.rend() ? holdNotes.start : *startStepIt;
 
 		const Note& startNote = startStepIt == holdNotes.steps.rend() ? note : score.notes.at(startStepIt->ID);
 		if (startNote.tick == curTick) return getNoteBound(startNote);
 		auto [leftStart, rightStart] = getNoteBound(startNote);
 
-		auto end = std::find_if(curStepIt, holdNotes.steps.end(), isNotHoldSkip);
+		auto end = std::find_if(curStepIt, holdNotes.steps.end(), std::mem_fn(&HoldStep::canEase));
 		const Note& endNote = score.notes.at(end == holdNotes.steps.end() ? holdNotes.end : end->ID);
 		if (endNote.tick == curTick) return getNoteBound(endNote);
 		auto [leftStop, rightStop] = getNoteBound(endNote);
@@ -670,18 +669,24 @@ namespace MikuMikuWorld
 
 			if (segment.isGuide)
 			{
+				const HoldNote& hold = context.score.holdNotes.at(holdStart.ID);
+				// We'll assume guide don't have HoldStepType::Skip
+				double totalJoints = 1 + hold.steps.size();
+				double headProgress = segment.tailStepIndex / totalJoints;
+				double tailProgress = (segment.tailStepIndex + 1) / totalJoints;
+
 				double holdStart_stm = accumulateScaledDuration(holdStart.tick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
 				double holdEnd_stm = accumulateScaledDuration(holdEnd.tick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
-
+				
 				if (!isSegmentActivated)
 				{
-					holdStartProgress = unlerpD(holdStart_stm, holdEnd_stm, segmentStart_stm);
-					holdEndProgress = unlerpD(holdStart_stm, holdEnd_stm, segmentEnd_stm);
+					holdStartProgress = headProgress;
+					holdEndProgress = lerpD(headProgress, tailProgress, unlerpD(segmentHead_stm, segmentTail_stm, segmentEnd_stm));
 				}
 				else
 				{
-					holdStartProgress = unlerpD(holdStart.tick, holdEnd.tick, context.currentTick);
-					holdEndProgress = lerpD(holdStartProgress, 1, unlerpD(current_stm, holdEnd_stm, segmentEnd_stm));
+					holdStartProgress = lerpD(headProgress, tailProgress, unlerp(segment.startTime, segment.endTime, current_tm));
+					holdEndProgress = lerpD(holdStartProgress, tailProgress, unlerpD(current_stm, segment.tailTime, segmentEnd_stm));
 				}
 			}
 
