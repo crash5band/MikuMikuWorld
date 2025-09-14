@@ -13,11 +13,11 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::NoteTapLinear, 0.5f },
 		{ ParticleEffectType::NoteTapLinearAdd, 0.5f },
 
-		{ ParticleEffectType::NoteLongCircular, 0.6f },
+		{ ParticleEffectType::NoteLongCircular, 0.56f },
 		{ ParticleEffectType::NoteLongLinear, 0.5f },
 		{ ParticleEffectType::NoteLongLinearAdd, 0.52f },
 		
-		{ ParticleEffectType::NoteFlickCircular, 0.53f },
+		{ ParticleEffectType::NoteFlickCircular, 0.52f },
 		{ ParticleEffectType::NoteFlickLinear, 0.5f },
 		{ ParticleEffectType::NoteFlickDirectional, 0.31f },
 		
@@ -28,12 +28,12 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::NoteCriticalLinear, 0.52f },
 		{ ParticleEffectType::NoteCriticalLinearAdd, 0.5f },
 		
-		{ ParticleEffectType::NoteLongCriticalCircular, 0.6f },
-		{ ParticleEffectType::NoteLongCriticalLinear, 0.48f },
+		{ ParticleEffectType::NoteLongCriticalCircular, 0.56f },
+		{ ParticleEffectType::NoteLongCriticalLinear, 0.5f },
 		{ ParticleEffectType::NoteLongCriticalLinearAdd, 0.52f },
 		
-		{ ParticleEffectType::NoteCriticalFlickCircular, 0.56f },
-		{ ParticleEffectType::NoteCriticalFlickLinear, 0.55f },
+		{ ParticleEffectType::NoteCriticalFlickCircular, 0.5f },
+		{ ParticleEffectType::NoteCriticalFlickLinear, 0.49f },
 		{ ParticleEffectType::NoteCriticalDirectional, 0.31f },
 
 		{ ParticleEffectType::NoteFrictionCriticalCircular, 0.6f },
@@ -50,10 +50,10 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::NoteLongCriticalSegmentCircularEx, 0.8f },
 		{ ParticleEffectType::NoteLongCriticalSegmentLinear, 0.6f },
 
-		{ ParticleEffectType::SlotNoteTap, 0.5f },
-		{ ParticleEffectType::SlotNoteLong, 0.5f },
-		{ ParticleEffectType::SlotNoteFlick, 0.5f },
-		{ ParticleEffectType::SlotNoteCritical, 0.5f },
+		{ ParticleEffectType::SlotNoteTap, 0.4f },
+		{ ParticleEffectType::SlotNoteLong, 0.4f },
+		{ ParticleEffectType::SlotNoteFlick, 0.4f },
+		{ ParticleEffectType::SlotNoteCritical, 0.4f },
 
 		{ ParticleEffectType::SlotGlowNoteTap, 0.24f },
 		{ ParticleEffectType::SlotGlowNoteCritical, 0.245f },
@@ -219,7 +219,7 @@ namespace MikuMikuWorld::Engine
 			lane - width / bottom,
 			lane + width / top,
 			lane + width / bottom,
-			top + 0.03f, bottom + 0.05f
+			top, bottom
 		);
 	}
 

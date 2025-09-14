@@ -13,7 +13,7 @@
 # NOTE_CIRCULAR_HOLD_GREEN, NOTE_CIRCULAR_TAP_GREEN
 781,1,128,128
 # NOTE_LINEAR_TAP_CYAN, NOTE_LINEAR_TAP_YELLOW, NOTE_LINEAR_TAP_GREEN, Sekai Normal Slide Connector Linear, Sekai Slot Linear Slide Yellow, Note Linear Tap Add, Note Linear Critical Add, Note Long Critical Linear Add, Note Linear Flick Critical Add, Sekai Critical Slide Linear Yellow, Sekai Critical Slide Connector Linear
-859,779,64,64
+1,909,64,64
 # NOTE_CIRCULAR_TAP_YELLOW, NOTE_CIRCULAR_HOLD_YELLOW, Sekai Critical Flick Circular Yellow, Sekai Critical Slide Circular Yellow
 1,259,128,128
 # NOTE_CIRCULAR_TAP_YELLOW
@@ -27,49 +27,49 @@
 # NOTE_CIRCULAR_TAP_RED
 521,259,128,128
 # 
-925,779,64,64
-# NOTE_LINEAR_ALTERNATIVE_YELLOW, Sekai Slot Linear Slide Yellow
-1,909,64,64
-# NOTE_CIRCULAR_ALTERNATIVE_GREEN, Sekai Trace Note Linear Green, Sekai Trace Note Linear Yellow, Sekai Normal Slide Connector Linear, Sekai Slot Linear Slide Green, Note Long Linear Add, NOTE_LINEAR_HOLD_GREEN
 67,909,64,64
-# NOTE_LINEAR_ALTERNATIVE_RED, NOTE_LINEAR_TAP_RED
+# NOTE_LINEAR_ALTERNATIVE_YELLOW, Sekai Slot Linear Slide Yellow, Note Linear Critical Flick
 133,909,64,64
-# NOTE_CIRCULAR_ALTERNATIVE_GREEN, NOTE_CIRCULAR_ALTERNATIVE_YELLOW, NOTE_LINEAR_TAP_GREEN, NOTE_LINEAR_HOLD_YELLOW, Sekai Trace Note Circular Green, Sekai Trace Note Circular Yellow, Sekai Trace Note Linear Green, Sekai Trace Note Linear Yellow, Sekai Normal Slide Connector Linear, Sekai Critical Slide Connector Linear
+# NOTE_CIRCULAR_ALTERNATIVE_GREEN, Sekai Trace Note Linear Green, Sekai Trace Note Linear Yellow, Sekai Normal Slide Connector Linear, Sekai Slot Linear Slide Green, Note Long Linear Add, NOTE_LINEAR_HOLD_GREEN
 199,909,64,64
-# NOTE_LINEAR_ALTERNATIVE_YELLOW, Note Linear Flick Critical Add
-977,649,32,64
-# Sekai Trace Note Linear Yellow, Sekai Critical Slide Connector Linear
+# NOTE_LINEAR_ALTERNATIVE_RED, NOTE_LINEAR_TAP_RED
 265,909,64,64
+# NOTE_CIRCULAR_ALTERNATIVE_GREEN, NOTE_CIRCULAR_ALTERNATIVE_YELLOW, NOTE_LINEAR_TAP_GREEN, NOTE_LINEAR_HOLD_YELLOW, Sekai Trace Note Circular Green, Sekai Trace Note Circular Yellow, Sekai Trace Note Linear Green, Sekai Trace Note Linear Yellow, Sekai Normal Slide Connector Linear, Sekai Critical Slide Connector Linear
+331,909,64,64
+# NOTE_LINEAR_ALTERNATIVE_YELLOW, Note Linear Flick Critical Add
+977,389,32,64
+# Sekai Trace Note Linear Yellow, Sekai Critical Slide Connector Linear
+397,909,64,64
 # Sekai Trace Note Circular Green, Sekai Trace Note Circular Yellow
 651,259,128,128
 # NOTE_CIRCULAR_TAP_CYAN, Sekai Trace Note Circular Green, Sekai Trace Note Linear Green
-331,909,64,64
+463,909,64,64
 # NOTE_LINEAR_TAP_GREEN, Sekai Trace Note Circular Green, NOTE_CIRCULAR_HOLD_GREEN, NOTE_CIRCULAR_TAP_GREEN, Sekai Trace Note Linear Green
 781,259,128,128
 # NOTE_CIRCULAR_TAP_YELLOW, NOTE_CIRCULAR_HOLD_YELLOW, NOTE_LINEAR_TAP_YELLOW, Sekai Trace Note Circular Yellow, Sekai Critical Flick Circular Yellow, Sekai Trace Note Linear Yellow, Sekai Critical Slide Circular Yellow, Sekai Critical Slide Linear Yellow
 1,389,128,128
 # 
-397,909,64,64
+529,909,64,64
 # NOTE_CIRCULAR_TAP_CYAN
-463,909,64,64
+595,909,64,64
 # NOTE_CIRCULAR_ALTERNATIVE_GREEN
 131,389,128,128
 # NOTE_CIRCULAR_ALTERNATIVE_YELLOW
 261,389,128,128
 # NOTE_LINEAR_TAP_YELLOW, Note Critical Flick Flare, Sekai Critical Slide Linear Yellow
-529,909,64,64
-# NOTE_LINEAR_TAP_YELLOW, Note Critical Flick Flare, Sekai Critical Slide Linear Yellow
-595,909,64,64
-# NOTE_LINEAR_TAP_YELLOW, Note Critical Flick Flare, Sekai Critical Slide Linear Yellow
 661,909,64,64
-# NOTE_LINEAR_TAP_YELLOW, Sekai Critical Slide Linear Yellow
+# NOTE_LINEAR_TAP_YELLOW, Note Critical Flick Flare, Sekai Critical Slide Linear Yellow
 727,909,64,64
+# NOTE_LINEAR_TAP_YELLOW, Note Critical Flick Flare, Sekai Critical Slide Linear Yellow
+793,909,64,64
+# NOTE_LINEAR_TAP_YELLOW, Sekai Critical Slide Linear Yellow
+859,909,64,64
 # NOTE_LINEAR_HOLD_YELLOW
-859,845,61,58
+911,455,61,58
 # NOTE_LINEAR_TAP_RED
 1,779,64,128
 # NOTE_CIRCULAR_ALTERNATIVE_YELLOW, NOTE_LINEAR_HOLD_YELLOW, NOTE_LINEAR_TAP_RED, Sekai Trace Note Circular Yellow, Sekai Trace Note Linear Yellow, Note Long Critical Linear Add, Note Linear Critical Flick
-793,909,64,64
+925,909,64,64
 # NOTE_CIRCULAR_TAP_YELLOW, Sekai Critical Flick Circular Yellow
 391,389,128,128
 # 
@@ -111,23 +111,23 @@
 # Sekai Slot Glow Tap Green
 397,779,64,128
 # Note Linear Critical Add, Note Long Critical Linear Add, Note Linear Flick Critical Add
-859,909,64,64
-# NOTE_LINEAR_HOLD_GREEN
-925,909,64,64
-# NOTE_LINEAR_HOLD_GREEN
 911,649,64,64
+# NOTE_LINEAR_HOLD_GREEN
+911,519,64,64
+# NOTE_LINEAR_HOLD_GREEN
+911,389,64,64
 # NOTE_CIRCULAR_TAP_RED
 391,649,128,128
 # Note Linear Critical Flick
 463,779,64,128
-# Sekai Slot Glow Hold Green
+# 
 529,779,64,128
 # Sekai Slot Glow Hold Yellow
 595,779,64,128
 # Sekai Slot Glow Critical Hold
 661,779,64,128
 # NOTE_LINEAR_ALTERNATIVE_RED
-991,909,32,64
+977,519,32,64
 # NOTE_CIRCULAR_HOLD_GREEN
 521,649,128,128
 # NOTE_CIRCULAR_HOLD_YELLOW
@@ -136,3 +136,9 @@
 727,779,64,128
 # Sekai Slot Glow Tap Yellow
 793,779,64,128
+# Sekai Slot Glow Hold Green
+925,779,32,128
+# 
+959,779,32,128
+# Sekai Slot Glow Tap Cyan
+859,779,64,128
