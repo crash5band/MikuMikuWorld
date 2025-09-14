@@ -350,7 +350,7 @@ namespace MikuMikuWorld
 	Sonolus::LevelData SonolusSerializer::serialize(const Score& score)
 	{
 		Sonolus::LevelData levelData;
-		levelData.bgmOffset = score.metadata.musicOffset / 1000;
+		levelData.bgmOffset = score.metadata.musicOffset / -1000.0;
 		levelData.entities.emplace_back("Initialization");
 		levelData.entities.emplace_back("Stage");
 
@@ -504,7 +504,7 @@ namespace MikuMikuWorld
 	Score SonolusSerializer::deserialize(const Sonolus::LevelData& levelData)
 	{
 		Score score;
-		score.metadata.musicOffset = levelData.bgmOffset * 1000;
+		score.metadata.musicOffset = levelData.bgmOffset * -1000.0;
 
 		auto isTimescaleEntity = [](const Sonolus::LevelDataEntity& ent) { return ent.archetype == "#TIMESCALE_CHANGE"; };
 		auto isBpmChangeEntity = [](const Sonolus::LevelDataEntity& ent) { return ent.archetype == "#BPM_CHANGE"; };

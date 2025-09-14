@@ -79,7 +79,7 @@ namespace Sonolus
 
 	struct LevelData
 	{
-		float bgmOffset;
+		double bgmOffset;
 		std::vector<LevelDataEntity> entities;
 	};
 
