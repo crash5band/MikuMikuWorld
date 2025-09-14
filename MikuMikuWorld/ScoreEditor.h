@@ -29,7 +29,6 @@ namespace MikuMikuWorld
 		std::string autoSavePath;
 		bool showImGuiDemoWindow{false};
 
-		std::future<void> loadScoreFuture{};
 		std::future<void> loadMusicFuture{};
 		std::future<void> loadPresetsFuture{};
 		std::future<void> importPresetFuture{};
@@ -44,10 +43,9 @@ namespace MikuMikuWorld
 		void reset();
 		void open();
 		void loadScore(std::string filename);
-		void asyncLoadScore(std::string filename);
 		void loadMusic(std::string filename);
 		void asyncLoadMusic(std::string filename);
-		void exportSus();
+		void exportScore();
 		bool saveAs();
 		bool trySave(std::string);
 		void autoSave();

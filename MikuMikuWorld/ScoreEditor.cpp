@@ -83,7 +83,7 @@ namespace MikuMikuWorld
 			if (ImGui::IsAnyPressed(config.input.openHelp)) help();
 			if (ImGui::IsAnyPressed(config.input.save)) trySave(context.workingData.filename);
 			if (ImGui::IsAnyPressed(config.input.saveAs)) saveAs();
-			if (ImGui::IsAnyPressed(config.input.exportSus)) exportSus();
+			if (ImGui::IsAnyPressed(config.input.exportScore)) exportScore();
 			if (ImGui::IsAnyPressed(config.input.togglePlayback)) timeline.setPlaying(context, !timeline.isPlaying());
 			if (ImGui::IsAnyPressed(config.input.stop)) timeline.stop(context);
 			if (ImGui::IsAnyPressed(config.input.previousTick, true)) timeline.previousTick(context);
@@ -248,14 +248,6 @@ namespace MikuMikuWorld
 		serializeWindow.deserialize(filename);
 	}
 
-	void ScoreEditor::asyncLoadScore(std::string filename)
-	{
-		if (loadScoreFuture.valid())
-			loadScoreFuture.get();
-
-		loadScoreFuture = std::async(std::launch::async, &ScoreEditor::loadScore, this, filename);
-	}
-
 	void ScoreEditor::loadMusic(std::string filename)
 	{
 		propertiesWindow.isLoadingMusic = true;
@@ -372,7 +364,7 @@ namespace MikuMikuWorld
 		return false;
 	}
 
-	void ScoreEditor::exportSus()
+	void ScoreEditor::exportScore()
 	{
 		constexpr const char* exportExtensions[] = { "sus", "scp", "json" };
 		int filterIndex = std::clamp(config.lastSelectedExportIndex, 0, static_cast<int>(arrayLength(exportExtensions) - 1));
@@ -442,8 +434,8 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(getString("save_as"), ToShortcutString(config.input.saveAs)))
 				saveAs();
 
-			if (ImGui::MenuItem(getString("export"), ToShortcutString(config.input.exportSus)))
-				exportSus();
+			if (ImGui::MenuItem(getString("export"), ToShortcutString(config.input.exportScore)))
+				exportScore();
 
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("exit"), ToShortcutString(ImGuiKey_F4, ImGuiModFlags_Alt)))
@@ -617,8 +609,8 @@ namespace MikuMikuWorld
 		if (UI::toolbarButton(ICON_FA_SAVE, getString("save"), ToShortcutString(config.input.save)))
 			trySave(context.workingData.filename);
 
-		if (UI::toolbarButton(ICON_FA_FILE_EXPORT, getString("export"), ToShortcutString(config.input.exportSus)))
-			exportSus();
+		if (UI::toolbarButton(ICON_FA_FILE_EXPORT, getString("export"), ToShortcutString(config.input.exportScore)))
+			exportScore();
 
 		UI::toolbarSeparator();
 
@@ -756,7 +748,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::openImportPresetDialog()
 	{
-		IO::FileDialog fileDialog{"Import Preset", {{"Notes Preset", "*.json"}}, "", "", ".json", 0, Application::windowState.windowHandle};
+		IO::FileDialog fileDialog{"Import Preset", { IO::presetFilter }, "", "", ".json", 0, Application::windowState.windowHandle};
 		if (fileDialog.openFile() == IO::FileDialogResult::OK)
 			importPreset(fileDialog.outputFilename);
 	}

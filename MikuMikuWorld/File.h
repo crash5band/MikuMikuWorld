@@ -116,5 +116,6 @@ namespace IO
 	extern FileDialogFilter lvlDatFilter;
 	extern FileDialogFilter imageFilter;
 	extern FileDialogFilter audioFilter;
+	extern FileDialogFilter presetFilter;
 	extern FileDialogFilter allFilter;
 }
