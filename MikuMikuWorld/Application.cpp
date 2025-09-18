@@ -77,7 +77,7 @@ namespace MikuMikuWorld
 
 			if (GetFileVersionInfoW(filename, verHandle, verSize, verData))
 			{
-				if (VerQueryValue(verData, "\\", (VOID FAR * FAR*) & lpBuffer, &size))
+				if (VerQueryValue(verData, TEXT("\\"), (VOID FAR * FAR*) & lpBuffer, &size))
 				{
 					if (size)
 					{

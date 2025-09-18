@@ -43,7 +43,8 @@ namespace MikuMikuWorld
 
 				UI::setWindowTitle((context.workingData.filename.size() ? IO::File::getFilename(context.workingData.filename) : windowUntitled));
 				context.upToDate = true;
-				editor.updateRecentFilesList(controller->getFilename());
+				if (!controller->getFilename().empty())
+					editor.updateRecentFilesList(controller->getFilename());
 
 				controller.reset();
 				break;

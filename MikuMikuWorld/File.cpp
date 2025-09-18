@@ -14,6 +14,7 @@ namespace IO
 	FileDialogFilter lvlDatFilter{ "Sonolus Level Data", "*.json" };
 	FileDialogFilter imageFilter{ "Image Files", "*.jpg;*.jpeg;*.png" };
 	FileDialogFilter audioFilter{ "Audio Files", "*.mp3;*.wav;*.flac;*.ogg" };
+	FileDialogFilter presetFilter{ "Notes Preset", "*.json" };
 	FileDialogFilter allFilter{ "All Files", "*.*" };
 
 	File::File(const std::string& filename, FileMode mode)
