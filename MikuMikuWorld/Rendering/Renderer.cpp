@@ -60,17 +60,17 @@ namespace MikuMikuWorld
 		vPos[3] = { left, top, 0.0f, 1.0f };
 	}
 
-	void Renderer::setUVCoords(const Texture& tex, float x1, float x2, float y1, float y2)
+	void Renderer::setUVCoords(const Texture& tex, float x1, float x2, float y1, float y2, float z)
 	{
 		float left		= x1 / tex.getWidth();
 		float right		= x2 / tex.getWidth();
 		float top		= y1 / tex.getHeight();
 		float bottom	= y2 / tex.getHeight();
 
-		uvCoords[0] = { right, top, 0.0f, 0.0f };
-		uvCoords[1] = { right, bottom, 0.0f, 0.0f };
-		uvCoords[2] = { left, bottom, 0.0f, 0.0f };
-		uvCoords[3] = { left, top, 0.0f, 0.0f };
+		uvCoords[0] = { right, top, z, 0.0f };
+		uvCoords[1] = { right, bottom, z, 0.0f };
+		uvCoords[2] = { left, bottom, z, 0.0f };
+		uvCoords[3] = { left, top, z, 0.0f };
 	}
 
 	DirectX::XMMATRIX Renderer::getModelMatrix(const Vector2& pos, const float rot, const Vector2& sz)
@@ -95,7 +95,7 @@ namespace MikuMikuWorld
 	{
 		DirectX::XMMATRIX model = getModelMatrix(pos, rot, sz);
 		DirectX::XMFLOAT4 color{ tint.r, tint.g, tint.b, tint.a };
-		setUVCoords(tex, x1, x2, y1, y2);
+		setUVCoords(tex, x1, x2, y1, y2, 0);
 		setAnchor(anchor);
 
 		pushQuad(vPos, uvCoords, model, color, tex.getID(), z);
@@ -104,7 +104,7 @@ namespace MikuMikuWorld
 	void Renderer::drawQuad(const Vector2& p1, const Vector2& p2, const Vector2& p3, const Vector2& p4,
 		const Texture& tex, float x1, float x2, float y1, float y2, const Color& tint, int z)
 	{
-		setUVCoords(tex, x1, x2, y1, y2);
+		setUVCoords(tex, x1, x2, y1, y2, 0);
 		vPos[0] = { p4.x, p4.y, 0.0f, 1.0f };
 		vPos[1] = { p2.x, p2.y, 0.0f, 1.0f };
 		vPos[2] = { p1.x, p1.y, 0.0f, 1.0f };
@@ -117,7 +117,16 @@ namespace MikuMikuWorld
 	void Renderer::drawQuad(const std::array<DirectX::XMFLOAT4, 4> &pos, const DirectX::XMMATRIX &m,
 		const Texture &tex, float x1, float x2, float y1, float y2, const Color &tint, int z)
 	{
-		setUVCoords(tex, x1, x2, y1, y2);
+		setUVCoords(tex, x1, x2, y1, y2, 0.0f);
+		DirectX::XMFLOAT4 color{ tint.r, tint.g, tint.b, tint.a };
+
+		pushQuad(pos, uvCoords, m, color, tex.getID(), z);
+	}
+
+	void Renderer::drawQuadWithBlend(const std::array<DirectX::XMFLOAT4, 4>& pos, const DirectX::XMMATRIX& m, const Texture& tex, const Sprite& s,
+		const Color& tint, int z, float blend)
+	{
+		setUVCoords(tex, s.getX1(), s.getX2(), s.getY1(), s.getY2(), blend);
 		DirectX::XMFLOAT4 color{ tint.r, tint.g, tint.b, tint.a };
 
 		pushQuad(pos, uvCoords, m, color, tex.getID(), z);

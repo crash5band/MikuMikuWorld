@@ -9,64 +9,64 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::NoteCriticalLane, 1.1f },
 		{ ParticleEffectType::NoteCriticalFlickLane, 1.05f },
 
-		{ ParticleEffectType::NoteTapCircular, 0.5f },
-		{ ParticleEffectType::NoteTapLinear, 0.5f },
-		{ ParticleEffectType::NoteTapLinearAdd, 0.5f },
+		{ ParticleEffectType::NoteTapCircular, 0.45f },
+		{ ParticleEffectType::NoteTapLinear, 0.41f },
+		{ ParticleEffectType::NoteTapLinearAdd, 0.36f },
 
-		{ ParticleEffectType::NoteLongCircular, 0.6f },
-		{ ParticleEffectType::NoteLongLinear, 0.5f },
+		{ ParticleEffectType::NoteLongCircular, 0.583f },
+		{ ParticleEffectType::NoteLongLinear, 0.467f },
 		{ ParticleEffectType::NoteLongLinearAdd, 0.52f },
 		
-		{ ParticleEffectType::NoteFlickCircular, 0.53f },
-		{ ParticleEffectType::NoteFlickLinear, 0.5f },
-		{ ParticleEffectType::NoteFlickDirectional, 0.31f },
+		{ ParticleEffectType::NoteFlickCircular, 0.45f },
+		{ ParticleEffectType::NoteFlickLinear, 0.39f },
+		{ ParticleEffectType::NoteFlickDirectional, 0.283f },
 		
-		{ ParticleEffectType::NoteFrictionCircular, 0.58f },
-		{ ParticleEffectType::NoteFrictionLinear, 0.65f },
+		{ ParticleEffectType::NoteFrictionCircular, 0.42f },
+		{ ParticleEffectType::NoteFrictionLinear, 0.56f },
 
-		{ ParticleEffectType::NoteCriticalCircular, 0.53f },
-		{ ParticleEffectType::NoteCriticalLinear, 0.52f },
+		{ ParticleEffectType::NoteCriticalCircular, 0.5167f },
+		{ ParticleEffectType::NoteCriticalLinear, 0.367f },
 		{ ParticleEffectType::NoteCriticalLinearAdd, 0.5f },
 		
-		{ ParticleEffectType::NoteLongCriticalCircular, 0.6f },
-		{ ParticleEffectType::NoteLongCriticalLinear, 0.48f },
+		{ ParticleEffectType::NoteLongCriticalCircular, 0.583f },
+		{ ParticleEffectType::NoteLongCriticalLinear, 0.367f },
 		{ ParticleEffectType::NoteLongCriticalLinearAdd, 0.52f },
 		
-		{ ParticleEffectType::NoteCriticalFlickCircular, 0.56f },
-		{ ParticleEffectType::NoteCriticalFlickLinear, 0.55f },
-		{ ParticleEffectType::NoteCriticalDirectional, 0.31f },
+		{ ParticleEffectType::NoteCriticalFlickCircular, 0.44f },
+		{ ParticleEffectType::NoteCriticalFlickLinear, 0.335f },
+		{ ParticleEffectType::NoteCriticalDirectional, 0.283f },
 
-		{ ParticleEffectType::NoteFrictionCriticalCircular, 0.6f },
-		{ ParticleEffectType::NoteFrictionCriticalLinear, 0.65f },
+		{ ParticleEffectType::NoteFrictionCriticalCircular, 0.42f },
+		{ ParticleEffectType::NoteFrictionCriticalLinear, 0.56f },
 
-		{ ParticleEffectType::NoteLongAmongCircular, 0.5f },
-		{ ParticleEffectType::NoteLongAmongCriticalCircular, 0.5f },
+		{ ParticleEffectType::NoteLongAmongCircular, 0.33f },
+		{ ParticleEffectType::NoteLongAmongCriticalCircular, 0.33f },
 
-		{ ParticleEffectType::NoteLongSegmentCircular, 0.85f },
+		{ ParticleEffectType::NoteLongSegmentCircular, 0.9f },
 		{ ParticleEffectType::NoteLongSegmentCircularEx, 0.8f },
-		{ ParticleEffectType::NoteLongSegmentLinear, 0.6f },
+		{ ParticleEffectType::NoteLongSegmentLinear, 0.5f },
 
-		{ ParticleEffectType::NoteLongCriticalSegmentCircular, 0.85f },
+		{ ParticleEffectType::NoteLongCriticalSegmentCircular, 0.9f },
 		{ ParticleEffectType::NoteLongCriticalSegmentCircularEx, 0.8f },
-		{ ParticleEffectType::NoteLongCriticalSegmentLinear, 0.6f },
+		{ ParticleEffectType::NoteLongCriticalSegmentLinear, 0.5f },
 
-		{ ParticleEffectType::SlotNoteTap, 0.5f },
-		{ ParticleEffectType::SlotNoteLong, 0.5f },
-		{ ParticleEffectType::SlotNoteFlick, 0.5f },
-		{ ParticleEffectType::SlotNoteCritical, 0.5f },
+		{ ParticleEffectType::SlotNoteTap, 0.4167f },
+		{ ParticleEffectType::SlotNoteLong, 0.4167f },
+		{ ParticleEffectType::SlotNoteFlick, 0.4167f },
+		{ ParticleEffectType::SlotNoteCritical, 0.4167f },
 
-		{ ParticleEffectType::SlotGlowNoteTap, 0.24f },
+		{ ParticleEffectType::SlotGlowNoteTap, 0.245f },
 		{ ParticleEffectType::SlotGlowNoteCritical, 0.245f },
-		{ ParticleEffectType::SlotGlowNoteLong, 0.25f },
-		{ ParticleEffectType::SlotGlowNoteFlick, 0.3f },
+		{ ParticleEffectType::SlotGlowNoteLong, 0.245f },
+		{ ParticleEffectType::SlotGlowNoteFlick, 0.345f },
 		{ ParticleEffectType::SlotGlowNoteCriticalFlick, 0.25f },
-		{ ParticleEffectType::SlotGlowNoteCriticalLong, 0.267f },
+		{ ParticleEffectType::SlotGlowNoteCriticalLong, 0.25f },
 
-		{ ParticleEffectType::SlotGlowNoteLongSegment, 0.5f },
-		{ ParticleEffectType::SlotGlowNoteLongCriticalSegment, 0.5f },
+		{ ParticleEffectType::SlotGlowNoteLongSegment, 0.3f },
+		{ ParticleEffectType::SlotGlowNoteLongCriticalSegment, 0.3f },
 
 		{ ParticleEffectType::NoteCriticalFlickLinearAdd, 0.5f },
-		{ ParticleEffectType::NoteCriticalFlickFlare, 0.95f },
+		{ ParticleEffectType::NoteCriticalFlickFlare, 0.62f },
 	};
 
 	std::map<ParticleEffectType, ParticleEffectType> particleEffectFallback = {
@@ -219,7 +219,7 @@ namespace MikuMikuWorld::Engine
 			lane - width / bottom,
 			lane + width / top,
 			lane + width / bottom,
-			top + 0.03f, bottom + 0.05f
+			top, bottom
 		);
 	}
 

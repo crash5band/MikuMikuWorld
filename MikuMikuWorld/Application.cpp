@@ -325,7 +325,7 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(texturesDir + "timeline_tools.png");
 		ResourceManager::loadTexture(texturesDir + "note_stats.png");
 		ResourceManager::loadTexture(texturesDir + "stage.png");
-		ResourceManager::loadTexture(texturesDir + "particles.png", TextureFilterMode::LinearMipMapLinear, TextureFilterMode::Linear);
+		ResourceManager::loadTexture(texturesDir + "particles.png", TextureFilterMode::Linear, TextureFilterMode::Linear);
 
 		ResourceManager::loadTransforms(texturesDir + "transform.txt");
 		ResourceManager::loadParticleEffects(texturesDir + "particles.pte");

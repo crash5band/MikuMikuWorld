@@ -107,7 +107,7 @@ namespace MikuMikuWorld
 		float easeInOutQuint(float x) { return (x < 0.5f ? 0: -15 + 80*x - 160*x*x + 160*x*x*x - 80*x*x*x*x ) + 16*x*x*x*x*x; }
 		float easeOutInQuint(float x) { return 5*x - 20*x*x + 40*x*x*x - 40*x*x*x*x + 16*x*x*x*x*x; }
 		float easeInExpo(float x) { return x == 0 ? 0 : std::pow(1024.f, x-1); } // f(x) = 2^(10(x-1))
-		float easeOutExpo(float x) { return x == 1 ? 1 : 1 - std::pow(0.0009765625f, x); }
+		float easeOutExpo(float x) { return x == 1 ? 1 : 1 - std::pow(0.0000765625f, x); }
 		float easeInOutExpo(float x) { return x == 0 ? 0 : x == 1 ? 1 : (x < 0.5f ? std::pow(2.f, 20*x - 11) : 1 - std::pow(2.f, 9 - 20*x)); }
 		float easeOutInExpo(float x) { return x == 0.5f ? 0.5f : (x < 0.5f ? (1 - std::pow(2.f, -20*x)) : std::pow(2.f, 20*x-20) + 1) / 2; }
 		float easeInCirc(float x) { return 1 - std::sqrt(1 - x*x); }
