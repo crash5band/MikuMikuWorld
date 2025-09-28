@@ -161,6 +161,24 @@ namespace MikuMikuWorld
 		return std::string_view(source).substr(offset, toMatch.size()) == toMatch;
 	}
 
+	inline static bool isValidNotePosition(const Note& note)
+	{
+		return note.tick >= 0 && note.width >= MIN_NOTE_WIDTH && note.width <= MAX_NOTE_WIDTH && note.lane >= MIN_LANE && note.lane <= MAX_LANE;
+	}
+
+	inline static bool isValidHoldNotes(const std::vector<Note>& holdNotes)
+	{
+		if (holdNotes.size() < 2)
+			return false;
+		const Note& startNote = holdNotes.front();
+		const Note& endNote = holdNotes.back();
+		if (startNote.critical != endNote.critical || startNote.isFlick())
+			return false;
+		if (std::any_of(holdNotes.begin() + 1, holdNotes.end(), [startTick = startNote.tick, endTick = endNote.tick](const Note& note) { return note.tick < startTick || note.tick > endTick; }))
+			return false;
+		return true;
+	}
+
 	inline static bool tapNoteArchetypeToNativeNote(const Sonolus::LevelDataEntity& tapNoteEntity, Note& note)
 	{
 		size_t offset = 0;
@@ -173,6 +191,8 @@ namespace MikuMikuWorld
 		note.tick = SonolusSerializer::beatsToTicks(beat);
 		note.width = SonolusSerializer::sizeToWidth(size);
 		note.lane = SonolusSerializer::toNativeLane(lane, size);
+		if (!isValidNotePosition(note))
+			return false;
 		if (stringMatching(tapNoteEntity.archetype, "Critical", offset))
 			note.critical = true;
 		else if (!stringMatching(tapNoteEntity.archetype, "Normal", offset))
@@ -215,6 +235,8 @@ namespace MikuMikuWorld
 		startNote.tick = SonolusSerializer::beatsToTicks(beat);
 		startNote.width = SonolusSerializer::sizeToWidth(size);
 		startNote.lane = SonolusSerializer::toNativeLane(lane, size);
+		if (!isValidNotePosition(startNote))
+			return false;
 		if (noteEntity.archetype == "IgnoredSlideTickNote")
 			return true;
 		if (stringMatching(noteEntity.archetype, "Critical", offset))
@@ -244,6 +266,8 @@ namespace MikuMikuWorld
 		endNote.tick = SonolusSerializer::beatsToTicks(beat);
 		endNote.width = SonolusSerializer::sizeToWidth(size);
 		endNote.lane = SonolusSerializer::toNativeLane(lane, size);
+		if (!isValidNotePosition(endNote))
+			return false;
 		if (noteEntity.archetype == "IgnoredSlideTickNote")
 			return true;
 		if (stringMatching(noteEntity.archetype, "Critical", offset))
@@ -292,6 +316,8 @@ namespace MikuMikuWorld
 			tickNote.tick = SonolusSerializer::beatsToTicks(beat);
 			tickNote.width = SonolusSerializer::sizeToWidth(size);
 			tickNote.lane = SonolusSerializer::toNativeLane(lane, size);
+			if (!isValidNotePosition(tickNote))
+				return false;
 			return true;
 		}
 		else if (stringMatchAll(tickEntity.archetype, "AttachedSlideTickNote", offset))
@@ -324,7 +350,7 @@ namespace MikuMikuWorld
 	Sonolus::LevelData SonolusSerializer::serialize(const Score& score)
 	{
 		Sonolus::LevelData levelData;
-		levelData.bgmOffset = score.metadata.musicOffset / 1000;
+		levelData.bgmOffset = score.metadata.musicOffset / -1000.0;
 		levelData.entities.emplace_back("Initialization");
 		levelData.entities.emplace_back("Stage");
 
@@ -478,7 +504,7 @@ namespace MikuMikuWorld
 	Score SonolusSerializer::deserialize(const Sonolus::LevelData& levelData)
 	{
 		Score score;
-		score.metadata.musicOffset = levelData.bgmOffset * 1000;
+		score.metadata.musicOffset = levelData.bgmOffset * -1000.0;
 
 		auto isTimescaleEntity = [](const Sonolus::LevelDataEntity& ent) { return ent.archetype == "#TIMESCALE_CHANGE"; };
 		auto isBpmChangeEntity = [](const Sonolus::LevelDataEntity& ent) { return ent.archetype == "#BPM_CHANGE"; };
@@ -679,7 +705,7 @@ namespace MikuMikuWorld
 				stepRef = linkedStep.nextTail;
 				step = nullptr;
 			}
-			if (validHold)
+			if (validHold && isValidHoldNotes(holdNotes))
 			{
 				holdNotes.front().parentID = -1;
 				for (auto& note : holdNotes) score.notes.emplace(note.ID, note);
@@ -800,71 +826,5 @@ namespace MikuMikuWorld
 		default:
 			return EaseType::Linear;
 		}
-	}
-}
-
-namespace Sonolus
-{
-	void to_json(nlohmann::json& json, const LevelDataEntity& levelData)
-	{
-		if (!levelData.name.empty())
-			json["name"] = levelData.name;
-		json["archetype"] = levelData.archetype;
-		nlohmann::json& dataJson = json["data"] = nlohmann::json::array();
-		for (const auto& [name, value] : levelData.data)
-		{
-			nlohmann::json item;
-			item["name"] = name;
-			switch (levelData.getDataValueType(value))
-			{
-			case LevelDataEntity::DataValueType::Ref:
-				item["ref"] = LevelDataEntity::getDataValue<LevelDataEntity::RefType>(value);
-				break;
-			case LevelDataEntity::DataValueType::Real:
-				item["value"] = LevelDataEntity::getDataValue<LevelDataEntity::RealType>(value);
-				break;
-			case LevelDataEntity::DataValueType::Integer:
-				item["value"] = LevelDataEntity::getDataValue<LevelDataEntity::IntegerType>(value);
-				break;
-			}
-			dataJson.push_back(item);
-		}
-	}
-
-	void to_json(nlohmann::json& json, const LevelData& levelData)
-	{
-		json["bgmOffset"] = levelData.bgmOffset;
-		json["entities"] = levelData.entities;
-	}
-
-	void from_json(const nlohmann::json& json, LevelDataEntity& levelData)
-	{
-		jsonIO::optional_get_to(json, "name", levelData.name);
-		json.at("archetype").get_to(levelData.archetype);
-		auto& data = json.at("data");
-		for (auto& item : data)
-		{
-			auto it = item.find("ref");
-			if (it != item.end())
-			{
-				levelData.data.emplace(item.at("name").get<std::string>(), item.at("ref").get<std::string>());
-			}
-			else
-			{
-				auto& valueJson = item.at("value");
-				if (valueJson.is_number_float())
-					levelData.data.emplace(item.at("name").get<std::string>(), valueJson.get<float>());
-				else if (valueJson.is_number())
-					levelData.data.emplace(item.at("name").get<std::string>(), valueJson.get<int>());
-				else
-					throw std::runtime_error("Bad archetype data! Value is not a number!");
-			}
-		}
-	}
-
-	void from_json(const nlohmann::json& json, LevelData& levelData)
-	{
-		json.at("bgmOffset").get_to(levelData.bgmOffset);
-		json.at("entities").get_to(levelData.entities);
 	}
 }

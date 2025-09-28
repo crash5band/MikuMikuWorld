@@ -51,6 +51,4 @@ namespace MikuMikuWorld
 		Score();
 	};
 
-	Score deserializeScore(const std::string& filename);
-	void serializeScore(const Score& score, const std::string& filename);
 }

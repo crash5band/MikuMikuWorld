@@ -60,13 +60,14 @@ namespace MikuMikuWorld::Engine
 	struct DrawingHoldSegment
 	{
 		int endID;
+		EaseType ease;
+		bool isGuide;
+		ptrdiff_t tailStepIndex;
 		double headTime, tailTime;
 		float headLeft, headRight;
 		float tailLeft, tailRight;
 		float startTime, endTime;
 		double activeTime;
-		EaseType ease;
-		bool isGuide;
 	};
 
 	struct DrawingParticleProperty

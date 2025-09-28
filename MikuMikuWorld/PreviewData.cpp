@@ -151,14 +151,15 @@ namespace MikuMikuWorld::Engine
 			};
 			float endTime = accumulateDuration(tailNote.tick, TICKS_PER_BEAT, score.tempoChanges);
 			drawData.drawingHoldSegments.push_back(DrawingHoldSegment {
-				holdNote.end,
+				holdNote.end, 
+				head.ease,
+				holdNote.isGuide(),
+				tailIdx,
 				head.time, tail.time,
 				head.left, head.right,
 				tail.left, tail.right,
 				startTime, endTime,
 				activeTime,
-				head.ease,
-				holdNote.isGuide(),
 			});
 			startTime = endTime;
 			while ((headIdx + 1) < tailIdx)
@@ -441,10 +442,12 @@ namespace MikuMikuWorld::Engine
 		if (note.isFlick())
 		{
 			ParticleEffectType directional = !note.critical ? ParticleEffectType::NoteFlickDirectional : ParticleEffectType::NoteCriticalDirectional;
-			addParticleEffect(drawData, directional, NoteEffectType::Gen, DrawingParticleType::Linear, note, score);
+			if (ensureValidParticle(directional))
+				addParticleEffect(drawData, directional, NoteEffectType::Gen, DrawingParticleType::Linear, note, score);
 
-			if (note.critical)
-				addParticleEffect(drawData, ParticleEffectType::NoteCriticalFlickFlare, NoteEffectType::Gen, DrawingParticleType::Linear, note, score);
+      ParticleEffectType flare = ParticleEffectType::NoteCriticalFlickFlare;
+			if (note.critical && ensureValidParticle(flare))
+        addParticleEffect(drawData, ParticleEffectType::NoteCriticalFlickFlare, NoteEffectType::Gen, DrawingParticleType::Linear, note, score);
 		}
 	}
 

@@ -646,11 +646,11 @@ namespace MikuMikuWorld
 			eventEditor(context);
 			updateNotes(context, edit, renderer);
 
-		while (!drawEvents.empty())
-		{
-			drawEventControl(drawEvents.top());
-			drawEvents.pop();
-		}
+			while (!drawEvents.empty())
+			{
+				drawEventControl(drawEvents.top());
+				drawEvents.pop();
+			}
 
 			// Update cursor tick after determining whether a note is hovered
 			// The cursor tick should not change if a note is hovered
@@ -2016,7 +2016,15 @@ namespace MikuMikuWorld
 				if (ImGui::IsItemDeactivatedAfterEdit())
 				{
 					Score prev = context.score;
-					hiSpeed.speed = std::stof(eventEdit.editHiSpeed);
+					try
+					{
+						hiSpeed.speed = std::stof(eventEdit.editHiSpeed);
+					}
+					catch (const std::out_of_range&)
+					{
+						hiSpeed.speed = 1;
+					}
+					catch (const std::invalid_argument&) { }
 					eventEdit.setEditHispeed(hiSpeed.speed);
 
 					context.pushHistory("Change hi-speed", prev, context.score);
