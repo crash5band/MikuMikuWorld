@@ -1,7 +1,7 @@
 #pragma once
 #include <random>
 #include <array>
-#include <list>
+#include <set>
 #include "Score.h"
 #include "Math.h"
 #include <memory>
@@ -19,12 +19,23 @@ namespace MikuMikuWorld::Engine
 	{
 		Lane,
 		Circular,
-		BlendCircular,
 		Linear,
 		Flat,
 		Slot,
-		SlotGlow,
-		SlotGlowAdditive
+		Aura,
+	};
+
+	enum class NoteEffectType : uint8_t
+	{
+		Lane,
+		Slot,
+		Gen,
+		GenHold,
+		Aura,
+		AuraBg,
+		AuraHold,
+		AuraBgHold,
+		NoteEffectTypeCount
 	};
 
 	struct DrawingNote
@@ -80,14 +91,21 @@ namespace MikuMikuWorld::Engine
 
 	struct DrawingEffect
 	{
-		int refID;
-		Range time;
+		int refID{};
+		int lane{};
+		Range time{-1, -1};
 
-		std::vector<DrawingParticle> additiveAlphaBlendParticles;
-		std::vector<DrawingParticle> blendParticles;
-		std::vector<DrawingParticle> laneParticles;
-		std::vector<DrawingParticle> additiveParticles;
-		std::unique_ptr<DrawingParticle> slotParticle;
+		std::vector<DrawingParticle> particles;
+	};
+
+	struct EffectPool
+	{
+		size_t nextIndex{};
+		std::array<DrawingEffect, 12> pool;
+
+		DrawingEffect& getNext(int noteId, bool advance);
+		void clear();
+		int findIndex(int noteId, int lane);
 	};
 
 	struct DrawData
@@ -98,13 +116,19 @@ namespace MikuMikuWorld::Engine
 		std::vector<DrawingLine> drawingLines;
 		std::vector<DrawingHoldTick> drawingHoldTicks;
 		std::vector<DrawingHoldSegment> drawingHoldSegments;
-		std::map<int, DrawingEffect> drawingEffects;
+
+		std::map<NoteEffectType, EffectPool> normalEffectsPools;
+		std::map<NoteEffectType, EffectPool> criticalEffectsPools;
+		std::set<int> drawingNoteEffects;
+
 		bool hasLaneEffect;
 		bool hasNoteEffect;
 		bool hasSlotEffect;
 
 		void clear();
+		void clearEffectPools();
 		void calculateDrawData(Score const& score);
 		void updateNoteEffects(ScoreContext& context);
+		void initEffectPools();
 	};
 }

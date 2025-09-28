@@ -49,9 +49,12 @@ namespace MikuMikuWorld
 		void drawQuad(const std::array<DirectX::XMFLOAT4, 4>& pos, const DirectX::XMMATRIX& m, const Texture& tex, float x1, float x2, float y1, float y2,
 			const Color& tint = Color(1.0f, 1.0f, 1.0f, 1.0f), int z = 0);
 
+		void drawQuadWithBlend(const std::array<DirectX::XMFLOAT4, 4>& pos, const DirectX::XMMATRIX& m, const Texture& tex, const Sprite& s,
+			const Color& tint, int z, float blend);
+
 		void drawRectangle(Vector2 position, Vector2 size, const Texture& tex, float x1, float x2, float y1, float y2, Color tint, int z);
 
-		void setUVCoords(const Texture& tex, float x1, float x2, float y1, float y2);
+		void setUVCoords(const Texture& tex, float x1, float x2, float y1, float y2, float z);
 		void setAnchor(AnchorType type);
 		DirectX::XMMATRIX getModelMatrix(const Vector2& pos, const float rot, const Vector2& sz);
 
