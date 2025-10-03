@@ -110,6 +110,7 @@ namespace MikuMikuWorld
 		bool pvNoteGlow;
 		float pvNoteSpeed;
 		float pvHoldAlpha;
+		float pvGuideAlpha;
 		float pvStageCover;
 		float pvStageOpacity;
 		float pvBackgroundBrightness;

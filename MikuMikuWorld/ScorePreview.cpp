@@ -712,7 +712,7 @@ namespace MikuMikuWorld
 			double stepStartProgress = segmentStartProgress;
 
 			auto model = DirectX::XMMatrixIdentity();
-			float alpha = config.pvHoldAlpha;
+			float alpha = segment.isGuide ? config.pvGuideAlpha : config.pvHoldAlpha;
 			int zIndex = Engine::getZIndex(SpriteLayer::HOLD_PATH, holdStartCenter, segment.activeTime / total_tm);
 
 			for (int i = 0; i < steps; i++)

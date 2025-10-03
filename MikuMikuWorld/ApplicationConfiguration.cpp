@@ -93,6 +93,7 @@ namespace MikuMikuWorld
 			pvNoteGlow = jsonIO::tryGetValue<bool>(previewObj, "glow_effect", true);
 			pvNoteSpeed = jsonIO::tryGetValue<float>(previewObj, "note_speed", 6.0f);
 			pvHoldAlpha = jsonIO::tryGetValue<float>(previewObj, "hold_alpha", 1.f);
+			pvGuideAlpha = jsonIO::tryGetValue<float>(previewObj, "guide_alpha", 0.8f);
 			pvStageCover = jsonIO::tryGetValue<float>(previewObj, "stage_cover", 0.f);
 			pvStageOpacity = jsonIO::tryGetValue<float>(previewObj, "stage_opacity", 1.f);
 			pvBackgroundBrightness = jsonIO::tryGetValue<float>(previewObj, "background_brightness", 0.8f);
@@ -204,6 +205,7 @@ namespace MikuMikuWorld
 			{"glow_effect", pvNoteGlow},
 			{"note_speed", pvNoteSpeed},
 			{"hold_alpha", pvHoldAlpha},
+			{"guide_alpha", pvGuideAlpha},
 			{"stage_cover", pvStageCover},
 			{"stage_opacity", pvStageOpacity},
 			{"background_brightness", pvBackgroundBrightness},
@@ -303,6 +305,7 @@ namespace MikuMikuWorld
 		pvNoteGlow = true;
 		pvNoteSpeed = 6.0f;
 		pvHoldAlpha = 1.f;
+		pvGuideAlpha = 0.8f;
 		pvStageCover = 0.f;
 		pvStageOpacity = 1.f;
 		pvBackgroundBrightness = 0.8f;

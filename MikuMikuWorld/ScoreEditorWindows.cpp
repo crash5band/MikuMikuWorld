@@ -1065,6 +1065,10 @@ namespace MikuMikuWorld
 						float hold_alpha = config.pvHoldAlpha * 100.f;
 						UI::addSliderProperty(getString("holds_alpha"), hold_alpha, 10, 100, "%.0f%%");
 						config.pvHoldAlpha = hold_alpha / 100.f;
+
+						float guide_alpha = config.pvGuideAlpha * 100.f;
+						UI::addSliderProperty(getString("guides_alpha"), guide_alpha, 10, 100, "%.0f%%");
+						config.pvGuideAlpha = guide_alpha / 100.f;
 						
 						UI::endPropertyColumns();
 					}
