@@ -109,6 +109,7 @@ holds_alpha, ロングノーツの不透明度
 stage_opacity, ステージの不透明度
 stage_cover, ステージカバー（縦方向）
 stage_lock_ratio, ステージのアスペクト比を維持
+notes_skin, ノーツスキン
 
 # score editor
 options, オプション

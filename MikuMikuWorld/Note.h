@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <string_view>
+#include <array>
 
 namespace MikuMikuWorld
 {
@@ -55,14 +56,6 @@ namespace MikuMikuWorld
 		FlickArrow
 	};
 
-	struct NoteTextures
-	{
-		int notes;
-		int holdPath;
-		int touchLine;
-	};
-
-	extern NoteTextures noteTextures;
 	extern int nextID;
 
 	class Note

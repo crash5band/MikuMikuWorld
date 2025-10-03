@@ -347,6 +347,9 @@ namespace MikuMikuWorld::Engine
 		const Note& endNote = score.notes.at(score.holdNotes.at(startNote.ID).end);
 		float startTime = accumulateDuration(startNote.tick, TICKS_PER_BEAT, score.tempoChanges);
 		float endTime = accumulateDuration(endNote.tick, TICKS_PER_BEAT, score.tempoChanges);
+		if (endTime - startTime < 0.01f)
+			return;
+
 		if (ensureValidParticle(circular))
 			addParticleEffect(drawData, circular, NoteEffectType::GenHold, DrawingParticleType::Circular, startNote, score, endTime - startTime);
 		if (ensureValidParticle(circularEx))
@@ -570,11 +573,8 @@ namespace MikuMikuWorld::Engine
 		{
 			const auto& [id, note] = *it;
 			const auto noteEffectIdIt = drawingNoteEffects.find(id);
-			const float noteTime = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
 			if (noteEffectIdIt != drawingNoteEffects.end())
-			{
 				continue;
-			}
 
 			bool isMidHold = false;
 			if (note.getType() == NoteType::Hold)
@@ -584,7 +584,7 @@ namespace MikuMikuWorld::Engine
 				isMidHold = !hold.isGuide() && isWithinRange(currentTick, note.tick, end.tick);
 			}
 
-			if (isMidHold || isWithinRange(currentTime, noteTime - effectTimeAddBefore, noteTime + effectTimeAddAfter))
+			if (isMidHold || isWithinRange(currentTick, note.tick - 64, note.tick + 1920))
 			{
 				if (hasNoteEffect)
 					addNoteEffect(*this, note, context.score);

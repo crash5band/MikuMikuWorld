@@ -134,19 +134,51 @@ namespace MikuMikuWorld
 			std::string id("##");
 			id.append(label);
 
-			std::string curr = getString(items[(int)value]);
+			std::string_view curr = getString(items[(int)value]);
 			if (!curr.size())
 				curr = items[(int)value];
-			if (ImGui::BeginCombo(id.c_str(), curr.c_str()))
+
+			if (ImGui::BeginCombo(id.c_str(), curr.data()))
 			{
 				for (int i = 0; i < count; ++i)
 				{
 					const bool selected = (int)value == i;
-					std::string str = getString(items[i]);
-					if (!str.size())
+					std::string_view str = getString(items[i]);
+					if (str.empty())
 						str = items[i];
 
-					if (ImGui::Selectable(str.c_str(), selected))
+					if (ImGui::Selectable(str.data(), selected))
+						value = (T)i;
+				}
+
+				ImGui::EndCombo();
+			}
+
+			ImGui::NextColumn();
+		}
+
+		template <typename T>
+		static void addSelectProperty(const char* label, T& value, const std::vector<std::string>& items, int count)
+		{
+			propertyLabel(label);
+
+			std::string id("##");
+			id.append(label);
+
+			std::string_view curr = getString(items[(int)value]);
+			if (!curr.size())
+				curr = items[(int)value];
+
+			if (ImGui::BeginCombo(id.c_str(), curr.data()))
+			{
+				for (int i = 0; i < count; ++i)
+				{
+					const bool selected = (int)value == i;
+					std::string_view str = getString(items[i]);
+					if (str.empty())
+						str = items[i].data();
+
+					if (ImGui::Selectable(str.data(), selected))
 						value = (T)i;
 				}
 
@@ -165,19 +197,20 @@ namespace MikuMikuWorld
 			std::string id("##");
 			id.append(label);
 
-			std::string curr = getString(items[(int)value]);
+			std::string_view curr = getString(items[(int)value]);
 			if (!curr.size())
 				curr = items[(int)value];
-			if (ImGui::BeginCombo(id.c_str(), curr.c_str()))
+
+			if (ImGui::BeginCombo(id.c_str(), curr.data()))
 			{
 				for (int i = (int)FlickType::Default; i < count; ++i)
 				{
 					const bool selected = (int)value == i;
-					std::string str = getString(items[i]);
-					if (!str.size())
+					std::string_view str = getString(items[i]);
+					if (str.empty())
 						str = items[i];
 
-					if (ImGui::Selectable(str.c_str(), selected))
+					if (ImGui::Selectable(str.data(), selected))
 						value = (FlickType)i;
 				}
 

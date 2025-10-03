@@ -5,6 +5,7 @@
 #include "Constants.h"
 #include "Utilities.h"
 #include "ApplicationConfiguration.h"
+#include "NoteSkin.h"
 #include "ResourceManager.h"
 
 namespace MikuMikuWorld
@@ -1049,6 +1050,10 @@ namespace MikuMikuWorld
 					if (ImGui::CollapsingHeader(getString("visuals"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
+						const std::vector<std::string>& noteSkinNames = noteSkins.getSkinNames();
+
+						UI::addSelectProperty(getString("notes_skin"), config.notesSkin, noteSkinNames, noteSkins.count());
+
 						UI::addCheckboxProperty(getString("flicks_animation"), config.pvFlickAnimation);
 						UI::addCheckboxProperty(getString("holds_animation"), config.pvHoldAnimation);
 						UI::addCheckboxProperty(getString("simultaneous_lines"), config.pvSimultaneousLine);

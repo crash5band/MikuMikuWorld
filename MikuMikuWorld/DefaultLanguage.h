@@ -114,6 +114,7 @@ namespace MikuMikuWorld
 		{"stage_opacity", "Stage Opacity"},
 		{"stage_cover", "Vertical Stage Cover"},
 		{"stage_lock_ratio", "Lock Stage Aspect Ratio"},
+		{"notes_skin", "Notes Skin"},
 
 		// Score editor
 		{"chart_properties", "Chart Properties"},

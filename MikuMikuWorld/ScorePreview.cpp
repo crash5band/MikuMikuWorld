@@ -5,14 +5,15 @@
 #include "ResourceManager.h"
 #include "Colors.h"
 #include "ImageCrop.h"
+#include "NoteSkin.h"
 #include "ApplicationConfiguration.h"
 
 namespace MikuMikuWorld
 {
 	struct PreviewPlaybackState
 	{
-		bool isPlaying{}, isLastFramePlaying{};
-	} static playbackState;
+		bool isPlaying{}, wasLastFramePlaying{};
+	} playbackState;
 
 	namespace Utils
 	{
@@ -286,7 +287,7 @@ namespace MikuMikuWorld
 
 		if (playbackState.isPlaying)
 		{
-			if (!playbackState.isLastFramePlaying)
+			if (!playbackState.wasLastFramePlaying)
 				context.scorePreviewDrawData.clearEffectPools();
 
 			context.scorePreviewDrawData.updateNoteEffects(context);
@@ -371,7 +372,7 @@ namespace MikuMikuWorld
 		}
 		updateScrollbar(timeline, context);
 
-		playbackState.isLastFramePlaying = playbackState.isPlaying;
+		playbackState.wasLastFramePlaying = playbackState.isPlaying;
 		playbackState.isPlaying = timeline.isPlaying();
 	}
 
@@ -379,9 +380,13 @@ namespace MikuMikuWorld
 	{
 		// At smaller widths, due to mipmapping, the texture becomes blurry.
 		// So we make a copy texture which have no mipmapping
+
+		// TODO: Fix this?
+		return ResourceManager::textures[noteSkins.getItemIndex(NoteSkinItem::Notes)];
+
 		if (!notesTex)
 		{
-			const Texture& target_texture = ResourceManager::textures[noteTextures.notes];
+			const Texture& target_texture = ResourceManager::textures[noteSkins.getItemIndex(NoteSkinItem::Notes)];
 			notesTex = std::make_unique<Texture>(target_texture.getFilename(), TextureFilterMode::Linear);
 		}
 		return *notesTex;
@@ -542,7 +547,8 @@ namespace MikuMikuWorld
 	{
 		if (!config.pvSimultaneousLine)
 			return;
-		if (noteTextures.notes == -1)
+
+		if (noteSkins.getItemIndex(NoteSkinItem::Notes) == -1)
 			return;
 		double scaled_tm = accumulateScaledDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
 		const auto& drawData = context.scorePreviewDrawData.drawingLines;
@@ -574,7 +580,7 @@ namespace MikuMikuWorld
 
 	void ScorePreviewWindow::drawHoldTicks(const ScoreContext &context, Renderer *renderer)
 	{
-		if (noteTextures.notes == -1)
+		if (noteSkins.getItemIndex(NoteSkinItem::Notes) == -1)
 			return;
 		double scaled_tm = accumulateScaledDuration(context.currentTick, TICKS_PER_BEAT, context.score.tempoChanges, context.score.hiSpeedChanges);
 		const float notesHeight = Engine::getNoteHeight() * 1.3f;
@@ -628,7 +634,7 @@ namespace MikuMikuWorld
 			bool isHoldActivated = current_tm >= segment.activeTime;
 			bool isSegmentActivated = current_tm >= segment.startTime;
 
-			int textureID = segment.isGuide ? noteTextures.touchLine : noteTextures.holdPath;
+			int textureID = noteSkins.getItemIndex(segment.isGuide ? NoteSkinItem::TouchLine : NoteSkinItem::LongNote);
 			if (textureID == -1)
 				continue;
 			const Texture& texture = ResourceManager::textures[textureID];
@@ -892,10 +898,10 @@ namespace MikuMikuWorld
 		}
 
 		return { {
-			{ noteRight * 1.2f, scaledAspectRatio * 4.25f, 0.0f, 1.0f },
+			{ noteRight * 1.2f, scaledAspectRatio * 4.35f, 0.0f, 1.0f },
 			{ noteRight * 1.02f, 		 1.0f,                      0.0f, 1.0f },
 			{ noteLeft * 1.02f, 		 1.0f,                      0.0f, 1.0f },
-			{ noteLeft * 1.2f,  scaledAspectRatio * 4.25f, 0.0f, 1.0f }
+			{ noteLeft * 1.2f,  scaledAspectRatio * 4.35f, 0.0f, 1.0f }
 		} };
 	}
 
@@ -969,9 +975,6 @@ namespace MikuMikuWorld
 	{
 		const auto& drawData = context.scorePreviewDrawData;
 
-		drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::Gen, renderer);
-		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::Gen, renderer);
-
 		drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType:: AuraBgHold, renderer);
 		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::AuraBgHold, renderer);
 
@@ -980,6 +983,9 @@ namespace MikuMikuWorld
 
 		drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::GenHold, renderer);
 		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::GenHold, renderer);
+
+		drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::Gen, renderer);
+		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::Gen, renderer);
 			
 		drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::AuraBg, renderer);
 		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::AuraBg, renderer);
@@ -990,7 +996,7 @@ namespace MikuMikuWorld
 
 	void ScorePreviewWindow::drawNoteBase(Renderer* renderer, const Note& note, float noteLeft, float noteRight, float y, float zScalar)
 	{
-		if (noteTextures.notes == -1)
+		if (noteSkins.getItemIndex(NoteSkinItem::Notes) == -1)
 			return;
 
 		const Texture& texture = getNoteTexture();
@@ -1049,7 +1055,7 @@ namespace MikuMikuWorld
 
 	void ScorePreviewWindow::drawTraceDiamond(Renderer *renderer, const Note &note, float noteLeft, float noteRight, float y)
 	{
-		if (noteTextures.notes == -1)
+		if (noteSkins.getItemIndex(NoteSkinItem::Notes) == -1)
 			return;
 			
 		const Texture& texture = getNoteTexture();
@@ -1081,7 +1087,7 @@ namespace MikuMikuWorld
 
 	void ScorePreviewWindow::drawFlickArrow(Renderer *renderer, const Note &note, float y, double time)
 	{
-		if (noteTextures.notes == -1)
+		if (noteSkins.getItemIndex(NoteSkinItem::Notes) == -1)
 			return;
 
 		const Texture& texture = getNoteTexture();

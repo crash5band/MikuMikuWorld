@@ -172,6 +172,9 @@
       <Filter>Score\Serialization</Filter>
     </ClCompile>
     <ClCompile Include="Sonolus.cpp" />
+    <ClCompile Include="NoteSkin.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -388,6 +391,9 @@
       <Filter>Score\Serialization</Filter>
     </ClInclude>
     <ClInclude Include="Sonolus.h" />
+    <ClInclude Include="NoteSkin.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Imgui">

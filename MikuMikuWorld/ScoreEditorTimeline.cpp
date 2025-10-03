@@ -8,6 +8,7 @@
 #include "Utilities.h"
 #include "ApplicationConfiguration.h"
 #include "Rendering/Camera.h"
+#include "NoteSkin.h"
 #include <cmath>
 #include <algorithm>
 
@@ -1534,11 +1535,10 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::drawHoldCurvePart(const Note& n1, const Note& n2, EaseType ease, bool isGuide, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
 	{
-		int texIndex{ isGuide ? noteTextures.touchLine : noteTextures.holdPath };
+		int texIndex{ noteSkins.getItemIndex(isGuide ? NoteSkinItem::TouchLine : NoteSkinItem::LongNote) };
 		if (texIndex == -1)
 			return;
 
-		ZIndex zIndex{ ZIndex::HoldLine };
 		const Texture& pathTex = ResourceManager::textures[texIndex];
 		const int sprIndex = n1.critical ? 3 : 1;
 		if (!isArrayIndexInBounds(sprIndex, pathTex.sprites))
@@ -1590,19 +1590,19 @@ namespace MikuMikuWorld
 			Vector2 p2{ xl1 + holdSliceSize, y1 };
 			Vector2 p3{ xl2, y2 };
 			Vector2 p4{ xl2 + holdSliceSize, y2 };
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, left, left + holdSliceWidth, spr.getY1(), spr.getY2(), tint, (int)zIndex);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, left, left + holdSliceWidth, spr.getY1(), spr.getY2(), tint, (int)ZIndex::HoldLine);
 
 			p1.x = xl1 + holdSliceSize;
 			p2.x = xr1 - holdSliceSize;
 			p3.x = xl2 + holdSliceSize;
 			p4.x = xr2 - holdSliceSize;
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, left + holdSliceWidth, right - holdSliceWidth, spr.getY1(), spr.getY2(), tint, (int)zIndex);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, left + holdSliceWidth, right - holdSliceWidth, spr.getY1(), spr.getY2(), tint, (int)ZIndex::HoldLine);
 
 			p1.x = xr1 - holdSliceSize;
 			p2.x = xr1;
 			p3.x = xr2 - holdSliceSize;
 			p4.x = xr2;
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, right - holdSliceWidth, right, spr.getY1(), spr.getY2(), tint, (int)zIndex);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, right - holdSliceWidth, right, spr.getY1(), spr.getY2(), tint, (int)ZIndex::HoldLine);
 		}
 	}
 
@@ -1632,12 +1632,13 @@ namespace MikuMikuWorld
 			int s1 = -1;
 			int s2 = 1;
 
-			if (noteTextures.notes == -1)
+			int texIndex = noteSkins.getItemIndex(NoteSkinItem::Notes);
+			if (texIndex == -1)
 				return;
 
 			static constexpr auto isSkipStep = [](const HoldStep& step) { return step.type == HoldStepType::Skip; };
 
-			const Texture& tex = ResourceManager::textures[noteTextures.notes];
+			const Texture& tex = ResourceManager::textures[texIndex];
 			const Vector2 nodeSz{ notesHeight - 5, notesHeight - 5 };
 			for (int i = 0; i < note.steps.size(); ++i)
 			{
@@ -1727,10 +1728,11 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::drawHoldMid(Note& note, HoldStepType type, Renderer* renderer, const Color& tint)
 	{
-		if (type == HoldStepType::Hidden || noteTextures.notes == -1)
+		int texIndex = noteSkins.getItemIndex(NoteSkinItem::Notes);
+		if (type == HoldStepType::Hidden || texIndex == -1)
 			return;
 
-		const Texture& tex = ResourceManager::textures[noteTextures.notes];
+		const Texture& tex = ResourceManager::textures[texIndex];
 		int sprIndex = getNoteSpriteIndex(note);
 		if (sprIndex < 0 || sprIndex >= tex.sprites.size())
 			return;
@@ -1758,10 +1760,11 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::drawFlickArrow(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
 	{
-		if (noteTextures.notes == -1)
+		int texIndex = noteSkins.getItemIndex(NoteSkinItem::Notes);
+		if (texIndex == -1)
 			return;
 
-		const Texture& tex = ResourceManager::textures[noteTextures.notes];
+		const Texture& tex = ResourceManager::textures[texIndex];
 		const int sprIndex = getFlickArrowSpriteIndex(note);
 		if (!isArrayIndexInBounds(sprIndex, tex.sprites))
 			return;
@@ -1792,10 +1795,11 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::drawNote(const Note& note, Renderer* renderer, const Color& tint, const int offsetTick, const int offsetLane)
 	{
-		if (noteTextures.notes == -1)
+		int texIndex = noteSkins.getItemIndex(NoteSkinItem::Notes);
+		if (texIndex == -1)
 			return;
 
-		const Texture& tex = ResourceManager::textures[noteTextures.notes];
+		const Texture& tex = ResourceManager::textures[texIndex];
 		const int sprIndex = getNoteSpriteIndex(note);
 		if (!isArrayIndexInBounds(sprIndex, tex.sprites))
 			return;

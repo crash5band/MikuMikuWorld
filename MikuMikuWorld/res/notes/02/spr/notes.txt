@@ -1,0 +1,74 @@
+# notes_0.png
+354,1100,354,186
+# notes_3.png
+0,1286,354,186
+# notes_1.png
+872,658,354,186
+# notes_2.png
+708,1100,354,186
+# notes_4.png
+958,472,354,186
+# notes_5.png
+752,858,354,186
+# notes_6.png
+0,1100,354,186
+# notes_long_among.png
+1470,856,158,160
+# notes_long_among_crtcl.png
+1486,1016,158,160
+# notes_friction_among_long.png
+1414,1334,104,112
+# notes_friction_among_crtcl.png
+1310,1334,104,112
+# notes_friction_among_flick.png
+1518,1334,102,102
+# notes_flick_arrow_01.png
+1454,1176,144,158
+# notes_flick_arrow_01_diagonal.png
+1310,1016,176,160
+# notes_flick_arrow_02.png
+1106,856,188,174
+# notes_flick_arrow_02_diagonal.png
+582,1286,228,182
+# notes_flick_arrow_03.png
+1062,1044,248,194
+# notes_flick_arrow_03_diagonal.png
+1332,432,298,212
+# notes_flick_arrow_04.png
+1332,0,312,216
+# notes_flick_arrow_04_diagonal.png
+376,858,376,242
+# notes_flick_arrow_05.png
+958,236,374,236
+# notes_flick_arrow_05_diagonal.png
+514,270,444,270
+# notes_flick_arrow_06.png
+436,600,436,258
+# notes_flick_arrow_06_diagonal.png
+0,0,514,300
+# notes_flick_arrow_crtcl_01.png
+1310,1176,144,158
+# notes_flick_arrow_crtcl_01_diagonal.png
+1294,856,176,160
+# notes_flick_arrow_crtcl_02.png
+810,1286,188,174
+# notes_flick_arrow_crtcl_02_diagonal.png
+354,1286,228,182
+# notes_flick_arrow_crtcl_03.png
+1062,1238,248,194
+# notes_flick_arrow_crtcl_03_diagonal.png
+1312,644,298,212
+# notes_flick_arrow_crtcl_04.png
+1332,216,312,216
+# notes_flick_arrow_crtcl_04_diagonal.png
+0,858,376,242
+# notes_flick_arrow_crtcl_05.png
+958,0,374,236
+# notes_flick_arrow_crtcl_05_diagonal.png
+514,0,444,270
+# notes_flick_arrow_crtcl_06.png
+0,600,436,258
+# notes_flick_arrow_crtcl_06_diagonal.png
+0,300,514,300
+# Simultaneous_connection_line
+753,1044,10,40

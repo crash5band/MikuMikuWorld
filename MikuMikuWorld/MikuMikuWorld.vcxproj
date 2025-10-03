@@ -194,6 +194,7 @@
     <ClCompile Include="Note.cpp" />
     <ClCompile Include="NotesFilter.cpp" />
     <ClCompile Include="AggregateNotesFilter.cpp" />
+    <ClCompile Include="NoteSkin.cpp" />
     <ClCompile Include="OpenGlLoader.cpp" />
     <ClCompile Include="NotesPreset.cpp" />
     <ClCompile Include="PreviewData.cpp" />
@@ -251,6 +252,7 @@
     <ClInclude Include="ImGui\imstb_truetype.h" />
     <ClInclude Include="InputBinding.h" />
     <ClInclude Include="IO.h" />
+    <ClInclude Include="NoteSkin.h" />
     <ClInclude Include="PreviewData.h" />
     <ClInclude Include="PreviewEngine.h" />
     <ClInclude Include="ScorePreview.h" />

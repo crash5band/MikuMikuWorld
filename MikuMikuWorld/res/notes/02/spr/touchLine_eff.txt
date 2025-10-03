@@ -1,0 +1,8 @@
+#touch_line_1
+0,42,244,1
+#touch_line_2
+0,98,244,1
+#critical_touch_line_1
+0,154,244,1
+#critical_touch_line_2
+0,210,244,1

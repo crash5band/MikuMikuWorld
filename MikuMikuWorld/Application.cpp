@@ -6,6 +6,7 @@
 #include "Localization.h"
 #include "ApplicationConfiguration.h"
 #include "ScoreSerializer.h"
+#include "NoteSkin.h"
 #include <filesystem>
 
 namespace MikuMikuWorld
@@ -14,8 +15,6 @@ namespace MikuMikuWorld
 	std::string Application::appDir{ "" };
 	std::string Application::pendingLoadScoreFile{ "" };
 	WindowState Application::windowState{};
-
-	NoteTextures noteTextures{ -1, -1, -1 };
 
 	Application::Application() : 
 		initialized{ false }, language{ "" }
@@ -317,23 +316,28 @@ namespace MikuMikuWorld
 		ResourceManager::loadShader(appDir + "res\\shaders\\masking");
 		ResourceManager::loadShader(appDir + "res\\shaders\\particles");
 
-		const std::string texturesDir = appDir + "res\\textures\\";
+		// TODO: Do not set the note skin texture indexes manually!
+		const std::string notes01TexDir = appDir + "res\\notes\\01\\";
+		ResourceManager::loadTexture(notes01TexDir + "notes.png");
+		ResourceManager::loadTexture(notes01TexDir + "longNoteLine.png");
+		ResourceManager::loadTexture(notes01TexDir + "touchLine_eff.png");
+		noteSkins.add("Notes 01", 0, 1, 2);
 
-		ResourceManager::loadTexture(texturesDir + "notes1.png", TextureFilterMode::LinearMipMapLinear, TextureFilterMode::Linear);
-		ResourceManager::loadTexture(texturesDir + "longNoteLine.png");
-		ResourceManager::loadTexture(texturesDir + "touchLine_eff.png");
-		ResourceManager::loadTexture(texturesDir + "timeline_tools.png");
-		ResourceManager::loadTexture(texturesDir + "note_stats.png");
-		ResourceManager::loadTexture(texturesDir + "stage.png");
-		ResourceManager::loadTexture(texturesDir + "particles.png", TextureFilterMode::Linear, TextureFilterMode::Linear);
+		const std::string notes02TexDir = appDir + "res\\notes\\02\\";
+		ResourceManager::loadTexture(notes02TexDir + "notes.png");
+		ResourceManager::loadTexture(notes02TexDir + "longNoteLine.png");
+		ResourceManager::loadTexture(notes02TexDir + "touchLine_eff.png");
+		noteSkins.add("Notes 02", 3, 4, 5);
 
-		ResourceManager::loadTransforms(texturesDir + "transform.txt");
-		ResourceManager::loadParticleEffects(texturesDir + "particles.pte");
+		const std::string editorAssetsDir = appDir + "res\\editor\\";
+		ResourceManager::loadTexture(editorAssetsDir + "timeline_tools.png");
+		ResourceManager::loadTexture(editorAssetsDir + "note_stats.png");
+		ResourceManager::loadTexture(editorAssetsDir + "stage.png");
 
-		// Cache note textures indices
-		noteTextures.notes = ResourceManager::getTexture(NOTES_TEX);
-		noteTextures.holdPath = ResourceManager::getTexture(HOLD_PATH_TEX);
-		noteTextures.touchLine = ResourceManager::getTexture(TOUCH_LINE_TEX);
+		const std::string effectsDir = appDir + "res\\effect\\";
+		ResourceManager::loadTexture(effectsDir + "particles.png");
+		ResourceManager::loadTransforms(effectsDir + "transform.txt");
+		ResourceManager::loadParticleEffects(effectsDir + "particles.pte");
 
 		// Load more languages here
 		Localization::loadDefault();
