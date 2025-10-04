@@ -2234,6 +2234,18 @@ namespace MikuMikuWorld
 	{
 		playbackSpeed = std::clamp(speed, minPlaybackSpeed, maxPlaybackSpeed);
 		context.audio.setPlaybackSpeed(playbackSpeed, time);
+
+		// HACK: re-sync
+		if (playing)
+		{
+			bool goBack = config.returnToLastSelectedTickOnPause;
+			config.returnToLastSelectedTickOnPause = false;
+
+			setPlaying(context, false);
+			setPlaying(context, true);
+
+			config.returnToLastSelectedTickOnPause = goBack;
+		}
 	}
 
 	void ScoreEditorTimeline::setPlaying(ScoreContext& context, bool state)
@@ -2309,7 +2321,7 @@ namespace MikuMikuWorld
 			int endTick = context.score.notes.at(context.score.holdNotes.at(note.ID).end).tick;
 			float endTime = accumulateDuration(endTick, TICKS_PER_BEAT, context.score.tempoChanges);
 
-			float adjustedEndTime = endTime - playStartTime + audioOffsetCorrection;
+			float adjustedEndTime = endTime - playStartTime;
 			context.audio.playSoundEffect(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, startTime, adjustedEndTime, time);
 		};
 
@@ -2322,9 +2334,9 @@ namespace MikuMikuWorld
 
 			if (offsetNoteTime >= timeLastFrame && offsetNoteTime < time)
 			{
-				singleNoteSEFunc(note, notePlayTime - audioOffsetCorrection);
+				singleNoteSEFunc(note, notePlayTime);
 				if (note.getType() == NoteType::Hold && !context.score.holdNotes.at(note.ID).isGuide())
-					holdNoteSEFunc(note, notePlayTime - audioOffsetCorrection);
+					holdNoteSEFunc(note, notePlayTime);
 			}
 			else if (time == playStartTime)
 			{

@@ -161,7 +161,6 @@ namespace MikuMikuWorld
 		std::stack<EventControlDrawData> drawEvents;
 		std::vector<StepDrawData> drawSteps;
 		std::unordered_set<std::string> playingNoteSounds;
-		static constexpr float audioOffsetCorrection = 0.02f;
 		static constexpr float audioLookAhead = 0.05f;
 
 		Debug::DebugRenderStats renderStats;
