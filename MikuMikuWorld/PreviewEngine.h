@@ -113,7 +113,6 @@ namespace MikuMikuWorld
 		SlotGlowNoteLongCriticalSegment,
 
 		NoteCriticalFlickLinearAdd,
-		NoteCriticalFlickFlare,
 
 		Invalid = UINT32_MAX
 	};

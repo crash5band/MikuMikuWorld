@@ -447,10 +447,6 @@ namespace MikuMikuWorld::Engine
 			ParticleEffectType directional = !note.critical ? ParticleEffectType::NoteFlickDirectional : ParticleEffectType::NoteCriticalDirectional;
 			if (ensureValidParticle(directional))
 				addParticleEffect(drawData, directional, NoteEffectType::Gen, DrawingParticleType::Linear, note, score);
-
-      ParticleEffectType flare = ParticleEffectType::NoteCriticalFlickFlare;
-			if (note.critical && ensureValidParticle(flare))
-        addParticleEffect(drawData, ParticleEffectType::NoteCriticalFlickFlare, NoteEffectType::Gen, DrawingParticleType::Linear, note, score);
 		}
 	}
 
