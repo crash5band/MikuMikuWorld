@@ -2226,7 +2226,7 @@ namespace MikuMikuWorld
 		notesFramebuffer = std::make_unique<Framebuffer>(1920, 1080);
 		playbackSpeed = 1.0f;
 
-		background.load(config.backgroundImage.empty() ? (Application::getAppDir() + "res\\textures\\default.png") : config.backgroundImage);
+		background.load(config.backgroundImage.empty() ? (Application::getAppDir() + "res\\editor\\default.png") : config.backgroundImage);
 		background.setBrightness(0.67);
 	}
 

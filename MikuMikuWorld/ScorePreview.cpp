@@ -67,7 +67,7 @@ namespace MikuMikuWorld
 		jacketFile = jacket.getFilename();
 		brightness = config.pvBackgroundBrightness;
 		bool useDefaultTexture = backgroundFile.empty();
-		Texture backgroundTex = { useDefaultTexture ? Application::getAppDir() + "res\\textures\\default.png" : backgroundFile};
+		Texture backgroundTex = { useDefaultTexture ? Application::getAppDir() + "res\\editor\\default.png" : backgroundFile};
 		const float bgWidth = backgroundTex.getWidth(), bgHeight = backgroundTex.getHeight();
 		if (bgWidth != frameBuffer.getWidth() || bgHeight != frameBuffer.getHeight())
 			frameBuffer.resize(bgWidth, bgHeight);
