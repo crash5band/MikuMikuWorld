@@ -13,16 +13,16 @@ namespace MikuMikuWorld
 	constexpr int MAX_LANE = 11;
 	constexpr int NUM_LANES = 12;
 
-	constexpr const char* SE_PERFECT			= "perfect";
-	constexpr const char* SE_FLICK				= "flick";
-	constexpr const char* SE_TICK				= "tick";
-	constexpr const char* SE_FRICTION			= "friction";
-	constexpr const char* SE_CONNECT			= "connect";
-	constexpr const char* SE_CRITICAL_TAP		= "critical_tap";
-	constexpr const char* SE_CRITICAL_FLICK		= "critical_flick";
-	constexpr const char* SE_CRITICAL_TICK		= "critical_tick";
-	constexpr const char* SE_CRITICAL_FRICTION	= "critical_friction";
-	constexpr const char* SE_CRITICAL_CONNECT	= "critical_connect";
+	constexpr const char* SE_PERFECT			= "se_live_perfect";
+	constexpr const char* SE_FLICK				= "se_live_flick";
+	constexpr const char* SE_TICK				= "se_live_connect";
+	constexpr const char* SE_FRICTION			= "se_live_trace";
+	constexpr const char* SE_CONNECT			= "se_live_long";
+	constexpr const char* SE_CRITICAL_TAP		= "se_live_critical";
+	constexpr const char* SE_CRITICAL_FLICK		= "se_live_flick_critical";
+	constexpr const char* SE_CRITICAL_TICK		= "se_live_connect_critical";
+	constexpr const char* SE_CRITICAL_FRICTION	= "se_live_trace_critical";
+	constexpr const char* SE_CRITICAL_CONNECT	= "se_live_long_critical";
 
 	constexpr const char* SE_NAMES[] =
 	{
