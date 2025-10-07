@@ -6,18 +6,19 @@ namespace MikuMikuWorld
 	class Camera
 	{
 	private:
-		float yaw, pitch;
-		DirectX::XMVECTOR position{ 0.0f, 0.0f, -1.0f, 1.0f };
-		DirectX::XMVECTOR target{ 0.0f, 0.0f, 0.0f, 1.0f };
-		DirectX::XMVECTOR front{ 0.0f, 0.0f, 0.0f, 1.0f };
-		const DirectX::XMVECTOR up{ 0.0f, 1.0f, 0.0, 1.0f };
+		const DirectX::XMVECTOR up{ 0.0f, -1.0f, 0.0, 1.0f };
 
 	public:
+		float yaw, pitch, fov;
+		DirectX::XMVECTOR position{ 0.0f, 0.0f, -1.0f, 1.0f };
+		DirectX::XMVECTOR target{ 0.0f, 0.0f, 0.0f, -1.0f };
+		DirectX::XMVECTOR front{ 0.0f, 0.0f, 0.0f, 1.0f };
+
 		Camera();
 
-		void setPositionY(float posY);
-		
+		void positionCamNormal();
 		DirectX::XMMATRIX getViewMatrix() const;
+		DirectX::XMMATRIX getProjectionMatrix(float aspect, float near, float far) const;
 		static DirectX::XMMATRIX getOrthographicProjection(float width, float height);
 		static DirectX::XMMATRIX getOffCenterOrthographicProjection(float xmin, float xmax, float ymin, float ymax);
 	};
