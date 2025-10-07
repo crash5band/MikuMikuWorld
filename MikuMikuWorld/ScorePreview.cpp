@@ -885,7 +885,7 @@ namespace MikuMikuWorld
 	std::array<DirectX::XMFLOAT4, 4> ScorePreviewWindow::getAuraVPos(const Score& score, const Note& note, int lane, int currentTick, ParticleEffectType type)
 	{
 		float noteLeft{}, noteRight{};
-		if (type == ParticleEffectType::SlotGlowNoteLongSegment || type == ParticleEffectType::SlotGlowNoteLongCriticalSegment)
+		if (type == ParticleEffectType::NoteHoldAura || type == ParticleEffectType::NoteCriticalLongHoldGenAura)
 		{
 			std::tie(noteLeft, noteRight) = getHoldSegmentBound(note, score, currentTick);
 		}
@@ -975,9 +975,6 @@ namespace MikuMikuWorld
 	{
 		const auto& drawData = context.scorePreviewDrawData;
 
-		drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType:: AuraBgHold, renderer);
-		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::AuraBgHold, renderer);
-
 		drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::AuraHold, renderer);
 		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::AuraHold, renderer);
 
@@ -986,9 +983,6 @@ namespace MikuMikuWorld
 
 		drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::Gen, renderer);
 		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::Gen, renderer);
-			
-		drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::AuraBg, renderer);
-		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::AuraBg, renderer);
 
 		drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::Aura, renderer);
 		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::Aura, renderer);

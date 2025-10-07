@@ -22,7 +22,7 @@ namespace MikuMikuWorld::Engine
 		Linear,
 		Flat,
 		Slot,
-		Aura,
+		Aura
 	};
 
 	enum class NoteEffectType : uint8_t
@@ -32,9 +32,7 @@ namespace MikuMikuWorld::Engine
 		Gen,
 		GenHold,
 		Aura,
-		AuraBg,
 		AuraHold,
-		AuraBgHold,
 		NoteEffectTypeCount
 	};
 
