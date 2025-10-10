@@ -39,8 +39,8 @@ namespace MikuMikuWorld
 
 	enum class SpriteLayer : uint8_t
 	{
-		SLOT_GLOW_EFFECT,
-		PARTICLE_EFFECT,
+		AURA_EFFECT,
+		GEN_EFFECT,
 		FLICK_ARROW,
 		DIAMOND,
 		BASE_NOTE,
@@ -64,7 +64,7 @@ namespace MikuMikuWorld
 
 		NoteFlickCircular,
 		NoteFlickLinear,
-		NoteFlickDirectional,
+		NoteFlickFlash,
 
 		NoteFrictionCircular,
 		NoteFrictionLinear,
@@ -77,7 +77,7 @@ namespace MikuMikuWorld
 
 		NoteCriticalFlickCircular,
 		NoteCriticalFlickLinear,
-		NoteCriticalDirectional,
+		NoteCriticalFlickFlash,
 
 		NoteFrictionCriticalCircular,
 		NoteFrictionCriticalLinear,
@@ -166,8 +166,6 @@ namespace MikuMikuWorld::Engine
 	std::array<DirectX::XMFLOAT4, 4> perspectiveQuadvPos(float left, float right, float top, float bottom);
 	std::array<DirectX::XMFLOAT4, 4> perspectiveQuadvPos(float leftStart, float leftStop, float rightStart, float rightStop, float top, float bottom);
 	std::array<DirectX::XMFLOAT4, 4> quadUV(const Sprite& sprite, const Texture& texture);
-	std::array<DirectX::XMFLOAT4, 4> circularQuadvPos(float lane, float width, float height);
-	std::array<DirectX::XMFLOAT4, 4> linearQuadvPos(float lane, float width, float height, float shear);
 
 	Range getNoteVisualTime(Note const& note, Score const& score, float noteSpeed);
 

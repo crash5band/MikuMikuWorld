@@ -7,59 +7,59 @@ namespace MikuMikuWorld
 		{ ParticleEffectType::Lane, 0.3f },
 		{ ParticleEffectType::NoteTapLane, 1.1f },
 		{ ParticleEffectType::NoteCriticalLane, 1.1f },
-		{ ParticleEffectType::NoteCriticalFlickLane, 1.05f },
+		{ ParticleEffectType::NoteCriticalFlickLane, 0.9f },
 
 		{ ParticleEffectType::NoteTapCircular, 0.5f },
 		{ ParticleEffectType::NoteTapLinear, 0.41f },
 
-		{ ParticleEffectType::NoteLongCircular, 0.583f },
+		{ ParticleEffectType::NoteLongCircular, 0.55f },
 		{ ParticleEffectType::NoteLongLinear, 0.467f },
 		
-		{ ParticleEffectType::NoteFlickCircular, 0.45f },
+		{ ParticleEffectType::NoteFlickCircular, 0.375f },
 		{ ParticleEffectType::NoteFlickLinear, 0.39f },
-		{ ParticleEffectType::NoteFlickDirectional, 0.9f },
+		{ ParticleEffectType::NoteFlickFlash, 0.8f },
 		
 		{ ParticleEffectType::NoteFrictionCircular, 0.42f },
-		{ ParticleEffectType::NoteFrictionLinear, 0.56f },
+		{ ParticleEffectType::NoteFrictionLinear, 0.54f },
 
 		{ ParticleEffectType::NoteCriticalCircular, 0.6f },
-		{ ParticleEffectType::NoteCriticalLinear, 0.367f },
+		{ ParticleEffectType::NoteCriticalLinear, 0.36f },
 		
-		{ ParticleEffectType::NoteLongCriticalCircular, 0.583f },
-		{ ParticleEffectType::NoteLongCriticalLinear, 0.367f },
+		{ ParticleEffectType::NoteLongCriticalCircular, 0.55f },
+		{ ParticleEffectType::NoteLongCriticalLinear, 0.36f },
 		
-		{ ParticleEffectType::NoteCriticalFlickCircular, 0.8f },
+		{ ParticleEffectType::NoteCriticalFlickCircular, 0.7f },
 		{ ParticleEffectType::NoteCriticalFlickLinear, 0.32f },
-		{ ParticleEffectType::NoteCriticalDirectional, 0.9f },
+		{ ParticleEffectType::NoteCriticalFlickFlash, 0.8f },
 
 		{ ParticleEffectType::NoteFrictionCriticalCircular, 0.42f },
-		{ ParticleEffectType::NoteFrictionCriticalLinear, 0.56f },
+		{ ParticleEffectType::NoteFrictionCriticalLinear, 0.54f },
 
-		{ ParticleEffectType::NoteLongAmongCircular, 0.33f },
-		{ ParticleEffectType::NoteLongAmongCriticalCircular, 0.33f },
+		{ ParticleEffectType::NoteLongAmongCircular, 0.35f },
+		{ ParticleEffectType::NoteLongAmongCriticalCircular, 0.35f },
 
 		{ ParticleEffectType::NoteLongSegmentCircular, 0.9f },
-		{ ParticleEffectType::NoteLongSegmentCircularEx, 0.8f },
-		{ ParticleEffectType::NoteLongSegmentLinear, 0.5f },
+		{ ParticleEffectType::NoteLongSegmentCircularEx, 0.75f },
+		{ ParticleEffectType::NoteLongSegmentLinear, 0.55f },
 
 		{ ParticleEffectType::NoteLongCriticalSegmentCircular, 0.9f },
-		{ ParticleEffectType::NoteLongCriticalSegmentCircularEx, 0.8f },
-		{ ParticleEffectType::NoteLongCriticalSegmentLinear, 0.5f },
+		{ ParticleEffectType::NoteLongCriticalSegmentCircularEx, 0.75f },
+		{ ParticleEffectType::NoteLongCriticalSegmentLinear, 0.55f },
 
-		{ ParticleEffectType::SlotNoteTap, 0.48f },
-		{ ParticleEffectType::SlotNoteLong, 0.48f },
-		{ ParticleEffectType::SlotNoteFlick, 0.48f },
-		{ ParticleEffectType::SlotNoteCritical, 0.48f },
+		{ ParticleEffectType::SlotNoteTap, 0.45f },
+		{ ParticleEffectType::SlotNoteLong, 0.45f },
+		{ ParticleEffectType::SlotNoteFlick, 0.45f },
+		{ ParticleEffectType::SlotNoteCritical, 0.45f },
 
-		{ ParticleEffectType::NoteNormalAura, 1.f },
-		{ ParticleEffectType::NoteCriticalNormalAura, 1.f },
-		{ ParticleEffectType::NoteLongAura, 1.f },
-		{ ParticleEffectType::NoteFlickAura, 1.f },
-		{ ParticleEffectType::NoteCriticalFlickAura, 1.f },
-		{ ParticleEffectType::NoteCriticalLongAura, 1.f },
+		{ ParticleEffectType::NoteNormalAura, 0.95f },
+		{ ParticleEffectType::NoteCriticalNormalAura, 0.95f },
+		{ ParticleEffectType::NoteLongAura, 0.95f },
+		{ ParticleEffectType::NoteFlickAura, 0.95f },
+		{ ParticleEffectType::NoteCriticalFlickAura, 0.95f },
+		{ ParticleEffectType::NoteCriticalLongAura, 0.95f },
 
-		{ ParticleEffectType::NoteHoldAura, 0.3f },
-		{ ParticleEffectType::NoteCriticalLongHoldGenAura, 0.3f },
+		{ ParticleEffectType::NoteHoldAura, 0.48f },
+		{ ParticleEffectType::NoteCriticalLongHoldGenAura, 0.48f },
 	};
 
 	std::map<ParticleEffectType, ParticleEffectType> particleEffectFallback = {
@@ -201,34 +201,6 @@ namespace MikuMikuWorld::Engine
 		float top = sprite.getY1() / texture.getHeight();
 		float bottom = sprite.getY2() / texture.getHeight();
 		return quadvPos(left, right, top, bottom);
-	}
-
-	std::array<DirectX::XMFLOAT4, 4> circularQuadvPos(float lane, float width, float height)
-	{
-		float bottom = 1 + height;
-		float top = 1 - height;
-		return perspectiveQuadvPos(
-			lane - width / top,
-			lane - width / bottom,
-			lane + width / top,
-			lane + width / bottom,
-			top, bottom
-		);
-	}
-
-	std::array<DirectX::XMFLOAT4, 4> linearQuadvPos(float lane, float width, float height, float shear)
-	{
-		const float p = 1.125;
-
-		float bottom = 1;
-		float top = 1 - 2 * height;
-
-		return {{
-			{ lane * p + width + shear, top, 0.f, 1.f },
-			{ lane + width, bottom, 0.f, 1.f },
-			{ lane - width, bottom, 0.f, 1.f },
-			{ lane * p - width + shear, top, 0.f, 1.f }
-		}};
 	}
 }
 

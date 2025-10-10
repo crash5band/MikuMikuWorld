@@ -440,7 +440,7 @@ namespace MikuMikuWorld::Engine
 			addParticleEffect(drawData, linear, NoteEffectType::Gen, DrawingParticleType::Linear, note, score);
 		if (note.isFlick())
 		{
-			ParticleEffectType directional = !note.critical ? ParticleEffectType::NoteFlickDirectional : ParticleEffectType::NoteCriticalDirectional;
+			ParticleEffectType directional = !note.critical ? ParticleEffectType::NoteFlickFlash : ParticleEffectType::NoteCriticalFlickFlash;
 			if (ensureValidParticle(directional))
 				addParticleEffect(drawData, directional, NoteEffectType::Gen, DrawingParticleType::Linear, note, score);
 		}
@@ -460,6 +460,8 @@ namespace MikuMikuWorld::Engine
 				const Note& endNote = score.notes.at(holdNote.end);
 				float startTime = accumulateDuration(note.tick, TICKS_PER_BEAT, score.tempoChanges);
 				float endTime = accumulateDuration(endNote.tick, TICKS_PER_BEAT, score.tempoChanges);
+				if (endTime - startTime < 0.01f)
+					return;
 				addParticleEffect(drawData, slotSegmentGlow, NoteEffectType::AuraHold, DrawingParticleType::Aura, note, score, endTime - startTime);
 			}
 			if (note.friction) return;

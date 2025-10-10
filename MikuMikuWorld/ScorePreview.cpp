@@ -15,6 +15,8 @@ namespace MikuMikuWorld
 		bool isPlaying{}, wasLastFramePlaying{};
 	} playbackState;
 
+	constexpr float EFFECTS_TARGET_ASPECT = 16.f / 9.f;
+
 	namespace Utils
 	{
 		// Scale a rectangle with specified aspect ratio to be visible inside the target rectangle
@@ -255,7 +257,13 @@ namespace MikuMikuWorld
 
 	ScorePreviewWindow::ScorePreviewWindow() : previewBuffer{ 1920, 1080 }, notesTex(), background(), scaledAspectRatio(1)
 	{
-
+		noteEffectsCamera.fov = 50.f;
+		noteEffectsCamera.pitch = 27.1f;
+		noteEffectsCamera.yaw = -90.f;
+		noteEffectsCamera.position.m128_f32[0] = 0;
+		noteEffectsCamera.position.m128_f32[1] = 5.32f;
+		noteEffectsCamera.position.m128_f32[2] = -5.86f;
+		noteEffectsCamera.positionCamNormal();
 	}
 
 	ScorePreviewWindow::~ScorePreviewWindow()
@@ -308,11 +316,19 @@ namespace MikuMikuWorld
 		float scaledHeight = (config.pvLockAspectRatio ? Engine::STAGE_TARGET_HEIGHT : size.y) * Engine::STAGE_HEIGHT_RATIO;
 		float scrTop  = (config.pvLockAspectRatio ? Engine::STAGE_TARGET_HEIGHT : size.y) * Engine::STAGE_TOP_RATIO;
 		if (config.pvLockAspectRatio) Utils::fillRect(Engine::STAGE_TARGET_WIDTH, Engine::STAGE_TARGET_HEIGHT, size.x / size.y, width, height);
+		
+		float aspectRatio = width / height;
 		scaledAspectRatio = scaledWidth / scaledHeight;
 
 		auto view = DirectX::XMMatrixScaling(scaledWidth, scaledHeight, 1.f) * DirectX::XMMatrixTranslation(0.f, -scrTop, 0.f);
 		auto projection = Camera::getOffCenterOrthographicProjection(-width / 2, width / 2, -height / 2, height / 2);
 		auto viewProjection = view * projection;
+
+		const auto pView = noteEffectsCamera.getViewMatrix();
+		auto pProjection = noteEffectsCamera.getProjectionMatrix(aspectRatio, 0.3, 1000);
+		float projectionScale = std::min(aspectRatio / EFFECTS_TARGET_ASPECT, 1.f);
+		pProjection = DirectX::XMMatrixScaling(projectionScale, projectionScale, 1.f) * pProjection;
+		
 		shader->setMatrix4("projection", viewProjection);
 
 		if (previewBuffer.getWidth() != size.x || previewBuffer.getHeight() != size.y)
@@ -330,7 +346,8 @@ namespace MikuMikuWorld
 		renderer->endBatch();
 
 		pteShader->use();
-		pteShader->setMatrix4("viewProjection", viewProjection);
+		pteShader->setMatrix4("projection", pProjection);
+		pteShader->setMatrix4("view", pView);
 
 		renderer->beginBatch();
 		drawUnderNoteEffects(context, renderer);
@@ -351,7 +368,8 @@ namespace MikuMikuWorld
 			renderer->endBatch();
 
 		pteShader->use();
-		pteShader->setMatrix4("viewProjection", viewProjection);
+		pteShader->setMatrix4("projection", pProjection);
+		pteShader->setMatrix4("view", pView);
 		renderer->beginBatch();
 		drawParticles(context, renderer);
 		renderer->endBatchWithBlending(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -777,134 +795,6 @@ namespace MikuMikuWorld
 		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::Slot, renderer);
 	}
 
-	std::array<DirectX::XMFLOAT4, 4> ScorePreviewWindow::getCircularVPos(const Score& score, const Note& note, int currentTick, ParticleEffectType type)
-	{
-		float cirularWidth, circularHeight, noteLeft, noteRight;
-		switch (type)
-		{
-		case ParticleEffectType::NoteLongSegmentCircular:
-		case ParticleEffectType::NoteLongCriticalSegmentCircular:
-			cirularWidth = 3.5;
-			circularHeight = 2.1;
-			std::tie(noteLeft, noteRight) = getHoldSegmentBound(note, score, currentTick);
-			break;
-		default:
-			cirularWidth = 1.75;
-			circularHeight = 1.05;
-			std::tie(noteLeft, noteRight) = getNoteBound(note);
-			break;
-		}
-		float noteCenter = noteLeft + (noteRight - noteLeft) / 2;
-		return Engine::circularQuadvPos(noteCenter, cirularWidth, circularHeight * scaledAspectRatio);
-	}
-
-	std::array<DirectX::XMFLOAT4, 4> ScorePreviewWindow::getLinearVpos(const Score& score, const Note& note, int lane, float currentTime, float progress, ParticleEffectType type)
-	{
-		float noteLeft, noteRight, shear = 0;
-		int currentTick = accumulateTicks(currentTime, TICKS_PER_BEAT, score.tempoChanges);
-
-		if (lane == -1)
-		{
-			switch (type)
-			{
-			case ParticleEffectType::NoteLongSegmentLinear:
-			case ParticleEffectType::NoteLongCriticalSegmentLinear:
-			{
-				float effectDuration = particleEffectDuration.find(type)->second;
-				float effectProgressSeconds = effectDuration * progress;
-				int effectStartTick = accumulateTicks(currentTime - effectProgressSeconds, TICKS_PER_BEAT, score.tempoChanges);
-				std::tie(noteLeft, noteRight) = getHoldSegmentBound(note, score, effectStartTick);
-				break;
-			}
-			case ParticleEffectType::NoteLongSegmentCircularEx:
-			case ParticleEffectType::NoteLongCriticalSegmentCircularEx:
-				std::tie(noteLeft, noteRight) = getHoldSegmentBound(note, score, currentTick);
-				break;
-			case ParticleEffectType::NoteFlickDirectional:
-			case ParticleEffectType::NoteCriticalDirectional:
-				shear = (config.pvMirrorScore ? -1 : 1) * (note.flick == FlickType::Left ? -1 : (note.flick == FlickType::Right ? 1 : 0));
-			default:
-				std::tie(noteLeft, noteRight) = getNoteBound(note);
-				break;
-			}
-		}
-		else
-		{
-			noteLeft = Engine::laneToLeft(lane);
-			if (config.pvMirrorScore) noteLeft = (noteLeft + note.width) * -1;
-			noteRight = noteLeft + 1;
-		}
-
-
-		float noteCenter = noteLeft + (noteRight - noteLeft) / 2;
-		return Engine::linearQuadvPos(noteCenter, 1.0, 1.0 * scaledAspectRatio, shear);
-	}
-
-	std::array<DirectX::XMFLOAT4, 4> ScorePreviewWindow::getFlatVPos(const Score& score, const Note& note, int currentTick, ParticleEffectType type)
-	{
-		float noteLeft, noteRight;
-		switch (type)
-		{
-		case ParticleEffectType::NoteLongAmongCircular:
-		case ParticleEffectType::NoteLongAmongCriticalCircular:
-			std::tie(noteLeft, noteRight) = getHoldStepBound(note, score);
-			break;
-		default:
-			std::tie(noteLeft, noteRight) = getNoteBound(note);
-			break;
-		}
-		float noteCenter = noteLeft + (noteRight - noteLeft) / 2;
-		return Engine::quadvPos(noteCenter - 4, noteCenter + 4, 1 - 4 * scaledAspectRatio, 1 + 4 * scaledAspectRatio);
-
-	}
-
-	std::array<DirectX::XMFLOAT4, 4> ScorePreviewWindow::getLaneVPos(const Note& note, int lane)
-	{
-		float slotLeft = Engine::laneToLeft(lane), slotTop = 0, slotBottom = 0;
-		if (config.pvMirrorScore) slotLeft = (slotLeft + note.width) * -1;
-
-		slotTop = (Engine::STAGE_LANE_TOP + 45) / Engine::STAGE_LANE_HEIGHT;
-		slotBottom = (Engine::STAGE_TEX_HEIGHT + 55) / Engine::STAGE_LANE_HEIGHT;
-		return Engine::perspectiveQuadvPos(slotLeft, slotLeft + 1, slotTop, slotBottom);
-	}
-
-	std::array<DirectX::XMFLOAT4, 4> ScorePreviewWindow::getSlotVPos(const Note& note, int lane)
-	{
-		size_t transIdx = static_cast<size_t>(SpriteType::Slot);
-		if (!isArrayIndexInBounds(transIdx, ResourceManager::spriteTransforms)) return {};
-		const auto& slotTransform = ResourceManager::spriteTransforms[transIdx];
-
-		float slotLeft = Engine::laneToLeft(lane), slotTop = 0, slotBottom = 0;
-		if (config.pvMirrorScore) slotLeft = (slotLeft + note.width) * -1;
-
-		slotTop = 1 - Engine::getNoteHeight();
-		slotBottom = 1 + Engine::getNoteHeight();
-		return slotTransform.apply(Engine::perspectiveQuadvPos(slotLeft, slotLeft + 1, slotTop, slotBottom));
-	}
-
-	std::array<DirectX::XMFLOAT4, 4> ScorePreviewWindow::getAuraVPos(const Score& score, const Note& note, int lane, int currentTick, ParticleEffectType type)
-	{
-		float noteLeft{}, noteRight{};
-		if (type == ParticleEffectType::NoteHoldAura || type == ParticleEffectType::NoteCriticalLongHoldGenAura)
-		{
-			std::tie(noteLeft, noteRight) = getHoldSegmentBound(note, score, currentTick);
-		}
-		else
-		{
-			noteLeft = Engine::laneToLeft(lane);
-			if (config.pvMirrorScore) noteLeft = (noteLeft + note.width) * -1;
-
-			noteRight = noteLeft + 1.00f;
-		}
-
-		return { {
-			{ noteRight * 1.2f, scaledAspectRatio * 4.35f, 0.0f, 1.0f },
-			{ noteRight * 1.02f, 		 1.0f,                      0.0f, 1.0f },
-			{ noteLeft * 1.02f, 		 1.0f,                      0.0f, 1.0f },
-			{ noteLeft * 1.2f,  scaledAspectRatio * 4.35f, 0.0f, 1.0f }
-		} };
-	}
-
 	void ScorePreviewWindow::drawEffectPool(const ScoreContext& context, const std::map<Engine::NoteEffectType, Engine::EffectPool>& effectPoolMap, const Engine::NoteEffectType type, Renderer* renderer)
 	{	
 		int particleTexId = ResourceManager::getTexture("particles");
@@ -918,6 +808,7 @@ namespace MikuMikuWorld
 		const Texture& texture = ResourceManager::textures[particleTexId];
 		
 		const auto& effectPool = effectPoolIt->second;
+		const int currentTick = context.currentTick;
 		const float currentTime = context.getTimeAtCurrentTick();
 
 		for (const auto& effect : effectPool.pool)
@@ -931,42 +822,135 @@ namespace MikuMikuWorld
 				if (currentTime <= particle.time.min || currentTime > particle.time.max)
 					continue;
 
-				std::array<DirectX::XMFLOAT4, 4> vPos{};
 				ParticleEffectType particleType = static_cast<ParticleEffectType>(particle.effectType);
 				Particle& particleData = ResourceManager::particleEffects[particle.effectType].particles[particle.particleId];
 				float progress = Engine::getParticleProgress((ParticleEffectType)particle.effectType, particleData, currentTime, particle.time.min, particle.time.max);
 
+				float noteLeft{}, noteRight{}, widthFactor{ 1 }, xOffsetCorrection{ 0.83f }, zCorrection{}, scaleFactor{ 1 };
+
+				switch (particleType)
+				{
+				case ParticleEffectType::NoteHoldAura:
+				case ParticleEffectType::NoteCriticalLongHoldGenAura:
+					std::tie(noteLeft, noteRight) = getHoldSegmentBound(note, context.score, currentTick);
+					widthFactor = noteRight - noteLeft;
+					break;
+				case ParticleEffectType::NoteLongAmongCircular:
+				case ParticleEffectType::NoteLongAmongCriticalCircular:
+					std::tie(noteLeft, noteRight) = getHoldStepBound(note, context.score);
+					break;
+				case ParticleEffectType::NoteLongSegmentCircularEx:
+				case ParticleEffectType::NoteLongCriticalSegmentCircularEx:
+				case ParticleEffectType::NoteLongSegmentCircular:
+				case ParticleEffectType::NoteLongCriticalSegmentCircular:
+					std::tie(noteLeft, noteRight) = getHoldSegmentBound(note, context.score, currentTick);
+					break;
+				case ParticleEffectType::NoteLongSegmentLinear:
+				case ParticleEffectType::NoteLongCriticalSegmentLinear:
+				{
+					float effectDuration = particleEffectDuration[particleType];
+					float particleDuration = particleData.duration * effectDuration;
+					float delta_tm = currentTime - particle.time.min - particleData.start * effectDuration;
+
+					float progressInSeconds = particleDuration * progress;
+					float particleStartTime = std::clamp(currentTime - progressInSeconds, (float)particle.time.min, (float)particle.time.max);
+					int particleStartTick = accumulateTicks(particleStartTime, TICKS_PER_BEAT, context.score.tempoChanges);
+					std::tie(noteLeft, noteRight) = getHoldSegmentBound(note, context.score, particleStartTick);
+				}
+					break;
+				default:
+					std::tie(noteLeft, noteRight) = getNoteBound(note);
+					break;
+				}
+
+				if (type == Engine::NoteEffectType::Aura || type == Engine::NoteEffectType::Lane || type == Engine::NoteEffectType::Slot)
+				{
+					noteLeft = Engine::laneToLeft(effect.lane);
+					if (config.pvMirrorScore) noteLeft = (noteLeft + note.width) * -1;
+
+					noteRight = noteLeft + 1.00f;
+				}
+
+				SpriteLayer layer{ SpriteLayer::GEN_EFFECT };
+
+				switch (particleType)
+				{
+				case ParticleEffectType::NoteLongSegmentLinear:
+				case ParticleEffectType::NoteLongCriticalSegmentLinear:
+					xOffsetCorrection = 0.83f;
+					break;
+				}
+
+				float x = particle.xywhtau1u2[0].at(progress);
+				float y = particle.xywhtau1u2[1].at(progress);
+				float z = particle.xywhtau1u2[6].at(progress);
+				
+				float xRot = particle.xywhtau1u2[7].at(1);
+				float zRot = particle.xywhtau1u2[4].at(progress);
+
+				float w = particle.xywhtau1u2[2].at(progress);
+				float h = particle.xywhtau1u2[3].at(progress);
+
+				float alpha = particle.xywhtau1u2[5].at(progress);
+				float blend = particle.xywhtau1u2[7].at(0);
+
+				float noteCenter = noteLeft + (noteRight - noteLeft) / 2;
+
 				switch (particle.type)
 				{
 				case Engine::DrawingParticleType::Aura:
-					vPos = getAuraVPos(context.score, note, effect.lane, context.currentTick, particleType);
+					zCorrection = 1.25f;
+					xOffsetCorrection = 1.0f;
+					layer = SpriteLayer::AURA_EFFECT;
 					break;
-				case Engine::DrawingParticleType::Circular:
-					vPos = getCircularVPos(context.score, note, context.currentTick, particleType);
-					break;
+
 				case Engine::DrawingParticleType::Linear:
-					vPos = getLinearVpos(context.score, note, type == Engine::NoteEffectType::Aura ? effect.lane : -1, currentTime, progress, particleType);
+					zCorrection = 1.25f;
+					scaleFactor = 2.0f;
+					xOffsetCorrection = abs(z) < 0.06f ? 1.0f : 0.83f;
 					break;
-				case Engine::DrawingParticleType::Flat:
-					vPos = getFlatVPos(context.score, note, context.currentTick, particleType);
-					break;
-				case Engine::DrawingParticleType::Lane:
-					vPos = getLaneVPos(note, effect.lane);
-					break;
-				case Engine::DrawingParticleType::Slot:
-					vPos = getSlotVPos(note, effect.lane);
-					break;
-				default:
-					continue;
 				}
 
-				float noteLeft{}, noteRight{};
-				std::pair(noteLeft, noteRight) = getNoteBound(note);
+				float pivotX{}, pivotY{}, pivotZ{};
+				if ((particleType == ParticleEffectType::NoteFlickFlash ||
+					particleType == ParticleEffectType::NoteCriticalFlickFlash) &&
+					(note.flick == FlickType::Left || note.flick == FlickType::Right))
+				{
+					float angle{};
+					float pivotCorrection{};
+					switch (note.flick)
+					{
+					case FlickType::Left:
+						angle = 0.436332f;
+						break;
+					case FlickType::Right:
+						angle = -0.436332f;
+						break;
+					}
 
-				drawParticle(renderer, vPos, particle, progress, texture, texture.sprites[particleData.spriteID],
-					Engine::getZIndex(SpriteLayer::PARTICLE_EFFECT, midpoint(noteLeft, noteRight), float(note.tick) / context.scorePreviewDrawData.maxTicks),
-					particleData.color
-				);
+					float angledY = y * cos(angle);
+					float angledX = x * cos(angle);
+
+					// TODO: Find a better way to handle this
+					pivotY = angledY - (h / 2.f) + (h * tan(abs(angle))) + 1.f;
+					pivotX = (x * sin(angle)) - abs((h * tan(angle))) + cos(angle);
+					pivotZ = z;
+
+					y = angledY;
+					x = angledX;
+					zRot += angle;
+				}
+
+				DirectX::XMMATRIX m = DirectX::XMMatrixIdentity();
+				m *= DirectX::XMMatrixScaling(w * widthFactor * scaleFactor, h * scaleFactor, 1.f);
+				m *= DirectX::XMMatrixTranslation(pivotX, pivotY, pivotZ);
+				m *= DirectX::XMMatrixRotationZ(zRot);
+				m *= DirectX::XMMatrixRotationX(xRot);
+				m *= DirectX::XMMatrixTranslation(-pivotX, -pivotY, -pivotZ);
+				m *= DirectX::XMMatrixTranslation((noteCenter * xOffsetCorrection) + x, y, z + zCorrection);
+
+				int zIndex = Engine::getZIndex(layer, noteCenter, float(note.tick) / context.scorePreviewDrawData.maxTicks);
+				renderer->drawQuadWithBlend(m, texture, texture.sprites[particleData.spriteID], particleData.color.scaleAlpha(alpha), zIndex, blend);
 			}
 		}
 	}
@@ -1131,62 +1115,6 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void ScorePreviewWindow::drawParticle(Renderer* renderer, const std::array<DirectX::XMFLOAT4, 4>& layout, const Engine::DrawingParticle& particle,
-		float progress, const Texture& texture, const Sprite& sprite, int zIndex, Color tint)
-	{
-		const float x = particle.xywhtau1u2[0].at(progress);
-		const float y = particle.xywhtau1u2[1].at(progress);
-		const float w = particle.xywhtau1u2[2].at(progress);
-		const float h = particle.xywhtau1u2[3].at(progress);
-		const float t = particle.xywhtau1u2[4].at(progress);
-		const float a = particle.xywhtau1u2[5].at(progress);
-		const float u1 = particle.xywhtau1u2[6].at(progress);
-		const float u2 = particle.xywhtau1u2[7].at(0); // Not a mistake!
-		const DirectX::XMVECTOR sx = DirectX::XMVectorSet( w,  w, -w, -w );
-		const DirectX::XMVECTOR sy = DirectX::XMVectorSet( h, -h, -h,  h );
-		const DirectX::XMVECTOR px = DirectX::XMVectorScale(
-			DirectX::XMVectorAdd(
-				DirectX::XMVectorReplicate(x + 1),
-				DirectX::XMVectorSubtract(
-					DirectX::XMVectorScale(sx, std::cos(t)),
-					DirectX::XMVectorScale(sy, std::sin(t))
-				)
-			),
-			0.5f
-		);
-		
-		const DirectX::XMVECTOR py = DirectX::XMVectorScale(
-			DirectX::XMVectorAdd(
-				DirectX::XMVectorReplicate(y + 1),
-				DirectX::XMVectorAdd(
-					DirectX::XMVectorScale(sy, std::cos(t)),
-					DirectX::XMVectorScale(sx, std::sin(t))
-				)
-			),
-			0.5f
-		);
-		const DirectX::XMVECTOR tx = DirectX::XMVectorLerpV(DirectX::XMVectorReplicate(layout[2].x), DirectX::XMVectorReplicate(layout[1].x), px);
-		const DirectX::XMVECTOR ty = DirectX::XMVectorLerpV(DirectX::XMVectorReplicate(layout[2].y), DirectX::XMVectorReplicate(layout[1].y), px);
-		const DirectX::XMVECTOR bx = DirectX::XMVectorLerpV(DirectX::XMVectorReplicate(layout[3].x), DirectX::XMVectorReplicate(layout[0].x), px);
-		const DirectX::XMVECTOR by = DirectX::XMVectorLerpV(DirectX::XMVectorReplicate(layout[3].y), DirectX::XMVectorReplicate(layout[0].y), px);
-
-		const DirectX::XMVECTOR vx = DirectX::XMVectorLerpV(tx, bx, py);
-		const DirectX::XMVECTOR vy = DirectX::XMVectorLerpV(ty, by, py);
-
-		DirectX::XMFLOAT4 posX, posY;
-		DirectX::XMStoreFloat4(&posX, vx);
-		DirectX::XMStoreFloat4(&posY, vy);
-
-		std::array<DirectX::XMFLOAT4, 4> vPos = {{
-			{posX.x, posY.x + u1, 0, 1},
-			{posX.y, posY.y + u1, 0, 1},
-			{posX.z, posY.z + u1, 0, 1},
-			{posX.w, posY.w + u1, 0, 1}
-		}};
-
-		renderer->drawQuadWithBlend(vPos, DirectX::XMMatrixIdentity(), texture, sprite, tint.scaleAlpha(a), zIndex, u2);
-	}
-	
 	void ScorePreviewWindow::updateToolbar(ScoreEditorTimeline &timeline, ScoreContext &context) const
 	{
 		static float lastHoveredTime = -1;

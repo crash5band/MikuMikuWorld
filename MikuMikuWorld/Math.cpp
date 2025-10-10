@@ -122,7 +122,7 @@ namespace MikuMikuWorld
 		float easeOutElastic(float x) { return x == 1 ? 1 : 1 + std::pow(0.0009765625f, x) * std::sin(-x * (20 * NUM_PI / 3) - NUM_PI_2); } // c = 0.3
 
 		// *Modified* The original function just fades out instead of the correct behavior (flickering)
-		float easeInOutElastic(float x) { return x == 0 ? 0 : x == 1 ? 1 : (x < 0.4f ? (-std::pow(2.f, 20*x-11) * std::sin((3*(x-1.2)) * (40 * NUM_PI / 9) - NUM_PI_2)) : 1 - std::pow(2.f, 9-20*x) * std::sin((3*((x*2)- 1.f)) * (40 * NUM_PI / 9) + NUM_PI_2)); } // c = 0.45
+		float easeInOutElastic(float x) { return x == 0 ? 0 : x == 1 ? 1 : (x < 0.35f ? (-std::pow(2.f, 20*x-11) * std::sin((3*(x-1.2)) * (40 * NUM_PI / 9) - NUM_PI_2)) : 1 - std::pow(2.f, 9-21*x) * std::sin((3*((x*1.75)- 1.f)) * (20 * NUM_PI / 9) + NUM_PI_2)); } // c = 0.45
 		float easeOutInElastic(float x) { return x == 0 ? 0 : x == 1 ? 1 : (x < 0.5f ? std::pow(2.f, -20*x) * std::sin(-x * (80 * NUM_PI / 9) - NUM_PI_2) : -std::pow(2.f, 20*(x-1)) * std::sin((x-1) * (80 * NUM_PI / 9) - NUM_PI_2)) / 2 + 0.5; } // c = 0.45
 
 		EasingFunc getEaseFunc(Easing easing)

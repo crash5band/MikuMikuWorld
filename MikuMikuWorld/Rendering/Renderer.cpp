@@ -123,13 +123,14 @@ namespace MikuMikuWorld
 		pushQuad(pos, uvCoords, m, color, tex.getID(), z);
 	}
 
-	void Renderer::drawQuadWithBlend(const std::array<DirectX::XMFLOAT4, 4>& pos, const DirectX::XMMATRIX& m, const Texture& tex, const Sprite& s,
+	void Renderer::drawQuadWithBlend(const DirectX::XMMATRIX& m, const Texture& tex, const Sprite& s,
 		const Color& tint, int z, float blend)
 	{
+		setAnchor(AnchorType::MiddleCenter);
 		setUVCoords(tex, s.getX1(), s.getX2(), s.getY1(), s.getY2(), blend);
 		DirectX::XMFLOAT4 color{ tint.r, tint.g, tint.b, tint.a };
 
-		pushQuad(pos, uvCoords, m, color, tex.getID(), z);
+		pushQuad(vPos, uvCoords, m, color, tex.getID(), z);
 	}
 
 	void Renderer::drawRectangle(Vector2 position, Vector2 size, const Texture& tex, float x1, float x2, float y1, float y2, Color tint, int z)

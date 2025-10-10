@@ -34,7 +34,7 @@ namespace MikuMikuWorld
 		DirectX::XMVECTOR tgt = front;
 		tgt = DirectX::XMVectorAdd(tgt, position);
 
-		return DirectX::XMMatrixLookAtRH(position, tgt, DirectX::XMVECTOR{ 0.0f, 1.0f, 0.0f, 1.0f });
+		return DirectX::XMMatrixLookAtRH(position, tgt, DirectX::XMVECTOR{ 0.0f, -1.0f, 0.0f, 1.0f });
 	}
 
 	DirectX::XMMATRIX Camera::getProjectionMatrix(float aspect, float near, float far) const

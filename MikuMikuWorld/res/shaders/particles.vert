@@ -8,12 +8,13 @@ out vec2 uv1;
 out vec4 color;
 out float blend;
 
-uniform mat4 viewProjection;
+uniform mat4 view;
+uniform mat4 projection;
 
 void main()
 {
     uv1         = aUV1.xy;
     color       = aColor;
 	blend		= aUV1.z;
-    gl_Position = viewProjection * vec4(aPos, 1.0);
+    gl_Position = projection * view * vec4(aPos, 1.0);
 }
