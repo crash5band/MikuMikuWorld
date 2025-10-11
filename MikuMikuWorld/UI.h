@@ -134,20 +134,20 @@ namespace MikuMikuWorld
 			std::string id("##");
 			id.append(label);
 
-			std::string_view curr = getString(items[(int)value]);
-			if (!curr.size())
+			const char* curr = getString(items[(int)value]);
+			if (strlen(curr) <= 0)
 				curr = items[(int)value];
 
-			if (ImGui::BeginCombo(id.c_str(), curr.data()))
+			if (ImGui::BeginCombo(id.c_str(), curr))
 			{
 				for (int i = 0; i < count; ++i)
 				{
 					const bool selected = (int)value == i;
-					std::string_view str = getString(items[i]);
-					if (str.empty())
+					const char* str = getString(items[i]);
+					if (strlen(str) <= 0)
 						str = items[i];
 
-					if (ImGui::Selectable(str.data(), selected))
+					if (ImGui::Selectable(str, selected))
 						value = (T)i;
 				}
 
