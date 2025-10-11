@@ -947,6 +947,9 @@ namespace MikuMikuWorld
 						break;
 					}
 
+					if (config.pvMirrorScore)
+						angle *= -1;
+
 					float angledY = y * cos(angle);
 					float angledX = x * cos(angle);
 
