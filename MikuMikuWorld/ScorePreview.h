@@ -50,6 +50,9 @@ namespace MikuMikuWorld
 		std::unique_ptr<Texture> notesTex;
 		Camera noteEffectsCamera;
 
+		bool fullWindow{};
+		bool lastFrameFullWindow{};
+
 		const Texture& getNoteTexture();
 		std::pair<float, float> getNoteBound(const Note& note) const;
 		std::pair<float, float> getHoldStepBound(const Note& note, const Score& score) const;
@@ -68,7 +71,7 @@ namespace MikuMikuWorld
 		ScorePreviewWindow(); 
 		~ScorePreviewWindow();
 		void update(ScoreContext& context, Renderer* renderer);
-		void updateUI(ScoreEditorTimeline& timeline, ScoreContext& context) const;
+		void updateUI(ScoreEditorTimeline& timeline, ScoreContext& context);
 
 		void drawNotes(const ScoreContext& context, Renderer* renderer);
 		void drawLines(const ScoreContext& context, Renderer* renderer);
@@ -79,5 +82,10 @@ namespace MikuMikuWorld
  		
 		void drawStage(Renderer* renderer);
 		void drawStageCover(Renderer* renderer);
+
+		void setFullWindow(bool fullScreen);
+		
+		inline bool isFullWindow() const { return fullWindow; };
+		bool wasLastFrameFullWindow() const { return lastFrameFullWindow; }
 	};
 }

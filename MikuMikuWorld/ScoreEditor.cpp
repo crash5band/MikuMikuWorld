@@ -67,8 +67,11 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::update()
 	{
-		drawMenubar();
-		drawToolbar();
+		if (!isFullScreenPreview())
+		{
+			drawMenubar();
+			drawToolbar();
+		}
 
 		if (!ImGui::GetIO().WantCaptureKeyboard)
 		{
@@ -168,8 +171,25 @@ namespace MikuMikuWorld
 		timeline.update(context, edit, renderer.get());
 		ImGui::End();
 
+		ImGuiWindowFlags previewWindowFlags =
+			ImGuiWindowFlags_NoCollapse |
+			ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoScrollWithMouse;
+
 		ImGui::SetNextWindowDockID(dockId, ImGuiCond_FirstUseEver);
-		ImGui::Begin(IMGUI_TITLE(ICON_FA_OBJECT_GROUP, "score_preview"), NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+		if (isFullScreenPreview())
+		{
+			//ImGuiViewport* viewport = ImGui::GetMainViewport();
+			//ImGui::SetNextWindowPos(viewport->WorkPos);
+			//ImGui::SetNextWindowSize(viewport->WorkSize);
+			//ImGui::SetNextWindowViewport(viewport->ID);
+			//previewWindowFlags |= ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize;
+
+			//ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
+			//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0, 0 });
+		}
+
+		ImGui::Begin(IMGUI_TITLE(ICON_FA_OBJECT_GROUP, "score_preview"), NULL, previewWindowFlags);
 		preview.update(context, renderer.get());
 		preview.updateUI(timeline, context);
 		ImGui::End();
@@ -485,6 +505,12 @@ namespace MikuMikuWorld
 			ImGui::MenuItem(getString("draw_waveform"), NULL, &config.drawWaveform);
 			ImGui::MenuItem(getString("stop_at_end"), NULL, &config.stopAtEnd);
 			ImGui::MenuItem(getString("preview_draw_toolbar"), NULL, &config.pvDrawToolbar);
+			
+			//bool isPreviewFullScreen = isFullScreenPreview();
+			//if (ImGui::MenuItem(getString("preview_fullscreen"), NULL, &isPreviewFullScreen))
+			//{
+			//	preview.setFullWindow(isPreviewFullScreen);
+			//}
 
 			ImGui::EndMenu();
 		}

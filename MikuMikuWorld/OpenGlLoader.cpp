@@ -16,7 +16,7 @@ namespace MikuMikuWorld
 
 	void windowSizeCallback(GLFWwindow* window, int width, int height)
 	{
-		if (!Application::windowState.maximized)
+		if (!Application::windowState.maximized && !Application::windowState.fullScreen)
 		{
 			Application::windowState.size.x = width;
 			Application::windowState.size.y = height;
@@ -25,7 +25,7 @@ namespace MikuMikuWorld
 
 	void windowPositionCallback(GLFWwindow* window, int x, int y)
 	{
-		if (!Application::windowState.maximized)
+		if (!Application::windowState.maximized && !Application::windowState.fullScreen)
 		{
 			Application::windowState.position.x = x;
 			Application::windowState.position.y = y;
@@ -61,8 +61,23 @@ namespace MikuMikuWorld
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
 
-		window = glfwCreateWindow(config.windowSize.x, config.windowSize.y, APP_NAME, NULL, NULL);
+		int width{ static_cast<int>(config.windowSize.x) }, height{ static_cast<int>(config.windowSize.y) };
+
+		if (config.fullScreen)
+		{
+			GLFWmonitor* mainMonitor = glfwGetPrimaryMonitor();
+			const GLFWvidmode* mode = glfwGetVideoMode(mainMonitor);
+
+			width = mode->width, height = mode->height;
+			window = glfwCreateWindow(width, height, APP_NAME, mainMonitor, NULL);
+		}
+		else
+		{
+			window = glfwCreateWindow(width, height, APP_NAME, NULL, NULL);
+		}
+
 		possibleError = glfwGetError(&glfwErrorDescription);
 		if (possibleError != GLFW_NO_ERROR)
 		{
@@ -70,7 +85,9 @@ namespace MikuMikuWorld
 			return Result(ResultStatus::Error, "Failed to create GLFW Window.\n" + std::string(glfwErrorDescription));
 		}
 
-		glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
+		if (!config.fullScreen)
+			glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
+		
 		glfwMakeContextCurrent(window);
 		glfwSetWindowTitle(window, APP_NAME " - Untitled");
 		glfwSetWindowPosCallback(window, windowPositionCallback);
@@ -104,7 +121,7 @@ namespace MikuMikuWorld
 		glEnablei(GL_BLEND, 0);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-		glViewport(0, 0, config.windowSize.x, config.windowSize.y);
+		glViewport(0, 0, width, height);
 
 		return Result::Ok();
 	}

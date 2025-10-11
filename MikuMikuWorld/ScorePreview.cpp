@@ -378,8 +378,10 @@ namespace MikuMikuWorld
 		drawList->AddImage((ImTextureID)(size_t)previewBuffer.getTexture(), position, position + size);
 	}
 
-	void ScorePreviewWindow::updateUI(ScoreEditorTimeline& timeline, ScoreContext& context) const
+	void ScorePreviewWindow::updateUI(ScoreEditorTimeline& timeline, ScoreContext& context)
 	{
+		lastFrameFullWindow = fullWindow;
+
 		updateToolbar(timeline, context);
 		ImGuiIO io = ImGui::GetIO();
 		float mouseWheel = io.MouseWheel * 1;
@@ -392,6 +394,22 @@ namespace MikuMikuWorld
 
 		playbackState.wasLastFramePlaying = playbackState.isPlaying;
 		playbackState.isPlaying = timeline.isPlaying();
+
+		//if (ImGui::BeginPopupContextWindow("preview_context_menu"))
+		//{
+		//	bool _fullWindow = fullWindow;
+		//	if (ImGui::MenuItem(getString("fullscreen_preview_toggle"), NULL, &_fullWindow))
+		//	{
+		//		setFullWindow(_fullWindow);
+		//	}
+
+		//	ImGui::EndPopup();
+		//}
+	}
+
+	void ScorePreviewWindow::setFullWindow(bool _fullWindow)
+	{
+		fullWindow = _fullWindow;
 	}
 
 	const Texture &ScorePreviewWindow::getNoteTexture()

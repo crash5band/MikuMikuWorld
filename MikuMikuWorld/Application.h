@@ -29,6 +29,7 @@ namespace MikuMikuWorld
 		bool shouldPickScore = false;
 		bool dragDropHandled = true;
 		bool windowDragging = false;
+		bool fullScreen = false;
 		float lastDpiScale = 0.0f;
 		void* windowHandle{ 0 };
 		Vector2 position{};
@@ -71,6 +72,7 @@ namespace MikuMikuWorld
 		void writeSettings();
 		void loadResources();
 		void dispose();
+		void setFullScreen(bool fullScreen);
 		bool attemptSave();
 		bool isEditorUpToDate() const;
 

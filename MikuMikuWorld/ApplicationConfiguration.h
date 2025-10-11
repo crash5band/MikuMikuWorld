@@ -51,6 +51,8 @@ namespace MikuMikuWorld
 		MultiInputBinding timelineBpm = { "timeline_bpm", {ImGuiKey_8}, {ImGuiKey_Keypad8} };
 		MultiInputBinding timelineTimeSignature = { "timeline_time_signature", {ImGuiKey_9}, {ImGuiKey_Keypad9} };
 		MultiInputBinding timelineHiSpeed = { "timeline_hi_speed", {ImGuiKey_0}, {ImGuiKey_Keypad0} };
+
+		MultiInputBinding toggleFullscreen = { "fullscreen", {ImGuiKey_F11} };
 	};
 
 	constexpr size_t maxRecentFilesEntries = 10;
@@ -63,6 +65,7 @@ namespace MikuMikuWorld
 		Vector2 windowPos;
 		Vector2 windowSize;
 		bool maximized;
+		bool fullScreen;
 		bool vsync;
 		bool showFPS;
 		int accentColor;
@@ -176,6 +179,7 @@ namespace MikuMikuWorld
 
 		&config.input.openHelp,
 		&config.input.openSettings,
+		&config.input.toggleFullscreen
 	};
 
 	static_assert(sizeof(InputConfiguration) / sizeof(MultiInputBinding) == (sizeof(bindings) / sizeof(MultiInputBinding*)),

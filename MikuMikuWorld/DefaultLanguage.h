@@ -32,6 +32,7 @@ namespace MikuMikuWorld
 		{"window", "Window"},
 		{"vsync", "VSync"},
 		{"show_fps", "Show FPS"},
+		{"fullscreen", "Full Screen"},
 		{"debug", "Debug"},
 		{"create_auto_save", "Create Auto Save"},
 		{"help", "Help"},

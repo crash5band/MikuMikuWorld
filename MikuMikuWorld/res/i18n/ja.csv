@@ -27,6 +27,7 @@ settings, 設定
 window, ウィンドウ
 vsync, VSync（垂直同期）
 show_fps, FPS情報を表示
+fullscreen, 全画面
 debug, デバッグ
 create_auto_save, オートセーブを実行
 help, ヘルプ

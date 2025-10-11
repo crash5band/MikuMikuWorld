@@ -63,5 +63,7 @@ namespace MikuMikuWorld
 		void uninitialize();
 		inline std::string_view getWorkingFilename() const { return context.workingData.filename; }
 		constexpr inline bool isUpToDate() const { return context.upToDate; }
+
+		inline bool isFullScreenPreview() const { return preview.isFullWindow(); }
 	};
 }

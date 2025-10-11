@@ -119,6 +119,7 @@ namespace MikuMikuWorld
 		windowState.size = config.windowSize;
 		windowState.maximized = config.maximized;
 		windowState.vsync = config.vsync;
+		windowState.fullScreen = config.fullScreen;
 		UI::accentColors[0] = config.userColor.toImVec4();
 	}
 
@@ -128,6 +129,7 @@ namespace MikuMikuWorld
 		config.vsync = windowState.vsync;
 		config.windowPos = windowState.position;
 		config.windowSize = windowState.size;
+		config.fullScreen = windowState.fullScreen;
 		config.userColor = Color::fromImVec4(UI::accentColors[0]);
 
 		if (editor)
@@ -303,6 +305,26 @@ namespace MikuMikuWorld
 
 		editor->update();
 
+		bool isFullScreen = config.fullScreen;
+		if (ImGui::IsAnyPressed(config.input.toggleFullscreen)) setFullScreen(!isFullScreen);
+
+		if (!editor->isFullScreenPreview())
+		{
+			ImGui::BeginMainMenuBar();
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 2));
+
+			if (ImGui::BeginMenu(getString("window")))
+			{
+				if (ImGui::MenuItem(getString("fullscreen"), ToShortcutString(config.input.toggleFullscreen), &isFullScreen))
+					setFullScreen(isFullScreen);
+
+				ImGui::EndMenu();
+			}
+
+			ImGui::PopStyleVar();
+			ImGui::EndMainMenuBar();
+		}
+
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -342,6 +364,30 @@ namespace MikuMikuWorld
 		// Load more languages here
 		Localization::loadDefault();
 		Localization::load("ja", u8"日本語", appDir + "res\\i18n\\ja.csv");
+	}
+
+	void Application::setFullScreen(bool fullScreen)
+	{
+		Application::windowState.fullScreen = config.fullScreen = fullScreen;
+
+		GLFWmonitor* mainMonitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(mainMonitor);
+		if (fullScreen)
+		{
+			glfwSetWindowMonitor(window, mainMonitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+		}
+		else
+		{
+			glfwSetWindowMonitor(
+				window,
+				NULL,
+				Application::windowState.position.x,
+				Application::windowState.position.y,
+				Application::windowState.size.x,
+				Application::windowState.size.y,
+				mode->refreshRate
+			);
+		}
 	}
 
 	void Application::run()

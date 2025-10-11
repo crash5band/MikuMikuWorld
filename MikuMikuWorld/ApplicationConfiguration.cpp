@@ -10,7 +10,7 @@ using namespace nlohmann;
 namespace MikuMikuWorld
 {
 	ApplicationConfiguration config{};
-	constexpr const char* CONFIG_VERSION{ "1.13.0" };
+	constexpr const char* CONFIG_VERSION{ "1.14.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -39,6 +39,7 @@ namespace MikuMikuWorld
 			maximized = jsonIO::tryGetValue<bool>(window, "maximized", false);
 			vsync = jsonIO::tryGetValue<bool>(window, "vsync", true);
 			showFPS = jsonIO::tryGetValue<bool>(window, "show_fps", false);
+			fullScreen = jsonIO::tryGetValue<bool>(window, "fullscreen", false);
 
 			windowPos = jsonIO::tryGetValue(window, "position", Vector2{});
 			if (windowPos.x <= 0) windowPos.x = 150;
@@ -170,6 +171,7 @@ namespace MikuMikuWorld
 		config["window"]["maximized"] = maximized;
 		config["window"]["vsync"] = vsync;
 		config["window"]["show_fps"] = showFPS;
+		config["window"]["fullscreen"] = fullScreen;
 
 		config["timeline"] = {
 			{"lane_width", timelineWidth},
@@ -269,6 +271,7 @@ namespace MikuMikuWorld
 	{
 		windowPos = Vector2(150, 100);
 		windowSize = Vector2(1000, 800);
+		fullScreen = false;
 		maximized = false;
 		vsync = true;
 		accentColor = 1;
