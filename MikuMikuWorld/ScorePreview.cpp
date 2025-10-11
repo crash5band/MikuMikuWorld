@@ -884,9 +884,10 @@ namespace MikuMikuWorld
 				if (type == Engine::NoteEffectType::Aura || type == Engine::NoteEffectType::Lane || type == Engine::NoteEffectType::Slot)
 				{
 					noteLeft = Engine::laneToLeft(effect.lane);
-					if (config.pvMirrorScore) noteLeft = (noteLeft + note.width) * -1;
+					noteRight = noteLeft + 1;
 
-					noteRight = noteLeft + 1.00f;
+					if (config.pvMirrorScore)
+						std::swap(noteLeft *= -1, noteRight *= -1);
 				}
 
 				SpriteLayer layer{ SpriteLayer::GEN_EFFECT };
