@@ -460,9 +460,8 @@ namespace MikuMikuWorld::Engine
 				const Note& endNote = score.notes.at(holdNote.end);
 				float startTime = accumulateDuration(note.tick, TICKS_PER_BEAT, score.tempoChanges);
 				float endTime = accumulateDuration(endNote.tick, TICKS_PER_BEAT, score.tempoChanges);
-				if (endTime - startTime < 0.01f)
-					return;
-				addParticleEffect(drawData, slotSegmentGlow, NoteEffectType::AuraHold, DrawingParticleType::Aura, note, score, endTime - startTime);
+				if (endTime - startTime >= 0.01f)
+					addParticleEffect(drawData, slotSegmentGlow, NoteEffectType::AuraHold, DrawingParticleType::Aura, note, score, endTime - startTime);
 			}
 			if (note.friction) return;
 			if (holdNote.startType == HoldNoteType::Normal)
