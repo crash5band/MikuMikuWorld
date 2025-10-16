@@ -2272,7 +2272,7 @@ namespace MikuMikuWorld
 			}
 
 			stopTime = -1;
-			context.audio.stopSoundEffects(false);
+			context.audio.stopSoundEffects(true);
 			context.audio.stopMusic();
 		}
 	}
