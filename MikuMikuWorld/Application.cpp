@@ -374,17 +374,23 @@ namespace MikuMikuWorld
 		const GLFWvidmode* mode = glfwGetVideoMode(mainMonitor);
 		if (fullScreen)
 		{
+			if (Application::windowState.maximized)
+				glfwSetWindowAttrib(window, GLFW_MAXIMIZED, GLFW_FALSE);
+
 			glfwSetWindowMonitor(window, mainMonitor, 0, 0, mode->width, mode->height, mode->refreshRate);
 		}
 		else
 		{
+			int width = Application::windowState.maximized ? mode->width : Application::windowState.size.x;
+			int height = Application::windowState.maximized ? mode->height : Application::windowState.size.y;
+
 			glfwSetWindowMonitor(
 				window,
 				NULL,
 				Application::windowState.position.x,
 				Application::windowState.position.y,
-				Application::windowState.size.x,
-				Application::windowState.size.y,
+				width,
+				height,
 				mode->refreshRate
 			);
 		}

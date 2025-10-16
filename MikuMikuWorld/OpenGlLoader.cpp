@@ -85,8 +85,7 @@ namespace MikuMikuWorld
 			return Result(ResultStatus::Error, "Failed to create GLFW Window.\n" + std::string(glfwErrorDescription));
 		}
 
-		if (!config.fullScreen)
-			glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
+		glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
 		
 		glfwMakeContextCurrent(window);
 		glfwSetWindowTitle(window, APP_NAME " - Untitled");
@@ -113,7 +112,7 @@ namespace MikuMikuWorld
 		}
 
 		glfwSwapInterval(config.vsync);
-		if (config.maximized)
+		if (config.maximized && !config.fullScreen)
 			glfwMaximizeWindow(window);
 
 		glLineWidth(1.0f);
