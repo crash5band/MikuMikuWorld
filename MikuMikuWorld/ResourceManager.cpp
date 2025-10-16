@@ -213,12 +213,16 @@ namespace MikuMikuWorld
 					PropertyCoeff wh = readCoeff(reader, flags.data() + 6);
 					PropertyCoeff ta = readCoeff(reader, flags.data() + 12);
 					PropertyCoeff u1u2 = readCoeff(reader, flags.data() + 18);
+					
+					float order = DirectX::XMVectorGetZ(u1u2.r1_4->r[0]);
+
 					particleEffect.particles.push_back(Particle{
 						(int)g,
 						(int)spriteId,
 						Color{(uint8_t)(color >> 24), (uint8_t)(color >> 16), (uint8_t)(color >> 8)},
 						start,
 						duration,
+						(int)order,
 						props,
 						std::move(xy),
 						std::move(wh),

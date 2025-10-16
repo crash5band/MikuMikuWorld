@@ -971,8 +971,8 @@ namespace MikuMikuWorld
 				m *= DirectX::XMMatrixTranslation(-pivotX, -pivotY, -pivotZ);
 				m *= DirectX::XMMatrixTranslation((noteCenter * xOffsetCorrection) + x, y, z + zCorrection);
 
-				int zIndex = Engine::getZIndex(layer, noteCenter, float(note.tick) / context.scorePreviewDrawData.maxTicks);
-				renderer->drawQuadWithBlend(m, texture, texture.sprites[particleData.spriteID], particleData.color.scaleAlpha(alpha), zIndex, blend);
+				//int zIndex = Engine::getZIndex(layer, noteCenter, float(note.tick) / context.scorePreviewDrawData.maxTicks);
+				renderer->drawQuadWithBlend(m, texture, texture.sprites[particleData.spriteID], particleData.color.scaleAlpha(alpha), particleData.order, blend);
 			}
 		}
 	}

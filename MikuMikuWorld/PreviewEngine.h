@@ -143,6 +143,7 @@ namespace MikuMikuWorld
 		Color color;
 		float start;
 		float duration;
+		int order;
 		std::array<ParticleProperty, 8> xywhtau1u2;
 		PropertyCoeff xyCoeff, whCoeff, taCoeff, u1u2Coeff;
 

@@ -282,7 +282,11 @@ namespace MikuMikuWorld::Engine
 						auto propsValue = spawning.compute(randomValues);
 						std::array<DrawingParticleProperty, 8> xywhtau1u2;
 						for (size_t i = 0; i < xywhtau1u2.size(); i++) xywhtau1u2[i] = DrawingParticleProperty{propsValue[i], Engine::getEaseFunc(props[i].easing)};
-					
+						
+						// We stored the draw order in u2.from r1 but we want to keep u2's values as is
+						xywhtau1u2[7].value.min = spawning.xywhtau1u2[7].from;
+						xywhtau1u2[7].value.max = spawning.xywhtau1u2[7].to;
+
 						Range time{ spawn_tm, spawn_tm + effectDuration };
 						drawingEffect.time.min = std::min(drawingEffect.time.min, time.min);
 						drawingEffect.time.max = std::max(drawingEffect.time.max, time.max);
