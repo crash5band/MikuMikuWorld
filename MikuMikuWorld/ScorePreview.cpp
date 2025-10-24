@@ -74,7 +74,7 @@ namespace MikuMikuWorld
 		if (bgWidth != frameBuffer.getWidth() || bgHeight != frameBuffer.getHeight())
 			frameBuffer.resize(bgWidth, bgHeight);
 		frameBuffer.bind();
-		frameBuffer.clear();
+		frameBuffer.clear(0, 0, 0, 0);
 		int shaderId;
 		if ((shaderId = ResourceManager::getShader("basic2d")) == -1) return;
 		Shader* basicShader = ResourceManager::shaders[shaderId];

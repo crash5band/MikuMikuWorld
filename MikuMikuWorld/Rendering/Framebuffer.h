@@ -17,7 +17,7 @@ namespace MikuMikuWorld
 		Framebuffer(unsigned int w, unsigned int h);
 		Framebuffer();
 
-		void clear();
+		void clear(float r = 0, float g = 0, float b = 0, float a = 1);
 		void bind();
 		void unblind();
 		void dispose();

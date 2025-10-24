@@ -31,10 +31,10 @@ namespace MikuMikuWorld
 		return buffer;
 	}
 
-	void Framebuffer::clear()
+	void Framebuffer::clear(float r, float g, float b, float a)
 	{
 		GLbitfield clearBits = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
-		glClearColor(0.2, 0.2, 0.2, 0.0);
+		glClearColor(r, g, b, a);
 		glClear(clearBits);
 	}
 

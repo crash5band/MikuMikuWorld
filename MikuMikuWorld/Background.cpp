@@ -92,7 +92,7 @@ namespace MikuMikuWorld
 		blur->setMatrix4("projection", DirectX::XMMatrixOrthographicRH(w, -h, 0.001f, 100));
 
 		framebuffer->bind();
-		framebuffer->clear();
+		framebuffer->clear(0, 0, 0, 0);
 		renderer->beginBatch();
 
 		// align background quad to canvas position

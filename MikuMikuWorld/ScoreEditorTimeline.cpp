@@ -841,7 +841,7 @@ namespace MikuMikuWorld
 		shader->setMatrix4("projection", Camera::getOffCenterOrthographicProjection(0, size.x, position.y + size.y, position.y));
 
 		slidePathFramebuffer->bind();
-		slidePathFramebuffer->clear();
+		slidePathFramebuffer->clear(0, 0, 0, 0);
 
 		glDisable(GL_DEPTH_TEST);
 
@@ -899,7 +899,7 @@ namespace MikuMikuWorld
 		ImGui::GetWindowDrawList()->AddImage((ImTextureID)(size_t)slidePathFramebuffer->getTexture(), position, position + size);
 
 		notesFramebuffer->bind();
-		notesFramebuffer->clear();
+		notesFramebuffer->clear(0, 0, 0, 0);
 		renderer->beginBatch();
 
 		minNoteYDistance = INT_MAX;
