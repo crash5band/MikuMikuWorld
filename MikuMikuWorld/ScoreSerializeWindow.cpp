@@ -18,6 +18,16 @@ namespace MikuMikuWorld
 		{
 			switch (controller->update())
 			{
+			case SerializeResult::PartialSerializeSuccess:
+				IO::messageBox(
+					APP_NAME,
+					controller->getErrorMessage(),
+					IO::MessageBoxButtons::Ok,
+					IO::MessageBoxIcon::Warning,
+					Application::windowState.windowHandle
+				);
+				controller.reset();
+				break;
 			case SerializeResult::SerializeSuccess:
 				IO::messageBox(
 					APP_NAME,
@@ -28,6 +38,14 @@ namespace MikuMikuWorld
 				);
 				controller.reset();
 				break;
+			case SerializeResult::PartialDeserializeSuccess:
+				IO::messageBox(
+					APP_NAME,
+					controller->getErrorMessage(),
+					IO::MessageBoxButtons::Ok,
+					IO::MessageBoxIcon::Warning,
+					Application::windowState.windowHandle
+				);
 			case SerializeResult::DeserializeSuccess:
 				context.clearSelection();
 				context.history.clear();
@@ -76,20 +94,19 @@ namespace MikuMikuWorld
 	{
 		Score score = context.score;
 		score.metadata = context.workingData.toScoreMetadata();
-		std::string extension = IO::File::getFileExtension(filename);
-		std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+		auto hasExtension = IO::File::hasFileExtension;
 		controller.reset();
-		if (extension == MMWS_EXTENSION)
+		if (hasExtension(filename, MMWS_EXTENSION))
 		{
 			controller = std::make_unique<DefaultScoreSerializeController>(std::make_unique<NativeScoreSerializer>(), std::move(score), filename);
 		}
-		else if (extension == SUS_EXTENSION)
+		else if (hasExtension(filename, SUS_EXTENSION))
 		{
 			controller = std::make_unique<DefaultScoreSerializeController>(std::make_unique<SusSerializer>(), std::move(score), filename);
 		}
-		else if (extension == LVLDAT_EXTENSION)
+		else if (hasExtension(filename, JSON_EXTENSION) || hasExtension(filename, GZ_JSON_EXTENSION))
 		{
-			controller = std::make_unique<DefaultScoreSerializeController>(std::make_unique<SonolusSerializer>(false), std::move(score), filename);
+			controller = std::make_unique<SonolusEngineController>(std::move(score), filename);
 		}
 		else
 			assert(false && "No serializer found!");
@@ -97,20 +114,19 @@ namespace MikuMikuWorld
 
 	void ScoreSerializeWindow::deserialize(const std::string& filename)
 	{
-		std::string extension = IO::File::getFileExtension(filename);
-		std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 		controller.reset();
-		if (extension == MMWS_EXTENSION)
+		auto hasExtension = IO::File::hasFileExtension;
+		if (hasExtension(filename, MMWS_EXTENSION))
 		{
 			controller = std::make_unique<DefaultScoreSerializeController>(std::make_unique<NativeScoreSerializer>(), filename);
 		}
-		else if (extension == SUS_EXTENSION)
+		else if (hasExtension(filename, SUS_EXTENSION))
 		{
 			controller = std::make_unique<DefaultScoreSerializeController>(std::make_unique<SusSerializer>(), filename);
 		}
-		else if (extension == LVLDAT_EXTENSION)
+		else if (hasExtension(filename, JSON_EXTENSION) || hasExtension(filename, GZ_JSON_EXTENSION))
 		{
-			controller = std::make_unique<DefaultScoreSerializeController>(std::make_unique<SonolusSerializer>(), filename);
+			controller = std::make_unique<SonolusEngineController>(filename);
 		}
 		else
 		{
@@ -136,7 +152,7 @@ namespace MikuMikuWorld
 			controller = std::make_unique<DefaultScoreSerializeController>(std::make_unique<SusSerializer>(), pendingFilename);
 			break;
 		case 2: // Sonolus Level Data
-			controller = std::make_unique<DefaultScoreSerializeController>(std::make_unique<SonolusSerializer>(), pendingFilename);
+			controller = std::make_unique<SonolusEngineController>(pendingFilename);
 			break;
 		default:
 			controller.reset();

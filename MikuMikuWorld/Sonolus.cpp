@@ -12,16 +12,16 @@ namespace Sonolus
 		{
 			nlohmann::json item;
 			item["name"] = name;
-			switch (levelData.getDataValueType(value))
+			switch (levelData.getValueDataType(value))
 			{
 			case LevelDataEntity::DataValueType::Ref:
-				item["ref"] = LevelDataEntity::getDataValue<LevelDataEntity::RefType>(value);
+				item["ref"] = LevelDataEntity::getValue<LevelDataEntity::RefType>(value);
 				break;
 			case LevelDataEntity::DataValueType::Real:
-				item["value"] = LevelDataEntity::getDataValue<LevelDataEntity::RealType>(value);
+				item["value"] = LevelDataEntity::getValue<LevelDataEntity::RealType>(value);
 				break;
 			case LevelDataEntity::DataValueType::Integer:
-				item["value"] = LevelDataEntity::getDataValue<LevelDataEntity::IntegerType>(value);
+				item["value"] = LevelDataEntity::getValue<LevelDataEntity::IntegerType>(value);
 				break;
 			}
 			dataJson.push_back(item);

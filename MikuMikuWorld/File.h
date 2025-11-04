@@ -25,6 +25,7 @@ namespace IO
 		static std::string getFilepath(const std::string& filename);
 		static std::string fixPath(const std::string& path);
 		static bool exists(const std::string& path);
+		static bool hasFileExtension(const std::string_view& filename, const std::string_view& extension);
 
 		void open(const std::string& filename, FileMode mode);
 		void open(const std::wstring& filename, FileMode mode);

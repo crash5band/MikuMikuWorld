@@ -59,7 +59,7 @@ namespace MikuMikuWorld
 		{"error_open_file_msg1", "Cannot open the file"},
 		{"error_open_file_msg2", ""},
 		{"error_load_score_file", "An error occurred while reading the score file"},
-		{"error_save_score_file", "An error occured while saving the score file"},
+		{"error_save_score_file", "An error occurred while saving the score file"},
 		{"error_load_music_file", "Cannot open music file"},
 		{"cancel", "Cancel"},
 		{"general", "General"},
@@ -117,6 +117,9 @@ namespace MikuMikuWorld
 		{"stage_cover", "Vertical Stage Cover"},
 		{"stage_lock_ratio", "Lock Stage Aspect Ratio"},
 		{"notes_skin", "Notes Skin"},
+		{"select_engine", "Select an engine"},
+		{"compress", "Compress"},
+		{"score_partially_missing", "Some of part of the score the might be missing!"},
 
 		// Score editor
 		{"chart_properties", "Chart Properties"},

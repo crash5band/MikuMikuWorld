@@ -11,7 +11,7 @@ namespace IO
 {
 	FileDialogFilter mmwsFilter{ "MikuMikuWorld Score", "*.mmws" };
 	FileDialogFilter susFilter{ "Sliding Universal Score", "*.sus" };
-	FileDialogFilter lvlDatFilter{ "Sonolus Level Data", "*.json" };
+	FileDialogFilter lvlDatFilter{ "Sonolus Level Data", "*.json.gz;*.json" };
 	FileDialogFilter imageFilter{ "Image Files", "*.jpg;*.jpeg;*.png" };
 	FileDialogFilter audioFilter{ "Audio Files", "*.mp3;*.wav;*.flac;*.ogg" };
 	FileDialogFilter presetFilter{ "Notes Preset", "*.json" };
@@ -227,6 +227,11 @@ namespace IO
 	{
 		std::wstring wPath = mbToWideStr(path);
 		return std::filesystem::exists(wPath);
+	}
+
+	bool File::hasFileExtension(const std::string_view& filename, const std::string_view& extension)
+	{
+		return endsWith(filename, extension);
 	}
 
 	FileDialogResult FileDialog::showFileDialog(DialogType type, DialogSelectType selectType)
