@@ -600,7 +600,7 @@ namespace MikuMikuWorld
 		}
 		if (errorCount)
 		{
-			PRINT_DEBUG("Total of %d error(s) found", errorCount);
+			PRINT_DEBUG("Total of %zd error(s) found", errorCount);
 			throw PartialScoreDeserializeError(score, IO::formatString("%s\n%s", getString("error_load_score_file"), getString("score_partially_missing")));
 		}
 		return score;
