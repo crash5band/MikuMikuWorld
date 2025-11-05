@@ -76,7 +76,7 @@ namespace MikuMikuWorld
 			lldiv_t dv;
 			do
 			{
-				dv = std::div(index, base);
+				dv = std::div(static_cast<long long>(index), static_cast<long long>(base));
 				ref += dv.rem < 10 ? ('0' + dv.rem) : ('a' + (dv.rem - 10));
 				index = dv.quot;
 			} while (dv.quot);
