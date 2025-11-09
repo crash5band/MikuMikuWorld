@@ -77,6 +77,14 @@ namespace MikuMikuWorld
 		return v;
 	}
 
+	template <typename FloatType = double>
+	static auto roundOff(double value, int precision = 7)
+	{
+		FloatType dvalue = value;
+		double digits = std::pow(10, precision);
+		return std::round(dvalue * digits) / digits;
+	}
+
 	float lerp(float start, float end, float ratio);
 	float unlerp(float start, float end, float value);
 	double lerpD(double start, double end, double ratio);

@@ -33,9 +33,9 @@ namespace Sonolus
 		inline const T& getDataValue(const std::string& name) const { return std::get<T>(data.at(name)); }
 
 		template<typename T, typename ValueT>
-		inline static auto getDataValue(ValueT&& value) { return std::get<T>(value); }
+		inline static auto getValue(ValueT&& value) { return std::get<T>(value); }
 
-		inline static DataValueType getDataValueType(const ValueType& value)
+		inline static DataValueType getValueDataType(const ValueType& value)
 		{
 			if (std::holds_alternative<RefType>(value))
 				return DataValueType::Ref;
@@ -50,23 +50,23 @@ namespace Sonolus
 			auto it = data.find(std::forward<StrType>(name));
 			if (it == data.end()) return false;
 
-			switch (getDataValueType(it->second))
+			switch (getValueDataType(it->second))
 			{
 			case DataValueType::Ref:
 				if constexpr (std::is_assignable_v<T, RefType>)
-					value = getDataValue<RefType>(it->second);
+					value = getValue<RefType>(it->second);
 				else
 					return false;
 				break;
 			case DataValueType::Integer:
 				if constexpr (std::is_arithmetic_v<T>)
-					value = static_cast<T>(getDataValue<IntegerType>(it->second));
+					value = static_cast<T>(getValue<IntegerType>(it->second));
 				else
 					return false;
 				break;
 			case DataValueType::Real:
 				if constexpr (std::is_floating_point_v<T>)
-					value = static_cast<T>(getDataValue<RealType>(it->second));
+					value = static_cast<T>(getValue<RealType>(it->second));
 				else
 					return false;
 				break;

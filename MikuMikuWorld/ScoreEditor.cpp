@@ -324,6 +324,7 @@ namespace MikuMikuWorld
 			IO::combineFilters("All Supported Files",{ IO::mmwsFilter, IO::susFilter, IO::lvlDatFilter }),
 			IO::mmwsFilter,
 			IO::susFilter,
+			IO::lvlDatFilter,
 			IO::allFilter
 		};
 		
@@ -386,7 +387,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::exportScore()
 	{
-		constexpr const char* exportExtensions[] = { "sus", "scp", "json" };
+		constexpr const char* exportExtensions[] = { "sus", "json.gz" };
 		int filterIndex = std::clamp(config.lastSelectedExportIndex, 0, static_cast<int>(arrayLength(exportExtensions) - 1));
 
 		IO::FileDialog fileDialog{};

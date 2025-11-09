@@ -16,7 +16,7 @@ namespace MikuMikuWorld
 		ScoreSerializer() {}
 		virtual ~ScoreSerializer() {};
 
-		static bool isSupportedFileFormat(const std::string_view& extension);
+		static bool isSupportedFileFormat(const std::string_view& filename);
 		static bool isNativeScoreFormat(const std::string& fileExtension);
 	};
 
@@ -27,6 +27,8 @@ namespace MikuMikuWorld
 		SerializeSuccess,
 		DeserializeSuccess,
 		Error,
+		PartialSerializeSuccess,
+		PartialDeserializeSuccess,
 	};
 
 	class ScoreSerializeController
@@ -58,5 +60,15 @@ namespace MikuMikuWorld
 	private:
 		bool isSerializing;
 		std::unique_ptr<ScoreSerializer> serializer;
+	};
+
+	class PartialScoreDeserializeError : public std::runtime_error
+	{
+	public:
+		PartialScoreDeserializeError(Score score, const std::string& message) : partialScore(std::move(score)), std::runtime_error(message) { }
+
+		inline const Score& getScore() const { return partialScore; }
+	private:
+		Score partialScore;
 	};
 }

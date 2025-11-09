@@ -112,6 +112,9 @@ stage_opacity, ステージの不透明度
 stage_cover, ステージカバー（縦方向）
 stage_lock_ratio, ステージのアスペクト比を維持
 notes_skin, ノーツスキン
+select_engine, エンジンを選択
+compress, 圧縮
+score_partially_missing, 譜面の一部が欠落している可能性があります
 
 # score editor
 options, オプション

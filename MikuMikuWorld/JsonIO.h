@@ -26,7 +26,7 @@ namespace jsonIO
 
 	template<typename T>
 	static auto optional_get_to(const nlohmann::json& j, const std::string& k, T& v)
-		-> typename decltype(j.get_to(v))
+		-> decltype(j.get_to(v), T())
 	{
 		if (j.contains(k))
 			return j[k].get_to(v);

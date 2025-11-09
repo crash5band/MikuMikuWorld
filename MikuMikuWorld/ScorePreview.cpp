@@ -260,9 +260,7 @@ namespace MikuMikuWorld
 		noteEffectsCamera.fov = 50.f;
 		noteEffectsCamera.pitch = 27.1f;
 		noteEffectsCamera.yaw = -90.f;
-		noteEffectsCamera.position.m128_f32[0] = 0;
-		noteEffectsCamera.position.m128_f32[1] = 5.32f;
-		noteEffectsCamera.position.m128_f32[2] = -5.86f;
+		noteEffectsCamera.position = DirectX::XMVectorSet(0, 5.32f, -5.86f, 1);
 		noteEffectsCamera.positionCamNormal();
 	}
 

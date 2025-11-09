@@ -8,16 +8,12 @@
 
 namespace MikuMikuWorld
 {
-	constexpr std::array<std::string_view, 4> supportedScoreExtensions =
+	bool ScoreSerializer::isSupportedFileFormat(const std::string_view& filename)
 	{
-		MMWS_EXTENSION,
-		SUS_EXTENSION,
-		LVLDAT_EXTENSION
-	};
-
-	bool ScoreSerializer::isSupportedFileFormat(const std::string_view& extension)
-	{
-		return std::find(supportedScoreExtensions.cbegin(), supportedScoreExtensions.cend(), extension) != supportedScoreExtensions.end();
+		return IO::File::hasFileExtension(filename, MMWS_EXTENSION)
+			|| IO::File::hasFileExtension(filename, SUS_EXTENSION)
+			|| IO::File::hasFileExtension(filename, JSON_EXTENSION)
+			|| IO::File::hasFileExtension(filename, GZ_JSON_EXTENSION);
 	}
 
 	bool ScoreSerializer::isNativeScoreFormat(const std::string& fileExtension)

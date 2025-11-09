@@ -22,10 +22,12 @@ namespace MikuMikuWorld
 		float rYaw = DirectX::XMConvertToRadians(yaw);
 		float rPitch = DirectX::XMConvertToRadians(pitch);
 
-		DirectX::XMVECTOR _front{ 0.0f, 0.0f, 0.0f, 1.0f };
-		_front.m128_f32[0] = cos(rYaw) * cos(rPitch);
-		_front.m128_f32[1] = -sin(rPitch);
-		_front.m128_f32[2] = -sin(rYaw) * cos(rPitch);
+		DirectX::XMVECTOR _front = DirectX::XMVectorSet(
+			cos(rYaw) * cos(rPitch),
+			-sin(rPitch),
+			-sin(rYaw) * cos(rPitch),
+			1
+		);
 		front = DirectX::XMVector3Normalize(_front);
 	}
 
