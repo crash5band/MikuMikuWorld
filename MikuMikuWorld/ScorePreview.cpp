@@ -266,7 +266,7 @@ namespace MikuMikuWorld
 
 	ScorePreviewWindow::~ScorePreviewWindow()
 	{
-		if(notesTex) notesTex->dispose();
+		/*if(notesTex) notesTex->dispose();*/
 	}
 
 	void ScorePreviewWindow::update(ScoreContext& context, Renderer* renderer)
@@ -276,10 +276,7 @@ namespace MikuMikuWorld
 			// Don't draw anything if the window is not active.
 			// SFX and music updates are handled in the timeline
 			return;
-		if (context.scorePreviewDrawData.noteSpeed != config.pvNoteSpeed
-		|| context.scorePreviewDrawData.hasLaneEffect != config.pvLaneEffect
-		|| context.scorePreviewDrawData.hasNoteEffect != config.pvNoteEffect
-		|| context.scorePreviewDrawData.hasSlotEffect != config.pvNoteGlow)
+		if (context.scorePreviewDrawData.noteSpeed != config.pvNoteSpeed)
 			context.scorePreviewDrawData.calculateDrawData(context.score);
 		ImVec2 size = ImGui::GetContentRegionAvail() - ImVec2{ this->getScrollbarWidth(), 0 }; // Reserve space for the scrollbar
 		ImVec2 position = ImGui::GetCursorScreenPos();
@@ -294,10 +291,13 @@ namespace MikuMikuWorld
 		if (playbackState.isPlaying)
 		{
 			if (!playbackState.wasLastFramePlaying)
-				context.scorePreviewDrawData.clearEffectPools();
+				context.scorePreviewDrawData.effectView.reset();
 
-			context.scorePreviewDrawData.updateNoteEffects(context);
+			context.scorePreviewDrawData.effectView.update(context);
 		}
+
+		if (!context.scorePreviewDrawData.effectView.isInitialized())
+			context.scorePreviewDrawData.effectView.init();
 
 		static int shaderId = ResourceManager::getShader("basic2d");
 		static int pteShaderId = ResourceManager::getShader("particles");
@@ -365,11 +365,14 @@ namespace MikuMikuWorld
 		else
 			renderer->endBatch();
 
+		float currentTime = context.getTimeAtCurrentTick();
+		context.scorePreviewDrawData.effectView.updateEffects(context, noteEffectsCamera, currentTime);
+
 		pteShader->use();
 		pteShader->setMatrix4("projection", pProjection);
 		pteShader->setMatrix4("view", pView);
 		renderer->beginBatch();
-		drawParticles(context, renderer);
+		context.scorePreviewDrawData.effectView.drawEffects(renderer, currentTime);
 		renderer->endBatchWithBlending(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
 		previewBuffer.unblind();
@@ -802,13 +805,13 @@ namespace MikuMikuWorld
 
 	void ScorePreviewWindow::drawUnderNoteEffects(const ScoreContext &context, Renderer *renderer)
 	{
-		const auto& drawData = context.scorePreviewDrawData;
+		//const auto& drawData = context.scorePreviewDrawData;
 
-		drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::Lane, renderer);
-		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::Lane, renderer);
+		//drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::Lane, renderer);
+		//drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::Lane, renderer);
 
-		drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::Slot, renderer);
-		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::Slot, renderer);
+		//drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::Slot, renderer);
+		//drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::Slot, renderer);
 	}
 
 	void ScorePreviewWindow::drawEffectPool(const ScoreContext& context, const std::map<Engine::NoteEffectType, Engine::EffectPool>& effectPoolMap, const Engine::NoteEffectType type, Renderer* renderer)
@@ -977,19 +980,19 @@ namespace MikuMikuWorld
 
 	void ScorePreviewWindow::drawParticles(const ScoreContext &context, Renderer *renderer)
 	{
-		const auto& drawData = context.scorePreviewDrawData;
+		//const auto& drawData = context.scorePreviewDrawData;
 
-		drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::AuraHold, renderer);
-		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::AuraHold, renderer);
+		//drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::AuraHold, renderer);
+		//drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::AuraHold, renderer);
 
-		drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::GenHold, renderer);
-		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::GenHold, renderer);
+		//drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::GenHold, renderer);
+		//drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::GenHold, renderer);
 
-		drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::Gen, renderer);
-		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::Gen, renderer);
+		//drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::Gen, renderer);
+		//drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::Gen, renderer);
 
-		drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::Aura, renderer);
-		drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::Aura, renderer);
+		//drawEffectPool(context, drawData.normalEffectsPools, Engine::NoteEffectType::Aura, renderer);
+		//drawEffectPool(context, drawData.criticalEffectsPools, Engine::NoteEffectType::Aura, renderer);
 	}
 
 	void ScorePreviewWindow::drawNoteBase(Renderer* renderer, const Note& note, float noteLeft, float noteRight, float y, float zScalar)

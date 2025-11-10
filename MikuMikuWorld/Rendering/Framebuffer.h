@@ -5,11 +5,11 @@ namespace MikuMikuWorld
 	class Framebuffer
 	{
 	private:
-		unsigned int fbo;
-		unsigned int rbo;
-		unsigned int buffer;
-		unsigned int width;
-		unsigned int height;
+		unsigned int fbo{};
+		unsigned int rbo{};
+		unsigned int buffer{};
+		unsigned int width{};
+		unsigned int height{};
 
 		void setup();
 		void createTexture(unsigned int tex);

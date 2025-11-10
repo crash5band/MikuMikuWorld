@@ -5,6 +5,9 @@
 
 namespace MikuMikuWorld
 {
+	constexpr float PI = 22.f / 7.f;
+	constexpr float DEGREE_TO_RAD = (22.f / 7.f) / 180.f;
+
 	struct Vector2
 	{
 		float x;
@@ -37,6 +40,159 @@ namespace MikuMikuWorld
 		}
 	};
 
+	struct Vector3
+	{
+		float x;
+		float y;
+		float z;
+
+		Vector3(float _x, float _y, float _z)
+			: x{ _x }, y{ _y }, z{ _z }
+		{
+
+		}
+
+		Vector3() : x{ 0 }, y{ 0 }, z{ 0 }
+		{
+
+		}
+
+		Vector3 operator+(const Vector3& v) const
+		{
+			return Vector3(x + v.x, y + v.y, z + v.z);
+		}
+
+		Vector3 operator-(const Vector3& v) const
+		{
+			return Vector3(x - v.x, y - v.y, z - v.z);
+		}
+
+		Vector3 operator*(const Vector3& v) const
+		{
+			return Vector3(x * v.x, y * v.y, z * v.z);
+		}
+
+		Vector3& operator*=(const Vector3& v)
+		{
+			x *= v.x;
+			y *= v.y;
+			z *= v.z;
+			return *this;
+		}
+
+		Vector3& operator*=(float factor)
+		{
+			x *= factor;
+			y *= factor;
+			z *= factor;
+			return *this;
+		}
+
+		Vector3& operator+=(const Vector3& v)
+		{
+			x += v.x;
+			y += v.y;
+			z += v.z;
+			return *this;
+		}
+
+		inline Vector3 operator * (const float& mult) const {
+			return Vector3(x * mult, y * mult, z * mult);
+		}
+
+		inline Vector3 crossProduct(const Vector3& rkVector) const
+		{
+			return Vector3(
+				y * rkVector.z - z * rkVector.y,
+				z * rkVector.x - x * rkVector.z,
+				x * rkVector.y - y * rkVector.x);
+		}
+
+		inline float dotProduct(const Vector3& vec) const
+		{
+			return x * vec.x + y * vec.y + z * vec.z;
+		}
+
+		inline float absDotProduct(const Vector3& vec) const
+		{
+			return abs(x * vec.x) + abs(y * vec.y) + abs(z * vec.z);
+		}
+
+		inline float length() const
+		{
+			return sqrt((x * x) + (y * y) + (z * z));
+		}
+
+		inline float squaredLength() const
+		{
+			return (x * x) + (y * y) + (z * z);
+		}
+
+		inline float normalize()
+		{
+			float fLength = sqrt(x * x + y * y + z * z);
+
+			if (fLength > 0.0f) {
+				float fInvLength = 1.0f / fLength;
+				x *= fInvLength;
+				y *= fInvLength;
+				z *= fInvLength;
+			}
+
+			return fLength;
+		}
+	};
+
+	struct Quaternion
+	{
+		float x, y, z, w;
+		
+		Quaternion() : x{ 0 }, y{ 0 }, z{ 0 }, w{ 1 } {};
+		Quaternion(float _x, float _y, float _z, float _w) :
+			x{ _x }, y{ _y }, z{ _z }, w{ _w } { }
+
+
+		Quaternion operator* (const Quaternion& rkQ) {
+			return Quaternion
+			(
+				w * rkQ.x + x * rkQ.w + y * rkQ.z - z * rkQ.y,
+				w * rkQ.y - x * rkQ.z + y * rkQ.w + z * rkQ.x,
+				w * rkQ.z + x * rkQ.y - y * rkQ.x + z * rkQ.w,
+				w * rkQ.w - x * rkQ.x - y * rkQ.y - z * rkQ.z
+			);
+		}
+
+		Quaternion operator* (float fScalar) const {
+			return Quaternion(fScalar * w, fScalar * x, fScalar * y, fScalar * z);
+		}
+
+		Quaternion inverse() const {
+			float fNorm = w * w + x * x + y * y + z * z;
+			if (fNorm > 0.0) {
+				float fInvNorm = 1.0f / fNorm;
+				return Quaternion(w * fInvNorm, -x * fInvNorm, -y * fInvNorm, -z * fInvNorm);
+			}
+			else {
+				return Quaternion(0, 0, 0, 0);
+			}
+		}
+
+		Vector3 operator* (const Vector3& v) const {
+			Vector3 uv, uuv;
+			Vector3 qvec(x, y, z);
+			uv = qvec.crossProduct(v);
+			uuv = qvec.crossProduct(uv);
+			uv = uv * (2.0f * w);
+			uuv = uuv * 2.0f;
+
+			return v + uv + uuv;
+		}
+
+		inline Quaternion& fromEulerDegrees(const Vector3& euler) { return fromEulerDegrees(euler.x, euler.y, euler.z); }
+		Quaternion& fromEulerDegrees(float x, float y, float z);
+		Quaternion& fromAgleAxis(float rAngle, Vector3 axis);
+	};
+
 	struct Color
 	{
 	public:
@@ -55,6 +211,7 @@ namespace MikuMikuWorld
 
 		inline bool operator==(const Color& c) const { return r == c.r && g == c.g && b == c.b && a == c.a; }
 		inline bool operator!=(const Color& c) const { return !(*this == c); }
+		inline Color operator*(const Color& c) const { return Color(r * c.r, g * c.g, b * c.b, a * c.a); }
 
 		static inline int rgbaToInt(int r, int g, int b, int a) { return r << 24 | g << 16 | b << 8 | a; }
 		static inline int abgrToInt(int a, int b, int g, int r) { return a << 24 | b << 16 | g << 8 | r; }

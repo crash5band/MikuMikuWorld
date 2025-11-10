@@ -7,7 +7,9 @@
 #include "ApplicationConfiguration.h"
 #include "ScoreSerializer.h"
 #include "NoteSkin.h"
+#include "EffectView.h"
 #include <filesystem>
+
 
 namespace MikuMikuWorld
 {
@@ -358,8 +360,15 @@ namespace MikuMikuWorld
 
 		const std::string effectsDir = appDir + "res\\effect\\";
 		ResourceManager::loadTexture(effectsDir + "particles.png");
+		ResourceManager::loadTexture(effectsDir + "tex_note_common_all_v2.png");
 		ResourceManager::loadTransforms(effectsDir + "transform.txt");
 		ResourceManager::loadParticleEffects(effectsDir + "particles.pte");
+
+		const std::string unityEffectsDir = "C:\\Data\\SekaiUnityEffects\\dump\\";
+		size_t effectCount = arrayLength(Effect::effectNames);
+
+		for (size_t i = 0; i < effectCount; i++)
+			ResourceManager::loadParticleEffect(unityEffectsDir + Effect::effectNames[i] + ".json");
 
 		// Load more languages here
 		Localization::loadDefault();

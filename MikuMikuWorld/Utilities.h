@@ -4,6 +4,8 @@
 #include <algorithm>
 #include "ImGui/imgui_internal.h"
 #include <type_traits>
+#include <random>
+#include "Math.h"
 
 // Macro to allow usage of flags operators with types enums
 #define DECLARE_ENUM_FLAG_OPERATORS(EnumType) \
@@ -26,7 +28,31 @@ namespace MikuMikuWorld
 		static float centerImGuiItem(const float width);
 		static void ImGuiCenteredText(const std::string& str);
 		static void ImGuiCenteredText(const char* str);
+
+		static float random(float min, float max);
+		static Color random(const Color& min, const Color& max);
+		static Quaternion random(const Quaternion& min, const Quaternion& max);
+		static Vector3 random(const Vector3& min, const Vector3& max);
 	};
+
+	class Random
+	{
+	public:
+		float get(float min, float max);
+		float get();
+
+		Random() : gen{ rd() }, dist{ 0, 1 }
+		{
+
+		}
+
+	private:
+		std::random_device rd;
+		std::mt19937 gen;
+		std::uniform_real_distribution<> dist;
+	};
+
+	extern Random random;
 
 	enum class ResultStatus
 	{

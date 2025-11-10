@@ -1,3 +1,4 @@
+#pragma once
 #include "UI.h"
 #include <string>
 

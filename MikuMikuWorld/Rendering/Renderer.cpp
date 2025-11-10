@@ -16,8 +16,8 @@ namespace MikuMikuWorld
 	void Renderer::init()
 	{
 		// order: top-right, bottom-right, bottom-left, top-left
-		vPos[0] = {  0.5f,  0.5f, 0.0f, 1.0f };
-		vPos[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
+		vPos[0] = { 0.5f,  0.5f, 0.0f, 1.0f };
+		vPos[1] = { 0.5f, -0.5f, 0.0f, 1.0f };
 		vPos[2] = { -0.5f, -0.5f, 0.0f, 1.0f };
 		vPos[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
 	}
@@ -62,10 +62,10 @@ namespace MikuMikuWorld
 
 	void Renderer::setUVCoords(const Texture& tex, float x1, float x2, float y1, float y2, float z)
 	{
-		float left		= x1 / tex.getWidth();
-		float right		= x2 / tex.getWidth();
-		float top		= y1 / tex.getHeight();
-		float bottom	= y2 / tex.getHeight();
+		float left = x1 / tex.getWidth();
+		float right = x2 / tex.getWidth();
+		float top = y1 / tex.getHeight();
+		float bottom = y2 / tex.getHeight();
 
 		uvCoords[0] = { right, top, z, 0.0f };
 		uvCoords[1] = { right, bottom, z, 0.0f };
@@ -114,8 +114,8 @@ namespace MikuMikuWorld
 		pushQuad(vPos, uvCoords, DirectX::XMMatrixIdentity(), color, tex.getID(), z);
 	}
 
-	void Renderer::drawQuad(const std::array<DirectX::XMFLOAT4, 4> &pos, const DirectX::XMMATRIX &m,
-		const Texture &tex, float x1, float x2, float y1, float y2, const Color &tint, int z)
+	void Renderer::drawQuad(const std::array<DirectX::XMFLOAT4, 4>& pos, const DirectX::XMMATRIX& m,
+		const Texture& tex, float x1, float x2, float y1, float y2, const Color& tint, int z)
 	{
 		setUVCoords(tex, x1, x2, y1, y2, 0.0f);
 		DirectX::XMFLOAT4 color{ tint.r, tint.g, tint.b, tint.a };
@@ -128,6 +128,27 @@ namespace MikuMikuWorld
 	{
 		setAnchor(AnchorType::MiddleCenter);
 		setUVCoords(tex, s.getX1(), s.getX2(), s.getY1(), s.getY2(), blend);
+		DirectX::XMFLOAT4 color{ tint.r, tint.g, tint.b, tint.a };
+
+		pushQuad(vPos, uvCoords, m, color, tex.getID(), z);
+	}
+
+	void Renderer::drawQuadWithBlend(const DirectX::XMMATRIX& m, const Texture& tex, int splitX, int splitY, int frame,
+		const Color& tint, int z, float blend)
+	{
+		setAnchor(AnchorType::MiddleCenter);
+		
+		int row = frame / splitX;
+		int col = frame % splitX;
+		int w = tex.getWidth() / splitX;
+		int h = tex.getHeight() / splitY;
+
+		float x1 = col * w;
+		float x2 = x1 + w;
+		float y1 = row * h;
+		float y2 = y1 + h;
+
+		setUVCoords(tex, x1, x2, y1, y2, blend);
 		DirectX::XMFLOAT4 color{ tint.r, tint.g, tint.b, tint.a };
 
 		pushQuad(vPos, uvCoords, m, color, tex.getID(), z);
@@ -281,12 +302,12 @@ namespace MikuMikuWorld
 		glGetIntegerv(GL_BLEND_SRC_ALPHA, &oldSrcAlpha);
 		glGetIntegerv(GL_BLEND_DST_ALPHA, &oldDstAlpha);
 		glBlendFuncSeparate(srcRGB, dstRGB, srcA, dstA);
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+		//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 
 		endBatch();
 
 		glBlendFuncSeparate(oldSrcRGB, oldDstRGB, oldSrcAlpha, oldDstAlpha);
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		if (!blending)
 			glDisable(GL_BLEND);
     }

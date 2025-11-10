@@ -43,6 +43,33 @@ namespace MikuMikuWorld
 		return x >= left && x <= right;
 	}
 
+	Quaternion& Quaternion::fromEulerDegrees(float x, float y, float z)
+	{
+		float xRad = x * DEGREE_TO_RAD;
+		float yRad = y * DEGREE_TO_RAD;
+		float zRad = z * DEGREE_TO_RAD;
+
+		Quaternion qX{}, qY{}, qZ{};
+		qX.fromAgleAxis(xRad, { 1, 0, 0 });
+		qY.fromAgleAxis(yRad, { 0, 1, 0 });
+		qZ.fromAgleAxis(zRad, { 0, 0, 1 });
+		*this = qZ * qY * qX;
+
+		return *this;
+	}
+
+	Quaternion& Quaternion::fromAgleAxis(float rAngle, Vector3 axis)
+	{
+		float fHalfAngle(0.5 * rAngle);
+		float fSin = sin(fHalfAngle);
+		w = cos(fHalfAngle);
+		x = fSin * axis.x;
+		y = fSin * axis.y;
+		z = fSin * axis.z;
+
+		return *this;
+	}
+
 	std::function<float(float, float, float)> getEaseFunction(EaseType ease)
 	{
 		switch (ease)

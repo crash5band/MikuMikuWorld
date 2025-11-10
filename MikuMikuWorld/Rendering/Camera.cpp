@@ -1,8 +1,9 @@
 #include "Camera.h"
+#include <algorithm>
 
 namespace MikuMikuWorld
 {
-	Camera::Camera() : fov{ 45 }
+	Camera::Camera() : fov{ 45 }, yaw{ -90 }, pitch{ 0 }
 	{
 
 	}
@@ -22,13 +23,26 @@ namespace MikuMikuWorld
 		float rYaw = DirectX::XMConvertToRadians(yaw);
 		float rPitch = DirectX::XMConvertToRadians(pitch);
 
-		DirectX::XMVECTOR _front = DirectX::XMVectorSet(
+		DirectX::XMVECTOR _front {
 			cos(rYaw) * cos(rPitch),
 			-sin(rPitch),
 			-sin(rYaw) * cos(rPitch),
-			1
-		);
+			1.0f
+		};
+
 		front = DirectX::XMVector3Normalize(_front);
+	}
+
+	void Camera::rotate(float x, float y)
+	{
+		yaw += x * -0.1f;
+		pitch += y * 0.1f;
+		pitch = std::clamp(pitch, -89.0f, 89.0f);
+	}
+
+	void Camera::zoom(float delta)
+	{
+		position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(front, delta));
 	}
 
 	DirectX::XMMATRIX Camera::getViewMatrix() const
@@ -36,7 +50,7 @@ namespace MikuMikuWorld
 		DirectX::XMVECTOR tgt = front;
 		tgt = DirectX::XMVectorAdd(tgt, position);
 
-		return DirectX::XMMatrixLookAtRH(position, tgt, DirectX::XMVECTOR{ 0.0f, -1.0f, 0.0f, 1.0f });
+		return DirectX::XMMatrixLookAtRH(position, tgt, DirectX::XMVECTOR{ 0.0f, -1.0f, 0.0f, 0.0f });
 	}
 
 	DirectX::XMMATRIX Camera::getProjectionMatrix(float aspect, float near, float far) const

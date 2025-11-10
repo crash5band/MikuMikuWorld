@@ -52,6 +52,63 @@ namespace MikuMikuWorld
 		ImGui::Text(str);
 	}
 
+	float Utilities::random(float min, float max)
+	{
+		if (min == max)
+			return min;
+
+		return min + static_cast<float>(rand()) / static_cast<float>(RAND_MAX / (max - min));
+	}
+
+	Random random{};
+
+	float Random::get(float min, float max)
+	{
+		float factor = dist(gen);
+		return lerp(min, max, factor);
+	}
+
+	float Random::get()
+	{
+		return dist(gen);
+	}
+
+	Color Utilities::random(const Color& min, const Color& max)
+	{
+		return Color(
+			random(min.r, max.r),
+			random(min.g, max.g),
+			random(min.b, max.b),
+			random(min.a, max.a)
+		);
+	}
+
+	Quaternion Utilities::random(const Quaternion& min, const Quaternion& max)
+	{
+		return Quaternion(
+			random(min.x, max.x),
+			random(min.y, max.y),
+			random(min.z, max.z),
+			random(min.w, max.w)
+		);
+	}
+
+	Vector3 Utilities::random(const Vector3& min, const Vector3& max)
+	{
+		if (min.x == min.y && min.y == min.z &&
+			max.x == max.y && max.y == max.z)
+		{
+			float randomValue = random(min.x, max.x);
+			return Vector3(randomValue, randomValue, randomValue);
+		}
+
+		return Vector3(
+			random(min.x, max.x),
+			random(min.y, max.y),
+			random(min.z, max.z)
+		);
+	}
+
 	void drawShadedText(ImDrawList* drawList, ImVec2 textPos, float fontSize, ImU32 fontColor, const char* text)
 	{
 		if (!drawList) return;

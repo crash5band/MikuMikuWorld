@@ -4,6 +4,7 @@
 #include <set>
 #include "Score.h"
 #include "Math.h"
+#include "EffectView.h"
 #include <memory>
 
 namespace MikuMikuWorld
@@ -115,19 +116,9 @@ namespace MikuMikuWorld::Engine
 		std::vector<DrawingLine> drawingLines;
 		std::vector<DrawingHoldTick> drawingHoldTicks;
 		std::vector<DrawingHoldSegment> drawingHoldSegments;
-
-		std::map<NoteEffectType, EffectPool> normalEffectsPools;
-		std::map<NoteEffectType, EffectPool> criticalEffectsPools;
-		std::set<int> drawingNoteEffects;
-
-		bool hasLaneEffect;
-		bool hasNoteEffect;
-		bool hasSlotEffect;
+		Effect::EffectView effectView;
 
 		void clear();
-		void clearEffectPools();
 		void calculateDrawData(Score const& score);
-		void updateNoteEffects(ScoreContext& context);
-		void initEffectPools();
 	};
 }
