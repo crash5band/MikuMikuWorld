@@ -362,9 +362,13 @@ namespace MikuMikuWorld
 		Effect::Particle p;
 		p.name = j["name"];
 		const json& transform = j["transform"];
-		p.transform.position = jsonIO::tryGetValue(transform, "position", Vector3());
-		p.transform.rotation = jsonIO::tryGetValue(transform, "rotation", Vector3());
-		p.transform.scale = jsonIO::tryGetValue(transform, "scale", Vector3());
+		Vector3 mainPosition = jsonIO::tryGetValue(transform, "position", Vector3());
+		Vector3 mainRotation = jsonIO::tryGetValue(transform, "rotation", Vector3());
+		Vector3 mainScale = jsonIO::tryGetValue(transform, "scale", Vector3());
+
+		p.transform.position = { mainPosition.x, mainPosition.y, mainPosition.z, 1 };
+		p.transform.rotation = { mainRotation.x, mainRotation.y, mainRotation.z, 1 };
+		p.transform.scale = { mainScale.x, mainScale.y, mainScale.z, 1 };
 
 		p.startSize = readMinMax3(j["startSize"]);
 		p.startRotation = readMinMax3(j["startRotation"]);
@@ -399,9 +403,14 @@ namespace MikuMikuWorld
 
 		const json& shape = j["shape"];
 		const json& shapeTransform = shape["transform"];
-		p.emission.transform.position = jsonIO::tryGetValue(shapeTransform, "position", Vector3());
-		p.emission.transform.rotation = jsonIO::tryGetValue(shapeTransform, "rotation", Vector3());
-		p.emission.transform.scale = jsonIO::tryGetValue(shapeTransform, "scale", Vector3());
+		Vector3 emitPosition = jsonIO::tryGetValue(shapeTransform, "position", Vector3());
+		Vector3 emitRotation = jsonIO::tryGetValue(shapeTransform, "rotation", Vector3());
+		Vector3 emitScale = jsonIO::tryGetValue(shapeTransform, "scale", Vector3());
+
+		p.emission.transform.position = { emitPosition.x, emitPosition.y, emitPosition.z, 1 };
+		p.emission.transform.rotation = { emitRotation.x, emitRotation.y, emitRotation.z, 1 };
+		p.emission.transform.scale = { emitScale.x, emitScale.y, emitScale.z, 1 };
+
 		p.emission.shape = (Effect::EmissionShape)jsonIO::tryGetValue<int>(shape, "shapeType", 10);
 		p.emission.radius = shape["radius"];
 		p.emission.radiusThickness = shape["radiusThickness"];

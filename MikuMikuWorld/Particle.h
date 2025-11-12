@@ -185,9 +185,9 @@ namespace MikuMikuWorld::Effect
 
 	struct Transform
 	{
-		Vector3 position{};
-		Vector3 rotation{};
-		Vector3 scale{1, 1, 1};
+		DirectX::XMVECTOR position{0, 0, 0, 1};
+		DirectX::XMVECTOR rotation{0, 0, 0, 1};
+		DirectX::XMVECTOR scale{1, 1, 1, 1};
 	};
 
 	struct Emission
@@ -266,7 +266,7 @@ namespace MikuMikuWorld::Effect
 	{
 		DirectX::XMMATRIX matrix{};
 		Transform transform;
-		Vector3 direction{};
+		DirectX::XMVECTOR direction{};
 		float startTime{};
 		float time{};
 		float duration{};

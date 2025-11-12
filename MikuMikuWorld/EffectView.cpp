@@ -313,8 +313,8 @@ namespace MikuMikuWorld::Effect
 			controller.time.max = accumulateDuration(context.score.notes.at(holdNote.end).tick, TICKS_PER_BEAT, context.score.tempoChanges);
 		}
 
-		controller.worldOffset.position.x = xPos * 0.84f;
-		controller.worldOffset.rotation.z = zRot;
+		controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, xPos * 0.84f);
+		controller.worldOffset.rotation = DirectX::XMVectorSetZ(controller.worldOffset.rotation, zRot);
 		controller.refID = note.ID;
 		controller.effectRoot.stop(true);
 		controller.effectRoot.start(time);
@@ -334,7 +334,7 @@ namespace MikuMikuWorld::Effect
 			controller.effectRoot.stop(true);
 			controller.effectRoot.start(time);
 			controller.active = true;
-			controller.worldOffset.position.x = noteLeft + (noteRight - noteLeft) / 2;
+			controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, noteLeft + (noteRight - noteLeft) / 2);
 			controller.time.min = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
 			controller.time.max = accumulateDuration(context.score.notes.at(holdNote.end).tick, TICKS_PER_BEAT, context.score.tempoChanges);
 			return;
@@ -347,7 +347,7 @@ namespace MikuMikuWorld::Effect
 			float right = left + 1;
 			float center = (left + (right - left) / 2.f) * 0.84f;
 			ParticleController& controller = pool.getNext();
-			controller.worldOffset.position.x = center;
+			controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, center);
 			controller.refID = note.ID;
 			controller.effectRoot.stop(true);
 			controller.effectRoot.start(time);
@@ -365,7 +365,7 @@ namespace MikuMikuWorld::Effect
 			float right = left + 1;
 			float center = (left + (right - left) / 2.f) * 0.84f;
 			ParticleController& controller = pool.pool[i];
-			controller.worldOffset.position.x = center;
+			controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, center);
 			controller.refID = note.ID;
 			controller.effectRoot.stop(true);
 			controller.effectRoot.start(time);
@@ -398,10 +398,10 @@ namespace MikuMikuWorld::Effect
 						if (type == EffectType::fx_note_hold_aura ||
 							type == EffectType::fx_note_critical_long_hold_gen_aura)
 						{
-							controller.worldOffset.scale.x = (noteRight - noteLeft) * 0.95f;
+							controller.worldOffset.scale = DirectX::XMVectorSetX(controller.worldOffset.scale, (noteRight - noteLeft) * 0.95f);
 						}
 
-						controller.worldOffset.position.x = (noteLeft + (noteRight - noteLeft) / 2) * 0.84f;
+						controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, (noteLeft + (noteRight - noteLeft) / 2) * 0.84f);
 					}
 
 					Transform baseTransform{};

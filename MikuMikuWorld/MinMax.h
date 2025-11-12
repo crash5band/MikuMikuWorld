@@ -2,6 +2,7 @@
 #include "Math.h"
 #include "Utilities.h"
 #include <vector>
+#include <DirectXMath.h>
 
 namespace MikuMikuWorld::Effect
 {
@@ -107,18 +108,18 @@ namespace MikuMikuWorld::Effect
 		bool enabled{};
 		MinMax x{}, y{}, z{};
 
-		inline Vector3 evaluate(float time, float lerpRatio, float fallback = 0.f) const
+		inline DirectX::XMFLOAT3 evaluate(float time, float lerpRatio, float fallback = 0.f) const
 		{
-			return Vector3(
+			return DirectX::XMFLOAT3(
 				x.evaluate(time, lerpRatio, fallback),
 				y.evaluate(time, lerpRatio, fallback),
 				z.evaluate(time, lerpRatio, fallback)
 			);
 		}
 
-		inline Vector3 integrate(float from, float to, float scale, float lerpRatio) const
+		inline DirectX::XMFLOAT3 integrate(float from, float to, float scale, float lerpRatio) const
 		{
-			return Vector3(
+			return DirectX::XMFLOAT3(
 				x.integrate(from, to, scale, lerpRatio),
 				y.integrate(from, to, scale, lerpRatio),
 				z.integrate(from, to, scale, lerpRatio)
