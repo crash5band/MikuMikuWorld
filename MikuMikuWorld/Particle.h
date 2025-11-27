@@ -12,7 +12,7 @@ namespace MikuMikuWorld
 
 namespace MikuMikuWorld::Effect
 {
-	enum class EmissionShape
+	enum class EmissionShape : uint8_t
 	{
 		Sphere,
 		HemiShpere = 2,
@@ -21,7 +21,7 @@ namespace MikuMikuWorld::Effect
 		Circle = 10
 	};
 
-	enum class BlendMode
+	enum class BlendMode : uint8_t
 	{
 		/// <summary>
 		/// Normal alpha blending
@@ -34,13 +34,13 @@ namespace MikuMikuWorld::Effect
 		Additive
 	};
 
-	enum class EmitFrom
+	enum class EmitFrom : uint8_t
 	{
 		Base,
 		Volume,
 	};
 
-	enum class TransformSpace
+	enum class TransformSpace : uint8_t
 	{
 		/// <summary>
 		/// Transform along the particle's local axes
@@ -53,7 +53,7 @@ namespace MikuMikuWorld::Effect
 		World
 	};
 
-	enum class ScalingMode
+	enum class ScalingMode : uint8_t
 	{
 		/// <summary>
 		/// Particle is scaled by its parent's scale
@@ -71,7 +71,7 @@ namespace MikuMikuWorld::Effect
 		Shape
 	};
 
-	enum class RenderMode
+	enum class RenderMode : uint8_t
 	{
 		/// <summary>
 		/// Normal billboard
@@ -104,7 +104,7 @@ namespace MikuMikuWorld::Effect
 		None,
 	};
 
-	enum class AlignmentMode
+	enum class AlignmentMode : uint8_t
 	{
 		/// <summary>
 		/// The particle always faces the view (Normal billboarding)
@@ -160,7 +160,7 @@ namespace MikuMikuWorld::Effect
 		float probability{1.f};
 	};
 
-	enum class ArcMode
+	enum class ArcMode : uint8_t
 	{
 		/// <summary>
 		/// The emission position is random
@@ -186,7 +186,7 @@ namespace MikuMikuWorld::Effect
 	struct Transform
 	{
 		DirectX::XMVECTOR position{0, 0, 0, 1};
-		DirectX::XMVECTOR rotation{0, 0, 0, 1};
+		DirectX::XMVECTOR rotation{0, 0, 0, 0};
 		DirectX::XMVECTOR scale{1, 1, 1, 1};
 	};
 
@@ -201,6 +201,10 @@ namespace MikuMikuWorld::Effect
 		float radius{0.0001f};
 		float radiusThickness{0.0001f};
 		float arc{360.f};
+		MinMax arcSpeed{};
+		float randomizeDirection{};
+		float randomizePosition{};
+		float spherizeDirection{};
 		ArcMode arcMode;
 		EmitFrom emitFrom;
 
@@ -218,7 +222,10 @@ namespace MikuMikuWorld::Effect
 		int maxParticles{};
 		float flipRotation{};
 		bool looping{};
-
+		
+		std::uint_fast32_t randomSeed{};
+		bool useAutoRandomSeed{ true };
+		
 		MinMax startDelay{};
 		MinMax startLifeTime{};
 		MinMax startSpeed{};
@@ -330,7 +337,21 @@ namespace MikuMikuWorld::Effect
 		/// </summary>
 		bool visible{ true };
 
+		/// <summary>
+		/// The speed at which the emit position moves through the arc
+		/// </summary>
+		float arcSpeed{};
+
+		/// <summary>
+		/// The amount of particles emitted in one second
+		/// </summary>
 		float rateOverTime;
+
+		std::uint_fast32_t seed;
+
+		Random initialRandom{};
+		Random shapeRandom{};
+		Random animatedRandom{};
 
 		std::vector<BurstInstance> bursts;
 		std::vector<ParticleInstance> particles;

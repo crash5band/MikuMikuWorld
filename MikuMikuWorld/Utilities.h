@@ -28,11 +28,6 @@ namespace MikuMikuWorld
 		static float centerImGuiItem(const float width);
 		static void ImGuiCenteredText(const std::string& str);
 		static void ImGuiCenteredText(const char* str);
-
-		static float random(float min, float max);
-		static Color random(const Color& min, const Color& max);
-		static Quaternion random(const Quaternion& min, const Quaternion& max);
-		static Vector3 random(const Vector3& min, const Vector3& max);
 	};
 
 	class Random
@@ -41,18 +36,15 @@ namespace MikuMikuWorld
 		float get(float min, float max);
 		float get();
 
-		Random() : gen{ rd() }, dist{ 0, 1 }
-		{
-
-		}
+		void setSeed(std::uint_fast32_t seed);
 
 	private:
-		std::random_device rd;
-		std::mt19937 gen;
-		std::uniform_real_distribution<> dist;
+		// multiplier and increment extracted from UnityPlayer.dll
+		std::linear_congruential_engine<std::uint_fast32_t, 1812433253U, 367, 2147483647> gen;
+		std::uniform_real_distribution<> dist{ 0, 1 };
 	};
 
-	extern Random random;
+	extern Random globalRandom;
 
 	enum class ResultStatus
 	{

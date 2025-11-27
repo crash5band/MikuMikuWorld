@@ -383,6 +383,8 @@ namespace MikuMikuWorld
 		p.duration = jsonIO::tryGetValue<float>(j, "duration", 1);
 		p.flipRotation = jsonIO::tryGetValue<float>(j, "flipRotation", 0);
 		p.simulationSpace = (Effect::TransformSpace)jsonIO::tryGetValue<int>(j, "simulationSpace", 0);
+		p.randomSeed = jsonIO::tryGetValue<std::uint_fast32_t>(j, "randomSeed", 0);
+		p.useAutoRandomSeed = jsonIO::tryGetValue<bool>(j, "useAutoRandomSeed", true);
 
 		const json& emission = j["emission"];
 		p.emission.rateOverTime = readMinMax(emission["rateOverTime"]);
@@ -412,10 +414,14 @@ namespace MikuMikuWorld
 		p.emission.transform.scale = { emitScale.x, emitScale.y, emitScale.z, 1 };
 
 		p.emission.shape = (Effect::EmissionShape)jsonIO::tryGetValue<int>(shape, "shapeType", 10);
-		p.emission.radius = shape["radius"];
-		p.emission.radiusThickness = shape["radiusThickness"];
-		p.emission.angle = shape["angle"];
-		p.emission.arc = shape["arc"];
+		p.emission.radius = jsonIO::tryGetValue<float>(shape, "radius", 0);
+		p.emission.radiusThickness = jsonIO::tryGetValue<float>(shape, "radiusThickness", 0);
+		p.emission.angle = jsonIO::tryGetValue<float>(shape, "angle", 0);
+		p.emission.arc = jsonIO::tryGetValue<float>(shape, "arc", 0);
+		p.emission.arcSpeed = readMinMax(shape["arcSpeed"]);
+		p.emission.randomizeDirection = jsonIO::tryGetValue<float>(shape, "randomizeDirection", 0);
+		p.emission.randomizePosition = jsonIO::tryGetValue<float>(shape, "randomizePosition", 0);
+		p.emission.spherizeDirection = jsonIO::tryGetValue<float>(shape, "spherizeDirection", 0);
 		p.emission.arcMode = (Effect::ArcMode)jsonIO::tryGetValue<int>(shape, "arcMode", 0);
 
 		const json& textureSheet = j["textureSheetAnimation"];
@@ -438,7 +444,7 @@ namespace MikuMikuWorld
 		if (jsonIO::keyExists(j, "velocityOverLifetime"))
 		{
 			const json& velocityOverLifetime = j["velocityOverLifetime"];
-			p.velocityOverLifetime = readMinMax3(velocityOverLifetime["value"]);
+			p.velocityOverLifetime = readMinMax3(velocityOverLifetime["linear"]);
 			p.velocitySpace = (Effect::TransformSpace)jsonIO::tryGetValue<int>(velocityOverLifetime, "space", 0);
 			p.speedModifier = readMinMax(velocityOverLifetime["speedModifier"]);
 		}

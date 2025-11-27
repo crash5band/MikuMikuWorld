@@ -7,7 +7,7 @@
 namespace MikuMikuWorld::Effect
 {
 	constexpr float GRAVITY = 9.81f;
-	constexpr DirectX::XMVECTOR billboardScale{ 0.7f, 0.7f, 0.7f, 1.f };
+	constexpr float BILLBOARD_SCALE = 0.71f;
 
 	static DirectX::XMVECTOR quaternionFromZYX(const DirectX::XMVECTOR& euler)
 	{
@@ -22,51 +22,49 @@ namespace MikuMikuWorld::Effect
 		return DirectX::XMQuaternionMultiply(DirectX::XMQuaternionMultiply(qZ, qY), qX);
 	}
 
-	//static DirectX::XMMATRIX rotateToDirection(const ParticleInstance& p, const Particle& ref, DirectX::XMFLOAT3& velocity)
-	//{
-	//	DirectX::XMMATRIX direction = DirectX::XMMatrixIdentity();
-	//	DirectX::XMVECTOR v = DirectX::XMLoadFloat3(&velocity);
-	//	DirectX::XMVECTOR magnitude = DirectX::XMVector3Length(v);
-	//	v = DirectX::XMVector3Normalize(v);
+	static DirectX::XMMATRIX rotateToDirection(const ParticleInstance& p, const Particle& ref, const DirectX::XMVECTOR& velocity, const DirectX::XMVECTOR& scale)
+	{
+		DirectX::XMMATRIX result = DirectX::XMMatrixIdentity();
+		DirectX::XMVECTOR lengthSquaredVector = DirectX::XMVector3LengthSq(velocity);
 
-	//	DirectX::XMVECTOR up{ 0, -1, 0, 0 };
-	//	float t{};
-	//	DirectX::XMVECTOR axis = DirectX::XMVector3Cross(up, v);
-	//	float angle = DirectX::XMVectorGetX(DirectX::XMVector3Length(axis));
+		float lengthSquared = DirectX::XMVectorGetX(lengthSquaredVector);
+		float length = lengthSquared > 0.000001 ? sqrtf(lengthSquared) : 0.0f;
+		static DirectX::XMVECTOR up = DirectX::XMVectorSet(0, 1, 0, 0);
 
-	//	if (angle >= 0.000001f)
-	//	{
-	//		angle = asinf(std::min(angle, 1.0f));
-	//	}
-	//	else
-	//	{
-	//		angle = 0.0f;
-	//		axis.x = up.z;
-	//		axis.y = 0.0f;
-	//		axis.z = up.x;
-	//		t = axis.length();
-	//		if (t < 0.000001f)
-	//		{
-	//			axis.x = -up.y;
-	//			axis.y = up.x;
-	//			axis.z = 0.0f;
-	//		}
-	//	}
+		DirectX::XMVECTOR normalizedVelocity = DirectX::XMVector3Normalize(DirectX::XMVectorNegate(velocity));
+		float t{};
+		DirectX::XMVECTOR axis = DirectX::XMVector3Cross(normalizedVelocity, up);
+		DirectX::XMVECTOR lengthVector = DirectX::XMVector3Length(axis);
+		float angle{};
+		DirectX::XMStoreFloat(&angle, lengthVector);
 
-	//	t = up.dotProduct(velocity);
-	//	if (t < 0.0f)
-	//		angle = PI - angle;
+		if (angle >= 0.000001f)
+		{
+			angle = asinf(std::min(angle, 1.f));
+		}
+		else
+		{
+			angle = 0.f;
+			axis = DirectX::XMVectorSet(1, 0, 0, 0);
+			DirectX::XMStoreFloat(&t, DirectX::XMVector3Length(axis));
 
-	//	float speedScale = magnitude * ref.speedScale;
-	//	float lengthScale = ref.lengthScale;
-	//	DirectX::XMVECTOR stretchScaling{ 1, speedScale + lengthScale, 1, 1 };
+			if (t < 0.000001f)
+				axis = DirectX::XMVectorSet(-1.f, 0, 0, 0);
+		}
 
-	//	direction *= DirectX::XMMatrixRotationZ(1.5708f);
-	//	direction *= DirectX::XMMatrixScalingFromVector(stretchScaling);
-	//	direction *= DirectX::XMMatrixRotationAxis(DirectX::XMVECTOR{ axis.x, axis.y, axis.z, 1.0f }, angle);
-	//	//direction *= DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(180));
-	//	return direction;
-	//}
+		DirectX::XMStoreFloat(&t, DirectX::XMVector3Dot(DirectX::XMVectorNegate(normalizedVelocity), up));
+		if (t < 0.0f)
+			angle = PI - angle;
+
+		float yScale = (ref.speedScale * length) + (ref.lengthScale * DirectX::XMVectorGetX(scale));
+		DirectX::XMVECTOR stretchDirection = DirectX::XMVectorScale(normalizedVelocity, yScale * 0.5f);
+
+		axis = DirectX::XMVectorSetW(axis, 1);
+		result *= DirectX::XMMatrixScalingFromVector(DirectX::XMVectorSet(1.f, yScale, 1.f, 1.f));
+		result *= DirectX::XMMatrixRotationAxis(axis, angle);
+		result *= DirectX::XMMatrixTranslationFromVector(stretchDirection);
+		return result;
+	}
 
 	// TODO: it would be much better if this was done in O(1)
 	int EmitterInstance::findFirstDeadParticle(float time) const
@@ -137,20 +135,20 @@ namespace MikuMikuWorld::Effect
 
 		DirectX::XMVECTOR position = DirectX::XMVectorAdd(DirectX::XMVectorAdd(transformPos, basePos), shapePos);
 
-		float length = ref.startSpeed.evaluate(random.get());
-
+		float length = ref.startSpeed.evaluate(initialRandom.get());
 		DirectX::XMVECTOR emitPosition = DirectX::XMVectorSet(0, 0, 0, 1);
 		DirectX::XMVECTOR direction = DirectX::XMVectorSet(0, 0, 0, 0);
 		DirectX::XMVECTOR forward = DirectX::XMVectorSet(0, 0, 1, 0);
+
 		if (ref.emission.shape == EmissionShape::Box)
 		{
 			DirectX::XMVECTOR halfScale = DirectX::XMVectorScale(ref.emission.transform.scale, .5f);
 			DirectX::XMFLOAT3 halves{};
 			DirectX::XMStoreFloat3(&halves, halfScale);
 			emitPosition = DirectX::XMVectorSet(
-				random.get(-halves.x, halves.x),
-				random.get(-halves.y, halves.y),
-				random.get(-halves.z, halves.z),
+				shapeRandom.get(-halves.x, halves.x),
+				shapeRandom.get(-halves.y, halves.y),
+				shapeRandom.get(-halves.z, halves.z),
 				1
 			);
 
@@ -159,10 +157,24 @@ namespace MikuMikuWorld::Effect
 		}
 		else if (ref.emission.shape == EmissionShape::Cone)
 		{
-			float arc = DirectX::XMConvertToRadians(random.get(0, ref.emission.arc));
+			float arc{};
+			switch (ref.emission.arcMode)
+			{
+			case ArcMode::Loop:
+				arc = DirectX::XMConvertToRadians(emissionPosition);
+				emissionPosition += fmodf(ref.emission.arcSpeed.evaluate(std::max(time - startTime, 0.f), 0) * (time - startTime) * 360.f, ref.emission.arc);
+				break;
+			case ArcMode::BurstSpread:
+				arc = DirectX::XMConvertToRadians(emissionPosition);
+				emissionPosition += emissionPositionInterval;
+				break;
+			default:
+				arc = shapeRandom.get(0, DirectX::XMConvertToRadians(ref.emission.arc));
+			}
+
 			float angle = DirectX::XMConvertToRadians(ref.emission.angle);
-			float radius = random.get(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius);
-			float localRadius = tanf(arc) * length;
+			float radius = shapeRandom.get(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius);
+			float localRadius = tanf(angle) * length;
 
 			float x = cosf(arc) * radius * DirectX::XMVectorGetX(ref.emission.transform.scale);
 			float y = sinf(arc) * radius * DirectX::XMVectorGetY(ref.emission.transform.scale);
@@ -170,18 +182,19 @@ namespace MikuMikuWorld::Effect
 			switch (ref.emission.emitFrom)
 			{
 			case EmitFrom::Volume:
-				z = random.get(0, length);
+				z = shapeRandom.get(0, length);
 				break;
 			}
 
-			emitPosition = DirectX::XMVectorAdd(
-				DirectX::XMVector3Rotate(DirectX::XMVectorSet(x, y, z, 1), qAll),
-				position
-			);
-
+			emitPosition = DirectX::XMVectorSet(x, y, z, 1);
 			DirectX::XMVECTOR positionNormalized = DirectX::XMVectorSetZ(DirectX::XMVector3Normalize(emitPosition), cosf(angle));
 			DirectX::XMVECTOR angles = DirectX::XMVectorSet(sinf(angle), sinf(angle), 1.f, 1.f);
 			direction = DirectX::XMVector3Rotate(DirectX::XMVectorMultiply(positionNormalized, angles), qAll);
+
+			emitPosition = DirectX::XMVectorAdd(
+				DirectX::XMVector3Rotate(emitPosition, qAll),
+				position
+			);
 		}
 		else if (ref.emission.shape == EmissionShape::Circle)
 		{
@@ -189,17 +202,18 @@ namespace MikuMikuWorld::Effect
 			switch (ref.emission.arcMode)
 			{
 			case ArcMode::Loop:
-				angle = emissionPosition;
+				angle = DirectX::XMConvertToRadians(emissionPosition);
+				emissionPosition += fmodf(ref.emission.arcSpeed.evaluate(std::max(time - startTime, 0.f), 0) * (time - startTime) * 360.f, ref.emission.arc);
 				break;
 			case ArcMode::BurstSpread:
-				angle = emissionPosition;
+				angle = DirectX::XMConvertToRadians(emissionPosition);
 				emissionPosition += emissionPositionInterval;
 				break;
 			default:
-				angle = random.get(0, DirectX::XMConvertToRadians(ref.emission.arc));
+				angle = shapeRandom.get(0, DirectX::XMConvertToRadians(ref.emission.arc));
 			}
 
-			float radius = random.get(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius);
+			float radius = shapeRandom.get(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius);
 
 			float x = cosf(angle) * radius * DirectX::XMVectorGetX(ref.emission.transform.scale);
 			float y = sinf(angle) * radius * DirectX::XMVectorGetY(ref.emission.transform.scale);
@@ -210,9 +224,9 @@ namespace MikuMikuWorld::Effect
 		}
 		else if (ref.emission.shape == EmissionShape::Sphere)
 		{
-			float angle = random.get(0, DirectX::XMConvertToRadians(ref.emission.arc));
-			float angle2 = random.get(0, DirectX::XMConvertToRadians(180));
-			float radius = random.get(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius);
+			float angle = shapeRandom.get(0, DirectX::XMConvertToRadians(ref.emission.arc));
+			float angle2 = shapeRandom.get(0, DirectX::XMConvertToRadians(180));
+			float radius = shapeRandom.get(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius);
 
 			float x = cosf(angle) * sinf(angle2) * radius * DirectX::XMVectorGetX(ref.emission.transform.scale);
 			float y = sinf(angle) * radius * DirectX::XMVectorGetY(ref.emission.transform.scale);
@@ -224,9 +238,9 @@ namespace MikuMikuWorld::Effect
 		}
 		else if (ref.emission.shape == EmissionShape::HemiShpere)
 		{
-			float angle = random.get(0, DirectX::XMConvertToRadians(ref.emission.arc));
-			float angle2 = random.get(0, PI / 2.f);
-			float radius = random.get(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius);
+			float angle = shapeRandom.get(0, DirectX::XMConvertToRadians(ref.emission.arc));
+			float angle2 = shapeRandom.get(0, PI / 2.f);
+			float radius = shapeRandom.get(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius);
 
 			float x = cosf(angle) * sinf(angle2) * radius * DirectX::XMVectorGetX(ref.emission.transform.scale);
 			float y = sinf(angle) * sinf(angle2) * radius * DirectX::XMVectorGetY(ref.emission.transform.scale);
@@ -239,39 +253,41 @@ namespace MikuMikuWorld::Effect
 
 		direction = DirectX::XMVector3Normalize(direction);
 
-		DirectX::XMFLOAT3 startRotation = ref.startRotation.evaluate(0, random.get(), 0);
-		DirectX::XMFLOAT3 startSize = ref.startSize.evaluate(0, random.get(), 1);
-
 		ParticleInstance& instance = particles[instanceIndex];
 		instance.alive = true;
 		instance.transform.position = emitPosition;
+		instance.duration = ref.startLifeTime.evaluate(initialRandom.get());
+		DirectX::XMFLOAT3 startRotation = ref.startRotation.evaluate(0, initialRandom.get(), 0);
+		DirectX::XMFLOAT3 startSize = ref.startSize.evaluate(0, initialRandom.get(), 1);
+
 		instance.transform.rotation = DirectX::XMLoadFloat3(&startRotation);
 		instance.transform.scale = DirectX::XMVectorMultiply(ref.transform.scale, DirectX::XMLoadFloat3(&startSize));
 		instance.direction = direction;
-		instance.startColor = ref.startColor.evaluate(random.get());
+		instance.startColor = ref.startColor.evaluate(initialRandom.get());
 		instance.speed = length;
 		instance.startTime = time;
-		instance.duration = ref.startLifeTime.evaluate(random.get());
 		instance.time = 0;
-		
-		instance.textureStartFrameLerpRatio = random.get();
-		instance.textureFrameOverTimeLerpRatio = random.get();
-		instance.velocityOverLifetimeLerpRatio = random.get();
-		instance.colorOverLifeTimeLerpRatio = random.get();
-		instance.sizeOverLifetimeLerpRatio = random.get();
-		instance.gravityModifierLerpRatio = random.get();
-		instance.speedModifierLerpRatio = random.get();
-		instance.limitVelocityLerpRatio = random.get();
-		instance.forceOverTimeLerpRatio = random.get();
-		instance.rotationOverLifetimeLerpRatio = random.get();
+
+		instance.textureStartFrameLerpRatio = initialRandom.get();
+		instance.gravityModifierLerpRatio = initialRandom.get();
+
+		instance.textureFrameOverTimeLerpRatio = animatedRandom.get();
+		instance.velocityOverLifetimeLerpRatio = animatedRandom.get();
+		instance.colorOverLifeTimeLerpRatio = animatedRandom.get();
+		instance.sizeOverLifetimeLerpRatio = animatedRandom.get();
+		instance.speedModifierLerpRatio = animatedRandom.get();
+		instance.limitVelocityLerpRatio = animatedRandom.get();
+		instance.forceOverTimeLerpRatio = animatedRandom.get();
+		instance.rotationOverLifetimeLerpRatio = animatedRandom.get();
 
 		// shift will be included during emission for world space
-		// for local space, the shift will be included during particle update
+		// for local space, the shift will be included during particle update 
 		if (ref.simulationSpace == TransformSpace::World)
 		{
 			DirectX::XMVECTOR qShift = quaternionFromZYX(shift.rotation);
-			instance.transform.position = DirectX::XMVector3Rotate(shift.position, qShift);
+			instance.transform.position = DirectX::XMVectorAdd(instance.transform.position, DirectX::XMVector3Rotate(shift.position, qShift));
 			instance.transform.rotation = DirectX::XMVectorAdd(instance.transform.rotation, shift.rotation);
+			instance.direction = DirectX::XMVector3Rotate(instance.direction, qShift);
 		}
 
 		std::knuth_b rand_engine;
@@ -293,7 +309,6 @@ namespace MikuMikuWorld::Effect
 			if (time >= nextEmissionTime)
 			{
 				emissionPositionInterval = ref.emission.arc / rateOverTime;
-				emissionPosition = 0;
 				emissionAccumulator++;
 				lastEmissionTime = time - startTime;
 				emit(shift, baseTransform, ref, nextEmissionTime);
@@ -332,8 +347,13 @@ namespace MikuMikuWorld::Effect
 	void EmitterInstance::start(float time)
 	{
 		const Particle& ref = ResourceManager::getParticleEffect(refID);
-		startTime = time + ref.startDelay.evaluate(0, random.get());
-		rateOverTime = ref.emission.rateOverTime.evaluate(0, random.get());
+		seed = ref.useAutoRandomSeed ? globalRandom.get() * UINT_FAST32_MAX : ref.randomSeed;
+		initialRandom.setSeed(seed);
+		shapeRandom.setSeed(seed);
+		animatedRandom.setSeed(seed);
+		startTime = time + ref.startDelay.evaluate(0, initialRandom.get());
+		rateOverTime = ref.emission.rateOverTime.evaluate(0, initialRandom.get());
+		arcSpeed = shapeRandom.get();
 
 		int maxParticleCount = getMaxParticleCount();
 		particles.reserve(maxParticleCount);
@@ -409,41 +429,41 @@ namespace MikuMikuWorld::Effect
 
 		updateEmission(ref, shift, baseTransform, t);
 
-		DirectX::XMMATRIX inverseView = DirectX::XMMatrixIdentity();
-		inverseView.r[3] = DirectX::XMVECTOR{ 0, 0, 0, 1 };
-		inverseView *= DirectX::XMMatrixInverse(nullptr, camera.getViewMatrix());
-		inverseView.r[3] = DirectX::XMVECTOR{ 0, 0, 0, 1 };
+		const DirectX::XMMATRIX& inverseView = camera.getInverseViewMatrix();
 
 		DirectX::XMVECTOR qLocal = quaternionFromZYX(baseTransform.rotation);
 		DirectX::XMVECTOR qShift = quaternionFromZYX(shift.rotation);
-		DirectX::XMVECTOR rotation = DirectX::XMVectorAdd(
-			DirectX::XMVectorAdd(baseTransform.rotation, ref.transform.rotation),
-			shift.rotation
-		);
+		DirectX::XMVECTOR rotation = DirectX::XMVectorAdd(baseTransform.rotation, ref.transform.rotation);
 
-		for (auto& particle : particles)
+		DirectX::XMMATRIX worldOffset = DirectX::XMMatrixIdentity();
+		worldOffset *= DirectX::XMMatrixRotationQuaternion(qShift);
+		worldOffset *= DirectX::XMMatrixTranslationFromVector(shift.position);
+
+		for (auto& p : particles)
 		{
-			float prevTime = particle.time;
-			particle.time = std::max(0.f, t - particle.startTime);
+			float prevTime = p.time;
+			p.time = std::max(0.f, t - p.startTime);
 			
-			if (particle.time >= particle.duration)
-				particle.alive = false;
+			if (p.time >= p.duration)
+				p.alive = false;
 
-			if (!particle.alive)
+			if (!p.alive)
 				continue;
 
-			float normalizedTime = particle.time / particle.duration;
-			float dt = particle.time - prevTime;
+			float normalizedTime = p.time / p.duration;
+			float dt = p.time - prevTime;
 
-			DirectX::XMVECTOR currentRotation = DirectX::XMVectorAdd(rotation, particle.transform.rotation);
+			DirectX::XMVECTOR currentRotation = DirectX::XMVectorAdd(rotation, p.transform.rotation);
 			if (ref.rotationOverLifetime.enabled)
 			{
-				DirectX::XMFLOAT3 temp = ref.rotationOverLifetime.integrate(0, normalizedTime, particle.duration, particle.rotationOverLifetimeLerpRatio);
-				currentRotation = DirectX::XMVectorAdd(currentRotation, DirectX::XMLoadFloat3(&temp));
+				DirectX::XMFLOAT3 temp = ref.rotationOverLifetime.integrate(0, normalizedTime, p.duration, p.rotationOverLifetimeLerpRatio);
+				DirectX::XMVECTOR tempV = DirectX::XMLoadFloat3(&temp);
+				currentRotation = DirectX::XMVectorAdd(currentRotation, tempV);
 			}
 
 			// Apparently, the transform scale affects velocity too
-			DirectX::XMVECTOR currentScale = particle.transform.scale;
+			// Need to make sure hierarchy scale affects velocity too
+			DirectX::XMVECTOR currentScale = p.transform.scale;
 			DirectX::XMVECTOR velocityScale = ref.transform.scale;
 			if (ref.scalingMode == ScalingMode::Hierarchy)
 			{
@@ -453,14 +473,14 @@ namespace MikuMikuWorld::Effect
 
 			if (ref.sizeOverLifetime.enabled)
 			{
-				DirectX::XMFLOAT3 sol = ref.sizeOverLifetime.evaluate(normalizedTime, particle.sizeOverLifetimeLerpRatio, 1.f);
+				DirectX::XMFLOAT3 sol = ref.sizeOverLifetime.evaluate(normalizedTime, p.sizeOverLifetimeLerpRatio, 1.f);
 				currentScale = DirectX::XMVectorMultiply(currentScale, DirectX::XMLoadFloat3(&sol));
 			}
 
 			DirectX::XMVECTOR currentVelocity{};
 			if (ref.velocityOverLifetime.enabled)
 			{
-				DirectX::XMFLOAT3 vol = ref.velocityOverLifetime.evaluate(normalizedTime, particle.velocityOverLifetimeLerpRatio);
+				DirectX::XMFLOAT3 vol = ref.velocityOverLifetime.evaluate(normalizedTime, p.velocityOverLifetimeLerpRatio);
 				DirectX::XMVECTOR vol1 = DirectX::XMLoadFloat3(&vol);
 				if (ref.velocitySpace == TransformSpace::Local)
 				{
@@ -471,7 +491,7 @@ namespace MikuMikuWorld::Effect
 
 			if (ref.forceOverLifetime.enabled)
 			{
-				DirectX::XMFLOAT3 fol = ref.forceOverLifetime.integrate(0, normalizedTime, particle.duration, particle.forceOverTimeLerpRatio);
+				DirectX::XMFLOAT3 fol = ref.forceOverLifetime.integrate(0, normalizedTime, p.duration, p.forceOverTimeLerpRatio);
 				DirectX::XMVECTOR fol1 = DirectX::XMLoadFloat3(&fol);
 				if (ref.forceSpace == TransformSpace::Local)
 				{
@@ -480,30 +500,29 @@ namespace MikuMikuWorld::Effect
 				currentVelocity = DirectX::XMVectorAdd(currentVelocity, fol1);
 			}
 
-			currentVelocity = DirectX::XMVectorMultiplyAdd(particle.direction, DirectX::XMVectorReplicate(particle.speed), currentVelocity);
+			currentVelocity = DirectX::XMVectorMultiplyAdd(p.direction, DirectX::XMVectorReplicate(p.speed), currentVelocity);
 
-			float speedModifier = ref.speedModifier.evaluate(normalizedTime, particle.speedModifierLerpRatio, 1.f);
-			float gravity = GRAVITY * ref.gravityModifier.evaluate(normalizedTime, particle.gravityModifierLerpRatio) * particle.time;
+			float speedModifier = ref.speedModifier.evaluate(normalizedTime, p.speedModifierLerpRatio, 1.f);
+			float gravity = GRAVITY * ref.gravityModifier.evaluate(normalizedTime, p.gravityModifierLerpRatio) * p.time;
 			DirectX::XMVECTOR gravityVector = DirectX::XMVectorSet(0, -gravity, 0, 0);
-
-			currentVelocity = DirectX::XMVectorMultiplyAdd(currentVelocity, DirectX::XMVectorReplicate(speedModifier), gravityVector);
 			
+			currentVelocity = DirectX::XMVectorMultiplyAdd(currentVelocity, DirectX::XMVectorReplicate(speedModifier), gravityVector);
 			DirectX::XMFLOAT3 velocity{};
 			DirectX::XMStoreFloat3(&velocity, currentVelocity);
 
-			DirectX::XMFLOAT3 velocityLimit = ref.limitVelocityOverLifetime.evaluate(normalizedTime, particle.limitVelocityLerpRatio);
-			velocity = limitVelocity(velocity, velocityLimit, ref.limitVelocityDampen, particle.time);
-			currentVelocity = DirectX::XMVectorSet(velocity.x, velocity.y, velocity.z, 1);
+			DirectX::XMFLOAT3 velocityLimit = ref.limitVelocityOverLifetime.evaluate(normalizedTime, p.limitVelocityLerpRatio);
+			velocity = limitVelocity(velocity, velocityLimit, ref.limitVelocityDampen, p.time);
+			currentVelocity = DirectX::XMLoadFloat3(&velocity);
 
-			particle.transform.position = DirectX::XMVectorMultiplyAdd(
+			p.transform.position = DirectX::XMVectorMultiplyAdd(
 				DirectX::XMVectorMultiply(currentVelocity, DirectX::XMVectorReplicate(dt)),
 				velocityScale,
-				particle.transform.position
+				p.transform.position
 			);
 
-			float rotationFactor = particle.flipRotation ? -1 : 1;
+			float rotationFactor = p.flipRotation ? -1 : 1;
 
-			particle.matrix = DirectX::XMMatrixIdentity();
+			p.matrix = DirectX::XMMatrixIdentity();
 			DirectX::XMMATRIX directionMatrix = DirectX::XMMatrixIdentity();
 			switch (ref.renderMode)
 			{
@@ -512,52 +531,53 @@ namespace MikuMikuWorld::Effect
 				{
 				case AlignmentMode::View:
 					directionMatrix = inverseView;
-					currentRotation = particle.transform.rotation;
+					currentRotation = p.transform.rotation;
 					break;
 				}
 				break;
 			case RenderMode::StretchedBillboard:
-				directionMatrix *= inverseView;
-				//directionMatrix *= rotateToDirection(particle, ref, velocity);
-				currentRotation = DirectX::XMVectorSet(0, 0, 0, 0);
-				//currentScale.y *= (velocityMagnitude * ref.speedScale) * 10.5f;
-				//currentScale.x *= currentScale.y * ref.lengthScale * 5.5f;
+				directionMatrix = rotateToDirection(p, ref, currentVelocity, currentScale);
+				currentRotation = DirectX::XMVectorSubtract(currentRotation, p.transform.rotation);
+				currentScale = DirectX::XMVectorSetY(currentScale, 1.f);
 				break;
 			case RenderMode::HorizontalBillboard:
 				currentRotation = DirectX::XMVectorSetX(currentRotation, 90.f * rotationFactor);
 				currentRotation = DirectX::XMVectorSetY(currentRotation, 0);
-				currentScale = DirectX::XMVectorMultiply(currentScale, billboardScale);
+				currentScale = DirectX::XMVectorScale(currentScale, BILLBOARD_SCALE);
 				break;
 			case RenderMode::VerticalBillboard:
 				// TODO: figure out the correct matrix for this
 				directionMatrix = inverseView;
-				currentScale = DirectX::XMVectorMultiply(currentScale, billboardScale);
+				currentScale = DirectX::XMVectorScale(currentScale, BILLBOARD_SCALE);
 				break;
 			}
 
-			if (particle.flipRotation)
+			if (p.flipRotation)
 				currentRotation = DirectX::XMVectorNegate(currentRotation);
-
-			DirectX::XMVECTOR translation = particle.transform.position;
-			if (ref.simulationSpace == TransformSpace::Local)
-			{
-				translation = DirectX::XMVectorAdd(DirectX::XMVector3Rotate(translation, qShift), shift.position);
-				float zRot = DirectX::XMVectorGetZ(shift.rotation);
-				if (abs(zRot) > 0.f)
-					currentRotation = DirectX::XMVectorSetZ(currentRotation, -zRot);
-			}
 
 			// I do not like this but I can't think of any other decent way for now...
 			if (ref.name == "aura")
 				currentScale = DirectX::XMVectorMultiply(currentScale, shift.scale);
 
-			particle.matrix *= DirectX::XMMatrixTranslationFromVector({ref.pivot.x, ref.pivot.y, ref.pivot.z, 1});
-			particle.matrix *= DirectX::XMMatrixScalingFromVector(currentScale);
-			particle.matrix *= directionMatrix;
-			particle.matrix *= DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(-DirectX::XMVectorGetZ(currentRotation)));
-			particle.matrix *= DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(DirectX::XMVectorGetY(currentRotation)));
-			particle.matrix *= DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(DirectX::XMVectorGetX(currentRotation)));
-			particle.matrix *= DirectX::XMMatrixTranslationFromVector(translation);
+			p.matrix *= DirectX::XMMatrixTranslation(ref.pivot.x, ref.pivot.y, ref.pivot.z);
+			p.matrix *= DirectX::XMMatrixScalingFromVector(currentScale);
+			
+			DirectX::XMVECTOR eulerFinal = DirectX::XMVectorSetZ(currentRotation, -DirectX::XMVectorGetZ(currentRotation));
+			DirectX::XMMATRIX m4Rotation = DirectX::XMMatrixRotationQuaternion(quaternionFromZYX(eulerFinal));
+			
+			if (ref.renderMode == RenderMode::StretchedBillboard)
+			{
+				directionMatrix *= DirectX::XMMatrixInverse(nullptr, m4Rotation);
+			}
+
+			p.matrix *= directionMatrix;
+			p.matrix *= m4Rotation;
+			p.matrix *= DirectX::XMMatrixTranslationFromVector(p.transform.position);
+			
+			if (ref.simulationSpace == TransformSpace::Local)
+			{
+				p.matrix *= worldOffset;
+			}
 		}
 
 		// Do we need to pass a copy here?

@@ -5,7 +5,8 @@ namespace MikuMikuWorld
 {
 	Camera::Camera() : fov{ 45 }, yaw{ -90 }, pitch{ 0 }
 	{
-
+		viewMatrix = DirectX::XMMatrixIdentity();
+		inverseViewMatrix = DirectX::XMMatrixIdentity();
 	}
 
 	DirectX::XMMATRIX Camera::getOrthographicProjection(float width, float height)
@@ -31,6 +32,30 @@ namespace MikuMikuWorld
 		};
 
 		front = DirectX::XMVector3Normalize(_front);
+
+		DirectX::XMVECTOR tgt = front;
+		tgt = DirectX::XMVectorAdd(tgt, position);
+
+		viewMatrix = DirectX::XMMatrixLookAtRH(position, tgt, DirectX::XMVECTOR{ 0.0f, -1.0f, 0.0f, 0.0f });
+		inverseViewMatrix = DirectX::XMMatrixIdentity();
+		inverseViewMatrix *= DirectX::XMMatrixInverse(nullptr, viewMatrix);
+		inverseViewMatrix.r[3] = DirectX::XMVECTOR{ 0, 0, 0, 1 };
+	}
+
+	void Camera::setPosition(DirectX::XMVECTOR pos)
+	{
+		position = pos;
+	}
+
+	void Camera::setRotation(float yaw, float pitch)
+	{
+		this->yaw = yaw;
+		this->pitch = std::clamp(pitch, -89.0f, 89.0f);
+	}
+
+	void Camera::setFov(float fov)
+	{
+		this->fov = fov;
 	}
 
 	void Camera::rotate(float x, float y)
@@ -45,12 +70,14 @@ namespace MikuMikuWorld
 		position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(front, delta));
 	}
 
-	DirectX::XMMATRIX Camera::getViewMatrix() const
+	const DirectX::XMMATRIX& Camera::getViewMatrix() const
 	{
-		DirectX::XMVECTOR tgt = front;
-		tgt = DirectX::XMVectorAdd(tgt, position);
+		return viewMatrix;
+	}
 
-		return DirectX::XMMatrixLookAtRH(position, tgt, DirectX::XMVECTOR{ 0.0f, -1.0f, 0.0f, 0.0f });
+	const DirectX::XMMATRIX& Camera::getInverseViewMatrix() const
+	{
+		return inverseViewMatrix;
 	}
 
 	DirectX::XMMATRIX Camera::getProjectionMatrix(float aspect, float near, float far) const

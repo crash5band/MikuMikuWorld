@@ -143,56 +143,6 @@ namespace MikuMikuWorld
 		}
 	};
 
-	struct Quaternion
-	{
-		float x, y, z, w;
-		
-		Quaternion() : x{ 0 }, y{ 0 }, z{ 0 }, w{ 1 } {};
-		Quaternion(float _x, float _y, float _z, float _w) :
-			x{ _x }, y{ _y }, z{ _z }, w{ _w } { }
-
-
-		Quaternion operator* (const Quaternion& rkQ) {
-			return Quaternion
-			(
-				w * rkQ.x + x * rkQ.w + y * rkQ.z - z * rkQ.y,
-				w * rkQ.y - x * rkQ.z + y * rkQ.w + z * rkQ.x,
-				w * rkQ.z + x * rkQ.y - y * rkQ.x + z * rkQ.w,
-				w * rkQ.w - x * rkQ.x - y * rkQ.y - z * rkQ.z
-			);
-		}
-
-		Quaternion operator* (float fScalar) const {
-			return Quaternion(fScalar * w, fScalar * x, fScalar * y, fScalar * z);
-		}
-
-		Quaternion inverse() const {
-			float fNorm = w * w + x * x + y * y + z * z;
-			if (fNorm > 0.0) {
-				float fInvNorm = 1.0f / fNorm;
-				return Quaternion(w * fInvNorm, -x * fInvNorm, -y * fInvNorm, -z * fInvNorm);
-			}
-			else {
-				return Quaternion(0, 0, 0, 0);
-			}
-		}
-
-		Vector3 operator* (const Vector3& v) const {
-			Vector3 uv, uuv;
-			Vector3 qvec(x, y, z);
-			uv = qvec.crossProduct(v);
-			uuv = qvec.crossProduct(uv);
-			uv = uv * (2.0f * w);
-			uuv = uuv * 2.0f;
-
-			return v + uv + uuv;
-		}
-
-		inline Quaternion& fromEulerDegrees(const Vector3& euler) { return fromEulerDegrees(euler.x, euler.y, euler.z); }
-		Quaternion& fromEulerDegrees(float x, float y, float z);
-		Quaternion& fromAgleAxis(float rAngle, Vector3 axis);
-	};
-
 	struct Color
 	{
 	public:

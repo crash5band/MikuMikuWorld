@@ -257,10 +257,9 @@ namespace MikuMikuWorld
 
 	ScorePreviewWindow::ScorePreviewWindow() : previewBuffer{ 1920, 1080 }, notesTex(), background(), scaledAspectRatio(1)
 	{
-		noteEffectsCamera.fov = 50.f;
-		noteEffectsCamera.pitch = 27.1f;
-		noteEffectsCamera.yaw = -90.f;
-		noteEffectsCamera.position = DirectX::XMVectorSet(0, 5.32f, -5.86f, 1);
+		noteEffectsCamera.setFov(50.f);
+		noteEffectsCamera.setRotation(-90.f, 27.1f);
+		noteEffectsCamera.setPosition({ 0, 5.32f, -5.86f, 0 });
 		noteEffectsCamera.positionCamNormal();
 	}
 
