@@ -134,7 +134,7 @@ namespace MikuMikuWorld
 	}
 
 	void Renderer::drawQuadWithBlend(const DirectX::XMMATRIX& m, const Texture& tex, int splitX, int splitY, int frame,
-		const Color& tint, int z, float blend)
+		const Color& tint, int z, float blend, int flipUVs)
 	{
 		setAnchor(AnchorType::MiddleCenter);
 		
@@ -148,7 +148,25 @@ namespace MikuMikuWorld
 		float y1 = row * h;
 		float y2 = y1 + h;
 
-		setUVCoords(tex, x1, x2, y1, y2, blend);
+		float left = x1 / tex.getWidth();
+		float right = x2 / tex.getWidth();
+		float top = y1 / tex.getHeight();
+		float bottom = y2 / tex.getHeight();
+
+		if (flipUVs)
+		{
+			uvCoords[1] = { right, top, blend, 0.0f };
+			uvCoords[2] = { right, bottom, blend, 0.0f };
+			uvCoords[3] = { left, bottom, blend, 0.0f };
+			uvCoords[0] = { left, top, blend, 0.0f };
+		}
+		else
+		{
+			uvCoords[0] = { right, top, blend, 0.0f };
+			uvCoords[1] = { right, bottom, blend, 0.0f };
+			uvCoords[2] = { left, bottom, blend, 0.0f };
+			uvCoords[3] = { left, top, blend, 0.0f };
+		}
 		DirectX::XMFLOAT4 color{ tint.r, tint.g, tint.b, tint.a };
 
 		pushQuad(vPos, uvCoords, m, color, tex.getID(), z);

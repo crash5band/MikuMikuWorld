@@ -106,13 +106,12 @@ namespace MikuMikuWorld::Effect
 	struct ParticleController
 	{
 		int refID{};
-		int lane{};
 		Engine::Range time{ -1 , -1 };
 		Effect::Transform worldOffset{};
 		Effect::EmitterInstance effectRoot{};
 		bool active{ false };
 
-		void play(const Note& note, float time);
+		void play(const Note& note, float start, float end);
 		void stop();
 	};
 

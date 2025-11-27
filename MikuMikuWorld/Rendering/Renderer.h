@@ -50,7 +50,7 @@ namespace MikuMikuWorld
 			const Color& tint = Color(1.0f, 1.0f, 1.0f, 1.0f), int z = 0);
 
 		void drawQuadWithBlend(const DirectX::XMMATRIX& m, const Texture& tex, const Sprite& s, const Color& tint, int z, float blend);
-		void drawQuadWithBlend(const DirectX::XMMATRIX& m, const Texture& tex, int splitX, int splitY, int frame, const Color& tint, int z, float blend);
+		void drawQuadWithBlend(const DirectX::XMMATRIX& m, const Texture& tex, int splitX, int splitY, int frame, const Color& tint, int z, float blend, int flipUVs);
 
 		void drawRectangle(Vector2 position, Vector2 size, const Texture& tex, float x1, float x2, float y1, float y2, Color tint, int z);
 

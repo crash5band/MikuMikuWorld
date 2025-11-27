@@ -5,6 +5,11 @@
 
 namespace MikuMikuWorld::Effect
 {
+	static float getEffectXPos(int lane, int width)
+	{
+		return (lane - 6 + width / 2.f) * 0.84f;
+	}
+
 	static std::pair<float, float> getNoteBound(const Note& note)
 	{
 		float left = Engine::laneToLeft(note.lane), right = left + note.width;
@@ -70,6 +75,17 @@ namespace MikuMikuWorld::Effect
 			easeFunc(leftStart, leftStop, progress),
 			easeFunc(rightStart, rightStop, progress)
 		);
+	}
+
+	void ParticleController::play(const Note& note, float start, float end)
+	{
+		active = true;
+		time.min = start;
+		time.max = end;
+		refID = note.ID;
+
+		effectRoot.stop(true);
+		effectRoot.start(start);
 	}
 
 	void EffectPool::setup(EffectType type, int count)
@@ -178,6 +194,8 @@ namespace MikuMikuWorld::Effect
 			if (note.isFlick())
 			{
 				traceEffect = note.critical ? EffectType::fx_note_critical_flick_flash : EffectType::fx_note_flick_flash;
+				if (note.critical)
+					addLaneEffect(EffectType::fx_lane_critical_flick, note, context, time);
 			}
 			else
 			{
@@ -276,8 +294,9 @@ namespace MikuMikuWorld::Effect
 
 		float xPos = Engine::getNoteCenter(note);
 		float zRot = 0.f;
+		float start = time;
+		float end = -1;
 
-		controller.time = { -1, -1 };
 		if (note.isFlick() && (effect == EffectType::fx_note_flick_flash || effect == EffectType::fx_note_critical_flick_flash))
 		{
 			switch (note.flick)
@@ -309,16 +328,13 @@ namespace MikuMikuWorld::Effect
 			std::tie(noteLeft, noteRight) = getHoldSegmentBound(note, context.score, context.currentTick);
 
 			xPos = noteLeft + (noteRight - noteLeft) / 2;
-			controller.time.min = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
-			controller.time.max = accumulateDuration(context.score.notes.at(holdNote.end).tick, TICKS_PER_BEAT, context.score.tempoChanges);
+			start = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
+			end = accumulateDuration(context.score.notes.at(holdNote.end).tick, TICKS_PER_BEAT, context.score.tempoChanges);
 		}
 
 		controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, xPos * 0.84f);
 		controller.worldOffset.rotation = DirectX::XMVectorSetZ(controller.worldOffset.rotation, zRot);
-		controller.refID = note.ID;
-		controller.effectRoot.stop(true);
-		controller.effectRoot.start(time);
-		controller.active = true;
+		controller.play(note, start, end);
 	}
 
 	void EffectView::addAuraEffect(EffectType effect, const Note& note, const ScoreContext& context, float time)
@@ -329,29 +345,24 @@ namespace MikuMikuWorld::Effect
 			float noteLeft{}, noteRight{};
 			std::tie(noteLeft, noteRight) = getHoldSegmentBound(note, context.score, context.currentTick);
 
+			float start = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
+			float end = accumulateDuration(context.score.notes.at(holdNote.end).tick, TICKS_PER_BEAT, context.score.tempoChanges);
+
+			// TODO check very small time boundaries!
+
 			ParticleController& controller = effectPools[effect].getNext();
-			controller.refID = note.ID;
-			controller.effectRoot.stop(true);
-			controller.effectRoot.start(time);
-			controller.active = true;
 			controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, noteLeft + (noteRight - noteLeft) / 2);
-			controller.time.min = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
-			controller.time.max = accumulateDuration(context.score.notes.at(holdNote.end).tick, TICKS_PER_BEAT, context.score.tempoChanges);
+			controller.play(note, start, end);
+
 			return;
 		}
 
 		EffectPool& pool = effectPools[effect];
 		for (int i = note.lane; i < note.lane + note.width; i++)
 		{
-			float left = Engine::laneToLeft(i);
-			float right = left + 1;
-			float center = (left + (right - left) / 2.f) * 0.84f;
 			ParticleController& controller = pool.getNext();
-			controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, center);
-			controller.refID = note.ID;
-			controller.effectRoot.stop(true);
-			controller.effectRoot.start(time);
-			controller.active = true;
+			controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, getEffectXPos(i, 1));
+			controller.play(note, time, -1);
 		}
 	}
 
@@ -361,15 +372,9 @@ namespace MikuMikuWorld::Effect
 		EffectPool& pool = effectPools[effect];
 		for (int i = note.lane; i < note.lane + note.width; i++)
 		{
-			float left = Engine::laneToLeft(i);
-			float right = left + 1;
-			float center = (left + (right - left) / 2.f) * 0.84f;
 			ParticleController& controller = pool.pool[i];
-			controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, center);
-			controller.refID = note.ID;
-			controller.effectRoot.stop(true);
-			controller.effectRoot.start(time);
-			controller.active = true;
+			controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, getEffectXPos(i, 1));
+			controller.play(note, time, -1);
 		}
 	}
 
@@ -426,12 +431,16 @@ namespace MikuMikuWorld::Effect
 	void EffectView::drawEffectsInternal(EmitterInstance& emitter, Renderer* renderer, float time)
 	{
 		const Particle& ref = ResourceManager::getParticleEffect(emitter.getRefID());
+		int flipUVs = ref.renderMode == RenderMode::StretchedBillboard ? 1 : 0;
 		for (auto& particle : emitter.particles)
 		{
 			if (!particle.alive)
 				continue;
 
 			float normalizedTime = particle.time / particle.duration;
+			if (normalizedTime < 0)
+				continue;
+
 			float blend = ref.blend == BlendMode::Additive ? 1.f : 0.f;
 
 			int frame = ref.textureSplitX * ref.textureSplitY * ref.startFrame.evaluate(particle.time, particle.textureStartFrameLerpRatio);
@@ -441,7 +450,7 @@ namespace MikuMikuWorld::Effect
 
 			// TODO: We should provide a second Z-Index according to the notes order.
 			// Maybe use the note's tick?
-			renderer->drawQuadWithBlend(particle.matrix, *effectsTex, ref.textureSplitX, ref.textureSplitY, frame, color, ref.order, blend);
+			renderer->drawQuadWithBlend(particle.matrix, *effectsTex, ref.textureSplitX, ref.textureSplitY, frame, color, ref.order, blend, flipUVs);
 		}
 
 		for (auto& child : emitter.children)
