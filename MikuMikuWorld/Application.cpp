@@ -362,7 +362,6 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(effectsDir + "particles.png");
 		ResourceManager::loadTexture(effectsDir + "tex_note_common_all_v2.png");
 		ResourceManager::loadTransforms(effectsDir + "transform.txt");
-		ResourceManager::loadParticleEffects(effectsDir + "particles.pte");
 
 		const std::string unityEffectsDir = "C:\\Data\\SekaiUnityEffects\\dump\\";
 		size_t effectCount = arrayLength(Effect::effectNames);

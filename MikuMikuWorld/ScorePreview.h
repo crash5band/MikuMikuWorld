@@ -58,8 +58,6 @@ namespace MikuMikuWorld
 		std::pair<float, float> getHoldStepBound(const Note& note, const Score& score) const;
 		std::pair<float, float> getHoldSegmentBound(const Note& note, const Score& score, int curTick) const;
 
-		void drawEffectPool(const ScoreContext& context, const std::map<Engine::NoteEffectType, Engine::EffectPool>& effectPoolMap, const Engine::NoteEffectType type, Renderer* renderer);
-		
 		void drawNoteBase(Renderer* renderer, const Note& note, float left, float right, float y, float zScalar = 1);
 		void drawTraceDiamond(Renderer* renderer, const Note& note, float left, float right, float y);
 		void drawFlickArrow(Renderer* renderer, const Note& note, float y, double cur_time);
@@ -77,8 +75,6 @@ namespace MikuMikuWorld
 		void drawLines(const ScoreContext& context, Renderer* renderer);
 		void drawHoldTicks(const ScoreContext& context, Renderer* renderer);
 		void drawHoldCurves(const ScoreContext& context, Renderer* renderer);
-		void drawUnderNoteEffects(const ScoreContext& context, Renderer* renderer);
-		void drawParticles(const ScoreContext& context, Renderer* renderer);
  		
 		void drawStage(Renderer* renderer);
 		void drawStageCover(Renderer* renderer);

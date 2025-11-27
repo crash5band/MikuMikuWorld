@@ -8,21 +8,6 @@
 
 namespace MikuMikuWorld::Engine
 {
-	std::default_random_engine rng;
-
-	struct GroupIDComparer
-	{
-		bool operator()(const Particle& particle, int groupID) {
-			return particle.groupID < groupID;
-		}
-		bool operator()(int groupID, const Particle& particle) {
-			return groupID < particle.groupID;
-		}
-		bool operator()(const Particle& particleA, const Particle& particleB) {
-			return particleA.groupID < particleB.groupID;
-		}
-	};
-
 	struct DrawingHoldStep
 	{
 		int tick;
@@ -33,11 +18,6 @@ namespace MikuMikuWorld::Engine
 	};
 
 	static void addHoldNote(DrawData& drawData, const HoldNote& holdNote, Score const &score);
-	static bool ensureValidParticle(ParticleEffectType& demandType);
-	static void addParticleEffect(DrawData& drawData, ParticleEffectType type, NoteEffectType noteEffectType, DrawingParticleType drawType, const Note &note, Score const &score, float effectDuration = NAN);
-	static void addLaneEffect(DrawData& drawData, DrawingEffect& effect, const Note& note, Score const &score);
-	static void addNoteEffect(DrawData& drawData, DrawingEffect& effect, const Note& note, Score const &score);
-	static void addSlotEffect(DrawData& drawData, DrawingEffect& effect, const Note& note, Score const &score);
 
 	void DrawData::calculateDrawData(Score const &score)
 	{
@@ -104,7 +84,6 @@ namespace MikuMikuWorld::Engine
 		effectView.reset();
 
 		maxTicks = 1;
-		rng.seed((uint32_t)time(nullptr));
 	}
 
 	void addHoldNote(DrawData &drawData, const HoldNote &holdNote, Score const &score)
@@ -177,61 +156,5 @@ namespace MikuMikuWorld::Engine
 			head = tail;
 			++headIdx;
 		}
-	}
-
-	static bool ensureValidParticle(ParticleEffectType &effectType)
-	{
-		return effectType != ParticleEffectType::Invalid && ResourceManager::particleEffects[(size_t)effectType].particles.size() != 0;
-		int effectID = static_cast<int>(effectType);
-		decltype(particleEffectFallback)::iterator it;
-		if (effectType == ParticleEffectType::Invalid)
-			return false;
-
-		if (effectID >= ResourceManager::particleEffects.size() || ResourceManager::particleEffects[effectID].particles.size() == 0)
-		{
-			ParticleEffectType originalEffect = effectType;
-			while ((it = particleEffectFallback.find(effectType)) != particleEffectFallback.end())
-			{
-				effectType = it->second;
-				effectID = static_cast<int>(effectType);
-				if (effectID < ResourceManager::particleEffects.size() && ResourceManager::particleEffects[effectID].particles.size() != 0)
-					return true;
-			}
-			#ifndef NDEBUG
-			fprintf(stderr, "Fail attempt to spawn particle effect id %d\n", (int)originalEffect);
-			#endif
-			return false;
-		}
-		return true;
-	}
-
-	DrawingEffect& EffectPool::getNext(int noteId, bool advance)
-	{
-		DrawingEffect& effect = pool[nextIndex];
-
-		if (advance)
-			nextIndex = (nextIndex + 1) % pool.size();
-		return effect;
-	}
-
-	void EffectPool::clear()
-	{
-		for (auto& effect : pool)
-		{
-			effect.time = { -1, -1 };
-			effect.lane = -1;
-			effect.refID = 0;
-		}
-	}
-
-	int EffectPool::findIndex(int noteId, int lane)
-	{
-		for (int i = 0; i < pool.size(); i++)
-		{
-			if (pool[i].refID == noteId && pool[i].lane == lane)
-				return i;
-		}
-
-		return -1;
 	}
 }

@@ -138,7 +138,7 @@ namespace MikuMikuWorld::Effect
 			}
 
 			float noteTime = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
-			if (isMidHold || isWithinRange(currentTime, noteTime - 0.05f, noteTime + 0.02f))
+			if (isMidHold || isWithinRange(currentTime, noteTime - 0.02f, noteTime + 0.02f))
 			{
 				addNoteEffects(note, context, noteTime);
 				playedEffectsNoteIds.insert(id);
@@ -286,7 +286,6 @@ namespace MikuMikuWorld::Effect
 		}
 	}
 
-	// TODO: support holds!
 	void EffectView::addEffect(EffectType effect, const Note& note, const ScoreContext& context, float time)
 	{
 		EffectPool& pool = effectPools[effect];
@@ -342,13 +341,13 @@ namespace MikuMikuWorld::Effect
 		if (effect == EffectType::fx_note_hold_aura || effect == EffectType::fx_note_critical_long_hold_gen_aura)
 		{
 			const HoldNote& holdNote = context.score.holdNotes.at(note.ID);
-			float noteLeft{}, noteRight{};
-			std::tie(noteLeft, noteRight) = getHoldSegmentBound(note, context.score, context.currentTick);
-
 			float start = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
 			float end = accumulateDuration(context.score.notes.at(holdNote.end).tick, TICKS_PER_BEAT, context.score.tempoChanges);
+			if (abs(end - start) < 0.001f)
+				return;
 
-			// TODO check very small time boundaries!
+			float noteLeft{}, noteRight{};
+			std::tie(noteLeft, noteRight) = getHoldSegmentBound(note, context.score, context.currentTick);
 
 			ParticleController& controller = effectPools[effect].getNext();
 			controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, noteLeft + (noteRight - noteLeft) / 2);
@@ -384,7 +383,7 @@ namespace MikuMikuWorld::Effect
 		{
 			for (auto& controller : pool.pool)
 			{
-				if (controller.active)
+				if (controller.active && time >= controller.time.min)
 				{
 					if (type == EffectType::fx_note_critical_long_hold_gen ||
 						type == EffectType::fx_note_long_hold_gen || 

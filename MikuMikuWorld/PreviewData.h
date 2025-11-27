@@ -16,27 +16,6 @@ namespace MikuMikuWorld
 
 namespace MikuMikuWorld::Engine
 {
-	enum class DrawingParticleType : uint8_t
-	{
-		Lane,
-		Circular,
-		Linear,
-		Flat,
-		Slot,
-		Aura
-	};
-
-	enum class NoteEffectType : uint8_t
-	{
-		Lane,
-		Slot,
-		Gen,
-		GenHold,
-		Aura,
-		AuraHold,
-		NoteEffectTypeCount
-	};
-
 	struct DrawingNote
 	{
 		int refID;
@@ -67,45 +46,6 @@ namespace MikuMikuWorld::Engine
 		float tailLeft, tailRight;
 		float startTime, endTime;
 		double activeTime;
-	};
-
-	struct DrawingParticleProperty
-	{
-		Range value;
-		EasingFunc ease;
-		inline float at(float p) const { return lerp(value.min, value.max, this->ease(p)); }
-	};
-
-	struct DrawingParticle
-	{
-		int effectType;
-		int particleId;
-		Range time;
-
-		// u1 and u2 are "user data" fields
-		// Currently u1 is used as an "elevation" parameter for circular effects
-		std::array<DrawingParticleProperty, 8> xywhtau1u2;
-
-		DrawingParticleType type;
-	};
-
-	struct DrawingEffect
-	{
-		int refID{};
-		int lane{};
-		Range time{-1, -1};
-
-		std::vector<DrawingParticle> particles;
-	};
-
-	struct EffectPool
-	{
-		size_t nextIndex{};
-		std::array<DrawingEffect, 12> pool;
-
-		DrawingEffect& getNext(int noteId, bool advance);
-		void clear();
-		int findIndex(int noteId, int lane);
 	};
 
 	struct DrawData

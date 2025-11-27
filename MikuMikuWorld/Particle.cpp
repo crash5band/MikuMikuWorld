@@ -15,9 +15,9 @@ namespace MikuMikuWorld::Effect
 		float yRad = DirectX::XMConvertToRadians(DirectX::XMVectorGetY(euler));
 		float zRad = DirectX::XMConvertToRadians(DirectX::XMVectorGetZ(euler));
 
-		DirectX::XMVECTOR qX = DirectX::XMQuaternionRotationAxis({ 1, 0, 0, 0 }, xRad);
-		DirectX::XMVECTOR qY = DirectX::XMQuaternionRotationAxis({ 0, 1, 0, 0 }, yRad);
-		DirectX::XMVECTOR qZ = DirectX::XMQuaternionRotationAxis({ 0, 0, 1, 0 }, zRad);
+		DirectX::XMVECTOR qX = DirectX::XMQuaternionRotationNormal({ 1, 0, 0, 0 }, xRad);
+		DirectX::XMVECTOR qY = DirectX::XMQuaternionRotationNormal({ 0, 1, 0, 0 }, yRad);
+		DirectX::XMVECTOR qZ = DirectX::XMQuaternionRotationNormal({ 0, 0, 1, 0 }, zRad);
 
 		return DirectX::XMQuaternionMultiply(DirectX::XMQuaternionMultiply(qZ, qY), qX);
 	}
@@ -59,7 +59,6 @@ namespace MikuMikuWorld::Effect
 		float yScale = (ref.speedScale * length) + (ref.lengthScale * DirectX::XMVectorGetX(scale));
 		DirectX::XMVECTOR stretchDirection = DirectX::XMVectorScale(normalizedVelocity, yScale * 0.5f);
 
-		axis = DirectX::XMVectorSetW(axis, 1);
 		result *= DirectX::XMMatrixScalingFromVector(DirectX::XMVectorSet(1.f, yScale, 1.f, 1.f));
 		result *= DirectX::XMMatrixRotationAxis(axis, angle);
 		result *= DirectX::XMMatrixTranslationFromVector(stretchDirection);
@@ -427,10 +426,7 @@ namespace MikuMikuWorld::Effect
 	{
 		const Particle& ref = ResourceManager::getParticleEffect(refID);
 
-		updateEmission(ref, shift, baseTransform, t);
-
 		const DirectX::XMMATRIX& inverseView = camera.getInverseViewMatrix();
-
 		DirectX::XMVECTOR qLocal = quaternionFromZYX(baseTransform.rotation);
 		DirectX::XMVECTOR qShift = quaternionFromZYX(shift.rotation);
 		DirectX::XMVECTOR rotation = DirectX::XMVectorAdd(baseTransform.rotation, ref.transform.rotation);
@@ -439,10 +435,11 @@ namespace MikuMikuWorld::Effect
 		worldOffset *= DirectX::XMMatrixRotationQuaternion(qShift);
 		worldOffset *= DirectX::XMMatrixTranslationFromVector(shift.position);
 
+		updateEmission(ref, shift, baseTransform, t);
 		for (auto& p : particles)
 		{
-			float prevTime = p.time;
-			p.time = std::max(0.f, t - p.startTime);
+			float dt = t - p.startTime - p.time;
+			p.time = t - p.startTime;
 			
 			if (p.time >= p.duration)
 				p.alive = false;
@@ -451,7 +448,6 @@ namespace MikuMikuWorld::Effect
 				continue;
 
 			float normalizedTime = p.time / p.duration;
-			float dt = p.time - prevTime;
 
 			DirectX::XMVECTOR currentRotation = DirectX::XMVectorAdd(rotation, p.transform.rotation);
 			if (ref.rotationOverLifetime.enabled)
