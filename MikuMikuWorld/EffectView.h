@@ -19,7 +19,10 @@ namespace MikuMikuWorld::Effect
 		fx_lane_critical_flick,
 		fx_lane_default,
 		
+		fx_note_hold_aura,
 		fx_note_long_hold_gen,
+
+		fx_note_critical_long_hold_gen_aura,
 		fx_note_critical_long_hold_gen,
 
 		fx_note_normal_aura,
@@ -28,11 +31,11 @@ namespace MikuMikuWorld::Effect
 		fx_note_critical_normal_aura,
 		fx_note_critical_normal_gen,
 
-		fx_note_flick_gen,
 		fx_note_flick_aura,
+		fx_note_flick_gen,
 
-		fx_note_critical_flick_gen,
 		fx_note_critical_flick_aura,
+		fx_note_critical_flick_gen,
 
 		fx_note_long_aura,
 		fx_note_long_gen,
@@ -40,8 +43,6 @@ namespace MikuMikuWorld::Effect
 		fx_note_critical_long_aura,
 		fx_note_critical_long_gen,
 
-		fx_note_hold_aura,
-		fx_note_critical_long_hold_gen_aura,
 		fx_note_flick_flash,
 		fx_note_critical_flick_flash,
 		fx_note_long_hold_via_aura,
@@ -58,7 +59,10 @@ namespace MikuMikuWorld::Effect
 		"fx_lane_critical_flick",
 		"fx_lane_default",
 
+		"fx_note_hold_aura",
 		"fx_note_long_hold_gen",
+
+		"fx_note_critical_long_hold_gen_aura",
 		"fx_note_critical_long_hold_gen",
 
 		"fx_note_normal_aura",
@@ -67,11 +71,11 @@ namespace MikuMikuWorld::Effect
 		"fx_note_critical_normal_aura",
 		"fx_note_critical_normal_gen",
 
-		"fx_note_flick_gen",
 		"fx_note_flick_aura",
+		"fx_note_flick_gen",
 
-		"fx_note_critical_flick_gen",
 		"fx_note_critical_flick_aura",
+		"fx_note_critical_flick_gen",
 
 		"fx_note_long_aura",
 		"fx_note_long_gen",
@@ -79,28 +83,12 @@ namespace MikuMikuWorld::Effect
 		"fx_note_critical_long_aura",
 		"fx_note_critical_long_gen",
 
-		"fx_note_hold_aura",
-		"fx_note_critical_long_hold_gen_aura",
 		"fx_note_flick_flash",
 		"fx_note_critical_flick_flash",
 		"fx_note_long_hold_via_aura",
 		"fx_note_critical_long_hold_via_aura",
 		"fx_note_trace_aura",
 		"fx_note_critical_trace_aura"
-	};
-
-	const std::map<EffectType, int> effectPoolSizes =
-	{
-		{ EffectType::fx_note_normal_gen, 6 },
-		{ EffectType::fx_note_critical_normal_gen, 6 },
-		{ EffectType::fx_note_flick_gen, 6 },
-		{ EffectType::fx_note_critical_flick_gen, 6 },
-		{ EffectType::fx_note_long_gen, 6 },
-		{ EffectType::fx_note_critical_long_gen, 6 },
-		{ EffectType::fx_note_flick_flash, 6 },
-		{ EffectType::fx_note_critical_flick_flash, 6 },
-		{ EffectType::fx_note_trace_aura, 6 },
-		{ EffectType::fx_note_critical_trace_aura, 6 },
 	};
 
 	struct ParticleController
@@ -148,7 +136,7 @@ namespace MikuMikuWorld::Effect
 		void addAuraEffect(EffectType effect, const Note& note, const ScoreContext& context, float time);
 		void addLaneEffect(EffectType effect, const Note& note, const ScoreContext& context, float time);
 
-		//void drawUnderNoteEffects();
+		void drawUnderNoteEffects(Renderer* renderer, float time);
 		void updateEffects(const ScoreContext& context, const Camera& camera, float time);
 		void drawEffects(Renderer* renderer, float time);
 		void update(const ScoreContext& context);
@@ -170,5 +158,7 @@ namespace MikuMikuWorld::Effect
 		std::unordered_set<int> playedEffectsNoteIds;
 
 		void drawEffectsInternal(EmitterInstance& emitter, Renderer* renderer, float time);
+		void drawUnderNoteEffectsInternal(EmitterInstance& emitter, Renderer* renderer, float time);
+		void drawParticles(const std::vector<ParticleInstance>& particles, const Particle& ref, Renderer* renderer, float time);
 	};
 }

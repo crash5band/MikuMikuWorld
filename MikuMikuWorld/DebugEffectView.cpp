@@ -1,9 +1,7 @@
 #include "DebugEffectView.h"
 #include "ImGuiManager.h"
 #include "ResourceManager.h"
-#include "Application.h"
 #include "Particle.h"
-#include <map>
 
 using namespace nlohmann;
 
@@ -11,15 +9,28 @@ namespace MikuMikuWorld::Effect
 {
 	DebugEffectView::DebugEffectView()
 	{
-		camera.fov = 50.f;
-		camera.pitch = 27.1f;
-		camera.yaw = -90.f;
-		camera.position.m128_f32[0] = 0;
-		camera.position.m128_f32[1] = 5.32f;
-		camera.position.m128_f32[2] = -5.86f;
-		camera.positionCamNormal();
+		resetCamera();
+	}
 
-		std::srand(static_cast<unsigned int>(std::time(nullptr)));
+	void DebugEffectView::resetCamera()
+	{
+		camera.setFov(50.f);
+		camera.setRotation(-90.f, 27.1f);
+		camera.setPosition({ 0, 5.32f, -5.86f, 0.f });
+		camera.positionCamNormal();
+	}
+
+	static EmitterInstance createFromParticle(int particleId)
+	{
+		Effect::Particle& p = ResourceManager::getParticleEffect(particleId);
+
+		EmitterInstance emitter;
+		for (const int child : p.children)
+		{
+			emitter.children.emplace_back(createFromParticle(child));
+		}
+
+		return emitter;
 	}
 
 	void DebugEffectView::init()
@@ -27,24 +38,22 @@ namespace MikuMikuWorld::Effect
 		previewBuffer = std::make_unique<Framebuffer>(1920, 1080);
 		int texId = ResourceManager::getTexture("tex_note_common_all_v2");
 		effectsTex = &ResourceManager::textures[texId];
+
+		int count = static_cast<int>(EffectType::fx_count);
+		effects.reserve(count);
+
+		const Transform transform{};
+		for (int i = 0; i < count; i++)
+		{
+			int particleId = ResourceManager::getRootParticleIdByName(effectNames[i]);
+			const Particle& ref = ResourceManager::getParticleEffect(particleId);
+			effects.push_back(createFromParticle(particleId));
+
+			effects[effects.size() - 1].init(ref, transform);
+			effects[effects.size() - 1].start(0);
+		}
+
 		initialized = true;
-	}
-
-	static EmitterInstance createFromParticle(Transform& transform, int particleId)
-	{
-		Effect::Particle& p = ResourceManager::getParticleEffect(particleId);;
-
-		EmitterInstance emitter;
-		emitter.refID = particleId;
-		emitter.startTime = p.startDelay.getValue();
-		emitter.transform = p.transform;
-		for (const auto& refBurst : p.emission.bursts)
-			emitter.bursts.push_back({ 0, 0 });
-
-		for (const auto& child : p.children)
-			emitter.children.push_back(createFromParticle(p.transform, child));
-
-		return emitter;
 	}
 
 	void DebugEffectView::play()
@@ -57,25 +66,20 @@ namespace MikuMikuWorld::Effect
 		playing = false;
 		time = 0;
 
-		testEmitter.stop(true);
+		effects[static_cast<int>(selectedEffect)].stop(true);
+		effects[static_cast<int>(selectedEffect)].start(time);
 	}
 
-	void DebugEffectView::load()
+	static void setEmitterView(EmitterInstance& em)
 	{
-		IO::FileDialog fileDialog{};
-		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
-		fileDialog.title = "Load Particle Effect";
+		const Particle& ref = ResourceManager::getParticleEffect(em.getRefID());
 
-		if (fileDialog.openFile() != IO::FileDialogResult::OK)
-			return;
+		ImGui::PushID(ref.ID);
+		ImGui::Checkbox(ref.name.c_str(), &em.visible);
+		ImGui::PopID();
 
-		ResourceManager::removeAllParticleEffects();
-
-		int rootId = ResourceManager::loadParticleEffect(fileDialog.outputFilename);
-		Transform baseTransform;
-		testEmitter = createFromParticle(baseTransform, rootId);
-
-		effectLoaded = true;
+		for (auto& child : em.children)
+			setEmitterView(child);
 	}
 
 	void DebugEffectView::update(Renderer* renderer)
@@ -83,8 +87,23 @@ namespace MikuMikuWorld::Effect
 		if (!initialized)
 			init();
 
-		if (ImGui::Button("Load"))
-			load();
+		ImGui::Begin(IMGUI_TITLE("", "DBG_EFF"), NULL);
+		//if (ImGui::Button("Load"))
+		//	load();
+
+		int selectedIndex = static_cast<int>(selectedEffect);
+		int count = static_cast<int>(Effect::EffectType::fx_count);
+		ImGui::SetNextItemWidth(300);
+		if (ImGui::BeginCombo("Effect", effectNames[selectedIndex]))
+		{
+			for (int i = 0; i < count; ++i)
+			{
+				if (ImGui::Selectable(effectNames[i], selectedIndex == i))
+					selectedEffect = static_cast<Effect::EffectType>(i);
+			}
+
+			ImGui::EndCombo();
+		}
 
 		ImGui::SameLine();
 		if (ImGui::Button("Play/Pause"))
@@ -93,6 +112,39 @@ namespace MikuMikuWorld::Effect
 		ImGui::SameLine();
 		if (ImGui::Button("Stop"))
 			stop();
+
+		ImGui::SameLine();
+		if (ImGui::Button("CAM_RST"))
+			resetCamera();
+
+		ImGui::SameLine();
+		if (ImGui::Button("TRS"))
+		{
+			ImGui::OpenPopup("DBG_EFF_TRS");
+		}
+
+		if (ImGui::BeginPopup("DBG_EFF_TRS"))
+		{
+			DirectX::XMFLOAT3 xmPos{}, xmRot{}, xmScale{};
+			DirectX::XMStoreFloat3(&xmPos, debugTransform.position);
+			DirectX::XMStoreFloat3(&xmRot, debugTransform.rotation);
+			DirectX::XMStoreFloat3(&xmScale, debugTransform.scale);
+
+			float position[] = { xmPos.x, xmPos.y, xmPos.z };
+			float rotation[] = { xmRot.x, xmRot.y, xmRot.z };
+			float scale[] = { xmScale.x, xmScale.y, xmScale.z };
+
+			if (ImGui::DragFloat3("Position", position))
+				debugTransform.position = { position[0], position[1], position[2] };
+
+			if (ImGui::DragFloat3("Rotation", rotation))
+				debugTransform.rotation = { rotation[0], rotation[1], rotation[2] };
+
+			if (ImGui::DragFloat3("Scale", scale))
+				debugTransform.scale = { scale[0], scale[1], scale[2] };
+
+			ImGui::EndPopup();
+		}
 
 		ImGui::SameLine();
 		if (ImGui::Button("x0.1"))
@@ -117,11 +169,12 @@ namespace MikuMikuWorld::Effect
 
 		if (!playing)
 		{
-			time += ImGui::GetIO().MouseWheel * 0.1f;
+			time += ImGui::GetIO().MouseWheel * 0.1f * ImGui::GetIO().KeyCtrl;
 		}
 
 		ImVec2 position = ImGui::GetCursorScreenPos();
 		ImVec2 size = ImGui::GetContentRegionAvail();
+		ImRect boundaries{ position, position + size };
 
 		if (previewBuffer->getWidth() != size.x || previewBuffer->getHeight() != size.y)
 			previewBuffer->resize(size.x, size.y);
@@ -129,60 +182,93 @@ namespace MikuMikuWorld::Effect
 		previewBuffer->bind();
 		previewBuffer->clear(0.1, 0.1, 0.1, 1);
 
-		if (effectLoaded)
+		if (ImGui::IsMouseHoveringRect(boundaries.Min, boundaries.Max))
 		{
-			if (playing)
+			ImGuiIO& io = ImGui::GetIO();
+			bool updateCamera = false;
+			if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
 			{
-				time += ImGui::GetIO().DeltaTime * timeFactor;
+				camera.rotate(io.MouseDelta[0], io.MouseDelta[1]);
+				updateCamera = true;
 			}
 
-			testEmitter.update(time, Transform());
-			renderer->beginBatch();
+			if (abs(io.MouseWheel) > 0 && !io.KeyCtrl)
+			{
+				camera.zoom(io.MouseWheel);
+				updateCamera = true;
+			}
 
-			Shader* shader = ResourceManager::shaders[ResourceManager::getShader("particles")];
-			Texture texture = ResourceManager::textures[ResourceManager::getTexture("particles")];
-
-			float aspectRatio = size.x / size.y;
-
-			const auto pView = camera.getViewMatrix();
-			auto pProjection = camera.getProjectionMatrix(aspectRatio, 0.3, 1000);
-			float projectionScale = std::min(aspectRatio / (16.f / 9.f), 1.f);
-			pProjection = DirectX::XMMatrixScaling(projectionScale, projectionScale, 1.f) * pProjection;
-
-			shader->use();
-			shader->setMatrix4("projection", pProjection);
-			shader->setMatrix4("view", pView);
-
-			drawTest(testEmitter, renderer);
-			renderer->endBatchWithBlending(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			if (updateCamera)
+				camera.positionCamNormal();
 		}
 
+		if (playing)
+		{
+			time += ImGui::GetIO().DeltaTime * timeFactor;
+		}
+
+		static Transform baseTransform;
+
+		EmitterInstance& emitter = effects[static_cast<int>(selectedEffect)];
+		emitter.update(time, debugTransform, camera);
+		renderer->beginBatch();
+
+		Shader* shader = ResourceManager::shaders[ResourceManager::getShader("particles")];
+
+		float aspectRatio = size.x / size.y;
+
+		const auto pView = camera.getViewMatrix();
+		auto pProjection = camera.getProjectionMatrix(aspectRatio, 0.3, 1000);
+		float projectionScale = std::min(aspectRatio / (16.f / 9.f), 1.f);
+		pProjection = DirectX::XMMatrixScaling(projectionScale, projectionScale, 1.f) * pProjection;
+
+		shader->use();
+		shader->setMatrix4("projection", pProjection);
+		shader->setMatrix4("view", pView);
+
+		drawTest(emitter, renderer, time);
+		renderer->endBatchWithBlending(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+		static ImVec2 uv0{ 0, 1 };
+		static ImVec2 uv1{ 1, 0 };
 		ImGui::GetWindowDrawList()->AddImage((ImTextureID)(size_t)previewBuffer->getTexture(), position, position + size);
 		previewBuffer->unblind();
+		ImGui::End();
+
+		ImGui::Begin("DBG_EFF_VIEW");
+
+		setEmitterView(emitter);
+
+		ImGui::End();
 	}
 
-	void DebugEffectView::drawTest(EmitterInstance& emitter, Renderer* renderer)
+	void DebugEffectView::drawTest(EmitterInstance& emitter, Renderer* renderer, float time)
 	{
-		const Particle& ref = ResourceManager::getParticleEffect(emitter.refID);
-		for (auto& particle : emitter.particles)
+		const Particle& ref = ResourceManager::getParticleEffect(emitter.getRefID());
+		int flipUVs = ref.renderMode == RenderMode::StretchedBillboard ? 1 : 0;
+
+		if (emitter.visible)
 		{
-			float xAngle = particle.transform.rotation.x;;
-			if (ref.renderMode == RenderMode::HorizontalBillboard)
-				xAngle = 90.f;
+			for (auto& particle : emitter.particles)
+			{
+				if (!particle.alive)
+					continue;
 
-			DirectX::XMMATRIX m = DirectX::XMMatrixIdentity();
-			m *= DirectX::XMMatrixTranslation(ref.pivot.x, ref.pivot.y, ref.pivot.z);
-			m *= DirectX::XMMatrixScaling(particle.transform.scale.x / 1.5f, particle.transform.scale.y / 1.5f, particle.transform.scale.z / 1.5f);
-			m *= DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(particle.transform.rotation.z));
-			m *= DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(xAngle));
-			m *= DirectX::XMMatrixTranslation(particle.transform.position.x, particle.transform.position.y, particle.transform.position.z);
+				float normalizedTime = particle.time / particle.duration;
+				float blend = ref.blend == BlendMode::Additive ? 1.f : 0.f;
 
-			float blend = ref.blend == BlendMode::Additive ? 1.f : 0.f;
-			int frame = ref.textureSplitX * ref.textureSplitY * ref.startFrame.constant;
-			renderer->drawQuadWithBlend(m, *effectsTex, ref.textureSplitX, ref.textureSplitY, frame, particle.color, ref.order, blend);
+				int frame = ref.textureSplitX * ref.textureSplitY * ref.startFrame.evaluate(particle.time, particle.textureStartFrameLerpRatio);
+				frame += ref.textureSplitX * ref.textureSplitY * ref.frameOverTime.evaluate(normalizedTime, particle.textureFrameOverTimeLerpRatio);
+
+				Color color = particle.startColor * ref.colorOverLifetime.evaluate(normalizedTime, particle.colorOverLifeTimeLerpRatio);
+
+				// TODO: We should provide a second Z-Index according to the notes order.
+				// Maybe use the note's tick?
+				renderer->drawQuadWithBlend(particle.matrix, *effectsTex, ref.textureSplitX, ref.textureSplitY, frame, color, ref.order, blend, flipUVs);
+			}
 		}
 
 		for (auto& child : emitter.children)
-			drawTest(child, renderer);
+			drawTest(child, renderer, time);
 	}
 }

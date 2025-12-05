@@ -209,11 +209,9 @@ namespace MikuMikuWorld::Effect
 		{
 		case MinMaxCurve::Min:
 			gradientMin.emplace_back(k);
-			std::sort(gradientMin.begin(), gradientMin.end(), [](const auto& k1, const auto& k2) { return k1.time <= k2.time; });
 			break;
 		default:
 			gradientMax.emplace_back(k);
-			std::sort(gradientMax.begin(), gradientMax.end(), [](const auto& k1, const auto& k2) { return k1.time <= k2.time; });
 			break;
 		}
 	}
@@ -229,6 +227,13 @@ namespace MikuMikuWorld::Effect
 			gradientMax.erase(gradientMin.begin() + index);
 			break;
 		}
+	}
+
+	void MinMaxColor::sortKeyFrames()
+	{
+		auto keyframeSortFn = [](const ColorKeyFrame& k1, const ColorKeyFrame& k2) { return k1.time <= k2.time; };
+		std::sort(gradientMin.begin(), gradientMin.end(), keyframeSortFn);
+		std::sort(gradientMax.begin(), gradientMax.end(), keyframeSortFn);
 	}
 
 	float MinMax::evaluate(float time, float lerpRatio, float fallback) const
@@ -287,5 +292,12 @@ namespace MikuMikuWorld::Effect
 			curveMin.erase(curveMin.begin() + index);
 			break;
 		}
+	}
+
+	void MinMax::sortKeyFrames()
+	{
+		auto keyframeSortFn = [](const KeyFrame& k1, const KeyFrame& k2) { return k1.time <= k2.time; };
+		std::sort(curveMin.begin(), curveMin.end(), keyframeSortFn);
+		std::sort(curveMax.begin(), curveMax.end(), keyframeSortFn);
 	}
 }

@@ -13,6 +13,8 @@
 #include "ScoreSerializeWindow.h"
 #include <filesystem>
 #include <Windows.h>
+#include "Rendering/Shader.h"
+#include "ResourceManager.h"
 
 namespace MikuMikuWorld
 {
@@ -165,6 +167,8 @@ namespace MikuMikuWorld
 		aboutDialog.update();
 		serializeWindow.update(*this, context, timeline);
 
+		//debugEffectView.update(renderer.get());
+
 		const bool timeline_just_created = (ImGui::FindWindowByName("###notes_timeline") == NULL);
 		ImGui::Begin(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"), NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 		ImGuiID dockId = ImGui::GetWindowDockID();
@@ -188,6 +192,7 @@ namespace MikuMikuWorld
 			//ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
 			//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0, 0 });
 		}
+
 
 		ImGui::Begin(IMGUI_TITLE(ICON_FA_OBJECT_GROUP, "score_preview"), NULL, previewWindowFlags);
 		preview.update(context, renderer.get());

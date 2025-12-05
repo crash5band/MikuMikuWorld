@@ -65,9 +65,39 @@ namespace MikuMikuWorld
 		return dist(gen);
 	}
 
-	void Random::setSeed(std::uint_fast32_t seed)
+	void Random::setSeed(int seed)
 	{
 		gen.seed(seed);
+	}
+
+	uint32_t RandN::xorShift()
+	{
+		uint32_t t = x ^ (x << 11);
+		x = y; y = z; z = w;
+		return w = w ^ (w >> 19) ^ t ^ (t >> 8);
+	}
+
+	uint32_t RandN::nextUInt32()
+	{
+		return xorShift();
+	}
+
+	float RandN::nextFloat()
+	{
+		return 1.0f - nextFloatRange(0.0f, 1.0f);
+	}
+
+	float RandN::nextFloatRange(float min, float max)
+	{
+		return (min - max) * ((float)(xorShift() << 9) / 0xFFFFFFFF) + max;
+	}
+
+	void RandN::setSeed(uint32_t seed)
+	{
+		x = (uint32_t)seed;
+		y = (uint32_t)(MT19937 * x + 1);
+		z = (uint32_t)(MT19937 * y + 1);
+		w = (uint32_t)(MT19937 * z + 1);
 	}
 
 	void drawShadedText(ImDrawList* drawList, ImVec2 textPos, float fontSize, ImU32 fontColor, const char* text)

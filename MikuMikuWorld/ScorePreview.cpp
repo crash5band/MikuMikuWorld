@@ -327,6 +327,7 @@ namespace MikuMikuWorld
 		pProjection = DirectX::XMMatrixScaling(projectionScale, projectionScale, 1.f) * pProjection;
 		
 		shader->setMatrix4("projection", viewProjection);
+		float currentTime = context.getTimeAtCurrentTick();
 
 		if (previewBuffer.getWidth() != size.x || previewBuffer.getHeight() != size.y)
 			previewBuffer.resize(size.x, size.y);
@@ -342,19 +343,26 @@ namespace MikuMikuWorld
 		drawStage(renderer);
 		renderer->endBatch();
 
-		pteShader->use();
-		pteShader->setMatrix4("projection", pProjection);
-		pteShader->setMatrix4("view", pView);
-
-		// TODO: draw under note effects
-		renderer->beginBatch();
-		renderer->endBatchWithBlending(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		context.scorePreviewDrawData.effectView.updateEffects(context, noteEffectsCamera, currentTime);
 
 		shader->use();
 		shader->setMatrix4("projection", viewProjection);
 		renderer->beginBatch();
 		drawLines(context, renderer);
 		drawHoldCurves(context, renderer);
+		renderer->endBatch();
+
+		pteShader->use();
+		pteShader->setMatrix4("projection", pProjection);
+		pteShader->setMatrix4("view", pView);
+		renderer->beginBatch();
+		context.scorePreviewDrawData.effectView.drawUnderNoteEffects(renderer, currentTime);
+		renderer->endBatchWithBlending(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+		shader->use();
+		shader->setMatrix4("projection", viewProjection);
+		renderer->beginBatch();
+
 		drawHoldTicks(context, renderer);
 		drawNotes(context, renderer);
 		if (config.pvStageCover != 0) {
@@ -363,9 +371,6 @@ namespace MikuMikuWorld
 		}
 		else
 			renderer->endBatch();
-
-		float currentTime = context.getTimeAtCurrentTick();
-		context.scorePreviewDrawData.effectView.updateEffects(context, noteEffectsCamera, currentTime);
 
 		pteShader->use();
 		pteShader->setMatrix4("projection", pProjection);

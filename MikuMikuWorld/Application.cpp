@@ -358,16 +358,15 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(editorAssetsDir + "note_stats.png");
 		ResourceManager::loadTexture(editorAssetsDir + "stage.png");
 
-		const std::string effectsDir = appDir + "res\\effect\\";
-		ResourceManager::loadTexture(effectsDir + "particles.png");
-		ResourceManager::loadTexture(effectsDir + "tex_note_common_all_v2.png");
-		ResourceManager::loadTransforms(effectsDir + "transform.txt");
+		ResourceManager::loadTransforms(appDir + "res\\effect\\transform.txt");
 
-		const std::string unityEffectsDir = "C:\\Data\\SekaiUnityEffects\\dump\\";
+		const std::string effectsDir = appDir + "res\\effect\\0\\";
+		ResourceManager::loadTexture(effectsDir + "tex_note_common_all_v2.png");
+
 		size_t effectCount = arrayLength(Effect::effectNames);
 
 		for (size_t i = 0; i < effectCount; i++)
-			ResourceManager::loadParticleEffect(unityEffectsDir + Effect::effectNames[i] + ".json");
+			ResourceManager::loadParticleEffect(effectsDir + Effect::effectNames[i] + ".json");
 
 		// Load more languages here
 		Localization::loadDefault();

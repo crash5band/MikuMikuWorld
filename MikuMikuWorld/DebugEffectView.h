@@ -3,6 +3,7 @@
 #include "Rendering/Renderer.h"
 #include "Rendering/Camera.h"
 #include "Particle.h"
+#include "EffectView.h"
 #include <memory>
 
 namespace MikuMikuWorld::Effect
@@ -11,7 +12,6 @@ namespace MikuMikuWorld::Effect
 	{
 	public:
 		void update(Renderer* renderer);
-		void load();
 		void stop();
 		void play();
 
@@ -25,11 +25,15 @@ namespace MikuMikuWorld::Effect
 		bool playing{ false };
 		float time{};
 		float timeFactor{ 1.f };
+		Effect::EffectType selectedEffect{};
 		std::unique_ptr<Framebuffer> previewBuffer;
+		std::vector<EmitterInstance> effects;
 		Texture* effectsTex{ nullptr };
 		Camera camera;
+		Transform debugTransform;
 
 		void init();
-		void drawTest(EmitterInstance& emitter, Renderer* renderer);
+		void drawTest(EmitterInstance& emitter, Renderer* renderer, float time);
+		void resetCamera();
 	};
 }

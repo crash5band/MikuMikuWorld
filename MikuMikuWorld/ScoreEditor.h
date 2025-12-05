@@ -2,6 +2,7 @@
 #include "ScoreEditorWindows.h"
 #include "ScorePreview.h"
 #include "ScoreSerializeWindow.h"
+#include "DebugEffectView.h"
 #include <future>
 
 namespace MikuMikuWorld
@@ -24,6 +25,7 @@ namespace MikuMikuWorld
 		RecentFileNotFoundDialog recentFileNotFoundDialog{};
 		AboutDialog aboutDialog{};
 		ScoreSerializeWindow serializeWindow;
+		Effect::DebugEffectView debugEffectView{};
 
 		Stopwatch autoSaveTimer;
 		std::string autoSavePath;

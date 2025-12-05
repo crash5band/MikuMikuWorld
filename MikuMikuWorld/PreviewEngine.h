@@ -32,83 +32,17 @@ namespace MikuMikuWorld
 		FlickArrowLeft,
 		FlickArrowUp = FlickArrowLeft + 6,
 		SimultaneousLine = FlickArrowUp + 6,
-		HoldTick,
-		Slot,
-		SlotGlow
+		HoldTick
 	};
 
 	enum class SpriteLayer : uint8_t
 	{
-		AURA_EFFECT,
-		GEN_EFFECT,
 		FLICK_ARROW,
 		DIAMOND,
 		BASE_NOTE,
 		TICK_NOTE,
 		HOLD_PATH,
 		UNDER_NOTE_EFFECT
-	};
-
-	enum class ParticleEffectType : uint32_t
-	{
-		Lane,
-		NoteTapLane,
-		NoteCriticalLane,
-		NoteCriticalFlickLane,
-
-		NoteTapCircular,
-		NoteTapLinear,
-
-		NoteLongCircular,
-		NoteLongLinear,
-
-		NoteFlickCircular,
-		NoteFlickLinear,
-		NoteFlickFlash,
-
-		NoteFrictionCircular,
-		NoteFrictionLinear,
-
-		NoteCriticalCircular,
-		NoteCriticalLinear,
-
-		NoteLongCriticalCircular,
-		NoteLongCriticalLinear,
-
-		NoteCriticalFlickCircular,
-		NoteCriticalFlickLinear,
-		NoteCriticalFlickFlash,
-
-		NoteFrictionCriticalCircular,
-		NoteFrictionCriticalLinear,
-
-		NoteLongAmongCircular,
-		NoteLongAmongCriticalCircular,
-
-		NoteLongSegmentCircular,
-		NoteLongSegmentCircularEx,
-		NoteLongSegmentLinear,
-
-		NoteLongCriticalSegmentCircular,
-		NoteLongCriticalSegmentCircularEx,
-		NoteLongCriticalSegmentLinear,
-
-		SlotNoteTap,
-		SlotNoteCritical,
-		SlotNoteFlick,
-		SlotNoteLong,
-
-		NoteNormalAura,
-		NoteCriticalNormalAura,
-		NoteFlickAura,
-		NoteLongAura,
-		NoteCriticalFlickAura,
-		NoteCriticalLongAura,
-
-		NoteHoldAura,
-		NoteCriticalLongHoldGenAura,
-
-		Invalid = UINT32_MAX
 	};
 
 	class SpriteTransform
@@ -122,43 +56,6 @@ namespace MikuMikuWorld
 		SpriteTransform(float v[64]);
 		std::array<DirectX::XMFLOAT4, 4> apply(const std::array<DirectX::XMFLOAT4, 4>& vPos) const;
 	};
-
-	struct ParticleProperty
-	{
-		float from, to;
-		Engine::Easing easing;
-	};
-
-	struct PropertyCoeff
-	{
-		std::unique_ptr<DirectX::XMMATRIX> r1_4, r5_8, sinr1_4, sinr5_8, cosr1_4, cosr5_8;
-
-		DirectX::XMVECTOR compute(const DirectX::XMVECTOR & v1_4, const DirectX::XMVECTOR & v5_8) const;
-	};
-
-	struct Particle
-	{
-		int groupID;
-		int spriteID;
-		Color color;
-		float start;
-		float duration;
-		int order;
-		std::array<ParticleProperty, 8> xywhtau1u2;
-		PropertyCoeff xyCoeff, whCoeff, taCoeff, u1u2Coeff;
-
-		// Compute the static range[from, to] for each property from an instance of values
-		std::array<Engine::Range, 8> compute(const std::array<float, 8>& values) const;
-	};
-
-	struct ParticleEffect
-	{
-		std::vector<int> groupSizes;
-		std::vector<Particle> particles;
-	};
-
-	extern std::map<ParticleEffectType, float> particleEffectDuration;
-	extern std::map<ParticleEffectType, ParticleEffectType> particleEffectFallback;
 }
 
 namespace MikuMikuWorld::Engine
@@ -228,17 +125,5 @@ namespace MikuMikuWorld::Engine
 			- masknShift(static_cast<int32_t>(layer), mask4, 32 - 4)
 			- masknShift(y, mask24, 4)
 			- masknShift(x, mask4, 0);
-	}
-	static inline float getParticleProgress(ParticleEffectType type, const Particle& particle, float current_tm, float start_tm, float end_tm)
-	{
-		float effectDuration = particleEffectDuration[type];
-		float particleDuration = particle.duration * effectDuration;
-		float delta_tm = current_tm - start_tm - particle.start * effectDuration;
-		if (delta_tm < 0)
-			return NAN;
-		delta_tm = std::fmod(delta_tm, effectDuration);
-		if (delta_tm > particleDuration)
-			return NAN;
-		return unlerp(0, particleDuration, delta_tm);
 	}
 }

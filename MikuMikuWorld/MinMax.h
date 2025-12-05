@@ -97,6 +97,7 @@ namespace MikuMikuWorld::Effect
 		void addKeyFrame(const KeyFrame& k, MinMaxCurve curve = MinMaxCurve::Min);
 		void removeKeyFrame(size_t index, MinMaxCurve curve = MinMaxCurve::Min);
 
+		void sortKeyFrames();
 	private:
 		std::vector<KeyFrame> curveMin;
 		std::vector<KeyFrame> curveMax;
@@ -139,9 +140,10 @@ namespace MikuMikuWorld::Effect
 		inline Color evaluate(float lerpRatio) const { return evaluate(0, lerpRatio); }
 		Color evaluate(float time, float lerpRatio) const;
 
-		void addKeyFrame(const ColorKeyFrame& k, MinMaxCurve curve = MinMaxCurve::Min);
-		void removeKeyFrame(size_t index, MinMaxCurve curve = MinMaxCurve::Min);
-
+		void addKeyFrame(const ColorKeyFrame& k, MinMaxCurve curve);
+		void removeKeyFrame(size_t index, MinMaxCurve curve);
+		
+		void sortKeyFrames();
 	private:
 		Color at(const std::vector<ColorKeyFrame>& keyframes, float time) const;
 		int findKeyFrame(const std::vector<ColorKeyFrame>& keyframes, float time) const;

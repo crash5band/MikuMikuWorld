@@ -5,6 +5,22 @@
 
 namespace MikuMikuWorld::Effect
 {
+	static const std::map<EffectType, int> effectPoolSizes =
+	{
+		{ EffectType::fx_note_normal_gen, 6 },
+		{ EffectType::fx_note_critical_normal_gen, 6 },
+		{ EffectType::fx_note_flick_gen, 6 },
+		{ EffectType::fx_note_critical_flick_gen, 6 },
+		{ EffectType::fx_note_long_gen, 6 },
+		{ EffectType::fx_note_critical_long_gen, 6 },
+		{ EffectType::fx_note_flick_flash, 6 },
+		{ EffectType::fx_note_critical_flick_flash, 6 },
+		{ EffectType::fx_note_trace_aura, 6 },
+		{ EffectType::fx_note_critical_trace_aura, 6 },
+		{ EffectType::fx_note_long_hold_via_aura, 6 },
+		{ EffectType::fx_note_critical_long_hold_via_aura, 6 },
+	};
+
 	static float getEffectXPos(int lane, int width)
 	{
 		return (lane - 6 + width / 2.f) * 0.84f;
@@ -98,10 +114,11 @@ namespace MikuMikuWorld::Effect
 
 		const int particleId = ResourceManager::getRootParticleIdByName(effectNames[static_cast<int>(type)]);
 		const Particle& ref = ResourceManager::getParticleEffect(particleId);
+		const Transform transform{};
 		for (auto& instance : pool)
 		{
 			instance.effectRoot = createEmitterFromParticle(particleId);
-			instance.effectRoot.init(ref);
+			instance.effectRoot.init(ref, transform);
 		}
 	}
 
@@ -138,7 +155,7 @@ namespace MikuMikuWorld::Effect
 			}
 
 			float noteTime = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
-			if (isMidHold || isWithinRange(currentTime, noteTime - 0.02f, noteTime + 0.02f))
+			if (isMidHold || isWithinRange(currentTime, noteTime - 0.02f, noteTime + 0.04f))
 			{
 				addNoteEffects(note, context, noteTime);
 				playedEffectsNoteIds.insert(id);
@@ -180,6 +197,7 @@ namespace MikuMikuWorld::Effect
 			for (auto& controller : type.second.pool)
 			{
 				controller.active = false;
+				controller.effectRoot.stop(true);
 			}
 		}
 
@@ -323,12 +341,15 @@ namespace MikuMikuWorld::Effect
 		else if (effect == EffectType::fx_note_critical_long_hold_gen || effect == EffectType::fx_note_long_hold_gen)
 		{
 			const HoldNote& holdNote = context.score.holdNotes.at(note.ID);
+			start = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
+			end = accumulateDuration(context.score.notes.at(holdNote.end).tick, TICKS_PER_BEAT, context.score.tempoChanges);
+			if (abs(end - start) < 0.01f)
+				return;
+
 			float noteLeft{}, noteRight{};
 			std::tie(noteLeft, noteRight) = getHoldSegmentBound(note, context.score, context.currentTick);
 
 			xPos = noteLeft + (noteRight - noteLeft) / 2;
-			start = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
-			end = accumulateDuration(context.score.notes.at(holdNote.end).tick, TICKS_PER_BEAT, context.score.tempoChanges);
 		}
 
 		controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, xPos * 0.84f);
@@ -343,7 +364,7 @@ namespace MikuMikuWorld::Effect
 			const HoldNote& holdNote = context.score.holdNotes.at(note.ID);
 			float start = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
 			float end = accumulateDuration(context.score.notes.at(holdNote.end).tick, TICKS_PER_BEAT, context.score.tempoChanges);
-			if (abs(end - start) < 0.001f)
+			if (abs(end - start) < 0.01f)
 				return;
 
 			float noteLeft{}, noteRight{};
@@ -365,7 +386,6 @@ namespace MikuMikuWorld::Effect
 		}
 	}
 
-	// TODO: make this reuse lanes like the game!
 	void EffectView::addLaneEffect(EffectType effect, const Note& note, const ScoreContext& context, float time)
 	{
 		EffectPool& pool = effectPools[effect];
@@ -408,53 +428,99 @@ namespace MikuMikuWorld::Effect
 						controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, (noteLeft + (noteRight - noteLeft) / 2) * 0.84f);
 					}
 
-					Transform baseTransform{};
-					controller.effectRoot.update(time, controller.worldOffset, baseTransform, camera);
+					controller.effectRoot.update(time, controller.worldOffset, camera);
 				}
+			}
+		}
+	}
+
+	void EffectView::drawUnderNoteEffects(Renderer* renderer, float time)
+	{
+		static const EffectType underNoteEffects[] =
+		{
+			EffectType::fx_lane_critical,
+			EffectType::fx_lane_critical_flick,
+			EffectType::fx_lane_default,
+			EffectType::fx_note_critical_flick_aura,
+			EffectType::fx_note_critical_long_aura,
+			EffectType::fx_note_critical_normal_aura,
+			EffectType::fx_note_flick_aura,
+			EffectType::fx_note_long_aura,
+			EffectType::fx_note_normal_aura
+		};
+
+		for (auto& effect : underNoteEffects)
+		{
+			for (auto& controller : effectPools[effect].pool)
+			{
+				if (controller.active)
+					drawUnderNoteEffectsInternal(controller.effectRoot, renderer, time);
 			}
 		}
 	}
 
 	void EffectView::drawEffects(Renderer* renderer, float time)
 	{
-		for (auto& [type, pool] : effectPools)
+		std::vector<ParticleController*> drawingControllers;
+		for (int i = 3; i < static_cast<int>(EffectType::fx_count); i++)
 		{
-			for (auto& controller : pool.pool)
+			for (auto& controller : effectPools[static_cast<EffectType>(i)].pool)
 			{
 				if (controller.active)
-					drawEffectsInternal(controller.effectRoot, renderer, time);
+					drawingControllers.push_back(&controller);
 			}
+		}
+
+		std::stable_sort(drawingControllers.begin(), drawingControllers.end(),
+			[](const ParticleController* c1, const ParticleController* c2) { return c1->time.min < c2->time.min; });
+
+		for (auto c : drawingControllers)
+			drawEffectsInternal(c->effectRoot, renderer, time);
+	}
+
+	void EffectView::drawUnderNoteEffectsInternal(EmitterInstance& emitter, Renderer* renderer, float time)
+	{
+		const Particle& ref = ResourceManager::getParticleEffect(emitter.getRefID());
+		if (ref.order <= 5)
+			drawParticles(emitter.particles, ref, renderer, time);
+
+		for (auto& child : emitter.children)
+		{
+			drawUnderNoteEffectsInternal(child, renderer, time);
 		}
 	}
 	
 	void EffectView::drawEffectsInternal(EmitterInstance& emitter, Renderer* renderer, float time)
 	{
 		const Particle& ref = ResourceManager::getParticleEffect(emitter.getRefID());
-		int flipUVs = ref.renderMode == RenderMode::StretchedBillboard ? 1 : 0;
-		for (auto& particle : emitter.particles)
-		{
-			if (!particle.alive)
-				continue;
-
-			float normalizedTime = particle.time / particle.duration;
-			if (normalizedTime < 0)
-				continue;
-
-			float blend = ref.blend == BlendMode::Additive ? 1.f : 0.f;
-
-			int frame = ref.textureSplitX * ref.textureSplitY * ref.startFrame.evaluate(particle.time, particle.textureStartFrameLerpRatio);
-			frame += ref.textureSplitX * ref.textureSplitY * ref.frameOverTime.evaluate(normalizedTime, particle.textureFrameOverTimeLerpRatio);
-
-			Color color = particle.startColor * ref.colorOverLifetime.evaluate(normalizedTime, particle.colorOverLifeTimeLerpRatio);
-
-			// TODO: We should provide a second Z-Index according to the notes order.
-			// Maybe use the note's tick?
-			renderer->drawQuadWithBlend(particle.matrix, *effectsTex, ref.textureSplitX, ref.textureSplitY, frame, color, ref.order, blend, flipUVs);
-		}
+		if (ref.order > 5)
+			drawParticles(emitter.particles, ref, renderer, time);
 
 		for (auto& child : emitter.children)
 		{
 			drawEffectsInternal(child, renderer, time);
+		}
+	}
+
+	void EffectView::drawParticles(const std::vector<ParticleInstance>& particles, const Particle& ref, Renderer* renderer, float time)
+	{
+		int flipUVs = ref.renderMode == RenderMode::StretchedBillboard ? 1 : 0;
+		float blend = ref.blend == BlendMode::Additive ? 1.f : 0.f;
+		for (auto& p : particles)
+		{
+			if (!p.alive)
+				continue;
+
+			float normalizedTime = p.time / p.duration;
+			if (time < p.startTime || time > p.startTime + p.duration)
+				continue;
+
+			int frame = ref.textureSplitX * ref.textureSplitY * ref.startFrame.evaluate(p.time, p.textureStartFrameLerpRatio);
+			frame += ref.textureSplitX * ref.textureSplitY * ref.frameOverTime.evaluate(normalizedTime, p.textureFrameOverTimeLerpRatio);
+
+			Color color = p.startColor * ref.colorOverLifetime.evaluate(normalizedTime, p.colorOverLifeTimeLerpRatio);
+
+			renderer->drawQuadWithBlend(p.matrix, *effectsTex, ref.textureSplitX, ref.textureSplitY, frame, color, ref.order, blend, flipUVs);
 		}
 	}
 }

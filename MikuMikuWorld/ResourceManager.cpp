@@ -187,6 +187,7 @@ namespace MikuMikuWorld
 				minmax.addKeyFrame(readKeyFrame(kJson), Effect::MinMaxCurve::Max);
 		}
 
+		minmax.sortKeyFrames();
 		return minmax;
 	}
 
@@ -235,6 +236,7 @@ namespace MikuMikuWorld
 				minmax.addKeyFrame(readColorKeyFrame(entry), Effect::MinMaxCurve::Max);
 		}
 
+		minmax.sortKeyFrames();
 		return minmax;
 	}
 
@@ -264,7 +266,7 @@ namespace MikuMikuWorld
 		p.duration = jsonIO::tryGetValue<float>(j, "duration", 1);
 		p.flipRotation = jsonIO::tryGetValue<float>(j, "flipRotation", 0);
 		p.simulationSpace = (Effect::TransformSpace)jsonIO::tryGetValue<int>(j, "simulationSpace", 0);
-		p.randomSeed = jsonIO::tryGetValue<std::uint_fast32_t>(j, "randomSeed", 0);
+		p.randomSeed = jsonIO::tryGetValue<uint32_t>(j, "randomSeed", 0);
 		p.useAutoRandomSeed = jsonIO::tryGetValue<bool>(j, "useAutoRandomSeed", true);
 
 		const json& emission = j["emission"];

@@ -223,7 +223,7 @@ namespace MikuMikuWorld::Effect
 		float flipRotation{};
 		bool looping{};
 		
-		std::uint_fast32_t randomSeed{};
+		uint32_t randomSeed{};
 		bool useAutoRandomSeed{ true };
 		
 		MinMax startDelay{};
@@ -298,6 +298,9 @@ namespace MikuMikuWorld::Effect
 
 	struct BurstInstance
 	{
+		/// <summary>
+		/// The time of the last emission from this burst
+		/// </summary>
 		float lastBurstTime{};
 
 		/// <summary>
@@ -314,7 +317,16 @@ namespace MikuMikuWorld::Effect
 	class EmitterInstance
 	{
 	public:
+		Transform baseTransform{};
+
+		/// <summary>
+		/// The start time of the emitter
+		/// </summary>
 		float startTime{};
+
+		/// <summary>
+		/// The last time a particle was emitted (rate over time only)
+		/// </summary>
 		float lastEmissionTime{};
 
 		/// <summary>
@@ -347,22 +359,28 @@ namespace MikuMikuWorld::Effect
 		/// </summary>
 		float rateOverTime;
 
+		/// <summary>
+		/// The number of alive particles
+		/// </summary>
+		int aliveCount{};
+
 		std::uint_fast32_t seed;
 
-		Random initialRandom{};
-		Random shapeRandom{};
-		Random animatedRandom{};
+		RandN initialRandom{};
+		RandN shapeRandom{};
+		RandN sizeRandom{};
+		RandN velocityRandom{};
 
 		std::vector<BurstInstance> bursts;
 		std::vector<ParticleInstance> particles;
 		std::vector<EmitterInstance> children;
 
-		void updateEmission(const Particle& ref, const Transform& shift, const Transform& baseTransform, float time);
-		void emit(const Transform& shift, const Transform& baseTransform, const Particle& ref, float time);
-		void update(float time, const Transform& shift, Transform& baseTransform, const Camera& camera);
+		void updateEmission(const Particle& ref, const Transform& shift, float time);
+		void emit(const Transform& shift, const Particle& ref, float time);
+		void update(float time, const Transform& shift, const Camera& camera);
 		void start(float time);
 		void stop(bool allChildren);
-		void init(const Particle& ref);
+		void init(const Particle& ref, const Transform& transform);
 
 		inline int getRefID() const { return refID; }
 

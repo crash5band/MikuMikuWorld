@@ -36,12 +36,28 @@ namespace MikuMikuWorld
 		float get(float min, float max);
 		float get();
 
-		void setSeed(std::uint_fast32_t seed);
+		void setSeed(int seed);
 
 	private:
 		// multiplier and increment extracted from UnityPlayer.dll
-		std::linear_congruential_engine<std::uint_fast32_t, 1812433253U, 367, 2147483647> gen;
+		std::linear_congruential_engine<uint32_t, 1812433253U, 367, 2147483647> gen;
 		std::uniform_real_distribution<> dist{ 0, 1 };
+	};
+
+	class RandN
+	{
+	public:
+		float nextFloat();
+		float nextFloatRange(float min, float max);
+		uint32_t nextUInt32();
+
+		void setSeed(uint32_t seed);
+
+	private:
+		static const uint32_t MT19937 = 1812433253;
+		uint32_t x{}, y{}, z{}, w{};
+
+		uint32_t xorShift();
 	};
 
 	extern Random globalRandom;
