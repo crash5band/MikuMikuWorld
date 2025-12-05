@@ -7,13 +7,6 @@
 
 namespace MikuMikuWorld
 {
-	namespace Engine
-	{
-		struct DrawingParticle;
-	}
-
-	enum class ParticleEffectType : uint32_t;
-
 	class ScorePreviewBackground
 	{
 		std::string backgroundFile;
@@ -54,9 +47,6 @@ namespace MikuMikuWorld
 		bool lastFrameFullWindow{};
 
 		const Texture& getNoteTexture();
-		std::pair<float, float> getNoteBound(const Note& note) const;
-		std::pair<float, float> getHoldStepBound(const Note& note, const Score& score) const;
-		std::pair<float, float> getHoldSegmentBound(const Note& note, const Score& score, int curTick) const;
 
 		void drawNoteBase(Renderer* renderer, const Note& note, float left, float right, float y, float zScalar = 1);
 		void drawTraceDiamond(Renderer* renderer, const Note& note, float left, float right, float y);

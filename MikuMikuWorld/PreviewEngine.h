@@ -1,7 +1,5 @@
 #pragma once
 #include <array>
-#include <vector>
-#include <map>
 #include <memory>
 #include "Math.h"
 #include "Score.h"
@@ -126,4 +124,8 @@ namespace MikuMikuWorld::Engine
 			- masknShift(y, mask24, 4)
 			- masknShift(x, mask4, 0);
 	}
+
+	std::pair<float, float> getNoteBound(const Note& note, bool flip);
+	std::pair<float, float> getHoldStepBound(const Note& note, const Score& score);
+	std::pair<float, float> getHoldSegmentBound(const Note& note, const Score& score, int curTick);
 }

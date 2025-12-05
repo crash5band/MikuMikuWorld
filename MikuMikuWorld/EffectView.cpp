@@ -2,6 +2,7 @@
 #include "PreviewEngine.h"
 #include "ResourceManager.h"
 #include "ScoreContext.h"
+#include "ApplicationConfiguration.h"
 
 namespace MikuMikuWorld::Effect
 {
@@ -21,16 +22,26 @@ namespace MikuMikuWorld::Effect
 		{ EffectType::fx_note_critical_long_hold_via_aura, 6 },
 	};
 
-	static float getEffectXPos(int lane, int width)
+	static float getEffectXPos(int lane, int width, bool flip)
 	{
+		if (flip)
+			lane = MAX_LANE - lane - width + 1;
 		return (lane - 6 + width / 2.f) * 0.84f;
 	}
 
-	static std::pair<float, float> getNoteBound(const Note& note)
+	static float getEffectNoteCenter(const Note& note, bool flip)
+	{
+		float lane = note.lane;
+		if (flip)
+			lane = MAX_LANE - lane - note.width + 1;
+		return Engine::laneToLeft(lane) + note.width / 2.f;
+	}
+
+	static std::pair<float, float> getNoteBound(const Note& note, bool flip)
 	{
 		float left = Engine::laneToLeft(note.lane), right = left + note.width;
-		//if (config.pvMirrorScore)
-		//	std::swap(left *= -1, right *= -1);
+		if (flip)
+			std::swap(left *= -1, right *= -1);
 		return std::make_pair(left, right);
 	}
 
@@ -42,13 +53,13 @@ namespace MikuMikuWorld::Effect
 		const HoldStep& startHoldStep = startStepIt == holdNotes.steps.rend() ? holdNotes.start : *startStepIt;
 
 		const Note& startNote = startStepIt == holdNotes.steps.rend() ? note : score.notes.at(startStepIt->ID);
-		if (startNote.tick == curTick) return getNoteBound(startNote);
-		auto [leftStart, rightStart] = getNoteBound(startNote);
+		if (startNote.tick == curTick) return getNoteBound(startNote, config.pvMirrorScore);
+		auto [leftStart, rightStart] = getNoteBound(startNote, config.pvMirrorScore);
 
 		auto end = std::find_if(curStepIt, holdNotes.steps.end(), std::mem_fn(&HoldStep::canEase));
 		const Note& endNote = score.notes.at(end == holdNotes.steps.end() ? holdNotes.end : end->ID);
-		if (endNote.tick == curTick) return getNoteBound(endNote);
-		auto [leftStop, rightStop] = getNoteBound(endNote);
+		if (endNote.tick == curTick) return getNoteBound(endNote, config.pvMirrorScore);
+		auto [leftStop, rightStop] = getNoteBound(endNote, config.pvMirrorScore);
 		auto easeFunc = getEaseFunction(startHoldStep.ease);
 
 		float start_tm = accumulateDuration(startNote.tick, TICKS_PER_BEAT, score.tempoChanges);
@@ -67,7 +78,7 @@ namespace MikuMikuWorld::Effect
 		auto& holdNotes = score.holdNotes.at(note.parentID);
 		int curStepIdx = findHoldStep(holdNotes, note.ID);
 		if (holdNotes.steps[curStepIdx].canEase())
-			return getNoteBound(note);
+			return getNoteBound(note, config.pvMirrorScore);
 
 		int startStepIdx = curStepIdx;
 		while (startStepIdx != 0 && !holdNotes.steps[startStepIdx - 1].canEase())
@@ -76,11 +87,11 @@ namespace MikuMikuWorld::Effect
 		auto easeFunc = getEaseFunction(lastHoldStep.ease);
 
 		const Note& startNote = score.notes.at(lastHoldStep.ID);
-		auto [leftStart, rightStart] = getNoteBound(startNote);
+		auto [leftStart, rightStart] = getNoteBound(startNote, config.pvMirrorScore);
 
 		auto it = std::find_if(holdNotes.steps.begin() + curStepIdx, holdNotes.steps.end(), std::mem_fn(&HoldStep::canEase));
 		const Note& endNote = score.notes.at(it == holdNotes.steps.end() ? holdNotes.end : it->ID);
-		auto [leftStop, rightStop] = getNoteBound(endNote);
+		auto [leftStop, rightStop] = getNoteBound(endNote, config.pvMirrorScore);
 
 		float start_tm = accumulateDuration(startNote.tick, TICKS_PER_BEAT, score.tempoChanges);
 		float end_tm = accumulateDuration(endNote.tick, TICKS_PER_BEAT, score.tempoChanges);
@@ -197,6 +208,7 @@ namespace MikuMikuWorld::Effect
 			for (auto& controller : type.second.pool)
 			{
 				controller.active = false;
+				controller.time = { -1, -1 };
 				controller.effectRoot.stop(true);
 			}
 		}
@@ -309,7 +321,7 @@ namespace MikuMikuWorld::Effect
 		EffectPool& pool = effectPools[effect];
 		ParticleController& controller = pool.getNext();
 
-		float xPos = Engine::getNoteCenter(note);
+		float xPos = getEffectNoteCenter(note, config.pvMirrorScore);
 		float zRot = 0.f;
 		float start = time;
 		float end = -1;
@@ -327,6 +339,8 @@ namespace MikuMikuWorld::Effect
 			default:
 				break;
 			}
+
+			if (config.pvMirrorScore) zRot *= -1;
 		}
 		else if (effect == EffectType::fx_note_critical_long_hold_via_aura || effect == EffectType::fx_note_long_hold_via_aura)
 		{
@@ -381,7 +395,7 @@ namespace MikuMikuWorld::Effect
 		for (int i = note.lane; i < note.lane + note.width; i++)
 		{
 			ParticleController& controller = pool.getNext();
-			controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, getEffectXPos(i, 1));
+			controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, getEffectXPos(i, 1, config.pvMirrorScore));
 			controller.play(note, time, -1);
 		}
 	}
@@ -392,7 +406,7 @@ namespace MikuMikuWorld::Effect
 		for (int i = note.lane; i < note.lane + note.width; i++)
 		{
 			ParticleController& controller = pool.pool[i];
-			controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, getEffectXPos(i, 1));
+			controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, getEffectXPos(i, 1, config.pvMirrorScore));
 			controller.play(note, time, -1);
 		}
 	}
