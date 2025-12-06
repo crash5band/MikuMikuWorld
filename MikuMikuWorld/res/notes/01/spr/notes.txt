@@ -13,23 +13,23 @@
 # notes_6.png
 0,1100,354,186
 # notes_long_among.png
-1470,856,158,160
-# notes_long_among_crtcl.png
 1486,1016,158,160
+# notes_long_among_crtcl.png
+1470,856,158,160
 # notes_friction_among_long.png
-1414,1334,104,112
-# notes_friction_among_crtcl.png
 1310,1334,104,112
+# notes_friction_among_crtcl.png
+1414,1334,104,112
 # notes_friction_among_flick.png
 1518,1334,102,102
 # notes_flick_arrow_01.png
 1454,1176,144,158
 # notes_flick_arrow_01_diagonal.png
-1310,1016,176,160
+1294,856,176,160
 # notes_flick_arrow_02.png
 1106,856,188,174
 # notes_flick_arrow_02_diagonal.png
-582,1286,228,182
+354,1286,228,182
 # notes_flick_arrow_03.png
 1062,1044,248,194
 # notes_flick_arrow_03_diagonal.png
@@ -49,11 +49,11 @@
 # notes_flick_arrow_crtcl_01.png
 1310,1176,144,158
 # notes_flick_arrow_crtcl_01_diagonal.png
-1294,856,176,160
+1310,1016,176,160
 # notes_flick_arrow_crtcl_02.png
 810,1286,188,174
 # notes_flick_arrow_crtcl_02_diagonal.png
-354,1286,228,182
+582,1286,228,182
 # notes_flick_arrow_crtcl_03.png
 1062,1238,248,194
 # notes_flick_arrow_crtcl_03_diagonal.png
@@ -71,4 +71,4 @@
 # notes_flick_arrow_crtcl_06_diagonal.png
 0,300,514,300
 # Simultaneous_connection_line
-753,1044,10,40
+998,1432,10,40
