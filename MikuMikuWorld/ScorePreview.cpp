@@ -255,7 +255,7 @@ namespace MikuMikuWorld
 		}};
 	}
 
-	ScorePreviewWindow::ScorePreviewWindow() : previewBuffer{ 1920, 1080 }, notesTex(), background(), scaledAspectRatio(1)
+	ScorePreviewWindow::ScorePreviewWindow() : previewBuffer{ 1920, 1080 }, background(), scaledAspectRatio(1)
 	{
 		noteEffectsCamera.setFov(50.f);
 		noteEffectsCamera.setRotation(-90.f, 27.1f);
@@ -265,7 +265,6 @@ namespace MikuMikuWorld
 
 	ScorePreviewWindow::~ScorePreviewWindow()
 	{
-		/*if(notesTex) notesTex->dispose();*/
 	}
 
 	void ScorePreviewWindow::update(ScoreContext& context, Renderer* renderer)
@@ -350,7 +349,12 @@ namespace MikuMikuWorld
 		renderer->beginBatch();
 		drawLines(context, renderer);
 		drawHoldCurves(context, renderer);
-		renderer->endBatch();
+		if (config.pvStageCover != 0) {
+			drawStageCover(renderer);
+			renderer->endBatchWithDepthTest(GL_LEQUAL); // using depth test to cull the notes drawn
+		}
+		else
+			renderer->endBatch();
 
 		pteShader->use();
 		pteShader->setMatrix4("projection", pProjection);
@@ -367,6 +371,7 @@ namespace MikuMikuWorld
 		drawNotes(context, renderer);
 		if (config.pvStageCover != 0) {
 			drawStageCover(renderer);
+			drawStageCoverDecoration(renderer);
 			renderer->endBatchWithDepthTest(GL_LEQUAL); // using depth test to cull the notes drawn
 		}
 		else
@@ -419,18 +424,7 @@ namespace MikuMikuWorld
 
 	const Texture &ScorePreviewWindow::getNoteTexture()
 	{
-		// At smaller widths, due to mipmapping, the texture becomes blurry.
-		// So we make a copy texture which have no mipmapping
-
-		// TODO: Fix this?
 		return ResourceManager::textures[noteSkins.getItemIndex(NoteSkinItem::Notes)];
-
-		if (!notesTex)
-		{
-			const Texture& target_texture = ResourceManager::textures[noteSkins.getItemIndex(NoteSkinItem::Notes)];
-			notesTex = std::make_unique<Texture>(target_texture.getFilename(), TextureFilterMode::Linear);
-		}
-		return *notesTex;
 	}
 
 	void ScorePreviewWindow::drawStage(Renderer* renderer)
@@ -478,7 +472,11 @@ namespace MikuMikuWorld
 			stageSprite.getX1(), stageSprite.getX2(), stageSprite.getY1(), stageSprite.getY1() + spriteHeight,
 			Color{0.f, 0.f, 0.f, config.pvStageOpacity}, 0
 		);
+	}
 
+	void MikuMikuWorld::ScorePreviewWindow::drawStageCoverDecoration(Renderer *renderer)
+	{
+		const float stageTop = Engine::STAGE_LANE_TOP / Engine::STAGE_LANE_HEIGHT;
 		const Texture& noteTex = getNoteTexture();
 		size_t sprIndex = SPR_SIMULTANEOUS_CONNECTION;
 		size_t transIndex = static_cast<size_t>(SpriteType::SimultaneousLine);
@@ -487,9 +485,9 @@ namespace MikuMikuWorld
 		const SpriteTransform& lineTransform = ResourceManager::spriteTransforms[transIndex];
 		const Sprite& sprite = noteTex.sprites[sprIndex];
 		float x = 0.12 * (1 - config.pvStageCover);
-		vPos = lineTransform.apply(Engine::perspectiveQuadvPos(-6 - x, 6 + x, 1. + Engine::getNoteHeight(), 1. - Engine::getNoteHeight()));
+		auto vPos = lineTransform.apply(Engine::perspectiveQuadvPos(-6 - x, 6 + x, 1. + Engine::getNoteHeight(), 1. - Engine::getNoteHeight()));
 		float y = stageTop + config.pvStageCover * (1 - stageTop);
-		model = DirectX::XMMatrixScaling(y, y, 1.f);
+		auto model = DirectX::XMMatrixScaling(y, y, 1.f);
 		renderer->drawQuad(vPos, model, noteTex,
 			sprite.getX1(), sprite.getX2(), sprite.getY1(), sprite.getY2(),
 			defaultTint.scaleAlpha(config.pvStageOpacity), -1
