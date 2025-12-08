@@ -40,7 +40,6 @@ namespace MikuMikuWorld
 		Framebuffer previewBuffer;
 		ScorePreviewBackground background;
 		float scaledAspectRatio;
-		std::unique_ptr<Texture> notesTex;
 		Camera noteEffectsCamera;
 
 		bool fullWindow{};
@@ -68,6 +67,7 @@ namespace MikuMikuWorld
  		
 		void drawStage(Renderer* renderer);
 		void drawStageCover(Renderer* renderer);
+		void drawStageCoverDecoration(Renderer* renderer);
 
 		void setFullWindow(bool fullScreen);
 		
