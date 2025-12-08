@@ -685,7 +685,7 @@ namespace MikuMikuWorld
 
 			auto model = DirectX::XMMatrixIdentity();
 			float alpha = segment.isGuide ? config.pvGuideAlpha : config.pvHoldAlpha;
-			int zIndex = Engine::getZIndex(SpriteLayer::HOLD_PATH, holdStartCenter, segment.activeTime / total_tm);
+			int zIndex = Engine::getZIndex(segment.isGuide ? SpriteLayer::GUIDE_PATH : SpriteLayer::HOLD_PATH, holdStartCenter, segment.activeTime / total_tm);
 
 			for (int i = 0; i < steps; i++)
 			{

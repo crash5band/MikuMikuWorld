@@ -40,6 +40,7 @@ namespace MikuMikuWorld
 		BASE_NOTE,
 		TICK_NOTE,
 		HOLD_PATH,
+		GUIDE_PATH,
 		UNDER_NOTE_EFFECT
 	};
 
