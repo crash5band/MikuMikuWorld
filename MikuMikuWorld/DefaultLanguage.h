@@ -54,6 +54,7 @@ namespace MikuMikuWorld
 		{"export_successful", "The export completed successfully"},
 		{"unknown_file_format", "Unknown file format"},
 		{"open_as_file_format", "Do you want to open it as..."},
+		{"export_as_file_format", "Do you want to export it as..."},
 		{"error", "Error"},
 		{"error_reason", "Reason"},
 		{"error_open_file_msg1", "Cannot open the file"},

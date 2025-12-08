@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Score.h"
+#include "File.h"
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -15,9 +16,14 @@ namespace MikuMikuWorld
 
 		ScoreSerializer() {}
 		virtual ~ScoreSerializer() {};
+	};
 
-		static bool isSupportedFileFormat(const std::string_view& filename);
-		static bool isNativeScoreFormat(const std::string& fileExtension);
+	enum class SerializeFormat
+	{
+		NativeFormat,
+		SusFormat,
+		LvlDataFormat,
+		FormatCount
 	};
 
 	enum class SerializeResult
@@ -43,6 +49,11 @@ namespace MikuMikuWorld
 
 		virtual SerializeResult update() = 0;
 		virtual ~ScoreSerializeController() {};
+
+		static SerializeFormat toSerializeFormat(const std::string_view& filename);
+		static bool isValidFormat(SerializeFormat format);
+		static IO::FileDialogFilter getFormatFilter(SerializeFormat format);
+		static std::string getFormatDefaultExtension(SerializeFormat format);
 	protected:
 		std::string errorMessage;
 		std::string filename;
@@ -50,16 +61,10 @@ namespace MikuMikuWorld
 		Score score;
 	};
 
-	class DefaultScoreSerializeController : public ScoreSerializeController
+	class PartialScoreSerializeError : public std::runtime_error
 	{
 	public:
-		DefaultScoreSerializeController(std::unique_ptr<ScoreSerializer> serializer, Score score, const std::string& filename);
-		DefaultScoreSerializeController(std::unique_ptr<ScoreSerializer> deserializer, const std::string& filename);
-	
-		SerializeResult update() override;
-	private:
-		bool isSerializing;
-		std::unique_ptr<ScoreSerializer> serializer;
+	using std::runtime_error::runtime_error;
 	};
 
 	class PartialScoreDeserializeError : public std::runtime_error

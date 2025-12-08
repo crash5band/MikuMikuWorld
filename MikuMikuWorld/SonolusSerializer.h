@@ -14,7 +14,8 @@ namespace MikuMikuWorld
         void serialize(const Score& score, std::string filename) override;
         Score deserialize(std::string filename) override;
 
-		SonolusSerializer(std::unique_ptr<SonolusEngine>&& engine, bool compressData = true, bool prettyDump = false) : engine(std::move(engine)), compressData(compressData), prettyDump(prettyDump)
+		SonolusSerializer(std::unique_ptr<SonolusEngine>&& engine, bool compressData = true, bool prettyDump = false)
+			: engine(std::move(engine)), compressData(compressData), prettyDump(prettyDump)
 		{
 
 		}
@@ -57,55 +58,6 @@ namespace MikuMikuWorld
 		// virtual ~SonolusEngine() = default;
 	};
 
-	class SekaiBestEngine : public SonolusEngine
-	{
-		struct HoldJoint
-		{
-			size_t entityIdx;
-			EaseType ease;
-		};
-		struct LinkedHoldStep
-		{
-			enum StepType : uint8_t { Joint, Attach, EndHold };
-			enum Modifier : uint8_t { None = 0, Guide = 1, Critical = 2 };
-
-			RefType nextTail;
-			StepType step;
-			Modifier mod;
-			EaseType ease;
-		};
-		struct HoldSegment
-		{
-			bool critical = false, active = false;
-			int connEase;
-			RefType startRef, endRef, headRef, tailRef;
-		};
-	public:
-		Sonolus::LevelData serialize(const Score& score) override;
-		Score deserialize(const Sonolus::LevelData& levelData) override;
-	private:
-		static Sonolus::LevelDataEntity toSpeedChangeEntity(const HiSpeedChange& hispeed);
-		static Sonolus::LevelDataEntity toTapNoteEntity(const Note& note);
-		static Sonolus::LevelDataEntity toStartHoldNoteEntity(const Note& note, const HoldNote& holdNote);
-		static Sonolus::LevelDataEntity toEndHoldNoteEntity(const Note& note, const HoldNote& holdNote, const FuncRef& getCurrJoint);
-		static Sonolus::LevelDataEntity toTickNoteEntity(const Note& note, const HoldStep& step, const FuncRef& getCurrJoint);
-		static Sonolus::LevelDataEntity toHiddenTickNoteEntity(TickType tick, const RefType& ref);
-		static void insertHiddenTickNote(const Note& headNote, const Note& tailNote, bool isHead, std::vector<Sonolus::LevelDataEntity>& entities, const FuncRef& getCurrJoint);
-		static int toDirectionNumeric(FlickType flick);
-		static int toEaseNumeric(EaseType ease);
-
-		static bool fromSpeedChangeEntity(const Sonolus::LevelDataEntity& speedChangeEntity, HiSpeedChange& hispeed);
-		static bool fromNoteEntity(const Sonolus::LevelDataEntity& noteEntity, Note& note);
-		static bool fromTapNoteEntity(const Sonolus::LevelDataEntity& tapNoteEntity, Note& note);
-		static bool fromConnectorEntity(const Sonolus::LevelDataEntity& connectorEntity, HoldSegment& segment);
-		static bool fromAttachTickEntity(const Sonolus::LevelDataEntity& attachEntity, RefType& connectorRef);
-		static bool fromStartHoldNoteEntity(const Sonolus::LevelDataEntity& noteEntity, Note& startNote);
-		static bool fromEndHoldNoteEntity(const Sonolus::LevelDataEntity& noteEntity, Note& endNote);
-		static bool fromTickNoteEntity(const Sonolus::LevelDataEntity& tickEntity, Note& tickNote);
-		static FlickType fromDirectionNumeric(int direction);
-		static EaseType fromEaseNumeric(int ease);
-	};
-
 	class PySekaiEngine : public SonolusEngine
 	{
 	public:
@@ -124,20 +76,5 @@ namespace MikuMikuWorld
 		static int toDirectionNumeric(FlickType flick);
 		static int toEaseNumeric(EaseType ease);
 		static int toKindNumeric(bool critical = false, HoldNoteType holdType = HoldNoteType::Normal);
-	};
-
-	class SonolusEngineController : public ScoreSerializeController
-	{
-		bool updateEngineSelector(SerializeResult& result);
-	public:
-
-		SonolusEngineController(Score score, const std::string& filename);
-		SonolusEngineController(const std::string& filename);
-		SerializeResult update() override;
-	private:
-		bool isSerializing, open = true, compress = true;
-		std::unique_ptr<SonolusSerializer> serializer;
-
-		intptr_t selectedItem = -1;
 	};
 }
