@@ -283,7 +283,7 @@ namespace MikuMikuWorld
 			{
 				const HoldStep& step = stepIdx < hold.steps.size() ? hold.steps[stepIdx] : endStep;
 				const Note& tickNote = score.notes.at(step.ID);
-				double alpha = hold.isGuide() ? (1.0 - stepIdx / totalSteps) : 1.0;
+				double alpha = hold.isGuide() ? (1.0 - 0.8 * ((stepIdx + 1) / totalSteps)) : 1.0;
 				RefType entName = idMgr.getRef(tickNote.ID);
 				levelData.entities[lastEntityIndex].data.emplace("next", entName);
 				lastEntityIndex = levelData.entities.size();
@@ -378,6 +378,7 @@ namespace MikuMikuWorld
 				{ "#TIMESCALE_SKIP",	RealType(0) 				},
 				{ "#TIMESCALE_EASE",	0 							},
 				{ "#TIMESCALE_GROUP",	groupName					},
+				{ "hideNotes",			0							}
 			}
 		};
 	}
@@ -388,7 +389,7 @@ namespace MikuMikuWorld
 			archetype,
 			{
 				{ "#TIMESCALE_GROUP", groupName						},
-				{ "#BEAT", ticksToBeats(note.tick)              	},
+				{ "#BEAT", ticksToBeats(note.tick)					},
 				{ "lane", toSonolusLane(note.lane, note.width)  	},
 				{ "size", widthToSize(note.width)					},
 				{ "direction", toDirectionNumeric(note.flick)		},
@@ -396,7 +397,9 @@ namespace MikuMikuWorld
 				{ "isSeparator", isGuide ? 1 : 0					},
 				{ "connectorEase", toEaseNumeric(easing)			},
 				{ "segmentKind", toKindNumeric(note.critical, hold)	},
-				{ "segmentAlpha", alpha								}
+				{ "segmentAlpha", roundOff(alpha)					},
+				{ "segmentLayer", isGuide ? 1 : 0					},
+				{ "effectKind", 0									}
 			}
 		};
 	}
