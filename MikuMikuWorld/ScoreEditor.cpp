@@ -320,10 +320,10 @@ namespace MikuMikuWorld
 		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
 		fileDialog.title = "Open Chart";
 		fileDialog.filters = {
-			IO::combineFilters("All Supported Files",{ IO::mmwsFilter, IO::susFilter, IO::lvlDatFilter }),
+			IO::combineFilters("All Supported Files",{ IO::mmwsFilter, IO::susFilter }),
 			IO::mmwsFilter,
 			IO::susFilter,
-			IO::lvlDatFilter,
+			// IO::lvlDatFilter, // Temporarily disable openning lvldata format
 			IO::allFilter
 		};
 		
@@ -386,21 +386,7 @@ namespace MikuMikuWorld
 
 	void ScoreEditor::exportScore()
 	{
-		constexpr const char* exportExtensions[] = { "sus", "json.gz" };
-		int filterIndex = std::clamp(config.lastSelectedExportIndex, 0, static_cast<int>(arrayLength(exportExtensions) - 1));
-
-		IO::FileDialog fileDialog{};
-		fileDialog.title = "Export Chart";
-		fileDialog.filters = { IO::susFilter, IO::lvlDatFilter };
-		fileDialog.filterIndex = filterIndex;
-		fileDialog.defaultExtension = exportExtensions[filterIndex];
-		fileDialog.parentWindowHandle = Application::windowState.windowHandle;
-
-		if (fileDialog.saveFile() == IO::FileDialogResult::OK)
-		{
-			serializeWindow.serialize(context, fileDialog.outputFilename);
-			config.lastSelectedExportIndex = fileDialog.filterIndex;
-		}
+		serializeWindow.serialize(context);
 	}
 
 	void ScoreEditor::drawMenubar()

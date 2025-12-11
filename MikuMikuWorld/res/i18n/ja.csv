@@ -48,7 +48,8 @@ discard_changes, 保存しない
 score_file, 譜面ファイル
 export_successful, エクスポートが完了しました
 unknown_file_format, 不明なファイル形式
-open_as_file_format, 形式として開きますか
+open_as_file_format, 開こうとしているファイルのフォーマットを選択してください。
+export_as_file_format, エクスポートするフォーマットを選択してください。
 error, エラー
 error_reason, 理由
 error_open_file_msg1, ファイル
