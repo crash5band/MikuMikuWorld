@@ -1,5 +1,5 @@
 # Sekai Stage
-0,1,2048,1176
+0,0,2048,1176
 # mask_2dmode_floor_grd.png
 0,1176,2048,390
 # bg_2dmode_window_nml.png

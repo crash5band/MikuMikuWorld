@@ -257,10 +257,10 @@ namespace MikuMikuWorld::Effect
 				float normalizedTime = particle.time / particle.duration;
 				float blend = ref.blend == BlendMode::Additive ? 1.f : 0.f;
 
-				int frame = ref.textureSplitX * ref.textureSplitY * ref.startFrame.evaluate(particle.time, particle.textureStartFrameLerpRatio);
-				frame += ref.textureSplitX * ref.textureSplitY * ref.frameOverTime.evaluate(normalizedTime, particle.textureFrameOverTimeLerpRatio);
+				int frame = ref.textureSplitX * ref.textureSplitY * ref.startFrame.evaluate(particle.time, particle.spriteSheetLerpRatio);
+				frame += ref.textureSplitX * ref.textureSplitY * ref.frameOverTime.evaluate(normalizedTime, particle.spriteSheetLerpRatio);
 
-				Color color = particle.startColor * ref.colorOverLifetime.evaluate(normalizedTime, particle.colorOverLifeTimeLerpRatio);
+				Color color = particle.startColor * ref.colorOverLifetime.evaluate(normalizedTime, particle.colorLerpRatio);
 
 				// TODO: We should provide a second Z-Index according to the notes order.
 				// Maybe use the note's tick?

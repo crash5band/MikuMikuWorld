@@ -1,10 +1,6 @@
 #include "Application.h"
 #include "ApplicationConfiguration.h"
 #include "File.h"
-#include "SUS.h"
-#include "SusExporter.h"
-#include "SusParser.h"
-#include "ScoreConverter.h"
 #include "UI.h"
 #include "Constants.h"
 #include "Utilities.h"
@@ -13,8 +9,6 @@
 #include "ScoreSerializeWindow.h"
 #include <filesystem>
 #include <Windows.h>
-#include "Rendering/Shader.h"
-#include "ResourceManager.h"
 
 namespace MikuMikuWorld
 {

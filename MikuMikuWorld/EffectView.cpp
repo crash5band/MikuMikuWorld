@@ -529,10 +529,10 @@ namespace MikuMikuWorld::Effect
 			if (time < p.startTime || time > p.startTime + p.duration)
 				continue;
 
-			int frame = ref.textureSplitX * ref.textureSplitY * ref.startFrame.evaluate(p.time, p.textureStartFrameLerpRatio);
-			frame += ref.textureSplitX * ref.textureSplitY * ref.frameOverTime.evaluate(normalizedTime, p.textureFrameOverTimeLerpRatio);
+			int frame = ref.textureSplitX * ref.textureSplitY * ref.startFrame.evaluate(p.time, p.spriteSheetLerpRatio);
+			frame += ref.textureSplitX * ref.textureSplitY * ref.frameOverTime.evaluate(normalizedTime, p.spriteSheetLerpRatio);
 
-			Color color = p.startColor * ref.colorOverLifetime.evaluate(normalizedTime, p.colorOverLifeTimeLerpRatio);
+			Color color = p.startColor * ref.colorOverLifetime.evaluate(normalizedTime, p.colorLerpRatio);
 
 			renderer->drawQuadWithBlend(p.matrix, *effectsTex, ref.textureSplitX, ref.textureSplitY, frame, color, ref.order, blend, flipUVs);
 		}

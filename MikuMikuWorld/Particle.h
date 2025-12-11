@@ -278,16 +278,14 @@ namespace MikuMikuWorld::Effect
 		float time{};
 		float duration{};
 
-		float textureStartFrameLerpRatio{};
-		float textureFrameOverTimeLerpRatio{};
-		float velocityOverLifetimeLerpRatio{};
-		float sizeOverLifetimeLerpRatio{};
-		float colorOverLifeTimeLerpRatio{};
-		float gravityModifierLerpRatio{};
-		float speedModifierLerpRatio{};
+		float gravityLerpRatio{};
+		float spriteSheetLerpRatio{};
+		float velocityLerpRatio{};
+		float sizeLerpRatio{};
+		float colorLerpRatio{};
 		float limitVelocityLerpRatio{};
-		float forceOverTimeLerpRatio{};
-		float rotationOverLifetimeLerpRatio{};
+		float forceLerpRatio{};
+		float rotationLerpRatio{};
 
 		float speed{};
 		Color startColor{ 1.f, 1.f, 1.f, 1.f };
@@ -364,12 +362,10 @@ namespace MikuMikuWorld::Effect
 		/// </summary>
 		int aliveCount{};
 
-		std::uint_fast32_t seed;
-
-		RandN initialRandom{};
-		RandN shapeRandom{};
-		RandN sizeRandom{};
-		RandN velocityRandom{};
+		RandN initialRandom;
+		RandN shapeRandom;
+		RandN sizeRandom;
+		RandN velocityRandom;
 
 		std::vector<BurstInstance> bursts;
 		std::vector<ParticleInstance> particles;
