@@ -1,11 +1,8 @@
 #pragma once
 #include <random>
-#include <array>
-#include <set>
 #include "Score.h"
 #include "Math.h"
 #include "EffectView.h"
-#include <memory>
 
 namespace MikuMikuWorld
 {

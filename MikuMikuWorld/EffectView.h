@@ -3,7 +3,7 @@
 #include "Rendering/Renderer.h"
 #include "Rendering/Camera.h"
 #include <map>
-#include <unordered_set>
+#include <set>
 
 namespace MikuMikuWorld
 {
@@ -155,7 +155,7 @@ namespace MikuMikuWorld::Effect
 		Texture* effectsTex{ nullptr };
 		bool initialized{ false };
 		std::map<EffectType, EffectPool> effectPools;
-		std::unordered_set<int> playedEffectsNoteIds;
+		std::set<int> playedEffectsNoteIds;
 
 		void drawEffectsInternal(EmitterInstance& emitter, Renderer* renderer, float time);
 		void drawUnderNoteEffectsInternal(EmitterInstance& emitter, Renderer* renderer, float time);
