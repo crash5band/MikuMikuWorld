@@ -249,7 +249,7 @@ namespace MikuMikuWorld::Effect
 		{
 			float angle = lerp(0, DirectX::XMConvertToRadians(ref.emission.arc), shapeRandom.nextFloat());
 			float angle2 = lerp(0, DirectX::XMConvertToRadians(180), shapeRandom.nextFloat());
-			float radius = lerp(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius, 0);
+			float radius = lerp(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius, shapeRandom.nextFloat());
 
 			float x = cosf(angle) * sinf(angle2) * radius * DirectX::XMVectorGetX(ref.emission.transform.scale);
 			float y = sinf(angle) * radius * DirectX::XMVectorGetY(ref.emission.transform.scale);

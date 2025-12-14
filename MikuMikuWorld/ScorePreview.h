@@ -50,6 +50,8 @@ namespace MikuMikuWorld
 		void drawNoteBase(Renderer* renderer, const Note& note, float left, float right, float y, float zScalar = 1);
 		void drawTraceDiamond(Renderer* renderer, const Note& note, float left, float right, float y);
 		void drawFlickArrow(Renderer* renderer, const Note& note, float y, double cur_time);
+
+		void drawStageCoverMask(Renderer* renderer);
 		
 		void updateToolbar(ScoreEditorTimeline& timeline, ScoreContext& context) const;
 		float getScrollbarWidth() const;

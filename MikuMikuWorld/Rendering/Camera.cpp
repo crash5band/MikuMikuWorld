@@ -36,7 +36,7 @@ namespace MikuMikuWorld
 		DirectX::XMVECTOR tgt = front;
 		tgt = DirectX::XMVectorAdd(tgt, position);
 
-		viewMatrix = DirectX::XMMatrixLookAtRH(position, tgt, DirectX::XMVECTOR{ 0.0f, -1.0f, 0.0f, 0.0f });
+		viewMatrix = DirectX::XMMatrixLookAtLH(position, tgt, DirectX::XMVECTOR{ 0.0f, 1.0f, 0.0f, 1.0f });
 		inverseViewMatrix = DirectX::XMMatrixIdentity();
 		inverseViewMatrix *= DirectX::XMMatrixInverse(nullptr, viewMatrix);
 		inverseViewMatrix.r[3] = DirectX::XMVECTOR{ 0, 0, 0, 1 };
@@ -82,6 +82,6 @@ namespace MikuMikuWorld
 
 	DirectX::XMMATRIX Camera::getProjectionMatrix(float aspect, float near, float far) const
 	{
-		return DirectX::XMMatrixPerspectiveFovRH(DirectX::XMConvertToRadians(fov), aspect, near, far);
+		return DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(fov), aspect, near, far);
 	}
 }

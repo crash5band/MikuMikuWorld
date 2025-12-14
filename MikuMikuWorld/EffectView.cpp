@@ -8,18 +8,18 @@ namespace MikuMikuWorld::Effect
 {
 	static const std::map<EffectType, int> effectPoolSizes =
 	{
-		{ EffectType::fx_note_normal_gen, 6 },
-		{ EffectType::fx_note_critical_normal_gen, 6 },
-		{ EffectType::fx_note_flick_gen, 6 },
-		{ EffectType::fx_note_critical_flick_gen, 6 },
-		{ EffectType::fx_note_long_gen, 6 },
-		{ EffectType::fx_note_critical_long_gen, 6 },
-		{ EffectType::fx_note_flick_flash, 6 },
-		{ EffectType::fx_note_critical_flick_flash, 6 },
-		{ EffectType::fx_note_trace_aura, 6 },
-		{ EffectType::fx_note_critical_trace_aura, 6 },
-		{ EffectType::fx_note_long_hold_via_aura, 6 },
-		{ EffectType::fx_note_critical_long_hold_via_aura, 6 },
+		{ fx_note_normal_gen, 6 },
+		{ fx_note_critical_normal_gen, 6 },
+		{ fx_note_flick_gen, 6 },
+		{ fx_note_critical_flick_gen, 6 },
+		{ fx_note_long_gen, 6 },
+		{ fx_note_critical_long_gen, 6 },
+		{ fx_note_flick_flash, 6 },
+		{ fx_note_critical_flick_flash, 6 },
+		{ fx_note_trace_aura, 6 },
+		{ fx_note_critical_trace_aura, 6 },
+		{ fx_note_long_hold_via_aura, 6 },
+		{ fx_note_critical_long_hold_via_aura, 6 },
 	};
 
 	static float getEffectXPos(int lane, int width, bool flip)
@@ -176,11 +176,8 @@ namespace MikuMikuWorld::Effect
 
 	void EffectView::init()
 	{
-		if (initialized)
-			return;
-
 		effectPools.clear();
-		for (int i = 0; i < static_cast<int>(EffectType::fx_count); i++)
+		for (int i = 0; i < fx_count; i++)
 		{
 			EffectType type = static_cast<EffectType>(i);
 			effectPools.insert_or_assign(type, EffectPool());
@@ -220,39 +217,39 @@ namespace MikuMikuWorld::Effect
 	{
 		if (note.friction)
 		{
-			EffectType traceEffect{ EffectType::fx_count };
+			EffectType traceEffect{ fx_count };
 			if (note.isFlick())
 			{
-				traceEffect = note.critical ? EffectType::fx_note_critical_flick_flash : EffectType::fx_note_flick_flash;
+				traceEffect = note.critical ? fx_note_critical_flick_flash : fx_note_flick_flash;
 				if (note.critical)
-					addLaneEffect(EffectType::fx_lane_critical_flick, note, context, time);
+					addLaneEffect(fx_lane_critical_flick, note, context, time);
 			}
 			else
 			{
-				traceEffect = note.critical ? EffectType::fx_note_critical_trace_aura : EffectType::fx_note_trace_aura;
+				traceEffect = note.critical ? fx_note_critical_trace_aura : fx_note_trace_aura;
 			}
 
 			addEffect(traceEffect, note, context, time);
 			if (note.getType() == NoteType::Hold)
 			{
-				addEffect(note.critical ? EffectType::fx_note_critical_long_hold_gen : EffectType::fx_note_long_hold_gen, note, context, time);
-				addAuraEffect(note.critical ? EffectType::fx_note_critical_long_hold_gen_aura : EffectType::fx_note_hold_aura, note, context, time);
+				addEffect(note.critical ? fx_note_critical_long_hold_gen : fx_note_long_hold_gen, note, context, time);
+				addAuraEffect(note.critical ? fx_note_critical_long_hold_gen_aura : fx_note_hold_aura, note, context, time);
 			}
 			return;
 		}
 
 		if (note.isFlick())
 		{
-			EffectType aura{ note.critical ? EffectType::fx_note_critical_flick_aura : EffectType::fx_note_flick_aura };
-			EffectType gen{ note.critical ? EffectType::fx_note_critical_flick_gen : EffectType::fx_note_flick_gen };
-			EffectType flash{ note.critical ? EffectType::fx_note_critical_flick_flash : EffectType::fx_note_flick_flash };
+			EffectType aura{ note.critical ? fx_note_critical_flick_aura : fx_note_flick_aura };
+			EffectType gen{ note.critical ? fx_note_critical_flick_gen : fx_note_flick_gen };
+			EffectType flash{ note.critical ? fx_note_critical_flick_flash : fx_note_flick_flash };
 
 			addAuraEffect(aura, note, context, time);
 			addEffect(gen, note, context, time);
 			addEffect(flash, note, context, time);
 
 			if (note.critical)
-				addLaneEffect(EffectType::fx_lane_critical_flick, note, context, time);
+				addLaneEffect(fx_lane_critical_flick, note, context, time);
 
 			return;
 		}
@@ -265,17 +262,17 @@ namespace MikuMikuWorld::Effect
 
 			if (hold.startType == HoldNoteType::Normal)
 			{
-				EffectType aura{ note.critical ? EffectType::fx_note_critical_long_aura : EffectType::fx_note_long_aura };
-				EffectType gen{ note.critical ? EffectType::fx_note_critical_long_gen : EffectType::fx_note_long_gen };
-				EffectType lane{ note.critical ? EffectType::fx_lane_critical : EffectType::fx_lane_default };
+				EffectType aura{ note.critical ? fx_note_critical_long_aura : fx_note_long_aura };
+				EffectType gen{ note.critical ? fx_note_critical_long_gen : fx_note_long_gen };
+				EffectType lane{ note.critical ? fx_lane_critical : fx_lane_default };
 				
 				addAuraEffect(aura, note, context, time);
 				addEffect(gen, note, context, time);
 				addLaneEffect(lane, note, context, time);
 			}
 
-			addEffect(note.critical ? EffectType::fx_note_critical_long_hold_gen : EffectType::fx_note_long_hold_gen, note, context, time);
-			addAuraEffect(note.critical ? EffectType::fx_note_critical_long_hold_gen_aura : EffectType::fx_note_hold_aura, note, context, time);
+			addEffect(note.critical ? fx_note_critical_long_hold_gen : fx_note_long_hold_gen, note, context, time);
+			addAuraEffect(note.critical ? fx_note_critical_long_hold_gen_aura : fx_note_hold_aura, note, context, time);
 		}
 		else if (note.getType() == NoteType::HoldMid)
 		{
@@ -285,7 +282,7 @@ namespace MikuMikuWorld::Effect
 			if (step.type == HoldStepType::Hidden)
 				return;
 
-			addEffect(note.critical ? EffectType::fx_note_critical_long_hold_via_aura : EffectType::fx_note_long_hold_via_aura, note, context, time);
+			addEffect(note.critical ? fx_note_critical_long_hold_via_aura : fx_note_long_hold_via_aura, note, context, time);
 		}
 		else if (note.getType() == NoteType::HoldEnd)
 		{
@@ -295,9 +292,9 @@ namespace MikuMikuWorld::Effect
 
 			if (hold.endType == HoldNoteType::Normal)
 			{
-				EffectType aura{ note.critical ? EffectType::fx_note_critical_long_aura : EffectType::fx_note_long_aura };
-				EffectType gen{ note.critical ? EffectType::fx_note_critical_long_gen : EffectType::fx_note_long_gen };
-				EffectType lane{ note.critical ? EffectType::fx_lane_critical : EffectType::fx_lane_default };
+				EffectType aura{ note.critical ? fx_note_critical_long_aura : fx_note_long_aura };
+				EffectType gen{ note.critical ? fx_note_critical_long_gen : fx_note_long_gen };
+				EffectType lane{ note.critical ? fx_lane_critical : fx_lane_default };
 
 				addAuraEffect(aura, note, context, time);
 				addEffect(gen, note, context, time);
@@ -306,9 +303,9 @@ namespace MikuMikuWorld::Effect
 		}
 		else
 		{
-			EffectType aura{ note.critical ? EffectType::fx_note_critical_normal_aura : EffectType::fx_note_normal_aura };
-			EffectType gen{ note.critical ? EffectType::fx_note_critical_normal_gen : EffectType::fx_note_normal_gen };
-			EffectType lane{ note.critical ? EffectType::fx_lane_critical : EffectType::fx_lane_default };
+			EffectType aura{ note.critical ? fx_note_critical_normal_aura : fx_note_normal_aura };
+			EffectType gen{ note.critical ? fx_note_critical_normal_gen : fx_note_normal_gen };
+			EffectType lane{ note.critical ? fx_lane_critical : fx_lane_default };
 
 			addAuraEffect(aura, note, context, time);
 			addEffect(gen, note, context, time);
@@ -326,7 +323,7 @@ namespace MikuMikuWorld::Effect
 		float start = time;
 		float end = -1;
 
-		if (note.isFlick() && (effect == EffectType::fx_note_flick_flash || effect == EffectType::fx_note_critical_flick_flash))
+		if (note.isFlick() && (effect == fx_note_flick_flash || effect == fx_note_critical_flick_flash))
 		{
 			switch (note.flick)
 			{
@@ -342,7 +339,7 @@ namespace MikuMikuWorld::Effect
 
 			if (config.pvMirrorScore) zRot *= -1;
 		}
-		else if (effect == EffectType::fx_note_critical_long_hold_via_aura || effect == EffectType::fx_note_long_hold_via_aura)
+		else if (effect == fx_note_critical_long_hold_via_aura || effect == fx_note_long_hold_via_aura)
 		{
 			const HoldNote& hold = context.score.holdNotes.at(note.parentID);
 			const HoldStep& step = hold.steps[findHoldStep(hold, note.ID)];
@@ -352,7 +349,7 @@ namespace MikuMikuWorld::Effect
 
 			xPos = noteLeft + (noteRight - noteLeft) / 2;
 		}
-		else if (effect == EffectType::fx_note_critical_long_hold_gen || effect == EffectType::fx_note_long_hold_gen)
+		else if (effect == fx_note_critical_long_hold_gen || effect == fx_note_long_hold_gen)
 		{
 			const HoldNote& holdNote = context.score.holdNotes.at(note.ID);
 			start = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
@@ -373,7 +370,7 @@ namespace MikuMikuWorld::Effect
 
 	void EffectView::addAuraEffect(EffectType effect, const Note& note, const ScoreContext& context, float time)
 	{
-		if (effect == EffectType::fx_note_hold_aura || effect == EffectType::fx_note_critical_long_hold_gen_aura)
+		if (effect == fx_note_hold_aura || effect == fx_note_critical_long_hold_gen_aura)
 		{
 			const HoldNote& holdNote = context.score.holdNotes.at(note.ID);
 			float start = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
@@ -413,37 +410,38 @@ namespace MikuMikuWorld::Effect
 
 	void EffectView::updateEffects(const ScoreContext& context, const Camera& camera, float time)
 	{
-		for (auto& [type, pool] : effectPools)
+		for (size_t i = 0; i < fx_note_hold_aura; i++)
 		{
-			for (auto& controller : pool.pool)
+			for (auto& controller : effectPools[static_cast<EffectType>(i)].pool)
 			{
-				if (controller.active && time >= controller.time.min)
+				if (!controller.active)
+					continue;
+
+				controller.effectRoot.update(time, controller.worldOffset, camera);
+			}
+		}
+
+		for (size_t i = fx_note_hold_aura; i < fx_count; i++)
+		{
+			for (auto& controller : effectPools[static_cast<EffectType>(i)].pool)
+			{
+				if (time >= controller.time.max)
+					controller.active = false;
+
+				if (!controller.active)
+					continue;
+
+				float noteLeft{}, noteRight{};
+				std::tie(noteLeft, noteRight) = getHoldSegmentBound(context.score.notes.at(controller.refID), context.score, context.currentTick);
+
+				if (static_cast<EffectType>(i) == fx_note_hold_aura ||
+					static_cast<EffectType>(i) == fx_note_critical_long_hold_gen_aura)
 				{
-					if (type == EffectType::fx_note_critical_long_hold_gen ||
-						type == EffectType::fx_note_long_hold_gen || 
-						type == EffectType::fx_note_hold_aura ||
-						type == EffectType::fx_note_critical_long_hold_gen_aura)
-					{
-						if (time >= controller.time.max)
-						{
-							controller.active = false;
-							continue;
-						}
-
-						float noteLeft{}, noteRight{};
-						std::tie(noteLeft, noteRight) = getHoldSegmentBound(context.score.notes.at(controller.refID), context.score, context.currentTick);
-
-						if (type == EffectType::fx_note_hold_aura ||
-							type == EffectType::fx_note_critical_long_hold_gen_aura)
-						{
-							controller.worldOffset.scale = DirectX::XMVectorSetX(controller.worldOffset.scale, (noteRight - noteLeft) * 0.95f);
-						}
-
-						controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, (noteLeft + (noteRight - noteLeft) / 2) * 0.84f);
-					}
-
-					controller.effectRoot.update(time, controller.worldOffset, camera);
+					controller.worldOffset.scale = DirectX::XMVectorSetX(controller.worldOffset.scale, (noteRight - noteLeft) * 0.95f);
 				}
+
+				controller.worldOffset.position = DirectX::XMVectorSetX(controller.worldOffset.position, (noteLeft + (noteRight - noteLeft) / 2) * 0.84f);
+				controller.effectRoot.update(time, controller.worldOffset, camera);
 			}
 		}
 	}
@@ -452,15 +450,15 @@ namespace MikuMikuWorld::Effect
 	{
 		static const EffectType underNoteEffects[] =
 		{
-			EffectType::fx_lane_critical,
-			EffectType::fx_lane_critical_flick,
-			EffectType::fx_lane_default,
-			EffectType::fx_note_critical_flick_aura,
-			EffectType::fx_note_critical_long_aura,
-			EffectType::fx_note_critical_normal_aura,
-			EffectType::fx_note_flick_aura,
-			EffectType::fx_note_long_aura,
-			EffectType::fx_note_normal_aura
+			fx_lane_critical,
+			fx_lane_critical_flick,
+			fx_lane_default,
+			fx_note_critical_flick_aura,
+			fx_note_critical_long_aura,
+			fx_note_critical_normal_aura,
+			fx_note_flick_aura,
+			fx_note_long_aura,
+			fx_note_normal_aura
 		};
 
 		for (auto& effect : underNoteEffects)
@@ -476,7 +474,7 @@ namespace MikuMikuWorld::Effect
 	void EffectView::drawEffects(Renderer* renderer, float time)
 	{
 		std::vector<ParticleController*> drawingControllers;
-		for (int i = 3; i < static_cast<int>(EffectType::fx_count); i++)
+		for (int i = 3; i < fx_count; i++)
 		{
 			for (auto& controller : effectPools[static_cast<EffectType>(i)].pool)
 			{

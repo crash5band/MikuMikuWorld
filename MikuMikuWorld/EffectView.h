@@ -13,17 +13,11 @@ namespace MikuMikuWorld
 
 namespace MikuMikuWorld::Effect
 {
-	enum class EffectType
+	enum EffectType
 	{
 		fx_lane_critical,
 		fx_lane_critical_flick,
 		fx_lane_default,
-		
-		fx_note_hold_aura,
-		fx_note_long_hold_gen,
-
-		fx_note_critical_long_hold_gen_aura,
-		fx_note_critical_long_hold_gen,
 
 		fx_note_normal_aura,
 		fx_note_normal_gen,
@@ -50,6 +44,12 @@ namespace MikuMikuWorld::Effect
 		fx_note_trace_aura,
 		fx_note_critical_trace_aura,
 
+		fx_note_hold_aura,
+		fx_note_long_hold_gen,
+
+		fx_note_critical_long_hold_gen_aura,
+		fx_note_critical_long_hold_gen,
+
 		fx_count,
 	};
 
@@ -58,12 +58,6 @@ namespace MikuMikuWorld::Effect
 		"fx_lane_critical",
 		"fx_lane_critical_flick",
 		"fx_lane_default",
-
-		"fx_note_hold_aura",
-		"fx_note_long_hold_gen",
-
-		"fx_note_critical_long_hold_gen_aura",
-		"fx_note_critical_long_hold_gen",
 
 		"fx_note_normal_aura",
 		"fx_note_normal_gen",
@@ -88,7 +82,13 @@ namespace MikuMikuWorld::Effect
 		"fx_note_long_hold_via_aura",
 		"fx_note_critical_long_hold_via_aura",
 		"fx_note_trace_aura",
-		"fx_note_critical_trace_aura"
+		"fx_note_critical_trace_aura",
+
+		"fx_note_hold_aura",
+		"fx_note_long_hold_gen",
+
+		"fx_note_critical_long_hold_gen_aura",
+		"fx_note_critical_long_hold_gen",
 	};
 
 	struct ParticleController

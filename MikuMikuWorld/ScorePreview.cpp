@@ -286,6 +286,9 @@ namespace MikuMikuWorld
 		if (config.drawBackground && background.shouldUpdate(context.workingData.jacket))
 			background.update(renderer, context.workingData.jacket);
 
+		if (!context.scorePreviewDrawData.effectView.isInitialized())
+			context.scorePreviewDrawData.effectView.init();
+
 		if (playbackState.isPlaying)
 		{
 			if (!playbackState.wasLastFramePlaying)
@@ -293,9 +296,6 @@ namespace MikuMikuWorld
 
 			context.scorePreviewDrawData.effectView.update(context);
 		}
-
-		if (!context.scorePreviewDrawData.effectView.isInitialized())
-			context.scorePreviewDrawData.effectView.init();
 
 		static int shaderId = ResourceManager::getShader("basic2d");
 		static int pteShaderId = ResourceManager::getShader("particles");
@@ -317,7 +317,7 @@ namespace MikuMikuWorld
 		scaledAspectRatio = scaledWidth / scaledHeight;
 
 		auto view = DirectX::XMMatrixScaling(scaledWidth, scaledHeight, 1.f) * DirectX::XMMatrixTranslation(0.f, -scrTop, 0.f);
-		auto projection = Camera::getOffCenterOrthographicProjection(-width / 2, width / 2, -height / 2, height / 2);
+		auto projection = Camera::getOffCenterOrthographicProjection(-width / 2, width / 2, height / 2, -height / 2);
 		auto viewProjection = view * projection;
 
 		const auto pView = noteEffectsCamera.getViewMatrix();
@@ -350,7 +350,7 @@ namespace MikuMikuWorld
 		drawLines(context, renderer);
 		drawHoldCurves(context, renderer);
 		if (config.pvStageCover != 0) {
-			drawStageCover(renderer);
+			drawStageCoverMask(renderer);
 			renderer->endBatchWithDepthTest(GL_LEQUAL); // using depth test to cull the notes drawn
 		}
 		else
@@ -370,6 +370,7 @@ namespace MikuMikuWorld
 		drawHoldTicks(context, renderer);
 		drawNotes(context, renderer);
 		if (config.pvStageCover != 0) {
+			drawStageCoverMask(renderer);
 			drawStageCover(renderer);
 			drawStageCoverDecoration(renderer);
 			renderer->endBatchWithDepthTest(GL_LEQUAL); // using depth test to cull the notes drawn
@@ -385,7 +386,7 @@ namespace MikuMikuWorld
 		renderer->endBatchWithBlending(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
 		previewBuffer.unblind();
-		drawList->AddImage((ImTextureID)(size_t)previewBuffer.getTexture(), position, position + size);
+		drawList->AddImage((ImTextureID)(size_t)previewBuffer.getTexture(), position, position + size, {0, 1}, {1, 0});
 	}
 
 	void ScorePreviewWindow::updateUI(ScoreEditorTimeline& timeline, ScoreContext& context)
@@ -405,16 +406,16 @@ namespace MikuMikuWorld
 		playbackState.wasLastFramePlaying = playbackState.isPlaying;
 		playbackState.isPlaying = timeline.isPlaying();
 
-		//if (ImGui::BeginPopupContextWindow("preview_context_menu"))
-		//{
-		//	bool _fullWindow = fullWindow;
-		//	if (ImGui::MenuItem(getString("fullscreen_preview_toggle"), NULL, &_fullWindow))
-		//	{
-		//		setFullWindow(_fullWindow);
-		//	}
+		if (ImGui::BeginPopupContextWindow("preview_context_menu"))
+		{
+			bool _fullWindow = fullWindow;
+			if (ImGui::MenuItem(getString("fullscreen_preview_toggle"), NULL, &_fullWindow))
+			{
+				setFullWindow(_fullWindow);
+			}
 
-		//	ImGui::EndPopup();
-		//}
+			ImGui::EndPopup();
+		}
 	}
 
 	void ScorePreviewWindow::setFullWindow(bool _fullWindow)
@@ -436,11 +437,34 @@ namespace MikuMikuWorld
 		if (!isArrayIndexInBounds(SPR_SEKAI_STAGE, stage.sprites))
 			return;
 		const Sprite& stageSprite = stage.sprites[SPR_SEKAI_STAGE];
-		const float stageWidth = (Engine::STAGE_TEX_WIDTH / Engine::STAGE_LANE_WIDTH) * Engine::STAGE_NUM_LANES;
-		const float stageLeft  = -stageWidth / 2;
-		const float stageTop = Engine::STAGE_LANE_TOP / Engine::STAGE_LANE_HEIGHT;
-		const float stageHeight = Engine::STAGE_TEX_HEIGHT / Engine::STAGE_LANE_HEIGHT;
+		constexpr float stageWidth = (Engine::STAGE_TEX_WIDTH / Engine::STAGE_LANE_WIDTH) * Engine::STAGE_NUM_LANES;
+		constexpr float stageLeft  = -stageWidth / 2;
+		constexpr float stageTop = Engine::STAGE_LANE_TOP / Engine::STAGE_LANE_HEIGHT;
+		constexpr float stageHeight = Engine::STAGE_TEX_HEIGHT / Engine::STAGE_LANE_HEIGHT;
 		renderer->drawRectangle({stageLeft, stageTop}, {stageWidth, stageHeight}, stage, stageSprite.getX1(), stageSprite.getX2(), stageSprite.getY1(), stageSprite.getY2(), defaultTint.scaleAlpha(config.pvStageOpacity), -1);
+	}
+
+	void ScorePreviewWindow::drawStageCoverMask(Renderer* renderer)
+	{
+		int index = ResourceManager::getTexture("stage");
+		if (index == -1)
+			return;
+		const Texture& stage = ResourceManager::textures[index];
+		if (!isArrayIndexInBounds(SPR_SEKAI_STAGE, stage.sprites))
+			return;
+		const Sprite& stageSprite = stage.sprites[SPR_SEKAI_STAGE];
+		constexpr float stageWidth = (Engine::STAGE_TEX_WIDTH / Engine::STAGE_LANE_WIDTH) * Engine::STAGE_NUM_LANES;
+		constexpr float stageLeft = -stageWidth / 2, stageRight = stageWidth / 2;
+
+		constexpr float stageTop = Engine::STAGE_LANE_TOP / Engine::STAGE_LANE_HEIGHT;
+		const float stageHeight = config.pvStageCover * (1 - stageTop);
+		const float spriteHeight = config.pvStageCover * (Engine::STAGE_LANE_HEIGHT - Engine::STAGE_LANE_TOP);
+
+		static auto model = DirectX::XMMatrixTranslation(0, 0, 1);
+		renderer->drawQuad(
+			Engine::quadvPos(stageLeft, stageRight, stageTop + stageHeight, 0), model, stage,
+			0, 0, 1, 1, defaultTint.scaleAlpha(0), 0
+		);
 	}
 
 	void ScorePreviewWindow::drawStageCover(Renderer* renderer)
@@ -452,21 +476,14 @@ namespace MikuMikuWorld
 		if (!isArrayIndexInBounds(SPR_SEKAI_STAGE, stage.sprites))
 			return;
 		const Sprite& stageSprite = stage.sprites[SPR_SEKAI_STAGE];
-		const float stageWidth = (Engine::STAGE_TEX_WIDTH / Engine::STAGE_LANE_WIDTH) * Engine::STAGE_NUM_LANES;
+		constexpr float stageWidth = (Engine::STAGE_TEX_WIDTH / Engine::STAGE_LANE_WIDTH) * Engine::STAGE_NUM_LANES;
 		const float stageLeft = -stageWidth / 2, stageRight = stageWidth / 2;
 
-		const float stageTop = Engine::STAGE_LANE_TOP / Engine::STAGE_LANE_HEIGHT;
+		constexpr float stageTop = Engine::STAGE_LANE_TOP / Engine::STAGE_LANE_HEIGHT;
 		const float stageHeight = config.pvStageCover * (1 - stageTop);
 		const float spriteHeight = config.pvStageCover * (Engine::STAGE_LANE_HEIGHT - Engine::STAGE_LANE_TOP);
 
-		auto vPos = Engine::quadvPos(stageLeft, stageRight, stageTop + stageHeight, stageTop);
-		auto model = DirectX::XMMatrixTranslation(0, 0, 1);
-		// The mask that cull the notes
-		renderer->drawQuad(
-			Engine::quadvPos(stageLeft, stageRight, stageTop + stageHeight, 0), model, stage,
-			0, 0, 1, 1, defaultTint.scaleAlpha(0), 0
-		);
-		// The darken part to indicate notes won't spawn
+		static auto model = DirectX::XMMatrixTranslation(0, 0, 1);
 		renderer->drawQuad(
 			Engine::quadvPos(stageLeft, stageRight, stageTop + stageHeight, stageTop), model, stage,
 			stageSprite.getX1(), stageSprite.getX2(), stageSprite.getY1(), stageSprite.getY1() + spriteHeight,
@@ -476,7 +493,7 @@ namespace MikuMikuWorld
 
 	void MikuMikuWorld::ScorePreviewWindow::drawStageCoverDecoration(Renderer *renderer)
 	{
-		const float stageTop = Engine::STAGE_LANE_TOP / Engine::STAGE_LANE_HEIGHT;
+		constexpr float stageTop = Engine::STAGE_LANE_TOP / Engine::STAGE_LANE_HEIGHT;
 		const Texture& noteTex = getNoteTexture();
 		size_t sprIndex = SPR_SIMULTANEOUS_CONNECTION;
 		size_t transIndex = static_cast<size_t>(SpriteType::SimultaneousLine);

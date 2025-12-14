@@ -231,7 +231,7 @@ namespace MikuMikuWorld::Effect
 
 		static ImVec2 uv0{ 0, 1 };
 		static ImVec2 uv1{ 1, 0 };
-		ImGui::GetWindowDrawList()->AddImage((ImTextureID)(size_t)previewBuffer->getTexture(), position, position + size);
+		ImGui::GetWindowDrawList()->AddImage((ImTextureID)(size_t)previewBuffer->getTexture(), position, position + size, uv0, uv1);
 		previewBuffer->unblind();
 		ImGui::End();
 
