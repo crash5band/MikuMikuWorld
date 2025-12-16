@@ -466,6 +466,8 @@ namespace MikuMikuWorld::Effect
 		worldOffset *= DirectX::XMMatrixRotationQuaternion(qShift);
 		worldOffset *= DirectX::XMMatrixTranslationFromVector(shift.position);
 
+		const bool isViewAligned = ref.renderMode == RenderMode::Billboard && ref.alignment == AlignmentMode::View;
+
 		updateEmission(ref, shift, t);
 
 		for (auto& p : particles)
@@ -485,7 +487,7 @@ namespace MikuMikuWorld::Effect
 
 			float normalizedTime = p.time / p.duration;
 
-			DirectX::XMVECTOR currentRotation = DirectX::XMVectorAdd(rotation, p.transform.rotation);
+			DirectX::XMVECTOR currentRotation = isViewAligned ? p.transform.rotation : DirectX::XMVectorAdd(rotation, p.transform.rotation);
 			if (ref.rotationOverLifetime.enabled)
 			{
 				DirectX::XMFLOAT3 temp = ref.rotationOverLifetime.integrate(0, normalizedTime, p.duration, p.rotationLerpRatio);
@@ -563,7 +565,6 @@ namespace MikuMikuWorld::Effect
 				{
 				case AlignmentMode::View:
 					directionMatrix = inverseView;
-					currentRotation = p.transform.rotation;
 					break;
 				}
 				break;
