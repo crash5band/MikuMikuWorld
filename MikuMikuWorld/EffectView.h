@@ -19,23 +19,23 @@ namespace MikuMikuWorld::Effect
 		fx_lane_critical_flick,
 		fx_lane_default,
 
-		fx_note_normal_aura,
 		fx_note_normal_gen,
+		fx_note_normal_aura,
 
-		fx_note_critical_normal_aura,
 		fx_note_critical_normal_gen,
+		fx_note_critical_normal_aura,
 
-		fx_note_flick_aura,
 		fx_note_flick_gen,
+		fx_note_flick_aura,
 
-		fx_note_critical_flick_aura,
 		fx_note_critical_flick_gen,
+		fx_note_critical_flick_aura,
 
-		fx_note_long_aura,
 		fx_note_long_gen,
+		fx_note_long_aura,
 
-		fx_note_critical_long_aura,
 		fx_note_critical_long_gen,
+		fx_note_critical_long_aura,
 
 		fx_note_flick_flash,
 		fx_note_critical_flick_flash,
@@ -59,23 +59,23 @@ namespace MikuMikuWorld::Effect
 		"fx_lane_critical_flick",
 		"fx_lane_default",
 
-		"fx_note_normal_aura",
 		"fx_note_normal_gen",
+		"fx_note_normal_aura",
 
-		"fx_note_critical_normal_aura",
 		"fx_note_critical_normal_gen",
+		"fx_note_critical_normal_aura",
 
-		"fx_note_flick_aura",
 		"fx_note_flick_gen",
+		"fx_note_flick_aura",
 
-		"fx_note_critical_flick_aura",
 		"fx_note_critical_flick_gen",
+		"fx_note_critical_flick_aura",
 
-		"fx_note_long_aura",
 		"fx_note_long_gen",
+		"fx_note_long_aura",
 
-		"fx_note_critical_long_aura",
 		"fx_note_critical_long_gen",
+		"fx_note_critical_long_aura",
 
 		"fx_note_flick_flash",
 		"fx_note_critical_flick_flash",

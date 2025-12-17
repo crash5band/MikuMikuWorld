@@ -191,7 +191,8 @@ namespace MikuMikuWorld::Effect
 			{
 			case ArcMode::Loop:
 				arc = DirectX::XMConvertToRadians(emissionPosition);
-				emissionPosition += fmodf(ref.emission.arcSpeed.evaluate(std::max(time - startTime, 0.f), 0) * (time - startTime) * 360.f, ref.emission.arc);
+				emissionPosition += ref.emission.arcSpeed.evaluate(std::max(time - startTime, 0.f), shapeRandom.nextFloat()) * (time - startTime) * 360.f;
+				emissionPosition = fmodf(emissionPosition, ref.emission.arc);
 				break;
 			case ArcMode::BurstSpread:
 				arc = DirectX::XMConvertToRadians(emissionPosition);
@@ -209,7 +210,11 @@ namespace MikuMikuWorld::Effect
 			float y = sinf(arc) * radius * DirectX::XMVectorGetY(ref.emission.transform.scale);
 			float z = ref.emission.emitFrom == EmitFrom::Volume ? lerp(0, length, shapeRandom.nextFloat()) : 0;
 
-			emitPosition = DirectX::XMVectorSet(x, y, z, 1);
+			float xRandom = lerp(-ref.emission.randomizeDirection, ref.emission.randomizeDirection, globalRandom.get());
+			float yRandom = lerp(-ref.emission.randomizeDirection, ref.emission.randomizeDirection, globalRandom.get());
+			float zRandom = lerp(-ref.emission.randomizeDirection, ref.emission.randomizeDirection, globalRandom.get());
+
+			emitPosition = DirectX::XMVectorAdd(DirectX::XMVectorSet(x, y, z, 0), DirectX::XMVectorSet(xRandom, yRandom, zRandom, 0));
 			DirectX::XMVECTOR positionNormalized = DirectX::XMVectorSetZ(DirectX::XMVector3Normalize(emitPosition), cosf(angle));
 			DirectX::XMVECTOR angles = DirectX::XMVectorSet(sinf(angle), sinf(angle), 1.f, 1.f);
 			direction = DirectX::XMVector3Rotate(DirectX::XMVectorMultiply(positionNormalized, angles), qAll);
