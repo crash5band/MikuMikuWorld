@@ -371,9 +371,9 @@ namespace MikuMikuWorld::Effect
 		std::vector<ParticleInstance> particles;
 		std::vector<EmitterInstance> children;
 
-		void updateEmission(const Particle& ref, const Transform& shift, float time);
-		void emit(const Transform& shift, const Particle& ref, float time);
-		void update(float time, const Transform& shift, const Camera& camera);
+		void updateEmission(const Particle& ref, const Transform& worldTransform, float time);
+		void emit(const Transform& worldTransform, const Particle& ref, float time);
+		void update(float time, const Transform& worldTransform, const Camera& camera);
 		void start(float time);
 		void stop(bool allChildren);
 		void init(const Particle& ref, const Transform& transform);

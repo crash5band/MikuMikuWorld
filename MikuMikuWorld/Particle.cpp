@@ -123,7 +123,7 @@ namespace MikuMikuWorld::Effect
 		}
 	}
 
-	void EmitterInstance::emit(const Transform& shift, const Particle& ref, float time)
+	void EmitterInstance::emit(const Transform& worldTransform, const Particle& ref, float time)
 	{
 		int instanceIndex = findFirstDeadParticle(time);
 		if (instanceIndex == -1)
@@ -300,13 +300,13 @@ namespace MikuMikuWorld::Effect
 		DirectX::XMFLOAT3 startSize = ref.startSize.evaluate(0, c, 1);
 		instance.transform.scale = DirectX::XMVectorMultiply(ref.transform.scale, DirectX::XMLoadFloat3(&startSize));
 
-		// shift will be included during emission for world space
-		// for local space, the shift will be included during particle update 
+		// world transform will be included during emission for world space
+		// for local space, the world transform will be included during particle update 
 		if (ref.simulationSpace == TransformSpace::World)
 		{
-			DirectX::XMVECTOR qShift = quaternionFromZYX(shift.rotation);
-			instance.transform.position = DirectX::XMVectorAdd(instance.transform.position, DirectX::XMVector3Rotate(shift.position, qShift));
-			instance.transform.rotation = DirectX::XMVectorAdd(instance.transform.rotation, shift.rotation);
+			DirectX::XMVECTOR qShift = quaternionFromZYX(worldTransform.rotation);
+			instance.transform.position = DirectX::XMVectorAdd(instance.transform.position, DirectX::XMVector3Rotate(worldTransform.position, qShift));
+			instance.transform.rotation = DirectX::XMVectorAdd(instance.transform.rotation, worldTransform.rotation);
 			instance.direction = DirectX::XMVector3Rotate(instance.direction, qShift);
 		}
 
@@ -458,22 +458,22 @@ namespace MikuMikuWorld::Effect
 		return velocity;
 	}
 
-	void EmitterInstance::update(float t, const Transform& shift, const Camera& camera)
+	void EmitterInstance::update(float t, const Transform& worldTransform, const Camera& camera)
 	{
 		const Particle& ref = ResourceManager::getParticleEffect(refID);
 
 		const DirectX::XMMATRIX& inverseView = camera.getInverseViewMatrix();
 		DirectX::XMVECTOR qLocal = quaternionFromZYX(baseTransform.rotation);
-		DirectX::XMVECTOR qShift = quaternionFromZYX(shift.rotation);
+		DirectX::XMVECTOR qShift = quaternionFromZYX(worldTransform.rotation);
 		DirectX::XMVECTOR rotation = DirectX::XMVectorAdd(baseTransform.rotation, ref.transform.rotation);
 
 		DirectX::XMMATRIX worldOffset = DirectX::XMMatrixIdentity();
 		worldOffset *= DirectX::XMMatrixRotationQuaternion(qShift);
-		worldOffset *= DirectX::XMMatrixTranslationFromVector(shift.position);
+		worldOffset *= DirectX::XMMatrixTranslationFromVector(worldTransform.position);
 
 		const bool isViewAligned = ref.renderMode == RenderMode::Billboard && ref.alignment == AlignmentMode::View;
 
-		updateEmission(ref, shift, t);
+		updateEmission(ref, worldTransform, t);
 
 		for (auto& p : particles)
 		{
@@ -595,7 +595,7 @@ namespace MikuMikuWorld::Effect
 
 			// I do not like this but I can't think of any other decent way for now...
 			if (ref.name == "aura")
-				currentScale = DirectX::XMVectorMultiply(currentScale, shift.scale);
+				currentScale = DirectX::XMVectorMultiply(currentScale, worldTransform.scale);
 
 			p.matrix *= DirectX::XMMatrixTranslation(ref.pivot.x, ref.pivot.y, ref.pivot.z);
 			p.matrix *= DirectX::XMMatrixScalingFromVector(currentScale);
@@ -620,7 +620,7 @@ namespace MikuMikuWorld::Effect
 
 		for (auto& em : children)
 		{
-			em.update(t, shift, camera);
+			em.update(t, worldTransform, camera);
 		}
 	}
 }
