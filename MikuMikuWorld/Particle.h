@@ -355,7 +355,7 @@ namespace MikuMikuWorld::Effect
 		/// <summary>
 		/// The amount of particles emitted in one second
 		/// </summary>
-		float rateOverTime;
+		float rateOverTime{ 1 };
 
 		/// <summary>
 		/// The number of alive particles
