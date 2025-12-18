@@ -1057,9 +1057,6 @@ namespace MikuMikuWorld
 						UI::addCheckboxProperty(getString("flicks_animation"), config.pvFlickAnimation);
 						UI::addCheckboxProperty(getString("holds_animation"), config.pvHoldAnimation);
 						UI::addCheckboxProperty(getString("simultaneous_lines"), config.pvSimultaneousLine);
-						UI::addCheckboxProperty(getString("notes_effect"), config.pvNoteEffect);
-						UI::addCheckboxProperty(getString("notes_slot_effect"), config.pvNoteGlow);
-						UI::addCheckboxProperty(getString("lanes_effect"), config.pvLaneEffect);
 						ImGui::Separator();
 
 						float hold_alpha = config.pvHoldAlpha * 100.f;

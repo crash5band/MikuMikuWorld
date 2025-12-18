@@ -360,7 +360,8 @@ namespace MikuMikuWorld
 
 		ResourceManager::loadTransforms(appDir + "res\\effect\\transform.txt");
 
-		const std::string effectsDir = appDir + "res\\effect\\0\\";
+		int effectsProfileIndex = std::clamp(config.pvEffectsProfile, 0, 1);
+		const std::string effectsDir = appDir + "res\\effect\\" + std::to_string(effectsProfileIndex) + "\\";
 		ResourceManager::loadTexture(effectsDir + "tex_note_common_all_v2.png");
 
 		size_t effectCount = arrayLength(Effect::effectNames);

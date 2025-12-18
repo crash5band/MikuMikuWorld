@@ -108,15 +108,13 @@ namespace MikuMikuWorld
 		bool pvFlickAnimation;
 		bool pvSimultaneousLine;
 		bool pvHoldAnimation;
-		bool pvLaneEffect;
-		bool pvNoteEffect;
-		bool pvNoteGlow;
 		float pvNoteSpeed;
 		float pvHoldAlpha;
 		float pvGuideAlpha;
 		float pvStageCover;
 		float pvStageOpacity;
 		float pvBackgroundBrightness;
+		int pvEffectsProfile;
 		int notesSkin;
 		bool pvDrawToolbar;
 

@@ -89,15 +89,13 @@ namespace MikuMikuWorld
 			pvFlickAnimation = jsonIO::tryGetValue<bool>(previewObj, "marker_animation", true);
 			pvHoldAnimation = jsonIO::tryGetValue<bool>(previewObj, "hold_animation", true);
 			pvSimultaneousLine = jsonIO::tryGetValue<bool>(previewObj, "simultaneous_line", true);
-			pvNoteEffect = jsonIO::tryGetValue<bool>(previewObj, "note_effect", true);
-			pvLaneEffect = jsonIO::tryGetValue<bool>(previewObj, "lane_effect", true);
-			pvNoteGlow = jsonIO::tryGetValue<bool>(previewObj, "glow_effect", true);
 			pvNoteSpeed = jsonIO::tryGetValue<float>(previewObj, "note_speed", 6.0f);
 			pvHoldAlpha = jsonIO::tryGetValue<float>(previewObj, "hold_alpha", 1.f);
 			pvGuideAlpha = jsonIO::tryGetValue<float>(previewObj, "guide_alpha", 0.8f);
 			pvStageCover = jsonIO::tryGetValue<float>(previewObj, "stage_cover", 0.f);
 			pvStageOpacity = jsonIO::tryGetValue<float>(previewObj, "stage_opacity", 1.f);
 			pvBackgroundBrightness = jsonIO::tryGetValue<float>(previewObj, "background_brightness", 0.8f);
+			pvEffectsProfile = jsonIO::tryGetValue<int>(previewObj, "effects_profile", 0);
 			pvDrawToolbar = jsonIO::tryGetValue<bool>(previewObj, "draw_toolbar", true);
 		}
 
@@ -202,15 +200,13 @@ namespace MikuMikuWorld
 			{"marker_animation", pvFlickAnimation},
 			{"hold_animation", pvHoldAnimation},
 			{"simultaneous_line", pvSimultaneousLine},
-			{"note_effect", pvNoteEffect},
-			{"lane_effect", pvLaneEffect},
-			{"glow_effect", pvNoteGlow},
 			{"note_speed", pvNoteSpeed},
 			{"hold_alpha", pvHoldAlpha},
 			{"guide_alpha", pvGuideAlpha},
 			{"stage_cover", pvStageCover},
 			{"stage_opacity", pvStageOpacity},
 			{"background_brightness", pvBackgroundBrightness},
+			{"effects_profile", pvEffectsProfile},
 			{"draw_toolbar", pvDrawToolbar}
 		};
 
@@ -303,15 +299,13 @@ namespace MikuMikuWorld
 		pvFlickAnimation = true;
 		pvSimultaneousLine = true;
 		pvHoldAnimation = true;
-		pvLaneEffect = true;
-		pvNoteEffect = true;
-		pvNoteGlow = true;
 		pvNoteSpeed = 6.0f;
 		pvHoldAlpha = 1.f;
 		pvGuideAlpha = 0.8f;
 		pvStageCover = 0.f;
 		pvStageOpacity = 1.f;
 		pvBackgroundBrightness = 0.8f;
+		pvEffectsProfile = 0;
 		notesSkin = 0;
 		pvDrawToolbar = true;
 
