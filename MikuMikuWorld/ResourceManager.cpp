@@ -196,6 +196,7 @@ namespace MikuMikuWorld
 		return
 		{
 			true,
+			jsonIO::tryGetValue<bool>(j, "is3D"),
 			readMinMax(j["x"]),
 			readMinMax(j["y"]),
 			readMinMax(j["z"])
@@ -382,16 +383,25 @@ namespace MikuMikuWorld
 	{
 		std::string effectName = IO::File::getFilenameWithoutExtension(filename);
 		std::wstring wFilename = IO::mbToWideStr(filename);
-		std::ifstream particleFile(wFilename);
 		
-		json effectJson{};
-		particleFile >> effectJson;
-		particleFile.close();
+		std::ifstream particleFile(wFilename);
+		particleFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+		
+		try
+		{
+			json effectJson{};
+			particleFile >> effectJson;
+			particleFile.close();
 
-		int effectRootId = readParticle(effectJson);
-		effectNameToRootIdMap[effectName] = effectRootId;
+			int effectRootId = readParticle(effectJson);
+			effectNameToRootIdMap[effectName] = effectRootId;
 
-		return effectRootId;
+			return effectRootId;
+		}
+		catch (const std::exception& ex)
+		{
+			return -1;
+		}
 	}
 
 	Effect::Particle& ResourceManager::getParticleEffect(int id)

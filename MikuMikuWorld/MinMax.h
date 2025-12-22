@@ -107,6 +107,7 @@ namespace MikuMikuWorld::Effect
 	{
 	public:
 		bool enabled{};
+		bool is3D{};
 		MinMax x{}, y{}, z{};
 
 		inline DirectX::XMFLOAT3 evaluate(float time, float lerpRatio, float fallback = 0.f) const
@@ -118,12 +119,30 @@ namespace MikuMikuWorld::Effect
 			);
 		}
 
+		inline DirectX::XMFLOAT3 evaluate(float time, DirectX::XMFLOAT3 lerpRatio, float fallback = 0.f) const
+		{
+			return DirectX::XMFLOAT3(
+				x.evaluate(time, lerpRatio.x, fallback),
+				y.evaluate(time, lerpRatio.y, fallback),
+				z.evaluate(time, lerpRatio.z, fallback)
+			);
+		}
+
 		inline DirectX::XMFLOAT3 integrate(float from, float to, float scale, float lerpRatio) const
 		{
 			return DirectX::XMFLOAT3(
 				x.integrate(from, to, scale, lerpRatio),
 				y.integrate(from, to, scale, lerpRatio),
 				z.integrate(from, to, scale, lerpRatio)
+			);
+		}
+
+		inline DirectX::XMFLOAT3 integrate(float from, float to, float scale, DirectX::XMFLOAT3 lerpRatio) const
+		{
+			return DirectX::XMFLOAT3(
+				x.integrate(from, to, scale, lerpRatio.x),
+				y.integrate(from, to, scale, lerpRatio.y),
+				z.integrate(from, to, scale, lerpRatio.z)
 			);
 		}
 	};

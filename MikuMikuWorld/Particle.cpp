@@ -144,18 +144,32 @@ namespace MikuMikuWorld::Effect
 
 		ParticleInstance& instance = particles[instanceIndex];
 
-		// TODO: handle 3D start size and 3D start rotation
+		float cy{}, cz{}, ey{}, ez{};
+
 		float a = initialRandom.nextFloat();
 		float b = initialRandom.nextFloat();
 		float c = initialRandom.nextFloat();
+		if (ref.startSize.is3D)
+		{
+			cy = initialRandom.nextFloat();
+			cz = initialRandom.nextFloat();
+		}
+
 		float d = initialRandom.nextFloat();
 		float e = initialRandom.nextFloat();
+		if (ref.startRotation.is3D)
+		{
+			ey = initialRandom.nextFloat();
+			ez = initialRandom.nextFloat();
+		}
+
 		float f = initialRandom.nextFloat();
 		float g = initialRandom.nextFloat();
 		float h = initialRandom.nextFloat();
 
 		float length = ref.startSpeed.evaluate(b);
-		DirectX::XMFLOAT3 startRotation = ref.startRotation.evaluate(0, e, 0);
+		DirectX::XMFLOAT3 startRotation = ref.startRotation.is3D ?
+			ref.startRotation.evaluate(0, {e, ey, ez}, 0) : ref.startRotation.evaluate(0, e, 0);
 		
 		instance.duration = ref.startLifeTime.evaluate(a);
 		instance.spriteSheetLerpRatio = a;
@@ -297,7 +311,8 @@ namespace MikuMikuWorld::Effect
 		instance.rotationLerpRatio = e;
 		instance.sizeLerpRatio = c;
 
-		DirectX::XMFLOAT3 startSize = ref.startSize.evaluate(0, c, 1);
+		DirectX::XMFLOAT3 startSize = ref.startSize.is3D ?
+			ref.startSize.evaluate(0, { c, cy, cz }, 1) : ref.startSize.evaluate(0, c, 1);
 		instance.transform.scale = DirectX::XMVectorMultiply(ref.transform.scale, DirectX::XMLoadFloat3(&startSize));
 
 		// world transform will be included during emission for world space
