@@ -43,6 +43,8 @@ namespace MikuMikuWorld
 
 		autoSavePath = Application::getAppDir() + "auto_save";
 		autoSaveTimer.reset();
+
+		preview.loadNoteEffects(context.scorePreviewDrawData.effectView);
 	}
 
 	void ScoreEditor::writeSettings()
@@ -87,27 +89,31 @@ namespace MikuMikuWorld
 			if (ImGui::IsAnyPressed(config.input.stop)) timeline.stop(context);
 			if (ImGui::IsAnyPressed(config.input.previousTick, true)) timeline.previousTick(context);
 			if (ImGui::IsAnyPressed(config.input.nextTick, true)) timeline.nextTick(context);
-			if (ImGui::IsAnyPressed(config.input.selectAll)) context.selectAll();
-			if (ImGui::IsAnyPressed(config.input.deleteSelection)) context.deleteSelection();
-			if (ImGui::IsAnyPressed(config.input.cutSelection)) context.cutSelection();
-			if (ImGui::IsAnyPressed(config.input.copySelection)) context.copySelection();
-			if (ImGui::IsAnyPressed(config.input.paste)) context.paste(false);
-			if (ImGui::IsAnyPressed(config.input.flipPaste)) context.paste(true);
-			if (ImGui::IsAnyPressed(config.input.cancelPaste)) context.cancelPaste();
-			if (ImGui::IsAnyPressed(config.input.flip)) context.flipSelection();
-			if (ImGui::IsAnyPressed(config.input.undo)) context.undo();
-			if (ImGui::IsAnyPressed(config.input.redo)) context.redo();
-			if (ImGui::IsAnyPressed(config.input.zoomOut, true)) timeline.setZoom(timeline.getZoom() - 0.25f);
-			if (ImGui::IsAnyPressed(config.input.zoomIn, true)) timeline.setZoom(timeline.getZoom() + 0.25f);
-			if (ImGui::IsAnyPressed(config.input.decreaseNoteSize, true)) edit.noteWidth = std::clamp(edit.noteWidth - 1, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
-			if (ImGui::IsAnyPressed(config.input.increaseNoteSize, true)) edit.noteWidth = std::clamp(edit.noteWidth + 1, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
-			if (ImGui::IsAnyPressed(config.input.shrinkDown)) context.shrinkSelection(Direction::Down);
-			if (ImGui::IsAnyPressed(config.input.shrinkUp)) context.shrinkSelection(Direction::Up);
-			if (ImGui::IsAnyPressed(config.input.connectHolds)) context.connectHoldsInSelection();
-			if (ImGui::IsAnyPressed(config.input.splitHold)) context.splitHoldInSelection();
 
-			for (int i = 0; i < (int)TimelineMode::TimelineModeMax; ++i)
-				if (ImGui::IsAnyPressed(*timelineModeBindings[i])) timeline.changeMode((TimelineMode)i, edit);
+			if (!preview.isFullWindow())
+			{
+				if (ImGui::IsAnyPressed(config.input.selectAll)) context.selectAll();
+				if (ImGui::IsAnyPressed(config.input.deleteSelection)) context.deleteSelection();
+				if (ImGui::IsAnyPressed(config.input.cutSelection)) context.cutSelection();
+				if (ImGui::IsAnyPressed(config.input.copySelection)) context.copySelection();
+				if (ImGui::IsAnyPressed(config.input.paste)) context.paste(false);
+				if (ImGui::IsAnyPressed(config.input.flipPaste)) context.paste(true);
+				if (ImGui::IsAnyPressed(config.input.cancelPaste)) context.cancelPaste();
+				if (ImGui::IsAnyPressed(config.input.flip)) context.flipSelection();
+				if (ImGui::IsAnyPressed(config.input.undo)) context.undo();
+				if (ImGui::IsAnyPressed(config.input.redo)) context.redo();
+				if (ImGui::IsAnyPressed(config.input.zoomOut, true)) timeline.setZoom(timeline.getZoom() - 0.25f);
+				if (ImGui::IsAnyPressed(config.input.zoomIn, true)) timeline.setZoom(timeline.getZoom() + 0.25f);
+				if (ImGui::IsAnyPressed(config.input.decreaseNoteSize, true)) edit.noteWidth = std::clamp(edit.noteWidth - 1, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
+				if (ImGui::IsAnyPressed(config.input.increaseNoteSize, true)) edit.noteWidth = std::clamp(edit.noteWidth + 1, MIN_NOTE_WIDTH, MAX_NOTE_WIDTH);
+				if (ImGui::IsAnyPressed(config.input.shrinkDown)) context.shrinkSelection(Direction::Down);
+				if (ImGui::IsAnyPressed(config.input.shrinkUp)) context.shrinkSelection(Direction::Up);
+				if (ImGui::IsAnyPressed(config.input.connectHolds)) context.connectHoldsInSelection();
+				if (ImGui::IsAnyPressed(config.input.splitHold)) context.splitHoldInSelection();
+
+				for (int i = 0; i < (int)TimelineMode::TimelineModeMax; ++i)
+					if (ImGui::IsAnyPressed(*timelineModeBindings[i])) timeline.changeMode((TimelineMode)i, edit);
+			}
 		}
 
 		if (config.matchTimelineSizeToScreen)
@@ -136,6 +142,12 @@ namespace MikuMikuWorld
 		{
 			context.audio.stopSoundEffects(false);
 			context.audio.setSoundEffectsProfileIndex(config.seProfileIndex);
+		}
+
+		if (settingsWindow.isEffectProfileChangePending)
+		{
+			preview.loadNoteEffects(context.scorePreviewDrawData.effectView);
+			settingsWindow.isEffectProfileChangePending = false;
 		}
 
 		if (propertiesWindow.isPendingLoadMusic)

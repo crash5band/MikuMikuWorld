@@ -75,5 +75,7 @@ namespace MikuMikuWorld
 		
 		inline bool isFullWindow() const { return fullWindow; };
 		bool wasLastFrameFullWindow() const { return lastFrameFullWindow; }
+
+		void loadNoteEffects(Effect::EffectView& effectView);
 	};
 }

@@ -787,6 +787,15 @@ namespace MikuMikuWorld
 		}
 	}
 
+	void SettingsWindow::setEffectsProfile(int profile)
+	{
+		if (profile != config.pvEffectsProfile && profile >= 0 && profile <= 1)
+		{
+			isEffectProfileChangePending = true;
+			config.pvEffectsProfile = profile;
+		}
+	}
+
 	DialogResult SettingsWindow::update()
 	{
 		if (open)
@@ -1046,14 +1055,42 @@ namespace MikuMikuWorld
 						UI::addCheckboxProperty(getString("stage_lock_ratio"), config.pvLockAspectRatio);
 						UI::endPropertyColumns();
 					}
+
+					if (ImGui::CollapsingHeader(getString("audio"), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						UI::beginPropertyColumns();
+						UI::addSelectProperty(getString("notes_se"), config.seProfileIndex, Audio::soundEffectsProfileNames, Audio::soundEffectsProfileCount);
+						UI::endPropertyColumns();
+					}
 					
 					if (ImGui::CollapsingHeader(getString("visuals"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
-						UI::beginPropertyColumns();
 						const std::vector<std::string>& noteSkinNames = noteSkins.getSkinNames();
 
-						UI::addSelectProperty(getString("notes_skin"), config.notesSkin, noteSkinNames, noteSkins.count());
+						ImGui::Text(getString("notes_skin"));
+						if (noteSkins.count() > 1)
+						{
+							if (ImGui::RadioButton(getString(noteSkinNames[0]), config.notesSkin == 0))
+								config.notesSkin = 0;
 
+							const char* noteSkinName1 = getString(noteSkinNames[1]);
+							ImGui::SameLine();
+							if (ImGui::RadioButton(noteSkinName1, config.notesSkin == 1))
+								config.notesSkin = 1;
+						}
+
+						ImGui::Text(getString("notes_effect"));
+						if (ImGui::RadioButton(getString("effects_normal"), config.pvEffectsProfile == 0))
+							setEffectsProfile(0);
+
+						ImGui::SameLine();
+						std::string effectsLiteKey = "effects_reduced";
+						const char* effectsLiteString = getString(effectsLiteKey);
+						ImGui::SameLine();
+						if (ImGui::RadioButton(effectsLiteString, config.pvEffectsProfile == 1))
+							setEffectsProfile(1);
+
+						UI::beginPropertyColumns();
 						UI::addCheckboxProperty(getString("flicks_animation"), config.pvFlickAnimation);
 						UI::addCheckboxProperty(getString("holds_animation"), config.pvHoldAnimation);
 						UI::addCheckboxProperty(getString("simultaneous_lines"), config.pvSimultaneousLine);

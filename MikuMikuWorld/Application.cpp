@@ -1,15 +1,11 @@
 ﻿#include "Application.h"
 #include "ResourceManager.h"
 #include "IO.h"
-#include "Colors.h"
 #include "Utilities.h"
 #include "Localization.h"
 #include "ApplicationConfiguration.h"
 #include "ScoreSerializer.h"
 #include "NoteSkin.h"
-#include "EffectView.h"
-#include <filesystem>
-
 
 namespace MikuMikuWorld
 {
@@ -359,15 +355,6 @@ namespace MikuMikuWorld
 		ResourceManager::loadTexture(editorAssetsDir + "stage.png");
 
 		ResourceManager::loadTransforms(appDir + "res\\effect\\transform.txt");
-
-		int effectsProfileIndex = std::clamp(config.pvEffectsProfile, 0, 1);
-		const std::string effectsDir = appDir + "res\\effect\\" + std::to_string(effectsProfileIndex) + "\\";
-		ResourceManager::loadTexture(effectsDir + "tex_note_common_all_v2.png");
-
-		size_t effectCount = arrayLength(Effect::effectNames);
-
-		for (size_t i = 0; i < effectCount; i++)
-			ResourceManager::loadParticleEffect(effectsDir + Effect::effectNames[i] + ".json");
 
 		// Load more languages here
 		Localization::loadDefault();

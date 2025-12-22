@@ -70,10 +70,12 @@ namespace MikuMikuWorld
 		int selectedBindingIndex = 0;
 
 		void updateKeyConfig(MultiInputBinding* bindings[], int count);
+		void setEffectsProfile(int profile);
 
 	public:
 		bool open = false;
 		bool isBackgroundChangePending = false;
+		bool isEffectProfileChangePending = false;
 		DialogResult update();
 	};
 

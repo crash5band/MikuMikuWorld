@@ -423,6 +423,51 @@ namespace MikuMikuWorld
 		fullWindow = _fullWindow;
 	}
 
+	void ScorePreviewWindow::loadNoteEffects(Effect::EffectView& effectView)
+	{
+		const std::string effectsDir = Application::getAppDir() + "res\\effect\\" + std::to_string(config.pvEffectsProfile) + "\\";
+		size_t effectCount = arrayLength(Effect::effectNames);
+
+		if (!IO::File::exists(effectsDir))
+			return;
+
+		// Cleanup. We don't want all profiles and their resources loaded in memory
+		ResourceManager::removeAllParticleEffects();
+		int texIndex = ResourceManager::getTexture("tex_note_common_all_v2.png");
+		if (texIndex > -1)
+			ResourceManager::disposeTexture(texIndex);
+
+		ResourceManager::loadTexture(effectsDir + "tex_note_common_all_v2.png");
+
+		std::vector<std::string> failedParticleFiles;
+		for (size_t i = 0; i < effectCount; i++)
+		{
+			const std::string filename{ effectsDir + Effect::effectNames[i] + ".json" };
+			int particleId = ResourceManager::loadParticleEffect(filename);
+
+			if (particleId == -1)
+				failedParticleFiles.push_back(filename);
+		}
+
+		if (!failedParticleFiles.empty())
+		{
+			std::string fullErrorMessage = "Failed to load the following note effects: \n\n";
+			for (const auto& error : failedParticleFiles)
+				fullErrorMessage.append(error).append("\n");
+
+			IO::messageBox(
+				APP_NAME,
+				fullErrorMessage,
+				IO::MessageBoxButtons::Ok,
+				IO::MessageBoxIcon::Warning,
+				Application::windowState.windowHandle
+			);
+		}
+
+		effectView.reset();
+		effectView.init();
+	}
+
 	const Texture &ScorePreviewWindow::getNoteTexture()
 	{
 		return ResourceManager::textures[noteSkins.getItemIndex(NoteSkinItem::Notes)];

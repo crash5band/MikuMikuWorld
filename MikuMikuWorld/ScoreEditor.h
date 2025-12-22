@@ -63,6 +63,7 @@ namespace MikuMikuWorld
 		void importPreset(const std::string& path);
 		void writeSettings();
 		void uninitialize();
+		
 		inline std::string_view getWorkingFilename() const { return context.workingData.filename; }
 		constexpr inline bool isUpToDate() const { return context.upToDate; }
 

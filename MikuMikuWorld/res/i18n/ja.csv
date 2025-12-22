@@ -105,8 +105,8 @@ flicks_animation, マーカーのアニメーション
 holds_animation, ロングノーツのアニメーション
 simultaneous_lines, 同時押しライン
 notes_effect, ノーツエフェクト
-notes_slot_effect, ノーツスロットエフェクト
-lanes_effect, レーンエフェクト
+effects_normal, 通常
+effects_reduced, 控えめ
 holds_alpha, ロングノーツの不透明度
 guides_alpha, ガイドノーツの不透明度
 stage_opacity, ステージの不透明度
