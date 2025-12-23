@@ -435,14 +435,15 @@ namespace MikuMikuWorld
 		return i == 0;
 	}
 
-	void UI::setDarkMode(int mode)
+	void UI::setDarkMode(bool enabled)
 	{
 		GLFWwindow* window = glfwGetCurrentContext();
 		if (!window)
 			return;
 
 		HWND hwnd = glfwGetWin32Window(window);
-		::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &mode, sizeof(mode));
+		BOOL isDarkMode = enabled;
+		::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &isDarkMode, sizeof(isDarkMode));
 	}
 
 	void UI::updateBtnSizesDpiScaling(float scale)

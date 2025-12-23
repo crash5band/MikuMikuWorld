@@ -105,8 +105,7 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_SETTINGCHANGE:
 		if (lParam != 0 && lstrcmp((LPCSTR)lParam, "ImmersiveColorSet"))
 		{
-			BOOL isDarkMode = mmw::UI::isSystemDarkMode();
-			mmw::UI::setDarkMode(isDarkMode);
+			mmw::UI::setDarkMode(mmw::UI::isSystemDarkMode());
 		}
 		break;
 

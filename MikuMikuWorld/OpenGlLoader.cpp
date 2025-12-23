@@ -86,8 +86,6 @@ namespace MikuMikuWorld
 			return Result(ResultStatus::Error, "Failed to create GLFW Window.\n" + std::string(glfwErrorDescription));
 		}
 
-		BOOL isDarkMode = UI::isSystemDarkMode();
-		UI::setDarkMode(isDarkMode);
 		glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
 		
 		glfwMakeContextCurrent(window);
@@ -97,6 +95,8 @@ namespace MikuMikuWorld
 		glfwSetFramebufferSizeCallback(window, frameBufferResizeCallback);
 		glfwSetWindowCloseCallback(window, windowCloseCallback);
 		glfwSetWindowMaximizeCallback(window, windowMaximizeCallback);
+
+		UI::setDarkMode(UI::isSystemDarkMode());
 
 		std::string iconFilename = appDir + "res\\mmw_icon.png";
 		if (IO::File::exists(iconFilename))

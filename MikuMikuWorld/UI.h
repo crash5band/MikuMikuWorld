@@ -111,8 +111,8 @@ namespace MikuMikuWorld
 		/// <summary>
 		/// Sets whether immersive dark color (windows dark theme) is enabled or not
 		/// </summary>
-		/// <param name="mode"></param>
-		static void setDarkMode(int mode);
+		/// <param name="enabled">Whether dark mode should be enabled</param>
+		static void setDarkMode(bool enabled);
 		static void updateBtnSizesDpiScaling(float scale);
 
 		template <typename T>
