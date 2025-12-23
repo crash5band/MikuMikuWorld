@@ -3,9 +3,10 @@
 
 #include "Application.h"
 #include "ApplicationConfiguration.h"
-#include "IO.h"
 #include "UI.h"
 #include "stb_image.h"
+#include "dwmapi.h"
+
 
 namespace MikuMikuWorld
 {
@@ -85,6 +86,8 @@ namespace MikuMikuWorld
 			return Result(ResultStatus::Error, "Failed to create GLFW Window.\n" + std::string(glfwErrorDescription));
 		}
 
+		BOOL isDarkMode = UI::isSystemDarkMode();
+		UI::setDarkMode(isDarkMode);
 		glfwSetWindowPos(window, config.windowPos.x, config.windowPos.y);
 		
 		glfwMakeContextCurrent(window);

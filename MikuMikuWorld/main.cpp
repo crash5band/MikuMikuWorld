@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "IO.h"
-#include <iostream>
+#include "UI.h"
+#include "Windows.h"
 
 namespace mmw = MikuMikuWorld;
 mmw::Application app;
@@ -99,6 +100,13 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 
 			::DragFinish(dropHandle);
+		}
+		break;
+	case WM_SETTINGCHANGE:
+		if (lParam != 0 && lstrcmp((LPCSTR)lParam, "ImmersiveColorSet"))
+		{
+			BOOL isDarkMode = mmw::UI::isSystemDarkMode();
+			mmw::UI::setDarkMode(isDarkMode);
 		}
 		break;
 

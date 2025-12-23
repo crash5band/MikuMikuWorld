@@ -101,6 +101,18 @@ namespace MikuMikuWorld
 		static void toolbarSeparator();
 
 		static void setWindowTitle(std::string title);
+
+		/// <summary>
+		/// Querys whether the system is set to dark mode
+		/// </summary>
+		/// <returns>true if dark mode is enabled; Otherwise false</returns>
+		static bool isSystemDarkMode();
+
+		/// <summary>
+		/// Sets whether immersive dark color (windows dark theme) is enabled or not
+		/// </summary>
+		/// <param name="mode"></param>
+		static void setDarkMode(int mode);
 		static void updateBtnSizesDpiScaling(float scale);
 
 		template <typename T>
