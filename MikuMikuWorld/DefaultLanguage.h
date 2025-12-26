@@ -204,6 +204,7 @@ namespace MikuMikuWorld
 		{"edit_fever", "Edit FEVER Trigger"},
 		{"edit_none", "Edit"},
 		{"edit_event", "Edit Event"},
+		{"fullscreen_preview", "Fullscreen Preview"},
 
 		// Presets
 		{"presets", "Presets"},

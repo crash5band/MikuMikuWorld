@@ -42,7 +42,7 @@ namespace MikuMikuWorld
 		float scaledAspectRatio;
 		Camera noteEffectsCamera;
 
-		bool fullWindow{};
+		mutable bool fullWindow{};
 		bool lastFrameFullWindow{};
 
 		const Texture& getNoteTexture();

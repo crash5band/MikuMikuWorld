@@ -406,15 +406,18 @@ namespace MikuMikuWorld
 		playbackState.wasLastFramePlaying = playbackState.isPlaying;
 		playbackState.isPlaying = timeline.isPlaying();
 
-		if (ImGui::BeginPopupContextWindow("preview_context_menu"))
+		if (isFullWindow())
 		{
-			bool _fullWindow = fullWindow;
-			if (ImGui::MenuItem(getString("fullscreen_preview_toggle"), NULL, &_fullWindow))
+			if (ImGui::BeginPopupContextWindow("preview_context_menu", ImGuiPopupFlags_NoReopen | ImGuiPopupFlags_MouseButtonDefault_))
 			{
-				setFullWindow(_fullWindow);
-			}
+				bool _fullWindow = fullWindow;
+				if (ImGui::MenuItem(getString("fullscreen_preview"), ToShortcutString(config.input.togglePreviewFullWindow), &_fullWindow))
+					setFullWindow(_fullWindow);
 
-			ImGui::EndPopup();
+				ImGui::MenuItem(getString("preview_draw_toolbar"), NULL, &config.pvDrawToolbar);
+				ImGui::MenuItem(getString("return_to_last_tick"), NULL, &config.returnToLastSelectedTickOnPause);
+				ImGui::EndPopup();
+			}
 		}
 	}
 
@@ -1005,6 +1008,10 @@ namespace MikuMikuWorld
 			if (timeline.isPlaying()) timeline.setPlaying(context, false);
 			context.currentTick = std::max(timeline.roundTickDown(context.currentTick, timeline.getDivision()) - (TICKS_PER_BEAT / (timeline.getDivision() / 4)), 0);
 		}
+
+		ImGui::SetCursorPosX(centeredXBtn);
+		if (UI::transparentButton(isFullWindow() ? ICON_FA_COMPRESS : ICON_FA_EXPAND))
+			fullWindow = !isFullWindow();
 
 		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
 
