@@ -904,7 +904,7 @@ namespace MikuMikuWorld
 		if (!isArrayIndexInBounds(sprIndex, texture.sprites))
 			return;
 		const Sprite& arrowSprite = texture.sprites[sprIndex];
-		size_t flickTransformIdx = clamp(note.width, 1, MAX_FLICK_SPRITES) - 1 + static_cast<int>((note.flick == FlickType::Left || note.flick == FlickType::Right) ? SpriteType::FlickArrowLeft : SpriteType::FlickArrowUp);
+		size_t flickTransformIdx = std::clamp(note.width, 1, MAX_FLICK_SPRITES) - 1 + static_cast<int>((note.flick == FlickType::Left || note.flick == FlickType::Right) ? SpriteType::FlickArrowLeft : SpriteType::FlickArrowUp);
 		if (!isArrayIndexInBounds(flickTransformIdx, ResourceManager::spriteTransforms))
 			return;
 		const SpriteTransform& transform = ResourceManager::spriteTransforms[flickTransformIdx];
@@ -912,7 +912,7 @@ namespace MikuMikuWorld
 		const int mirror = config.pvMirrorScore ? -1 : 1;
 		const int flickDirection = mirror * (note.flick == FlickType::Left ? -1 : (note.flick == FlickType::Right ? 1 : 0));
 		const float center = Engine::getNoteCenter(note) * mirror;
-		const float w = clamp(note.width, 0, MAX_FLICK_SPRITES) * (note.flick == FlickType::Right ? -1 : 1) * mirror / 4.f;
+		const float w = std::clamp(note.width, 0, MAX_FLICK_SPRITES) * (note.flick == FlickType::Right ? -1 : 1) * mirror / 4.f;
 		
 		auto vPos = transform.apply(
 			Engine::quadvPos(
@@ -959,7 +959,7 @@ namespace MikuMikuWorld
 			ImGui::GetStyle().WindowPadding.y * 5
 		});
 		ImGui::SetNextWindowSizeConstraints({48, 0}, {120, FLT_MAX}, NULL);
-		float childBgAlpha = clamp(Engine::easeInCubic(unlerp(MAX_NO_HOVER_TIME, 0, lastHoveredTime)), 0.25f, 1.f);
+		float childBgAlpha = std::clamp(easeInCubic(unlerp(MAX_NO_HOVER_TIME, 0, lastHoveredTime)), 0.25f, 1.f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.f);
 		
 		ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetColorU32(ImGuiCol_WindowBg, childBgAlpha));
@@ -1109,7 +1109,7 @@ namespace MikuMikuWorld
 		{
 			float absScrollStart = ImGui::GetWindowPos().y + handleSize.y / 2;
 			float absScrollEnd = ImGui::GetWindowPos().y + scrollMaxSize.y - handleSize.y / 2;
-			float mouseProgress = 1.f - clamp(unlerp(absScrollStart, absScrollEnd, io.MousePos.y), 0.f, 1.f);
+			float mouseProgress = 1.f - std::clamp(unlerp(absScrollStart, absScrollEnd, io.MousePos.y), 0.f, 1.f);
 			context.currentTick = std::round(lerp(0, maxTicks, mouseProgress));	
 		}
 		

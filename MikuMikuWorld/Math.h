@@ -7,9 +7,6 @@
 
 namespace MikuMikuWorld
 {
-	constexpr float PI = 22.f / 7.f;
-	constexpr float DEGREE_TO_RAD = (22.f / 7.f) / 180.f;
-
 	struct Vector2
 	{
 		float x;
@@ -101,48 +98,6 @@ namespace MikuMikuWorld
 		inline Vector3 operator * (const float& mult) const {
 			return Vector3(x * mult, y * mult, z * mult);
 		}
-
-		inline Vector3 crossProduct(const Vector3& rkVector) const
-		{
-			return Vector3(
-				y * rkVector.z - z * rkVector.y,
-				z * rkVector.x - x * rkVector.z,
-				x * rkVector.y - y * rkVector.x);
-		}
-
-		inline float dotProduct(const Vector3& vec) const
-		{
-			return x * vec.x + y * vec.y + z * vec.z;
-		}
-
-		inline float absDotProduct(const Vector3& vec) const
-		{
-			return abs(x * vec.x) + abs(y * vec.y) + abs(z * vec.z);
-		}
-
-		inline float length() const
-		{
-			return sqrt((x * x) + (y * y) + (z * z));
-		}
-
-		inline float squaredLength() const
-		{
-			return (x * x) + (y * y) + (z * z);
-		}
-
-		inline float normalize()
-		{
-			float fLength = sqrt(x * x + y * y + z * z);
-
-			if (fLength > 0.0f) {
-				float fInvLength = 1.0f / fLength;
-				x *= fInvLength;
-				y *= fInvLength;
-				z *= fInvLength;
-			}
-
-			return fLength;
-		}
 	};
 
 	struct Color
@@ -174,6 +129,12 @@ namespace MikuMikuWorld
 		inline Color scaleAlpha(float scalar) { return Color{ r, g, b, a * scalar}; }
 	};
 
+	struct Range
+	{
+		double min;
+		double max;
+	};
+
 	constexpr uint32_t roundUpToPowerOfTwo(uint32_t v)
 	{
 		v--;
@@ -202,16 +163,6 @@ namespace MikuMikuWorld
 	float easeOut(float start, float end, float ratio);
 	float midpoint(float x1, float x2);
 	bool isWithinRange(float x, float left, float right);
-	template <typename T, typename cmp_t = std::less<T>>
-	inline const T& clamp(const T& v, const T& a, const T& b)
-	{
-		cmp_t cmp;
-		if (cmp(v, a))
-			return a;
-		if (cmp(b, v))
-			return b;
-		return v;
-	}
 
 	std::function<float(float, float, float)> getEaseFunction(EaseType ease);
 
@@ -219,75 +170,8 @@ namespace MikuMikuWorld
 
 	static constexpr double NUM_PI = 3.14159265358979323846;
 	static constexpr double NUM_PI_2 = 3.14159265358979323846 / 2;
+	static constexpr double DEGREE_TO_RAD = NUM_PI / 180;
 
-	namespace Engine
-	{
-		struct Range
-		{
-			double min;
-			double max;
-		};
-
-		enum class Easing : uint8_t
-		{
-			Linear,
-			Sine,
-			Quad,
-			Cubic,
-			Quart,
-			Quint,
-			Expo,
-			Circ,
-			Back,
-			Elastic,
-			EasingCount,
-			TypeMask = 0b1111,
-			In    = 1 << 4,
-			Out   = 1 << 5,
-			InOut = In | Out,
-			OutIn = 1 << 6
-		};
-
-		using EasingFunc = float(*)(float x);
-
-		float easeLinear(float x);
-		float easeInSine(float x);
-		float easeOutSine(float x);
-		float easeInOutSine(float x);
-		float easeOutInSine(float x);
-		float easeInQuad(float x);
-		float easeOutQuad(float x);
-		float easeInOutQuad(float x);
-		float easeOutInQuad(float x);
-		float easeInCubic(float x);
-		float easeOutCubic(float x);
-		float easeInOutCubic(float x);
-		float easeOutInCubic(float x);
-		float easeInQuart(float x);
-		float easeOutQuart(float x);
-		float easeInOutQuart(float x);
-		float easeOutInQuart(float x);
-		float easeInQuint(float x);
-		float easeOutQuint(float x);
-		float easeInOutQuint(float x);
-		float easeOutInQuint(float x);
-		float easeInExpo(float x);
-		float easeOutExpo(float x);
-		float easeInOutExpo(float x);
-		float easeOutInExpo(float x);
-		float easeInCirc(float x);
-		float easeOutCirc(float x);
-		float easeInOutCirc(float x);
-		float easeOutInCirc(float x);
-		float easeInBack(float x);
-		float easeOutBack(float x);
-		float easeInOutBack(float x);
-		float easeOutInBack(float x);
-		float easeInElastic(float x);
-		float easeOutElastic(float x);
-		float easeInOutElastic(float x);
-		float easeOutInElastic(float x);
-
-		EasingFunc getEaseFunc(Easing easing);
-	}
+	float easeInCubic(float x);
+	float easeOutCubic(float x);
 }

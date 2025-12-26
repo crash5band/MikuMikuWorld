@@ -94,7 +94,7 @@ namespace MikuMikuWorld::Effect
 	struct ParticleController
 	{
 		int refID{};
-		Engine::Range time{ -1 , -1 };
+		Range time{ -1 , -1 };
 		Effect::Transform worldOffset{};
 		Effect::EmitterInstance effectRoot{};
 		bool active{ false };

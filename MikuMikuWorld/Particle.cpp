@@ -51,7 +51,7 @@ namespace MikuMikuWorld::Effect
 
 		DirectX::XMStoreFloat(&t, DirectX::XMVector3Dot(DirectX::XMVectorNegate(normalizedVelocity), up));
 		if (t < 0.0f)
-			angle = PI - angle;
+			angle = NUM_PI - angle;
 
 		DirectX::XMVECTOR lengthSquaredVector = DirectX::XMVector3LengthSq(velocity);
 
@@ -281,7 +281,7 @@ namespace MikuMikuWorld::Effect
 		else if (ref.emission.shape == EmissionShape::HemiShpere)
 		{
 			float angle = lerp(0, DirectX::XMConvertToRadians(ref.emission.arc), shapeRandom.nextFloat());
-			float angle2 = lerp(0, PI / 2.f, shapeRandom.nextFloat());
+			float angle2 = lerp(0, NUM_PI_2, shapeRandom.nextFloat());
 			float radius = lerp(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius, shapeRandom.nextFloat());
 
 			float x = cosf(angle) * sinf(angle2) * radius * DirectX::XMVectorGetX(ref.emission.transform.scale);
