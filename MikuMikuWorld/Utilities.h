@@ -1,11 +1,11 @@
 #pragma once
-#include <string>
-#include <vector>
-#include <algorithm>
+
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include "ImGui/imgui_internal.h"
 #include <type_traits>
 #include <random>
-#include "Math.h"
+#include <string>
+#include <vector>
 
 // Macro to allow usage of flags operators with types enums
 #define DECLARE_ENUM_FLAG_OPERATORS(EnumType) \
@@ -28,6 +28,7 @@ namespace MikuMikuWorld
 		static float centerImGuiItem(const float width);
 		static void ImGuiCenteredText(const std::string& str);
 		static void ImGuiCenteredText(const char* str);
+		static bool ImGuiTextFilterWithHint(ImGuiTextFilter* imguiTextFilter, const char* label, const char* hint, float width);
 	};
 
 	class Random

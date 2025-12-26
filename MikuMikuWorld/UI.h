@@ -1,7 +1,8 @@
 #pragma once
+
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 #include "ImGui/imgui.h"
-#include "ImGui/imgui_stdlib.h"
-#include "ImGui/imgui_internal.h"
 #include "IconsFontAwesome5.h"
 #include "Localization.h"
 #include "NoteTypes.h"

@@ -27,7 +27,7 @@ namespace MikuMikuWorld
 		configFilename = Application::getAppDir() + IMGUI_CONFIG_FILENAME;
 
 		ImGuiIO& io = ImGui::GetIO();
-		io.ConfigFlags |= 
+		io.ConfigFlags |=
 			ImGuiConfigFlags_DockingEnable |
 			ImGuiConfigFlags_ViewportsEnable |
 			ImGuiConfigFlags_DpiEnableScaleViewports;
@@ -35,6 +35,7 @@ namespace MikuMikuWorld
 		io.ConfigWindowsMoveFromTitleBarOnly = true;
 		io.ConfigViewportsNoDefaultParent = false;
 		io.ConfigViewportsNoAutoMerge = true;
+		io.ConfigDebugHighlightIdConflicts = false;
 		io.IniFilename = configFilename.c_str();
 
 		if (!ImGui_ImplGlfw_InitForOpenGL(window, true))
@@ -220,7 +221,6 @@ namespace MikuMikuWorld
 
 		loadFont(Application::getAppDir() + "res/fonts/NotoSansCJK-Regular.ttc", 16 * dpiScale);
 		loadIconFont(Application::getAppDir() + "res/fonts/fa-solid-900.ttf", ICON_MIN_FA, ICON_MAX_FA, 12 * dpiScale);
-		ImGui_ImplOpenGL3_CreateFontsTexture();
 	}
 
 	void ImGuiManager::initializeLayout()

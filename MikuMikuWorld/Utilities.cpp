@@ -1,5 +1,5 @@
 #include "Utilities.h"
-#include "Constants.h"
+#include "Math.h"
 #include "ImGui/imgui.h"
 #include "Localization.h"
 #include "IO.h"
@@ -50,6 +50,16 @@ namespace MikuMikuWorld
 	{
 		ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(str).x) * 0.5f);
 		ImGui::Text(str);
+	}
+
+	bool Utilities::ImGuiTextFilterWithHint(ImGuiTextFilter* imguiTextFilter, const char* label, const char* hint, float width)
+	{
+		if (width != 0.0f)
+			ImGui::SetNextItemWidth(width);
+		bool value_changed = ImGui::InputTextWithHint(label, hint, imguiTextFilter->InputBuf, IM_ARRAYSIZE(imguiTextFilter->InputBuf));
+		if (value_changed)
+			imguiTextFilter->Build();
+		return value_changed;
 	}
 
 	Random globalRandom{};

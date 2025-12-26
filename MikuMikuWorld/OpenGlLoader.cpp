@@ -5,8 +5,6 @@
 #include "ApplicationConfiguration.h"
 #include "UI.h"
 #include "stb_image.h"
-#include "dwmapi.h"
-
 
 namespace MikuMikuWorld
 {

@@ -1,6 +1,5 @@
 #include "Jacket.h"
 #include "ResourceManager.h"
-#include "ImGuiManager.h"
 #include "File.h"
 #include "Math.h"
 #include <algorithm>

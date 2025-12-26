@@ -4,6 +4,7 @@
 #include "File.h"
 #include "Constants.h"
 #include "Utilities.h"
+#include "ImGui/imgui_stdlib.h"
 #include "ApplicationConfiguration.h"
 #include "NoteSkin.h"
 #include "ResourceManager.h"
@@ -216,7 +217,7 @@ namespace MikuMikuWorld
 			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
 			float filterWidth = ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2;
 
-			presetFilter.Draw("##preset_filter", IO::concat(ICON_FA_SEARCH, getString("search"), " ").c_str(), filterWidth);
+			Utilities::ImGuiTextFilterWithHint(&presetFilter, "##preset_filter", IO::concat(ICON_FA_SEARCH, getString("search"), " ").c_str(), filterWidth);
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_FA_TIMES, UI::btnSmall))
 				presetFilter.Clear();
@@ -644,7 +645,7 @@ namespace MikuMikuWorld
 
 		constexpr ImGuiSelectableFlags selectionFlags =
 			ImGuiSelectableFlags_SpanAllColumns |
-			ImGuiSelectableFlags_AllowItemOverlap;
+			ImGuiSelectableFlags_AllowOverlap;
 
 		const int rowHeight = ImGui::GetFrameHeight() + 5;
 
@@ -770,15 +771,15 @@ namespace MikuMikuWorld
 			{
 				for (int key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_MouseLeft; ++key)
 				{
-					bool isCtrl = key == ImGuiKey_LeftCtrl || key == ImGuiKey_RightCtrl || key == ImGuiKey_ModCtrl;
-					bool isShift = key == ImGuiKey_LeftShift || key == ImGuiKey_RightShift || key == ImGuiKey_ModShift;
-					bool isAlt = key == ImGuiKey_LeftAlt || key == ImGuiKey_RightAlt || key == ImGuiKey_ModAlt;
-					bool isSuper = key == ImGuiKey_LeftSuper || key == ImGuiKey_RightSuper || key == ImGuiKey_ModSuper;
+					bool isCtrl = key == ImGuiKey_LeftCtrl || key == ImGuiKey_RightCtrl || key == ImGuiMod_Ctrl;
+					bool isShift = key == ImGuiKey_LeftShift || key == ImGuiKey_RightShift || key == ImGuiMod_Shift;
+					bool isAlt = key == ImGuiKey_LeftAlt || key == ImGuiKey_RightAlt || key == ImGuiMod_Alt;
+					bool isSuper = key == ImGuiKey_LeftSuper || key == ImGuiKey_RightSuper || key == ImGuiMod_Super;
 
 					// execute if a non-modifier key is tapped
 					if (ImGui::IsKeyPressed((ImGuiKey)key) && !isCtrl && !isShift && !isAlt && !isSuper)
 					{
-						bindings[selectedBindingIndex]->bindings[editBindingIndex] = InputBinding((ImGuiKey)key, (ImGuiModFlags_)ImGui::GetIO().KeyMods);
+						bindings[selectedBindingIndex]->bindings[editBindingIndex] = InputBinding((ImGuiKey)key, (ImGuiKey)ImGui::GetIO().KeyMods);
 						listeningForInput = false;
 						editBindingIndex = -1;
 					}

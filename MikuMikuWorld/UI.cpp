@@ -1,5 +1,7 @@
-#include "UI.h"
 #include "Utilities.h"
+#include "ImGui/imgui_stdlib.h"
+#include "ImGui/imgui_internal.h"
+#include "UI.h"
 #include "Colors.h"
 #include "ResourceManager.h"
 #include "TimelineMode.h"
@@ -54,7 +56,7 @@ namespace MikuMikuWorld
 		ImGui::BeginDisabled(!enabled);
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 
-		bool pressed = ImGui::ButtonEx(txt, size, (repeat ? ImGuiButtonFlags_Repeat : 0));
+		bool pressed = ImGui::ButtonEx(txt, size, (repeat ? ImGuiItemFlags_ButtonRepeat : 0));
 
 		ImGui::PopStyleColor();
 		ImGui::EndDisabled();
@@ -277,7 +279,7 @@ namespace MikuMikuWorld
 		{
 			float txtWidth = ImGui::CalcTextSize(label).x + (ImGui::GetStyle().WindowPadding.x * 2);
 			ImGui::SetNextWindowSize(ImVec2(std::min(txtWidth, 250.0f), -1));
-			ImGui::BeginTooltipEx(ImGuiTooltipFlags_OverridePreviousTooltip, ImGuiWindowFlags_NoResize);
+			ImGui::BeginTooltipEx(ImGuiTooltipFlags_OverridePrevious, ImGuiWindowFlags_NoResize);
 			ImGui::TextWrapped(label);
 			ImGui::EndTooltip();
 		}

@@ -125,7 +125,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;zlibstatic.lib;opengl32.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;zlibstatic.lib;opengl32.lib;Version.lib;Dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../Depends/GLFW/lib;../Depends/zlib/lib;../Depends/libzip/lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>

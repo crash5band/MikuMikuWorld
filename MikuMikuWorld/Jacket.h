@@ -1,6 +1,5 @@
 #pragma once
 #include "Rendering/Texture.h"
-#include "ImGui/imgui.h"
 #include <memory>
 #include <string>
 

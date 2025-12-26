@@ -215,7 +215,7 @@ namespace MikuMikuWorld
 			maxOffset += 2000;
 
 		ImGui::SetCursorScreenPos(windowEndTop);
-		ImGui::InvisibleButton("##scroll_background", ImVec2{ scrollbarWidth, scrollHeight + handleHeight }, ImGuiButtonFlags_AllowItemOverlap);
+		ImGui::InvisibleButton("##scroll_background", ImVec2{ scrollbarWidth, scrollHeight + handleHeight }, ImGuiItemFlags_AllowOverlap);
 		if (ImGui::IsItemActivated())
 		{
 			float yPos = std::clamp(ImGui::GetMousePos().y, windowEndTop.y, windowEndBottom.y - handleHeight);
