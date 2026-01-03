@@ -10,7 +10,7 @@ using namespace nlohmann;
 namespace MikuMikuWorld
 {
 	ApplicationConfiguration config{};
-	constexpr const char* CONFIG_VERSION{ "1.15.0" };
+	constexpr const char* CONFIG_VERSION{ "1.16.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -63,8 +63,8 @@ namespace MikuMikuWorld
 
 			division = jsonIO::tryGetValue<int>(timeline, "division", 8);
 			zoom = jsonIO::tryGetValue<float>(timeline, "zoom", 2.0f);
-			laneOpacity = jsonIO::tryGetValue<float>(timeline, "lane_opacity", 0.0f);
-			backgroundBrightness = jsonIO::tryGetValue<float>(timeline, "background_brightness", 0.5f);
+			laneOpacity = jsonIO::tryGetValue<float>(timeline, "lane_opacity", 0.6f);
+			backgroundBrightness = jsonIO::tryGetValue<float>(timeline, "background_brightness", 0.8f);
 			drawBackground = jsonIO::tryGetValue<bool>(timeline, "draw_background", true);
 			backgroundImage = jsonIO::tryGetValue<std::string>(timeline, "background_image", "");
 
@@ -94,7 +94,7 @@ namespace MikuMikuWorld
 			pvGuideAlpha = jsonIO::tryGetValue<float>(previewObj, "guide_alpha", 0.8f);
 			pvStageCover = jsonIO::tryGetValue<float>(previewObj, "stage_cover", 0.f);
 			pvStageOpacity = jsonIO::tryGetValue<float>(previewObj, "stage_opacity", 1.f);
-			pvBackgroundBrightness = jsonIO::tryGetValue<float>(previewObj, "background_brightness", 0.8f);
+			pvBackgroundBrightness = jsonIO::tryGetValue<float>(previewObj, "background_brightness", 1.f);
 			pvEffectsProfile = jsonIO::tryGetValue<int>(previewObj, "effects_profile", 0);
 			pvDrawToolbar = jsonIO::tryGetValue<bool>(previewObj, "draw_toolbar", true);
 		}
@@ -266,7 +266,7 @@ namespace MikuMikuWorld
 	void ApplicationConfiguration::restoreDefault()
 	{
 		windowPos = Vector2(150, 100);
-		windowSize = Vector2(1000, 800);
+		windowSize = Vector2(1100, 800);
 		fullScreen = false;
 		maximized = false;
 		vsync = true;
@@ -279,8 +279,8 @@ namespace MikuMikuWorld
 		matchNotesSizeToTimeline = true;
 		division = 8;
 		zoom = 2.0f;
-		laneOpacity = 0.0f;
-		backgroundBrightness = 0.5f;
+		laneOpacity = 0.6f;
+		backgroundBrightness = 0.8f;
 		drawBackground = true;
 		backgroundImage = "";
 		useSmoothScrolling = true;
@@ -304,7 +304,7 @@ namespace MikuMikuWorld
 		pvGuideAlpha = 0.8f;
 		pvStageCover = 0.f;
 		pvStageOpacity = 1.f;
-		pvBackgroundBrightness = 0.8f;
+		pvBackgroundBrightness = 1.f;
 		pvEffectsProfile = 0;
 		notesSkin = 0;
 		pvDrawToolbar = true;
