@@ -114,9 +114,6 @@
     <ClCompile Include="SusExporter.cpp">
       <Filter>Score\SUS</Filter>
     </ClCompile>
-    <ClCompile Include="ScoreConverter.cpp">
-      <Filter>Score</Filter>
-    </ClCompile>
     <ClCompile Include="ScoreEditorWindows.cpp">
       <Filter>ScoreEditor</Filter>
     </ClCompile>
@@ -332,9 +329,6 @@
     </ClInclude>
     <ClInclude Include="SusExporter.h">
       <Filter>Score\SUS</Filter>
-    </ClInclude>
-    <ClInclude Include="ScoreConverter.h">
-      <Filter>Score</Filter>
     </ClInclude>
     <ClInclude Include="ScoreEditorWindows.h">
       <Filter>ScoreEditor</Filter>

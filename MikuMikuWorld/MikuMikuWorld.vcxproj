@@ -212,7 +212,6 @@
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Score.cpp" />
     <ClCompile Include="ScoreContext.cpp" />
-    <ClCompile Include="ScoreConverter.cpp" />
     <ClCompile Include="ScoreEditorTimeline.cpp" />
     <ClCompile Include="ScoreEditorWindows.cpp" />
     <ClCompile Include="ScorePreview.cpp" />
@@ -293,7 +292,6 @@
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Score.h" />
     <ClInclude Include="ScoreContext.h" />
-    <ClInclude Include="ScoreConverter.h" />
     <ClInclude Include="ScoreEditorTimeline.h" />
     <ClInclude Include="ScoreEditorWindows.h" />
     <ClInclude Include="ScoreStats.h" />
