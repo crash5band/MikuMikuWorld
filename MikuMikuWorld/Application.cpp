@@ -359,6 +359,7 @@ namespace MikuMikuWorld
 		// Load more languages here
 		Localization::loadDefault();
 		Localization::load("ja", u8"日本語", appDir + "res\\i18n\\ja.csv");
+		Localization::load("zh-tw", u8"繁體中文（台灣）", appDir + "res\\i18n\\zh-tw.csv");
 	}
 
 	void Application::setFullScreen(bool fullScreen)
