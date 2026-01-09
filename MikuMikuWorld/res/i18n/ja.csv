@@ -15,6 +15,7 @@ edit, 編集
 undo, 元に戻す
 redo, やり直す
 select_all, 全て選択
+insert_skill, スキル発動を挿入
 view, 表示
 show_step_outlines, 中継点に枠線を表示
 hide_step_outlines_in_playback, 再生中に中継点を隠す

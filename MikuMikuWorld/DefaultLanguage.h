@@ -20,6 +20,7 @@ namespace MikuMikuWorld
 		{"undo", "Undo"},
 		{"redo", "Redo"},
 		{"select_all", "Select All"},
+		{"insert_skill", "Insert skill trigger"},
 		{"view", "View"},
 		{"show_step_outlines", "Show Step Outlines"},
 		{"hide_step_outlines_in_playback", "Hide Step Outlines During Playback"},

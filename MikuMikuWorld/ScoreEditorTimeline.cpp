@@ -641,8 +641,15 @@ namespace MikuMikuWorld
 			feverControl(context.score.fever);
 
 			// Update skill triggers
-			for (const auto& skill : context.score.skills)
-				skillControl(skill);
+			for (size_t index = 0; index < context.score.skills.size(); ++index)
+			{
+				if (skillControl(context.score.skills.at(index)))
+				{
+					eventEdit.editIndex = index;
+					eventEdit.type = EventType::Skill;
+					ImGui::OpenPopup("edit_event");
+				}
+			}
 
 			eventEditor(context);
 			updateNotes(context, edit, renderer);
@@ -1089,8 +1096,21 @@ namespace MikuMikuWorld
 			context.score.hiSpeedChanges.push_back({ hoverTick, edit.hiSpeed });
 			std::sort(context.score.hiSpeedChanges.begin(), context.score.hiSpeedChanges.end(),
 				[](const auto& a, const auto& b) { return a.tick < b.tick; });
-			context.pushHistory("Insert hi-speed changes", prev, context.score);
+			context.pushHistory("Insert hi-speed change", prev, context.score);
 		}
+	}
+
+	void ScoreEditorTimeline::insertSkill(ScoreContext& context, int tick)
+	{
+		for (const auto& skill : context.score.skills)
+		{
+			if (skill.tick == tick)
+				return;
+		}
+
+		Score prev = context.score;
+		context.score.skills.push_back({ nextSkillID++, tick });
+		context.pushHistory("Insert skill trigger", prev, context.score);
 	}
 
 	void ScoreEditorTimeline::previewInput(EditArgs& edit, Renderer* renderer)
@@ -1140,7 +1160,6 @@ namespace MikuMikuWorld
 		case TimelineMode::InsertHiSpeed:
 			hiSpeedControl(hoverTick, edit.hiSpeed);
 			break;
-
 		default:
 			drawNote(inputNotes.tap, renderer, hoverTint);
 			break;
@@ -2042,6 +2061,16 @@ namespace MikuMikuWorld
 					Score prev = context.score;
 					context.score.hiSpeedChanges.erase(context.score.hiSpeedChanges.begin() + eventEdit.editIndex);
 					context.pushHistory("Remove hi-speed change", prev, context.score);
+				}
+			}
+			else if (eventEdit.type == EventType::Skill)
+			{
+				if (ImGui::Button(getString("remove"), ImVec2(-1, UI::btnSmall.y + 2)))
+				{
+					ImGui::CloseCurrentPopup();
+					Score prev = context.score;
+					context.score.skills.erase(context.score.skills.begin() + eventEdit.editIndex);
+					context.pushHistory("Remove skill trigger", prev, context.score);
 				}
 			}
 			ImGui::EndPopup();

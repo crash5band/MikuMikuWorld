@@ -24,7 +24,7 @@ namespace MikuMikuWorld
 		&config.input.timelineGuide,
 		&config.input.timelineBpm,
 		&config.input.timelineTimeSignature,
-		&config.input.timelineHiSpeed,
+		&config.input.timelineHiSpeed
 	};
 
 	ScoreEditor::ScoreEditor() : presetManager(Application::getAppDir() + "library")
@@ -114,6 +114,8 @@ namespace MikuMikuWorld
 
 				for (int i = 0; i < (int)TimelineMode::TimelineModeMax; ++i)
 					if (ImGui::IsAnyPressed(*timelineModeBindings[i])) timeline.changeMode((TimelineMode)i, edit);
+
+				if (ImGui::IsAnyPressed(config.input.insertSkill)) timeline.insertSkill(context, context.currentTick);
 			}
 		}
 
@@ -493,6 +495,9 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(getString("select_all"), ToShortcutString(config.input.selectAll)))
 				context.selectAll();
 
+			ImGui::Separator();
+			if (ImGui::MenuItem(getString("insert_skill"), ToShortcutString(config.input.insertSkill)))
+				timeline.insertSkill(context, context.currentTick);
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("settings"), ToShortcutString(config.input.openSettings)))
 				settingsWindow.open = true;

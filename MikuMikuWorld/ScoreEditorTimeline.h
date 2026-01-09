@@ -274,6 +274,8 @@ namespace MikuMikuWorld
 		float getWidth() const { return size.x; }
 		float getHeight() const { return size.y; }
 
+		void insertSkill(ScoreContext& context, int tick);
+
 		ScoreEditorTimeline();
 	};
 }
