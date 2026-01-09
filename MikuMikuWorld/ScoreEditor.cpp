@@ -176,8 +176,6 @@ namespace MikuMikuWorld
 		aboutDialog.update();
 		serializeWindow.update(*this, context, timeline);
 
-		debugEffectView.update(renderer.get());
-
 		const bool timeline_just_created = (ImGui::FindWindowByName("###notes_timeline") == NULL);
 		ImGui::Begin(IMGUI_TITLE(ICON_FA_MUSIC, "notes_timeline"), NULL, ImGuiWindowFlags_Static | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 		ImGuiID dockId = ImGui::GetWindowDockID();
@@ -218,6 +216,7 @@ namespace MikuMikuWorld
 		if (config.debugEnabled)
 		{
 			debugWindow.update(context, timeline);
+			debugEffectView.update(renderer.get());
 		}
 
 		if (ImGui::Begin(IMGUI_TITLE(ICON_FA_ALIGN_LEFT, "chart_properties"), NULL, ImGuiWindowFlags_Static))
@@ -498,6 +497,12 @@ namespace MikuMikuWorld
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("insert_skill"), ToShortcutString(config.input.insertSkill)))
 				timeline.insertSkill(context, context.currentTick);
+
+			//if (ImGui::MenuItem(getString("insert_fever")))
+			//{
+
+			//}
+
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("settings"), ToShortcutString(config.input.openSettings)))
 				settingsWindow.open = true;
