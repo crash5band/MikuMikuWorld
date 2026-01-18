@@ -3,10 +3,16 @@
 #include "IO.h"
 #include "Utilities.h"
 #include "UI.h"
+#include "ScoreEditorTimeline.h"
 #include <vector>
 
 using json = nlohmann::json;
 using namespace IO;
+
+static int symmetricRound(double v)
+{
+	return static_cast<int>(v > 0 ? std::round(v) : -std::round(-v));
+}
 
 namespace MikuMikuWorld
 {
@@ -665,6 +671,384 @@ namespace MikuMikuWorld
 		score.holdNotes[newSlideStart.ID] = newHold;
 		pushHistory("Split hold", prev, score);
 	}
+
+	void ScoreContext::modifySlide(int type, int subtype)
+	{
+		// Find all holds that contain selected notes
+		std::unordered_set<int> selectedHolds;
+		std::unordered_map<int, std::vector<int>> holdToSelectedNotes; // holdID -> list of selected note IDs
+		
+		for (int id : selectedNotes)
+		{
+			if (!noteExists(id, score))
+				continue;
+
+			Note& note = score.notes.at(id);
+			int holdID = note.getType() == NoteType::Hold ? id : note.parentID;
+			selectedHolds.insert(holdID);
+			holdToSelectedNotes[holdID].push_back(id);
+		}
+
+		if (selectedHolds.empty())
+			return;
+		
+		if (selectedNotes.size() < 2)
+			return;
+
+		Score prev = score;
+
+		// Process each selected hold
+		for (int holdID : selectedHolds)
+		{
+			HoldNote& hold = score.holdNotes[holdID];
+			Note& holdStart = score.notes.at(hold.start.ID);
+			Note& holdEnd = score.notes.at(hold.end);
+			
+			// Get selected notes in this hold and determine the range to process
+			std::vector<int>& selectedInHold = holdToSelectedNotes[holdID];
+			if (selectedInHold.size() < 2)
+				continue;
+			
+			// Find min and max positions in the hold for selected notes
+			int minPos = -1;  // -1 for start
+			int maxPos = -2;  // -2 for end
+			
+			for (int noteID : selectedInHold)
+			{
+				Note& note = score.notes.at(noteID);
+				if (note.getType() == NoteType::Hold)
+				{
+					minPos = -1;
+				}
+				else if (note.getType() == NoteType::HoldEnd)
+				{
+					maxPos = -2;
+				}
+				else if (note.getType() == NoteType::HoldMid)
+				{
+					int pos = findHoldStep(hold, noteID);
+					if (pos >= 0)
+					{
+						if (minPos == -1 && minPos != -2) minPos = pos;
+						else if (minPos >= 0) minPos = std::min(minPos, pos);
+						maxPos = std::max(maxPos, pos);
+					}
+				}
+			}
+			
+			// Build segments only between consecutive selected notes
+			std::vector<std::pair<int, int>> segments;
+			
+			// Create a sorted list of selected note IDs by tick
+			std::vector<int> sortedSelected = selectedInHold;
+			std::sort(sortedSelected.begin(), sortedSelected.end(), [&](int a, int b) {
+				return score.notes.at(a).tick < score.notes.at(b).tick;
+			});
+			
+			// Add segments between consecutive selected notes
+			for (size_t i = 0; i + 1 < sortedSelected.size(); ++i)
+			{
+				segments.push_back({ sortedSelected[i], sortedSelected[i + 1] });
+			}
+			
+			// Sort segments by tick order (smallest first) to process in correct order
+			std::sort(segments.begin(), segments.end(), [&](const std::pair<int, int>& a, const std::pair<int, int>& b) {
+				return score.notes.at(a.first).tick < score.notes.at(b.first).tick;
+			});
+			
+			// first note properties
+			Note& fromNote = score.notes.at(segments[0].first);
+			Note& toNote = score.notes.at(segments[0].second);
+			int initialSlideDirection = (toNote.lane - fromNote.lane) >= 0 ? 1 : -1;
+			int slideDirection = (toNote.lane - fromNote.lane) >= 0 ? 1 : -1;
+
+			// Helper function for symmetric rounding around zero
+			auto symmetricRound = [](double value) -> int {
+				return static_cast<int>(value > 0 ? std::round(value) : -std::round(-value));
+			};
+
+			// Process each segment in reverse order to maintain correct insertion indices
+			for (int segIdx = static_cast<int>(segments.size()) - 1; segIdx >= 0; --segIdx)
+			{
+				Note& fromNote = score.notes.at(segments[segIdx].first);
+				Note& toNote = score.notes.at(segments[segIdx].second);
+				slideDirection = (toNote.lane - fromNote.lane) >= 0 ? 1 : -1;
+				// Determine ease type for this segment (use ease from the starting point)
+				EaseType easeType = EaseType::Linear;
+				if (fromNote.ID == hold.start.ID)
+				{
+					easeType = hold.start.ease;
+					hold.start.ease = EaseType::Linear;
+				}
+				else if (fromNote.getType() == NoteType::HoldMid)
+				{
+					for (size_t i = 0; i < hold.steps.size(); ++i)
+					{
+						if (hold.steps[i].ID == fromNote.ID)
+						{
+							easeType = hold.steps[i].ease;
+							hold.steps[i].ease = EaseType::Linear;
+							break;
+						}
+					}
+				}
+
+				// Determine division count based on timeline division and segment length
+				float measures = static_cast<float>(toNote.tick - fromNote.tick) / (TICKS_PER_BEAT * 4);
+				int divisionCount = std::max(1, static_cast<int>(timeline->getDivision() * measures));
+
+				// Create intermediate points for this segment
+				std::vector<HoldStep> newSteps;
+
+				for (int i = 1; i < divisionCount; ++i)
+				{
+					float t = static_cast<float>(i) / divisionCount;
+					float t2 = static_cast<float>(i+1) / divisionCount;// next t
+					float t1 = static_cast<float>(i-1) / divisionCount;// previous t
+
+					// Interpolation for lane position
+					float interpolation = t;
+					float nextInterpolation = t2;
+					float prevInterpolation = t1;
+					if (easeType == EaseType::EaseIn)
+					{
+						interpolation = t * t;
+						nextInterpolation = t2 * t2;
+						prevInterpolation = t1 * t1;
+
+					}
+					else if (easeType == EaseType::EaseOut)
+					{
+						interpolation = 1.0f - (1.0f - t) * (1.0f - t);
+						nextInterpolation = 1.0f - (1.0f - t2) * (1.0f - t2);
+						prevInterpolation = 1.0f - (1.0f - t1) * (1.0f - t1);
+					}
+
+					int fromLeft;
+					int fromRight;
+					int toLeft;
+					int toRight;
+					int interpLeft;
+					int interpRight;
+					int interpLane;
+					int interpWidth;
+
+					fromLeft = fromNote.lane;
+					fromRight = fromNote.lane + fromNote.width;
+					toLeft = toNote.lane;
+					toRight = toNote.lane + toNote.width;
+
+					if ((i == 1) && (type == 2)){// kakukaku
+						if (initialSlideDirection == slideDirection) {// initialSlideDirection  == slideDirection
+							interpLeft = symmetricRound(fromLeft + (toLeft - fromLeft) * prevInterpolation);
+						}else{
+							interpLeft = symmetricRound(fromLeft + (toLeft - fromLeft) * interpolation);
+						}
+						
+						interpLane = interpLeft;
+						Note newMidNote = Note(NoteType::HoldMid, 
+							static_cast<int>(std::round(fromNote.tick + 1)),
+							interpLane,
+							static_cast<int>(std::round(fromNote.width + (toNote.width - fromNote.width) * t)));
+						newMidNote.ID = nextID++;
+						newMidNote.critical = holdStart.critical;
+						newMidNote.parentID = holdID;
+
+						score.notes[newMidNote.ID] = newMidNote;
+						newSteps.push_back({ newMidNote.ID, HoldStepType::Hidden, EaseType::Linear });
+					}
+
+					// Create new intermediate note with linear interpolation for all properties
+					// Use rounding for tick, lane, and width calculations
+					Note newMidNote = [&]() {
+						if(type == 0 || type == 2) // simple or kaku
+						{
+							fromLeft = fromNote.lane;
+							fromRight = fromNote.lane + fromNote.width;
+							toLeft = toNote.lane;
+							toRight = toNote.lane + toNote.width;
+							
+							
+							if (type == 2){// kakukaku
+								// interpLeft = symmetricRound(fromLeft + (toLeft - fromLeft) * prevInterpolation);
+								// interpLane = interpLeft;
+								if (initialSlideDirection == slideDirection) {
+									interpLeft = symmetricRound(fromLeft + (toLeft - fromLeft) * prevInterpolation);
+								}else{
+									interpLeft = symmetricRound(fromLeft + (toLeft - fromLeft) * interpolation);
+								}
+								interpLane = interpLeft;
+								
+								return Note(NoteType::HoldMid, 
+								static_cast<int>(std::round(fromNote.tick + (toNote.tick - fromNote.tick) * t)),
+								interpLane,
+								static_cast<int>(std::round(fromNote.width + (toNote.width - fromNote.width) * t1)));
+							}else{
+								interpLeft = symmetricRound(fromLeft + (toLeft - fromLeft) * interpolation);
+								interpLane = interpLeft;
+								
+								return Note(NoteType::HoldMid, 
+								static_cast<int>(std::round(fromNote.tick + (toNote.tick - fromNote.tick) * t)),
+								interpLane,
+								static_cast<int>(std::round(fromNote.width + (toNote.width - fromNote.width) * t)));
+							}
+							
+						}
+						else if(type == 1) // zigzag
+						{
+							if (subtype == 0)
+							// !(((fromNote.lane < toNote.lane) && ((fromNote.lane + fromNote.width) > (toNote.lane + toNote.width))) || ((fromNote.lane > toNote.lane) && ((fromNote.lane + fromNote.width) < (toNote.lane + toNote.width))))
+							{
+								if (i % 2 == 0) {
+									fromLeft = fromNote.lane;
+									fromRight = fromNote.lane + fromNote.width;
+									toLeft = toNote.lane;
+									toRight = toNote.lane + toNote.width;
+									interpLeft = symmetricRound(fromLeft + (toLeft - fromLeft) * interpolation);
+									interpRight = symmetricRound(fromRight + (toRight - fromRight) * interpolation);
+									interpLane = interpLeft;
+									interpWidth = interpRight - interpLeft;
+									return Note(NoteType::HoldMid, 
+										static_cast<int>(std::round(fromNote.tick + (toNote.tick - fromNote.tick) * t)),
+										interpLane,
+										static_cast<int>(std::round(fromNote.width + (toNote.width - fromNote.width) * t)));
+								}
+								else {
+									fromLeft = fromNote.lane;
+									fromRight = fromNote.lane + fromNote.width;
+									toLeft = toNote.lane;
+									toRight = toNote.lane + toNote.width;
+									interpLeft = symmetricRound(fromLeft + (toLeft - fromLeft) * nextInterpolation);
+									interpRight = symmetricRound(fromRight + (toRight - fromRight) * nextInterpolation);
+									interpLane = interpLeft + initialSlideDirection + ((slideDirection!=initialSlideDirection) ? -slideDirection : 0);
+									interpWidth = interpRight - interpLeft;
+									return Note(NoteType::HoldMid,
+										static_cast<int>(std::round(fromNote.tick + (toNote.tick - fromNote.tick) * t)),
+										interpLane,
+										static_cast<int>(std::round(fromNote.width + (toNote.width - fromNote.width) * t)));
+								}
+							}
+							else if (subtype == 1)
+							{
+								if (i % 2 == 0) {
+									fromLeft = fromNote.lane;
+									fromRight = fromNote.lane + fromNote.width;
+									toLeft = toNote.lane;
+									toRight = toNote.lane + toNote.width;
+									interpLeft = symmetricRound(fromLeft + (toLeft - fromLeft) * interpolation);
+									interpRight = symmetricRound(fromRight + (toRight - fromRight) * interpolation);
+									interpLane = interpLeft;
+									interpWidth = interpRight - interpLeft;
+									return Note(NoteType::HoldMid,
+										static_cast<int>(std::round(fromNote.tick + (toNote.tick - fromNote.tick) * t)),
+										interpLane,
+										interpWidth);
+								}
+								else {
+									fromLeft = fromNote.lane;
+									fromRight = fromNote.lane + fromNote.width;
+									toLeft = toNote.lane;
+									toRight = toNote.lane + toNote.width;
+									interpLeft = symmetricRound(fromLeft + (toLeft - fromLeft) * nextInterpolation);
+									interpRight = symmetricRound(fromRight + (toRight - fromRight) * nextInterpolation);
+									interpLane = interpLeft + 1;
+									interpWidth = interpRight - interpLeft - 2;
+									return Note(NoteType::HoldMid,
+										static_cast<int>(std::round(fromNote.tick + (toNote.tick - fromNote.tick) * t)),
+										interpLane,
+										interpWidth);
+								}
+							}
+						}
+						// default linear
+						return Note(NoteType::HoldMid, fromNote.tick, fromNote.lane, fromNote.width);
+					}();
+					
+					
+					newMidNote.ID = nextID++;
+					newMidNote.critical = holdStart.critical;
+					newMidNote.parentID = holdID;
+
+					score.notes[newMidNote.ID] = newMidNote;
+
+					// Create invisible intermediate step
+					newSteps.push_back({ newMidNote.ID, HoldStepType::Hidden, EaseType::Linear });
+
+					if (type == 2){// kakukaku
+						if (initialSlideDirection == slideDirection) {
+							interpLeft = symmetricRound(fromLeft + (toLeft - fromLeft) * interpolation);
+						}else{
+							interpLeft = symmetricRound(fromLeft + (toLeft - fromLeft) * nextInterpolation);
+						}
+						
+						interpLane = interpLeft;
+						
+						Note newMidNote = Note(NoteType::HoldMid, 
+								static_cast<int>(std::round(fromNote.tick + (toNote.tick - fromNote.tick) * t + 1)),
+								interpLane,
+								static_cast<int>(std::round(fromNote.width + (toNote.width - fromNote.width) * t)));
+						newMidNote.ID = nextID++;
+						newMidNote.critical = holdStart.critical;
+						newMidNote.parentID = holdID;
+
+						score.notes[newMidNote.ID] = newMidNote;
+						newSteps.push_back({ newMidNote.ID, HoldStepType::Hidden, EaseType::Linear });
+
+						if (i == divisionCount -1){
+							Note newMidNote = Note(NoteType::HoldMid, 
+								static_cast<int>(std::round(toNote.tick - 1)),
+								interpLane,
+								static_cast<int>(std::round(fromNote.width + (toNote.width - fromNote.width) * t)));
+							newMidNote.ID = nextID++;
+							newMidNote.critical = holdStart.critical;
+							newMidNote.parentID = holdID;
+
+							score.notes[newMidNote.ID] = newMidNote;
+							newSteps.push_back({ newMidNote.ID, HoldStepType::Hidden, EaseType::Linear });
+						}
+						
+					}
+						
+				}
+
+				// Find insertion position
+				if (toNote.getType() == NoteType::HoldMid)
+				{
+					// Find which step corresponds to toNote
+					int insertPos = -1;
+					for (size_t i = 0; i < hold.steps.size(); ++i)
+					{
+						if (hold.steps[i].ID == toNote.ID)
+						{
+							insertPos = i;
+							break;
+						}
+					}
+					if (insertPos >= 0)
+					{
+						hold.steps.insert(hold.steps.begin() + insertPos, newSteps.begin(), newSteps.end());
+					}
+				}
+				else if (toNote.ID == hold.end)
+				{
+					// Insert at end
+					hold.steps.insert(hold.steps.end(), newSteps.begin(), newSteps.end());
+				}
+			}
+
+			// Mark start point as hidden if selected
+			for (int noteID : selectedInHold)
+			{
+				if (score.notes.at(noteID).getType() == NoteType::Hold)
+				{
+					hold.start.type = HoldStepType::Hidden;
+					break;
+				}
+			}
+		}
+		pushHistory("Modify slide", prev, score);
+	}
+
 
 	void ScoreContext::undo()
 	{

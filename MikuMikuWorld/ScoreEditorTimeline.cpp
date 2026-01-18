@@ -356,6 +356,24 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(getString("split_hold"), NULL, false, context.selectionHasAnyStep() && context.selectedNotes.size() == 1))
 				context.splitHoldInSelection();
 
+			ImGui::Separator();
+			if(ImGui::BeginMenu(getString("insert_midpoint"), context.selectionHasEase()))
+			{
+				//if (ImGui::MenuItem(getString("simple"))) context.modifySlide(0, 0);
+				if (ImGui::MenuItem(getString("simple"))) context.modifySlide(0, 0);
+				if (ImGui::MenuItem(getString("kakukaku"))) context.modifySlide(2, 0);
+				//if (ImGui::MenuItem(getString("zigzag"))) context.modifySlide(1, 0);
+				if (ImGui::BeginMenu(getString("zigzag")))
+				{
+					if (ImGui::MenuItem(getString("constant_size"))) context.modifySlide(1, 0);
+					if (ImGui::MenuItem(getString("variable_size"))) context.modifySlide(1, 1);
+					ImGui::EndMenu();
+				}
+				//if (ImGui::MenuItem(getString("kakukaku"))) context.modifySlide(2, 0);
+				
+				ImGui::EndMenu();
+			}
+
 			ImGui::EndPopup();
 		}
 	}
