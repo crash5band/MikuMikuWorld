@@ -684,6 +684,14 @@ namespace MikuMikuWorld
 				continue;
 
 			Note& note = score.notes.at(id);
+
+			if (note.getType() != NoteType::Hold &&
+				note.getType() != NoteType::HoldMid &&
+				note.getType() != NoteType::HoldEnd)
+			{
+				continue;
+			}
+
 			int holdID = note.getType() == NoteType::Hold ? id : note.parentID;
 			selectedHolds.insert(holdID);
 			holdToSelectedNotes[holdID].push_back(id);
