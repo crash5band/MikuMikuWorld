@@ -56,7 +56,9 @@ namespace MikuMikuWorld
 		ImGui::BeginDisabled(!enabled);
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 
-		bool pressed = ImGui::ButtonEx(txt, size, (repeat ? ImGuiItemFlags_ButtonRepeat : 0));
+		ImGui::PushItemFlag(ImGuiItemFlags_ButtonRepeat, repeat);
+		bool pressed = ImGui::ButtonEx(txt, size);
+		ImGui::PopItemFlag();
 
 		ImGui::PopStyleColor();
 		ImGui::EndDisabled();
