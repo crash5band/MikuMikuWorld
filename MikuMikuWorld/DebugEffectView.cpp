@@ -119,9 +119,7 @@ namespace MikuMikuWorld::Effect
 
 		ImGui::SameLine();
 		if (ImGui::Button("TRS"))
-		{
 			ImGui::OpenPopup("DBG_EFF_TRS");
-		}
 
 		if (ImGui::BeginPopup("DBG_EFF_TRS"))
 		{
@@ -167,11 +165,6 @@ namespace MikuMikuWorld::Effect
 		ImGui::SameLine();
 		ImGui::Text("Speed: %.2f", timeFactor);
 
-		if (!playing)
-		{
-			time += ImGui::GetIO().MouseWheel * 0.1f * ImGui::GetIO().KeyCtrl;
-		}
-
 		ImVec2 position = ImGui::GetCursorScreenPos();
 		ImVec2 size = ImGui::GetContentRegionAvail();
 		ImRect boundaries{ position, position + size };
@@ -182,17 +175,18 @@ namespace MikuMikuWorld::Effect
 		previewBuffer->bind();
 		previewBuffer->clear(0.1, 0.1, 0.1, 1);
 
-		if (ImGui::IsMouseHoveringRect(boundaries.Min, boundaries.Max))
+		bool isWindowActive = !ImGui::IsWindowDocked() || ImGui::GetCurrentWindow()->TabId == ImGui::GetWindowDockNode()->SelectedTabId;
+		if (isWindowActive && ImGui::IsMouseHoveringRect(boundaries.Min, boundaries.Max))
 		{
 			ImGuiIO& io = ImGui::GetIO();
 			bool updateCamera = false;
-			if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+			if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && io.KeyCtrl)
 			{
 				camera.rotate(io.MouseDelta[0], io.MouseDelta[1]);
 				updateCamera = true;
 			}
 
-			if (abs(io.MouseWheel) > 0 && !io.KeyCtrl)
+			if (abs(io.MouseWheel) > 0 && io.KeyCtrl)
 			{
 				camera.zoom(io.MouseWheel);
 				updateCamera = true;
@@ -200,12 +194,12 @@ namespace MikuMikuWorld::Effect
 
 			if (updateCamera)
 				camera.positionCamNormal();
+
+			time += ImGui::GetIO().MouseWheel * 0.1f * io.KeyAlt * !playing;
 		}
 
 		if (playing)
-		{
 			time += ImGui::GetIO().DeltaTime * timeFactor;
-		}
 
 		static Transform baseTransform;
 
