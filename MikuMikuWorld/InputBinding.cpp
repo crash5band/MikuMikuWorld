@@ -162,7 +162,7 @@ static constexpr ImGuiKeyInfo GetImGuiKeyInfo(ImGuiKey key)
 
 const char* ToShortcutString(const MultiInputBinding& binding)
 {
-	for (int i = 0; i < binding.count; ++i)
+	for (int i = 0; i < binding.getCount(); ++i)
 		if (binding.bindings[i].keyCode != ImGuiKey_None)
 			return ToShortcutString(binding.bindings[i]);
 	
@@ -214,11 +214,11 @@ std::string ToSerializedString(const InputBinding& binding)
 
 std::string ToFullShortcutsString(const MultiInputBinding& binding)
 {
-	if (!binding.count)
+	if (binding.getCount() < 1)
 		return "None";
 
 	std::string shortcuts{};
-	for (int i = 0; i < binding.count; ++i)
+	for (int i = 0; i < binding.getCount(); ++i)
 	{
 		const ImGuiKeyInfo keyInfo = GetImGuiKeyInfo((ImGuiKey)binding.bindings.at(i).keyCode);
 		if (keyInfo.key == ImGuiKey_None)
@@ -227,7 +227,7 @@ std::string ToFullShortcutsString(const MultiInputBinding& binding)
 		if (strcmp(keyInfo.name, "None"))
 			shortcuts.append(ToShortcutString(binding.bindings[i]));
 
-		if (i < binding.count - 1)
+		if (i < binding.getCount() - 1)
 			shortcuts.append(", ");
 	}
 
@@ -307,7 +307,7 @@ namespace ImGui
 
 	bool IsAnyDown(const MultiInputBinding& bindings)
 	{
-		for (int i = 0; i < bindings.count; ++i)
+		for (int i = 0; i < bindings.getCount(); ++i)
 			if (IsDown(bindings.bindings[i]))
 				return true;
 		
@@ -316,7 +316,7 @@ namespace ImGui
 
 	bool IsAnyPressed(const MultiInputBinding& bindings, bool repeat)
 	{
-		for (int i = 0; i < bindings.count; ++i)
+		for (int i = 0; i < bindings.getCount(); ++i)
 			if (IsPressed(bindings.bindings[i], repeat))
 				return true;
 

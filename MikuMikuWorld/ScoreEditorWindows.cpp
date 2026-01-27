@@ -663,7 +663,10 @@ namespace MikuMikuWorld
 				ImGui::TableSetColumnIndex(0);
 				ImGui::PushID(i);
 				if (ImGui::Selectable(getString(bindings[i]->name), i == selectedBindingIndex, selectionFlags))
+				{
+					listeningForInput = false;
 					selectedBindingIndex = i;
+				}
 
 				ImGui::PopID();
 				ImGui::TableSetColumnIndex(1);
@@ -678,7 +681,6 @@ namespace MikuMikuWorld
 			int deleteBinding = -1;
 			int moveIndex = -1;
 			int moveDirection = 0;
-			const bool canAdd = bindings[selectedBindingIndex]->count < 4;
 
 			const float btnHeight = ImGui::GetFrameHeight();
 
@@ -686,7 +688,7 @@ namespace MikuMikuWorld
 			ImGui::Text(getString(bindings[selectedBindingIndex]->name));
 			ImGui::NextColumn();
 
-			ImGui::BeginDisabled(!canAdd);
+			ImGui::BeginDisabled(!bindings[selectedBindingIndex]->canAdd());
 			if (ImGui::Button(getString("add"), {-1, btnHeight}))
 				bindings[selectedBindingIndex]->addBinding(InputBinding{});
 			ImGui::EndDisabled();
@@ -698,9 +700,9 @@ namespace MikuMikuWorld
 			ImGui::BeginChild("##binding_keys_edit_window", ImVec2(-1, -1), true);
 
 			float btnWidth = (UI::btnSmall.x * 2) + 100 + (ImGui::GetStyle().ItemSpacing.x * 3);
-			for (int b = 0; b < bindings[selectedBindingIndex]->count; ++b)
+			for (int b = 0; b < bindings[selectedBindingIndex]->getCount(); ++b)
 			{
-				const bool canMoveDown = !(bindings[selectedBindingIndex]->count <= b + 1);
+				const bool canMoveDown = !(bindings[selectedBindingIndex]->getCount() <= b + 1);
 				const bool canMoveUp = !(b < 1);
 				ImGui::PushID(b);
 
@@ -722,6 +724,7 @@ namespace MikuMikuWorld
 				ImGui::BeginDisabled(!canMoveUp);
 				if (ImGui::Button(ICON_FA_CARET_UP, { btnHeight, btnHeight }))
 				{
+					listeningForInput = false;
 					moveIndex = b;
 					moveDirection = -1;
 				}
@@ -731,6 +734,7 @@ namespace MikuMikuWorld
 				ImGui::BeginDisabled(!canMoveDown);
 				if (ImGui::Button(ICON_FA_CARET_DOWN, { btnHeight, btnHeight }))
 				{
+					listeningForInput = false;
 					moveIndex = b;
 					moveDirection = 1;
 				}
@@ -782,6 +786,7 @@ namespace MikuMikuWorld
 						bindings[selectedBindingIndex]->bindings[editBindingIndex] = InputBinding((ImGuiKey)key, (ImGuiKey)ImGui::GetIO().KeyMods);
 						listeningForInput = false;
 						editBindingIndex = -1;
+						break;
 					}
 				}
 			}

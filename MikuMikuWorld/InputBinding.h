@@ -31,7 +31,6 @@ DECLARE_ENUM_FLAG_OPERATORS(ImGuiKey);
 
 struct MultiInputBinding
 {
-	int count = 0;
 	const char* name;
 	std::array<InputBinding, 4> bindings;
 
@@ -89,6 +88,20 @@ struct MultiInputBinding
 
 		--count;
 	}
+
+	int getCount() const { return count; }
+	bool canAdd() const { return count < bindings.size(); }
+
+	void clear()
+	{
+		for (auto& binding : bindings)
+			binding = {};
+
+		count = 0;
+	}
+
+private:
+	int count = 0;
 };
 
 const char* ToShortcutString(const MultiInputBinding& binding);

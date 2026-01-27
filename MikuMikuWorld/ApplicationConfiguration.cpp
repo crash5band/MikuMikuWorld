@@ -130,11 +130,11 @@ namespace MikuMikuWorld
 				{
 					if (bindings[i]->name == key)
 					{
+						bindings[i]->clear();
+
 						int keysCount = std::min(value.size(), bindings[i]->bindings.size());
 						for (int k = 0; k < keysCount; ++k)
-							bindings[i]->bindings[k] = FromSerializedString(value[k]);
-
-						bindings[i]->count = keysCount;
+							bindings[i]->addBinding(FromSerializedString(value[k]));
 					}
 				}
 			}
@@ -241,7 +241,7 @@ namespace MikuMikuWorld
 		for (const auto& binding : bindings)
 		{
 			json keys;
-			for (int k = 0; k < binding->count; ++k)
+			for (int k = 0; k < binding->getCount(); ++k)
 			{
 				if (binding->bindings[k].keyCode != ImGuiKey_None)
 					keys.push_back(ToSerializedString(binding->bindings[k]));
