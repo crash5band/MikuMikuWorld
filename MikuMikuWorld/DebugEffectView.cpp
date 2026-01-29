@@ -9,6 +9,7 @@ namespace MikuMikuWorld::Effect
 {
 	DebugEffectView::DebugEffectView()
 	{
+		camera = std::make_unique<Camera>();
 		resetCamera();
 	}
 
