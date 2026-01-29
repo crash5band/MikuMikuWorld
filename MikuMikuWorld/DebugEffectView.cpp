@@ -14,10 +14,10 @@ namespace MikuMikuWorld::Effect
 
 	void DebugEffectView::resetCamera()
 	{
-		camera.setFov(50.f);
-		camera.setRotation(-90.f, 27.1f);
-		camera.setPosition({ 0, 5.32f, -5.86f, 0.f });
-		camera.positionCamNormal();
+		camera->setFov(50.f);
+		camera->setRotation(-90.f, 27.1f);
+		camera->setPosition({ 0, 5.32f, -5.86f, 0.f });
+		camera->positionCamNormal();
 	}
 
 	static EmitterInstance createFromParticle(int particleId)
@@ -182,18 +182,18 @@ namespace MikuMikuWorld::Effect
 			bool updateCamera = false;
 			if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && io.KeyCtrl)
 			{
-				camera.rotate(io.MouseDelta[0], io.MouseDelta[1]);
+				camera->rotate(io.MouseDelta[0], io.MouseDelta[1]);
 				updateCamera = true;
 			}
 
 			if (abs(io.MouseWheel) > 0 && io.KeyCtrl)
 			{
-				camera.zoom(io.MouseWheel);
+				camera->zoom(io.MouseWheel);
 				updateCamera = true;
 			}
 
 			if (updateCamera)
-				camera.positionCamNormal();
+				camera->positionCamNormal();
 
 			time += ImGui::GetIO().MouseWheel * 0.1f * io.KeyAlt * !playing;
 		}
@@ -204,15 +204,15 @@ namespace MikuMikuWorld::Effect
 		static Transform baseTransform;
 
 		EmitterInstance& emitter = effects[static_cast<int>(selectedEffect)];
-		emitter.update(time, debugTransform, camera);
+		emitter.update(time, debugTransform, *camera);
 		renderer->beginBatch();
 
 		Shader* shader = ResourceManager::shaders[ResourceManager::getShader("particles")];
 
 		float aspectRatio = size.x / size.y;
 
-		const auto pView = camera.getViewMatrix();
-		auto pProjection = camera.getProjectionMatrix(aspectRatio, 0.3, 1000);
+		const auto pView = camera->getViewMatrix();
+		auto pProjection = camera->getProjectionMatrix(aspectRatio, 0.3, 1000);
 		float projectionScale = std::min(aspectRatio / (16.f / 9.f), 1.f);
 		pProjection = DirectX::XMMatrixScaling(projectionScale, projectionScale, 1.f) * pProjection;
 

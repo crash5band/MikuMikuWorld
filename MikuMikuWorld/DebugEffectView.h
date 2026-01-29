@@ -18,7 +18,6 @@ namespace MikuMikuWorld::Effect
 		DebugEffectView();
 
 	private:
-		EmitterInstance testEmitter;
 
 		bool initialized{ false };
 		bool effectLoaded{ false };
@@ -29,7 +28,7 @@ namespace MikuMikuWorld::Effect
 		std::unique_ptr<Framebuffer> previewBuffer;
 		std::vector<EmitterInstance> effects;
 		Texture* effectsTex{ nullptr };
-		Camera camera;
+		std::unique_ptr<Camera> camera;
 		Transform debugTransform;
 
 		void init();
