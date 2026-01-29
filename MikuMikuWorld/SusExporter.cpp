@@ -1,7 +1,6 @@
 #include "SusExporter.h"
 #include "IO.h"
 #include "File.h"
-#include "Utilities.h"
 #include <algorithm>
 #include <numeric>
 
@@ -11,18 +10,19 @@ namespace MikuMikuWorld
 {
 	int ChannelProvider::generateChannel(int startTick, int endTick)
 	{
+		TickRange range{ startTick, endTick };
 		for (auto& it : channels)
 		{
 			int start = it.second.start;
 			int end = it.second.end;
 			if ((start == 0 && end == 0) || endTick < start || startTick > end)
 			{
-				channels[it.first] = TickRange{ startTick, endTick };
+				channels[it.first] = range;
 				return it.first;
 			}
 		}
 
-		throw("No more channels available");
+		throw TooManySlideChannelsError(range);
 	}
 
 	void ChannelProvider::clear()
@@ -282,15 +282,8 @@ namespace MikuMikuWorld
 			}
 		}
 
-		// SUS can only handle up to 36^2 unique BPMs
-		constexpr size_t maxBpmIdentifiers = (36ll * 36ll) - 1;
-		if (bpmIdentifiers.size() >= maxBpmIdentifiers)
-		{
-			std::string errorMessage = IO::formatString("Too many BPM changes!\nNumber of unique identifiers (%l) exceeded limit (%l)", bpmIdentifiers.size(), maxBpmIdentifiers);
-			printf("%s", errorMessage.c_str());
-
-			throw std::exception(errorMessage.c_str());
-		}
+		if (bpmIdentifiers.size() >= MAX_BPM_IDENTIFIERS)
+			throw TooManyBpmIdentifiersError(bpmIdentifiers.size());
 
 		// Group bpms by measure
 		std::map<int, std::vector<BPM>> measuresBpms;

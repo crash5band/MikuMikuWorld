@@ -4,6 +4,7 @@
 #include "NativeScoreSerializer.h"
 #include "SusSerializer.h"
 #include "SonolusSerializer.h"
+#include "SusExporter.h"
 
 #include "Localization.h"
 #include "ApplicationConfiguration.h"
@@ -91,6 +92,11 @@ namespace MikuMikuWorld
 			{
 				errorMessage = partial_err.what();
 				return SerializeResult::PartialSerializeSuccess;
+			}
+			catch (const SusExportError& err)
+			{
+				errorMessage = err.getDetailedMessage();
+				return SerializeResult::Error;
 			}
 			catch (const std::exception& err)
 			{
