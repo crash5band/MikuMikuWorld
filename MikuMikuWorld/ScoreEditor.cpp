@@ -116,6 +116,7 @@ namespace MikuMikuWorld
 					if (ImGui::IsAnyPressed(*timelineModeBindings[i])) timeline.changeMode((TimelineMode)i, edit);
 
 				if (ImGui::IsAnyPressed(config.input.insertSkill)) timeline.insertSkill(context, context.currentTick);
+				if (ImGui::IsAnyPressed(config.input.insertFever)) timeline.beginInsertFever(context, context.currentTick);
 			}
 		}
 
@@ -498,10 +499,8 @@ namespace MikuMikuWorld
 			if (ImGui::MenuItem(getString("insert_skill"), ToShortcutString(config.input.insertSkill)))
 				timeline.insertSkill(context, context.currentTick);
 
-			//if (ImGui::MenuItem(getString("insert_fever")))
-			//{
-
-			//}
+			if (ImGui::MenuItem(getString("insert_fever"), ToShortcutString(config.input.insertFever)))
+				timeline.beginInsertFever(context, context.currentTick);
 
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("settings"), ToShortcutString(config.input.openSettings)))

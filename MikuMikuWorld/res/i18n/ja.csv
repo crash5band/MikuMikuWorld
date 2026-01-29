@@ -16,6 +16,7 @@ undo, 元に戻す
 redo, やり直す
 select_all, 全て選択
 insert_skill, スキル発動を挿入
+insert_fever, FEVERを挿入
 view, 表示
 show_step_outlines, 中継点に枠線を表示
 hide_step_outlines_in_playback, 再生中に中継点を隠す
@@ -84,7 +85,7 @@ lane_width, レーンの幅
 notes_height, ノーツの高さ
 scrolling, スクロール
 scroll_speed_normal, スクロール速度
-scroll_speed_shift, スクロール速度　「Shift」
+scroll_speed_shift, スクロール速度 「Shift」
 use_smooth_scroll, スムーズスクロール
 smooth_scroll_time, スムーズスクロールの時間
 return_to_last_tick, 元の位置戻る
@@ -195,9 +196,9 @@ hi_speed, ハイスピード
 edit_hi_speed, ハイスピードを編集
 hi_speed_speed, ハイスピード速度
 edit_skill, スキル発動を編集
-edit_fever,　FEVER発動を編集
-edit_none,　編集
-edit_event,　イベントを編集
+edit_fever, FEVER発動を編集
+edit_none, 編集
+edit_event, イベントを編集
 fullscreen_preview, 全画面プレビュー
 
 # preset manager

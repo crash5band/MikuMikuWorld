@@ -109,6 +109,7 @@ namespace MikuMikuWorld
 		bool isMovingNote{ false };
 		bool dragging{ false };
 		bool insertingHold{ false };
+		bool insertingFever{ false };
 
 		float time{};
 		float timeLastFrame{};
@@ -140,6 +141,8 @@ namespace MikuMikuWorld
 			Note holdEnd;
 			Note holdStep;
 		} inputNotes{ Note(NoteType::Tap), Note(NoteType::Hold), Note(NoteType::HoldEnd), Note(NoteType::HoldMid) };
+
+		Fever inputFever{ -1, -1 };
 
 		struct NoteTransform
 		{
@@ -275,6 +278,8 @@ namespace MikuMikuWorld
 		float getHeight() const { return size.y; }
 
 		void insertSkill(ScoreContext& context, int tick);
+		void beginInsertFever(ScoreContext& context, int tick);
+		void endInsertFever(ScoreContext& context, int tick);
 
 		ScoreEditorTimeline();
 	};

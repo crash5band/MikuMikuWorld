@@ -638,7 +638,12 @@ namespace MikuMikuWorld
 				drawList->AddTriangleFilled({ x, y2 }, { x + 10, y2 }, { x + 10, y2 + 10 }, 0xFFCCCCCC);
 			}
 
-			feverControl(context.score.fever);
+			if (feverControl(context.score.fever))
+			{
+				eventEdit.editIndex = -1;
+				eventEdit.type = EventType::Fever;
+				ImGui::OpenPopup("edit_event");
+			}
 
 			// Update skill triggers
 			for (size_t index = 0; index < context.score.skills.size(); ++index)
@@ -957,7 +962,7 @@ namespace MikuMikuWorld
 				context.cancelPaste();
 		}
 
-		if (mouseInTimeline && !isHoldingNote && currentMode != TimelineMode::Select &&
+		if (mouseInTimeline && !isHoldingNote && (currentMode != TimelineMode::Select || insertingFever) &&
 			!pasting && !playing && !UI::isAnyPopupOpen())
 		{
 			renderer->beginBatch();
@@ -1113,8 +1118,49 @@ namespace MikuMikuWorld
 		context.pushHistory("Insert skill trigger", prev, context.score);
 	}
 
+	void ScoreEditorTimeline::beginInsertFever(ScoreContext& context, int tick)
+	{
+		// Cancel paste to avoid inserting a fever and pasting simultaneously
+		context.pasteData.pasting = false;
+
+		insertingHold = isMovingNote = isHoldingNote = false;
+		inputFever.startTick = tick;
+		inputFever.endTick = -1;
+		insertingFever = true;
+	}
+
+	void ScoreEditorTimeline::endInsertFever(ScoreContext& context, int tick)
+	{
+		inputFever.endTick = tick;
+		if (inputFever.startTick > inputFever.endTick)
+		{
+			std::swap(inputFever.startTick, inputFever.endTick);
+		}
+		else if (inputFever.startTick == inputFever.endTick)
+		{
+			int currentMeasure = accumulateMeasures(tick, TICKS_PER_BEAT, context.score.timeSignatures);
+			const TimeSignature& ts = context.score.timeSignatures.at(findTimeSignature(currentMeasure, context.score.timeSignatures));
+
+			int ticksPerMeasure = beatsPerMeasure(ts) * TICKS_PER_BEAT;
+			inputFever.endTick += ticksPerMeasure;
+		}
+
+		Score prev = context.score;
+		context.score.fever = inputFever;
+		context.pushHistory("Insert Fever", prev, context.score);
+
+		insertingFever = false;
+	}
+
 	void ScoreEditorTimeline::previewInput(EditArgs& edit, Renderer* renderer)
 	{
+		if (insertingFever)
+		{
+			inputFever.endTick = hoverTick;
+			feverControl(inputFever);
+			return;
+		}
+
 		updateInputNotes(edit);
 		switch (currentMode)
 		{
@@ -1168,6 +1214,12 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::executeInput(ScoreContext& context, EditArgs& edit)
 	{
+		if (insertingFever)
+		{
+			endInsertFever(context, hoverTick);
+			return;
+		}
+
 		switch (currentMode)
 		{
 		case TimelineMode::InsertTap:
@@ -1911,10 +1963,9 @@ namespace MikuMikuWorld
 		if (tick < 0)
 			return false;
 
-		std::string txt = "FEVER";
-		txt.append(start ? ICON_FA_CARET_UP : ICON_FA_CARET_DOWN);
-
-		return eventControl(tick, feverColor, txt.c_str(), true, enabled);
+		constexpr const char* feverStartText = "FEVER" ICON_FA_CARET_UP;
+		constexpr const char* feverEndText = "FEVER" ICON_FA_CARET_DOWN;
+		return eventControl(tick, feverColor, start ? feverStartText : feverEndText, true, enabled);
 	}
 
 	bool ScoreEditorTimeline::hiSpeedControl(const HiSpeedChange& hiSpeed)
@@ -2071,6 +2122,16 @@ namespace MikuMikuWorld
 					Score prev = context.score;
 					context.score.skills.erase(context.score.skills.begin() + eventEdit.editIndex);
 					context.pushHistory("Remove skill trigger", prev, context.score);
+				}
+			}
+			else if (eventEdit.type == EventType::Fever)
+			{
+				if (ImGui::Button(getString("remove"), ImVec2(-1, UI::btnSmall.y + 2)))
+				{
+					ImGui::CloseCurrentPopup();
+					Score prev = context.score;
+					context.score.fever = { -1, -1 };
+					context.pushHistory("Remove FEVER", prev, context.score);
 				}
 			}
 			ImGui::EndPopup();

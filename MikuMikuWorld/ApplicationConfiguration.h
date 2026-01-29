@@ -52,6 +52,7 @@ namespace MikuMikuWorld
 		MultiInputBinding timelineHiSpeed = { "timeline_hi_speed", {ImGuiKey_0}, {ImGuiKey_Keypad0} };
 		
 		MultiInputBinding insertSkill = { "insert_skill", {ImGuiKey_1, ImGuiMod_Alt} };
+		MultiInputBinding insertFever = { "insert_fever", {} };
 
 		MultiInputBinding togglePreviewFullWindow = { "fullscreen_preview", {ImGuiKey_F5} };
 		MultiInputBinding toggleFullscreen = { "fullscreen", {ImGuiKey_F11} };
@@ -178,6 +179,7 @@ namespace MikuMikuWorld
 		&config.input.timelineHiSpeed,
 		
 		&config.input.insertSkill,
+		&config.input.insertFever,
 
 		&config.input.openHelp,
 		&config.input.openSettings,
