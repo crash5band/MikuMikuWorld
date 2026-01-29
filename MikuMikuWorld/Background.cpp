@@ -48,7 +48,7 @@ namespace MikuMikuWorld
 
 	void Background::resize(Vector2 target)
 	{
-		if (framebuffer == nullptr || texture == nullptr)
+		if (!isLoaded())
 			return;
 
 		float w = texture->getWidth();
@@ -74,7 +74,7 @@ namespace MikuMikuWorld
 
 	void Background::process(Renderer* renderer)
 	{
-		if (framebuffer == nullptr || texture == nullptr)
+		if (!isLoaded())
 			return;
 
 		int s = ResourceManager::getShader("basic2d");
@@ -153,6 +153,11 @@ namespace MikuMikuWorld
 	bool Background::isDirty() const
 	{
 		return dirty;
+	}
+
+	bool Background::isLoaded() const
+	{
+		return framebuffer && texture;
 	}
 
 	void Background::dispose()

@@ -49,6 +49,7 @@ namespace MikuMikuWorld
 		void setBrightness(float b);
 
 		bool isDirty() const;
+		bool isLoaded() const;
 	};
 }
 

@@ -391,7 +391,7 @@ namespace MikuMikuWorld
 		bool isWindowActive = !ImGui::IsWindowDocked() || ImGui::GetCurrentWindow()->TabId == ImGui::GetWindowDockNode()->SelectedTabId;
 		if (isWindowActive)
 		{
-			if (config.drawBackground)
+			if (config.drawBackground && background.isLoaded())
 			{
 				const float bgWidth = static_cast<float>(background.getWidth());
 				const float bgHeight = static_cast<float>(background.getHeight());
