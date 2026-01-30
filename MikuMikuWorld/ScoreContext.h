@@ -77,6 +77,8 @@ namespace MikuMikuWorld
 		std::unordered_set<int> selectedNotes;
 		Engine::DrawData scorePreviewDrawData;
 		Audio::WaveformMipChain waveformL, waveformR;
+		class ScoreEditorTimeline* timeline{ nullptr };
+		class ScoreEditor* editor{ nullptr };
 
 		int currentTick{};
 		bool upToDate{ true };
@@ -131,6 +133,8 @@ namespace MikuMikuWorld
 
 		void connectHoldsInSelection();
 		void splitHoldInSelection();
+
+		void modifySlide(int type, int subtype);
 
 		void undo();
 		void redo();
