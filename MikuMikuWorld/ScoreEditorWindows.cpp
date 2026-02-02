@@ -813,19 +813,20 @@ namespace MikuMikuWorld
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetWorkCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 		ImGui::SetNextWindowSize(ImVec2(750, 600), ImGuiCond_Always);
 		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 10));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 10));
 
 		if (ImGui::BeginPopupModal(MODAL_TITLE("settings"), NULL, ImGuiWindowFlags_NoResize))
 		{
 			ImVec2 padding = ImGui::GetStyle().WindowPadding;
 			ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
 			ImVec2 confirmBtnPos = ImGui::GetWindowSize() + ImVec2(-100, -UI::btnNormal.y) - padding;
-			ImGui::BeginChild("##settings_panel", ImGui::GetContentRegionAvail() - ImVec2(0, UI::btnNormal.y + padding.y));
 
 			if (ImGui::BeginTabBar("##settings_tabs"))
 			{
+				const ImVec2 tabChildWindowSize = ImGui::GetContentRegionAvail() - ImVec2(0, UI::btnNormal.y + padding.y);
 				if (ImGui::BeginTabItem(IMGUI_TITLE("", "general")))
 				{
+					ImGui::BeginChild("##settings_tab_general", tabChildWindowSize, ImGuiChildFlags_Borders);
 					if (ImGui::CollapsingHeader(getString("language"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
@@ -937,11 +938,13 @@ namespace MikuMikuWorld
 							glfwSwapInterval(Application::windowState.vsync ? 1 : 0);
 					}
 
+					ImGui::EndChild();
 					ImGui::EndTabItem();
 				}
 
 				if (ImGui::BeginTabItem(IMGUI_TITLE("", "timeline")))
 				{
+					ImGui::BeginChild("##settings_tab_timeline", tabChildWindowSize, ImGuiChildFlags_Borders);
 					if (ImGui::CollapsingHeader(getString("timeline"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
@@ -1013,11 +1016,13 @@ namespace MikuMikuWorld
 						UI::endPropertyColumns();
 					}
 
+					ImGui::EndChild();
 					ImGui::EndTabItem();
 				}
 
 				if (ImGui::BeginTabItem(IMGUI_TITLE("", "preview")))
 				{
+					ImGui::BeginChild("##settings_tab_preview", tabChildWindowSize, ImGuiChildFlags_Borders);
 					if (ImGui::CollapsingHeader(getString("general"), ImGuiTreeNodeFlags_DefaultOpen))
 					{
 						UI::beginPropertyColumns();
@@ -1076,25 +1081,29 @@ namespace MikuMikuWorld
 						ImGui::Text(getString("notes_skin"));
 						if (noteSkins.count() > 1)
 						{
+							float spacing = ImGui::GetContentRegionAvail().x * 0.5f;
 							if (ImGui::RadioButton(getString(noteSkinNames[0]), config.notesSkin == 0))
 								config.notesSkin = 0;
 
-							const char* noteSkinName1 = getString(noteSkinNames[1]);
-							ImGui::SameLine();
-							if (ImGui::RadioButton(noteSkinName1, config.notesSkin == 1))
+							ImGui::SameLine(spacing);
+							if (ImGui::RadioButton(getString(noteSkinNames[1]), config.notesSkin == 1))
 								config.notesSkin = 1;
+
+							ImGui::Separator();
 						}
 
-						ImGui::Text(getString("notes_effect"));
-						if (ImGui::RadioButton(getString("effects_normal"), config.pvEffectsProfile == 0))
-							setEffectsProfile(0);
+						{
+							float spacing = ImGui::GetContentRegionAvail().x * 0.5f;
+							ImGui::Text(getString("notes_effect"));
+							if (ImGui::RadioButton(getString("effects_normal"), config.pvEffectsProfile == 0))
+								setEffectsProfile(0);
 
-						ImGui::SameLine();
-						std::string effectsLiteKey = "effects_reduced";
-						const char* effectsLiteString = getString(effectsLiteKey);
-						ImGui::SameLine();
-						if (ImGui::RadioButton(effectsLiteString, config.pvEffectsProfile == 1))
-							setEffectsProfile(1);
+							ImGui::SameLine(spacing);
+							if (ImGui::RadioButton(getString("effects_reduced"), config.pvEffectsProfile == 1))
+								setEffectsProfile(1);
+
+							ImGui::Separator();
+						}
 
 						UI::beginPropertyColumns();
 						UI::addCheckboxProperty(getString("flicks_animation"), config.pvFlickAnimation);
@@ -1113,18 +1122,21 @@ namespace MikuMikuWorld
 						UI::endPropertyColumns();
 					}
 					
+					ImGui::EndChild();
 					ImGui::EndTabItem();
 				}
 
 				if (ImGui::BeginTabItem(IMGUI_TITLE("", "key_config")))
 				{
+					ImGui::BeginChild("##settings_tab_key_config", tabChildWindowSize, ImGuiChildFlags_Borders);
 					updateKeyConfig(bindings, sizeof(bindings) / sizeof(MultiInputBinding*));
+					
+					ImGui::EndChild();
 					ImGui::EndTabItem();
 				}
 			}
-			ImGui::EndTabBar();
 
-			ImGui::EndChild();
+			ImGui::EndTabBar();
 			ImGui::SetCursorPos(confirmBtnPos);
 			if (ImGui::Button("OK", ImVec2(100, UI::btnNormal.y - 5)))
 				ImGui::CloseCurrentPopup();
