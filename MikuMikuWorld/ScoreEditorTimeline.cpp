@@ -2316,8 +2316,17 @@ namespace MikuMikuWorld
 		notesFramebuffer = std::make_unique<Framebuffer>(1920, 1080);
 		playbackSpeed = 1.0f;
 
-		background.load(config.backgroundImage.empty() ? (Application::getAppDir() + "res\\editor\\default.png") : config.backgroundImage);
-		background.setBrightness(0.67);
+		bool useDefaultBackground = config.backgroundImage.empty();
+		if (!useDefaultBackground)
+		{
+			background.load(config.backgroundImage);
+			useDefaultBackground = !background.isLoaded();
+		}
+
+		if (useDefaultBackground)
+			background.load(Application::getAppDir() + "res\\editor\\default.png");
+		
+		background.setBrightness(0.67f);
 	}
 
 	void ScoreEditorTimeline::setPlaybackSpeed(ScoreContext& context, float speed)

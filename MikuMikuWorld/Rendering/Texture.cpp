@@ -4,8 +4,6 @@
 #include <glad/glad.h>
 #include "GLFW/glfw3.h"
 #include "stb_image.h"
-#include <filesystem>
-#include <fstream>
 
 using namespace IO;
 
@@ -16,10 +14,13 @@ namespace MikuMikuWorld
 	{
 	}
 
-	Texture::Texture(const std::string& filename, TextureFilterMode min, TextureFilterMode mag)
+	Texture::Texture(const std::string& filename, TextureFilterMode min, TextureFilterMode mag) :
+		glID{ 0 }, width{ 0 }, height{ 0 }, filename{ filename }
 	{
-		this->filename = filename;
 		name = File::getFilenameWithoutExtension(filename);
+		if (!File::exists(filename))
+			return;
+
 		read(filename, min, mag);
 
 		std::string sprSheet = File::getFilepath(filename) + "spr/" + name + ".txt";
@@ -44,9 +45,13 @@ namespace MikuMikuWorld
 		glBindTexture(GL_TEXTURE_2D, glID);
 	}
 
-	void Texture::dispose() const
+	void Texture::dispose()
 	{
-		glDeleteTextures(1, &glID);
+		if (glID > 0)
+		{
+			glDeleteTextures(1, &glID);
+			width = height = glID = 0;
+		}
 	}
 
 	void Texture::readSprites(const std::string& filename)

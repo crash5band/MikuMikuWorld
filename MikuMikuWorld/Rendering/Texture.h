@@ -48,7 +48,7 @@ namespace MikuMikuWorld
 		inline const std::string& getFilename() const { return filename; }
 
 		void bind() const;
-		void dispose() const;
+		void dispose();
 		void read(const std::string& filename, TextureFilterMode minFilter = TextureFilterMode::Linear, TextureFilterMode magFilter = TextureFilterMode::Linear);
 		void readSprites(const std::string& filename);
 	};

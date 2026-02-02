@@ -68,7 +68,7 @@ namespace MikuMikuWorld
 		backgroundFile = config.backgroundImage;
 		jacketFile = jacket.getFilename();
 		brightness = config.pvBackgroundBrightness;
-		bool useDefaultTexture = backgroundFile.empty();
+		bool useDefaultTexture = backgroundFile.empty() || !IO::File::exists(backgroundFile);
 		Texture backgroundTex = { useDefaultTexture ? Application::getAppDir() + "res\\editor\\default.png" : backgroundFile};
 		const float bgWidth = backgroundTex.getWidth(), bgHeight = backgroundTex.getHeight();
 		if (bgWidth != frameBuffer.getWidth() || bgHeight != frameBuffer.getHeight())
@@ -81,14 +81,22 @@ namespace MikuMikuWorld
 		int index = ResourceManager::getTexture("stage");
 		if (index == -1)
 			return;
-		const Texture& stage = ResourceManager::textures[ResourceManager::getTexture("stage")];
+
 		basicShader->use();
-		basicShader->setMatrix4("projection", Camera::getOffCenterOrthographicProjection(0, bgWidth, 0, bgHeight));
-		renderer->beginBatch();
-		renderer->drawRectangle({0, 0}, {bgWidth, bgHeight}, backgroundTex, 0, bgWidth, 0, bgHeight, defaultTint, 0);
-		renderer->endBatch();
-		if (useDefaultTexture && IO::File::exists(jacket.getFilename()))
-			updateDrawDefaultJacket(renderer, jacket);
+
+		// DirectXMath dies when projection size is too small
+		const float projectionX{ std::max(bgWidth, 10.f) };
+		const float projectionY{ std::max(bgHeight, 10.f) };
+		basicShader->setMatrix4("projection", Camera::getOffCenterOrthographicProjection(0, projectionX, 0, projectionY));
+		
+		if (backgroundTex.getID() > 0)
+		{
+			renderer->beginBatch();
+			renderer->drawRectangle({0, 0}, {bgWidth, bgHeight}, backgroundTex, 0, bgWidth, 0, bgHeight, defaultTint, 0);
+			renderer->endBatch();
+			if (useDefaultTexture && IO::File::exists(jacket.getFilename()))
+				updateDrawDefaultJacket(renderer, jacket);
+		}
 		frameBuffer.unblind();
 		backgroundTex.dispose();
 	}
