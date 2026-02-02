@@ -399,8 +399,6 @@ namespace MikuMikuWorld
 
 	void ScorePreviewWindow::updateUI(ScoreEditorTimeline& timeline, ScoreContext& context)
 	{
-		lastFrameFullWindow = fullWindow;
-
 		updateToolbar(timeline, context);
 		ImGuiIO io = ImGui::GetIO();
 		float mouseWheel = io.MouseWheel * 1;

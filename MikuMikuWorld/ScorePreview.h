@@ -43,7 +43,6 @@ namespace MikuMikuWorld
 		Camera noteEffectsCamera;
 
 		mutable bool fullWindow{};
-		bool lastFrameFullWindow{};
 
 		const Texture& getNoteTexture();
 
@@ -74,7 +73,6 @@ namespace MikuMikuWorld
 		void setFullWindow(bool fullScreen);
 		
 		inline bool isFullWindow() const { return fullWindow; };
-		bool wasLastFrameFullWindow() const { return lastFrameFullWindow; }
 
 		void loadNoteEffects(Effect::EffectView& effectView);
 	};
