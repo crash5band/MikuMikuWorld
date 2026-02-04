@@ -104,8 +104,6 @@ flicks_animation, 滑動鍵動畫
 holds_animation, 長按鍵動畫
 simultaneous_lines, 雙壓輔助線
 notes_effect, 音符效果
-# notes_slot_effect, 音符槽效果
-# lanes_effect, 軌道效果
 holds_alpha, 長按鍵不透明度
 guides_alpha, 輔助音符不透明度
 stage_opacity, 舞台不透明度
