@@ -17,18 +17,18 @@ redo, 重做
 select_all, 全選
 view, 顯示
 show_step_outlines, 在中點顯示邊界
-hide_step_outlines_in_playback, 播放時隱藏航點
-draw_waveform, 顯示波形
-stop_at_end, 最後停止
-import_preset, 匯入設定檔
-reload_presets, 重新載入設定檔
-open_presets_folder, 開啟設定檔資料夾
+hide_step_outlines_in_playback, 播放時隱藏外框
+draw_waveform, 顯示聲音波型
+stop_at_end, 播放完成後停止
+import_preset, 匯入預設
+reload_presets, 重新載入預設
+open_presets_folder, 開啟預設資料夾
 settings, 設定
 window, 視窗
-vsync, VSync（垂直同步）
+vsync, 垂直同步
 show_fps, 顯示幀率
 fullscreen, 全螢幕
-debug, 糾錯模式
+debug, 開發模式
 create_auto_save, 執行自動儲存
 help, 說明
 about, 關於
@@ -41,7 +41,7 @@ remove_recent_file_not_found, 您希望將此檔案從最近使用的檔案清�
 yes, 是的
 no, 不了，謝謝
 unsaved_changes, 自上次存檔後已經編輯過了！
-ask_save, 你要儲存譜面嗎？
+ask_save, 是否要儲存譜面？
 warn_unsaved, 任何未儲存的變更都將遺失。
 save_changes, 儲存變更
 discard_changes, 放棄變更
@@ -58,7 +58,7 @@ error_save_score_file, 儲存音訊檔案時發生錯誤
 error_load_music_file, 音訊檔案載入失敗
 cancel, 取消
 general, 一般
-key_config, 關鍵配置
+key_config, 重要配置
 language, 語言
 auto, 自動
 auto_save, 自動儲存
@@ -80,21 +80,21 @@ match_timeline_size_to_window, 將時間軸調整為螢幕大小
 match_notes_size_to_timeline, 將時間軸調整為音符與軌道大小
 lane_width, 軌道寬度
 notes_height, 音符高度
-scrolling, 滾動
-scroll_speed_normal, 滾動速度
-scroll_speed_shift, 滑動滾動速度
-use_smooth_scroll, 平滑滾動
-smooth_scroll_time, 平滑滾動時間
-return_to_last_tick, 返回到上次的拍子
-cursor_auto_scroll, 自動滾動游標
-cursor_auto_scroll_amount, 游標自動滾動量
+scrolling, 捲動
+scroll_speed_normal, 捲動速度
+scroll_speed_shift, 捲動速度
+use_smooth_scroll, 平滑捲動
+smooth_scroll_time, 平滑捲動時間
+return_to_last_tick, 回到上一個拍點
+cursor_auto_scroll, 自動捲動游標
+cursor_auto_scroll_amount, 游標自動捲動量
 background, 背景
 background_image, 背景圖
 draw_background, 繪製背景圖片
 background_brightnes, 背景亮度
 lanes_opacity, 背景不透明度
 video, 畫面
-vsync_enable, VSync（垂直同步）
+vsync_enable, 啟用垂直同步
 notes_se, 音符音效
 visuals, 視覺效果
 preview_draw_toolbar, 繪製預覽工具列
@@ -102,7 +102,7 @@ notes_speed, 音符速度
 mirror_score, 鏡像譜面
 flicks_animation, 滑動鍵動畫
 holds_animation, 長按鍵動畫
-simultaneous_lines, 雙壓輔助線
+simultaneous_lines, 雙押輔助線
 notes_effect, 音符效果
 holds_alpha, 長按鍵不透明度
 guides_alpha, 輔助音符不透明度
@@ -123,15 +123,15 @@ chart_properties, 譜面屬性
 notes_timeline, 音符時間軸
 score_preview, 譜面預覽
 select, 選擇
-tap, 單擊
-hold, 長按
-hold_step, 長按中繼點
-flick, 滑動
-critical, 極致
+tap, Tap
+hold, Hold
+hold_step, Hold 中繼點
+flick, Flick
+critical, Critical
 trace, 軌道
 guide, 輔助
 bpm, BPM
-time_signature, 拍子
+time_signature, 時間戳
 none, 無
 default, 預設
 left, 左
@@ -152,46 +152,46 @@ note_width, 音符寬度
 shrink_down, 縮小（對齊起點）
 shrink_up, 縮小（對齊終點）
 connect_holds, 連接
-split_hold, 分割
+split_hold, 分割 Hold
 step_type, 中繼點類型
 ease_type, 緩動類型
-flick_type, 滑動方向
-hold_type, 滑動類型
+flick_type, Flick 類型
+hold_type, Hold 類型
 metadata, 資訊
 title, 標題
-designer, 譜面作者
-artist, 藝術家
+designer, 譜師
+artist, 演奏者
 jacket, 封面
 audio, 音訊
 music_file, 音訊檔案
 music_offset, 音訊延遲
 volume_master, 主音量
-volume_bgm, BGM音量
-volume_se, SE音量
+volume_bgm, BGM 音量
+volume_se, SE 音量
 statistics, 統計
-taps, 點擊
-flicks, 滑動
-holds, 長按
-steps, 長按中繼點
+taps, Taps
+flicks, Flicks
+holds, Holds
+steps, Hold steps
 traces, 軌道
 total, 合計
 combo, Combo
 goto_measure, 前往小節
-division, 分割小節
-division_suffix, 分音符
-custom, 自訂：
+division, 分割
+division_suffix, 分割音符
+custom, 自訂
 custom_division, 自訂分割
 zoom, 縮放
-edit_bpm, 編輯
+edit_bpm, 編輯 BPM
 tick, 拍子
 remove, 移除
-edit_time_signature, 編輯拍子
+edit_time_signature, 編輯時間戳
 measure, 小節
 skill, 技能
 increase_note_size, 加寬音符
 decrease_note_size, 減小音符
 hi_speed, 加速
-edit_hi_speed, 編輯加速
+edit_hi_speed, 編輯加速度
 hi_speed_speed, 加速速度
 edit_skill, 編輯技能
 edit_fever, 編輯FEVER
@@ -232,5 +232,5 @@ timeline_guide, 時間軸「輔助」
 timeline_bpm, 時間軸「BPM」
 timeline_time_signature, 時間軸「拍子」
 timeline_hi_speed, 時間軸「加速」
-zoom_in, 縮放進
-zoom_out, 縮放出
+zoom_in, 縮小
+zoom_out, 放大
