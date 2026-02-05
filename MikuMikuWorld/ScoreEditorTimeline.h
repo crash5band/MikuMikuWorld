@@ -53,13 +53,14 @@ namespace MikuMikuWorld
 
 	struct EventControlDrawData
 	{
-		bool highlight;
 		float timelineX;
 		ImVec2 pos;
 		ImVec2 size;
 		ImVec2 txtSize;
 		ImU32 color;
 		std::string txt;
+		bool highlight;
+		bool enabled;
 	};
 
 	class ScoreEditorTimeline
@@ -190,7 +191,7 @@ namespace MikuMikuWorld
 		bool feverControl(const Fever& fever);
 		bool feverControl(int tick, bool start, bool enabled);
 		bool hiSpeedControl(const HiSpeedChange& hiSpeed);
-		bool hiSpeedControl(int tick, float speed);
+		bool hiSpeedControl(int tick, float speed, bool enabled);
 
 		void drawInputNote(Renderer* renderer);
 		void previewInput(EditArgs& edit, Renderer* renderer);
