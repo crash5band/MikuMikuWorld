@@ -1634,7 +1634,7 @@ namespace MikuMikuWorld
 			return;
 
 		const Texture& pathTex = ResourceManager::textures[texIndex];
-		const int sprIndex = n1.critical ? 3 : 1;
+		const int sprIndex = n1.critical ? 3 : 1; // 0, 1 -> normal, 2, 3 -> critical
 		if (!isArrayIndexInBounds(sprIndex, pathTex.sprites))
 			return;
 
@@ -1656,6 +1656,8 @@ namespace MikuMikuWorld
 
 		auto easeFunc = getEaseFunction(ease);
 		float steps = ease == EaseType::Linear ? 1 : std::max(5.0f, std::ceilf(abs((endY - startY)) / 10));
+
+		Color appliedTint = isGuide ? tint.scaleAlpha(0.67f) : tint;
 
 		for (int y = 0; y < steps; ++y)
 		{
@@ -1684,19 +1686,19 @@ namespace MikuMikuWorld
 			Vector2 p2{ xl1 + holdSliceSize, y1 };
 			Vector2 p3{ xl2, y2 };
 			Vector2 p4{ xl2 + holdSliceSize, y2 };
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, left, left + holdSliceWidth, spr.getY1(), spr.getY2(), tint, (int)ZIndex::HoldLine);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, left, left + holdSliceWidth, spr.getY1(), spr.getY2(), appliedTint, (int)ZIndex::HoldLine);
 
 			p1.x = xl1 + holdSliceSize;
 			p2.x = xr1 - holdSliceSize;
 			p3.x = xl2 + holdSliceSize;
 			p4.x = xr2 - holdSliceSize;
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, left + holdSliceWidth, right - holdSliceWidth, spr.getY1(), spr.getY2(), tint, (int)ZIndex::HoldLine);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, left + holdSliceWidth, right - holdSliceWidth, spr.getY1(), spr.getY2(), appliedTint, (int)ZIndex::HoldLine);
 
 			p1.x = xr1 - holdSliceSize;
 			p2.x = xr1;
 			p3.x = xr2 - holdSliceSize;
 			p4.x = xr2;
-			renderer->drawQuad(p1, p2, p3, p4, pathTex, right - holdSliceWidth, right, spr.getY1(), spr.getY2(), tint, (int)ZIndex::HoldLine);
+			renderer->drawQuad(p1, p2, p3, p4, pathTex, right - holdSliceWidth, right, spr.getY1(), spr.getY2(), appliedTint, (int)ZIndex::HoldLine);
 		}
 	}
 

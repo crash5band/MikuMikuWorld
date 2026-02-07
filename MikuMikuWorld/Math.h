@@ -126,7 +126,7 @@ namespace MikuMikuWorld
 		inline ImVec4 toImVec4() const { return ImVec4{ r, g, b, a }; }
 		static inline Color fromImVec4(const ImVec4& col) { return Color{ col.x, col.y, col.z, col.w }; }
 
-		inline Color scaleAlpha(float scalar) { return Color{ r, g, b, a * scalar}; }
+		inline Color scaleAlpha(float scalar) const { return Color{ r, g, b, a * scalar}; }
 	};
 
 	struct Range
