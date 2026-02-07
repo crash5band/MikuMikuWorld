@@ -447,8 +447,14 @@ namespace MikuMikuWorld
 					}
 
 					// Clicked and dragging inside the timeline
-					if (clickedOnTimeline && ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::IsAnyItemHovered() && ImGui::IsMouseDragPastThreshold(0, 10.0f) && !playing)
+					if (clickedOnTimeline && ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::IsAnyItemHovered() && ImGui::IsMouseDragPastThreshold(ImGuiMouseButton_Left, 10.0f) && !playing)
 						dragging = true;
+				}
+
+				if (ImGui::IsAnyPressed(config.input.cancelPaste) || ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+				{
+					context.cancelPaste();
+					insertingHold = insertingFever = false;
 				}
 			}
 
@@ -672,7 +678,7 @@ namespace MikuMikuWorld
 
 			// Update cursor tick after determining whether a note is hovered
 			// The cursor tick should not change if a note is hovered
-			if (ImGui::IsMouseClicked(0) && !isHoveringNote && mouseInTimeline && !playing && !pasting &&
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !isHoveringNote && mouseInTimeline && !playing && !pasting &&
 				!UI::isAnyPopupOpen() && currentMode == TimelineMode::Select && ImGui::IsWindowFocused())
 			{
 				context.currentTick = hoverTick;
@@ -955,16 +961,16 @@ namespace MikuMikuWorld
 		const bool pasting = context.pasteData.pasting;
 		if (pasting && mouseInTimeline && !playing)
 		{
-			context.pasteData.offsetLane = std::clamp(hoverLane - context.pasteData.midLane,
+			context.pasteData.offsetLane = std::clamp(
+				hoverLane - context.pasteData.midLane,
 				context.pasteData.minLaneOffset,
-				context.pasteData.maxLaneOffset);
+				context.pasteData.maxLaneOffset
+			);
 
 			context.pasteData.offsetTicks = hoverTick + context.pasteData.minTick;
 			previewPaste(context, renderer);
-			if (ImGui::IsMouseClicked(0))
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 				context.confirmPaste();
-			else if (ImGui::IsMouseClicked(1))
-				context.cancelPaste();
 		}
 
 		if (mouseInTimeline && !isHoldingNote && (currentMode != TimelineMode::Select || insertingFever) &&
@@ -972,10 +978,10 @@ namespace MikuMikuWorld
 		{
 			renderer->beginBatch();
 			previewInput(edit, renderer);
-			if (ImGui::IsMouseClicked(0) && hoverTick >= 0 && !isHoveringNote)
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && hoverTick >= 0 && !isHoveringNote)
 				executeInput(context, edit);
 
-			if (insertingHold && !ImGui::IsMouseDown(0))
+			if (insertingHold && !ImGui::IsMouseDown(ImGuiMouseButton_Left))
 			{
 				insertHold(context, edit);
 				insertingHold = false;
@@ -1414,7 +1420,7 @@ namespace MikuMikuWorld
 			{
 				minNoteYDistance = noteYDistance;
 				hoveringNote = note.ID;
-				if (ImGui::IsMouseClicked(0) && !UI::isAnyPopupOpen())
+				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !UI::isAnyPopupOpen())
 				{
 					if (!io.KeyCtrl && !io.KeyAlt && !context.isNoteSelected(note))
 						context.selectedNotes.clear();
