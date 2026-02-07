@@ -496,10 +496,10 @@ namespace MikuMikuWorld
 				context.selectAll();
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(getString("insert_skill"), ToShortcutString(config.input.insertSkill)))
+			if (ImGui::MenuItem(getString("insert_skill"), ToShortcutString(config.input.insertSkill), nullptr, !timeline.isPlaying()))
 				timeline.insertSkill(context, context.currentTick);
 
-			if (ImGui::MenuItem(getString("insert_fever"), ToShortcutString(config.input.insertFever)))
+			if (ImGui::MenuItem(getString("insert_fever"), ToShortcutString(config.input.insertFever), nullptr, !timeline.isPlaying()))
 				timeline.beginInsertFever(context, context.currentTick);
 
 			ImGui::Separator();

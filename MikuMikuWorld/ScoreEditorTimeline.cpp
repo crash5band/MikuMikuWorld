@@ -1118,6 +1118,9 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::insertSkill(ScoreContext& context, int tick)
 	{
+		if (playing)
+			return;
+
 		for (const auto& skill : context.score.skills)
 		{
 			if (skill.tick == tick)
@@ -1131,6 +1134,9 @@ namespace MikuMikuWorld
 
 	void ScoreEditorTimeline::beginInsertFever(ScoreContext& context, int tick)
 	{
+		if (playing)
+			return;
+
 		// Cancel paste to avoid inserting a fever and pasting simultaneously
 		context.pasteData.pasting = false;
 
