@@ -5,7 +5,7 @@
 
 namespace MikuMikuWorld::Effect
 {
-	constexpr float GRAVITY = 9.81f; // Based on default Physics3D
+	constexpr float GRAVITY = 9.81f * 5.f; // Based on default Physics3D
 	constexpr float BILLBOARD_SCALE = 0.71f; // Estimated
 
 	static std::knuth_b rand_engine;
