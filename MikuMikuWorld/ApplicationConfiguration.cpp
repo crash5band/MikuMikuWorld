@@ -10,7 +10,7 @@ using namespace nlohmann;
 namespace MikuMikuWorld
 {
 	ApplicationConfiguration config{};
-	constexpr const char* CONFIG_VERSION{ "1.17.0" };
+	constexpr const char* CONFIG_VERSION{ "1.18.0" };
 
 	ApplicationConfiguration::ApplicationConfiguration() : version{ CONFIG_VERSION }
 	{
@@ -84,7 +84,6 @@ namespace MikuMikuWorld
 		{
 			auto& previewObj = config["preview"];
 			notesSkin = jsonIO::tryGetValue<int>(previewObj, "notes_skin", 0);
-			pvLockAspectRatio = jsonIO::tryGetValue<bool>(previewObj, "lock_aspect_ratio", true);
 			pvMirrorScore = jsonIO::tryGetValue<bool>(previewObj, "mirror", false);
 			pvFlickAnimation = jsonIO::tryGetValue<bool>(previewObj, "marker_animation", true);
 			pvHoldAnimation = jsonIO::tryGetValue<bool>(previewObj, "hold_animation", true);
@@ -195,7 +194,6 @@ namespace MikuMikuWorld
 
 		config["preview"] = {
 			{"notes_skin", notesSkin},
-			{"lock_aspect_ratio", pvLockAspectRatio},
 			{"mirror", pvMirrorScore},
 			{"marker_animation", pvFlickAnimation},
 			{"hold_animation", pvHoldAnimation},
@@ -294,7 +292,6 @@ namespace MikuMikuWorld
 		hideStepOutlinesInPlayback = true;
 		stopAtEnd = true;
 
-		pvLockAspectRatio = true;
 		pvMirrorScore = false;
 		pvFlickAnimation = true;
 		pvSimultaneousLine = true;
