@@ -32,10 +32,23 @@ namespace MikuMikuWorld
 
 		ImRect bound = { eventData.pos, eventData.pos + eventData.size };
 		ImGui::RenderFrame(bound.Min, bound.Max, col, true, 2.0f);
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.15f, 0.15f, 0.15f, eventData.enabled ? 1.0f : 0.5f));
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.15f, 0.15f, 0.15f, 1.0f));
 		ImGui::RenderTextClipped(bound.Min + framePadding, bound.Max - framePadding, eventData.txt.c_str(), NULL, &eventData.txtSize, ImGui::GetStyle().ButtonTextAlign, &bound);
 		ImGui::PopStyleColor();
 		drawList->AddLine({ eventData.timelineX, eventData.pos.y + frameHeight }, { eventData.pos.x + (eventData.pos.x < eventData.timelineX ? 0 : eventData.size.x), eventData.pos.y + frameHeight }, col, primaryLineThickness);
+	}
+
+	void ScoreEditorTimeline::drawFeverLine(const Fever& fever)
+	{
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		if (!drawList)
+			return;
+
+		const float x = getTimelineStartX();
+		const float y1 = position.y - tickToPosition(fever.startTick) + visualOffset;
+		const float y2 = position.y - tickToPosition(fever.endTick) + visualOffset;
+
+		drawList->AddLine({ x, y1 }, { x, y2 }, feverColor, primaryLineThickness);
 	}
 
 	bool ScoreEditorTimeline::eventControl(int tick, ImU32 color, const char* txt, bool fromStart, bool enabled)
@@ -649,6 +662,7 @@ namespace MikuMikuWorld
 				drawList->AddTriangleFilled({ x, y2 }, { x + 10, y2 }, { x + 10, y2 + 10 }, 0xFFCCCCCC);
 			}
 
+			drawFeverLine(context.score.fever);
 			if (feverControl(context.score.fever))
 			{
 				eventEdit.editIndex = -1;
@@ -1184,6 +1198,7 @@ namespace MikuMikuWorld
 			inputFever.endTick = hoverTick;
 			feverControl(inputFever.startTick, true, false);
 			feverControl(inputFever.endTick, true, false);
+			drawFeverLine(inputFever);
 
 			ImGui::PopStyleVar();
 			return;
@@ -2487,7 +2502,7 @@ namespace MikuMikuWorld
 		}
 	}
 
-	void ScoreEditorTimeline::drawWaveform(ScoreContext& context)
+	void ScoreEditorTimeline::drawWaveform(const ScoreContext& context)
 	{
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		if (!drawList)
