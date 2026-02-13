@@ -188,6 +188,8 @@ namespace MikuMikuWorld::Effect
 			float shapeRandomX = shapeRandom.nextFloat();
 			float shapeRandomY = shapeRandom.nextFloat();
 			float shapeRandomZ = shapeRandom.nextFloat();
+			float shapeRandomW1 = shapeRandom.nextFloat();
+			float shapeRandomW2 = shapeRandom.nextFloat();
 
 			DirectX::XMStoreFloat3(&halves, halfScale);
 			float x = lerp(-halves.x, halves.x, shapeRandomX);
@@ -233,10 +235,7 @@ namespace MikuMikuWorld::Effect
 			DirectX::XMVECTOR angles = DirectX::XMVectorSet(sinf(angle), sinf(angle), 1.f, 1.f);
 			direction = DirectX::XMVector3Rotate(DirectX::XMVectorMultiply(positionNormalized, angles), qAll);
 
-			emitPosition = DirectX::XMVectorAdd(
-				DirectX::XMVector3Rotate(emitPosition, qAll),
-				position
-			);
+			emitPosition = DirectX::XMVectorAdd(DirectX::XMVector3Rotate(emitPosition, qAll), position);
 		}
 		else if (ref.emission.shape == EmissionShape::Circle)
 		{
@@ -297,7 +296,8 @@ namespace MikuMikuWorld::Effect
 
 		instance.alive = true;
 		instance.transform.position = emitPosition;
-		instance.transform.rotation = DirectX::XMLoadFloat3(&startRotation);
+		instance.transform.rotation = DirectX::XMVectorNegate(DirectX::XMLoadFloat3(&startRotation));
+
 		instance.direction = direction;
 		instance.speed = length;
 		instance.startTime = time;
@@ -320,7 +320,11 @@ namespace MikuMikuWorld::Effect
 		if (ref.simulationSpace == TransformSpace::World)
 		{
 			DirectX::XMVECTOR qShift = quaternionFromZYX(worldTransform.rotation);
-			instance.transform.position = DirectX::XMVectorAdd(instance.transform.position, DirectX::XMVector3Rotate(worldTransform.position, qShift));
+			DirectX::XMMATRIX worldOffset = DirectX::XMMatrixIdentity();
+			worldOffset *= DirectX::XMMatrixRotationQuaternion(qShift);
+			worldOffset *= DirectX::XMMatrixTranslationFromVector(worldTransform.position);
+
+			instance.transform.position = DirectX::XMVector3Transform(instance.transform.position, worldOffset);
 			instance.transform.rotation = DirectX::XMVectorAdd(instance.transform.rotation, worldTransform.rotation);
 			instance.direction = DirectX::XMVector3Rotate(instance.direction, qShift);
 		}
@@ -483,6 +487,8 @@ namespace MikuMikuWorld::Effect
 		DirectX::XMVECTOR rotation = DirectX::XMVectorAdd(baseTransform.rotation, ref.transform.rotation);
 
 		DirectX::XMMATRIX worldOffset = DirectX::XMMatrixIdentity();
+		if (ref.name == "aura")
+			worldOffset *= DirectX::XMMatrixScalingFromVector(worldTransform.scale);
 		worldOffset *= DirectX::XMMatrixRotationQuaternion(qShift);
 		worldOffset *= DirectX::XMMatrixTranslationFromVector(worldTransform.position);
 
@@ -512,7 +518,7 @@ namespace MikuMikuWorld::Effect
 			{
 				DirectX::XMFLOAT3 temp = ref.rotationOverLifetime.integrate(0, normalizedTime, p.duration, p.rotationLerpRatio);
 				DirectX::XMVECTOR tempV = DirectX::XMLoadFloat3(&temp);
-				currentRotation = DirectX::XMVectorAdd(currentRotation, tempV);
+				currentRotation = DirectX::XMVectorSubtract(currentRotation, tempV);
 			}
 
 			// Apparently, the transform scale affects velocity too
@@ -608,15 +614,9 @@ namespace MikuMikuWorld::Effect
 			if (p.flipRotation)
 				currentRotation = DirectX::XMVectorNegate(currentRotation);
 
-			// I do not like this but I can't think of any other decent way for now...
-			if (ref.name == "aura")
-				currentScale = DirectX::XMVectorMultiply(currentScale, worldTransform.scale);
-
 			p.matrix *= DirectX::XMMatrixTranslation(ref.pivot.x, ref.pivot.y, ref.pivot.z);
 			p.matrix *= DirectX::XMMatrixScalingFromVector(currentScale);
-			
-			DirectX::XMVECTOR eulerFinal = DirectX::XMVectorSetZ(currentRotation, -DirectX::XMVectorGetZ(currentRotation));
-			DirectX::XMMATRIX m4Rotation = DirectX::XMMatrixRotationQuaternion(quaternionFromZYX(eulerFinal));
+			DirectX::XMMATRIX m4Rotation = DirectX::XMMatrixRotationQuaternion(quaternionFromZYX(currentRotation));
 			
 			if (ref.renderMode == RenderMode::StretchedBillboard)
 			{
