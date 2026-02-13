@@ -272,11 +272,9 @@ namespace MikuMikuWorld::Effect
 		{
 		case MinMaxCurve::Max:
 			curveMax.emplace_back(k);
-			std::sort(curveMax.begin(), curveMax.end(), [](const auto& k1, const auto& k2) { return k1.time <= k2.time; });
 			break;
 		default:
 			curveMin.emplace_back(k);
-			std::sort(curveMin.begin(), curveMin.end(), [](const auto& k1, const auto& k2) { return k1.time <= k2.time; });
 			break;
 		}
 	}

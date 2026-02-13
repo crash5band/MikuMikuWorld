@@ -1,10 +1,7 @@
 #include "ResourceManager.h"
 #include "IO.h"
-#include "BinaryReader.h"
 #include "MinMax.h"
-#include <filesystem>
 #include <sstream>
-#include <numeric>
 
 using namespace nlohmann;
 
@@ -409,7 +406,7 @@ namespace MikuMikuWorld
 		return particleIdMap.at(id);
 	}
 
-	int ResourceManager::getRootParticleIdByName(std::string name)
+	int ResourceManager::getRootParticleIdByName(const std::string& name)
 	{
 		auto it = effectNameToRootIdMap.find(name);
 		if (it == effectNameToRootIdMap.end())

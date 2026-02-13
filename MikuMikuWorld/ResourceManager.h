@@ -30,7 +30,7 @@ namespace MikuMikuWorld
 
 		static int loadParticleEffect(const std::string& filename);
 		static Effect::Particle& getParticleEffect(int id);
-		static int getRootParticleIdByName(std::string name);
+		static int getRootParticleIdByName(const std::string& name);
 
 		static void removeAllParticleEffects();
 
