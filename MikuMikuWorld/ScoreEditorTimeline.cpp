@@ -908,7 +908,14 @@ namespace MikuMikuWorld
 
 		std::sort(updateNoteIDs.begin(), updateNoteIDs.end(), [&context](int a, int b)
 		{
-			return context.score.notes.at(a).tick > context.score.notes.at(b).tick;
+			const Note& n1 = context.score.notes.at(a);
+			const Note& n2 = context.score.notes.at(b);
+			if (n1.tick == n2.tick)
+			{
+				return n1.lane == n2.lane ? n1.ID < n2.ID : n1.lane < n2.lane;
+			}
+
+			return n1.tick < n2.tick;
 		});
 
 		renderer->beginBatch();
