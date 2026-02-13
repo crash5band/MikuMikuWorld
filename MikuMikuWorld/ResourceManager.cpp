@@ -380,12 +380,12 @@ namespace MikuMikuWorld
 	{
 		std::string effectName = IO::File::getFilenameWithoutExtension(filename);
 		std::wstring wFilename = IO::mbToWideStr(filename);
-		
-		std::ifstream particleFile(wFilename);
-		particleFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-		
+				
 		try
 		{
+			std::ifstream particleFile(wFilename);
+			particleFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
 			json effectJson{};
 			particleFile >> effectJson;
 			particleFile.close();
@@ -419,6 +419,8 @@ namespace MikuMikuWorld
 	{
 		particleIdMap.clear();
 		effectNameToRootIdMap.clear();
+
+		particleIdMap[0] = {}; // Dummy effect
 		nextParticleId = 1;
 	}
 }
