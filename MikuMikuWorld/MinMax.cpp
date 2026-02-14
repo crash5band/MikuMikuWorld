@@ -245,7 +245,7 @@ namespace MikuMikuWorld::Effect
 		case MinMaxMode::Curve:
 			return evaluateCurve(curveMin, time, fallback);
 		case MinMaxMode::TwoCurves:
-			return lerp(evaluateCurve(curveMin, time), evaluateCurve(curveMax, time), lerpRatio);
+			return lerp(evaluateCurve(curveMin, time, fallback), evaluateCurve(curveMax, time, fallback), lerpRatio);
 		default:
 			return constant;
 		}

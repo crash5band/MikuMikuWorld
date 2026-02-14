@@ -142,8 +142,6 @@ namespace MikuMikuWorld::Effect
 
 		DirectX::XMVECTOR position = DirectX::XMVectorAdd(DirectX::XMVectorAdd(transformPos, basePos), shapePos);
 
-		ParticleInstance& instance = particles[instanceIndex];
-
 		float cy{}, cz{}, ey{}, ez{};
 
 		float a = initialRandom.nextFloat();
@@ -170,13 +168,6 @@ namespace MikuMikuWorld::Effect
 		float length = ref.startSpeed.evaluate(b);
 		DirectX::XMFLOAT3 startRotation = ref.startRotation.is3D ?
 			ref.startRotation.evaluate(0, {e, ey, ez}, 0) : ref.startRotation.evaluate(0, e, 0);
-		
-		instance.duration = ref.startLifeTime.evaluate(a);
-		instance.spriteSheetLerpRatio = a;
-		instance.gravityLerpRatio = h;
-
-		instance.startColor = ref.startColor.evaluate(g);
-		instance.colorLerpRatio = g;
 
 		DirectX::XMVECTOR emitPosition = DirectX::XMVectorSet(0, 0, 0, 1);
 		DirectX::XMVECTOR direction = DirectX::XMVectorSet(0, 0, 0, 0);
@@ -188,8 +179,6 @@ namespace MikuMikuWorld::Effect
 			float shapeRandomX = shapeRandom.nextFloat();
 			float shapeRandomY = shapeRandom.nextFloat();
 			float shapeRandomZ = shapeRandom.nextFloat();
-			float shapeRandomW1 = shapeRandom.nextFloat();
-			float shapeRandomW2 = shapeRandom.nextFloat();
 
 			DirectX::XMStoreFloat3(&halves, halfScale);
 			float x = lerp(-halves.x, halves.x, shapeRandomX);
@@ -198,7 +187,7 @@ namespace MikuMikuWorld::Effect
 			emitPosition = DirectX::XMVectorSet(x, y, z, 1);
 
 			emitPosition = DirectX::XMVectorAdd(DirectX::XMVector3Rotate(emitPosition, qAll), position);
-			direction = DirectX::XMVector3Rotate({ 0, 0, 1, 0 }, qBase);
+			direction = DirectX::XMVector3Rotate({ 0, 0, 1, 0 }, qBaseRef);
 		}
 		else if (ref.emission.shape == EmissionShape::Cone)
 		{
@@ -293,10 +282,18 @@ namespace MikuMikuWorld::Effect
 		}
 
 		direction = DirectX::XMVector3Normalize(direction);
-
+		
+		ParticleInstance& instance = particles[instanceIndex];
 		instance.alive = true;
 		instance.transform.position = emitPosition;
 		instance.transform.rotation = DirectX::XMVectorNegate(DirectX::XMLoadFloat3(&startRotation));
+
+		instance.duration = ref.startLifeTime.evaluate(a);
+		instance.spriteSheetLerpRatio = a;
+		instance.gravityLerpRatio = h;
+
+		instance.startColor = ref.startColor.evaluate(g);
+		instance.colorLerpRatio = g;
 
 		instance.direction = direction;
 		instance.speed = length;
@@ -309,7 +306,7 @@ namespace MikuMikuWorld::Effect
 		instance.forceLerpRatio = velocityR;
 
 		instance.rotationLerpRatio = e;
-		instance.sizeLerpRatio = c;
+		instance.sizeLerpRatio = a;
 
 		DirectX::XMFLOAT3 startSize = ref.startSize.is3D ?
 			ref.startSize.evaluate(0, { c, cy, cz }, 1) : ref.startSize.evaluate(0, c, 1);
