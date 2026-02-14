@@ -755,9 +755,9 @@ namespace MikuMikuWorld
 		
 		loadPresetsFuture = std::async(std::launch::async, [this]()
 		{
-			presetsWindow.loadingPresets = true;
+			presetsWindow.notifyPresetsLoading();
 			presetManager.loadPresets();
-			presetsWindow.loadingPresets = false;
+			presetsWindow.notifyPresetsLoaded(presetManager);
 		});
 	}
 
@@ -766,11 +766,11 @@ namespace MikuMikuWorld
 		if (importPresetFuture.valid())
 			importPresetFuture.get();
 
-		presetsWindow.loadingPresets = true;
+		presetsWindow.notifyPresetsLoading();
 		importPresetFuture = std::async(std::launch::async, [this, path]()
 		{
 			Result result = presetManager.importPreset(path);
-			presetsWindow.loadingPresets = false;
+			presetsWindow.notifyPresetsLoaded(presetManager);
 
 			if (result.getStatus() != ResultStatus::Success)
 			{

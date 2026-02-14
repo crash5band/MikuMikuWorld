@@ -217,10 +217,16 @@ namespace MikuMikuWorld
 			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
 			float filterWidth = ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2;
 
-			Utilities::ImGuiTextFilterWithHint(&presetFilter, "##preset_filter", IO::concat(ICON_FA_SEARCH, getString("search"), " ").c_str(), filterWidth);
+			if (Utilities::ImGuiTextFilterWithHint(&presetFilter, "##preset_filter", IO::concat(ICON_FA_SEARCH, getString("search"), " ").c_str(), filterWidth))
+			{
+				memoizeFilterMatches(presetManager.presets);
+			}
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_FA_TIMES, UI::btnSmall))
+			{
 				presetFilter.Clear();
+				memoizeFilterMatches(presetManager.presets);
+			}
 
 			ImGui::PopStyleVar();
 			ImGui::PopStyleColor();
@@ -237,7 +243,10 @@ namespace MikuMikuWorld
 				// Shift undo and close to the right end of the window
 				ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (UI::btnSmall.x * 2) - itemSpacingX - ImGui::GetStyle().WindowPadding.x);
 				if (UI::transparentButton(ICON_FA_UNDO, UI::btnSmall, false))
+				{
 					presetManager.undoDeletePreset();
+					memoizeFilterMatches(presetManager.presets);
+				}
 
 				UI::tooltip(getString("undo"));
 				ImGui::SameLine();
@@ -259,7 +268,7 @@ namespace MikuMikuWorld
 				{
 					Utilities::ImGuiCenteredText("Loading...");
 				}
-				else if (!presetManager.presets.size())
+				else if (presetManager.presets.empty())
 				{
 					ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().DisabledAlpha);
 					Utilities::ImGuiCenteredText(getString("no_presets"));
@@ -267,26 +276,31 @@ namespace MikuMikuWorld
 				}
 				else
 				{
-					for (size_t i = 0; i < presetManager.presets.size(); i++)
+					listClipper.Begin(filterMatchPresets.size(), presetButtonHeight);
+					while (listClipper.Step())
 					{
-						const auto& preset = presetManager.presets.at(i);
-						if (!presetFilter.PassFilter(preset.getName().c_str()))
-							continue;
+						for (size_t i = listClipper.DisplayStart; i < listClipper.DisplayEnd; i++)
+						{
+							const auto& preset = presetManager.presets.at(filterMatchPresets.at(i));
+							if (!presetFilter.PassFilter(preset.getName().c_str()))
+								continue;
 
-						ImGui::PushID(preset.getID());
+							ImGui::PushID(preset.getID());
 
-						if (ImGui::Button(preset.getName().c_str(), ImVec2(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2.0f, presetButtonHeight)))
-							presetManager.applyPreset(i, context);
+							if (ImGui::Button(preset.getName().c_str(), ImVec2(ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2.0f, presetButtonHeight)))
+								presetManager.applyPreset(filterMatchPresets.at(i), context);
 
-						if (!preset.description.empty())
-							UI::tooltip(preset.description.c_str());
+							if (!preset.description.empty())
+								UI::tooltip(preset.description.c_str());
 
-						ImGui::SameLine();
-						if (UI::transparentButton(ICON_FA_TRASH, ImVec2(UI::btnSmall.x, presetButtonHeight)))
-							removePattern = i;
+							ImGui::SameLine();
+							if (UI::transparentButton(ICON_FA_TRASH, ImVec2(UI::btnSmall.x, presetButtonHeight)))
+								removePattern = filterMatchPresets.at(i);
 
-						ImGui::PopID();
+							ImGui::PopID();
+						}
 					}
+					listClipper.End();
 				}
 			}
 			ImGui::EndChild();
@@ -299,7 +313,10 @@ namespace MikuMikuWorld
 			ImGui::EndDisabled();
 
 			if (removePattern != -1)
+			{
 				presetManager.removePreset(removePattern);
+				memoizeFilterMatches(presetManager.presets);
+			}
 		}
 
 		ImGui::End();
@@ -315,6 +332,7 @@ namespace MikuMikuWorld
 			presetManager.createPreset(context, presetName, presetDesc);
 			presetName.clear();
 			presetDesc.clear();
+			memoizeFilterMatches(presetManager.presets);
 		}
 	}
 
@@ -362,6 +380,27 @@ namespace MikuMikuWorld
 		}
 
 		return result;
+	}
+
+	void PresetsWindow::notifyPresetsLoading()
+	{
+		loadingPresets = true;
+	}
+
+	void PresetsWindow::notifyPresetsLoaded(const PresetManager& presetManager)
+	{
+		loadingPresets = false;
+		memoizeFilterMatches(presetManager.presets);
+	}
+
+	void PresetsWindow::memoizeFilterMatches(const std::vector<NotesPreset>& presets)
+	{
+		filterMatchPresets.clear();
+		for (size_t i = 0; i < presets.size(); i++)
+		{
+			if (presetFilter.PassFilter(presets.at(i).getName().c_str()))
+				filterMatchPresets.push_back(i);
+		}
 	}
 
 	DialogResult RecentFileNotFoundDialog::update()

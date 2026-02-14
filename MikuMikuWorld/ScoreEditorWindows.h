@@ -42,16 +42,22 @@ namespace MikuMikuWorld
 	{
 	private:
 		ImGuiTextFilter presetFilter{};
+		ImGuiListClipper listClipper{};
 		std::string presetName{};
 		std::string presetDesc{};
+		std::vector<int> filterMatchPresets;
 		bool dialogOpen{false};
+		bool loadingPresets{ false };
 
 		DialogResult updateCreationDialog();
+		void memoizeFilterMatches(const std::vector<NotesPreset>& items);
 
 	public:
-		bool loadingPresets{false};
 		void update(ScoreContext& context, PresetManager& presetManager);
 		inline void openCreatePresetDialog() { dialogOpen = true; }
+
+		void notifyPresetsLoading();
+		void notifyPresetsLoaded(const PresetManager& presetManager);
 	};
 
 	class DebugWindow

@@ -209,7 +209,13 @@ namespace MikuMikuWorld
 			try
 			{
 				std::wstring wFilename{ IO::mbToWideStr(IO::File::getFilenameWithoutExtension(path)) };
-				fs::copy_file(importPath, (presetsPath / wFilename).replace_extension(L".json"));
+				if (!savePreset(preset))
+				{
+					return Result(
+						ResultStatus::Error,
+						IO::formatString("Error: Failed to import preset '%s' from file '%s'", preset.getName(), path)
+					);
+				}
 			}
 			catch (const fs::filesystem_error& err)
 			{
