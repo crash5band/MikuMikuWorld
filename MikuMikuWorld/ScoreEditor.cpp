@@ -40,6 +40,8 @@ namespace MikuMikuWorld
 
 		timeline.setDivision(config.division);
 		timeline.setZoom(config.zoom);
+		context.timeline = &timeline;
+		context.editor = this;
 
 		autoSavePath = Application::getAppDir() + "auto_save";
 		autoSaveTimer.reset();
