@@ -74,6 +74,7 @@ namespace MikuMikuWorld
 		bool listeningForInput = false;
 		int editBindingIndex = -1;
 		int selectedBindingIndex = 0;
+		ImGuiListClipper keyConfigListClipper;
 
 		void updateKeyConfig(MultiInputBinding* bindings[], int count);
 		void setEffectsProfile(int profile);

@@ -695,22 +695,27 @@ namespace MikuMikuWorld
 			ImGui::TableSetupColumn(getString("keys"));
 			ImGui::TableHeadersRow();
 
-			for (int i = 0; i < count; ++i)
+			keyConfigListClipper.Begin(count, rowHeight);
+			while (keyConfigListClipper.Step())
 			{
-				ImGui::TableNextRow(0, rowHeight);
-
-				ImGui::TableSetColumnIndex(0);
-				ImGui::PushID(i);
-				if (ImGui::Selectable(getString(bindings[i]->name), i == selectedBindingIndex, selectionFlags))
+				for (int i = keyConfigListClipper.DisplayStart; i < keyConfigListClipper.DisplayEnd; ++i)
 				{
-					listeningForInput = false;
-					selectedBindingIndex = i;
-				}
+					ImGui::TableNextRow(0, rowHeight);
 
-				ImGui::PopID();
-				ImGui::TableSetColumnIndex(1);
-				ImGui::Text(ToFullShortcutsString(*bindings[i]).c_str());
+					ImGui::TableSetColumnIndex(0);
+					ImGui::PushID(i);
+					if (ImGui::Selectable(getString(bindings[i]->name), i == selectedBindingIndex, selectionFlags))
+					{
+						listeningForInput = false;
+						selectedBindingIndex = i;
+					}
+
+					ImGui::PopID();
+					ImGui::TableSetColumnIndex(1);
+					ImGui::Text(ToFullShortcutsString(*bindings[i]).c_str());
+				}
 			}
+			keyConfigListClipper.End();
 			ImGui::EndTable();
 		}
 		ImGui::Separator();
