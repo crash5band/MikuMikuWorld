@@ -5,7 +5,7 @@
 
 namespace MikuMikuWorld::Effect
 {
-	constexpr float GRAVITY = 9.81f * 5.f; // Based on default Physics3D
+	constexpr float GRAVITY = 9.81f; // Based on default Physics3D
 	constexpr float BILLBOARD_SCALE = 0.71f; // Estimated
 
 	static std::knuth_b rand_engine;
@@ -174,13 +174,14 @@ namespace MikuMikuWorld::Effect
 
 		if (ref.emission.shape == EmissionShape::Box)
 		{
-			DirectX::XMVECTOR halfScale = DirectX::XMVectorScale(ref.emission.transform.scale, .5f);
-			DirectX::XMFLOAT3 halves{};
 			float shapeRandomX = shapeRandom.nextFloat();
 			float shapeRandomY = shapeRandom.nextFloat();
 			float shapeRandomZ = shapeRandom.nextFloat();
 
+			DirectX::XMVECTOR halfScale = DirectX::XMVectorScale(ref.emission.transform.scale, .5f);
+			DirectX::XMFLOAT3 halves{};
 			DirectX::XMStoreFloat3(&halves, halfScale);
+
 			float x = lerp(-halves.x, halves.x, shapeRandomX);
 			float y = lerp(-halves.y, halves.y, shapeRandomY);
 			float z = lerp(-halves.z, halves.z, shapeRandomZ);
@@ -482,6 +483,7 @@ namespace MikuMikuWorld::Effect
 		DirectX::XMVECTOR qLocal = quaternionFromZYX(baseTransform.rotation);
 		DirectX::XMVECTOR qShift = quaternionFromZYX(worldTransform.rotation);
 		DirectX::XMVECTOR rotation = DirectX::XMVectorAdd(baseTransform.rotation, ref.transform.rotation);
+		DirectX::XMVECTOR pivot = DirectX::XMVectorSet(ref.pivot.x, ref.pivot.y, ref.pivot.z, 1.f);
 
 		DirectX::XMMATRIX worldOffset = DirectX::XMMatrixIdentity();
 		if (ref.name == "aura")
@@ -563,7 +565,8 @@ namespace MikuMikuWorld::Effect
 			float gravity = GRAVITY * ref.gravityModifier.evaluate(normalizedTime, p.gravityLerpRatio) * p.time;
 			DirectX::XMVECTOR gravityVector = DirectX::XMVectorSet(0, -gravity, 0, 0);
 			
-			currentVelocity = DirectX::XMVectorMultiplyAdd(currentVelocity, DirectX::XMVectorReplicate(speedModifier), gravityVector);
+			currentVelocity = DirectX::XMVectorMultiply(currentVelocity, DirectX::XMVectorReplicate(speedModifier));
+			currentVelocity = DirectX::XMVectorMultiplyAdd(currentVelocity, velocityScale, gravityVector);
 			DirectX::XMFLOAT3 velocity{};
 			DirectX::XMStoreFloat3(&velocity, currentVelocity);
 
@@ -571,9 +574,8 @@ namespace MikuMikuWorld::Effect
 			velocity = limitVelocity(velocity, velocityLimit, ref.limitVelocityDampen, p.time);
 			currentVelocity = DirectX::XMLoadFloat3(&velocity);
 
-			p.transform.position = DirectX::XMVectorMultiplyAdd(
+			p.transform.position = DirectX::XMVectorAdd(
 				DirectX::XMVectorMultiply(currentVelocity, DirectX::XMVectorReplicate(dt)),
-				velocityScale,
 				p.transform.position
 			);
 
@@ -581,6 +583,7 @@ namespace MikuMikuWorld::Effect
 
 			p.matrix = DirectX::XMMatrixIdentity();
 			DirectX::XMMATRIX directionMatrix = DirectX::XMMatrixIdentity();
+			DirectX::XMVECTOR pivotScale = currentScale;
 			switch (ref.renderMode)
 			{
 			case RenderMode::Billboard:
@@ -593,7 +596,6 @@ namespace MikuMikuWorld::Effect
 				break;
 			case RenderMode::StretchedBillboard:
 				directionMatrix = rotateToDirection(p, ref, currentVelocity, currentScale);
-				currentRotation = DirectX::XMVectorSubtract(currentRotation, p.transform.rotation);
 				currentScale = DirectX::XMVectorSetY(currentScale, 1.f);
 				break;
 			case RenderMode::HorizontalBillboard:
@@ -611,23 +613,19 @@ namespace MikuMikuWorld::Effect
 			if (p.flipRotation)
 				currentRotation = DirectX::XMVectorNegate(currentRotation);
 
-			p.matrix *= DirectX::XMMatrixTranslation(ref.pivot.x, ref.pivot.y, ref.pivot.z);
 			p.matrix *= DirectX::XMMatrixScalingFromVector(currentScale);
+			p.matrix *= DirectX::XMMatrixTranslationFromVector(DirectX::XMVectorMultiply(pivot, pivotScale));
 			DirectX::XMMATRIX m4Rotation = DirectX::XMMatrixRotationQuaternion(quaternionFromZYX(currentRotation));
 			
 			if (ref.renderMode == RenderMode::StretchedBillboard)
-			{
 				directionMatrix *= DirectX::XMMatrixInverse(nullptr, m4Rotation);
-			}
 
 			p.matrix *= directionMatrix;
 			p.matrix *= m4Rotation;
 			p.matrix *= DirectX::XMMatrixTranslationFromVector(p.transform.position);
 			
 			if (ref.simulationSpace == TransformSpace::Local)
-			{
 				p.matrix *= worldOffset;
-			}
 		}
 
 		for (auto& em : children)
