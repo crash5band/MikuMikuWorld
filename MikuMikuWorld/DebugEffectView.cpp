@@ -37,10 +37,16 @@ namespace MikuMikuWorld::Effect
 	void DebugEffectView::init()
 	{
 		previewBuffer = std::make_unique<Framebuffer>(1920, 1080);
+		loadEffects();
+	}
+
+	void DebugEffectView::loadEffects()
+	{
 		int texId = ResourceManager::getTexture("tex_note_common_all_v2");
 		effectsTex = &ResourceManager::textures[texId];
 
 		int count = static_cast<int>(EffectType::fx_count);
+		effects.clear();
 		effects.reserve(count);
 
 		const Transform transform{};

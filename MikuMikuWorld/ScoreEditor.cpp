@@ -151,6 +151,7 @@ namespace MikuMikuWorld
 		if (settingsWindow.isEffectProfileChangePending)
 		{
 			preview.loadNoteEffects(context.scorePreviewDrawData.effectView);
+			debugEffectView.loadEffects();
 			settingsWindow.isEffectProfileChangePending = false;
 		}
 

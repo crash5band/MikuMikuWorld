@@ -16,6 +16,7 @@ namespace MikuMikuWorld::Effect
 		void play();
 
 		DebugEffectView();
+		void loadEffects();
 
 	private:
 

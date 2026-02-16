@@ -434,17 +434,16 @@ namespace MikuMikuWorld
 
 	void ScorePreviewWindow::loadNoteEffects(Effect::EffectView& effectView)
 	{
+		int oldProfile = config.pvEffectsProfile == 1 ? 0 : 1;
+		const std::string oldEffectsDir = Application::getAppDir() + "res\\effect\\" + std::to_string(oldProfile) + "\\";
 		const std::string effectsDir = Application::getAppDir() + "res\\effect\\" + std::to_string(config.pvEffectsProfile) + "\\";
 		size_t effectCount = arrayLength(Effect::effectNames);
 
-		if (!IO::File::exists(effectsDir))
-			return;
-
 		// Cleanup. We don't want all profiles and their resources loaded in memory
 		ResourceManager::removeAllParticleEffects();
-		int texIndex = ResourceManager::getTexture("tex_note_common_all_v2.png");
+		int texIndex = ResourceManager::getTextureByFilename(oldEffectsDir + "tex_note_common_all_v2.png");
 		if (texIndex > -1)
-			ResourceManager::disposeTexture(texIndex);
+			ResourceManager::disposeTexture(ResourceManager::textures[texIndex].getID());
 
 		ResourceManager::loadTexture(effectsDir + "tex_note_common_all_v2.png");
 
