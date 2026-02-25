@@ -23,7 +23,7 @@ namespace MikuMikuWorld::Effect
 		return DirectX::XMQuaternionMultiply(DirectX::XMQuaternionMultiply(qZ, qY), qX);
 	}
 
-	static DirectX::XMMATRIX rotateToDirection(const ParticleInstance& p, const Particle& ref, const DirectX::XMVECTOR& velocity, const DirectX::XMVECTOR& scale)
+	static DirectX::XMMATRIX rotateToDirection(const Particle& ref, const DirectX::XMVECTOR& velocity, const DirectX::XMVECTOR& scale)
 	{
 		static DirectX::XMVECTOR up = DirectX::XMVectorSet(0, 1, 0, 0);
 
@@ -307,7 +307,7 @@ namespace MikuMikuWorld::Effect
 		instance.forceLerpRatio = velocityR;
 
 		instance.rotationLerpRatio = e;
-		instance.sizeLerpRatio = a;
+		instance.sizeLerpRatio = c;
 
 		DirectX::XMFLOAT3 startSize = ref.startSize.is3D ?
 			ref.startSize.evaluate(0, { c, cy, cz }, 1) : ref.startSize.evaluate(0, c, 1);
@@ -401,6 +401,7 @@ namespace MikuMikuWorld::Effect
 
 		float emissionRandom = globalRandom.get();
 		float arcSpeedRandom = globalRandom.get();
+
 		startTime = time + ref.startDelay.evaluate(0, emissionRandom);
 		rateOverTime = ref.emission.rateOverTime.evaluate(0, emissionRandom);
 		arcSpeed = arcSpeedRandom;
@@ -492,6 +493,7 @@ namespace MikuMikuWorld::Effect
 		worldOffset *= DirectX::XMMatrixTranslationFromVector(worldTransform.position);
 
 		const bool isViewAligned = ref.renderMode == RenderMode::Billboard && ref.alignment == AlignmentMode::View;
+		const bool isWorldAligned = ref.renderMode == RenderMode::Billboard && ref.alignment == AlignmentMode::World;
 
 		updateEmission(ref, worldTransform, t);
 
@@ -502,6 +504,10 @@ namespace MikuMikuWorld::Effect
 
 			float dt = t - p.startTime - p.time;
 			p.time = t - p.startTime;
+			float normalizedTime = p.time / p.duration;
+
+			if (normalizedTime < 0)
+				continue;
 
 			if (p.time >= p.duration)
 			{
@@ -510,9 +516,7 @@ namespace MikuMikuWorld::Effect
 				continue;
 			}
 
-			float normalizedTime = p.time / p.duration;
-
-			DirectX::XMVECTOR currentRotation = isViewAligned ? p.transform.rotation : DirectX::XMVectorAdd(rotation, p.transform.rotation);
+			DirectX::XMVECTOR currentRotation = isViewAligned || isWorldAligned ? p.transform.rotation : DirectX::XMVectorAdd(rotation, p.transform.rotation);
 			if (ref.rotationOverLifetime.enabled)
 			{
 				DirectX::XMFLOAT3 temp = ref.rotationOverLifetime.integrate(0, normalizedTime, p.duration, p.rotationLerpRatio);
@@ -595,7 +599,7 @@ namespace MikuMikuWorld::Effect
 				}
 				break;
 			case RenderMode::StretchedBillboard:
-				directionMatrix = rotateToDirection(p, ref, currentVelocity, currentScale);
+				directionMatrix = rotateToDirection(ref, currentVelocity, currentScale);
 				currentScale = DirectX::XMVectorSetY(currentScale, 1.f);
 				break;
 			case RenderMode::HorizontalBillboard:
