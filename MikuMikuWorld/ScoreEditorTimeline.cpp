@@ -1471,7 +1471,7 @@ namespace MikuMikuWorld
 		ImGui::PushID(note.ID);
 		if (noteControl(context, pos, sz, "L", ImGuiMouseCursor_ResizeEW))
 		{
-			int curLane = positionToLane(mousePos.x);
+			int curLane = std::clamp(positionToLane(mousePos.x), MIN_LANE, MAX_LANE);
 			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
 			int diff = curLane - grabLane;
 
@@ -1504,7 +1504,7 @@ namespace MikuMikuWorld
 		// Move
 		if (noteControl(context, pos, sz, "M", ImGuiMouseCursor_ResizeAll))
 		{
-			int curLane = positionToLane(mousePos.x);
+			int curLane = std::clamp(positionToLane(mousePos.x), MIN_LANE, MAX_LANE);
 			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
 			int grabTick = snapTickFromPos(-ctrlMousePos.y);
 
@@ -1592,7 +1592,7 @@ namespace MikuMikuWorld
 		if (noteControl(context, pos, sz, "R", ImGuiMouseCursor_ResizeEW))
 		{
 			int grabLane = std::clamp(positionToLane(ctrlMousePos.x), MIN_LANE, MAX_LANE);
-			int curLane = positionToLane(mousePos.x);
+			int curLane = std::clamp(positionToLane(mousePos.x), MIN_LANE, MAX_LANE);
 
 			int diff = curLane - grabLane;
 			if (abs(diff) > 0)
