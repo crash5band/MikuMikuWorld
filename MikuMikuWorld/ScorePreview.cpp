@@ -299,10 +299,11 @@ namespace MikuMikuWorld
 
 		if (playbackState.isPlaying)
 		{
-			if (!playbackState.wasLastFramePlaying)
-				context.scorePreviewDrawData.effectView.reset();
-
 			context.scorePreviewDrawData.effectView.update(context);
+		}
+		else if (playbackState.wasLastFramePlaying)
+		{
+			context.scorePreviewDrawData.effectView.reset();
 		}
 
 		static int shaderId = ResourceManager::getShader("basic2d");
