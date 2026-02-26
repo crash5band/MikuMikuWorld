@@ -20,7 +20,7 @@ namespace MikuMikuWorld
 		{"undo", "Undo"},
 		{"redo", "Redo"},
 		{"select_all", "Select All"},
-		{"insert_skill", "Insert skill trigger"},
+		{"insert_skill", "Insert Skill Trigger"},
 		{"insert_fever", "Insert FEVER"},
 		{"view", "View"},
 		{"show_step_outlines", "Show Step Outlines"},
