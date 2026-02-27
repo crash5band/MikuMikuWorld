@@ -115,6 +115,13 @@ namespace MikuMikuWorld::Effect
 		effectRoot.start(start);
 	}
 
+	void ParticleController::stop()
+	{
+		active = false;
+		time = { -1, -1 };
+		effectRoot.stop(true);
+	}
+
 	void EffectPool::setup(EffectType type, int count)
 	{
 		this->count = count;
@@ -201,14 +208,8 @@ namespace MikuMikuWorld::Effect
 	void EffectView::reset()
 	{
 		for (auto& type : effectPools)
-		{
 			for (auto& controller : type.second.pool)
-			{
-				controller.active = false;
-				controller.time = { -1, -1 };
-				controller.effectRoot.stop(true);
-			}
-		}
+				controller.stop();
 
 		playedEffectsNoteIds.clear();
 	}
