@@ -276,7 +276,7 @@ namespace MikuMikuWorld
 				}
 				else
 				{
-					listClipper.Begin(filterMatchPresets.size(), presetButtonHeight);
+					listClipper.Begin(filterMatchPresets.size(), presetButtonHeight + ImGui::GetStyle().ItemSpacing.y);
 					while (listClipper.Step())
 					{
 						for (size_t i = listClipper.DisplayStart; i < listClipper.DisplayEnd; i++)
