@@ -10,7 +10,8 @@ using namespace IO;
 
 namespace MikuMikuWorld
 {
-	constexpr const char* clipboardSignature = "MikuMikuWorld clipboard\n";
+	constexpr const char* clipboardSignatureLF = "MikuMikuWorld clipboard\n";
+	constexpr const char* clipboardSignatureCRLF = "MikuMikuWorld clipboard\r\n";
 
 	static InverseNotesFilter inverseGuideFilter(CommonNoteFilters::guideFilter());
 
@@ -294,7 +295,7 @@ namespace MikuMikuWorld
 		if (selectedNotes.empty())
 			return;
 		
-		std::string clipboard{ clipboardSignature };
+		std::string clipboard{ clipboardSignatureLF };
 		clipboard.append(jsonIO::noteSelectionToJson(score, selectedNotes, minTickFromSelection()).dump());
 
 		ImGui::SetClipboardText(clipboard.c_str());
@@ -496,10 +497,11 @@ namespace MikuMikuWorld
 			return;
 
 		std::string clipboardData(clipboardDataPtr);
-		if (!startsWith(clipboardData, clipboardSignature))
+		if (!startsWith(clipboardData, clipboardSignatureLF) && !startsWith(clipboardData, clipboardSignatureCRLF))
 			return;
 
-		doPasteData(json::parse(clipboardData.substr(strlen(clipboardSignature))), flip);
+		size_t dataOffset = clipboardData.find_first_of('\n', 0);
+		doPasteData(json::parse(clipboardData.substr(dataOffset)), flip);
 	}
 
 	void ScoreContext::shrinkSelection(Direction direction)
