@@ -65,19 +65,20 @@ namespace MikuMikuWorld
 		bool edit = false;
 		const Score prev = score;
 
-		if (flick == FlickType::FlickTypeCount)
+		for (int id : filteredNotes)
 		{
-			edit = true;
-			for (int id : filteredNotes)
-				cycleFlick(score.notes.at(id));
-		}
-		else
-		{
-			for (int id : filteredNotes)
+			Note& note = score.notes.at(id);
+			FlickType newFlickType = flick == FlickType::FlickTypeCount ?
+				(FlickType)(((int)note.flick + 1) % (int)FlickType::FlickTypeCount) : flick;
+
+			edit |= note.flick != newFlickType;
+			note.flick = newFlickType;
+
+			if (note.getType() == NoteType::HoldEnd)
 			{
-				Note& note = score.notes.at(id);
-				edit |= note.flick != flick;
-				note.flick = flick;
+				const Note& parent = score.notes.at(note.parentID);
+				if (newFlickType == FlickType::None)
+					note.critical = parent.critical;
 			}
 		}
 
