@@ -207,6 +207,12 @@ namespace MikuMikuWorld
 		{"edit_none", "Edit"},
 		{"edit_event", "Edit Event"},
 		{"fullscreen_preview", "Fullscreen Preview"},
+		{"insert_midpoint", "Insert Midpoint"},
+		{"simple", "Midpoint Only"},
+		{"zigzag", "Zigzag"},
+		{"kakukaku", "Kakukaku"},
+		{"constant_size", "Constant Size"},
+		{"variable_size", "Variable Size"},
 
 		// Presets
 		{"presets", "Presets"},

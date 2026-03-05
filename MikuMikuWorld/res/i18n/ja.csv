@@ -200,6 +200,12 @@ edit_fever, FEVER発動を編集
 edit_none, 編集
 edit_event, イベントを編集
 fullscreen_preview, 全画面プレビュー
+insert_midpoint, 中継点補完
+simple, モードなし
+zigzag, ジグザグ
+kakukaku, カクカク
+constant_size, サイズ一定
+variable_size, サイズ可変
 
 # preset manager
 presets, プリセット
