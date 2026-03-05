@@ -7,7 +7,7 @@
 
 namespace MikuMikuWorld
 {
-	// SUS can only handle up to 36^2 unique BPMs
+	// SUS can only handle up to (36^2) - 1 unique BPMs
 	constexpr size_t MAX_BPM_IDENTIFIERS = (36ll * 36ll) - 1;
 
 	class ChannelProvider
@@ -35,7 +35,7 @@ namespace MikuMikuWorld
 		virtual std::string_view getDetailedMessage() const = 0;
 	};
 
-	class TooManySlideChannelsError : SusExportError
+	class TooManySlideChannelsError : public SusExportError
 	{
 	public:
 		std::string_view getDetailedMessage() const { return detailedMessage; }
@@ -55,14 +55,16 @@ namespace MikuMikuWorld
 	class TooManyBpmIdentifiersError : public SusExportError
 	{
 	public:
-		TooManyBpmIdentifiersError(size_t count) : count{ count }, SusExportError("Too many BPM changes.") {}
-
-		std::string_view getDetailedMessage() const
+		TooManyBpmIdentifiersError(size_t count) : count{ count }, SusExportError("Too many BPM changes.")
 		{
-			return IO::formatString("Number of unique identifiers (%d) exceeds maximum supported (%d)", count, MAX_BPM_IDENTIFIERS);
+			detailedMessage = IO::formatString("Number of unique identifiers (%d) exceeds maximum supported (%d)",
+				count, MAX_BPM_IDENTIFIERS);
 		}
 
+		std::string_view getDetailedMessage() const { return detailedMessage; }
+
 	private:
+		std::string detailedMessage;
 		size_t count{};
 	};
 
