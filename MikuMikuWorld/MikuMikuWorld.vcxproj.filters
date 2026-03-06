@@ -186,6 +186,9 @@
     <ClCompile Include="Sonolus.cpp">
       <Filter>Score\Sonolus</Filter>
     </ClCompile>
+    <ClCompile Include="Clipboard.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -415,6 +418,9 @@
     </ClInclude>
     <ClInclude Include="Sonolus.h">
       <Filter>Score\Sonolus</Filter>
+    </ClInclude>
+    <ClInclude Include="Clipboard.h">
+      <Filter>IO</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -9,8 +9,8 @@ namespace jsonIO
 		mmw::Note note(type);
 
 		note.tick = std::max(tryGetValue<int>(data, "tick", 0), 0);
-		note.lane = std::clamp(tryGetValue<int>(data, "lane", 0), mmw::MIN_LANE, mmw::MAX_LANE);
 		note.width = std::clamp(tryGetValue<int>(data, "width", 3), mmw::MIN_NOTE_WIDTH, mmw::MAX_NOTE_WIDTH);
+		note.lane = std::clamp(tryGetValue<int>(data, "lane", 0), mmw::MIN_LANE, mmw::MAX_LANE - note.width + 1);
 		
 		if (note.getType() != mmw::NoteType::HoldMid)
 		{

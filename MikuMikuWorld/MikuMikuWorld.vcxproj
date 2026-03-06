@@ -172,6 +172,7 @@
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="BinaryReader.cpp" />
     <ClCompile Include="BinaryWriter.cpp" />
+    <ClCompile Include="Clipboard.cpp" />
     <ClCompile Include="DebugEffectView.cpp" />
     <ClCompile Include="EffectView.cpp" />
     <ClCompile Include="File.cpp" />
@@ -237,6 +238,7 @@
     <ClInclude Include="Background.h" />
     <ClInclude Include="BinaryReader.h" />
     <ClInclude Include="BinaryWriter.h" />
+    <ClInclude Include="Clipboard.h" />
     <ClInclude Include="DebugEffectView.h" />
     <ClInclude Include="EffectView.h" />
     <ClInclude Include="MinMax.h" />
