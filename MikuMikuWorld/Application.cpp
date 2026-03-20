@@ -42,6 +42,7 @@ namespace MikuMikuWorld
 
 		imgui->setBaseTheme(config.baseTheme);
 		imgui->applyAccentColor(config.accentColor);
+		imgui->buildFonts();
 
 		loadResources();
 
@@ -188,25 +189,8 @@ namespace MikuMikuWorld
 			language = config.language;
 		}
 
-		float dpiX = 1.0f, dpiY = 1.0f;
-		GLFWmonitor* mainMonitor = glfwGetPrimaryMonitor();
-		if (mainMonitor)
-		{
-			glfwGetMonitorContentScale(mainMonitor, &dpiX, &dpiY);
-		}
-
-		float dpiScale = (dpiX + dpiY) * 0.5f;
-		if (dpiScale != windowState.lastDpiScale)
-		{
-			imgui->buildFonts(dpiScale);
-			windowState.lastDpiScale = dpiScale;
-		}
-
 		imgui->begin();
-
-		// Inform ImGui of dpi changes
-		ImGui::GetMainViewport()->DpiScale = dpiX;
-		UI::updateBtnSizesDpiScaling(dpiScale);
+		UI::updateBtnSizesDpiScaling(ImGui::GetMainViewport()->DpiScale);
 
 		if (!windowState.dragDropHandled)
 			handlePendingOpenFiles();

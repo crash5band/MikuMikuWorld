@@ -30,7 +30,6 @@ namespace MikuMikuWorld
 		bool dragDropHandled = true;
 		bool windowDragging = false;
 		bool fullScreen = false;
-		float lastDpiScale = 0.0f;
 		void* windowHandle{ 0 };
 		Vector2 position{};
 		Vector2 size{};

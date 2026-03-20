@@ -36,6 +36,8 @@ namespace MikuMikuWorld
 		io.ConfigViewportsNoDefaultParent = false;
 		io.ConfigViewportsNoAutoMerge = true;
 		io.ConfigDebugHighlightIdConflicts = false;
+		io.ConfigDpiScaleViewports = true;
+		io.ConfigDpiScaleFonts = true;
 		io.IniFilename = configFilename.c_str();
 
 		if (!ImGui_ImplGlfw_InitForOpenGL(window, true))
@@ -161,13 +163,6 @@ namespace MikuMikuWorld
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-
-		float dpiScale = ImGui::GetMainViewport()->DpiScale;
-		if (dpiScale != styleScale)
-		{
-			ImGui::GetStyle().ScaleAllSizes(dpiScale / styleScale);
-			styleScale = dpiScale;
-		}
 	}
 
 	void ImGuiManager::draw(GLFWwindow* window)
@@ -214,8 +209,8 @@ namespace MikuMikuWorld
 
 		io.FontDefault = nullptr;
 
-		loadFont(Application::getAppDir() + "res/fonts/NotoSansCJK-Regular.ttc", 16 * dpiScale);
-		loadIconFont(Application::getAppDir() + "res/fonts/fa-solid-900.ttf", ICON_MIN_FA, ICON_MAX_FA, 12 * dpiScale);
+		loadFont(Application::getAppDir() + "res/fonts/NotoSansCJK-Regular.ttc", 16);
+		loadIconFont(Application::getAppDir() + "res/fonts/fa-solid-900.ttf", ICON_MIN_FA, ICON_MAX_FA, 12);
 	}
 
 	void ImGuiManager::initializeLayout()
