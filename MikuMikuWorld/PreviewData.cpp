@@ -39,7 +39,7 @@ namespace MikuMikuWorld::Engine
 					continue;
 					
 				auto visual_tm = getNoteVisualTime(note, score, noteSpeed);
-				drawingNotes.push_back(DrawingNote{note.ID, visual_tm});
+				drawingNotes.push_back(DrawingNote{note.ID, accumulateDuration(note.tick, TICKS_PER_BEAT, score.tempoChanges), visual_tm});
 
 				// Find the max and min lane within the same height (visual_tm.max)
 				float center = getNoteCenter(note);

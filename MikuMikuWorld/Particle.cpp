@@ -415,8 +415,13 @@ namespace MikuMikuWorld::Effect
 		for (auto& burst : bursts)
 			burst.nextCyclesResetTime = startTime + ref.duration;
 
+		maxDuration = startTime + ref.duration + ref.startLifeTime.evaluate(1);
+
 		for (auto& child : children)
+		{
 			child.start(time);
+			maxDuration = std::max(maxDuration, child.maxDuration);
+		}
 	}
 
 	void EmitterInstance::stop(bool allChildren)

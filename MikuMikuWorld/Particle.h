@@ -362,7 +362,9 @@ namespace MikuMikuWorld::Effect
 		/// </summary>
 		int aliveCount{};
 
-		RandN initialRandom;
+		float maxDuration{};
+
+		RandN4 initialRandom;
 		RandN shapeRandom;
 		RandN sizeRandom;
 		RandN velocityRandom;

@@ -16,6 +16,7 @@ namespace MikuMikuWorld::Engine
 	struct DrawingNote
 	{
 		int refID;
+		float time;
 		Range visualTime;
 	};
 

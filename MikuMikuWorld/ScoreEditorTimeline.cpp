@@ -2472,20 +2472,25 @@ namespace MikuMikuWorld
 		};
 
 		playingNoteSounds.clear();
-		for (const auto& [id, note] : context.score.notes)
+		for (const auto& drawingNote : context.scorePreviewDrawData.drawingNotes)
 		{
-			float noteTime = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
+			const int id = drawingNote.refID;
+
+			float noteTime = drawingNote.time;
 			float notePlayTime = noteTime - playStartTime;
 			float offsetNoteTime = noteTime - (audioLookAhead * playbackSpeed);
 
 			if (offsetNoteTime >= timeLastFrame && offsetNoteTime < time)
 			{
+				const Note& note = context.score.notes.at(id);
 				singleNoteSEFunc(note, notePlayTime);
 				if (note.getType() == NoteType::Hold && !context.score.holdNotes.at(note.ID).isGuide())
 					holdNoteSEFunc(note, notePlayTime);
 			}
 			else if (time == playStartTime)
 			{
+				const Note& note = context.score.notes.at(id);
+
 				// Playback just started
 				if (noteTime >= time && offsetNoteTime < time)
 					singleNoteSEFunc(note, notePlayTime);

@@ -116,6 +116,9 @@ namespace MikuMikuWorld::Effect
 
 		effectRoot.stop(true);
 		effectRoot.start(start);
+
+		if (end == -1)
+			time.max = start + effectRoot.maxDuration;
 	}
 
 	void ParticleController::stop()
@@ -161,11 +164,12 @@ namespace MikuMikuWorld::Effect
 		const float currentTick = context.currentTick;
 		const float currentTime = context.getTimeAtCurrentTick();
 
-		for (auto it = context.score.notes.rbegin(); it != context.score.notes.rend(); it++)
+		for (const auto& drawingNote : context.scorePreviewDrawData.drawingNotes)
 		{
-			const auto& [id, note] = *it;
-			if (isNoteEffectPlayed(id))
+			if (isNoteEffectPlayed(drawingNote.refID))
 				continue;
+
+			const Note& note = context.score.notes.at(drawingNote.refID);
 
 			bool isMidHold = false;
 			if (note.getType() == NoteType::Hold)
@@ -175,11 +179,10 @@ namespace MikuMikuWorld::Effect
 				isMidHold = !hold.isGuide() && isWithinRange(currentTick, note.tick, end.tick);
 			}
 
-			float noteTime = accumulateDuration(note.tick, TICKS_PER_BEAT, context.score.tempoChanges);
-			if (isMidHold || isWithinRange(currentTime, noteTime - 0.02f, noteTime + 0.04f))
+			if (isMidHold || isWithinRange(currentTime, drawingNote.time - 0.02f, drawingNote.time + 0.04f))
 			{
-				addNoteEffects(note, context, noteTime);
-				playedEffectsNoteIds.insert(id);
+				addNoteEffects(note, context, drawingNote.time);
+				playedEffectsNoteIds.insert(drawingNote.refID);
 			}
 		}
 	}
@@ -418,6 +421,9 @@ namespace MikuMikuWorld::Effect
 		{
 			for (auto& controller : effectPools[static_cast<EffectType>(i)].pool)
 			{
+				if (time >= controller.time.max)
+					controller.active = false;
+
 				if (controller.active)
 					controller.effectRoot.update(time, controller.worldOffset, camera);
 			}
