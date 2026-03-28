@@ -118,7 +118,7 @@ namespace MikuMikuWorld::Effect
 		effectRoot.start(start);
 
 		if (end == -1)
-			time.max = start + effectRoot.maxDuration;
+			time.max = effectRoot.maxDuration;
 	}
 
 	void ParticleController::stop()
@@ -161,11 +161,15 @@ namespace MikuMikuWorld::Effect
 
 	void EffectView::update(const ScoreContext& context)
 	{
-		const float currentTick = context.currentTick;
+		const int currentTick = context.currentTick;
 		const float currentTime = context.getTimeAtCurrentTick();
 
-		for (const auto& drawingNote : context.scorePreviewDrawData.drawingNotes)
+		std::vector<int> viewBoundary = context.scorePreviewDrawData.notesList.getTickRange(std::max(currentTick - 1920, 0), currentTick + 1920);
+		const auto& notesList = context.scorePreviewDrawData.notesList.getView();
+
+		for (int i : viewBoundary)
 		{
+			const auto& drawingNote = notesList.at(i);
 			if (isNoteEffectPlayed(drawingNote.refID))
 				continue;
 

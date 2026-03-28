@@ -700,11 +700,16 @@ namespace MikuMikuWorld
 			}
 
 			// Selection boxes
-			for (int id : context.selectedNotes)
+			std::vector<int> viewBoundary = context.scorePreviewDrawData.notesList.getTickRange(firstTick, lastTick + ticksPerMeasure);
+			const auto& notesList = context.scorePreviewDrawData.notesList.getView();
+			for (int i : viewBoundary)
 			{
-				const Note& note = context.score.notes.at(id);
-				if (!isNoteVisible(note, 0))
+				const int id = notesList.at(i).refID;
+				auto it = context.selectedNotes.find(id);
+				if (it == context.selectedNotes.end())
 					continue;
+
+				const Note& note = context.score.notes.at(id);
 
 				float x = position.x;
 				float y = position.y - tickToPosition(note.tick) + visualOffset;
@@ -877,107 +882,58 @@ namespace MikuMikuWorld
 		shader->use();
 		shader->setMatrix4("projection", Camera::getOffCenterOrthographicProjection(0, size.x, position.y + size.y, position.y));
 
-		slidePathFramebuffer->bind();
-		slidePathFramebuffer->clear(0, 0, 0, 0);
-
 		glDisable(GL_DEPTH_TEST);
 
-		std::vector<HoldNote> updateHolds;
-		std::vector<int> updateNoteIDs;
-		int startTick = positionToTick(visualOffset - size.y);
-		int endTick = positionToTick(visualOffset);
+		int startTick = std::max(positionToTick(visualOffset - size.y - 500), 0);
+		int endTick = positionToTick(visualOffset + 200);
 
 		renderStats.clear();
 		Stopwatch renderTimer{};
 		renderTimer.reset();
-
-		std::for_each(context.score.notes.begin(), context.score.notes.end(), [&](const std::pair<int, Note>& pair)
-		{
-			const Note& note = pair.second;
-			if (note.getType() == NoteType::HoldEnd)
-			{
-				const Note& start = context.score.notes.at(note.parentID);
-				if (start.tick <= endTick && (note.tick >= startTick || isNoteVisible(note)))
-					updateHolds.push_back(context.score.holdNotes.at(start.ID));
-			}
-			else if (note.getType() == NoteType::Tap && isNoteVisible(note))
-			{
-				updateNoteIDs.push_back(note.ID);
-			}
-		});
-
-		std::sort(updateHolds.begin(), updateHolds.end(), [&context](const HoldNote& a, const HoldNote& b) -> bool
-		{
-			const Note& a1 = context.score.notes.at(a.start.ID);
-			const Note& a2 = context.score.notes.at(a.end);
-			const Note& b1 = context.score.notes.at(b.start.ID);
-			const Note& b2 = context.score.notes.at(b.end);
-			if (a1.tick == b1.tick)
-			{
-				return a2.tick > b2.tick;
-			}
-
-			return a1.tick < b1.tick;
-		});
-
-		std::sort(updateNoteIDs.begin(), updateNoteIDs.end(), [&context](int a, int b)
-		{
-			const Note& n1 = context.score.notes.at(a);
-			const Note& n2 = context.score.notes.at(b);
-			if (n1.tick == n2.tick)
-			{
-				return n1.lane == n2.lane ? n1.ID < n2.ID : n1.lane < n2.lane;
-			}
-
-			return n1.tick < n2.tick;
-		});
-
-		renderer->beginBatch();
-		for (const auto& hold : updateHolds)
-		{
-			drawHoldCurve(hold, context.score.notes, renderer, noteTint);
-		}
-		renderer->endBatch();
-		renderStats.addStats(renderer);
-
-		ImGui::GetWindowDrawList()->AddImage((ImTextureID)(size_t)slidePathFramebuffer->getTexture(), position, position + size);
 
 		notesFramebuffer->bind();
 		notesFramebuffer->clear(0, 0, 0, 0);
 		renderer->beginBatch();
 
 		minNoteYDistance = INT_MAX;
-		for (auto& hold : updateHolds)
-		{
-			Note& start = context.score.notes.at(hold.start.ID);
-			Note& end = context.score.notes.at(hold.end);
-
-			if (isNoteVisible(start)) updateNote(context, edit, start);
-			if (isNoteVisible(end)) updateNote(context, edit, end);
-
-			for (const auto& step : hold.steps)
-			{
-				Note& mid = context.score.notes.at(step.ID);
-				if (isNoteVisible(mid)) updateNote(context, edit, mid);
-			}
-
-			drawHoldNote(context.score.notes, hold, renderer, noteTint);
-		}
-
-		for (const auto& data : drawSteps)
-			drawOutline(data);
-
 		drawSteps.clear();
 
-		for (auto id : updateNoteIDs)
+		std::vector<int> viewBoundary = context.scorePreviewDrawData.notesList.getTickRange(startTick, endTick);
+		const auto& notesList = context.scorePreviewDrawData.notesList.getView();
+
+		for (int i : viewBoundary)
 		{
-			Note& note = context.score.notes.at(id);
-			updateNote(context, edit, note);
-			drawNote(note, renderer, noteTint);
+			Note& note = context.score.notes.at(notesList.at(i).refID);
+			if (note.getType() == NoteType::Tap)
+			{
+				updateNote(context, edit, note);
+				drawNote(note, renderer, noteTint);
+			}
+			else if (note.getType() == NoteType::Hold)
+			{
+				const HoldNote& hold = context.score.holdNotes.at(note.ID);
+				drawHoldCurve(hold, context.score.notes, renderer, noteTint);
+
+				Note& end = context.score.notes.at(hold.end);
+
+				if (isNoteVisible(note)) updateNote(context, edit, note);
+				if (isNoteVisible(end)) updateNote(context, edit, end);
+
+				for (const auto& step : hold.steps)
+				{
+					Note& mid = context.score.notes.at(step.ID);
+					if (isNoteVisible(mid)) updateNote(context, edit, mid);
+				}
+
+				drawHoldNote(context.score.notes, hold, renderer, noteTint);
+			}
 		}
 
 		renderer->endBatch();
 		renderStats.addStats(renderer);
+
+		for (const auto& data : drawSteps)
+			drawOutline(data);
 
 		const bool pasting = context.pasteData.pasting;
 		if (pasting && mouseInTimeline && !playing)
@@ -2471,9 +2427,20 @@ namespace MikuMikuWorld
 			context.audio.playSoundEffect(note.critical ? SE_CRITICAL_CONNECT : SE_CONNECT, startTime, adjustedEndTime, time);
 		};
 
+
 		playingNoteSounds.clear();
-		for (const auto& drawingNote : context.scorePreviewDrawData.drawingNotes)
+
+		float currentTime = context.getTimeAtCurrentTick();
+		const int currentTick = context.currentTick;
+		const int fromTick = accumulateTicks(std::max(currentTime - 1.f, 0.f), TICKS_PER_BEAT, context.score.tempoChanges);
+		const int toTick = accumulateTicks(currentTime + 1.f, TICKS_PER_BEAT, context.score.tempoChanges);
+		
+		std::vector<int> viewBoundary = context.scorePreviewDrawData.notesList.getTickRange(fromTick, toTick);
+		const auto& notesList = context.scorePreviewDrawData.notesList.getView();
+
+		for (int i : viewBoundary)
 		{
+			const auto& drawingNote = notesList.at(i);
 			const int id = drawingNote.refID;
 
 			float noteTime = drawingNote.time;
