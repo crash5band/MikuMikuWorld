@@ -364,7 +364,7 @@ namespace MikuMikuWorld::Effect
 
 		float maxDuration{};
 
-		RandN4 initialRandom;
+		RandN initialRandom;
 		RandN shapeRandom;
 		RandN sizeRandom;
 		RandN velocityRandom;
