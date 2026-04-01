@@ -25,9 +25,9 @@ namespace MikuMikuWorld
 		float rPitch = DirectX::XMConvertToRadians(pitch);
 
 		DirectX::XMVECTOR _front {
-			cos(rYaw) * cos(rPitch),
-			-sin(rPitch),
-			-sin(rYaw) * cos(rPitch),
+			cosf(rYaw) * cosf(rPitch),
+			-sinf(rPitch),
+			-sinf(rYaw) * cosf(rPitch),
 			1.0f
 		};
 
