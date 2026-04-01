@@ -157,8 +157,8 @@ namespace MikuMikuWorld::Effect
 		std::map<EffectType, EffectPool> effectPools;
 		std::set<int> playedEffectsNoteIds;
 
-		void drawEffectsInternal(EmitterInstance& emitter, Renderer* renderer, float time);
-		void drawUnderNoteEffectsInternal(EmitterInstance& emitter, Renderer* renderer, float time);
-		void drawParticles(const std::vector<ParticleInstance>& particles, const Particle& ref, Renderer* renderer, float time);
+		void drawEffectsInternal(EmitterInstance& emitter, Renderer* renderer, float time) const;
+		void drawUnderNoteEffectsInternal(EmitterInstance& emitter, Renderer* renderer, float time) const;
+		void drawParticles(const std::vector<ParticleInstance>& particles, const Particle& ref, size_t count, Renderer* renderer, float time) const;
 	};
 }

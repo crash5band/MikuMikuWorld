@@ -67,16 +67,9 @@ namespace MikuMikuWorld::Effect
 		return result;
 	}
 
-	// TODO: it would be much better if this was done in O(1)
 	int EmitterInstance::findFirstDeadParticle(float time) const
 	{
-		for (int i = 0; i < particles.size(); i++)
-		{
-			if (!particles[i].alive)
-				return i;
-		}
-
-		return -1;
+		return aliveCount;
 	}
 
 	int EmitterInstance::getMaxParticleCount() const
@@ -125,8 +118,7 @@ namespace MikuMikuWorld::Effect
 
 	void EmitterInstance::emit(const Transform& worldTransform, const Particle& ref, float time, int count)
 	{
-		int instanceIndex = findFirstDeadParticle(time);
-		if (instanceIndex == -1)
+		if (aliveCount >= particles.size())
 			return;
 
 		DirectX::XMVECTOR qBase = quaternionFromZYX(baseTransform.rotation);
@@ -543,10 +535,8 @@ namespace MikuMikuWorld::Effect
 		return velocity;
 	}
 
-	void EmitterInstance::update(float t, const Transform& worldTransform, const Camera& camera)
+	void EmitterInstance::updateParticles(const Particle& ref, float t, const Transform& worldTransform, const Camera& camera)
 	{
-		const Particle& ref = ResourceManager::getParticleEffect(refID);
-
 		const DirectX::XMMATRIX& inverseView = camera.getInverseViewMatrix();
 		DirectX::XMVECTOR qLocal = quaternionFromZYX(baseTransform.rotation);
 		DirectX::XMVECTOR qShift = quaternionFromZYX(worldTransform.rotation);
@@ -562,33 +552,33 @@ namespace MikuMikuWorld::Effect
 		const bool isViewAligned = ref.renderMode == RenderMode::Billboard && ref.alignment == AlignmentMode::View;
 		const bool isWorldAligned = ref.renderMode == RenderMode::Billboard && ref.alignment == AlignmentMode::World;
 
-		updateEmission(ref, worldTransform, t);
 
-		for (auto& p : particles)
+		for (int i = 0; i < aliveCount; i++)
 		{
-			if (!p.alive)
-				continue;
-
-			float dt = t - p.startTime - p.time;
-			p.time = t - p.startTime;
-			float normalizedTime = p.time / p.duration;
+			float dt = t - particles[i].startTime - particles[i].time;
+			particles[i].time = t - particles[i].startTime;
+			float normalizedTime = particles[i].time / particles[i].duration;
 
 			if (normalizedTime < 0)
 				continue;
 
-			if (p.time >= p.duration)
+			if (particles[i].time >= particles[i].duration)
 			{
-				p.alive = false;
-				aliveCount = std::max(aliveCount - 1, 0);
+				particles[i].alive = false;
+				std::swap(particles[i], particles[aliveCount - 1]);
+				aliveCount--;
+
+				i--;
 				continue;
 			}
+
+			auto& p = particles[i];
 
 			DirectX::XMVECTOR currentRotation = isViewAligned || isWorldAligned ? p.transform.rotation : DirectX::XMVectorAdd(rotation, p.transform.rotation);
 			if (ref.rotationOverLifetime.enabled)
 			{
 				DirectX::XMFLOAT3 temp = ref.rotationOverLifetime.integrate(0, normalizedTime, p.duration, p.rotationLerpRatio);
-				DirectX::XMVECTOR tempV = DirectX::XMLoadFloat3(&temp);
-				currentRotation = DirectX::XMVectorSubtract(currentRotation, tempV);
+				currentRotation = DirectX::XMVectorSubtract(currentRotation, DirectX::XMLoadFloat3(&temp));
 			}
 
 			// Apparently, the transform scale affects velocity too
@@ -635,7 +625,7 @@ namespace MikuMikuWorld::Effect
 			float speedModifier = ref.speedModifier.evaluate(normalizedTime, p.velocityLerpRatio, 1.f);
 			float gravity = GRAVITY * ref.gravityModifier.evaluate(normalizedTime, p.gravityLerpRatio) * p.time;
 			DirectX::XMVECTOR gravityVector = DirectX::XMVectorSet(0, -gravity, 0, 0);
-			
+
 			currentVelocity = DirectX::XMVectorMultiply(currentVelocity, DirectX::XMVectorReplicate(speedModifier));
 			currentVelocity = DirectX::XMVectorMultiplyAdd(currentVelocity, velocityScale, gravityVector);
 			DirectX::XMFLOAT3 velocity{};
@@ -687,21 +677,28 @@ namespace MikuMikuWorld::Effect
 			p.matrix *= DirectX::XMMatrixScalingFromVector(currentScale);
 			p.matrix *= DirectX::XMMatrixTranslationFromVector(DirectX::XMVectorMultiply(pivot, pivotScale));
 			DirectX::XMMATRIX m4Rotation = DirectX::XMMatrixRotationQuaternion(quaternionFromZYX(currentRotation));
-			
+
 			if (ref.renderMode == RenderMode::StretchedBillboard)
 				directionMatrix *= DirectX::XMMatrixInverse(nullptr, m4Rotation);
 
 			p.matrix *= directionMatrix;
 			p.matrix *= m4Rotation;
 			p.matrix *= DirectX::XMMatrixTranslationFromVector(p.transform.position);
-			
+
 			if (ref.simulationSpace == TransformSpace::Local)
 				p.matrix *= worldOffset;
 		}
+	}
+
+	void EmitterInstance::update(float t, const Transform& worldTransform, const Camera& camera)
+	{
+		const Particle& ref = ResourceManager::getParticleEffect(refID);
+		updateEmission(ref, worldTransform, t);
+
+		if (aliveCount > 0)
+			updateParticles(ref, t, worldTransform, camera);
 
 		for (auto& em : children)
-		{
 			em.update(t, worldTransform, camera);
-		}
 	}
 }

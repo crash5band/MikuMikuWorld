@@ -200,7 +200,7 @@ namespace MikuMikuWorld::Effect
 			effectPools.insert_or_assign(type, EffectPool());
 
 			EffectPool& effPool = effectPools[type];
-			int size = 12;
+			int size = MAX_LANE + 1;
 			auto poolSizeIt = effectPoolSizes.find(type);
 
 			if (poolSizeIt != effectPoolSizes.end())
@@ -502,36 +502,36 @@ namespace MikuMikuWorld::Effect
 			drawEffectsInternal(c->effectRoot, renderer, time);
 	}
 
-	void EffectView::drawUnderNoteEffectsInternal(EmitterInstance& emitter, Renderer* renderer, float time)
+	void EffectView::drawUnderNoteEffectsInternal(EmitterInstance& emitter, Renderer* renderer, float time) const
 	{
 		const Particle& ref = ResourceManager::getParticleEffect(emitter.getRefID());
 		if (ref.order <= UNDER_NOTE_ORDER_THRESHOLD)
-			drawParticles(emitter.particles, ref, renderer, time);
+			drawParticles(emitter.particles, ref, emitter.getAliveCount(), renderer, time);
 
 		for (auto& child : emitter.children)
 			drawUnderNoteEffectsInternal(child, renderer, time);
 	}
 	
-	void EffectView::drawEffectsInternal(EmitterInstance& emitter, Renderer* renderer, float time)
+	void EffectView::drawEffectsInternal(EmitterInstance& emitter, Renderer* renderer, float time) const
 	{
 		const Particle& ref = ResourceManager::getParticleEffect(emitter.getRefID());
 		if (ref.order > UNDER_NOTE_ORDER_THRESHOLD)
-			drawParticles(emitter.particles, ref, renderer, time);
+			drawParticles(emitter.particles, ref, emitter.getAliveCount(), renderer, time);
 
 		for (auto& child : emitter.children)
 			drawEffectsInternal(child, renderer, time);
 	}
 
-	void EffectView::drawParticles(const std::vector<ParticleInstance>& particles, const Particle& ref, Renderer* renderer, float time)
+	void EffectView::drawParticles(const std::vector<ParticleInstance>& particles, const Particle& ref, size_t count, Renderer* renderer, float time) const
 	{
 		int flipUVs = ref.renderMode == RenderMode::StretchedBillboard ? 1 : 0;
 		float blend = ref.blend == BlendMode::Additive ? 1.f : 0.f;
-		for (auto& p : particles)
-		{
-			if (!p.alive || time < p.startTime || time > p.startTime + p.duration)
-				continue;
 
+		for (size_t i = 0; i < count; i++)
+		{
+			const auto& p = particles.at(i);
 			float normalizedTime = p.time / p.duration;
+
 			int frame = ref.textureSplitX * ref.textureSplitY * ref.startFrame.evaluate(p.time, p.spriteSheetLerpRatio);
 			frame += ref.textureSplitX * ref.textureSplitY * ref.frameOverTime.evaluate(normalizedTime, p.spriteSheetLerpRatio);
 

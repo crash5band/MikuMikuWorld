@@ -374,12 +374,30 @@ namespace MikuMikuWorld::Effect
 		void stop(bool allChildren);
 		void init(const Particle& ref, const Transform& transform);
 
+		/// <summary>
+		/// Gets the ID of the particle used by the emitter
+		/// </summary>
+		/// <returns>The ID of the reference particle</returns>
 		inline int getRefID() const { return refID; }
+
+		/// <summary>
+		/// Gets the number of alive particles
+		/// </summary>
+		/// <returns>The number of alive particles</returns>
+		inline int getAliveCount() const { return aliveCount; }
 
 	private:
 		int refID{};
 
+		/// <summary>
+		/// The number of alive particles
+		/// </summary>
+		int aliveCount{};
+
 		int findFirstDeadParticle(float time) const;
 		int getMaxParticleCount() const;
+
+		void updateEmission(const Particle& ref, const Transform& worldTransform, float time);
+		void updateParticles(const Particle& ref, float t, const Transform& worldTransform, const Camera& camera);
 	};
 }
