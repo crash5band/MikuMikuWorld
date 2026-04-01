@@ -178,7 +178,7 @@ namespace MikuMikuWorld::Engine
 	void SortedDrawingNotesList::add(const Note& note, const Score& score)
 	{
 		float time = accumulateDuration(note.tick, TICKS_PER_BEAT, score.tempoChanges);
-		notes.push_back({note.ID, note.tick, note.tick, time, time});
+		notes.push_back({note.ID, note.tick, note.tick, note.lane, time, time});
 	}
 
 	void SortedDrawingNotesList::add(const HoldNote& hold, const Score& score)
@@ -189,7 +189,7 @@ namespace MikuMikuWorld::Engine
 		float startTime = accumulateDuration(startNote.tick, TICKS_PER_BEAT, score.tempoChanges);
 		float endTime = accumulateDuration(endNote.tick, TICKS_PER_BEAT, score.tempoChanges);
 
-		notes.push_back({ startNote.ID, startNote.tick, endNote.tick, startTime, endTime });
+		notes.push_back({ startNote.ID, startNote.tick, endNote.tick, startNote.lane, startTime, endTime });
 	}
 
 	void SortedDrawingNotesList::clear()
@@ -199,7 +199,10 @@ namespace MikuMikuWorld::Engine
 
 	void SortedDrawingNotesList::explicitSort()
 	{
-		std::sort(notes.begin(), notes.end(), [](const auto& a, const auto& b) { return a.tick < b.tick; });
+		std::sort(notes.begin(), notes.end(), [](const auto& a, const auto& b)
+		{
+			return a.tick == b.tick ? a.lane < b.lane : a.tick < b.tick;
+		});
 	}
 
 	void SortedDrawingNotesList::reserve(size_t capacity)

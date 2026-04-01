@@ -50,6 +50,7 @@ namespace MikuMikuWorld::Engine
 		int refID;
 		int tick;
 		int endTick;
+		int lane;
 		float time;
 		float endTime;
 	};

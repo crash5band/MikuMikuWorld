@@ -161,10 +161,11 @@ namespace MikuMikuWorld::Effect
 
 	void EffectView::update(const ScoreContext& context)
 	{
-		const int currentTick = context.currentTick;
 		const float currentTime = context.getTimeAtCurrentTick();
+		const int startTick = accumulateTicks(currentTime - 0.04f, TICKS_PER_BEAT, context.score.tempoChanges);
+		const int endTick = accumulateTicks(currentTime + 0.08f, TICKS_PER_BEAT, context.score.tempoChanges);
 
-		std::vector<int> viewBoundary = context.scorePreviewDrawData.notesList.getTickRange(std::max(currentTick - 1920, 0), currentTick + 1920);
+		const auto& viewBoundary = context.scorePreviewDrawData.notesList.getTickRange(startTick, endTick);
 		const auto& notesList = context.scorePreviewDrawData.notesList.getView();
 
 		for (int i : viewBoundary)
@@ -180,7 +181,7 @@ namespace MikuMikuWorld::Effect
 			{
 				const HoldNote& hold = context.score.holdNotes.at(note.ID);
 				const Note& end = context.score.notes.at(hold.end);
-				isMidHold = !hold.isGuide() && isWithinRange(currentTick, note.tick, end.tick);
+				isMidHold = !hold.isGuide() && isWithinRange(context.currentTick, note.tick, end.tick);
 			}
 
 			if (isMidHold || isWithinRange(currentTime, drawingNote.time - 0.02f, drawingNote.time + 0.04f))
