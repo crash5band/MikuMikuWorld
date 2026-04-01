@@ -84,7 +84,7 @@ namespace MikuMikuWorld
 	{
 		uint32_t t = x ^ (x << 11);
 		x = y; y = z; z = w;
-		return w = w ^ (w >> 19) ^ t ^ (t >> 8);
+		return w = (w ^ (w >> 19)) ^ (t ^ (t >> 8));
 	}
 
 	uint32_t RandN::nextUInt32()
@@ -108,6 +108,42 @@ namespace MikuMikuWorld
 		y = (uint32_t)(MT19937 * x + 1);
 		z = (uint32_t)(MT19937 * y + 1);
 		w = (uint32_t)(MT19937 * z + 1);
+	}
+
+	void RandN4::setSeed(uint32_t seed)
+	{
+		uint32_t x = seed;
+		a.setSeed(x);
+
+		x += 367;
+		b.setSeed(x);
+
+		x += 367;
+		c.setSeed(x);
+
+		x += 367;
+		d.setSeed(x);
+	}
+
+	std::array<float, 4> RandN4::nextFloat()
+	{
+		return { a.nextFloat(), b.nextFloat(), c.nextFloat(), d.nextFloat() };
+	}
+
+	std::array<uint32_t, 4> RandN4::nextUInt32()
+	{
+		return { a.nextUInt32(), b.nextUInt32(), c.nextUInt32(), d.nextUInt32() };
+	}
+
+	std::array<float, 4> RandN4::nextFloatRange(float min, float max)
+	{
+		return
+		{
+			a.nextFloatRange(min, max),
+			b.nextFloatRange(min, max),
+			c.nextFloatRange(min, max),
+			d.nextFloatRange(min, max)
+		};
 	}
 
 	void drawShadedText(ImDrawList* drawList, ImVec2 textPos, float fontSize, ImU32 fontColor, const char* text)

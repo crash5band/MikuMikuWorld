@@ -6,6 +6,7 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <array>
 
 // Macro to allow usage of flags operators with types enums
 #define DECLARE_ENUM_FLAG_OPERATORS(EnumType) \
@@ -59,6 +60,19 @@ namespace MikuMikuWorld
 		uint32_t x{}, y{}, z{}, w{};
 
 		uint32_t xorShift();
+	};
+
+	class RandN4
+	{
+	public:
+		std::array<float, 4> nextFloat();
+		std::array<float, 4> nextFloatRange(float min, float max);
+		std::array<uint32_t, 4> nextUInt32();
+
+		void setSeed(uint32_t seed);
+
+	private:
+		RandN a, b, c, d;
 	};
 
 	extern Random globalRandom;

@@ -357,24 +357,18 @@ namespace MikuMikuWorld::Effect
 		/// </summary>
 		float rateOverTime{ 1 };
 
-		/// <summary>
-		/// The number of alive particles
-		/// </summary>
-		int aliveCount{};
-
 		float maxDuration{};
 
-		RandN initialRandom;
-		RandN shapeRandom;
-		RandN sizeRandom;
-		RandN velocityRandom;
+		RandN4 initialRandom;
+		RandN4 shapeRandom4;
+		RandN4 sizeRandom;
+		RandN4 velocityRandom;
 
 		std::vector<BurstInstance> bursts;
 		std::vector<ParticleInstance> particles;
 		std::vector<EmitterInstance> children;
 
-		void updateEmission(const Particle& ref, const Transform& worldTransform, float time);
-		void emit(const Transform& worldTransform, const Particle& ref, float time);
+		void emit(const Transform& worldTransform, const Particle& ref, float time, int count);
 		void update(float time, const Transform& worldTransform, const Camera& camera);
 		void start(float time);
 		void stop(bool allChildren);
