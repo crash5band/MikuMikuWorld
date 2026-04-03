@@ -118,7 +118,7 @@ namespace MikuMikuWorld
 
 		glLineWidth(1.0f);
 		glPointSize(1.0f);
-		glEnablei(GL_BLEND, 0);
+		glEnable(GL_BLEND);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		glViewport(0, 0, width, height);
