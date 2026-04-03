@@ -492,7 +492,7 @@ namespace MikuMikuWorld
 		{
 			std::size_t operator()(const Channel& c) const
 			{
-				return std::hash<int>()(c.tick) ^ (std::hash<int>()(c.lane) << 1);
+				return std::hash<int64_t>()((static_cast<int64_t>(c.lane) << 32) + c.tick);
 			}
 		};
 		struct ChannelEqual
