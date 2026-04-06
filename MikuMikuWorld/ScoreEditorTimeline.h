@@ -267,6 +267,7 @@ namespace MikuMikuWorld
 
 		void previousTick(ScoreContext& context);
 		void nextTick(ScoreContext& context);
+		void moveCursorToTick(ScoreContext& context, int tick);
 		int roundTickDown(int tick, int division);
 		void focusCursor(int cursorTick, Direction direction);
 

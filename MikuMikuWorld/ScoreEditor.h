@@ -20,6 +20,7 @@ namespace MikuMikuWorld
 		ScorePropertiesWindow propertiesWindow{};
 		ScoreOptionsWindow optionsWindow{};
 		PresetsWindow presetsWindow{};
+		ChartIssueListWindow issueListWindow{};
 		DebugWindow debugWindow{};
 		SettingsWindow settingsWindow{};
 		RecentFileNotFoundDialog recentFileNotFoundDialog{};
@@ -30,12 +31,15 @@ namespace MikuMikuWorld
 		Stopwatch autoSaveTimer;
 		std::string autoSavePath;
 		bool showImGuiDemoWindow{false};
+		bool shouldFocusIssueList{ false };
 
 		std::future<void> loadMusicFuture{};
 		std::future<void> loadPresetsFuture{};
 		std::future<void> importPresetFuture{};
 
 		bool save(std::string filename);
+		void runChartDiagnostics();
+		void focusDiagnosticNote(int noteID);
 
 	public:
 		ScoreEditor();

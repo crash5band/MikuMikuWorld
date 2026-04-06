@@ -218,6 +218,7 @@
     <ClCompile Include="ScorePreview.cpp" />
     <ClCompile Include="ScoreSerializeWindow.cpp" />
     <ClCompile Include="ScoreSerializer.cpp" />
+    <ClCompile Include="ScoreDiagnostics.cpp" />
     <ClCompile Include="ScoreStats.cpp" />
     <ClCompile Include="Sonolus.cpp" />
     <ClCompile Include="SonolusSerializer.cpp" />
@@ -268,6 +269,7 @@
     <ClInclude Include="ScorePreview.h" />
     <ClInclude Include="ScoreSerializeWindow.h" />
     <ClInclude Include="ScoreSerializer.h" />
+    <ClInclude Include="ScoreDiagnostics.h" />
     <ClInclude Include="Jacket.h" />
     <ClInclude Include="JsonIO.h" />
     <ClInclude Include="Language.h" />

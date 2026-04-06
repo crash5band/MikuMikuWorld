@@ -2181,6 +2181,15 @@ namespace MikuMikuWorld
 		focusCursor(context.currentTick, Direction::Up);
 	}
 
+	void ScoreEditorTimeline::moveCursorToTick(ScoreContext& context, int tick)
+	{
+		const int targetTick = std::max(0, tick);
+		Direction direction = targetTick < context.currentTick ? Direction::Down : Direction::Up;
+		context.currentTick = targetTick;
+		lastSelectedTick = targetTick;
+		focusCursor(targetTick, direction);
+	}
+
 	int ScoreEditorTimeline::roundTickDown(int tick, int division)
 	{
 		return std::max(tick - (tick % (TICKS_PER_BEAT / (division / 4))), 0);

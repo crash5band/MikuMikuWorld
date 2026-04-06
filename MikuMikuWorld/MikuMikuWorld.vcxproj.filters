@@ -189,6 +189,9 @@
     <ClCompile Include="Clipboard.cpp">
       <Filter>IO</Filter>
     </ClCompile>
+    <ClCompile Include="ScoreDiagnostics.cpp">
+      <Filter>ScoreEditor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -421,6 +424,9 @@
     </ClInclude>
     <ClInclude Include="Clipboard.h">
       <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="ScoreDiagnostics.h">
+      <Filter>ScoreEditor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
