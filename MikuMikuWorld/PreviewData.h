@@ -70,6 +70,8 @@ namespace MikuMikuWorld::Engine
 
 		const std::vector<DrawingNoteTime>& getView() const;
 
+		void updateNote(int index, const Note& note, const Score& score);
+
 	private:
 		int binarySearch(int targetTick) const;
 		std::vector<DrawingNoteTime> notes;

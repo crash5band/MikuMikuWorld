@@ -887,53 +887,58 @@ namespace MikuMikuWorld
 		int startTick = std::max(positionToTick(visualOffset - size.y - 500), 0);
 		int endTick = positionToTick(visualOffset + 200);
 
+		minNoteYDistance = INT_MAX;
+		drawSteps.clear();
+
 		renderStats.clear();
 		Stopwatch renderTimer{};
 		renderTimer.reset();
+
+		std::vector<int> viewBoundary = context.scorePreviewDrawData.notesList.getTickRange(startTick, endTick);
+		const auto& notesList = context.scorePreviewDrawData.notesList.getView();
+
+		slidePathFramebuffer->bind();
+		slidePathFramebuffer->clear(0, 0, 0, 0);
+		renderer->beginBatch();
+
+		for (auto it = viewBoundary.rbegin(); it != viewBoundary.rend(); ++it)
+		{
+			const auto& noteView = notesList.at(*it);
+			const auto& note = context.score.notes.at(noteView.refID);
+
+			if (note.getType() == NoteType::Hold)
+			{
+				const HoldNote& hold = context.score.holdNotes.at(note.ID);
+				drawHoldCurve(hold, context.score.notes, renderer, noteTint);
+			}
+		}
+
+		renderer->endBatch();
+		ImGui::GetWindowDrawList()->AddImage((ImTextureID)(size_t)slidePathFramebuffer->getTexture(), position, position + size);
 
 		notesFramebuffer->bind();
 		notesFramebuffer->clear(0, 0, 0, 0);
 		renderer->beginBatch();
 
-		minNoteYDistance = INT_MAX;
-		drawSteps.clear();
-
-		std::vector<int> viewBoundary = context.scorePreviewDrawData.notesList.getTickRange(startTick, endTick);
-		const auto& notesList = context.scorePreviewDrawData.notesList.getView();
-
-		for (int i : viewBoundary)
+		for (auto it = viewBoundary.rbegin(); it != viewBoundary.rend(); ++it)
 		{
-			Note& note = context.score.notes.at(notesList.at(i).refID);
-			if (note.getType() == NoteType::Tap)
-			{
-				updateNote(context, edit, note);
-				drawNote(note, renderer, noteTint);
-			}
-			else if (note.getType() == NoteType::Hold)
+			Note& note = context.score.notes.at(notesList.at(*it).refID);
+			updateNote(context, edit, note);
+			context.scorePreviewDrawData.notesList.updateNote(*it, note, context.score);
+
+			if (note.getType() == NoteType::Hold)
 			{
 				const HoldNote& hold = context.score.holdNotes.at(note.ID);
-				drawHoldCurve(hold, context.score.notes, renderer, noteTint);
-
-				Note& end = context.score.notes.at(hold.end);
-
-				if (isNoteVisible(note)) updateNote(context, edit, note);
-				if (isNoteVisible(end)) updateNote(context, edit, end);
-
-				for (const auto& step : hold.steps)
-				{
-					Note& mid = context.score.notes.at(step.ID);
-					if (isNoteVisible(mid)) updateNote(context, edit, mid);
-				}
-
 				drawHoldNote(context.score.notes, hold, renderer, noteTint);
+			}
+			else if (note.getType() == NoteType::Tap)
+			{
+				drawNote(note, renderer, noteTint);
 			}
 		}
 
 		renderer->endBatch();
 		renderStats.addStats(renderer);
-
-		for (const auto& data : drawSteps)
-			drawOutline(data);
 
 		const bool pasting = context.pasteData.pasting;
 		if (pasting && mouseInTimeline && !playing)
@@ -949,6 +954,10 @@ namespace MikuMikuWorld
 			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 				context.confirmPaste();
 		}
+
+
+		for (const auto& data : drawSteps)
+			drawOutline(data);
 
 		if (mouseInTimeline && !isHoldingNote && (currentMode != TimelineMode::Select || insertingFever) &&
 			!pasting && !playing && !UI::isAnyPopupOpen())

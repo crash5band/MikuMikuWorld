@@ -192,6 +192,33 @@ namespace MikuMikuWorld::Engine
 		notes.push_back({ startNote.ID, startNote.tick, endNote.tick, startNote.lane, startTime, endTime });
 	}
 
+	void SortedDrawingNotesList::updateNote(int index, const Note& note, const Score& score)
+	{
+		float time = accumulateDuration(note.tick, TICKS_PER_BEAT, score.tempoChanges);
+		notes.at(index).lane = note.lane;
+		notes.at(index).tick = note.tick;
+		notes.at(index).time = time;
+		
+		if (note.getType() != NoteType::Hold)
+		{
+			notes.at(index).endTick = note.tick;
+			notes.at(index).endTime = time;
+		}
+		
+		if (note.getType() == NoteType::HoldEnd)
+		{
+			for (auto& target : notes)
+			{
+				if (target.refID == note.parentID)
+				{
+					target.endTick = note.tick;
+					target.endTime = time;
+					break;
+				}
+			}
+		}
+	}
+
 	void SortedDrawingNotesList::clear()
 	{
 		notes.clear();
@@ -226,13 +253,12 @@ namespace MikuMikuWorld::Engine
 
 		for (auto it = notes.begin(); it != cutoff; ++it)
 		{
-			if (it->endTick >= from)
+			// it->endTick < it->tick: hack used to keep drawing holds no matter which end is held on the timeline
+			if (it->endTick >= from || it->endTick < it->tick)
 				result.push_back(std::distance(notes.begin(), it));
 		}
 
 		return result;
-
-		//return { binarySearch(from), binarySearch(to) };
 	}
 
 	int SortedDrawingNotesList::binarySearch(int targetTick) const
