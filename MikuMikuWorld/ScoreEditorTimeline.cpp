@@ -1658,16 +1658,16 @@ namespace MikuMikuWorld
 			float xl2 = easeFunc(startX1, endX1, percent2) - 2;
 			float xr2 = easeFunc(startX2, endX2, percent2) + 2;
 
-			if (y2 < limitY2)
-			{
-				// Below bottom boundary
-				continue;
-			}
-			else if (y1 > limitY1)
-			{
-				// Above top boundary
-				break;
-			}
+			//if (y2 < limitY2)
+			//{
+			//	// Below bottom boundary
+			//	continue;
+			//}
+			//else if (y1 > limitY1)
+			//{
+			//	// Above top boundary
+			//	break;
+			//}
 
 			Vector2 p1{ xl1, y1 };
 			Vector2 p2{ xl1 + holdSliceSize, y1 };
