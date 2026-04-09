@@ -19,10 +19,6 @@ namespace MikuMikuWorld::Effect
 		{ fx_note_critical_long_gen, 6 },
 		{ fx_note_flick_flash, 6 },
 		{ fx_note_critical_flick_flash, 6 },
-		{ fx_note_trace_aura, 6 },
-		{ fx_note_critical_trace_aura, 6 },
-		{ fx_note_long_hold_via_aura, 6 },
-		{ fx_note_critical_long_hold_via_aura, 6 },
 	};
 
 	static float getEffectXPos(int lane, int width, bool flip)
