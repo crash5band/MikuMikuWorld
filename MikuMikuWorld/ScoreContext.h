@@ -68,6 +68,9 @@ namespace MikuMikuWorld
 	class ScoreContext
 	{
 	public:
+		ScoreContext(const ScoreContext&) = delete;
+		ScoreContext& operator= (const ScoreContext&) = delete;
+
 		Score score;
 		EditorScoreData workingData;
 		ScoreStats scoreStats;
