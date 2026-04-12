@@ -475,7 +475,19 @@ namespace MikuMikuWorld
 		if (content.empty())
 			return;
 
-		doPasteData(json::parse(content), flip);
+		try
+		{
+			json contentAsJson = json::parse(content);
+			doPasteData(contentAsJson, flip);
+		}
+		catch (const json::exception& ex)
+		{
+			printf("Failed to parse clipboard to json: %s", ex.what());
+		}
+		catch (const std::exception& ex)
+		{
+			printf("Failed to paste notes from clipboard: %s", ex.what());
+		}
 	}
 
 	void ScoreContext::shrinkSelection(Direction direction)
