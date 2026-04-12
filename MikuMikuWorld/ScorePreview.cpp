@@ -269,6 +269,11 @@ namespace MikuMikuWorld
 		noteEffectsCamera.setRotation(-90.f, 27.1f);
 		noteEffectsCamera.setPosition({ 0, 5.32f, -5.86f, 0 });
 		noteEffectsCamera.positionCamNormal();
+
+		mainCamera.setRotation(-90.f, 0.f);
+		mainCamera.setPosition({0.f, 1.f, -10.f});
+		mainCamera.setFov(60.f);
+		mainCamera.positionCamNormal();
 	}
 
 	ScorePreviewWindow::~ScorePreviewWindow()
@@ -351,7 +356,7 @@ namespace MikuMikuWorld
 		drawStage(renderer);
 		renderer->endBatch();
 
-		context.scorePreviewDrawData.effectView.updateEffects(context, noteEffectsCamera, currentTime);
+		context.scorePreviewDrawData.effectView.updateEffects(context, mainCamera, currentTime);
 
 		shader->use();
 		shader->setMatrix4("projection", viewProjection);

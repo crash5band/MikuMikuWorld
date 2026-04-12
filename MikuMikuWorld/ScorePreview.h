@@ -40,7 +40,16 @@ namespace MikuMikuWorld
 		Framebuffer previewBuffer;
 		ScorePreviewBackground background;
 		float scaledAspectRatio;
+
+		/// <summary>
+		/// The camera used to align particles to preview
+		/// </summary>
 		Camera noteEffectsCamera;
+		
+		/// <summary>
+		/// The camera used to billboard effects
+		/// </summary>
+		Camera mainCamera;
 
 		mutable bool fullWindow{};
 
