@@ -37,16 +37,16 @@ namespace MikuMikuWorld::Effect
 		float t{};
 		if (angle >= 0.000001f)
 		{
-			angle = asinf(std::min(angle, 1.f));
+			angle = asinf(angle);
 		}
 		else
 		{
 			angle = 0.f;
-			axis = DirectX::XMVectorSet(1, 0, 0, 0);
+			axis = DirectX::XMVectorSet(0, 1, 0, 0);
 			DirectX::XMStoreFloat(&t, DirectX::XMVector3Length(axis));
 
 			if (t < 0.000001f)
-				axis = DirectX::XMVectorSet(-1.f, 0, 0, 0);
+				axis = DirectX::XMVectorSet(0, -1.f, 0, 0);
 		}
 
 		DirectX::XMStoreFloat(&t, DirectX::XMVector3Dot(DirectX::XMVectorNegate(normalizedVelocity), up));
@@ -56,7 +56,7 @@ namespace MikuMikuWorld::Effect
 		DirectX::XMVECTOR lengthSquaredVector = DirectX::XMVector3LengthSq(velocity);
 
 		float lengthSquared = DirectX::XMVectorGetX(lengthSquaredVector);
-		float length = lengthSquared > 0.000001 ? sqrtf(lengthSquared) : 0.0f;
+		float length = lengthSquared > 0.000001f ? sqrtf(lengthSquared) : 0.0f;
 		float yScale = (ref.speedScale * length) + (ref.lengthScale * DirectX::XMVectorGetX(scale));
 		DirectX::XMVECTOR stretchDirection = DirectX::XMVectorScale(normalizedVelocity, yScale * 0.5f);
 
@@ -347,7 +347,10 @@ namespace MikuMikuWorld::Effect
 			ParticleInstance& instance = particles[instanceIndex];
 			instance.alive = true;
 			instance.transform.position = emitPosition;
-			instance.transform.rotation = DirectX::XMVectorNegate(DirectX::XMLoadFloat3(&startRotation));
+			if (ref.renderMode == RenderMode::Billboard && ref.alignment == AlignmentMode::View)
+				instance.transform.rotation = DirectX::XMLoadFloat3(&startRotation);
+			else
+				instance.transform.rotation = DirectX::XMVectorNegate(DirectX::XMLoadFloat3(&startRotation));
 
 			instance.duration = ref.startLifeTime.evaluate(a);
 			instance.spriteSheetLerpRatio = a;
@@ -360,6 +363,7 @@ namespace MikuMikuWorld::Effect
 			instance.speed = length;
 			instance.startTime = time;
 			instance.time = 0;
+			instance.accumulateVelocityLimit = DirectX::XMVectorSet(0, 0, 0, 0);
 
 			float velocityR = velocityRandomSet[randomSetIndex];
 			instance.velocityLerpRatio = velocityR;
@@ -503,36 +507,48 @@ namespace MikuMikuWorld::Effect
 		}
 	}
 
-	static DirectX::XMFLOAT3& limitVelocity(DirectX::XMFLOAT3& velocity, DirectX::XMFLOAT3& limitVelocity, float damp, float time)
+	static DirectX::XMVECTOR limitVelocity(const DirectX::XMVECTOR& velocity, const DirectX::XMFLOAT3& limit, DirectX::XMVECTOR& accumulator, float damp, float dt)
 	{
 		// Extracted from UnityPlayer.dll
-		float k = powf(1 - damp, time * 30);
+		float k = 1 - powf(1 - damp, dt * 30);
 
-		float signX = velocity.x >= 0 ? 1 : -1;
-		float absX = abs(velocity.x);
-		if (absX > 0.0001 && absX > limitVelocity.x)
+		DirectX::XMVECTOR velocitySignVector = DirectX::XMVectorSet(
+			DirectX::XMVectorGetX(velocity) >= 0 ? 1 : -1,
+			DirectX::XMVectorGetY(velocity) >= 0 ? 1 : -1,
+			DirectX::XMVectorGetZ(velocity) >= 0 ? 1 : -1,
+			1
+		);
+
+		DirectX::XMVECTOR absoluteVelocity = DirectX::XMVectorAbs(velocity);
+		DirectX::XMVECTOR currentExceedingVelocity = DirectX::XMVectorSubtract(absoluteVelocity, accumulator);
+		DirectX::XMFLOAT3 amountToLimit{};
+
+		float absX = abs(DirectX::XMVectorGetX(currentExceedingVelocity));
+		if (absX > 0.0001f && absX > limit.x)
 		{
-			absX = limitVelocity.x + (absX - limitVelocity.x) * k;
-			velocity.x = absX * signX;
+			amountToLimit.x = abs((absX - limit.x) * k);
 		}
 
-		float signY = velocity.y >= 0 ? 1 : -1;
-		float absY = abs(velocity.y);
-		if (absY > 0.0001 && absY > limitVelocity.y)
+		float absY = abs(DirectX::XMVectorGetY(currentExceedingVelocity));
+		if (absY > 0.0001f && absY > limit.y)
 		{
-			absY = limitVelocity.y + (absY - limitVelocity.y) * k;
-			velocity.y = absY * signY;
+			amountToLimit.y = abs((absY - limit.y) * k);
 		}
 
-		float signZ = velocity.z >= 0 ? 1 : -1;
-		float absZ = abs(velocity.z);
-		if (absZ > 0.0001 && absZ > limitVelocity.z)
+		float absZ = abs(DirectX::XMVectorGetZ(currentExceedingVelocity));
+		if (absZ > 0.0001f && absZ > limit.z)
 		{
-			absZ = limitVelocity.z + (absZ - limitVelocity.z) * k;
-			velocity.z = absZ * signZ;
+			amountToLimit.z = abs((absZ - limit.z) * k);
 		}
 
-		return velocity;
+		DirectX::XMVECTOR limitVector = DirectX::XMLoadFloat3(&limit);
+		DirectX::XMVECTOR exceedingVelocity = DirectX::XMVectorSubtract(absoluteVelocity, limitVector);
+
+		accumulator = DirectX::XMVectorAdd(accumulator, DirectX::XMLoadFloat3(&amountToLimit));
+		return DirectX::XMVectorMultiply(DirectX::XMVectorAdd(
+			DirectX::XMLoadFloat3(&limit),
+			DirectX::XMVectorSubtract(exceedingVelocity, accumulator)
+		), velocitySignVector);
 	}
 
 	void EmitterInstance::updateParticles(const Particle& ref, float t, const Transform& worldTransform, const Camera& camera)
@@ -620,20 +636,19 @@ namespace MikuMikuWorld::Effect
 				currentVelocity = DirectX::XMVectorAdd(currentVelocity, fol1);
 			}
 
-			currentVelocity = DirectX::XMVectorMultiplyAdd(p.direction, DirectX::XMVectorReplicate(p.speed), currentVelocity);
-
 			float speedModifier = ref.speedModifier.evaluate(normalizedTime, p.velocityLerpRatio, 1.f);
+			currentVelocity = DirectX::XMVectorMultiplyAdd(p.direction, DirectX::XMVectorReplicate(p.speed), currentVelocity);
+			currentVelocity = DirectX::XMVectorMultiply(currentVelocity, DirectX::XMVectorReplicate(speedModifier));
+
 			float gravity = GRAVITY * ref.gravityModifier.evaluate(normalizedTime, p.gravityLerpRatio) * p.time;
 			DirectX::XMVECTOR gravityVector = DirectX::XMVectorSet(0, -gravity, 0, 0);
-
-			currentVelocity = DirectX::XMVectorMultiply(currentVelocity, DirectX::XMVectorReplicate(speedModifier));
 			currentVelocity = DirectX::XMVectorMultiplyAdd(currentVelocity, velocityScale, gravityVector);
-			DirectX::XMFLOAT3 velocity{};
-			DirectX::XMStoreFloat3(&velocity, currentVelocity);
-
-			DirectX::XMFLOAT3 velocityLimit = ref.limitVelocityOverLifetime.evaluate(normalizedTime, p.limitVelocityLerpRatio);
-			velocity = limitVelocity(velocity, velocityLimit, ref.limitVelocityDampen, p.time);
-			currentVelocity = DirectX::XMLoadFloat3(&velocity);
+			
+			if (ref.limitVelocityOverLifetime.enabled)
+			{
+				DirectX::XMFLOAT3 velocityLimit = ref.limitVelocityOverLifetime.evaluate(normalizedTime, p.limitVelocityLerpRatio);
+				currentVelocity = limitVelocity(currentVelocity, velocityLimit, p.accumulateVelocityLimit, ref.limitVelocityDampen, dt);
+			}
 
 			p.transform.position = DirectX::XMVectorAdd(
 				DirectX::XMVectorMultiply(currentVelocity, DirectX::XMVectorReplicate(dt)),

@@ -274,6 +274,7 @@ namespace MikuMikuWorld::Effect
 		DirectX::XMMATRIX matrix{};
 		Transform transform;
 		DirectX::XMVECTOR direction{};
+		DirectX::XMVECTOR accumulateVelocityLimit{};
 		float startTime{};
 		float time{};
 		float duration{};
