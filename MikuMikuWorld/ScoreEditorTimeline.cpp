@@ -923,8 +923,8 @@ namespace MikuMikuWorld
 		for (auto it = viewBoundary.rbegin(); it != viewBoundary.rend(); ++it)
 		{
 			Note& note = context.score.notes.at(notesList.at(*it).refID);
-			updateNote(context, edit, note);
-			context.scorePreviewDrawData.notesList.updateNote(*it, note, context.score);
+			if (updateNote(context, edit, note))
+				context.scorePreviewDrawData.notesList.updateNote(*it, note, context.score);
 
 			if (note.getType() == NoteType::Hold)
 			{
@@ -1394,7 +1394,7 @@ namespace MikuMikuWorld
 		return false;
 	}
 
-	void ScoreEditorTimeline::updateNote(ScoreContext& context, EditArgs& edit, Note& note)
+	bool ScoreEditorTimeline::updateNote(ScoreContext& context, EditArgs& edit, Note& note)
 	{
 		const float btnPosY = position.y - tickToPosition(note.tick) + visualOffset - (notesHeight * 0.5f);
 		float btnPosX = laneToPosition(note.lane) + position.x - 2.0f;
@@ -1402,6 +1402,8 @@ namespace MikuMikuWorld
 		ImVec2 pos{ btnPosX, btnPosY };
 		ImVec2 noteSz{ laneToPosition(note.lane + note.width) + position.x + 2.0f - btnPosX, notesHeight };
 		ImVec2 sz{ noteControlWidth, notesHeight };
+
+		bool isAnyChange = false;
 
 		const ImGuiIO& io = ImGui::GetIO();
 		if (ImGui::IsMouseHoveringRect(pos, pos + noteSz, false) && mouseInTimeline)
@@ -1452,6 +1454,7 @@ namespace MikuMikuWorld
 
 				if (canResize)
 				{
+					isAnyChange = true;
 					ctrlMousePos.x = mousePos.x;
 					for (int id : context.selectedNotes)
 					{
@@ -1487,6 +1490,7 @@ namespace MikuMikuWorld
 
 				if (canMove)
 				{
+					isAnyChange = true;
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
@@ -1506,6 +1510,7 @@ namespace MikuMikuWorld
 
 				if (canMove)
 				{
+					isAnyChange = true;
 					for (int id : context.selectedNotes)
 					{
 						Note& n = context.score.notes.at(id);
@@ -1571,6 +1576,7 @@ namespace MikuMikuWorld
 
 				if (canResize)
 				{
+					isAnyChange = true;
 					ctrlMousePos.x = mousePos.x;
 					for (int id : context.selectedNotes)
 					{
@@ -1582,6 +1588,7 @@ namespace MikuMikuWorld
 		}
 
 		ImGui::PopID();
+		return isAnyChange;
 	}
 
 	void ScoreEditorTimeline::drawHoldCurve(const HoldNote& hold, const std::map<int, Note>& notes, Renderer* renderer, const Color& tint, const int offsetTicks, const int offsetLane)

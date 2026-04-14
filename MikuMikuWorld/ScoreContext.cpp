@@ -10,9 +10,6 @@ using namespace IO;
 
 namespace MikuMikuWorld
 {
-	constexpr const char* clipboardSignatureLF = "MikuMikuWorld clipboard\n";
-	constexpr const char* clipboardSignatureCRLF = "MikuMikuWorld clipboard\r\n";
-
 	static InverseNotesFilter inverseGuideFilter(CommonNoteFilters::guideFilter());
 
 	static bool noteExists(const int id, const Score& score)
@@ -482,7 +479,7 @@ namespace MikuMikuWorld
 		}
 		catch (const json::exception& ex)
 		{
-			printf("Failed to parse clipboard to json: %s", ex.what());
+			printf("Failed to parse clipboard to json. Invalid clipboard contents: %s", ex.what());
 		}
 		catch (const std::exception& ex)
 		{

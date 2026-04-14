@@ -260,10 +260,11 @@ namespace MikuMikuWorld
 		void calculateMaxOffsetFromScore(const Score& score);
 
 		void update(ScoreContext& context, EditArgs& edit, Renderer* renderer);
-		void updateNotes(ScoreContext& context, EditArgs& edit, Renderer* renderer);
-		void updateNote(ScoreContext& context, EditArgs& edit, Note& note);
-		void updateInputNotes(EditArgs& edit);
 		void debug(ScoreContext& context);
+
+		void updateInputNotes(EditArgs& edit);
+		void updateNotes(ScoreContext& context, EditArgs& edit, Renderer* renderer);
+		bool updateNote(ScoreContext& context, EditArgs& edit, Note& note);
 
 		void previousTick(ScoreContext& context);
 		void nextTick(ScoreContext& context);
