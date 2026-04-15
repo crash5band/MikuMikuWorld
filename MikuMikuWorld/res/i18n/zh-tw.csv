@@ -236,3 +236,14 @@ timeline_time_signature, 時間軸「拍子」
 timeline_hi_speed, 時間軸「加速」
 zoom_in, 縮小
 zoom_out, 放大
+detect_chart_issues, 偵測譜面異常
+chart_issue_list, 問題清單
+errors, 錯誤
+warnings, 警告
+code, 代碼
+track, 軌道
+category, 類別
+chart_issue_not_run, 尚未執行偵測，請使用「編輯」->「偵測譜面異常」。
+chart_issue_no_issues, 沒有發現譜面異常。
+chart_issue_filter_no_match, 目前篩選條件沒有符合項目。
+chart_issue_select_hint, 選擇一項後可查看詳細資訊。

@@ -213,6 +213,18 @@ namespace MikuMikuWorld
 		preview.updateUI(timeline, context);
 		ImGui::End();
 
+		ImGui::SetNextWindowDockID(dockId, ImGuiCond_FirstUseEver);
+		bool issueListOpen = ImGui::Begin(IMGUI_TITLE(ICON_FA_LIST_ALT, "chart_issue_list"), NULL, ImGuiWindowFlags_Static);
+		if (shouldFocusIssueList)
+			ImGui::SetWindowFocus();
+
+		if (issueListOpen)
+		{
+			issueListWindow.update();
+		}
+		ImGui::End();
+		shouldFocusIssueList = false;
+
 		if (timeline_just_created) ImGui::SetWindowFocus("###notes_timeline");
 
 		if (config.debugEnabled)
@@ -238,6 +250,10 @@ namespace MikuMikuWorld
 			presetsWindow.update(context, presetManager);
 		}
 		ImGui::End();
+
+		const int focusNoteID = issueListWindow.consumeFocusNoteID();
+		if (focusNoteID > -1)
+			focusDiagnosticNote(focusNoteID);
 
 #ifdef _DEBUG
 		if (showImGuiDemoWindow)
@@ -273,8 +289,8 @@ namespace MikuMikuWorld
 		context.waveformR.clear();
 		context.clearSelection();
 
-		// New score; nothing to save
 		context.upToDate = true; 
+		issueListWindow.clear();
 
 		UI::setWindowTitle(windowUntitled);
 	}
@@ -285,6 +301,7 @@ namespace MikuMikuWorld
 			return;
 
 		timeline.setPlaying(context, false);
+		issueListWindow.clear();
 		serializeWindow.deserialize(filename);
 	}
 
@@ -502,6 +519,10 @@ namespace MikuMikuWorld
 
 			if (ImGui::MenuItem(getString("insert_fever"), ToShortcutString(config.input.insertFever), nullptr, !timeline.isPlaying()))
 				timeline.beginInsertFever(context, context.currentTick);
+
+			ImGui::Separator();
+			if (ImGui::MenuItem(getString("detect_chart_issues"), nullptr, false, !timeline.isPlaying()))
+				runChartDiagnostics();
 
 			ImGui::Separator();
 			if (ImGui::MenuItem(getString("settings"), ToShortcutString(config.input.openSettings)))
@@ -789,5 +810,34 @@ namespace MikuMikuWorld
 		IO::FileDialog fileDialog{"Import Preset", { IO::presetFilter }, "", "", ".json", 0, Application::windowState.windowHandle};
 		if (fileDialog.openFile() == IO::FileDialogResult::OK)
 			importPreset(fileDialog.outputFilename);
+	}
+
+	void ScoreEditor::runChartDiagnostics()
+	{
+		issueListWindow.setDiagnostics(ScoreDiagnostics::analyze(context.score));
+		shouldFocusIssueList = true;
+	}
+
+	void ScoreEditor::focusDiagnosticNote(int noteID)
+	{
+		auto noteIt = context.score.notes.find(noteID);
+		if (noteIt == context.score.notes.end())
+			return;
+
+		if (timeline.isPlaying())
+			timeline.setPlaying(context, false);
+
+		context.clearSelection();
+		context.selectedNotes.insert(noteID);
+
+		const Note& note = noteIt->second;
+		if (note.getType() == NoteType::HoldMid || note.getType() == NoteType::HoldEnd)
+		{
+			auto parentNote = context.score.notes.find(note.parentID);
+			if (parentNote != context.score.notes.end())
+				context.selectedNotes.insert(parentNote->first);
+		}
+
+		timeline.moveCursorToTick(context, note.tick);
 	}
 }

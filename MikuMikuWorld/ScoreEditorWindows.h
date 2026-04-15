@@ -1,6 +1,7 @@
 #pragma once
 #include "NotesPreset.h"
 #include "ScoreEditorTimeline.h"
+#include "ScoreDiagnostics.h"
 #include "Stopwatch.h"
 #include "InputBinding.h"
 
@@ -64,6 +65,29 @@ namespace MikuMikuWorld
 	{
 	public:
 		void update(ScoreContext& context, ScoreEditorTimeline& timeline);
+	};
+
+	class ChartIssueListWindow
+	{
+	private:
+		std::vector<ScoreDiagnostic> diagnostics{};
+		ImGuiTextFilter diagnosticsFilter{};
+		ImGuiListClipper listClipper{};
+		int selectedDiagnosticIndex{ -1 };
+		int pendingFocusNoteID{ -1 };
+		bool showErrors{ true };
+		bool showWarnings{ true };
+		bool hasRunDetection{ false };
+
+		bool passFilter(const ScoreDiagnostic& diagnostic) const;
+		int getErrorCount() const;
+		int getWarningCount() const;
+
+	public:
+		void clear();
+		void setDiagnostics(std::vector<ScoreDiagnostic>&& nextDiagnostics);
+		int consumeFocusNoteID();
+		void update();
 	};
 
 	class SettingsWindow

@@ -8,6 +8,7 @@
 #include "ApplicationConfiguration.h"
 #include "NoteSkin.h"
 #include "ResourceManager.h"
+#include <algorithm>
 
 namespace MikuMikuWorld
 {
@@ -401,6 +402,232 @@ namespace MikuMikuWorld
 			if (presetFilter.PassFilter(presets.at(i).getName().c_str()))
 				filterMatchPresets.push_back(i);
 		}
+	}
+
+	bool ChartIssueListWindow::passFilter(const ScoreDiagnostic& diagnostic) const
+	{
+		if (!showErrors && diagnostic.severity == ScoreDiagnosticSeverity::Crash)
+			return false;
+
+		if (!showWarnings && diagnostic.severity == ScoreDiagnosticSeverity::Warning)
+			return false;
+
+		std::string filterValue = diagnostic.code;
+		filterValue.append(" ");
+		filterValue.append(diagnostic.title);
+		filterValue.append(" ");
+		filterValue.append(diagnostic.summary);
+		filterValue.append(" ");
+		filterValue.append(diagnostic.categoryText);
+		filterValue.append(" ");
+		filterValue.append(diagnostic.positionText);
+		filterValue.append(" ");
+		filterValue.append(diagnostic.trackText);
+
+		return diagnosticsFilter.PassFilter(filterValue.c_str());
+	}
+
+	int ChartIssueListWindow::getErrorCount() const
+	{
+		int count = 0;
+		for (const auto& diagnostic : diagnostics)
+			count += diagnostic.severity == ScoreDiagnosticSeverity::Crash;
+
+		return count;
+	}
+
+	int ChartIssueListWindow::getWarningCount() const
+	{
+		int count = 0;
+		for (const auto& diagnostic : diagnostics)
+			count += diagnostic.severity == ScoreDiagnosticSeverity::Warning;
+
+		return count;
+	}
+
+	void ChartIssueListWindow::clear()
+	{
+		hasRunDetection = false;
+		diagnostics.clear();
+		selectedDiagnosticIndex = -1;
+		pendingFocusNoteID = -1;
+		diagnosticsFilter.Clear();
+	}
+
+	void ChartIssueListWindow::setDiagnostics(std::vector<ScoreDiagnostic>&& nextDiagnostics)
+	{
+		hasRunDetection = true;
+		diagnostics = std::move(nextDiagnostics);
+		if (!diagnostics.empty() && !isArrayIndexInBounds(selectedDiagnosticIndex, diagnostics))
+			selectedDiagnosticIndex = 0;
+		else if (diagnostics.empty())
+			selectedDiagnosticIndex = -1;
+	}
+
+	int ChartIssueListWindow::consumeFocusNoteID()
+	{
+		const int noteID = pendingFocusNoteID;
+		pendingFocusNoteID = -1;
+		return noteID;
+	}
+
+	void ChartIssueListWindow::update()
+	{
+		const int errorCount = getErrorCount();
+		const int warningCount = getWarningCount();
+		const int totalCount = static_cast<int>(diagnostics.size());
+
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 8, 6 });
+		ImGui::TextColored({ 0.95f, 0.33f, 0.33f, 1.0f }, "%s %d %s", ICON_FA_TIMES_CIRCLE, errorCount, getString("errors"));
+		ImGui::SameLine();
+		ImGui::TextColored({ 0.95f, 0.78f, 0.23f, 1.0f }, "%s %d %s", ICON_FA_EXCLAMATION_TRIANGLE, warningCount, getString("warnings"));
+		ImGui::SameLine();
+		ImGui::Text("%s %d", getString("total"), totalCount);
+		ImGui::PopStyleVar();
+
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 4, ImGui::GetStyle().ItemSpacing.y });
+		ImGui::Checkbox(getString("errors"), &showErrors);
+		ImGui::SameLine();
+		ImGui::Checkbox(getString("warnings"), &showWarnings);
+
+		float filterWidth = ImGui::GetContentRegionAvail().x - UI::btnSmall.x - 2;
+		if (filterWidth < 100.0f)
+			filterWidth = 100.0f;
+
+		Utilities::ImGuiTextFilterWithHint(&diagnosticsFilter, "##diagnostics_filter", IO::concat(ICON_FA_SEARCH, getString("search"), " ").c_str(), filterWidth);
+
+		ImGui::SameLine();
+		if (ImGui::Button(ICON_FA_TIMES, UI::btnSmall))
+			diagnosticsFilter.Clear();
+
+		ImGui::PopStyleVar();
+
+		ImGui::Separator();
+		if (!hasRunDetection)
+		{
+			Utilities::ImGuiCenteredText(getString("chart_issue_not_run"));
+			return;
+		}
+
+		if (diagnostics.empty())
+		{
+			Utilities::ImGuiCenteredText(getString("chart_issue_no_issues"));
+			return;
+		}
+
+		std::vector<int> filteredIndices;
+		filteredIndices.reserve(diagnostics.size());
+		for (int index = 0; index < diagnostics.size(); index++)
+		{
+			if (passFilter(diagnostics[index]))
+				filteredIndices.push_back(index);
+		}
+
+		if (filteredIndices.empty())
+		{
+			Utilities::ImGuiCenteredText(getString("chart_issue_filter_no_match"));
+			return;
+		}
+
+		constexpr ImGuiTableFlags tableFlags =
+			ImGuiTableFlags_BordersOuter |
+			ImGuiTableFlags_BordersInnerH |
+			ImGuiTableFlags_BordersInnerV |
+			ImGuiTableFlags_ScrollY |
+			ImGuiTableFlags_RowBg |
+			ImGuiTableFlags_Resizable;
+
+		const float rowHeight = ImGui::GetFrameHeight() + 4;
+		const bool hasSelectedDiagnostic = isArrayIndexInBounds(selectedDiagnosticIndex, diagnostics);
+		const float minimumTableHeight = (rowHeight * 3) + ImGui::GetFrameHeight();
+		const float desiredDetailHeight = hasSelectedDiagnostic ?
+			(ImGui::GetTextLineHeightWithSpacing() * 4.5f) :
+			(ImGui::GetTextLineHeightWithSpacing() * 1.8f);
+		const float availableHeight = ImGui::GetContentRegionAvail().y;
+		const float reservedDetailHeight = std::min(desiredDetailHeight, std::max(0.0f, availableHeight - minimumTableHeight));
+
+		if (ImGui::BeginChild("##chart_issue_table_host", { 0, -reservedDetailHeight }, false))
+		{
+			if (ImGui::BeginTable("##chart_issue_table", 6, tableFlags, { -1, -1 }))
+			{
+				ImGui::TableSetupScrollFreeze(0, 1);
+				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, 26.0f);
+				ImGui::TableSetupColumn(getString("description"), ImGuiTableColumnFlags_WidthStretch);
+				ImGui::TableSetupColumn(getString("measure"), ImGuiTableColumnFlags_WidthFixed, 72.0f);
+				ImGui::TableSetupColumn(getString("tick"), ImGuiTableColumnFlags_WidthFixed, 72.0f);
+				ImGui::TableSetupColumn(getString("track"), ImGuiTableColumnFlags_WidthFixed, 95.0f);
+				ImGui::TableSetupColumn(getString("category"), ImGuiTableColumnFlags_WidthFixed, 145.0f);
+				ImGui::TableHeadersRow();
+
+				listClipper.Begin(filteredIndices.size(), rowHeight);
+				while (listClipper.Step())
+				{
+					for (int row = listClipper.DisplayStart; row < listClipper.DisplayEnd; row++)
+					{
+						const int diagnosticIndex = filteredIndices[row];
+						const ScoreDiagnostic& diagnostic = diagnostics[diagnosticIndex];
+						const bool isSelected = selectedDiagnosticIndex == diagnosticIndex;
+						const bool isCrash = diagnostic.severity == ScoreDiagnosticSeverity::Crash;
+						const char* severityIcon = isCrash ? ICON_FA_TIMES_CIRCLE : ICON_FA_EXCLAMATION_TRIANGLE;
+						const ImVec4 severityColor = isCrash ?
+							ImVec4{ 0.95f, 0.33f, 0.33f, 1.0f } :
+							ImVec4{ 0.95f, 0.78f, 0.23f, 1.0f };
+
+						ImGui::PushID(diagnosticIndex);
+						ImGui::TableNextRow(0, rowHeight);
+						ImGui::TableSetColumnIndex(0);
+						if (ImGui::Selectable("##diag_row", isSelected,
+							ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap, { 0, rowHeight }))
+						{
+							selectedDiagnosticIndex = diagnosticIndex;
+							pendingFocusNoteID = diagnostic.getFocusNoteID();
+						}
+
+						ImGui::SameLine();
+						ImGui::TextColored(severityColor, severityIcon);
+
+						ImGui::TableSetColumnIndex(1);
+						ImGui::TextUnformatted(diagnostic.title.c_str());
+						if (ImGui::IsItemHovered())
+						{
+							UI::tooltip(IO::formatString("%s\n%s", diagnostic.summary.c_str(), diagnostic.positionText.c_str()).c_str());
+						}
+
+						ImGui::TableSetColumnIndex(2);
+						ImGui::Text("%d", diagnostic.measure);
+
+						ImGui::TableSetColumnIndex(3);
+						ImGui::Text("%d", diagnostic.tick);
+
+						ImGui::TableSetColumnIndex(4);
+						ImGui::TextUnformatted(diagnostic.trackText.c_str());
+
+						ImGui::TableSetColumnIndex(5);
+						ImGui::TextUnformatted(diagnostic.categoryText.c_str());
+						ImGui::PopID();
+					}
+				}
+				listClipper.End();
+				ImGui::EndTable();
+			}
+		}
+		ImGui::EndChild();
+
+		ImGui::BeginChild("##chart_issue_detail", { 0, 0 }, true);
+		if (!hasSelectedDiagnostic)
+		{
+			ImGui::TextColored({ 0.6f, 0.6f, 0.6f, 1.0f }, "%s", getString("chart_issue_select_hint"));
+			ImGui::EndChild();
+			return;
+		}
+
+		const ScoreDiagnostic& selected = diagnostics[selectedDiagnosticIndex];
+		ImGui::TextUnformatted(selected.title.c_str());
+		ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+		ImGui::Text("%s | %s", selected.positionText.c_str(), selected.trackText.c_str());
+		ImGui::PopStyleColor();
+		ImGui::TextWrapped("%s", selected.summary.c_str());
+		ImGui::EndChild();
 	}
 
 	DialogResult RecentFileNotFoundDialog::update()
