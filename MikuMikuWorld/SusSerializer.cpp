@@ -483,6 +483,55 @@ namespace MikuMikuWorld
 		// milliseconds -> seconds
 		metadata.waveOffset = score.metadata.musicOffset / 1000.0f;
 
+		struct Channel
+		{
+			int tick;
+			int lane;
+		};
+		struct ChannelHash
+		{
+			std::size_t operator()(const Channel& c) const
+			{
+				return std::hash<int64_t>()((static_cast<int64_t>(c.lane) << 32) + c.tick);
+			}
+		};
+		struct ChannelEqual
+		{
+			bool operator()(const Channel& a, const Channel& b) const
+			{
+				return a.tick == b.tick && a.lane == b.lane;
+			}
+		};
+
+		std::unordered_set<Channel, ChannelHash, ChannelEqual> overlapDetection;
+		for (auto& container : {&taps, &directionals})
+		{
+			for (auto& note : *container)
+			{
+				while (overlapDetection.find(Channel{ note.tick, note.lane }) != overlapDetection.end())
+				{
+					// If there's already a note at this tick and lane, we'll try to move it by 1 tick until we find an empty spot
+					note.tick++;
+				}
+				overlapDetection.insert(Channel{ note.tick, note.lane });
+			}
+		}
+		for (auto& container : {&slides, &guides})
+		{
+			for (auto& innerContainer : *container)
+			{
+				for (auto& note : innerContainer)
+				{
+					while (overlapDetection.find(Channel{ note.tick, note.lane }) != overlapDetection.end())
+					{
+						// If there's already a note at this tick and lane, we'll try to move it by 1 tick until we find an empty spot
+						note.tick++;
+					}
+					overlapDetection.insert(Channel{ note.tick, note.lane });
+				}
+			}
+		}
+
 		return SUS{ metadata, taps, directionals, slides, guides, bpms, barlengths, hiSpeeds };
 	}
 }
