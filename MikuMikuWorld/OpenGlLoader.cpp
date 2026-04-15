@@ -64,19 +64,7 @@ namespace MikuMikuWorld
 
 		int width{ static_cast<int>(config.windowSize.x) }, height{ static_cast<int>(config.windowSize.y) };
 
-		if (config.fullScreen)
-		{
-			GLFWmonitor* mainMonitor = glfwGetPrimaryMonitor();
-			const GLFWvidmode* mode = glfwGetVideoMode(mainMonitor);
-
-			width = mode->width, height = mode->height;
-			window = glfwCreateWindow(width, height, APP_NAME, mainMonitor, NULL);
-		}
-		else
-		{
-			window = glfwCreateWindow(width, height, APP_NAME, NULL, NULL);
-		}
-
+		window = glfwCreateWindow(width, height, APP_NAME, NULL, NULL);
 		possibleError = glfwGetError(&glfwErrorDescription);
 		if (possibleError != GLFW_NO_ERROR)
 		{

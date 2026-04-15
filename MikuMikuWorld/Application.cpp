@@ -35,6 +35,8 @@ namespace MikuMikuWorld
 		if (!result.isOk())
 			return result;
 
+		setFullScreen(config.fullScreen);
+
 		imgui = std::make_unique<ImGuiManager>();
 		result = imgui->initialize(window);
 		if (!result.isOk())
