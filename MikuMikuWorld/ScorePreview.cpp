@@ -546,27 +546,32 @@ namespace MikuMikuWorld
 		renderer->drawQuad(
 			Engine::quadvPos(stageLeft, stageRight, stageTop + stageHeight, stageTop), model, stage,
 			stageSprite.getX1(), stageSprite.getX2(), stageSprite.getY1(), stageSprite.getY1() + spriteHeight,
-			Color{0.f, 0.f, 0.f, config.pvStageOpacity}, 0
+			Color{0.f, 0.f, 0.f, config.pvStageOpacity * 0.6f}, 0
 		);
 	}
 
 	void MikuMikuWorld::ScorePreviewWindow::drawStageCoverDecoration(Renderer *renderer)
 	{
+		int texIndex = ResourceManager::getTexture("stage");
+		if (texIndex == -1)
+			return;
+
+		const Texture& stageTex = ResourceManager::textures[texIndex];
 		constexpr float stageTop = Engine::STAGE_LANE_TOP / Engine::STAGE_LANE_HEIGHT;
-		const Texture& noteTex = getNoteTexture();
-		size_t sprIndex = SPR_SIMULTANEOUS_CONNECTION;
+		size_t sprIndex = StageSprite::SPR_MASK_LINE;
 		size_t transIndex = static_cast<size_t>(SpriteType::SimultaneousLine);
-		if (!isArrayIndexInBounds(sprIndex, noteTex.sprites)) return;
+		if (!isArrayIndexInBounds(sprIndex, stageTex.sprites)) return;
 		if (!isArrayIndexInBounds(transIndex, ResourceManager::spriteTransforms)) return;
 		const SpriteTransform& lineTransform = ResourceManager::spriteTransforms[transIndex];
-		const Sprite& sprite = noteTex.sprites[sprIndex];
+		const Sprite& sprite = stageTex.sprites[sprIndex];
 		float x = 0.12 * (1 - config.pvStageCover);
-		auto vPos = lineTransform.apply(Engine::perspectiveQuadvPos(-6 - x, 6 + x, 1. + Engine::getNoteHeight(), 1. - Engine::getNoteHeight()));
+		float heightScale = Engine::getNoteHeight() * 0.5f;
+		auto vPos = lineTransform.apply(Engine::perspectiveQuadvPos(-6 - x, 6 + x, 1. + heightScale, 1. - heightScale));
 		float y = stageTop + config.pvStageCover * (1 - stageTop);
 		auto model = DirectX::XMMatrixScaling(y, y, 1.f);
-		renderer->drawQuad(vPos, model, noteTex,
-			sprite.getX1(), sprite.getX2(), sprite.getY1(), sprite.getY2(),
-			defaultTint.scaleAlpha(config.pvStageOpacity), -1
+		renderer->drawQuad(vPos, model, stageTex,
+			sprite.getX1(), sprite.getX2(), sprite.getY2(), sprite.getY1(),
+			defaultTint.scaleAlpha(config.pvStageOpacity * 0.6f), -1
 		);
 	}
 

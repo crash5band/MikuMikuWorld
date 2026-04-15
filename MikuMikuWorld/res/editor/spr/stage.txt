@@ -18,3 +18,5 @@
 480,2556,310,196
 # tex_2dmode_jacket_mirror_r.png
 0,2622,244,130
+# mask_line.png
+1025,1740,6,6
