@@ -279,9 +279,9 @@ namespace MikuMikuWorld::Effect
 		float time{};
 		float duration{};
 
+		DirectX::XMFLOAT3 velocityLerpRatio{};
 		float gravityLerpRatio{};
 		float spriteSheetLerpRatio{};
-		float velocityLerpRatio{};
 		float sizeLerpRatio{};
 		float colorLerpRatio{};
 		float limitVelocityLerpRatio{};

@@ -138,7 +138,10 @@ namespace MikuMikuWorld::Effect
 		std::array<float, 4> shapeRandomSetY{};
 		std::array<float, 4> shapeRandomSetZ{};
 
-		std::array<float, 4> velocityRandomSet{};
+		std::array<float, 4> velocityRandomSetX{};
+		std::array<float, 4> velocityRandomSetY{};
+		std::array<float, 4> velocityRandomSetZ{};
+
 		std::array<float, 4> sizeRandomSet{};
 		
 		std::array<float, 4> initialA{};
@@ -176,7 +179,13 @@ namespace MikuMikuWorld::Effect
 					initialEz = initialRandom.nextFloat();
 				}
 
-				velocityRandomSet = velocityRandom.nextFloat();
+				velocityRandomSetX = velocityRandom.nextFloat();
+				if (ref.velocityOverLifetime.is3D)
+				{
+					velocityRandomSetY = velocityRandom.nextFloat();
+					velocityRandomSetZ = velocityRandom.nextFloat();
+				}
+
 				sizeRandomSet = sizeRandom.nextFloat();
 			}
 
@@ -223,11 +232,8 @@ namespace MikuMikuWorld::Effect
 			{
 				if (randomSetIndex == 0)
 				{
-					if (ref.emission.arcMode != ArcMode::BurstSpread)
-						shapeRandomSetX = shapeRandom4.nextFloat();
-
+					shapeRandomSetX = shapeRandom4.nextFloat();
 					shapeRandomSetY = shapeRandom4.nextFloat();
-					shapeRandomSetZ = shapeRandom4.nextFloat();
 				}
 
 				float arc{};
@@ -235,7 +241,7 @@ namespace MikuMikuWorld::Effect
 				{
 				case ArcMode::Loop:
 					arc = DirectX::XMConvertToRadians(emissionPosition);
-					emissionPosition += ref.emission.arcSpeed.evaluate(std::max(time - startTime, 0.f), shapeRandomSetX[randomSetIndex]) * (time - startTime) * 360.f;
+					emissionPosition += ref.emission.arcSpeed.evaluate(std::max(time - startTime, 0.f), shapeRandomSetY[randomSetIndex]) * (time - startTime) * 360.f;
 					emissionPosition = fmodf(emissionPosition, ref.emission.arc);
 					break;
 				case ArcMode::BurstSpread:
@@ -243,16 +249,16 @@ namespace MikuMikuWorld::Effect
 					emissionPosition += emissionPositionInterval;
 					break;
 				default:
-					arc = lerp(0, DirectX::XMConvertToRadians(ref.emission.arc), shapeRandomSetX[randomSetIndex]);
+					arc = lerp(0, DirectX::XMConvertToRadians(ref.emission.arc), shapeRandomSetY[randomSetIndex]);
 				}
 
 				float angle = DirectX::XMConvertToRadians(ref.emission.angle);
-				float radius = lerp(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius, shapeRandomSetY[randomSetIndex]);
+				float radius = lerp(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius, shapeRandomSetX[randomSetIndex]);
 				float localRadius = tanf(angle) * length;
 
 				float x = cosf(arc) * radius * DirectX::XMVectorGetX(ref.emission.transform.scale);
 				float y = sinf(arc) * radius * DirectX::XMVectorGetY(ref.emission.transform.scale);
-				float z = ref.emission.emitFrom == EmitFrom::Volume ? lerp(0, length, shapeRandomSetZ[randomSetIndex]) : 0;
+				float z = ref.emission.emitFrom == EmitFrom::Volume ? lerp(0, length, shapeRandomSetY[randomSetIndex]) : 0;
 
 				float xRandom = lerp(-ref.emission.randomizeDirection, ref.emission.randomizeDirection, globalRandom.get());
 				float yRandom = lerp(-ref.emission.randomizeDirection, ref.emission.randomizeDirection, globalRandom.get());
@@ -269,10 +275,10 @@ namespace MikuMikuWorld::Effect
 			{
 				if (randomSetIndex == 0)
 				{
-					if (ref.emission.arcMode != ArcMode::BurstSpread)
-						shapeRandomSetX = shapeRandom4.nextFloat();
+					shapeRandomSetX = shapeRandom4.nextFloat();
 
-					shapeRandomSetY = shapeRandom4.nextFloat();
+					if (ref.emission.arcMode != ArcMode::BurstSpread)
+						shapeRandomSetY = shapeRandom4.nextFloat();
 				}
 
 				float angle{};
@@ -280,17 +286,17 @@ namespace MikuMikuWorld::Effect
 				{
 				case ArcMode::Loop:
 					angle = DirectX::XMConvertToRadians(emissionPosition);
-					emissionPosition += fmodf(ref.emission.arcSpeed.evaluate(std::max(time - startTime, 0.f), shapeRandomSetX[randomSetIndex]) * (time - startTime) * 360.f, ref.emission.arc);
+					emissionPosition += fmodf(ref.emission.arcSpeed.evaluate(std::max(time - startTime, 0.f), shapeRandomSetY[randomSetIndex]) * (time - startTime) * 360.f, ref.emission.arc);
 					break;
 				case ArcMode::BurstSpread:
 					angle = DirectX::XMConvertToRadians(emissionPosition);
 					emissionPosition += emissionPositionInterval;
 					break;
 				default:
-					angle = lerp(0, DirectX::XMConvertToRadians(ref.emission.arc), shapeRandomSetX[randomSetIndex]);
+					angle = lerp(0, DirectX::XMConvertToRadians(ref.emission.arc), shapeRandomSetY[randomSetIndex]);
 				}
 
-				float radius = lerp(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius, shapeRandomSetY[randomSetIndex]);
+				float radius = lerp(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius, shapeRandomSetX[randomSetIndex]);
 
 				float x = cosf(angle) * radius * DirectX::XMVectorGetX(ref.emission.transform.scale);
 				float y = sinf(angle) * radius * DirectX::XMVectorGetY(ref.emission.transform.scale);
@@ -308,9 +314,9 @@ namespace MikuMikuWorld::Effect
 					shapeRandomSetZ = shapeRandom4.nextFloat();
 				}
 
-				float angle = lerp(0, DirectX::XMConvertToRadians(ref.emission.arc), shapeRandomSetX[randomSetIndex]);
+				float angle = lerp(0, DirectX::XMConvertToRadians(ref.emission.arc), shapeRandomSetZ[randomSetIndex]);
 				float angle2 = lerp(0, DirectX::XMConvertToRadians(180), shapeRandomSetY[randomSetIndex]);
-				float radius = lerp(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius, shapeRandomSetZ[randomSetIndex]);
+				float radius = lerp(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius, shapeRandomSetX[randomSetIndex]);
 
 				float x = cosf(angle) * sinf(angle2) * radius * DirectX::XMVectorGetX(ref.emission.transform.scale);
 				float y = sinf(angle) * radius * DirectX::XMVectorGetY(ref.emission.transform.scale);
@@ -329,9 +335,9 @@ namespace MikuMikuWorld::Effect
 					shapeRandomSetZ = shapeRandom4.nextFloat();
 				}
 
-				float angle = lerp(0, DirectX::XMConvertToRadians(ref.emission.arc), shapeRandomSetX[randomSetIndex]);
+				float angle = lerp(0, DirectX::XMConvertToRadians(ref.emission.arc), shapeRandomSetZ[randomSetIndex]);
 				float angle2 = lerp(0, NUM_PI_2, shapeRandomSetY[randomSetIndex]);
-				float radius = lerp(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius, shapeRandomSetZ[randomSetIndex]);
+				float radius = lerp(ref.emission.radius * (1 - ref.emission.radiusThickness), ref.emission.radius, shapeRandomSetX[randomSetIndex]);
 
 				float x = cosf(angle) * sinf(angle2) * radius * DirectX::XMVectorGetX(ref.emission.transform.scale);
 				float y = sinf(angle) * sinf(angle2) * radius * DirectX::XMVectorGetY(ref.emission.transform.scale);
@@ -363,12 +369,17 @@ namespace MikuMikuWorld::Effect
 			instance.speed = length;
 			instance.startTime = time;
 			instance.time = 0;
-			instance.accumulateVelocityLimit = DirectX::XMVectorSet(0, 0, 0, 0);
+			instance.accumulateVelocityLimit = DirectX::XMVectorZero();
 
-			float velocityR = velocityRandomSet[randomSetIndex];
-			instance.velocityLerpRatio = velocityR;
-			instance.limitVelocityLerpRatio = velocityR;
-			instance.forceLerpRatio = velocityR;
+			instance.velocityLerpRatio =
+			{
+				velocityRandomSetX[randomSetIndex],
+				velocityRandomSetY[randomSetIndex],
+				velocityRandomSetZ[randomSetIndex],
+			};
+
+			instance.limitVelocityLerpRatio = velocityRandomSetX[randomSetIndex];
+			instance.forceLerpRatio = velocityRandomSetX[randomSetIndex];
 
 			instance.rotationLerpRatio = e;
 			instance.sizeLerpRatio = sizeRandomSet[randomSetIndex];
@@ -616,7 +627,7 @@ namespace MikuMikuWorld::Effect
 			DirectX::XMVECTOR currentVelocity{};
 			if (ref.velocityOverLifetime.enabled)
 			{
-				DirectX::XMFLOAT3 vol = ref.velocityOverLifetime.evaluate(normalizedTime, p.velocityLerpRatio);
+				DirectX::XMFLOAT3 vol = ref.velocityOverLifetime.evaluate(normalizedTime, p.velocityLerpRatio.x);
 				DirectX::XMVECTOR vol1 = DirectX::XMLoadFloat3(&vol);
 				if (ref.velocitySpace == TransformSpace::Local)
 				{
@@ -636,7 +647,7 @@ namespace MikuMikuWorld::Effect
 				currentVelocity = DirectX::XMVectorAdd(currentVelocity, fol1);
 			}
 
-			float speedModifier = ref.speedModifier.evaluate(normalizedTime, p.velocityLerpRatio, 1.f);
+			float speedModifier = ref.speedModifier.evaluate(normalizedTime, p.velocityLerpRatio.x, 1.f);
 			currentVelocity = DirectX::XMVectorMultiplyAdd(p.direction, DirectX::XMVectorReplicate(p.speed), currentVelocity);
 			currentVelocity = DirectX::XMVectorMultiply(currentVelocity, DirectX::XMVectorReplicate(speedModifier));
 
